@@ -3,9 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Clinical Tools</title>
+  <title>Clinical Tools | Steve Todman, MD</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -13,17 +18,36 @@
       color: #fff;
       padding: 24px;
     }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding-top: 40px;
+    }
+
     .back-link {
-      display: inline-block;
       color: #00cec9;
       text-decoration: none;
-      margin-bottom: 24px;
       font-size: 0.9rem;
+      display: inline-block;
+      margin-bottom: 24px;
     }
-    .back-link:hover { text-decoration: underline; }
-    h1 { font-size: 2rem; text-align: center; margin-bottom: 8px; }
-    .subtitle { text-align: center; opacity: 0.7; margin-bottom: 32px; font-size: 1rem; }
-    .tools { max-width: 600px; margin: 0 auto; }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      opacity: 0.7;
+      margin-bottom: 32px;
+    }
+
     .tool-card {
       background: #1e3a5f;
       border-radius: 16px;
@@ -34,35 +58,53 @@
       display: block;
       transition: transform 0.2s, box-shadow 0.2s;
     }
+
     .tool-card:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 32px rgba(0, 184, 148, 0.2);
     }
-    .tool-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
-    .tool-desc { font-size: 0.9rem; opacity: 0.8; }
-    .tool-tag {
+
+    .tool-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .tool-desc {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      line-height: 1.4;
+    }
+
+    .tag {
       display: inline-block;
       background: rgba(0, 184, 148, 0.2);
       color: #00cec9;
       padding: 4px 10px;
       border-radius: 12px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       margin-top: 10px;
+    }
+
+    .tag.validated {
+      background: rgba(46, 204, 113, 0.2);
+      color: #2ecc71;
     }
   </style>
 </head>
 <body>
-  <a href="/" class="back-link">← Back to Home</a>
-  
-  <h1>🩺 Clinical Tools</h1>
-  <p class="subtitle">Quick reference calculators for pediatric cardiology</p>
+  <div class="container">
+    <a href="/" class="back-link">← Back to Home</a>
+    
+    <h1>🩺 Clinical Tools</h1>
+    <p class="subtitle">Pediatric cardiology calculators and references</p>
 
-  <div class="tools">
-    <a href="bp-percentile.html" class="tool-card">
+    <a href="bp-percentile-calculator.html" class="tool-card">
       <div class="tool-title">📊 BP Percentile Calculator</div>
-      <div class="tool-desc">Pediatric blood pressure percentiles using AAP 2017 guidelines. Includes age, sex, and height-adjusted thresholds.</div>
-      <span class="tool-tag">Hypertension</span>
+      <div class="tool-desc">Pediatric blood pressure percentiles using AAP 2017 guidelines. Computes SBP/DBP percentiles and HTN classification for ages 1-17.</div>
+      <span class="tag validated">AAP 2017 Validated</span>
     </a>
+
   </div>
 </body>
 </html>
