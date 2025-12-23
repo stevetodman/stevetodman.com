@@ -3,14 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Steve Todman</title>
+  <title>Steve Todman, MD</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -18,98 +13,56 @@
       color: #fff;
       padding: 24px;
     }
-
-    .container {
-      max-width: 700px;
-      margin: 0 auto;
-      padding-top: 60px;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 8px;
-    }
-
-    .tagline {
-      font-size: 1.2rem;
-      opacity: 0.7;
-      margin-bottom: 40px;
-    }
-
-    .section {
-      margin-bottom: 40px;
-    }
-
-    .section h2 {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      opacity: 0.5;
-      margin-bottom: 16px;
-    }
-
+    .container { max-width: 800px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 48px; padding-top: 32px; }
+    h1 { font-size: 2.5rem; margin-bottom: 8px; }
+    .tagline { font-size: 1.1rem; opacity: 0.8; }
+    h2 { font-size: 1.4rem; margin-bottom: 16px; opacity: 0.9; }
+    .section { margin-bottom: 40px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
     .card {
       background: #1e3a5f;
       border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 12px;
+      padding: 24px;
       text-decoration: none;
       color: #fff;
-      display: block;
       transition: transform 0.2s, box-shadow 0.2s;
+      display: block;
     }
-
     .card:hover {
-      transform: translateY(-2px);
+      transform: translateY(-4px);
       box-shadow: 0 8px 32px rgba(0, 184, 148, 0.2);
     }
-
-    .card-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .card-desc {
-      font-size: 0.9rem;
-      opacity: 0.7;
-      line-height: 1.4;
-    }
-
-    .tag {
-      display: inline-block;
-      background: rgba(0, 184, 148, 0.2);
-      color: #00cec9;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      margin-top: 10px;
-    }
-
-    .footer {
-      margin-top: 60px;
-      padding-top: 20px;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      font-size: 0.85rem;
-      opacity: 0.5;
-    }
+    .card-icon { font-size: 2rem; margin-bottom: 12px; }
+    .card-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+    .card-desc { font-size: 0.9rem; opacity: 0.8; line-height: 1.5; }
+    footer { text-align: center; margin-top: 64px; opacity: 0.5; font-size: 0.85rem; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Steve Todman, MD</h1>
-    <p class="tagline">Pediatric Cardiologist • Medical Education Technology</p>
+    <header>
+      <h1>Steve Todman, MD</h1>
+      <p class="tagline">Pediatric Cardiologist • Medical Education Technology</p>
+    </header>
 
     <div class="section">
       <h2>Projects</h2>
-
-      <a href="/cooking/" class="card">
-        <div class="card-title">🍳 Cooking Timers</div>
-        <div class="card-desc">Step-by-step timers for complex recipes. Audio alerts, progress tracking, and doneness cues.</div>
-        <span class="tag">Tools</span>
-      </a>
+      <div class="cards">
+        <a href="/tools/" class="card">
+          <div class="card-icon">🩺</div>
+          <div class="card-title">Clinical Tools</div>
+          <div class="card-desc">Quick reference calculators for pediatric cardiology—BP percentiles, QTc, and more.</div>
+        </a>
+        <a href="/cooking/" class="card">
+          <div class="card-icon">🍳</div>
+          <div class="card-title">Cooking Timers</div>
+          <div class="card-desc">Step-by-step timers for complex recipes with audio alerts and progress tracking.</div>
+        </a>
+      </div>
     </div>
 
+    <footer></footer>
   </div>
 </body>
 </html>
