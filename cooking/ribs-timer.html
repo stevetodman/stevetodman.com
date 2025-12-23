@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Baby Back Ribs Timer</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      color: #fff;
+      padding: 16px;
+      padding-bottom: 100px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      text-align: center;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+
+    .recipe-credit {
+      text-align: center;
+      font-size: 0.8rem;
+      opacity: 0.6;
+      margin-bottom: 16px;
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      height: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #00b894, #00cec9);
+      border-radius: 10px;
+      transition: width 1s linear;
+      width: 0%;
+    }
+
+    /* Start Section */
+    .start-section {
+      background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 32px rgba(233, 69, 96, 0.3);
+    }
+
+    .start-section.running {
+      background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+    }
+
+    .start-btn {
+      background: #fff;
+      color: #e94560;
+      border: none;
+      padding: 16px 48px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .start-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 20px rgba(255,255,255,0.3);
+    }
+
+    .timer-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .time-row {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .time-block {
+      text-align: center;
+    }
+
+    .time-value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .time-label {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .finish-time {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-bottom: 12px;
+    }
+
+    .finish-time strong {
+      color: #00cec9;
+    }
+
+    .control-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .control-btn {
+      background: transparent;
+      border: 2px solid rgba(255,255,255,0.5);
+      color: #fff;
+      padding: 8px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .control-btn:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .control-btn.active {
+      background: rgba(0, 184, 148, 0.3);
+      border-color: #00b894;
+    }
+
+    .control-btn.muted {
+      border-color: #e94560;
+      opacity: 0.7;
+    }
+
+    /* Current Step */
+    .current-step {
+      background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 32px rgba(0, 184, 148, 0.3);
+    }
+
+    .current-step.alerting {
+      animation: alert-pulse 0.5s ease-in-out 3;
+    }
+
+    @keyframes alert-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    .current-step-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .current-step-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.9;
+    }
+
+    .step-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .step-checkbox input {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .current-step-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .current-step-detail {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      opacity: 0.95;
+    }
+
+    .current-step-meta {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .current-step-phase {
+      display: inline-block;
+      background: rgba(0,0,0,0.2);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+    }
+
+    .doneness-cue {
+      background: rgba(255,255,255,0.2);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+    }
+
+    /* Next Steps */
+    .next-steps {
+      background: #1e3a5f;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .next-steps h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.7;
+      margin-bottom: 12px;
+    }
+
+    .next-step-item {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .next-step-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .next-step-info {
+      flex: 1;
+    }
+
+    .next-step-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .next-step-phase-tag {
+      font-size: 0.7rem;
+      opacity: 0.6;
+    }
+
+    .next-step-countdown {
+      background: #e94560;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      font-variant-numeric: tabular-nums;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .next-step-countdown.soon {
+      background: #f39c12;
+      animation: pulse 1s infinite;
+    }
+
+    .next-step-countdown.now {
+      background: #00b894;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    /* Info Sections */
+    .info-section {
+      background: #1e3a5f;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .info-section h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.7;
+      margin-bottom: 12px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .info-item {
+      background: rgba(255,255,255,0.05);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    .info-item-label {
+      font-size: 0.7rem;
+      opacity: 0.6;
+      margin-bottom: 4px;
+    }
+
+    .ingredient-group {
+      margin-bottom: 16px;
+    }
+
+    .ingredient-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .ingredient-group h3 {
+      font-size: 0.8rem;
+      color: #00cec9;
+      margin-bottom: 8px;
+    }
+
+    .ingredient-list {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      opacity: 0.8;
+    }
+
+    /* Timeline */
+    .timeline-section {
+      background: #1e3a5f;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .timeline-header h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.7;
+    }
+
+    .print-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+    }
+
+    .timeline-item:last-child {
+      border-bottom: none;
+    }
+
+    .timeline-item.completed {
+      opacity: 0.4;
+    }
+
+    .timeline-item.completed .timeline-title {
+      text-decoration: line-through;
+    }
+
+    .timeline-item.active {
+      opacity: 1;
+    }
+
+    .timeline-item.active::before {
+      content: '';
+      position: absolute;
+      left: -16px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: #00b894;
+      border-radius: 2px;
+    }
+
+    .timeline-checkbox {
+      margin-top: 2px;
+    }
+
+    .timeline-checkbox input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .timeline-time {
+      min-width: 55px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #00cec9;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timeline-content {
+      flex: 1;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    .timeline-detail {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      line-height: 1.4;
+    }
+
+    .timeline-tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-top: 6px;
+    }
+
+    .tag-prep { background: #9b59b6; }
+    .tag-cook { background: #e67e22; }
+    .tag-finish { background: #27ae60; }
+
+    .not-started {
+      text-align: center;
+      padding: 40px 20px;
+      opacity: 0.6;
+    }
+
+    /* Completed */
+    .completed-section {
+      background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+      border-radius: 16px;
+      padding: 32px 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .completed-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+        padding: 20px;
+      }
+
+      .start-section, .current-step, .next-steps, .progress-container,
+      .control-btn, .print-btn, .timeline-checkbox {
+        display: none !important;
+      }
+
+      .info-section, .timeline-section {
+        background: #fff;
+        border: 1px solid #ccc;
+        break-inside: avoid;
+      }
+
+      .timeline-item {
+        border-color: #ccc;
+      }
+
+      .timeline-tag {
+        border: 1px solid #666;
+        background: transparent !important;
+      }
+
+      h1, h2, h3 {
+        color: #000;
+      }
+
+      .timeline-time {
+        color: #333;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🍖 Baby Back Ribs Timer</h1>
+  <div class="recipe-credit">Alton Brown • Good Eats • ~4.5 hours total</div>
+
+  <div class="progress-container hidden" id="progressContainer">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div class="start-section" id="startSection">
+    <button class="start-btn" id="startBtn" onclick="startCooking()">START COOKING</button>
+    <div class="hidden timer-display" id="timerDisplay">
+      <div class="time-row">
+        <div class="time-block">
+          <div class="time-value" id="elapsedTime">0:00:00</div>
+          <div class="time-label">Elapsed</div>
+        </div>
+        <div class="time-block">
+          <div class="time-value" id="remainingTime">4:24:00</div>
+          <div class="time-label">Remaining</div>
+        </div>
+      </div>
+      <div class="finish-time">Done at <strong id="finishTime">--:--</strong></div>
+      <div class="control-buttons">
+        <button class="control-btn" id="soundBtn" onclick="toggleSound()">🔊 Sound On</button>
+        <button class="control-btn" id="wakeLockBtn" onclick="toggleWakeLock()">📱 Screen Lock</button>
+        <button class="control-btn" onclick="adjustTime(-300)">−5 min</button>
+        <button class="control-btn" onclick="adjustTime(300)">+5 min</button>
+        <button class="control-btn" onclick="resetTimer()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="completedSection" class="completed-section hidden">
+    <h2>🎉 Ribs Are Ready!</h2>
+    <p>Total time: <span id="totalTime"></span></p>
+  </div>
+
+  <div id="currentStepSection" class="current-step hidden">
+    <div class="current-step-header">
+      <div class="current-step-label">⏰ Do This Now</div>
+      <label class="step-checkbox">
+        <input type="checkbox" id="currentStepCheck" onchange="markCurrentComplete()">
+        Done
+      </label>
+    </div>
+    <div class="current-step-title" id="currentStepTitle"></div>
+    <div class="current-step-detail" id="currentStepDetail"></div>
+    <div class="current-step-meta">
+      <div class="current-step-phase" id="currentStepPhase"></div>
+      <div class="doneness-cue hidden" id="donenessCue"></div>
+    </div>
+  </div>
+
+  <div id="nextStepsSection" class="next-steps hidden">
+    <h2>Coming Up Next</h2>
+    <div id="nextStepsList"></div>
+  </div>
+
+  <div class="info-section">
+    <h2>🔧 Equipment Needed</h2>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-item-label">Wrapping</div>
+        Heavy-duty aluminum foil
+      </div>
+      <div class="info-item">
+        <div class="info-item-label">Baking</div>
+        Baking sheet
+      </div>
+      <div class="info-item">
+        <div class="info-item-label">Sauce</div>
+        Medium saucepot
+      </div>
+      <div class="info-item">
+        <div class="info-item-label">Glazing</div>
+        Pastry brush
+      </div>
+      <div class="info-item">
+        <div class="info-item-label">Mixing</div>
+        Medium bowl
+      </div>
+      <div class="info-item">
+        <div class="info-item-label">Optional</div>
+        Meat thermometer
+      </div>
+    </div>
+  </div>
+
+  <div class="info-section">
+    <h2>📝 Ingredients</h2>
+    <div class="ingredient-group">
+      <h3>Ribs</h3>
+      <div class="ingredient-list">2 whole slabs pork baby back ribs</div>
+    </div>
+    <div class="ingredient-group">
+      <h3>Dry Rub</h3>
+      <div class="ingredient-list">
+        8 tbsp light brown sugar (packed) • 3 tbsp kosher salt • 1 tbsp chili powder • ½ tsp black pepper • ½ tsp cayenne • ½ tsp jalapeño seasoning • ½ tsp Old Bay • ½ tsp rubbed thyme • ½ tsp onion powder
+      </div>
+    </div>
+    <div class="ingredient-group">
+      <h3>Braising Liquid</h3>
+      <div class="ingredient-list">
+        1 cup white wine • 2 tbsp white wine vinegar • 2 tbsp Worcestershire • 1 tbsp honey • 2 cloves garlic (chopped)
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline-section">
+    <div class="timeline-header">
+      <h2>📋 Full Timeline</h2>
+      <button class="print-btn" onclick="window.print()">🖨️ Print</button>
+    </div>
+    <div id="timeline"></div>
+    <div class="not-started" id="notStartedMsg">
+      Press START to begin your cooking timer
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'ribsTimerV2';
+    
+    // Audio context for alerts
+    let audioCtx = null;
+    let soundEnabled = true;
+    
+    // Wake lock
+    let wakeLock = null;
+    let wakeLockEnabled = false;
+    
+    // Timeline in seconds from start
+    const steps = [
+      { 
+        time: 0, 
+        title: "Preheat Oven", 
+        detail: "Preheat oven to 250°F", 
+        phase: "prep", 
+        duration: null,
+        doneness: null
+      },
+      { 
+        time: 0, 
+        title: "Make Dry Rub", 
+        detail: "In a bowl, combine all dry ingredients: 8 tbsp brown sugar, 3 tbsp kosher salt, 1 tbsp chili powder, ½ tsp each of black pepper, cayenne, jalapeño seasoning, Old Bay, thyme, and onion powder. Mix well.", 
+        phase: "prep", 
+        duration: 300,
+        doneness: "Rub should be evenly mixed with no clumps"
+      },
+      { 
+        time: 300, 
+        title: "Apply Dry Rub", 
+        detail: "Place each slab on heavy-duty aluminum foil (shiny side down). Sprinkle each side generously with dry rub. Pat the rub into the meat.", 
+        phase: "prep", 
+        duration: 600,
+        doneness: "Entire surface should be coated—no bare spots"
+      },
+      { 
+        time: 900, 
+        title: "Refrigerate Ribs", 
+        detail: "Place rubbed ribs in refrigerator. Minimum 1 hour—this lets the rub penetrate the meat.", 
+        phase: "prep", 
+        duration: 3600,
+        doneness: "Rub will look wet/dissolved—that's good"
+      },
+      { 
+        time: 4500, 
+        title: "Make Braising Liquid", 
+        detail: "In a microwavable container, combine: 1 cup white wine, 2 tbsp white wine vinegar, 2 tbsp Worcestershire, 1 tbsp honey, 2 cloves chopped garlic.", 
+        phase: "prep", 
+        duration: 120,
+        doneness: null
+      },
+      { 
+        time: 4620, 
+        title: "Microwave Braising Liquid", 
+        detail: "Microwave the braising liquid on high for 1 minute.", 
+        phase: "prep", 
+        duration: 60,
+        doneness: "Should be warm, not boiling"
+      },
+      { 
+        time: 4680, 
+        title: "Prep Ribs for Oven", 
+        detail: "Place ribs on baking sheet. Open one end of foil on each slab. Pour half of braising liquid into each foil packet. Tilt baking sheet to distribute liquid evenly. Seal foil packets tightly.", 
+        phase: "prep", 
+        duration: 300,
+        doneness: "Packets should be sealed with no leaks"
+      },
+      { 
+        time: 4980, 
+        title: "Braise Ribs", 
+        detail: "Put ribs in 250°F oven. Braise for 2½ hours. Now's a good time to clean up!", 
+        phase: "cook", 
+        duration: 9000,
+        doneness: "Internal temp 195-203°F, meat pulls back ¼\" from bone ends"
+      },
+      { 
+        time: 13980, 
+        title: "Remove Ribs & Collect Liquid", 
+        detail: "Remove ribs from oven. Carefully open foil packets (watch for steam!). Transfer braising liquid into a medium saucepot.", 
+        phase: "finish", 
+        duration: 180,
+        doneness: "Save all the liquid—it's liquid gold"
+      },
+      { 
+        time: 14160, 
+        title: "Reduce Glaze", 
+        detail: "Bring liquid to a simmer over medium heat. Reduce by half until thick syrup consistency. Stir occasionally to prevent burning.", 
+        phase: "finish", 
+        duration: 1200,
+        doneness: "Coats the back of a spoon, about ½ cup remaining"
+      },
+      { 
+        time: 15360, 
+        title: "Glaze the Ribs", 
+        detail: "Brush the reduced glaze generously onto the top of the ribs.", 
+        phase: "finish", 
+        duration: 120,
+        doneness: null
+      },
+      { 
+        time: 15480, 
+        title: "Broil Ribs", 
+        detail: "Place ribs under broiler on high. Watch carefully—do not walk away! Remove when glaze caramelizes and spots start to darken (2-3 minutes).", 
+        phase: "finish", 
+        duration: 180,
+        doneness: "Glaze bubbling with dark spots, not burnt"
+      },
+      { 
+        time: 15660, 
+        title: "Slice & Toss", 
+        detail: "Slice each slab into 2-rib portions. Place remaining hot glaze in a bowl. Toss rib portions in the glaze to coat.", 
+        phase: "finish", 
+        duration: 180,
+        doneness: null
+      },
+      { 
+        time: 15840, 
+        title: "🍖 Serve!", 
+        detail: "Plate those beautiful glazed ribs and enjoy!", 
+        phase: "finish", 
+        duration: null,
+        doneness: null
+      }
+    ];
+
+    const totalDuration = steps[steps.length - 1].time;
+    
+    let startTime = null;
+    let timeOffset = 0; // For manual adjustments
+    let timerInterval = null;
+    let completedSteps = new Set();
+    let lastAlertedStep = -1;
+    
+    function init() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        startTime = data.startTime;
+        timeOffset = data.timeOffset || 0;
+        completedSteps = new Set(data.completedSteps || []);
+        lastAlertedStep = data.lastAlertedStep || -1;
+        startTimer();
+      }
+      renderTimeline();
+      updateFinishTime();
+    }
+    
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        startTime,
+        timeOffset,
+        completedSteps: Array.from(completedSteps),
+        lastAlertedStep
+      }));
+    }
+    
+    function startCooking() {
+      startTime = Date.now();
+      timeOffset = 0;
+      completedSteps.clear();
+      lastAlertedStep = -1;
+      saveState();
+      startTimer();
+      requestNotificationPermission();
+    }
+    
+    function startTimer() {
+      document.getElementById('startBtn').classList.add('hidden');
+      document.getElementById('timerDisplay').classList.remove('hidden');
+      document.getElementById('startSection').classList.add('running');
+      document.getElementById('notStartedMsg').classList.add('hidden');
+      document.getElementById('progressContainer').classList.remove('hidden');
+      
+      updateFinishTime();
+      updateDisplay();
+      timerInterval = setInterval(updateDisplay, 1000);
+    }
+    
+    function resetTimer() {
+      if (confirm('Are you sure you want to reset the timer? All progress will be lost.')) {
+        localStorage.removeItem(STORAGE_KEY);
+        startTime = null;
+        timeOffset = 0;
+        completedSteps.clear();
+        lastAlertedStep = -1;
+        clearInterval(timerInterval);
+        
+        document.getElementById('startBtn').classList.remove('hidden');
+        document.getElementById('timerDisplay').classList.add('hidden');
+        document.getElementById('startSection').classList.remove('running');
+        document.getElementById('currentStepSection').classList.add('hidden');
+        document.getElementById('nextStepsSection').classList.add('hidden');
+        document.getElementById('completedSection').classList.add('hidden');
+        document.getElementById('notStartedMsg').classList.remove('hidden');
+        document.getElementById('progressContainer').classList.add('hidden');
+        
+        renderTimeline();
+      }
+    }
+    
+    function adjustTime(seconds) {
+      timeOffset += seconds;
+      saveState();
+      updateDisplay();
+    }
+    
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('soundBtn');
+      btn.textContent = soundEnabled ? '🔊 Sound On' : '🔇 Sound Off';
+      btn.classList.toggle('muted', !soundEnabled);
+      
+      if (soundEnabled) {
+        // Initialize audio context on user interaction
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        // Test beep
+        playAlert('short');
+      }
+    }
+    
+    async function toggleWakeLock() {
+      const btn = document.getElementById('wakeLockBtn');
+      
+      if (!wakeLockEnabled) {
+        try {
+          if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLockEnabled = true;
+            btn.textContent = '📱 Screen On';
+            btn.classList.add('active');
+            
+            wakeLock.addEventListener('release', () => {
+              wakeLockEnabled = false;
+              btn.textContent = '📱 Screen Lock';
+              btn.classList.remove('active');
+            });
+          } else {
+            btn.textContent = '📱 Not Supported';
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+          }
+        } catch (err) {
+          console.error('Wake Lock error:', err);
+          // Permissions policy blocks this in iframes
+          if (err.name === 'NotAllowedError') {
+            btn.textContent = '📱 Download to Enable';
+            btn.classList.add('muted');
+            btn.title = 'Wake Lock requires opening this file directly in browser, not in an iframe';
+          } else {
+            btn.textContent = '📱 Error';
+            btn.disabled = true;
+          }
+        }
+      } else {
+        if (wakeLock) {
+          await wakeLock.release();
+          wakeLock = null;
+        }
+        wakeLockEnabled = false;
+        btn.textContent = '📱 Screen Lock';
+        btn.classList.remove('active');
+      }
+    }
+    
+    function playAlert(type = 'normal') {
+      if (!soundEnabled) return;
+      
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      if (type === 'short') {
+        oscillator.frequency.value = 800;
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        oscillator.start(audioCtx.currentTime);
+        oscillator.stop(audioCtx.currentTime + 0.1);
+      } else {
+        // Triple beep for new step
+        oscillator.frequency.value = 880;
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        
+        for (let i = 0; i < 3; i++) {
+          gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime + i * 0.2);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.2 + 0.1);
+        }
+        
+        oscillator.start(audioCtx.currentTime);
+        oscillator.stop(audioCtx.currentTime + 0.6);
+      }
+    }
+    
+    function requestNotificationPermission() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    }
+    
+    function showNotification(title, body) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, { body, icon: '🍖' });
+      }
+    }
+    
+    function formatTime(seconds) {
+      const mins = Math.floor(Math.abs(seconds) / 60);
+      const secs = Math.abs(seconds) % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    function formatTimeWithHours(seconds) {
+      const hrs = Math.floor(Math.abs(seconds) / 3600);
+      const mins = Math.floor((Math.abs(seconds) % 3600) / 60);
+      const secs = Math.abs(seconds) % 60;
+      return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    function updateFinishTime() {
+      if (!startTime) return;
+      const finishDate = new Date(startTime + (totalDuration - timeOffset) * 1000);
+      document.getElementById('finishTime').textContent = 
+        finishDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    }
+    
+    function getPhaseTag(phase) {
+      switch(phase) {
+        case 'prep': return '<span class="timeline-tag tag-prep">Prep</span>';
+        case 'cook': return '<span class="timeline-tag tag-cook">Cook</span>';
+        case 'finish': return '<span class="timeline-tag tag-finish">Finish</span>';
+        default: return '';
+      }
+    }
+    
+    function getPhaseLabel(phase) {
+      switch(phase) {
+        case 'prep': return 'Prep Phase';
+        case 'cook': return 'Cooking Phase';
+        case 'finish': return 'Finishing Phase';
+        default: return '';
+      }
+    }
+    
+    function markCurrentComplete() {
+      const checkbox = document.getElementById('currentStepCheck');
+      // Find current step and mark complete
+      const elapsed = Math.floor((Date.now() - startTime) / 1000) + timeOffset;
+      for (let i = steps.length - 1; i >= 0; i--) {
+        if (steps[i].time <= elapsed && !completedSteps.has(i)) {
+          if (checkbox.checked) {
+            completedSteps.add(i);
+          }
+          break;
+        }
+      }
+      saveState();
+      updateDisplay();
+    }
+    
+    function toggleStepComplete(index) {
+      if (completedSteps.has(index)) {
+        completedSteps.delete(index);
+      } else {
+        completedSteps.add(index);
+      }
+      saveState();
+      updateDisplay();
+    }
+    
+    function updateDisplay() {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000) + timeOffset;
+      const remaining = Math.max(0, totalDuration - elapsed);
+      
+      document.getElementById('elapsedTime').textContent = formatTimeWithHours(elapsed);
+      document.getElementById('remainingTime').textContent = formatTimeWithHours(remaining);
+      
+      // Progress bar
+      const progress = Math.min(100, (elapsed / totalDuration) * 100);
+      document.getElementById('progressBar').style.width = progress + '%';
+      
+      // Find current and upcoming steps
+      let currentStep = null;
+      let currentStepIndex = -1;
+      const upcomingSteps = [];
+      
+      for (let i = 0; i < steps.length; i++) {
+        if (completedSteps.has(i)) continue;
+        
+        const step = steps[i];
+        const timeUntil = step.time - elapsed;
+        
+        if (timeUntil <= 0 && timeUntil > -60) {
+          currentStep = step;
+          currentStepIndex = i;
+        } else if (timeUntil > 0 && upcomingSteps.length < 3) {
+          upcomingSteps.push({ ...step, timeUntil, index: i });
+        }
+      }
+      
+      // If no "just started" step, find the most recent active step
+      if (!currentStep) {
+        for (let i = steps.length - 1; i >= 0; i--) {
+          if (steps[i].time <= elapsed && !completedSteps.has(i)) {
+            currentStep = steps[i];
+            currentStepIndex = i;
+            break;
+          }
+        }
+      }
+      
+      // Alert for new steps
+      if (currentStepIndex > lastAlertedStep && currentStepIndex >= 0) {
+        lastAlertedStep = currentStepIndex;
+        saveState();
+        playAlert('normal');
+        showNotification(currentStep.title, currentStep.detail.substring(0, 100));
+        
+        // Visual pulse
+        const stepSection = document.getElementById('currentStepSection');
+        stepSection.classList.add('alerting');
+        setTimeout(() => stepSection.classList.remove('alerting'), 1500);
+      }
+      
+      // Check if cooking is complete
+      const allDone = elapsed >= totalDuration || completedSteps.size === steps.length;
+      if (allDone) {
+        document.getElementById('completedSection').classList.remove('hidden');
+        document.getElementById('currentStepSection').classList.add('hidden');
+        document.getElementById('nextStepsSection').classList.add('hidden');
+        document.getElementById('totalTime').textContent = formatTimeWithHours(elapsed);
+      } else {
+        document.getElementById('completedSection').classList.add('hidden');
+        
+        // Update current step display
+        if (currentStep) {
+          document.getElementById('currentStepSection').classList.remove('hidden');
+          document.getElementById('currentStepTitle').textContent = currentStep.title;
+          document.getElementById('currentStepDetail').textContent = currentStep.detail;
+          document.getElementById('currentStepPhase').textContent = getPhaseLabel(currentStep.phase);
+          document.getElementById('currentStepCheck').checked = false;
+          
+          const donenessCue = document.getElementById('donenessCue');
+          if (currentStep.doneness) {
+            donenessCue.textContent = '✓ ' + currentStep.doneness;
+            donenessCue.classList.remove('hidden');
+          } else {
+            donenessCue.classList.add('hidden');
+          }
+        }
+        
+        // Update upcoming steps
+        if (upcomingSteps.length > 0) {
+          document.getElementById('nextStepsSection').classList.remove('hidden');
+          let html = '';
+          for (const step of upcomingSteps) {
+            const countdownClass = step.timeUntil <= 30 ? 'now' : step.timeUntil <= 60 ? 'soon' : '';
+            html += `
+              <div class="next-step-item">
+                <div class="next-step-info">
+                  <div class="next-step-title">${step.title}</div>
+                  <div class="next-step-phase-tag">${getPhaseLabel(step.phase)}</div>
+                </div>
+                <div class="next-step-countdown ${countdownClass}">
+                  ${step.timeUntil <= 0 ? 'NOW' : 'in ' + formatTime(step.timeUntil)}
+                </div>
+              </div>
+            `;
+          }
+          document.getElementById('nextStepsList').innerHTML = html;
+        } else {
+          document.getElementById('nextStepsSection').classList.add('hidden');
+        }
+      }
+      
+      // Update timeline
+      renderTimeline(elapsed, currentStepIndex);
+    }
+    
+    function renderTimeline(elapsed = null, currentIndex = -1) {
+      let html = '';
+      
+      for (let i = 0; i < steps.length; i++) {
+        const step = steps[i];
+        let statusClass = '';
+        let timeDisplay = formatTimeWithHours(step.time);
+        const isCompleted = completedSteps.has(i);
+        
+        if (elapsed !== null) {
+          if (isCompleted || step.time < elapsed - 60) {
+            statusClass = 'completed';
+          } else if (i === currentIndex) {
+            statusClass = 'active';
+          }
+          
+          // Calculate actual clock time
+          const stepDate = new Date(startTime + (step.time - timeOffset) * 1000);
+          timeDisplay = stepDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        }
+        
+        html += `
+          <div class="timeline-item ${statusClass}">
+            <div class="timeline-checkbox">
+              <input type="checkbox" 
+                ${isCompleted ? 'checked' : ''} 
+                onchange="toggleStepComplete(${i})"
+                ${elapsed === null ? 'disabled' : ''}>
+            </div>
+            <div class="timeline-time">${timeDisplay}</div>
+            <div class="timeline-content">
+              <div class="timeline-title">${step.title}</div>
+              <div class="timeline-detail">${step.detail}</div>
+              ${getPhaseTag(step.phase)}
+            </div>
+          </div>
+        `;
+      }
+      
+      document.getElementById('timeline').innerHTML = html;
+    }
+    
+    // Re-acquire wake lock when page becomes visible again
+    document.addEventListener('visibilitychange', async () => {
+      if (wakeLockEnabled && document.visibilityState === 'visible') {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+        } catch (err) {
+          console.error('Wake Lock re-acquire failed:', err);
+        }
+      }
+    });
+    
+    // Initialize on load
+    init();
+  </script>
+</body>
+</html>
