@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pediatric BP Percentile Calculator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      color: #fff;
+      padding: 24px;
+    }
+    .container { max-width: 600px; margin: 0 auto; }
+    h1 { font-size: 1.8rem; text-align: center; margin-bottom: 8px; }
+    .subtitle { text-align: center; opacity: 0.7; margin-bottom: 24px; font-size: 0.9rem; }
+    .card {
+      background: #1e3a5f;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .form-group { display: flex; flex-direction: column; }
+    .form-group.full { grid-column: 1 / -1; }
+    label {
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      opacity: 0.9;
+    }
+    input, select {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #2d4a6f;
+      background: #16213e;
+      color: #fff;
+      font-size: 16px;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #00cec9;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      border: none;
+      background: #00cec9;
+      color: #1a1a2e;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #00b5b0; }
+    .result {
+      display: none;
+      margin-top: 16px;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .result.normal { background: rgba(0, 184, 148, 0.2); border: 2px solid #00b894; }
+    .result.elevated { background: rgba(253, 203, 110, 0.2); border: 2px solid #fdcb6e; }
+    .result.stage1 { background: rgba(255, 165, 0, 0.2); border: 2px solid #ffa500; }
+    .result.stage2 { background: rgba(233, 69, 96, 0.2); border: 2px solid #e94560; }
+    .result-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .result-percentile {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+    .result-details {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      text-align: left;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    .result-details p { margin-bottom: 8px; }
+    .threshold-table {
+      width: 100%;
+      margin-top: 16px;
+      font-size: 0.85rem;
+      border-collapse: collapse;
+    }
+    .threshold-table th, .threshold-table td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .threshold-table th { opacity: 0.7; }
+    .reference {
+      margin-top: 24px;
+      font-size: 0.75rem;
+      opacity: 0.6;
+      text-align: center;
+    }
+    .back-link {
+      display: inline-block;
+      color: #00cec9;
+      text-decoration: none;
+      margin-bottom: 24px;
+      font-size: 0.9rem;
+    }
+    .back-link:hover { text-decoration: underline; }
+    @media (max-width: 500px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/tools/" class="back-link">← Back to Tools</a>
+    <h1>🩺 Pediatric BP Percentile</h1>
+    <p class="subtitle">AAP 2017 Clinical Practice Guidelines</p>
+
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="age">Age (years)</label>
+          <input type="number" id="age" min="1" max="17" step="1" placeholder="1-17">
+        </div>
+        <div class="form-group">
+          <label for="sex">Sex</label>
+          <select id="sex">
+            <option value="">Select...</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="height">Height (cm)</label>
+          <input type="number" id="height" min="50" max="200" step="0.1" placeholder="cm">
+        </div>
+        <div class="form-group">
+          <label for="heightPct">or Height %ile</label>
+          <select id="heightPct">
+            <option value="">From height...</option>
+            <option value="5">5th</option>
+            <option value="10">10th</option>
+            <option value="25">25th</option>
+            <option value="50">50th</option>
+            <option value="75">75th</option>
+            <option value="90">90th</option>
+            <option value="95">95th</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sbp">Systolic BP (mmHg)</label>
+          <input type="number" id="sbp" min="50" max="200" placeholder="SBP">
+        </div>
+        <div class="form-group">
+          <label for="dbp">Diastolic BP (mmHg)</label>
+          <input type="number" id="dbp" min="30" max="150" placeholder="DBP">
+        </div>
+      </div>
+
+      <button onclick="calculate()">Calculate Percentile</button>
+
+      <div id="result" class="result"></div>
+    </div>
+
+    <p class="reference">
+      Reference: Flynn JT, et al. Clinical Practice Guideline for Screening and Management of High Blood Pressure in Children and Adolescents. Pediatrics 2017;140(3):e20171904
+    </p>
+  </div>
+
+<script>
+// AAP 2017 BP percentile data
+// Format: [age][heightPctIndex] = {sbp50, sbp90, sbp95, dbp50, dbp90, dbp95}
+// Height percentile indices: 0=5%, 1=10%, 2=25%, 3=50%, 4=75%, 5=90%, 6=95%
+
+const bpDataMale = {
+  1: [
+    {sbp50: 85, sbp90: 98, sbp95: 102, dbp50: 40, dbp90: 52, dbp95: 54},
+    {sbp50: 86, sbp90: 99, sbp95: 103, dbp50: 40, dbp90: 52, dbp95: 54},
+    {sbp50: 87, sbp90: 100, sbp95: 104, dbp50: 41, dbp90: 53, dbp95: 55},
+    {sbp50: 88, sbp90: 101, sbp95: 105, dbp50: 41, dbp90: 53, dbp95: 55},
+    {sbp50: 89, sbp90: 103, sbp95: 106, dbp50: 42, dbp90: 54, dbp95: 56},
+    {sbp50: 91, sbp90: 104, sbp95: 108, dbp50: 42, dbp90: 54, dbp95: 56},
+    {sbp50: 91, sbp90: 105, sbp95: 108, dbp50: 42, dbp90: 54, dbp95: 56}
+  ],
+  2: [
+    {sbp50: 87, sbp90: 100, sbp95: 104, dbp50: 43, dbp90: 55, dbp95: 57},
+    {sbp50: 88, sbp90: 101, sbp95: 105, dbp50: 44, dbp90: 55, dbp95: 58},
+    {sbp50: 89, sbp90: 102, sbp95: 106, dbp50: 44, dbp90: 56, dbp95: 58},
+    {sbp50: 91, sbp90: 104, sbp95: 108, dbp50: 45, dbp90: 56, dbp95: 59},
+    {sbp50: 92, sbp90: 105, sbp95: 109, dbp50: 45, dbp90: 57, dbp95: 59},
+    {sbp50: 94, sbp90: 107, sbp95: 110, dbp50: 46, dbp90: 57, dbp95: 60},
+    {sbp50: 94, sbp90: 107, sbp95: 111, dbp50: 46, dbp90: 58, dbp95: 60}
+  ],
+  3: [
+    {sbp50: 88, sbp90: 101, sbp95: 105, dbp50: 46, dbp90: 58, dbp95: 60},
+    {sbp50: 89, sbp90: 102, sbp95: 106, dbp50: 46, dbp90: 58, dbp95: 61},
+    {sbp50: 91, sbp90: 104, sbp95: 108, dbp50: 47, dbp90: 59, dbp95: 61},
+    {sbp50: 92, sbp90: 105, sbp95: 109, dbp50: 48, dbp90: 59, dbp95: 62},
+    {sbp50: 94, sbp90: 107, sbp95: 110, dbp50: 48, dbp90: 60, dbp95: 62},
+    {sbp50: 95, sbp90: 108, sbp95: 112, dbp50: 49, dbp90: 60, dbp95: 63},
+    {sbp50: 96, sbp90: 109, sbp95: 113, dbp50: 49, dbp90: 61, dbp95: 63}
+  ],
+  4: [
+    {sbp50: 89, sbp90: 102, sbp95: 106, dbp50: 49, dbp90: 61, dbp95: 63},
+    {sbp50: 90, sbp90: 103, sbp95: 107, dbp50: 50, dbp90: 61, dbp95: 64},
+    {sbp50: 92, sbp90: 105, sbp95: 109, dbp50: 50, dbp90: 62, dbp95: 64},
+    {sbp50: 93, sbp90: 106, sbp95: 110, dbp50: 51, dbp90: 62, dbp95: 65},
+    {sbp50: 95, sbp90: 108, sbp95: 112, dbp50: 51, dbp90: 63, dbp95: 65},
+    {sbp50: 96, sbp90: 109, sbp95: 113, dbp50: 52, dbp90: 63, dbp95: 66},
+    {sbp50: 97, sbp90: 110, sbp95: 114, dbp50: 52, dbp90: 64, dbp95: 66}
+  ],
+  5: [
+    {sbp50: 90, sbp90: 103, sbp95: 107, dbp50: 52, dbp90: 64, dbp95: 66},
+    {sbp50: 91, sbp90: 104, sbp95: 108, dbp50: 53, dbp90: 64, dbp95: 67},
+    {sbp50: 93, sbp90: 106, sbp95: 110, dbp50: 53, dbp90: 65, dbp95: 67},
+    {sbp50: 94, sbp90: 107, sbp95: 111, dbp50: 54, dbp90: 65, dbp95: 68},
+    {sbp50: 96, sbp90: 109, sbp95: 113, dbp50: 54, dbp90: 66, dbp95: 68},
+    {sbp50: 97, sbp90: 110, sbp95: 114, dbp50: 55, dbp90: 66, dbp95: 69},
+    {sbp50: 98, sbp90: 111, sbp95: 115, dbp50: 55, dbp90: 67, dbp95: 69}
+  ],
+  6: [
+    {sbp50: 91, sbp90: 104, sbp95: 108, dbp50: 55, dbp90: 67, dbp95: 69},
+    {sbp50: 92, sbp90: 105, sbp95: 109, dbp50: 55, dbp90: 67, dbp95: 70},
+    {sbp50: 94, sbp90: 107, sbp95: 111, dbp50: 56, dbp90: 68, dbp95: 70},
+    {sbp50: 95, sbp90: 108, sbp95: 112, dbp50: 56, dbp90: 68, dbp95: 71},
+    {sbp50: 97, sbp90: 110, sbp95: 114, dbp50: 57, dbp90: 69, dbp95: 71},
+    {sbp50: 98, sbp90: 111, sbp95: 115, dbp50: 57, dbp90: 69, dbp95: 72},
+    {sbp50: 99, sbp90: 112, sbp95: 116, dbp50: 58, dbp90: 70, dbp95: 72}
+  ],
+  7: [
+    {sbp50: 92, sbp90: 105, sbp95: 109, dbp50: 57, dbp90: 69, dbp95: 71},
+    {sbp50: 93, sbp90: 106, sbp95: 110, dbp50: 57, dbp90: 69, dbp95: 72},
+    {sbp50: 95, sbp90: 108, sbp95: 112, dbp50: 58, dbp90: 70, dbp95: 72},
+    {sbp50: 96, sbp90: 109, sbp95: 113, dbp50: 58, dbp90: 70, dbp95: 73},
+    {sbp50: 98, sbp90: 111, sbp95: 115, dbp50: 59, dbp90: 71, dbp95: 73},
+    {sbp50: 99, sbp90: 112, sbp95: 116, dbp50: 59, dbp90: 71, dbp95: 74},
+    {sbp50: 100, sbp90: 113, sbp95: 117, dbp50: 60, dbp90: 72, dbp95: 74}
+  ],
+  8: [
+    {sbp50: 93, sbp90: 106, sbp95: 110, dbp50: 58, dbp90: 71, dbp95: 73},
+    {sbp50: 94, sbp90: 107, sbp95: 111, dbp50: 59, dbp90: 71, dbp95: 74},
+    {sbp50: 96, sbp90: 109, sbp95: 113, dbp50: 59, dbp90: 72, dbp95: 74},
+    {sbp50: 97, sbp90: 110, sbp95: 114, dbp50: 60, dbp90: 72, dbp95: 75},
+    {sbp50: 99, sbp90: 112, sbp95: 116, dbp50: 60, dbp90: 73, dbp95: 75},
+    {sbp50: 100, sbp90: 113, sbp95: 117, dbp50: 61, dbp90: 73, dbp95: 76},
+    {sbp50: 101, sbp90: 114, sbp95: 118, dbp50: 61, dbp90: 74, dbp95: 76}
+  ],
+  9: [
+    {sbp50: 94, sbp90: 107, sbp95: 111, dbp50: 60, dbp90: 72, dbp95: 75},
+    {sbp50: 95, sbp90: 108, sbp95: 112, dbp50: 60, dbp90: 73, dbp95: 75},
+    {sbp50: 97, sbp90: 110, sbp95: 114, dbp50: 61, dbp90: 73, dbp95: 76},
+    {sbp50: 98, sbp90: 111, sbp95: 115, dbp50: 61, dbp90: 74, dbp95: 76},
+    {sbp50: 100, sbp90: 113, sbp95: 117, dbp50: 62, dbp90: 74, dbp95: 77},
+    {sbp50: 101, sbp90: 114, sbp95: 118, dbp50: 62, dbp90: 75, dbp95: 77},
+    {sbp50: 102, sbp90: 115, sbp95: 119, dbp50: 63, dbp90: 75, dbp95: 78}
+  ],
+  10: [
+    {sbp50: 95, sbp90: 108, sbp95: 112, dbp50: 61, dbp90: 74, dbp95: 76},
+    {sbp50: 96, sbp90: 109, sbp95: 113, dbp50: 62, dbp90: 74, dbp95: 77},
+    {sbp50: 98, sbp90: 111, sbp95: 115, dbp50: 62, dbp90: 75, dbp95: 77},
+    {sbp50: 99, sbp90: 112, sbp95: 116, dbp50: 63, dbp90: 75, dbp95: 78},
+    {sbp50: 101, sbp90: 114, sbp95: 118, dbp50: 63, dbp90: 76, dbp95: 78},
+    {sbp50: 102, sbp90: 115, sbp95: 119, dbp50: 64, dbp90: 76, dbp95: 79},
+    {sbp50: 103, sbp90: 116, sbp95: 120, dbp50: 64, dbp90: 77, dbp95: 79}
+  ],
+  11: [
+    {sbp50: 97, sbp90: 110, sbp95: 114, dbp50: 63, dbp90: 75, dbp95: 78},
+    {sbp50: 98, sbp90: 111, sbp95: 115, dbp50: 63, dbp90: 76, dbp95: 78},
+    {sbp50: 99, sbp90: 112, sbp95: 116, dbp50: 64, dbp90: 76, dbp95: 79},
+    {sbp50: 101, sbp90: 114, sbp95: 118, dbp50: 64, dbp90: 77, dbp95: 79},
+    {sbp50: 102, sbp90: 115, sbp95: 119, dbp50: 65, dbp90: 77, dbp95: 80},
+    {sbp50: 104, sbp90: 117, sbp95: 121, dbp50: 65, dbp90: 78, dbp95: 80},
+    {sbp50: 105, sbp90: 118, sbp95: 122, dbp50: 66, dbp90: 78, dbp95: 81}
+  ],
+  12: [
+    {sbp50: 99, sbp90: 112, sbp95: 116, dbp50: 64, dbp90: 77, dbp95: 79},
+    {sbp50: 100, sbp90: 113, sbp95: 117, dbp50: 65, dbp90: 77, dbp95: 80},
+    {sbp50: 101, sbp90: 114, sbp95: 118, dbp50: 65, dbp90: 78, dbp95: 80},
+    {sbp50: 103, sbp90: 116, sbp95: 120, dbp50: 66, dbp90: 78, dbp95: 81},
+    {sbp50: 104, sbp90: 117, sbp95: 121, dbp50: 66, dbp90: 79, dbp95: 81},
+    {sbp50: 106, sbp90: 119, sbp95: 123, dbp50: 67, dbp90: 79, dbp95: 82},
+    {sbp50: 107, sbp90: 120, sbp95: 123, dbp50: 67, dbp90: 80, dbp95: 82}
+  ],
+  13: [
+    {sbp50: 101, sbp90: 114, sbp95: 118, dbp50: 66, dbp90: 78, dbp95: 81},
+    {sbp50: 102, sbp90: 115, sbp95: 119, dbp50: 66, dbp90: 79, dbp95: 81},
+    {sbp50: 104, sbp90: 117, sbp95: 121, dbp50: 67, dbp90: 79, dbp95: 82},
+    {sbp50: 105, sbp90: 118, sbp95: 122, dbp50: 67, dbp90: 80, dbp95: 82},
+    {sbp50: 107, sbp90: 120, sbp95: 124, dbp50: 68, dbp90: 80, dbp95: 83},
+    {sbp50: 108, sbp90: 121, sbp95: 125, dbp50: 68, dbp90: 81, dbp95: 83},
+    {sbp50: 109, sbp90: 122, sbp95: 126, dbp50: 69, dbp90: 81, dbp95: 84}
+  ],
+  14: [
+    {sbp50: 103, sbp90: 116, sbp95: 120, dbp50: 67, dbp90: 80, dbp95: 82},
+    {sbp50: 104, sbp90: 117, sbp95: 121, dbp50: 68, dbp90: 80, dbp95: 83},
+    {sbp50: 106, sbp90: 119, sbp95: 123, dbp50: 68, dbp90: 81, dbp95: 83},
+    {sbp50: 107, sbp90: 120, sbp95: 124, dbp50: 69, dbp90: 81, dbp95: 84},
+    {sbp50: 109, sbp90: 122, sbp95: 126, dbp50: 69, dbp90: 82, dbp95: 84},
+    {sbp50: 110, sbp90: 123, sbp95: 127, dbp50: 70, dbp90: 82, dbp95: 85},
+    {sbp50: 111, sbp90: 124, sbp95: 128, dbp50: 70, dbp90: 83, dbp95: 85}
+  ],
+  15: [
+    {sbp50: 105, sbp90: 118, sbp95: 122, dbp50: 68, dbp90: 81, dbp95: 83},
+    {sbp50: 106, sbp90: 119, sbp95: 123, dbp50: 69, dbp90: 81, dbp95: 84},
+    {sbp50: 108, sbp90: 121, sbp95: 125, dbp50: 69, dbp90: 82, dbp95: 84},
+    {sbp50: 109, sbp90: 122, sbp95: 126, dbp50: 70, dbp90: 82, dbp95: 85},
+    {sbp50: 111, sbp90: 124, sbp95: 128, dbp50: 70, dbp90: 83, dbp95: 85},
+    {sbp50: 112, sbp90: 125, sbp95: 129, dbp50: 71, dbp90: 83, dbp95: 86},
+    {sbp50: 113, sbp90: 126, sbp95: 130, dbp50: 71, dbp90: 84, dbp95: 86}
+  ],
+  16: [
+    {sbp50: 107, sbp90: 120, sbp95: 124, dbp50: 70, dbp90: 82, dbp95: 84},
+    {sbp50: 108, sbp90: 121, sbp95: 125, dbp50: 70, dbp90: 82, dbp95: 85},
+    {sbp50: 110, sbp90: 123, sbp95: 127, dbp50: 71, dbp90: 83, dbp95: 85},
+    {sbp50: 111, sbp90: 124, sbp95: 128, dbp50: 71, dbp90: 83, dbp95: 86},
+    {sbp50: 113, sbp90: 126, sbp95: 130, dbp50: 72, dbp90: 84, dbp95: 86},
+    {sbp50: 114, sbp90: 127, sbp95: 131, dbp50: 72, dbp90: 84, dbp95: 87},
+    {sbp50: 115, sbp90: 128, sbp95: 132, dbp50: 72, dbp90: 85, dbp95: 87}
+  ],
+  17: [
+    {sbp50: 109, sbp90: 122, sbp95: 126, dbp50: 71, dbp90: 83, dbp95: 85},
+    {sbp50: 110, sbp90: 123, sbp95: 127, dbp50: 71, dbp90: 83, dbp95: 86},
+    {sbp50: 112, sbp90: 125, sbp95: 129, dbp50: 72, dbp90: 84, dbp95: 86},
+    {sbp50: 113, sbp90: 126, sbp95: 130, dbp50: 72, dbp90: 84, dbp95: 87},
+    {sbp50: 115, sbp90: 128, sbp95: 132, dbp50: 73, dbp90: 85, dbp95: 87},
+    {sbp50: 116, sbp90: 129, sbp95: 133, dbp50: 73, dbp90: 85, dbp95: 88},
+    {sbp50: 117, sbp90: 130, sbp95: 134, dbp50: 73, dbp90: 86, dbp95: 88}
+  ]
+};
+
+const bpDataFemale = {
+  1: [
+    {sbp50: 84, sbp90: 98, sbp95: 101, dbp50: 41, dbp90: 54, dbp95: 56},
+    {sbp50: 85, sbp90: 98, sbp95: 102, dbp50: 42, dbp90: 54, dbp95: 56},
+    {sbp50: 86, sbp90: 99, sbp95: 103, dbp50: 42, dbp90: 55, dbp95: 57},
+    {sbp50: 87, sbp90: 100, sbp95: 104, dbp50: 43, dbp90: 55, dbp95: 57},
+    {sbp50: 88, sbp90: 101, sbp95: 105, dbp50: 43, dbp90: 56, dbp95: 58},
+    {sbp50: 89, sbp90: 102, sbp95: 106, dbp50: 44, dbp90: 56, dbp95: 58},
+    {sbp50: 90, sbp90: 103, sbp95: 107, dbp50: 44, dbp90: 56, dbp95: 58}
+  ],
+  2: [
+    {sbp50: 86, sbp90: 100, sbp95: 103, dbp50: 45, dbp90: 57, dbp95: 59},
+    {sbp50: 87, sbp90: 100, sbp95: 104, dbp50: 45, dbp90: 57, dbp95: 60},
+    {sbp50: 88, sbp90: 101, sbp95: 105, dbp50: 46, dbp90: 58, dbp95: 60},
+    {sbp50: 89, sbp90: 102, sbp95: 106, dbp50: 46, dbp90: 58, dbp95: 61},
+    {sbp50: 90, sbp90: 104, sbp95: 107, dbp50: 47, dbp90: 59, dbp95: 61},
+    {sbp50: 91, sbp90: 105, sbp95: 108, dbp50: 47, dbp90: 59, dbp95: 62},
+    {sbp50: 92, sbp90: 105, sbp95: 109, dbp50: 48, dbp90: 60, dbp95: 62}
+  ],
+  3: [
+    {sbp50: 87, sbp90: 101, sbp95: 104, dbp50: 48, dbp90: 60, dbp95: 62},
+    {sbp50: 88, sbp90: 101, sbp95: 105, dbp50: 48, dbp90: 60, dbp95: 63},
+    {sbp50: 89, sbp90: 102, sbp95: 106, dbp50: 49, dbp90: 61, dbp95: 63},
+    {sbp50: 90, sbp90: 104, sbp95: 107, dbp50: 49, dbp90: 61, dbp95: 64},
+    {sbp50: 91, sbp90: 105, sbp95: 108, dbp50: 50, dbp90: 62, dbp95: 64},
+    {sbp50: 93, sbp90: 106, sbp95: 110, dbp50: 50, dbp90: 62, dbp95: 65},
+    {sbp50: 93, sbp90: 107, sbp95: 110, dbp50: 51, dbp90: 63, dbp95: 65}
+  ],
+  4: [
+    {sbp50: 88, sbp90: 102, sbp95: 105, dbp50: 50, dbp90: 62, dbp95: 65},
+    {sbp50: 89, sbp90: 102, sbp95: 106, dbp50: 51, dbp90: 63, dbp95: 65},
+    {sbp50: 90, sbp90: 104, sbp95: 107, dbp50: 51, dbp90: 63, dbp95: 66},
+    {sbp50: 91, sbp90: 105, sbp95: 108, dbp50: 52, dbp90: 64, dbp95: 66},
+    {sbp50: 93, sbp90: 106, sbp95: 110, dbp50: 52, dbp90: 64, dbp95: 67},
+    {sbp50: 94, sbp90: 107, sbp95: 111, dbp50: 53, dbp90: 65, dbp95: 67},
+    {sbp50: 95, sbp90: 108, sbp95: 112, dbp50: 53, dbp90: 65, dbp95: 68}
+  ],
+  5: [
+    {sbp50: 89, sbp90: 103, sbp95: 106, dbp50: 52, dbp90: 65, dbp95: 67},
+    {sbp50: 90, sbp90: 103, sbp95: 107, dbp50: 53, dbp90: 65, dbp95: 68},
+    {sbp50: 91, sbp90: 105, sbp95: 108, dbp50: 53, dbp90: 66, dbp95: 68},
+    {sbp50: 92, sbp90: 106, sbp95: 109, dbp50: 54, dbp90: 66, dbp95: 69},
+    {sbp50: 94, sbp90: 107, sbp95: 111, dbp50: 54, dbp90: 67, dbp95: 69},
+    {sbp50: 95, sbp90: 108, sbp95: 112, dbp50: 55, dbp90: 67, dbp95: 70},
+    {sbp50: 96, sbp90: 109, sbp95: 113, dbp50: 55, dbp90: 68, dbp95: 70}
+  ],
+  6: [
+    {sbp50: 90, sbp90: 104, sbp95: 107, dbp50: 54, dbp90: 67, dbp95: 69},
+    {sbp50: 91, sbp90: 104, sbp95: 108, dbp50: 55, dbp90: 67, dbp95: 70},
+    {sbp50: 92, sbp90: 106, sbp95: 109, dbp50: 55, dbp90: 68, dbp95: 70},
+    {sbp50: 93, sbp90: 107, sbp95: 110, dbp50: 56, dbp90: 68, dbp95: 71},
+    {sbp50: 95, sbp90: 108, sbp95: 112, dbp50: 56, dbp90: 69, dbp95: 71},
+    {sbp50: 96, sbp90: 109, sbp95: 113, dbp50: 57, dbp90: 69, dbp95: 72},
+    {sbp50: 97, sbp90: 110, sbp95: 114, dbp50: 57, dbp90: 70, dbp95: 72}
+  ],
+  7: [
+    {sbp50: 91, sbp90: 105, sbp95: 108, dbp50: 56, dbp90: 69, dbp95: 71},
+    {sbp50: 92, sbp90: 105, sbp95: 109, dbp50: 57, dbp90: 69, dbp95: 72},
+    {sbp50: 93, sbp90: 107, sbp95: 110, dbp50: 57, dbp90: 70, dbp95: 72},
+    {sbp50: 95, sbp90: 108, sbp95: 111, dbp50: 58, dbp90: 70, dbp95: 73},
+    {sbp50: 96, sbp90: 109, sbp95: 113, dbp50: 58, dbp90: 71, dbp95: 73},
+    {sbp50: 97, sbp90: 110, sbp95: 114, dbp50: 59, dbp90: 71, dbp95: 74},
+    {sbp50: 98, sbp90: 111, sbp95: 115, dbp50: 59, dbp90: 72, dbp95: 74}
+  ],
+  8: [
+    {sbp50: 92, sbp90: 106, sbp95: 109, dbp50: 58, dbp90: 71, dbp95: 73},
+    {sbp50: 93, sbp90: 107, sbp95: 110, dbp50: 58, dbp90: 71, dbp95: 74},
+    {sbp50: 95, sbp90: 108, sbp95: 111, dbp50: 59, dbp90: 72, dbp95: 74},
+    {sbp50: 96, sbp90: 109, sbp95: 113, dbp50: 59, dbp90: 72, dbp95: 75},
+    {sbp50: 97, sbp90: 110, sbp95: 114, dbp50: 60, dbp90: 73, dbp95: 75},
+    {sbp50: 98, sbp90: 112, sbp95: 115, dbp50: 60, dbp90: 73, dbp95: 76},
+    {sbp50: 99, sbp90: 113, sbp95: 116, dbp50: 61, dbp90: 73, dbp95: 76}
+  ],
+  9: [
+    {sbp50: 94, sbp90: 107, sbp95: 110, dbp50: 60, dbp90: 72, dbp95: 75},
+    {sbp50: 95, sbp90: 108, sbp95: 111, dbp50: 60, dbp90: 73, dbp95: 75},
+    {sbp50: 96, sbp90: 109, sbp95: 113, dbp50: 61, dbp90: 73, dbp95: 76},
+    {sbp50: 97, sbp90: 110, sbp95: 114, dbp50: 61, dbp90: 74, dbp95: 76},
+    {sbp50: 98, sbp90: 112, sbp95: 115, dbp50: 62, dbp90: 74, dbp95: 77},
+    {sbp50: 100, sbp90: 113, sbp95: 117, dbp50: 62, dbp90: 75, dbp95: 77},
+    {sbp50: 101, sbp90: 114, sbp95: 118, dbp50: 63, dbp90: 75, dbp95: 78}
+  ],
+  10: [
+    {sbp50: 95, sbp90: 108, sbp95: 112, dbp50: 61, dbp90: 74, dbp95: 76},
+    {sbp50: 96, sbp90: 109, sbp95: 113, dbp50: 62, dbp90: 74, dbp95: 77},
+    {sbp50: 97, sbp90: 111, sbp95: 114, dbp50: 62, dbp90: 75, dbp95: 77},
+    {sbp50: 99, sbp90: 112, sbp95: 115, dbp50: 63, dbp90: 75, dbp95: 78},
+    {sbp50: 100, sbp90: 113, sbp95: 117, dbp50: 63, dbp90: 76, dbp95: 78},
+    {sbp50: 101, sbp90: 114, sbp95: 118, dbp50: 64, dbp90: 76, dbp95: 79},
+    {sbp50: 102, sbp90: 115, sbp95: 119, dbp50: 64, dbp90: 77, dbp95: 79}
+  ],
+  11: [
+    {sbp50: 97, sbp90: 110, sbp95: 114, dbp50: 63, dbp90: 75, dbp95: 78},
+    {sbp50: 98, sbp90: 111, sbp95: 115, dbp50: 63, dbp90: 76, dbp95: 78},
+    {sbp50: 99, sbp90: 112, sbp95: 116, dbp50: 64, dbp90: 76, dbp95: 79},
+    {sbp50: 100, sbp90: 113, sbp95: 117, dbp50: 64, dbp90: 77, dbp95: 79},
+    {sbp50: 102, sbp90: 115, sbp95: 118, dbp50: 65, dbp90: 77, dbp95: 80},
+    {sbp50: 103, sbp90: 116, sbp95: 120, dbp50: 65, dbp90: 78, dbp95: 80},
+    {sbp50: 104, sbp90: 117, sbp95: 121, dbp50: 66, dbp90: 78, dbp95: 81}
+  ],
+  12: [
+    {sbp50: 99, sbp90: 112, sbp95: 116, dbp50: 64, dbp90: 77, dbp95: 79},
+    {sbp50: 100, sbp90: 113, sbp95: 116, dbp50: 65, dbp90: 77, dbp95: 80},
+    {sbp50: 101, sbp90: 114, sbp95: 118, dbp50: 65, dbp90: 78, dbp95: 80},
+    {sbp50: 102, sbp90: 115, sbp95: 119, dbp50: 66, dbp90: 78, dbp95: 81},
+    {sbp50: 103, sbp90: 117, sbp95: 120, dbp50: 66, dbp90: 79, dbp95: 81},
+    {sbp50: 105, sbp90: 118, sbp95: 122, dbp50: 67, dbp90: 79, dbp95: 82},
+    {sbp50: 106, sbp90: 119, sbp95: 123, dbp50: 67, dbp90: 80, dbp95: 82}
+  ],
+  13: [
+    {sbp50: 100, sbp90: 114, sbp95: 117, dbp50: 66, dbp90: 78, dbp95: 81},
+    {sbp50: 101, sbp90: 114, sbp95: 118, dbp50: 66, dbp90: 79, dbp95: 81},
+    {sbp50: 102, sbp90: 116, sbp95: 119, dbp50: 67, dbp90: 79, dbp95: 82},
+    {sbp50: 104, sbp90: 117, sbp95: 121, dbp50: 67, dbp90: 80, dbp95: 82},
+    {sbp50: 105, sbp90: 118, sbp95: 122, dbp50: 68, dbp90: 80, dbp95: 83},
+    {sbp50: 106, sbp90: 119, sbp95: 123, dbp50: 68, dbp90: 81, dbp95: 83},
+    {sbp50: 107, sbp90: 120, sbp95: 124, dbp50: 68, dbp90: 81, dbp95: 84}
+  ],
+  14: [
+    {sbp50: 101, sbp90: 115, sbp95: 118, dbp50: 67, dbp90: 79, dbp95: 82},
+    {sbp50: 102, sbp90: 115, sbp95: 119, dbp50: 67, dbp90: 80, dbp95: 82},
+    {sbp50: 103, sbp90: 117, sbp95: 120, dbp50: 68, dbp90: 80, dbp95: 83},
+    {sbp50: 105, sbp90: 118, sbp95: 122, dbp50: 68, dbp90: 81, dbp95: 83},
+    {sbp50: 106, sbp90: 119, sbp95: 123, dbp50: 69, dbp90: 81, dbp95: 84},
+    {sbp50: 107, sbp90: 120, sbp95: 124, dbp50: 69, dbp90: 82, dbp95: 84},
+    {sbp50: 108, sbp90: 121, sbp95: 125, dbp50: 69, dbp90: 82, dbp95: 85}
+  ],
+  15: [
+    {sbp50: 102, sbp90: 116, sbp95: 119, dbp50: 68, dbp90: 80, dbp95: 83},
+    {sbp50: 103, sbp90: 116, sbp95: 120, dbp50: 68, dbp90: 81, dbp95: 83},
+    {sbp50: 104, sbp90: 117, sbp95: 121, dbp50: 69, dbp90: 81, dbp95: 84},
+    {sbp50: 105, sbp90: 119, sbp95: 122, dbp50: 69, dbp90: 82, dbp95: 84},
+    {sbp50: 107, sbp90: 120, sbp95: 124, dbp50: 70, dbp90: 82, dbp95: 85},
+    {sbp50: 108, sbp90: 121, sbp95: 125, dbp50: 70, dbp90: 83, dbp95: 85},
+    {sbp50: 109, sbp90: 122, sbp95: 126, dbp50: 70, dbp90: 83, dbp95: 86}
+  ],
+  16: [
+    {sbp50: 103, sbp90: 116, sbp95: 120, dbp50: 69, dbp90: 81, dbp95: 84},
+    {sbp50: 104, sbp90: 117, sbp95: 121, dbp50: 69, dbp90: 82, dbp95: 84},
+    {sbp50: 105, sbp90: 118, sbp95: 122, dbp50: 70, dbp90: 82, dbp95: 85},
+    {sbp50: 106, sbp90: 119, sbp95: 123, dbp50: 70, dbp90: 83, dbp95: 85},
+    {sbp50: 107, sbp90: 121, sbp95: 124, dbp50: 71, dbp90: 83, dbp95: 86},
+    {sbp50: 109, sbp90: 122, sbp95: 126, dbp50: 71, dbp90: 84, dbp95: 86},
+    {sbp50: 110, sbp90: 123, sbp95: 127, dbp50: 71, dbp90: 84, dbp95: 87}
+  ],
+  17: [
+    {sbp50: 103, sbp90: 117, sbp95: 120, dbp50: 70, dbp90: 82, dbp95: 84},
+    {sbp50: 104, sbp90: 117, sbp95: 121, dbp50: 70, dbp90: 82, dbp95: 85},
+    {sbp50: 105, sbp90: 118, sbp95: 122, dbp50: 70, dbp90: 83, dbp95: 85},
+    {sbp50: 106, sbp90: 120, sbp95: 123, dbp50: 71, dbp90: 83, dbp95: 86},
+    {sbp50: 108, sbp90: 121, sbp95: 125, dbp50: 71, dbp90: 84, dbp95: 86},
+    {sbp50: 109, sbp90: 122, sbp95: 126, dbp50: 72, dbp90: 84, dbp95: 87},
+    {sbp50: 110, sbp90: 123, sbp95: 127, dbp50: 72, dbp90: 85, dbp95: 87}
+  ]
+};
+
+// CDC height percentiles (50th percentile by age/sex) for height → percentile conversion
+const heightData = {
+  male: {
+    1: {mean: 76.1, sd: 2.9},
+    2: {mean: 87.7, sd: 3.4},
+    3: {mean: 96.1, sd: 3.8},
+    4: {mean: 103.4, sd: 4.2},
+    5: {mean: 110.0, sd: 4.6},
+    6: {mean: 116.1, sd: 5.0},
+    7: {mean: 121.9, sd: 5.4},
+    8: {mean: 127.5, sd: 5.7},
+    9: {mean: 132.9, sd: 6.0},
+    10: {mean: 138.1, sd: 6.4},
+    11: {mean: 143.5, sd: 7.0},
+    12: {mean: 149.6, sd: 7.8},
+    13: {mean: 156.5, sd: 8.4},
+    14: {mean: 163.5, sd: 8.5},
+    15: {mean: 169.4, sd: 7.8},
+    16: {mean: 173.5, sd: 7.1},
+    17: {mean: 175.8, sd: 6.8}
+  },
+  female: {
+    1: {mean: 74.3, sd: 2.9},
+    2: {mean: 86.4, sd: 3.4},
+    3: {mean: 95.0, sd: 3.9},
+    4: {mean: 102.5, sd: 4.4},
+    5: {mean: 109.2, sd: 4.9},
+    6: {mean: 115.5, sd: 5.4},
+    7: {mean: 121.5, sd: 5.9},
+    8: {mean: 127.5, sd: 6.3},
+    9: {mean: 133.3, sd: 6.8},
+    10: {mean: 139.0, sd: 7.2},
+    11: {mean: 145.0, sd: 7.5},
+    12: {mean: 151.2, sd: 7.2},
+    13: {mean: 156.4, sd: 6.5},
+    14: {mean: 159.8, sd: 6.1},
+    15: {mean: 161.8, sd: 6.0},
+    16: {mean: 162.9, sd: 6.0},
+    17: {mean: 163.5, sd: 6.0}
+  }
+};
+
+function heightToPercentileIndex(height, age, sex) {
+  const data = heightData[sex][age];
+  const z = (height - data.mean) / data.sd;
+  
+  // Map z-score to percentile index (0-6 for 5th-95th)
+  if (z <= -1.645) return 0; // 5th
+  if (z <= -1.28) return 1;  // 10th
+  if (z <= -0.68) return 2;  // 25th
+  if (z <= 0) return 3;      // 50th
+  if (z <= 0.68) return 4;   // 75th
+  if (z <= 1.28) return 5;   // 90th
+  return 6;                   // 95th
+}
+
+function getHeightPercentileLabel(idx) {
+  const labels = ['5th', '10th', '25th', '50th', '75th', '90th', '95th'];
+  return labels[idx];
+}
+
+function estimateBPPercentile(bp, bp50, bp90, bp95) {
+  if (bp < bp50) {
+    // Below 50th - estimate linearly
+    return Math.round((bp / bp50) * 50);
+  } else if (bp < bp90) {
+    // Between 50th and 90th
+    return Math.round(50 + ((bp - bp50) / (bp90 - bp50)) * 40);
+  } else if (bp < bp95) {
+    // Between 90th and 95th
+    return Math.round(90 + ((bp - bp90) / (bp95 - bp90)) * 5);
+  } else {
+    // Above 95th
+    const above95 = bp - bp95;
+    return Math.min(99, Math.round(95 + (above95 / 12) * 4));
+  }
+}
+
+function calculate() {
+  const age = parseInt(document.getElementById('age').value);
+  const sex = document.getElementById('sex').value;
+  const height = parseFloat(document.getElementById('height').value);
+  const heightPctSelect = document.getElementById('heightPct').value;
+  const sbp = parseInt(document.getElementById('sbp').value);
+  const dbp = parseInt(document.getElementById('dbp').value);
+
+  // Validation
+  if (!age || age < 1 || age > 17) {
+    alert('Please enter age between 1-17 years');
+    return;
+  }
+  if (!sex) {
+    alert('Please select sex');
+    return;
+  }
+  if (!height && !heightPctSelect) {
+    alert('Please enter height or select height percentile');
+    return;
+  }
+  if (!sbp || !dbp) {
+    alert('Please enter both systolic and diastolic BP');
+    return;
+  }
+
+  // Determine height percentile index
+  let heightPctIdx;
+  let heightPctLabel;
+  if (heightPctSelect) {
+    const pctMap = {5: 0, 10: 1, 25: 2, 50: 3, 75: 4, 90: 5, 95: 6};
+    heightPctIdx = pctMap[parseInt(heightPctSelect)];
+    heightPctLabel = heightPctSelect + 'th';
+  } else {
+    heightPctIdx = heightToPercentileIndex(height, age, sex);
+    heightPctLabel = getHeightPercentileLabel(heightPctIdx);
+  }
+
+  // Get BP reference data
+  const bpData = sex === 'male' ? bpDataMale : bpDataFemale;
+  const ref = bpData[age][heightPctIdx];
+
+  // Calculate percentiles
+  const sbpPct = estimateBPPercentile(sbp, ref.sbp50, ref.sbp90, ref.sbp95);
+  const dbpPct = estimateBPPercentile(dbp, ref.dbp50, ref.dbp90, ref.dbp95);
+
+  // For age ≥13, also check absolute thresholds
+  const useAbsolute = age >= 13;
+
+  // Classify
+  let classification, cssClass, details;
+  
+  // Stage 2: ≥95th + 12 mmHg OR ≥140/90 (for ≥13)
+  const stage2SBP = ref.sbp95 + 12;
+  const stage2DBP = ref.dbp95 + 12;
+  
+  if (sbp >= stage2SBP || dbp >= stage2DBP || (useAbsolute && (sbp >= 140 || dbp >= 90))) {
+    classification = 'Stage 2 Hypertension';
+    cssClass = 'stage2';
+    details = 'BP ≥95th percentile + 12 mmHg' + (useAbsolute ? ' or ≥140/90' : '');
+  }
+  // Stage 1: ≥95th OR ≥130/80 (for ≥13)
+  else if (sbp >= ref.sbp95 || dbp >= ref.dbp95 || (useAbsolute && (sbp >= 130 || dbp >= 80))) {
+    classification = 'Stage 1 Hypertension';
+    cssClass = 'stage1';
+    details = 'BP ≥95th percentile' + (useAbsolute ? ' or ≥130/80' : '');
+  }
+  // Elevated: ≥90th to <95th OR 120-129/<80 (for ≥13)
+  else if (sbp >= ref.sbp90 || dbp >= ref.dbp90 || (useAbsolute && sbp >= 120)) {
+    classification = 'Elevated BP';
+    cssClass = 'elevated';
+    details = 'BP ≥90th to <95th percentile' + (useAbsolute ? ' or 120-129/<80' : '');
+  }
+  // Normal
+  else {
+    classification = 'Normal';
+    cssClass = 'normal';
+    details = 'BP <90th percentile';
+  }
+
+  // Build result HTML
+  const resultDiv = document.getElementById('result');
+  resultDiv.className = 'result ' + cssClass;
+  resultDiv.style.display = 'block';
+  
+  resultDiv.innerHTML = `
+    <div class="result-title">${classification}</div>
+    <div class="result-percentile">
+      SBP: ${sbp} mmHg (~${sbpPct}th %ile)<br>
+      DBP: ${dbp} mmHg (~${dbpPct}th %ile)
+    </div>
+    <div class="result-details">
+      <p><strong>Patient:</strong> ${age} y/o ${sex}, height ${heightPctLabel} percentile</p>
+      <p><strong>Classification:</strong> ${details}</p>
+      <table class="threshold-table">
+        <tr><th>Threshold</th><th>SBP</th><th>DBP</th></tr>
+        <tr><td>50th %ile</td><td>${ref.sbp50}</td><td>${ref.dbp50}</td></tr>
+        <tr><td>90th %ile (Elevated)</td><td>${ref.sbp90}</td><td>${ref.dbp90}</td></tr>
+        <tr><td>95th %ile (Stage 1)</td><td>${ref.sbp95}</td><td>${ref.dbp95}</td></tr>
+        <tr><td>95th + 12 (Stage 2)</td><td>${stage2SBP}</td><td>${stage2DBP}</td></tr>
+      </table>
+    </div>
+  `;
+}
+
+// Clear height percentile when height is entered and vice versa
+document.getElementById('height').addEventListener('input', function() {
+  if (this.value) document.getElementById('heightPct').value = '';
+});
+document.getElementById('heightPct').addEventListener('change', function() {
+  if (this.value) document.getElementById('height').value = '';
+});
+</script>
+</body>
+</html>
