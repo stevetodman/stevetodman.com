@@ -1,62 +1,79 @@
-# stevetodman.com
+# CLAUDE.md
 
-Personal website and tools for Steve Todman, MD - Pediatric Cardiologist
+This is Steve Todman's personal website deployed via Cloudflare Pages.
+
+## Project Structure
+
+stevetodman.com/
+├── index.html          # Homepage
+├── cooking/
+│   ├── index.html      # Cooking timers listing
+│   ├── ribeye-timer.html
+│   └── ribs-timer.html
+
+## Adding a New Cooking Timer
+
+When asked to create a cooking timer:
+
+1. **Extract from recipe**: steps, times, ingredients, equipment, doneness cues
+2. **Create timer HTML** in cooking/[recipe-name]-timer.html
+3. **Update** cooking/index.html to include the new timer card
+4. **Do NOT** include any Claude/AI credits in the files
+
+### Timer Features to Include
+
+- Audio alerts (Web Audio API triple beep)
+- Wake lock support
+- Browser notifications
+- localStorage persistence
+- Progress bar
+- Elapsed/remaining time display
+- Estimated finish time
+- Manual step completion checkboxes
+- Phase tags (Prep/Cook/Finish)
+- Doneness cues where applicable
+- Print-friendly CSS
+- Mobile responsive
+- Safety warnings for high-heat recipes
+
+### Timer HTML Template Structure
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>[Recipe] Timer</title>
+  <!-- Dark theme, mobile-first CSS -->
+</head>
+<body>
+  <!-- Recipe title and credit -->
+  <!-- Progress bar -->
+  <!-- Start button / Timer display -->
+  <!-- Current step section -->
+  <!-- Upcoming steps -->
+  <!-- Equipment section -->
+  <!-- Ingredients section -->
+  <!-- Full timeline with checkboxes -->
+</body>
+</html>
+
+### Timer Card Format (for cooking/index.html)
+
+<a href="[recipe]-timer.html" class="timer-card">
+  <div class="timer-title">[emoji] [Recipe Name]</div>
+  <div class="timer-meta">[Source] • [Show/Book]</div>
+  <span class="timer-time">~[duration]</span>
+</a>
 
 ## Deployment
 
-- **Host**: Cloudflare Pages
-- **Auto-deploy**: Push to `main` → Cloudflare builds automatically (~30 sec)
-- **Domain**: https://stevetodman.com
+- Push to main branch auto-deploys to Cloudflare Pages
+- Live at: https://stevetodman.com
+- Cooking timers at: https://stevetodman.com/cooking/
 
-## Structure
+## Style Guide
 
-```
-stevetodman.com/
-├── index.html              # Homepage
-├── cooking/                # Cooking timers
-│   ├── index.html
-│   ├── ribs-timer.html
-│   └── ribeye-timer.html
-├── tools/                  # Clinical tools
-│   ├── index.html
-│   ├── bp-percentile.html  # Original (simplified tables)
-│   └── bp-percentile-calculator.html  # AAP 2017 validated ⭐
-└── .github/workflows/
-    └── update-cooking-index.yml  # Auto-updates cooking/index.html
-```
-
-## Clinical Tools
-
-### BP Percentile Calculator (AAP 2017)
-`tools/bp-percentile-calculator.html`
-
-**Validated implementation** of AAP 2017 pediatric blood pressure percentiles using:
-- Rosner quantile regression spline model
-- Coefficients from BenSolomon/pediatric-bp GitHub (official source)
-- CDC 2000 growth chart LMS parameters for height z-scores
-
-**Accuracy verified against:**
-- bsolomon.us calculator: <0.01 mmHg match
-- Rosner sample_output.txt: 87.5% exact, 100% within ±1 percentile
-- AAP 2017 Table 4 (Merck): 62.5% exact, 100% within ±1 mmHg
-
-**Features:**
-- Computes SBP/DBP percentiles for ages 1-17
-- Height input: percentile, z-score, or cm
-- Classification per AAP 2017 guidelines (Normal, Elevated, Stage 1/2 HTN)
-- Collapsible validation panel showing accuracy data
-
-## Workflow
-
-1. Claude generates HTML file
-2. User downloads and runs:
-   ```bash
-   cd ~/Downloads/stevetodman.com
-   mv ~/Downloads/[file].html [destination]/
-   git add . && git commit -m "Description" && git push
-   ```
-3. Live in ~30 seconds
-
-## GitHub Actions
-
-- `update-cooking-index.yml`: Automatically regenerates `cooking/index.html` when new timer files are added
+- Dark theme: #1a1a2e to #16213e gradient
+- Accent color: #00cec9 (teal)
+- Alert color: #e94560 (coral red)
+- Font: system fonts (-apple-system, BlinkMacSystemFont, etc.)
+- No external dependencies (single-file HTML)
