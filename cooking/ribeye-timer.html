@@ -229,6 +229,50 @@
       background: rgba(255,255,255,0.3);
     }
 
+    .step-btn.back {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .step-btn.pause {
+      background: #e67e22;
+    }
+
+    .step-btn.pause.paused {
+      background: #27ae60;
+    }
+
+    .step-remaining {
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 12px 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .step-remaining-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.8;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .step-progress {
+      background: rgba(0,0,0,0.2);
+      border-radius: 6px;
+      height: 6px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    .step-progress-bar {
+      height: 100%;
+      background: rgba(255,255,255,0.5);
+      border-radius: 6px;
+      transition: width 1s linear;
+    }
+
     .time-adjust {
       display: flex;
       gap: 6px;
@@ -621,12 +665,19 @@
       <div class="current-step-phase" id="currentStepPhase"></div>
       <div class="doneness-cue hidden" id="donenessCue"></div>
     </div>
+    <div class="step-remaining-label">Time remaining in step</div>
+    <div class="step-remaining" id="stepRemaining">--:--</div>
+    <div class="step-progress">
+      <div class="step-progress-bar" id="stepProgressBar"></div>
+    </div>
     <div class="step-controls">
+      <button class="step-btn back" onclick="goBack()">← Back</button>
+      <button class="step-btn pause" id="pauseBtn" onclick="togglePause()">⏸ Pause</button>
       <div class="time-adjust">
         <button class="step-btn" onclick="adjustTime(-30)">−30s</button>
         <button class="step-btn" onclick="adjustTime(30)">+30s</button>
       </div>
-      <button class="step-btn skip" onclick="skipToNext()">Skip to Next →</button>
+      <button class="step-btn skip" onclick="skipToNext()">Skip →</button>
     </div>
   </div>
 
@@ -678,7 +729,9 @@
     let soundEnabled = true;
     let wakeLock = null;
     let wakeLockEnabled = false;
-    
+    let isPaused = false;
+    let pausedAt = null;
+
     const steps = [
       { 
         time: 0, 
@@ -770,31 +823,118 @@
         timeOffset = data.timeOffset || 0;
         completedSteps = new Set(data.completedSteps || []);
         lastAlertedStep = data.lastAlertedStep || -1;
+        isPaused = data.isPaused || false;
+        pausedAt = data.pausedAt || null;
         startTimer();
+        if (isPaused) {
+          updatePauseButton();
+        }
       }
       renderTimeline();
       updateFinishTime();
     }
-    
+
+    function updatePauseButton() {
+      const btn = document.getElementById('pauseBtn');
+      if (isPaused) {
+        btn.textContent = '▶ Resume';
+        btn.classList.add('paused');
+      } else {
+        btn.textContent = '⏸ Pause';
+        btn.classList.remove('paused');
+      }
+    }
+
+    function togglePause() {
+      if (!startTime) return;
+
+      if (isPaused) {
+        const pausedDuration = Math.floor((Date.now() - pausedAt) / 1000);
+        timeOffset -= pausedDuration;
+        isPaused = false;
+        pausedAt = null;
+      } else {
+        isPaused = true;
+        pausedAt = Date.now();
+      }
+
+      updatePauseButton();
+      saveState();
+      updateFinishTime();
+      updateDisplay();
+    }
+
+    function goBack() {
+      if (!startTime) return;
+      const elapsed = getElapsed();
+
+      let targetIndex = -1;
+      const completedArray = Array.from(completedSteps).sort((a, b) => b - a);
+      if (completedArray.length > 0) {
+        targetIndex = completedArray[0];
+        completedSteps.delete(targetIndex);
+      } else {
+        for (let i = steps.length - 1; i >= 0; i--) {
+          if (steps[i].time <= elapsed) {
+            if (i > 0) {
+              targetIndex = i - 1;
+              const targetTime = steps[targetIndex].time;
+              const currentElapsed = getElapsed();
+              timeOffset -= (currentElapsed - targetTime);
+            }
+            break;
+          }
+        }
+      }
+
+      if (targetIndex >= 0 && lastAlertedStep >= targetIndex) {
+        lastAlertedStep = targetIndex - 1;
+      }
+
+      saveState();
+      updateFinishTime();
+      updateDisplay();
+    }
+
+    function getElapsed() {
+      if (isPaused && pausedAt) {
+        return Math.floor((pausedAt - startTime) / 1000) + timeOffset;
+      }
+      return Math.floor((Date.now() - startTime) / 1000) + timeOffset;
+    }
+
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         startTime,
         timeOffset,
         completedSteps: Array.from(completedSteps),
-        lastAlertedStep
+        lastAlertedStep,
+        isPaused,
+        pausedAt
       }));
     }
-    
+
+    function formatDuration(seconds) {
+      if (seconds === null || seconds === undefined) return '';
+      if (seconds < 60) return seconds + 's';
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      if (secs === 0) return mins + ' min';
+      return mins + ':' + secs.toString().padStart(2, '0');
+    }
+
     function startCooking() {
       startTime = Date.now();
       timeOffset = 0;
       completedSteps.clear();
       lastAlertedStep = -1;
+      isPaused = false;
+      pausedAt = null;
       saveState();
       startTimer();
       requestNotificationPermission();
     }
-    
+
     function startTimer() {
       document.getElementById('startBtn').classList.add('hidden');
       document.getElementById('timerDisplay').classList.remove('hidden');
@@ -814,8 +954,10 @@
         timeOffset = 0;
         completedSteps.clear();
         lastAlertedStep = -1;
+        isPaused = false;
+        pausedAt = null;
         clearInterval(timerInterval);
-        
+
         document.getElementById('startBtn').classList.remove('hidden');
         document.getElementById('timerDisplay').classList.add('hidden');
         document.getElementById('startSection').classList.remove('running');
@@ -958,7 +1100,7 @@
     
     function markCurrentComplete() {
       const checkbox = document.getElementById('currentStepCheck');
-      const elapsed = Math.floor((Date.now() - startTime) / 1000) + timeOffset;
+      const elapsed = getElapsed();
       for (let i = steps.length - 1; i >= 0; i--) {
         if (steps[i].time <= elapsed && !completedSteps.has(i)) {
           if (checkbox.checked) {
@@ -970,7 +1112,7 @@
       saveState();
       updateDisplay();
     }
-    
+
     function toggleStepComplete(index) {
       if (completedSteps.has(index)) {
         completedSteps.delete(index);
@@ -991,17 +1133,15 @@
 
     function skipToNext() {
       if (!startTime) return;
-      const elapsed = Math.floor((Date.now() - startTime) / 1000) + timeOffset;
+      const elapsed = getElapsed();
 
-      // Find current step and mark it complete
       for (let i = steps.length - 1; i >= 0; i--) {
         if (steps[i].time <= elapsed && !completedSteps.has(i)) {
           completedSteps.add(i);
 
-          // Jump time to next step if there is one
           if (i < steps.length - 1) {
             const nextStepTime = steps[i + 1].time;
-            const currentElapsed = Math.floor((Date.now() - startTime) / 1000) + timeOffset;
+            const currentElapsed = getElapsed();
             if (nextStepTime > currentElapsed) {
               timeOffset += (nextStepTime - currentElapsed);
             }
@@ -1016,7 +1156,7 @@
     }
 
     function updateDisplay() {
-      const elapsed = Math.floor((Date.now() - startTime) / 1000) + timeOffset;
+      const elapsed = getElapsed();
       const remaining = Math.max(0, totalDuration - elapsed);
       
       document.getElementById('elapsedTime').textContent = formatTime(elapsed);
@@ -1086,8 +1226,21 @@
           } else {
             donenessCue.classList.add('hidden');
           }
+
+          // Step remaining time and progress
+          if (currentStep.duration) {
+            const stepElapsed = elapsed - currentStep.time;
+            const stepRemaining = Math.max(0, currentStep.duration - stepElapsed);
+            const stepProgress = Math.min(100, (stepElapsed / currentStep.duration) * 100);
+
+            document.getElementById('stepRemaining').textContent = formatTime(stepRemaining);
+            document.getElementById('stepProgressBar').style.width = stepProgress + '%';
+          } else {
+            document.getElementById('stepRemaining').textContent = '—';
+            document.getElementById('stepProgressBar').style.width = '0%';
+          }
         }
-        
+
         if (upcomingSteps.length > 0) {
           document.getElementById('nextStepsSection').classList.remove('hidden');
           let html = '';
@@ -1144,7 +1297,7 @@
             </div>
             <div class="timeline-time">${timeDisplay}</div>
             <div class="timeline-content">
-              <div class="timeline-title">${step.title}</div>
+              <div class="timeline-title">${step.title}${step.duration ? ' • ' + formatDuration(step.duration) : ''}</div>
               <div class="timeline-detail">${step.detail}</div>
               ${getPhaseTag(step.phase)}
             </div>
