@@ -198,6 +198,47 @@
       cursor: pointer;
     }
 
+    .step-controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .step-btn {
+      background: rgba(0,0,0,0.2);
+      border: none;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .step-btn:hover {
+      background: rgba(0,0,0,0.35);
+    }
+
+    .step-btn.skip {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .step-btn.skip:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .time-adjust {
+      display: flex;
+      gap: 6px;
+    }
+
+    .time-adjust .step-btn {
+      padding: 10px 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
     .current-step-title {
       font-size: 1.3rem;
       font-weight: 700;
@@ -580,6 +621,13 @@
       <div class="current-step-phase" id="currentStepPhase"></div>
       <div class="doneness-cue hidden" id="donenessCue"></div>
     </div>
+    <div class="step-controls">
+      <div class="time-adjust">
+        <button class="step-btn" onclick="adjustTime(-30)">−30s</button>
+        <button class="step-btn" onclick="adjustTime(30)">+30s</button>
+      </div>
+      <button class="step-btn skip" onclick="skipToNext()">Skip to Next →</button>
+    </div>
   </div>
 
   <div id="nextStepsSection" class="next-steps hidden">
@@ -914,6 +962,40 @@
         completedSteps.add(index);
       }
       saveState();
+      updateDisplay();
+    }
+
+    function adjustTime(seconds) {
+      if (!startTime) return;
+      timeOffset += seconds;
+      saveState();
+      updateFinishTime();
+      updateDisplay();
+    }
+
+    function skipToNext() {
+      if (!startTime) return;
+      const elapsed = Math.floor((Date.now() - startTime) / 1000) + timeOffset;
+
+      // Find current step and mark it complete
+      for (let i = steps.length - 1; i >= 0; i--) {
+        if (steps[i].time <= elapsed && !completedSteps.has(i)) {
+          completedSteps.add(i);
+
+          // Jump time to next step if there is one
+          if (i < steps.length - 1) {
+            const nextStepTime = steps[i + 1].time;
+            const currentElapsed = Math.floor((Date.now() - startTime) / 1000) + timeOffset;
+            if (nextStepTime > currentElapsed) {
+              timeOffset += (nextStepTime - currentElapsed);
+            }
+          }
+          break;
+        }
+      }
+
+      saveState();
+      updateFinishTime();
       updateDisplay();
     }
 
