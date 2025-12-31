@@ -1,0 +1,2 @@
+# Proxy curriculum subfolder to separate Pages project
+/curriculum/* https://resident-curriculum.pages.dev/:splat 200
