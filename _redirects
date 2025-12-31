@@ -1,3 +1,0 @@
-# Redirect curriculum to Pages project
-/curriculum/* https://resident-curriculum.pages.dev/:splat 301
-/curriculum https://resident-curriculum.pages.dev/ 301
