@@ -110,6 +110,56 @@
         .elevated { background: #fef9c3; color: #854d0e; }
         .stage1 { background: #fed7aa; color: #9a3412; }
         .stage2 { background: #fecaca; color: #991b1b; }
+
+        /* Visual Gauge */
+        .gauge-section {
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+        .gauge-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .gauge-label {
+            width: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+        .gauge-bar {
+            flex: 1;
+            height: 10px;
+            background: linear-gradient(90deg,
+                #22c55e 0%, #22c55e 80%,
+                #eab308 80%, #eab308 90%,
+                #f97316 90%, #f97316 95%,
+                #dc2626 95%, #dc2626 100%);
+            border-radius: 5px;
+            position: relative;
+        }
+        .gauge-marker {
+            position: absolute;
+            top: -3px;
+            width: 4px;
+            height: 16px;
+            background: #1e293b;
+            border-radius: 2px;
+            transform: translateX(-50%);
+            transition: left 0.5s ease-out;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .gauge-legend {
+            display: flex;
+            justify-content: space-between;
+            margin-left: 40px;
+            font-size: 0.65rem;
+            color: #94a3b8;
+            margin-top: 0.25rem;
+        }
+
         .thresholds {
             margin-top: 1rem;
             padding: 1rem;
@@ -203,6 +253,37 @@
             color: #94a3b8;
             font-style: italic;
         }
+        .age-display {
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 600;
+            margin-top: 0.5rem;
+            min-height: 1.4em;
+        }
+        .sex-toggle {
+            display: flex;
+            background: #e2e8f0;
+            border-radius: 8px;
+            padding: 4px;
+        }
+        .sex-btn {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border: none;
+            background: transparent;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #64748b;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .sex-btn.active {
+            background: #fff;
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
         .toggle-precision {
             font-size: 0.75rem;
             color: var(--primary);
@@ -295,42 +376,35 @@
         
         <div class="card">
             <div class="form-group">
-                <label>Age</label>
-                <div class="age-input-row">
-                    <input type="number" id="ageYears" min="1" max="17" step="1" placeholder="Years">
-                    <input type="number" id="ageMonths" min="0" max="11" step="1" placeholder="Mo">
-                    <select id="ageType">
-                        <option value="ym">Years + Months</option>
-                        <option value="decimal">Decimal years</option>
-                    </select>
-                </div>
-                <input type="number" id="ageDecimal" min="1" max="17.99" step="0.01" placeholder="Age in decimal years (e.g., 7.5)" style="display:none; margin-top:0.5rem;">
-                <div class="precision-note" id="ageAdjustNote">💡 Tip: Use Years + Months for best accuracy with AAP tables</div>
-            </div>
-            
-            <div class="row">
-                <div class="form-group">
-                    <label>Sex</label>
-                    <select id="sex">
-                        <option value="M">Male</option>
-                        <option value="F">Female</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Height Unit</label>
-                    <select id="heightUnit">
-                        <option value="cm">Centimeters</option>
-                        <option value="in">Inches</option>
-                    </select>
-                </div>
+                <label>Date of Birth</label>
+                <input type="date" id="dob" required>
+                <div class="age-display" id="ageDisplay"></div>
             </div>
             
             <div class="form-group">
-                <label>Height</label>
-                <input type="number" id="height" step="0.1" placeholder="Enter height">
-                <div id="heightZscore" class="height-zscore"></div>
+                <label>Sex</label>
+                <div class="sex-toggle" id="sexToggle">
+                    <button type="button" class="sex-btn active" data-value="M">Male</button>
+                    <button type="button" class="sex-btn" data-value="F">Female</button>
+                </div>
+                <input type="hidden" id="sex" value="M">
             </div>
-            
+
+            <div class="row">
+                <div class="form-group">
+                    <label>Height</label>
+                    <input type="number" id="height" step="0.1" inputmode="decimal" placeholder="Enter height">
+                    <div class="height-zscore" id="heightZscore"></div>
+                </div>
+                <div class="form-group">
+                    <label>Unit</label>
+                    <select id="heightUnit">
+                        <option value="cm">cm</option>
+                        <option value="in">in</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="row">
                 <div class="form-group">
                     <label>Systolic BP (mmHg)</label>
@@ -360,6 +434,25 @@
                         <div class="result-detail" id="dbpDetail"></div>
                     </div>
                 </div>
+
+                <div class="gauge-section">
+                    <div class="gauge-row">
+                        <span class="gauge-label">SBP</span>
+                        <div class="gauge-bar">
+                            <div class="gauge-marker" id="sbpMarker"></div>
+                        </div>
+                    </div>
+                    <div class="gauge-row">
+                        <span class="gauge-label">DBP</span>
+                        <div class="gauge-bar">
+                            <div class="gauge-marker" id="dbpMarker"></div>
+                        </div>
+                    </div>
+                    <div class="gauge-legend">
+                        <span>50th</span><span>90th</span><span>95th</span><span>99th</span>
+                    </div>
+                </div>
+
                 <div id="classification" class="classification"></div>
                 <div class="thresholds">
                     <h4>BP Thresholds for this patient:</h4>
@@ -571,23 +664,56 @@ function classify(age, sbp, dbp, sbpPct, dbpPct, sbp95, dbp95) {
 // =============================================================================
 // UI HELPERS
 // =============================================================================
-document.getElementById('ageType').addEventListener('change', function() {
-    const isDecimal = this.value === 'decimal';
-    document.getElementById('ageYears').style.display = isDecimal ? 'none' : 'block';
-    document.getElementById('ageMonths').style.display = isDecimal ? 'none' : 'block';
-    document.getElementById('ageDecimal').style.display = isDecimal ? 'block' : 'none';
-    document.getElementById('ageAdjustNote').textContent = isDecimal 
-        ? 'Per Rosner method: Decimal ages get +0.5 months adjustment'
-        : 'Per Rosner method: Integer ages get +6.5 months adjustment';
+
+// Calculate age from DOB
+function calculateAgeFromDOB(dob) {
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let years = today.getFullYear() - birthDate.getFullYear();
+    let months = today.getMonth() - birthDate.getMonth();
+    if (months < 0 || (months === 0 && today.getDate() < birthDate.getDate())) {
+        years--;
+        months += 12;
+    }
+    if (today.getDate() < birthDate.getDate()) {
+        months--;
+        if (months < 0) months += 12;
+    }
+    return { years, months, decimal: years + months / 12 };
+}
+
+// DOB change handler
+document.getElementById('dob').addEventListener('change', function() {
+    const ageDisplay = document.getElementById('ageDisplay');
+    if (!this.value) {
+        ageDisplay.textContent = '';
+        return;
+    }
+    const age = calculateAgeFromDOB(this.value);
+    if (age.decimal < 1 || age.decimal > 18) {
+        ageDisplay.textContent = `${age.years}y ${age.months}m — outside valid range (1-17 years)`;
+        ageDisplay.style.color = '#dc2626';
+    } else {
+        ageDisplay.textContent = `Patient age: ${age.years} years, ${age.months} months`;
+        ageDisplay.style.color = '#2563eb';
+    }
+    updateHeightZscore();
+});
+
+// Sex toggle handler
+document.querySelectorAll('.sex-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.sex-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('sex').value = this.dataset.value;
+        updateHeightZscore();
+    });
 });
 
 // Real-time height z-score display
 document.getElementById('height').addEventListener('input', updateHeightZscore);
 document.getElementById('heightUnit').addEventListener('change', updateHeightZscore);
-document.getElementById('ageYears').addEventListener('input', updateHeightZscore);
-document.getElementById('ageMonths').addEventListener('input', updateHeightZscore);
-document.getElementById('ageDecimal').addEventListener('input', updateHeightZscore);
-document.getElementById('ageType').addEventListener('change', updateHeightZscore);
+document.getElementById('dob').addEventListener('change', updateHeightZscore);
 document.getElementById('sex').addEventListener('change', updateHeightZscore);
 
 function updateHeightZscore() {
@@ -596,17 +722,16 @@ function updateHeightZscore() {
     let height = parseFloat(document.getElementById('height').value);
     const heightUnit = document.getElementById('heightUnit').value;
     
-    // Get age
-    let age;
-    if (document.getElementById('ageType').value === 'decimal') {
-        age = parseFloat(document.getElementById('ageDecimal').value);
-    } else {
-        const years = parseInt(document.getElementById('ageYears').value) || 0;
-        const months = parseInt(document.getElementById('ageMonths').value) || 0;
-        age = years + months / 12;
+    // Get age from DOB
+    const dobValue = document.getElementById('dob').value;
+    if (!dobValue) {
+        zscoreEl.textContent = '';
+        return;
     }
-    
-    if (isNaN(height) || height <= 0 || isNaN(age) || age < 1) {
+    const ageData = calculateAgeFromDOB(dobValue);
+    const age = ageData.decimal;
+
+    if (isNaN(height) || height <= 0 || age < 1) {
         zscoreEl.textContent = '';
         return;
     }
@@ -649,35 +774,21 @@ function calculate() {
     const sbp = parseFloat(document.getElementById('sbp').value);
     const dbp = parseFloat(document.getElementById('dbp').value);
     
-    // Parse age based on input type
-    let age, ageInputType;
-    if (document.getElementById('ageType').value === 'decimal') {
-        age = parseFloat(document.getElementById('ageDecimal').value);
-        ageInputType = 'decimal';
-    } else {
-        const years = parseInt(document.getElementById('ageYears').value);
-        const months = parseInt(document.getElementById('ageMonths').value) || 0;
-        if (isNaN(years)) {
-            errorEl.textContent = 'Please enter age in years.';
-            return;
-        }
-        age = years + months / 12;
-        ageInputType = months === 0 ? 'integer' : 'ym';
+    // Parse age from DOB
+    const dobValue = document.getElementById('dob').value;
+    if (!dobValue) {
+        errorEl.textContent = 'Please enter date of birth.';
+        return;
     }
-    
+    const ageData = calculateAgeFromDOB(dobValue);
+    const age = ageData.decimal;
+
     // =========================================================================
     // ROSNER AGE ADJUSTMENT
-    // Per original SAS code: integer ages get +6.5 months, decimal ages get +0.5 months
+    // DOB gives us exact age in Y+M format, so use +0.5 months adjustment
     // =========================================================================
-    let adjustedAge = age;
-    let ageAdjustment = '';
-    if (ageInputType === 'integer') {
-        adjustedAge = age + 6.5/12;  // Add 6.5 months
-        ageAdjustment = '+6.5mo';
-    } else {
-        adjustedAge = age + 0.5/12;  // Add 0.5 months
-        ageAdjustment = '+0.5mo';
-    }
+    const adjustedAge = age + 0.5/12;
+    const ageAdjustment = '+0.5mo';
     
     // Validation
     if (isNaN(age) || age < 1 || age > 17.99) {
@@ -778,7 +889,18 @@ function calculate() {
     const classEl = document.getElementById('classification');
     classEl.textContent = result.class;
     classEl.className = 'classification ' + result.css;
-    
+
+    // Update visual gauges (map percentile 1-99 to 0-100% bar position)
+    // Bar zones: 0-80% = <90th (green), 80-90% = 90-95th (yellow), 90-95% = 95-99th (orange), 95-100% = >99th (red)
+    function pctToGaugePos(pct) {
+        if (pct <= 50) return (pct / 50) * 40;  // 1-50 maps to 0-40%
+        if (pct <= 90) return 40 + ((pct - 50) / 40) * 40;  // 50-90 maps to 40-80%
+        if (pct <= 95) return 80 + ((pct - 90) / 5) * 10;  // 90-95 maps to 80-90%
+        return 90 + ((pct - 95) / 5) * 10;  // 95-100 maps to 90-100%
+    }
+    document.getElementById('sbpMarker').style.left = pctToGaugePos(sbpPct) + '%';
+    document.getElementById('dbpMarker').style.left = pctToGaugePos(dbpPct) + '%';
+
     document.getElementById('p90').textContent = Math.round(sbp90) + '/' + Math.round(dbp90) + ' mmHg';
     document.getElementById('p95').textContent = Math.round(sbp95) + '/' + Math.round(dbp95) + ' mmHg';
     document.getElementById('p95plus12').textContent = Math.round(sbp95 + 12) + '/' + Math.round(dbp95 + 12) + ' mmHg';
