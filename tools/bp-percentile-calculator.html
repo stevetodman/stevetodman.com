@@ -375,12 +375,18 @@
         </details>
         
         <div class="card">
-            <div class="form-group">
-                <label>Date of Birth</label>
-                <input type="date" id="dob" required>
-                <div class="age-display" id="ageDisplay"></div>
+            <div class="row">
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="dob" required>
+                </div>
+                <div class="form-group">
+                    <label>Measurement Date</label>
+                    <input type="date" id="measureDate">
+                </div>
             </div>
-            
+            <div class="age-display" id="ageDisplay"></div>
+
             <div class="form-group">
                 <label>Sex</label>
                 <div class="sex-toggle" id="sexToggle">
@@ -665,40 +671,53 @@ function classify(age, sbp, dbp, sbpPct, dbpPct, sbp95, dbp95) {
 // UI HELPERS
 // =============================================================================
 
-// Calculate age from DOB
-function calculateAgeFromDOB(dob) {
-    const today = new Date();
+// Calculate age from DOB (optionally relative to a reference date)
+function calculateAgeFromDOB(dob, referenceDate) {
+    const refDate = referenceDate ? new Date(referenceDate) : new Date();
     const birthDate = new Date(dob);
-    let years = today.getFullYear() - birthDate.getFullYear();
-    let months = today.getMonth() - birthDate.getMonth();
-    if (months < 0 || (months === 0 && today.getDate() < birthDate.getDate())) {
+    let years = refDate.getFullYear() - birthDate.getFullYear();
+    let months = refDate.getMonth() - birthDate.getMonth();
+    if (months < 0 || (months === 0 && refDate.getDate() < birthDate.getDate())) {
         years--;
         months += 12;
     }
-    if (today.getDate() < birthDate.getDate()) {
+    if (refDate.getDate() < birthDate.getDate()) {
         months--;
         if (months < 0) months += 12;
     }
     return { years, months, decimal: years + months / 12 };
 }
 
-// DOB change handler
-document.getElementById('dob').addEventListener('change', function() {
+// Get measurement date (defaults to today)
+function getMeasureDate() {
+    return document.getElementById('measureDate').value || new Date().toISOString().split('T')[0];
+}
+
+// Update age display based on DOB and measurement date
+function updateAgeDisplay() {
     const ageDisplay = document.getElementById('ageDisplay');
-    if (!this.value) {
+    const dobValue = document.getElementById('dob').value;
+    if (!dobValue) {
         ageDisplay.textContent = '';
         return;
     }
-    const age = calculateAgeFromDOB(this.value);
+    const age = calculateAgeFromDOB(dobValue, getMeasureDate());
     if (age.decimal < 1 || age.decimal > 18) {
         ageDisplay.textContent = `${age.years}y ${age.months}m — outside valid range (1-17 years)`;
         ageDisplay.style.color = '#dc2626';
     } else {
-        ageDisplay.textContent = `Patient age: ${age.years} years, ${age.months} months`;
+        ageDisplay.textContent = `Age at measurement: ${age.years} years, ${age.months} months`;
         ageDisplay.style.color = '#2563eb';
     }
     updateHeightZscore();
-});
+}
+
+// DOB and measurement date handlers
+document.getElementById('dob').addEventListener('change', updateAgeDisplay);
+document.getElementById('measureDate').addEventListener('change', updateAgeDisplay);
+
+// Set today's date as default measurement date on load
+document.getElementById('measureDate').value = new Date().toISOString().split('T')[0];
 
 // Sex toggle handler
 document.querySelectorAll('.sex-btn').forEach(btn => {
@@ -728,14 +747,14 @@ function updateHeightZscore() {
         zscoreEl.textContent = '';
         return;
     }
-    const ageData = calculateAgeFromDOB(dobValue);
+    const ageData = calculateAgeFromDOB(dobValue, getMeasureDate());
     const age = ageData.decimal;
 
     if (isNaN(height) || height <= 0 || age < 1) {
         zscoreEl.textContent = '';
         return;
     }
-    
+
     if (heightUnit === 'in') {
         height = height * 2.54;
     }
@@ -774,13 +793,13 @@ function calculate() {
     const sbp = parseFloat(document.getElementById('sbp').value);
     const dbp = parseFloat(document.getElementById('dbp').value);
     
-    // Parse age from DOB
+    // Parse age from DOB relative to measurement date
     const dobValue = document.getElementById('dob').value;
     if (!dobValue) {
         errorEl.textContent = 'Please enter date of birth.';
         return;
     }
-    const ageData = calculateAgeFromDOB(dobValue);
+    const ageData = calculateAgeFromDOB(dobValue, getMeasureDate());
     const age = ageData.decimal;
 
     // =========================================================================
