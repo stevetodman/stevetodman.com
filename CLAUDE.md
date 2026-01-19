@@ -1,3 +1,8 @@
+---
+status: active
+next:
+---
+
 # CLAUDE.md
 
 This is Steve Todman's personal website deployed via Cloudflare Pages.
@@ -129,3 +134,17 @@ Clinic intake forms and patient education materials go in `/admin/clinic-resourc
 - Alert color: #e94560 (coral red)
 - Font: system fonts (-apple-system, BlinkMacSystemFont, etc.)
 - No external dependencies (single-file HTML)
+
+---
+
+## Session Protocol
+
+At the end of each work session, Claude will:
+1. Update `next:` in frontmatter with the next logical step
+2. Append to History below with what was done and why
+
+---
+
+## History
+
+<!-- Claude appends here. Most recent first. -->
