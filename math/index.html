@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f7f2e6" />
+    <title>Math Lab: Fractions</title>
+    <meta
+      name="description"
+      content="Interactive practice for equivalent fractions, simplifying, and comparing fractions with models and step-by-step help."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=Space+Grotesk:wght@400;600;700&display=swap"
+    />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" id="top">
+      <nav class="nav" aria-label="Primary">
+        <a class="brand" href="#top" aria-label="Math Lab home">
+          <span class="brand-mark" aria-hidden="true">ML</span>
+          <span class="brand-text">Math Lab</span>
+        </a>
+
+        <div class="nav-links" role="navigation" aria-label="Sections">
+          <a href="#quiz">Quiz</a>
+          <a href="#eq">Equivalent</a>
+          <a href="#simplify">Simplify</a>
+          <a href="#compare">Compare</a>
+          <a href="#worksheet">Worksheet</a>
+        </div>
+
+        <div class="nav-actions">
+          <button class="chip" id="toggle-steps" type="button" aria-pressed="false">
+            Show steps
+          </button>
+          <button class="chip" id="toggle-focus" type="button" aria-pressed="false">
+            Focus
+          </button>
+        </div>
+      </nav>
+
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy" data-reveal>
+          <h1 id="hero-title">Fractions, made visible.</h1>
+          <p class="lead">
+            Practice equivalent fractions, simplifying, and comparing with tape diagrams and number lines that
+            explain the "why".
+          </p>
+
+          <div class="hero-cta">
+            <a class="btn primary" href="#eq">Start practicing</a>
+            <a class="btn" href="#worksheet">Print a worksheet</a>
+          </div>
+
+          <div class="hero-stats" aria-label="Progress stats">
+            <div class="stat">
+              <div class="stat-number" id="stat-streak">0</div>
+              <div class="stat-label">streak</div>
+            </div>
+            <div class="stat">
+              <div class="stat-number" id="stat-accuracy">0%</div>
+              <div class="stat-label">accuracy</div>
+            </div>
+            <div class="stat">
+              <div class="stat-number" id="stat-total">0</div>
+              <div class="stat-label">answered</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true" data-reveal>
+          <svg viewBox="0 0 520 360" class="hero-svg" role="img" aria-label="">
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0" stop-color="var(--accent)" stop-opacity="0.75" />
+                <stop offset="1" stop-color="var(--gold)" stop-opacity="0.65" />
+              </linearGradient>
+              <linearGradient id="g2" x1="1" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="var(--ink)" stop-opacity="0.10" />
+                <stop offset="1" stop-color="var(--ink)" stop-opacity="0.04" />
+              </linearGradient>
+              <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#0b1220" flood-opacity="0.25" />
+              </filter>
+            </defs>
+
+            <rect x="26" y="30" width="468" height="300" rx="26" fill="url(#g2)" />
+
+            <g filter="url(#softShadow)">
+              <rect x="66" y="74" width="388" height="62" rx="18" fill="var(--card)" stroke="var(--stroke)" />
+              <g class="bar">
+                <rect x="86" y="92" width="70" height="26" rx="10" fill="url(#g1)" />
+                <rect x="162" y="92" width="70" height="26" rx="10" fill="url(#g1)" />
+                <rect x="238" y="92" width="70" height="26" rx="10" fill="url(#g1)" />
+                <rect x="314" y="92" width="70" height="26" rx="10" fill="transparent" stroke="var(--stroke)" />
+                <rect x="390" y="92" width="44" height="26" rx="10" fill="transparent" stroke="var(--stroke)" />
+              </g>
+              <text x="74" y="60" class="hero-scribble">3/5</text>
+            </g>
+
+            <g filter="url(#softShadow)">
+              <rect x="86" y="178" width="348" height="116" rx="22" fill="var(--card)" stroke="var(--stroke)" />
+              <g class="grid">
+                <rect x="112" y="206" width="96" height="24" rx="10" fill="url(#g1)" />
+                <rect x="216" y="206" width="96" height="24" rx="10" fill="url(#g1)" />
+                <rect x="112" y="236" width="96" height="24" rx="10" fill="url(#g1)" />
+                <rect x="216" y="236" width="96" height="24" rx="10" fill="transparent" stroke="var(--stroke)" />
+                <rect x="112" y="266" width="96" height="14" rx="8" fill="transparent" stroke="var(--stroke)" />
+                <rect x="216" y="266" width="96" height="14" rx="8" fill="transparent" stroke="var(--stroke)" />
+              </g>
+              <text x="98" y="206" class="hero-scribble">6/10</text>
+            </g>
+          </svg>
+          <div class="hero-badge">
+            <span class="badge-dot" aria-hidden="true"></span>
+            Models + steps, on demand
+          </div>
+        </div>
+      </section>
+    </header>
+
+    <main id="main">
+      <section class="panel" id="quiz" aria-labelledby="quiz-title">
+        <div class="panel-head" data-reveal>
+          <h2 id="quiz-title">Topic B &amp; C Check</h2>
+          <p class="panel-sub">A quick quiz on equivalent fractions, simplifying, and comparing (like the study guide).</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card" data-reveal>
+            <div class="card-title-row">
+              <h3 class="card-title">Quiz settings</h3>
+              <button class="linkish" type="button" id="quiz-reset">Reset</button>
+            </div>
+
+            <form class="ws-form" id="quiz-form">
+              <div class="ws-row">
+                <label>
+                  Questions
+                  <input id="quiz-count" type="number" min="6" max="20" step="1" value="10" />
+                </label>
+                <label>
+                  Mix
+                  <select id="quiz-mix">
+                    <option value="mixed" selected>Topic B + C</option>
+                    <option value="topicb">Topic B only</option>
+                    <option value="topicc">Topic C only</option>
+                  </select>
+                </label>
+                <label class="ws-check">
+                  <input id="quiz-numberline" type="checkbox" checked />
+                  Include number line questions
+                </label>
+              </div>
+
+              <div class="actions">
+                <button class="btn primary" type="submit" id="quiz-start">Start quiz</button>
+                <a class="btn ghost" href="#eq">Practice in labs</a>
+              </div>
+
+              <div class="feedback" id="quiz-feedback" aria-live="polite" hidden></div>
+            </form>
+
+            <p class="tiny">
+              Tip: treat this like a real check. No hints—just your brain, scratch paper, and a pencil.
+            </p>
+          </div>
+
+          <div class="card" data-reveal>
+            <div class="card-title-row">
+              <h3 class="card-title">Question</h3>
+              <div class="quiz-score" id="quiz-score" aria-label="Quiz score"></div>
+            </div>
+
+            <div class="quiz-stage" id="quiz-stage" aria-live="polite">
+              <div class="model-placeholder">Choose settings, then press “Start quiz”.</div>
+            </div>
+
+            <div class="feedback" id="quiz-q-feedback" aria-live="polite" hidden></div>
+            <div class="actions quiz-actions" id="quiz-actions" hidden></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="eq" aria-labelledby="eq-title">
+        <div class="panel-head" data-reveal>
+          <h2 id="eq-title">Equivalent Fractions Lab</h2>
+          <p class="panel-sub">
+            Train the rule: whatever you do to the numerator, you do to the denominator.
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card" data-reveal>
+            <div class="card-title-row">
+              <h3 class="card-title">Make an equivalent fraction</h3>
+              <button class="linkish" type="button" id="eq-new">New</button>
+            </div>
+
+            <div class="prompt">
+              <div class="fraction big" id="eq-given-frac" aria-label="Given fraction">
+                <span class="top" id="eq-given-n">3</span>
+                <span class="bar"></span>
+                <span class="bottom" id="eq-given-d">5</span>
+              </div>
+
+              <div class="op">
+                <span id="eq-op">&times;</span>
+                <span class="pill" id="eq-factor">2</span>
+              </div>
+
+              <div class="fraction big" aria-label="Your answer">
+                <label class="sr-only" for="eq-ans-n">Numerator</label>
+                <input id="eq-ans-n" inputmode="numeric" pattern="[0-9]*" maxlength="3" />
+                <span class="bar"></span>
+                <label class="sr-only" for="eq-ans-d">Denominator</label>
+                <input id="eq-ans-d" inputmode="numeric" pattern="[0-9]*" maxlength="3" />
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn primary" type="button" id="eq-check">Check</button>
+              <button class="btn" type="button" id="eq-hint">Hint</button>
+              <button class="btn ghost" type="button" id="eq-reveal">Reveal</button>
+            </div>
+
+            <div class="feedback" id="eq-feedback" aria-live="polite"></div>
+            <div class="steps" id="eq-steps" hidden></div>
+          </div>
+
+          <div class="card model-card" data-reveal>
+            <h3 class="card-title">Model</h3>
+            <div class="model-shelf" aria-label="Fraction models">
+              <div class="model-block">
+                <div class="model-label">Given</div>
+                <div id="eq-model-given"></div>
+              </div>
+              <div class="model-block">
+                <div class="model-label">Equivalent</div>
+                <div id="eq-model-ans"></div>
+              </div>
+            </div>
+            <p class="model-note">
+              Tip: if your denominator is bigger, your tape has more equal parts.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="simplify" aria-labelledby="simp-title">
+        <div class="panel-head" data-reveal>
+          <h2 id="simp-title">Simplify Station</h2>
+          <p class="panel-sub">Rename a fraction by dividing the numerator and denominator by the same number.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card" data-reveal>
+            <div class="card-title-row">
+              <h3 class="card-title">Simplify to lowest terms</h3>
+              <button class="linkish" type="button" id="simp-new">New</button>
+            </div>
+
+            <div class="prompt">
+              <div class="fraction big" id="simp-given-frac" aria-label="Fraction to simplify">
+                <span class="top" id="simp-given-n">16</span>
+                <span class="bar"></span>
+                <span class="bottom" id="simp-given-d">20</span>
+              </div>
+              <div class="arrow" aria-hidden="true">&rarr;</div>
+              <div class="fraction big" aria-label="Your simplified fraction">
+                <label class="sr-only" for="simp-ans-n">Numerator</label>
+                <input id="simp-ans-n" inputmode="numeric" pattern="[0-9]*" maxlength="3" />
+                <span class="bar"></span>
+                <label class="sr-only" for="simp-ans-d">Denominator</label>
+                <input id="simp-ans-d" inputmode="numeric" pattern="[0-9]*" maxlength="3" />
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn primary" type="button" id="simp-check">Check</button>
+              <button class="btn" type="button" id="simp-hint">Hint</button>
+              <button class="btn ghost" type="button" id="simp-reveal">Reveal</button>
+            </div>
+
+            <div class="feedback" id="simp-feedback" aria-live="polite"></div>
+            <div class="steps" id="simp-steps" hidden></div>
+          </div>
+
+          <div class="card model-card" data-reveal>
+            <h3 class="card-title">Model</h3>
+            <div class="model-shelf" aria-label="Simplify models">
+              <div class="model-block">
+                <div class="model-label">Original</div>
+                <div id="simp-model-given"></div>
+              </div>
+              <div class="model-block">
+                <div class="model-label">Simplified</div>
+                <div id="simp-model-ans"></div>
+              </div>
+            </div>
+            <p class="model-note">
+              Strategy: look for a common factor (2, 3, 4, 5...). Divide both numbers.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="compare" aria-labelledby="cmp-title">
+        <div class="panel-head" data-reveal>
+          <h2 id="cmp-title">Compare Arena</h2>
+          <p class="panel-sub">Use a model or rename to common denominators, then compare numerators.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card" data-reveal>
+            <div class="card-title-row">
+              <h3 class="card-title">Which is larger?</h3>
+              <button class="linkish" type="button" id="cmp-new">New</button>
+            </div>
+
+            <div class="compare-row" aria-label="Compare two fractions">
+              <div class="fraction big" id="cmp-left-frac" aria-label="Left fraction">
+                <span class="top" id="cmp-left-n">2</span>
+                <span class="bar"></span>
+                <span class="bottom" id="cmp-left-d">3</span>
+              </div>
+
+              <div class="compare-buttons" role="group" aria-label="Choose comparison sign">
+                <button class="cmp-btn" type="button" data-cmp="<" aria-label="Less than">&lt;</button>
+                <button class="cmp-btn" type="button" data-cmp="=" aria-label="Equal to">=</button>
+                <button class="cmp-btn" type="button" data-cmp=">" aria-label="Greater than">&gt;</button>
+              </div>
+
+              <div class="fraction big" id="cmp-right-frac" aria-label="Right fraction">
+                <span class="top" id="cmp-right-n">3</span>
+                <span class="bar"></span>
+                <span class="bottom" id="cmp-right-d">5</span>
+              </div>
+            </div>
+
+            <div class="feedback" id="cmp-feedback" aria-live="polite"></div>
+            <div class="steps" id="cmp-steps" hidden></div>
+
+            <div class="actions">
+              <button class="btn ghost" type="button" id="cmp-reveal">Reveal steps</button>
+            </div>
+          </div>
+
+          <div class="card model-card" data-reveal>
+            <h3 class="card-title">Number line</h3>
+            <div id="cmp-numberline" aria-label="Number line model"></div>
+            <p class="model-note">The farther right the point is, the larger the fraction.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="worksheet" aria-labelledby="ws-title">
+        <div class="panel-head" data-reveal>
+          <h2 id="ws-title">Worksheet Maker</h2>
+          <p class="panel-sub">Generate a clean printable set. Perfect for a quick 10-minute review.</p>
+        </div>
+
+        <div class="card" data-reveal>
+          <form class="ws-form" id="ws-form">
+            <div class="ws-row">
+              <label>
+                Problems
+                <input id="ws-count" type="number" min="6" max="30" step="1" value="12" />
+              </label>
+              <label>
+                Mix
+                <select id="ws-mix">
+                  <option value="mixed" selected>Mixed</option>
+                  <option value="equivalent">Equivalent only</option>
+                  <option value="simplify">Simplify only</option>
+                  <option value="compare">Compare only</option>
+                </select>
+              </label>
+              <label class="ws-check">
+                <input id="ws-steps" type="checkbox" />
+                Include example steps
+              </label>
+              <label class="ws-check">
+                <input id="ws-key" type="checkbox" />
+                Include answer key (for grown-ups)
+              </label>
+            </div>
+
+            <div class="actions">
+              <button class="btn primary" type="submit">Generate printable</button>
+              <button class="btn" type="button" id="ws-reset">Reset progress</button>
+              <a class="btn ghost" href="G4M5_Fractions_Practice.md" download>Download practice (MD)</a>
+            </div>
+
+            <div class="feedback" id="ws-feedback" aria-live="polite" hidden></div>
+
+            <p class="tiny" id="storage-note">
+              Note: progress is stored only in this browser (localStorage).
+            </p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div>
+          <div class="footer-title">Math Lab: Fractions</div>
+          <div class="footer-note">
+            Built for quick, high-feedback practice: models, steps, and spaced review.
+          </div>
+        </div>
+        <div class="footer-links">
+          <a href="#top">Back to top</a>
+        </div>
+      </div>
+    </footer>
+
+    <template id="tape-template">
+      <svg class="tape" viewBox="0 0 320 44" aria-hidden="true">
+        <rect class="tape-bg" x="1" y="1" width="318" height="42" rx="14" />
+      </svg>
+    </template>
+  </body>
+</html>
