@@ -92,6 +92,56 @@
   .menu-card p { font-size: 0.9rem; color: #718096; line-height: 1.4; }
   .menu-card .badge { display: inline-block; background: #667eea; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px; }
   .multi-note { font-size: 0.85rem; color: #667eea; font-style: italic; margin-bottom: 8px; }
+
+  /* Flashcard */
+  .fc-scene { perspective: 800px; margin: 0 auto 16px; max-width: 440px; }
+  .fc-card {
+    width: 100%; min-height: 220px; position: relative;
+    transform-style: preserve-3d; transition: transform 0.5s ease;
+    cursor: pointer;
+  }
+  .fc-card.flipped { transform: rotateY(180deg); }
+  .fc-face {
+    position: absolute; width: 100%; min-height: 220px; backface-visibility: hidden;
+    border-radius: 16px; padding: 28px 24px; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; text-align: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .fc-front {
+    background: linear-gradient(135deg, #667eea, #764ba2); color: #fff;
+  }
+  .fc-front .fc-word { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  .fc-front .fc-hint { font-size: 0.85rem; opacity: 0.7; }
+  .fc-back {
+    background: #fff; color: #2d3748; transform: rotateY(180deg);
+  }
+  .fc-back .fc-def { font-size: 1.15rem; line-height: 1.6; margin-bottom: 12px; }
+  .fc-back .fc-explain { font-size: 0.88rem; color: #718096; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+  .fc-counter { text-align: center; font-size: 0.9rem; color: #718096; margin-bottom: 12px; }
+  .fc-grade { display: flex; gap: 12px; justify-content: center; margin-top: 4px; }
+  .fc-grade button {
+    padding: 12px 24px; font-size: 1rem; font-weight: 600; border: none;
+    border-radius: 10px; cursor: pointer; transition: opacity 0.2s;
+  }
+  .fc-grade button:hover { opacity: 0.85; }
+  .fc-got-it { background: #38a169; color: #fff; }
+  .fc-learning { background: #ed8936; color: #fff; }
+  .fc-nav { display: flex; gap: 12px; justify-content: center; margin-bottom: 12px; }
+  .fc-nav button {
+    padding: 8px 20px; font-size: 0.95rem; font-weight: 600; border: 2px solid #e2e8f0;
+    border-radius: 10px; background: #fff; color: #4a5568; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .fc-nav button:hover { border-color: #667eea; color: #667eea; }
+  .fc-nav button:disabled { opacity: 0.3; cursor: default; }
+  .fc-summary { text-align: center; }
+  .fc-summary .big-check { font-size: 3rem; margin-bottom: 8px; }
+  .fc-summary .fc-msg { font-size: 1.15rem; margin-bottom: 20px; line-height: 1.5; color: #2d3748; }
+  .fc-still { text-align: left; margin: 0 auto 20px; max-width: 400px; }
+  .fc-still h3 { font-size: 1rem; color: #ed8936; margin-bottom: 10px; }
+  .fc-still-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; }
+  .fc-still-item strong { color: #2d3748; }
+  .fc-still-item span { color: #718096; }
 </style>
 </head>
 <body>
@@ -274,9 +324,14 @@ function showMenu() {
     <h1>Ancient Greece Quiz</h1>
     <p class="subtitle">Unit 3 Chapter 3 &mdash; City-States of Ancient Greece</p>
     <div class="menu-cards">
+      <div class="menu-card" data-mode="flashcards">
+        <span class="badge">Study</span>
+        <h2>Flashcards</h2>
+        <p>Tap to flip — see the word, then reveal the definition. Mark each as "Got it" or "Still learning"</p>
+      </div>
       <div class="menu-card" data-mode="vocab">
         <span class="badge">13 questions</span>
-        <h2>Vocabulary</h2>
+        <h2>Vocabulary Quiz</h2>
         <p>Match definitions to the correct vocab word</p>
       </div>
       <div class="menu-card" data-mode="chapter">
@@ -294,6 +349,7 @@ function showMenu() {
   app.querySelectorAll(".menu-card").forEach(card => {
     card.addEventListener("click", () => {
       quizMode = card.dataset.mode;
+      if (quizMode === "flashcards") { startFlashcards(VOCAB); return; }
       let pool = [];
       if (quizMode === "vocab" || quizMode === "all") {
         pool = pool.concat(VOCAB.map(v => ({ type: "vocab", ...v })));
@@ -521,6 +577,144 @@ function renderResults(app) {
   document.getElementById("home").addEventListener("click", showMenu);
   if (missed.length) {
     document.getElementById("retryMissed").addEventListener("click", () => startQuiz([...missed]));
+  }
+}
+
+/* ── FLASHCARDS ── */
+let fcCards, fcIdx, fcGotIt, fcLearning, fcFlipped;
+
+function startFlashcards(cards) {
+  fcCards = shuffle(cards);
+  fcIdx = 0;
+  fcGotIt = [];
+  fcLearning = [];
+  fcFlipped = false;
+  renderFlashcard();
+}
+
+function renderFlashcard() {
+  const app = document.getElementById("app");
+  if (fcIdx >= fcCards.length) { renderFcSummary(app); return; }
+
+  const c = fcCards[fcIdx];
+  fcFlipped = false;
+  const remaining = fcCards.length - fcIdx;
+
+  app.innerHTML = `
+    <h1>Ancient Greece Quiz</h1>
+    <p class="subtitle">Flashcards &mdash; Tap the card to flip</p>
+    <div class="fc-counter">${fcIdx + 1} of ${fcCards.length} &middot; ${remaining} remaining</div>
+    <div class="fc-scene">
+      <div class="fc-card" id="fcCard">
+        <div class="fc-face fc-front">
+          <div class="fc-word">${c.word}</div>
+          <div class="fc-hint">tap to see definition</div>
+        </div>
+        <div class="fc-face fc-back">
+          <div class="fc-def">${c.def}</div>
+          <div class="fc-explain">${c.explain}</div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-grade" id="fcGrade" style="visibility:hidden;">
+      <button class="fc-got-it" id="fcGotItBtn">Got it</button>
+      <button class="fc-learning" id="fcLearningBtn">Still learning</button>
+    </div>
+    <div style="height:12px;"></div>
+    <div class="fc-nav">
+      <button id="fcPrev" ${fcIdx === 0 ? 'disabled' : ''}>Back</button>
+      <button id="fcSkip">Skip</button>
+      <button class="btn-home" id="fcHome" style="font-size:0.95rem;">Menu</button>
+    </div>
+  `;
+
+  // Flip card
+  document.getElementById("fcCard").addEventListener("click", () => {
+    fcFlipped = !fcFlipped;
+    document.getElementById("fcCard").classList.toggle("flipped", fcFlipped);
+    if (fcFlipped) document.getElementById("fcGrade").style.visibility = "visible";
+  });
+
+  // Grade buttons
+  document.getElementById("fcGotItBtn").addEventListener("click", () => {
+    fcGotIt.push(fcCards[fcIdx]);
+    fcIdx++;
+    renderFlashcard();
+  });
+  document.getElementById("fcLearningBtn").addEventListener("click", () => {
+    fcLearning.push(fcCards[fcIdx]);
+    fcIdx++;
+    renderFlashcard();
+  });
+
+  // Nav
+  document.getElementById("fcPrev").addEventListener("click", () => {
+    if (fcIdx > 0) {
+      // undo last grade
+      const lastGot = fcGotIt[fcGotIt.length - 1];
+      const lastLearn = fcLearning[fcLearning.length - 1];
+      const prev = fcCards[fcIdx - 1];
+      if (lastGot === prev) fcGotIt.pop();
+      else if (lastLearn === prev) fcLearning.pop();
+      fcIdx--;
+      renderFlashcard();
+    }
+  });
+  document.getElementById("fcSkip").addEventListener("click", () => {
+    fcIdx++;
+    if (fcIdx >= fcCards.length) fcIdx = fcCards.length;
+    renderFlashcard();
+  });
+  document.getElementById("fcHome").addEventListener("click", showMenu);
+}
+
+function renderFcSummary(app) {
+  const total = fcGotIt.length + fcLearning.length;
+  const allGood = fcLearning.length === 0;
+  const msg = allGood
+    ? "You know all the words! Try the quiz to test yourself."
+    : `You've got ${fcGotIt.length} down. Let's keep working on the other ${fcLearning.length}.`;
+
+  let stillHTML = "";
+  if (fcLearning.length) {
+    stillHTML = `<div class="fc-still"><h3>Still learning (${fcLearning.length})</h3>` +
+      fcLearning.map(c => `<div class="fc-still-item"><strong>${c.word}</strong> &mdash; <span>${c.def}</span></div>`).join("") +
+      `</div>`;
+  }
+
+  const retryBtn = fcLearning.length
+    ? `<button class="fc-learning" id="fcRetry" style="padding:12px 28px;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;">Study "Still Learning" Again</button>` : "";
+  const quizBtn = allGood
+    ? `<button class="btn-restart" id="fcToQuiz">Take the Quiz</button>` : "";
+
+  app.innerHTML = `
+    <h1>Ancient Greece Quiz</h1>
+    <p class="subtitle">Flashcard Review</p>
+    <div class="card fc-summary">
+      <div class="big-check">${allGood ? "&#x2705;" : "&#x1F4DA;"}</div>
+      <div class="score-big" style="color:#667eea;">${fcGotIt.length}/${total}</div>
+      <div class="score-label" style="color:#718096;">words mastered</div>
+      <div class="fc-msg">${msg}</div>
+      ${stillHTML}
+      <div class="btn-row">
+        ${retryBtn}
+        <button class="btn-restart" id="fcAll">All Cards Again</button>
+        ${quizBtn}
+        <button class="btn-home" id="fcMenuBtn">Back to Menu</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("fcAll").addEventListener("click", () => startFlashcards(VOCAB));
+  document.getElementById("fcMenuBtn").addEventListener("click", showMenu);
+  if (fcLearning.length) {
+    document.getElementById("fcRetry").addEventListener("click", () => startFlashcards(fcLearning));
+  }
+  if (allGood) {
+    document.getElementById("fcToQuiz").addEventListener("click", () => {
+      quizMode = "vocab";
+      startQuiz(VOCAB.map(v => ({ type: "vocab", ...v })));
+    });
   }
 }
 
