@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ancient Greece Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f0f4f8;
+    color: #2d3748;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+  .container { max-width: 600px; width: 100%; }
+  h1 { text-align: center; font-size: 1.6rem; margin-bottom: 6px; color: #1a365d; }
+  .subtitle { text-align: center; color: #718096; font-size: 0.95rem; margin-bottom: 24px; }
+  .progress-bar { background: #e2e8f0; border-radius: 999px; height: 10px; margin-bottom: 20px; overflow: hidden; }
+  .progress-fill { background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; border-radius: 999px; transition: width 0.4s ease; }
+  .score-line { display: flex; justify-content: space-between; font-size: 0.9rem; color: #4a5568; margin-bottom: 16px; }
+  .card { background: #fff; border-radius: 16px; padding: 28px 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .q-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #a0aec0; margin-bottom: 8px; }
+  .q-text { font-size: 1.15rem; line-height: 1.5; color: #2d3748; margin-bottom: 24px; }
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    display: block; width: 100%; padding: 14px 18px; font-size: 1.05rem;
+    border: 2px solid #e2e8f0; border-radius: 12px; background: #fff;
+    color: #2d3748; cursor: pointer; text-align: left; transition: all 0.15s ease;
+  }
+  .choice-btn:hover:not(:disabled) { border-color: #667eea; background: #f7f8ff; }
+  .choice-btn:disabled { cursor: default; }
+  .choice-btn.correct { border-color: #38a169; background: #f0fff4; color: #22543d; font-weight: 600; }
+  .choice-btn.wrong { border-color: #e53e3e; background: #fff5f5; color: #9b2c2c; }
+  .choice-btn.reveal { border-color: #38a169; background: #f0fff4; color: #22543d; }
+  .feedback { text-align: center; font-size: 1.1rem; font-weight: 600; margin-top: 18px; min-height: 28px; }
+  .feedback.correct-fb { color: #38a169; }
+  .feedback.wrong-fb { color: #e53e3e; }
+
+  /* Explanation box */
+  .explain-box {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  .explain-box.wrong-ex {
+    background: #fff5f5;
+    border-left: 4px solid #e53e3e;
+    color: #742a2a;
+  }
+  .explain-box.correct-ex {
+    background: #f0fff4;
+    border-left: 4px solid #38a169;
+    color: #22543d;
+  }
+  .explain-box strong { font-weight: 700; }
+
+  .next-btn {
+    display: block; margin: 16px auto 0; padding: 12px 32px; font-size: 1rem; font-weight: 600;
+    border: none; border-radius: 10px; background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff; cursor: pointer; transition: opacity 0.2s;
+  }
+  .next-btn:hover { opacity: 0.9; }
+  .results { text-align: center; }
+  .results .score-big { font-size: 3.5rem; font-weight: 700; color: #667eea; margin: 12px 0 4px; }
+  .results .score-label { font-size: 1.1rem; color: #718096; margin-bottom: 20px; }
+  .results .message { font-size: 1.15rem; margin-bottom: 24px; line-height: 1.5; }
+  .missed-list { text-align: left; margin: 0 auto 24px; max-width: 480px; }
+  .missed-list h3 { font-size: 1rem; color: #e53e3e; margin-bottom: 10px; }
+  .missed-item { padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; line-height: 1.4; }
+  .missed-item strong { color: #2d3748; }
+  .missed-item .mi-explain { color: #718096; font-size: 0.88rem; margin-top: 4px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-row button { padding: 12px 28px; font-size: 1rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; transition: opacity 0.2s; }
+  .btn-row button:hover { opacity: 0.85; }
+  .btn-retry-missed { background: #e53e3e; color: #fff; }
+  .btn-restart { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+  .btn-home { background: #4a5568; color: #fff; }
+
+  /* Menu */
+  .menu-cards { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+  .menu-card {
+    background: #fff; border-radius: 14px; padding: 22px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    cursor: pointer; border: 2px solid transparent; transition: all 0.15s ease;
+  }
+  .menu-card:hover { border-color: #667eea; transform: translateY(-2px); box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
+  .menu-card h2 { font-size: 1.15rem; color: #1a365d; margin-bottom: 4px; }
+  .menu-card p { font-size: 0.9rem; color: #718096; line-height: 1.4; }
+  .menu-card .badge { display: inline-block; background: #667eea; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px; }
+  .multi-note { font-size: 0.85rem; color: #667eea; font-style: italic; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div class="container" id="app"></div>
+
+<script>
+/* ── VOCAB QUESTIONS (definition → pick word) ── */
+const VOCAB = [
+  {
+    word: "archipelago", def: "A chain of islands",
+    explain: "\"Archipelago\" comes from Greek words meaning \"chief sea.\" Greece itself is an archipelago — think of all the islands scattered across the Aegean Sea, like Crete and the Cyclades."
+  },
+  {
+    word: "isthmus", def: "A narrow piece of land that connects two larger landmasses",
+    explain: "An isthmus is like a land bridge. The most famous Greek example is the Isthmus of Corinth, which connects mainland Greece to the Peloponnese peninsula. It's narrow enough that the Greeks eventually built a canal through it!"
+  },
+  {
+    word: "colony", def: "An area settled by people who come from elsewhere",
+    explain: "Greek colonies were new settlements founded far from the original city. Greeks set up colonies all around the Mediterranean and Black Sea because their mountainous homeland didn't have enough farmland to feed everyone."
+  },
+  {
+    word: "polis", def: "A city-state of ancient Greece",
+    explain: "A polis was more than just a city — it was an independent mini-country with its own government, laws, and army. Athens and Sparta were both poleis (plural of polis). This is where we get the word \"politics\"!"
+  },
+  {
+    word: "citizen", def: "In ancient Greece, a person with legal rights and responsibilities in a city-state",
+    explain: "In Athens, only wealthy men born in Athens could be citizens. Women, enslaved people, and foreigners (metics) were NOT citizens and couldn't vote or own land. It was a much more limited idea of citizenship than we have today."
+  },
+  {
+    word: "tyranny", def: "A type of government in which one person holds all power, usually ruling in a harsh way",
+    explain: "A tyrant seized power by force, not by inheritance or election. Some Greek tyrants actually started out popular by helping ordinary people against the aristocrats — but the word \"tyranny\" came to mean cruel, one-person rule."
+  },
+  {
+    word: "jury", def: "A group of people who listen to information presented in court and make decisions whether or not someone is guilty",
+    explain: "Athens invented the jury system! Athenian juries were HUGE — sometimes 500 people — because they believed a large group would be harder to bribe. Citizens were chosen by lottery to serve. We still use juries in courts today."
+  },
+  {
+    word: "metic", def: "A foreigner living in an ancient Greek city",
+    explain: "Metics could live and work in Athens, but they couldn't vote, own land, or marry Athenian citizens. They still had to pay taxes and serve in the military. Many metics were skilled craftspeople and merchants."
+  },
+  {
+    word: "aristocracy", def: "The upper or noble class whose members' status is usually passed down through family; government by such a class",
+    explain: "\"Aristocracy\" literally means \"rule by the best\" in Greek. In an aristocracy, a few noble families run everything, and you're born into power — you can't earn your way in. It's different from oligarchy because it's specifically about family bloodlines, not just wealth."
+  },
+  {
+    word: "oligarchy", def: "A government where all power is held by a small group of wealthy or powerful people",
+    explain: "\"Oligarchy\" means \"rule by the few.\" The key difference from aristocracy: oligarchs hold power because of their wealth, not necessarily their family name. Sparta was partly an oligarchy — a small council of elders held much of the power."
+  },
+  {
+    word: "democracy", def: "A form of government in which people choose their leaders",
+    explain: "\"Democracy\" means \"rule by the people\" — demos (people) + kratos (power). Athens created the world's first democracy around 500 BC. But remember: only male citizens could participate, so it was limited compared to modern democracy."
+  },
+  {
+    word: "logic", def: "The study of ways of thinking and making reasonable arguments",
+    explain: "Greek philosophers like Aristotle developed logic as a way to test whether an argument actually makes sense. Athenian education valued logic because citizens needed to debate and persuade in the assembly. It's the foundation of how we think through problems today."
+  },
+  {
+    word: "helot", def: "An enslaved person in Sparta",
+    explain: "Helots were people the Spartans conquered and forced to farm the land. They outnumbered Spartans by about 7 to 1, which is one reason Sparta became so militaristic — they were always afraid of a helot revolt and needed a strong army to keep control."
+  }
+];
+
+/* ── CHAPTER QUESTIONS (pre-set multiple choice) ── */
+const CHAPTER = [
+  {
+    question: "Most of ancient Greece's territory was located ______.",
+    choices: ["on islands", "in the Black Sea", "along coastlines", "south of Crete"],
+    answer: "along coastlines",
+    explain: "Greece is a peninsula that juts into the Mediterranean, so most of its territory was along coastlines. While Greece does have many islands, the majority of the land and population was on the coasts of the mainland and the Peloponnese."
+  },
+  {
+    question: "How did Greece's geography affect the development of Greek culture? (Select both correct answers)",
+    choices: [
+      "Mountainous land made it difficult for outsiders to attack cities as they developed their own individual cultures.",
+      "Mountains and islands made travel difficult, so Greek cities developed apart from each other.",
+      "Plateaus and open plains made travel easy, which encouraged sharing among Greek cultures.",
+      "Abundant rivers and flat coastlines made travel easy, which encouraged sharing among Greek cultures."
+    ],
+    answer: [
+      "Mountainous land made it difficult for outsiders to attack cities as they developed their own individual cultures.",
+      "Mountains and islands made travel difficult, so Greek cities developed apart from each other."
+    ],
+    multi: true,
+    explain: "Greece is about 80% mountains! These mountains and the sea between islands made it very hard to travel by land. That's why each city-state developed its own culture, government, and identity instead of uniting as one country. The mountains also acted as natural walls that protected cities from invaders."
+  },
+  {
+    question: "In which type of government in ancient Greece was power shared by a large number of citizens?",
+    choices: ["aristocracy", "oligarchy", "democracy", "tyranny"],
+    answer: "democracy",
+    explain: "Democracy = \"rule by the people.\" In Athens' democracy, thousands of citizens could vote directly on laws in the assembly. Aristocracy is rule by noble families, oligarchy is rule by a small wealthy group, and tyranny is rule by one person. Only democracy shares power widely."
+  },
+  {
+    question: "Who qualified for citizenship in ancient Athens?",
+    choices: ["all men", "all people", "wealthy people", "wealthy men"],
+    answer: "wealthy men",
+    explain: "Athenian citizenship was very exclusive. You had to be male, wealthy, and born to Athenian parents. Women, enslaved people, metics (foreigners), and poor men were all excluded. This means only about 10-20% of Athens' population could actually participate in their \"democracy.\""
+  },
+  {
+    question: "How did education in Sparta differ from education in Athens?",
+    choices: [
+      "Sparta focused on citizenship; Athens focused on managing the household.",
+      "Sparta focused on arts and sciences; Athens focused on physical education.",
+      "Sparta focused on logic, math, and science; Athens focused on reading, writing, and the arts.",
+      "Sparta focused on military training; Athens focused on producing well-rounded citizens."
+    ],
+    answer: "Sparta focused on military training; Athens focused on producing well-rounded citizens.",
+    explain: "Spartan boys entered military training at age 7 and lived in barracks until age 30. Everything was about making tough soldiers. Athens took the opposite approach — boys studied reading, writing, math, music, poetry, and athletics to become well-rounded thinkers and citizens. Two very different ideas about what makes a good society!"
+  },
+  {
+    question: "Which city-state operated as a military unit?",
+    choices: ["Athens", "Minoa", "Crete", "Sparta"],
+    answer: "Sparta",
+    explain: "Sparta's entire society was organized around its army. Boys trained from age 7, men served as soldiers until 60, and even girls did physical training so they'd have strong children. Sparta needed this massive military partly to control the helots (enslaved people) who outnumbered them."
+  },
+  {
+    question: "How did Athens become involved in the Persian Wars?",
+    choices: [
+      "It was attacked by the Persians.",
+      "It allied with the Persians against Spartan forces.",
+      "It defended another Greek city-state against Persian forces.",
+      "It attacked and captured the Persian colonies."
+    ],
+    answer: "It defended another Greek city-state against Persian forces.",
+    explain: "Athens sent ships to help the Greek colonies in Ionia (modern-day Turkey) when they rebelled against Persian rule. This made the Persian King Darius furious, and he launched an invasion of Greece to punish Athens — leading to the famous Battle of Marathon in 490 BC."
+  },
+  {
+    question: "What was the cause of the Peloponnesian War?",
+    choices: [
+      "Athens tried to spread democracy to other city-states.",
+      "Sparta wanted to unite all of Greece under a single emperor.",
+      "Athens thought Sparta's military power had become too strong.",
+      "Sparta wanted revenge for the destruction caused by the Persian Wars."
+    ],
+    answer: "Athens tried to spread democracy to other city-states.",
+    explain: "After the Persian Wars, Athens became very powerful and formed the Delian League. Athens used this alliance to spread its influence and push democracy on other city-states. Sparta and its allies saw this as a threat to their way of life, which led to the Peloponnesian War (431-404 BC) — basically a Greek civil war."
+  },
+  {
+    question: "How did Sparta ultimately win the Peloponnesian War?",
+    choices: [
+      "It trapped the enemy's ships.",
+      "It burned Athens to the ground.",
+      "It doubled the size of its army.",
+      "It cut off the enemy's food supplies."
+    ],
+    answer: "It cut off the enemy's food supplies.",
+    explain: "Athens depended on grain shipments from the Black Sea region because it couldn't grow enough food locally. Sparta's navy (with help from Persia!) blocked these supply routes. With no food coming in, Athens was starved into surrendering in 404 BC after 27 years of war."
+  },
+  {
+    question: 'Based on Pericles\'s Funeral Oration — "We run our city-state differently than they do in nearby city-states. We prefer to be a model for other communities rather than copy them..." — What or who was Pericles talking to?',
+    choices: ["Persians", "Spartans", "the gods", "Athenians"],
+    answer: "Athenians",
+    explain: "Pericles gave this famous speech to fellow Athenians at a funeral for soldiers killed in the Peloponnesian War. He was praising Athens' democracy and way of life to inspire his people. The clue is \"We run OUR city-state\" and \"WE prefer\" — he's talking to his own citizens about what makes Athens special."
+  }
+];
+
+/* ── HELPERS ── */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickVocabChoices(correctWord, count = 4) {
+  const others = VOCAB.map(v => v.word).filter(w => w !== correctWord);
+  const picked = shuffle(others).slice(0, count - 1);
+  picked.push(correctWord);
+  return shuffle(picked);
+}
+
+/* ── STATE ── */
+let questions, current, score, missed, answered, quizMode, multiSelected;
+
+/* ── MENU ── */
+function showMenu() {
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <h1>Ancient Greece Quiz</h1>
+    <p class="subtitle">Unit 3 Chapter 3 &mdash; City-States of Ancient Greece</p>
+    <div class="menu-cards">
+      <div class="menu-card" data-mode="vocab">
+        <span class="badge">13 questions</span>
+        <h2>Vocabulary</h2>
+        <p>Match definitions to the correct vocab word</p>
+      </div>
+      <div class="menu-card" data-mode="chapter">
+        <span class="badge">10 questions</span>
+        <h2>Chapter Review</h2>
+        <p>Geography, government, Sparta vs Athens, Persian &amp; Peloponnesian Wars</p>
+      </div>
+      <div class="menu-card" data-mode="all">
+        <span class="badge">23 questions</span>
+        <h2>Full Test</h2>
+        <p>All vocab + chapter questions combined</p>
+      </div>
+    </div>
+  `;
+  app.querySelectorAll(".menu-card").forEach(card => {
+    card.addEventListener("click", () => {
+      quizMode = card.dataset.mode;
+      let pool = [];
+      if (quizMode === "vocab" || quizMode === "all") {
+        pool = pool.concat(VOCAB.map(v => ({ type: "vocab", ...v })));
+      }
+      if (quizMode === "chapter" || quizMode === "all") {
+        pool = pool.concat(CHAPTER.map(c => ({ type: "chapter", ...c })));
+      }
+      startQuiz(pool);
+    });
+  });
+}
+
+/* ── QUIZ ENGINE ── */
+function startQuiz(pool) {
+  questions = shuffle(pool);
+  current = 0;
+  score = 0;
+  missed = [];
+  answered = false;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const app = document.getElementById("app");
+  if (current >= questions.length) { renderResults(app); return; }
+
+  const q = questions[current];
+  const pct = Math.round((current / questions.length) * 100);
+  const isMulti = q.multi === true;
+  multiSelected = new Set();
+
+  let label, text, choicesHTML;
+
+  if (q.type === "vocab") {
+    label = "Definition";
+    text = q.def;
+    const opts = pickVocabChoices(q.word);
+    choicesHTML = opts.map(c => `<button class="choice-btn" data-val="${esc(c)}">${c}</button>`).join("");
+  } else {
+    label = "Question";
+    text = q.question;
+    const opts = shuffle([...q.choices]);
+    choicesHTML = opts.map(c => `<button class="choice-btn" data-val="${esc(c)}">${c}</button>`).join("");
+  }
+
+  app.innerHTML = `
+    <h1>Ancient Greece Quiz</h1>
+    <p class="subtitle">Unit 3 Chapter 3 &mdash; City-States of Ancient Greece</p>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="score-line">
+      <span>Question ${current + 1} of ${questions.length}</span>
+      <span>${score} correct</span>
+    </div>
+    <div class="card">
+      <div class="q-label">${label}</div>
+      <div class="q-text">${text}</div>
+      ${isMulti ? '<p class="multi-note">Select two answers, then press Submit</p>' : ''}
+      <div class="choices" id="choices">${choicesHTML}</div>
+      ${isMulti ? '<button class="next-btn" id="multiSubmit" style="margin-top:14px;opacity:0.4;pointer-events:none;">Submit (0/2)</button>' : ''}
+      <div class="feedback" id="feedback"></div>
+      <div id="explainArea"></div>
+    </div>
+  `;
+
+  if (isMulti) {
+    const submitBtn = document.getElementById("multiSubmit");
+    document.querySelectorAll(".choice-btn").forEach(btn => {
+      btn.addEventListener("click", () => handleMultiToggle(btn, submitBtn));
+    });
+    submitBtn.addEventListener("click", () => handleMultiSubmit(q));
+  } else {
+    document.querySelectorAll(".choice-btn").forEach(btn => {
+      btn.addEventListener("click", () => handleSingleAnswer(btn, q));
+    });
+  }
+}
+
+function esc(s) { return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+function unesc(s) { const d = document.createElement('div'); d.innerHTML = s; return d.textContent; }
+
+function showExplanation(isCorrect, q) {
+  const area = document.getElementById("explainArea");
+  const cls = isCorrect ? "correct-ex" : "wrong-ex";
+  const prefix = isCorrect ? "Nice!" : "Here's why:";
+  area.innerHTML = `<div class="explain-box ${cls}"><strong>${prefix}</strong> ${q.explain}</div>`;
+}
+
+/* Single-answer handler */
+function handleSingleAnswer(btn, q) {
+  if (answered) return;
+  answered = true;
+  const chosen = unesc(btn.dataset.val);
+  const correctVal = q.type === "vocab" ? q.word : q.answer;
+  const isCorrect = chosen === correctVal;
+  const fb = document.getElementById("feedback");
+
+  document.querySelectorAll(".choice-btn").forEach(b => {
+    b.disabled = true;
+    const bVal = unesc(b.dataset.val);
+    if (bVal === correctVal) b.classList.add(isCorrect ? "correct" : "reveal");
+  });
+
+  if (isCorrect) {
+    btn.classList.add("correct");
+    fb.textContent = "Correct!";
+    fb.className = "feedback correct-fb";
+    score++;
+  } else {
+    btn.classList.add("wrong");
+    fb.textContent = `Not quite!`;
+    fb.className = "feedback wrong-fb";
+    missed.push(questions[current]);
+  }
+  showExplanation(isCorrect, q);
+  addNextButton();
+}
+
+/* Multi-select toggle (Q15) */
+function handleMultiToggle(btn, submitBtn) {
+  if (answered) return;
+  const val = unesc(btn.dataset.val);
+  if (multiSelected.has(val)) {
+    multiSelected.delete(val);
+    btn.style.borderColor = "#e2e8f0";
+    btn.style.background = "#fff";
+  } else {
+    if (multiSelected.size >= 2) return;
+    multiSelected.add(val);
+    btn.style.borderColor = "#667eea";
+    btn.style.background = "#f7f8ff";
+  }
+  const ready = multiSelected.size === 2;
+  submitBtn.style.opacity = ready ? "1" : "0.4";
+  submitBtn.style.pointerEvents = ready ? "auto" : "none";
+  submitBtn.textContent = `Submit (${multiSelected.size}/2)`;
+}
+
+function handleMultiSubmit(q) {
+  if (answered) return;
+  answered = true;
+  const correctSet = new Set(q.answer);
+  const isCorrect = multiSelected.size === correctSet.size && [...multiSelected].every(v => correctSet.has(v));
+  const fb = document.getElementById("feedback");
+  const submitBtn = document.getElementById("multiSubmit");
+  submitBtn.style.display = "none";
+
+  document.querySelectorAll(".choice-btn").forEach(b => {
+    b.disabled = true;
+    const bVal = unesc(b.dataset.val);
+    if (correctSet.has(bVal)) b.classList.add("reveal");
+    if (multiSelected.has(bVal) && !correctSet.has(bVal)) b.classList.add("wrong");
+    if (multiSelected.has(bVal) && correctSet.has(bVal)) { b.classList.remove("reveal"); b.classList.add("correct"); }
+  });
+
+  if (isCorrect) {
+    fb.textContent = "Correct! Both answers right!";
+    fb.className = "feedback correct-fb";
+    score++;
+  } else {
+    fb.textContent = "Not quite!";
+    fb.className = "feedback wrong-fb";
+    missed.push(questions[current]);
+  }
+  showExplanation(isCorrect, q);
+  addNextButton();
+}
+
+function addNextButton() {
+  const btn = document.createElement("button");
+  btn.className = "next-btn";
+  btn.textContent = current + 1 < questions.length ? "Next" : "See Results";
+  btn.addEventListener("click", () => { current++; answered = false; renderQuestion(); });
+  document.querySelector(".card").appendChild(btn);
+}
+
+/* ── RESULTS ── */
+function renderResults(app) {
+  const pct = Math.round((score / questions.length) * 100);
+  let msg;
+  if (pct === 100) msg = "Perfect score! You nailed every single one!";
+  else if (pct >= 80) msg = "Great job! Almost there — just a few to review.";
+  else if (pct >= 60) msg = "Good effort! A little more practice and you'll have it.";
+  else msg = "Keep studying — you'll get there! Try the missed words again.";
+
+  let missedHTML = "";
+  if (missed.length) {
+    missedHTML = `<div class="missed-list"><h3>To review (${missed.length})</h3>` +
+      missed.map(m => {
+        const expl = m.explain || "";
+        if (m.type === "vocab") {
+          return `<div class="missed-item"><strong>${m.word}</strong> &mdash; ${m.def}<div class="mi-explain">${expl}</div></div>`;
+        }
+        const ans = Array.isArray(m.answer) ? m.answer.join(" + ") : m.answer;
+        const qShort = m.question.length > 70 ? m.question.slice(0, 70) + "..." : m.question;
+        return `<div class="missed-item"><strong>${qShort}</strong><br>Answer: ${ans}<div class="mi-explain">${expl}</div></div>`;
+      }).join("") + `</div>`;
+  }
+
+  const retryBtn = missed.length
+    ? `<button class="btn-retry-missed" id="retryMissed">Retry Missed (${missed.length})</button>` : "";
+
+  app.innerHTML = `
+    <h1>Ancient Greece Quiz</h1>
+    <p class="subtitle">Unit 3 Chapter 3 &mdash; City-States of Ancient Greece</p>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+    <div class="card results">
+      <div class="score-big">${pct}%</div>
+      <div class="score-label">${score} out of ${questions.length} correct</div>
+      <div class="message">${msg}</div>
+      ${missedHTML}
+      <div class="btn-row">
+        ${retryBtn}
+        <button class="btn-restart" id="restart">Play Again</button>
+        <button class="btn-home" id="home">Back to Menu</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("restart").addEventListener("click", () => {
+    let pool = [];
+    if (quizMode === "vocab" || quizMode === "all") pool = pool.concat(VOCAB.map(v => ({ type: "vocab", ...v })));
+    if (quizMode === "chapter" || quizMode === "all") pool = pool.concat(CHAPTER.map(c => ({ type: "chapter", ...c })));
+    startQuiz(pool);
+  });
+  document.getElementById("home").addEventListener("click", showMenu);
+  if (missed.length) {
+    document.getElementById("retryMissed").addEventListener("click", () => startQuiz([...missed]));
+  }
+}
+
+/* ── START ── */
+showMenu();
+</script>
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multiplication Speed Drill</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f0f4f8;
+    color: #2d3748;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+  .container { max-width: 500px; width: 100%; }
+  h1 { text-align: center; font-size: 1.6rem; margin-bottom: 6px; color: #1a365d; }
+  .subtitle { text-align: center; color: #718096; font-size: 0.95rem; margin-bottom: 24px; }
+  .card {
+    background: #fff; border-radius: 16px; padding: 28px 24px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom: 20px; text-align: center;
+  }
+
+  /* Stats bar */
+  .stats {
+    display: flex; justify-content: space-between; font-size: 0.9rem;
+    color: #4a5568; margin-bottom: 16px; flex-wrap: wrap; gap: 4px;
+  }
+  .stats .stat { text-align: center; }
+  .stats .stat-val { font-size: 1.3rem; font-weight: 700; color: #1a365d; }
+  .stats .stat-label { font-size: 0.75rem; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* Progress */
+  .progress-bar { background: #e2e8f0; border-radius: 999px; height: 10px; margin-bottom: 20px; overflow: hidden; }
+  .progress-fill { background: linear-gradient(90deg, #ed8936, #dd6b20); height: 100%; border-radius: 999px; transition: width 0.4s ease; }
+
+  /* Problem display */
+  .problem { font-size: 3.2rem; font-weight: 700; color: #1a365d; margin: 20px 0 8px; letter-spacing: 2px; }
+  .problem .op { color: #667eea; }
+
+  /* Input */
+  .answer-row { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 20px 0; }
+  .answer-input {
+    width: 120px; font-size: 2.2rem; font-weight: 700; text-align: center;
+    border: 3px solid #e2e8f0; border-radius: 12px; padding: 10px 8px;
+    outline: none; transition: border-color 0.2s; color: #1a365d;
+    -moz-appearance: textfield;
+  }
+  .answer-input::-webkit-outer-spin-button,
+  .answer-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .answer-input:focus { border-color: #667eea; }
+  .answer-input.flash-correct { border-color: #38a169; background: #f0fff4; }
+  .answer-input.flash-wrong { border-color: #e53e3e; background: #fff5f5; }
+
+  .go-btn {
+    padding: 12px 24px; font-size: 1.1rem; font-weight: 600; border: none; border-radius: 10px;
+    background: linear-gradient(135deg, #ed8936, #dd6b20); color: #fff; cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .go-btn:hover { opacity: 0.9; }
+
+  /* Feedback flash */
+  .feedback {
+    font-size: 1.2rem; font-weight: 600; min-height: 32px; margin-top: 8px;
+    transition: opacity 0.3s;
+  }
+  .feedback.correct-fb { color: #38a169; }
+  .feedback.wrong-fb { color: #e53e3e; }
+
+  /* Streak fire */
+  .streak-display { font-size: 1rem; color: #dd6b20; font-weight: 600; min-height: 24px; margin-bottom: 4px; }
+
+  /* Menu */
+  .menu-cards { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+  .menu-card {
+    background: #fff; border-radius: 14px; padding: 22px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    cursor: pointer; border: 2px solid transparent; transition: all 0.15s ease;
+  }
+  .menu-card:hover { border-color: #ed8936; transform: translateY(-2px); box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
+  .menu-card h2 { font-size: 1.15rem; color: #1a365d; margin-bottom: 4px; }
+  .menu-card p { font-size: 0.9rem; color: #718096; line-height: 1.4; }
+  .menu-card .badge { display: inline-block; background: #ed8936; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px; }
+
+  /* Results */
+  .results { text-align: center; }
+  .results .score-big { font-size: 3.5rem; font-weight: 700; color: #ed8936; margin: 12px 0 4px; }
+  .results .score-label { font-size: 1.1rem; color: #718096; margin-bottom: 8px; }
+  .results .time-label { font-size: 1rem; color: #4a5568; margin-bottom: 20px; }
+  .results .message { font-size: 1.15rem; margin-bottom: 24px; line-height: 1.5; }
+  .missed-list { text-align: left; margin: 0 auto 24px; max-width: 400px; }
+  .missed-list h3 { font-size: 1rem; color: #e53e3e; margin-bottom: 10px; }
+  .missed-item {
+    display: flex; justify-content: space-between; padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0; font-size: 1rem;
+  }
+  .missed-item .prob { font-weight: 600; color: #2d3748; }
+  .missed-item .ans { color: #38a169; font-weight: 600; }
+  .missed-item .gave { color: #e53e3e; font-size: 0.85rem; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-row button { padding: 12px 28px; font-size: 1rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; transition: opacity 0.2s; }
+  .btn-row button:hover { opacity: 0.85; }
+  .btn-retry { background: #e53e3e; color: #fff; }
+  .btn-restart { background: linear-gradient(135deg, #ed8936, #dd6b20); color: #fff; }
+  .btn-home { background: #4a5568; color: #fff; }
+  a.back-link { display: block; text-align: center; color: #667eea; font-size: 0.9rem; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="container" id="app"></div>
+
+<script>
+/* ── CONFIG ── */
+const MIN = 0, MAX = 12;
+
+/* ── STATE ── */
+let problems, current, score, missed, streak, bestStreak, startTime, qStart, times, mode;
+
+/* ── GENERATE PROBLEMS ── */
+function allProblems() {
+  const ps = [];
+  for (let a = MIN; a <= MAX; a++)
+    for (let b = a; b <= MAX; b++)
+      ps.push({ a, b, answer: a * b });
+  return ps;
+}
+
+function hardProblems() {
+  // 6-12 × 6-12 — the ones kids actually struggle with
+  const ps = [];
+  for (let a = 6; a <= MAX; a++)
+    for (let b = a; b <= MAX; b++)
+      ps.push({ a, b, answer: a * b });
+  return ps;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function randomizeOrder(p) {
+  // randomly swap a×b vs b×a so she sees both directions
+  return Math.random() < 0.5 ? { a: p.b, b: p.a, answer: p.answer } : p;
+}
+
+/* ── MENU ── */
+function showMenu() {
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <h1>Multiplication Speed Drill</h1>
+    <p class="subtitle">How fast can you go?</p>
+    <div class="menu-cards">
+      <div class="menu-card" data-mode="20">
+        <span class="badge">Quick</span>
+        <h2>20 Problems</h2>
+        <p>Random facts from 0&times;0 to 12&times;12 — fast warm-up</p>
+      </div>
+      <div class="menu-card" data-mode="50">
+        <span class="badge">Standard</span>
+        <h2>50 Problems</h2>
+        <p>Good practice session with a mix of all facts</p>
+      </div>
+      <div class="menu-card" data-mode="hard">
+        <span class="badge">Challenge</span>
+        <h2>Hard Facts Only</h2>
+        <p>6&times;6 through 12&times;12 — the tricky ones (28 problems)</p>
+      </div>
+      <div class="menu-card" data-mode="all">
+        <span class="badge">Full Test</span>
+        <h2>All 91 Facts</h2>
+        <p>Every unique multiplication fact from 0&times;0 to 12&times;12</p>
+      </div>
+    </div>
+    <a class="back-link" href="./">Back to home</a>
+  `;
+  app.querySelectorAll(".menu-card").forEach(card => {
+    card.addEventListener("click", () => startDrill(card.dataset.mode));
+  });
+}
+
+/* ── START DRILL ── */
+function startDrill(m) {
+  mode = m;
+  let pool;
+  if (m === "hard") {
+    pool = shuffle(hardProblems());
+  } else if (m === "all") {
+    pool = shuffle(allProblems());
+  } else {
+    const count = parseInt(m);
+    pool = shuffle(allProblems()).slice(0, count);
+  }
+  problems = pool.map(randomizeOrder);
+  current = 0;
+  score = 0;
+  missed = [];
+  streak = 0;
+  bestStreak = 0;
+  times = [];
+  startTime = Date.now();
+  qStart = Date.now();
+  renderProblem();
+}
+
+/* ── RENDER PROBLEM ── */
+function renderProblem() {
+  const app = document.getElementById("app");
+  if (current >= problems.length) { renderResults(app); return; }
+
+  const p = problems[current];
+  const pct = Math.round((current / problems.length) * 100);
+  const elapsed = Math.round((Date.now() - startTime) / 1000);
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+  const streakText = streak >= 3 ? "🔥".repeat(Math.min(streak - 2, 5)) + ` ${streak} in a row!` : "";
+
+  app.innerHTML = `
+    <h1>Multiplication Speed Drill</h1>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="stats">
+      <div class="stat"><div class="stat-val">${current + 1}/${problems.length}</div><div class="stat-label">Problem</div></div>
+      <div class="stat"><div class="stat-val">${score}</div><div class="stat-label">Correct</div></div>
+      <div class="stat"><div class="stat-val">${mins}:${secs.toString().padStart(2,'0')}</div><div class="stat-label">Time</div></div>
+      <div class="stat"><div class="stat-val">${bestStreak}</div><div class="stat-label">Best Streak</div></div>
+    </div>
+    <div class="card">
+      <div class="streak-display">${streakText}</div>
+      <div class="problem">${p.a} <span class="op">&times;</span> ${p.b} <span class="op">=</span></div>
+      <div class="answer-row">
+        <input type="number" class="answer-input" id="answerInput" autocomplete="off" inputmode="numeric">
+        <button class="go-btn" id="goBtn">Go</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+  `;
+
+  const input = document.getElementById("answerInput");
+  const goBtn = document.getElementById("goBtn");
+  qStart = Date.now();
+
+  input.focus();
+  input.addEventListener("keydown", e => { if (e.key === "Enter") submitAnswer(); });
+  goBtn.addEventListener("click", submitAnswer);
+}
+
+/* ── SUBMIT ── */
+function submitAnswer() {
+  const input = document.getElementById("answerInput");
+  const val = input.value.trim();
+  if (val === "") return;
+
+  const p = problems[current];
+  const given = parseInt(val);
+  const isCorrect = given === p.answer;
+  const fb = document.getElementById("feedback");
+  const elapsed = Date.now() - qStart;
+  times.push(elapsed);
+
+  input.disabled = true;
+  document.getElementById("goBtn").disabled = true;
+
+  if (isCorrect) {
+    input.classList.add("flash-correct");
+    fb.textContent = elapsed < 2000 ? "Fast!" : "Correct!";
+    fb.className = "feedback correct-fb";
+    score++;
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    setTimeout(() => { current++; renderProblem(); }, 500);
+  } else {
+    input.classList.add("flash-wrong");
+    streak = 0;
+    fb.innerHTML = `<span>${p.a} &times; ${p.b} = <strong>${p.answer}</strong></span> &nbsp;(you said ${given})`;
+    fb.className = "feedback wrong-fb";
+    missed.push({ ...p, given });
+    setTimeout(() => { current++; renderProblem(); }, 1800);
+  }
+}
+
+/* ── RESULTS ── */
+function renderResults(app) {
+  const totalTime = Math.round((Date.now() - startTime) / 1000);
+  const mins = Math.floor(totalTime / 60);
+  const secs = totalTime % 60;
+  const pct = Math.round((score / problems.length) * 100);
+  const avgTime = times.length ? (times.reduce((a,b) => a+b, 0) / times.length / 1000).toFixed(1) : "0";
+
+  let msg;
+  if (pct === 100) msg = "PERFECT! Every single one correct!";
+  else if (pct >= 90) msg = "So close to perfect! Just a few to practice.";
+  else if (pct >= 75) msg = "Good work! Keep drilling the ones you missed.";
+  else msg = "Keep practicing — you'll get faster!";
+
+  let missedHTML = "";
+  if (missed.length) {
+    missedHTML = `<div class="missed-list"><h3>Facts to practice (${missed.length})</h3>` +
+      missed.map(m =>
+        `<div class="missed-item">
+          <span class="prob">${m.a} &times; ${m.b}</span>
+          <span class="ans">= ${m.answer}</span>
+          <span class="gave">(you said ${m.given})</span>
+        </div>`
+      ).join("") + `</div>`;
+  }
+
+  const retryBtn = missed.length
+    ? `<button class="btn-retry" id="retryMissed">Drill Missed Facts (${missed.length})</button>` : "";
+
+  app.innerHTML = `
+    <h1>Multiplication Speed Drill</h1>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+    <div class="card results">
+      <div class="score-big">${pct}%</div>
+      <div class="score-label">${score} out of ${problems.length} correct</div>
+      <div class="time-label">${mins}:${secs.toString().padStart(2,'0')} total &middot; ${avgTime}s avg per problem &middot; Best streak: ${bestStreak}</div>
+      <div class="message">${msg}</div>
+      ${missedHTML}
+      <div class="btn-row">
+        ${retryBtn}
+        <button class="btn-restart" id="restart">Play Again</button>
+        <button class="btn-home" id="home">Back to Menu</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("restart").addEventListener("click", () => startDrill(mode));
+  document.getElementById("home").addEventListener("click", showMenu);
+  if (missed.length) {
+    document.getElementById("retryMissed").addEventListener("click", () => {
+      const pool = missed.map(m => randomizeOrder({ a: m.a, b: m.b, answer: m.answer }));
+      problems = shuffle(pool);
+      current = 0; score = 0; missed = []; streak = 0; bestStreak = 0; times = [];
+      startTime = Date.now();
+      renderProblem();
+    });
+  }
+}
+
+/* ── START ── */
+showMenu();
+</script>
+</body>
+</html>
