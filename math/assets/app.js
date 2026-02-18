@@ -534,7 +534,7 @@
     questions: [],
     idx: 0,
     score: 0,
-    misses: { eq: 0, simp: 0, cmp: 0, point: 0 },
+    misses: { eq: 0, simp: 0, cmp: 0, point: 0, addsub: 0 },
   };
 
   function quizMakeEq() {
@@ -599,6 +599,58 @@
     return { type: "point", den, points, target: { n: target.n, d: target.d }, expected: target.label, picked: null };
   }
 
+  function quizMakeAddSub(level) {
+    const lv = level ?? pick([1, 2, 3, 4]);
+    let a, b, c, d, op;
+
+    if (lv === 1) {
+      op = "+";
+      b = randInt(3, 12);
+      d = b;
+      a = randInt(1, b - 2);
+      c = randInt(1, b - a - 1);
+    } else if (lv === 2) {
+      op = "-";
+      b = randInt(3, 12);
+      d = b;
+      a = randInt(2, b - 1);
+      c = randInt(1, a - 1);
+    } else if (lv === 3) {
+      op = "+";
+      b = randInt(2, 8);
+      d = randInt(2, 8);
+      let tries = 0;
+      while (d === b && tries < 5) { d = randInt(2, 8); tries++; }
+      const common = lcm(b, d);
+      a = randInt(1, b - 1);
+      const used = a * (common / b);
+      const maxC = Math.floor((common - used - 1) / (common / d));
+      c = randInt(1, clamp(maxC, 1, d - 1));
+      if (a * (common / b) + c * (common / d) >= common) { a = 1; c = 1; }
+    } else {
+      op = "-";
+      b = randInt(2, 8);
+      d = randInt(2, 8);
+      let tries = 0;
+      while (d === b && tries < 5) { d = randInt(2, 8); tries++; }
+      a = randInt(2, b - 1);
+      const leftVal = a / b;
+      const maxC = Math.max(1, Math.ceil(leftVal * d) - 1);
+      c = randInt(1, clamp(maxC, 1, d - 1));
+      if (a / b <= c / d) { const ta = a; const tb = b; a = c; b = d; c = ta; d = tb; }
+      const common = lcm(b, d);
+      const resultN = a * (common / b) - c * (common / d);
+      if (resultN <= 0) { a = 2; b = 3; c = 1; d = 4; }
+    }
+
+    const common = lcm(b, d);
+    const m1 = common / b;
+    const m2 = common / d;
+    const resultN = op === "+" ? a * m1 + c * m2 : a * m1 - c * m2;
+    const expected = simplifyFraction(resultN, common);
+    return { type: "addsub", op, a, b, c, d, expected, level: lv };
+  }
+
   function quizMakeQuestions(opts) {
     const count = clamp(opts.count, 6, 20);
     const mix = opts.mix;
@@ -611,9 +663,15 @@
           ? includeNumberLine
             ? ["cmp", "cmp", "point", "cmp", "point"]
             : ["cmp", "cmp", "cmp", "cmp"]
-          : includeNumberLine
-            ? ["eq", "simp", "cmp", "cmp", "point"]
-            : ["eq", "simp", "cmp", "cmp"];
+          : mix === "topicd"
+            ? ["addsub", "addsub", "addsub", "addsub"]
+            : mix === "bcd"
+              ? includeNumberLine
+                ? ["eq", "simp", "cmp", "point", "addsub", "addsub"]
+                : ["eq", "simp", "cmp", "cmp", "addsub", "addsub"]
+              : includeNumberLine
+                ? ["eq", "simp", "cmp", "cmp", "point"]
+                : ["eq", "simp", "cmp", "cmp"];
 
     const qs = [];
     for (let i = 0; i < count; i++) {
@@ -621,6 +679,7 @@
       if (kind === "eq") qs.push(quizMakeEq());
       else if (kind === "simp") qs.push(quizMakeSimp());
       else if (kind === "point") qs.push(quizMakePointLine());
+      else if (kind === "addsub") qs.push(quizMakeAddSub());
       else qs.push(quizMakeCmp());
     }
     return qs;
@@ -694,7 +753,8 @@
       actions.innerHTML = `<button class="btn primary" type="button" id="quiz-retake">Retake</button>
         <a class="btn ghost" href="#eq">Equivalent</a>
         <a class="btn ghost" href="#simplify">Simplify</a>
-        <a class="btn ghost" href="#compare">Compare</a>`;
+        <a class="btn ghost" href="#compare">Compare</a>
+        <a class="btn ghost" href="#addsub">Add/Sub</a>`;
       const retakeBtn = document.getElementById("quiz-retake");
       if (retakeBtn) retakeBtn.addEventListener("click", () => quizStart(true));
     }
@@ -732,7 +792,9 @@
           ? "Simplify"
           : q.type === "point"
             ? "Number line"
-            : "Compare";
+            : q.type === "addsub"
+              ? "Add/Sub"
+              : "Compare";
     promptLine.innerHTML = `<span>Question ${quiz.idx + 1} of ${quiz.questions.length}</span><span class="muted">${label}</span>`;
     stage.appendChild(promptLine);
 
@@ -823,7 +885,7 @@
           q.picked = btn.dataset.cmp;
         });
       });
-    } else {
+    } else if (q.type === "point") {
       const text = document.createElement("div");
       text.style.fontWeight = "850";
       text.style.color = "rgba(11,18,32,0.82)";
@@ -850,6 +912,37 @@
           q.picked = btn.dataset.choice;
         });
       });
+    } else if (q.type === "addsub") {
+      const opSymbol = q.op === "+" ? "+" : "\u2212";
+      const text = document.createElement("div");
+      text.style.fontWeight = "850";
+      text.style.color = "rgba(11,18,32,0.82)";
+      text.textContent = `Compute: ${q.a}/${q.b} ${opSymbol} ${q.c}/${q.d} = ___/___`;
+      stage.appendChild(text);
+
+      const wrap = document.createElement("div");
+      wrap.className = "prompt";
+      wrap.innerHTML = `
+        <div class="fraction big" aria-label="First fraction">
+          <span class="top">${q.a}</span>
+          <span class="bar"></span>
+          <span class="bottom">${q.b}</span>
+        </div>
+        <div class="op-sign" aria-hidden="true">${opSymbol}</div>
+        <div class="fraction big" aria-label="Second fraction">
+          <span class="top">${q.c}</span>
+          <span class="bar"></span>
+          <span class="bottom">${q.d}</span>
+        </div>
+        <div class="arrow" aria-hidden="true">=</div>
+        <div class="fraction big" aria-label="Your answer">
+          <label class="sr-only" for="quiz-ans-n">Numerator</label>
+          <input id="quiz-ans-n" inputmode="numeric" pattern="[0-9]*" maxlength="3" />
+          <span class="bar"></span>
+          <label class="sr-only" for="quiz-ans-d">Denominator</label>
+          <input id="quiz-ans-d" inputmode="numeric" pattern="[0-9]*" maxlength="3" />
+        </div>`;
+      stage.appendChild(wrap);
     }
 
     actions.hidden = false;
@@ -916,6 +1009,27 @@
           }
         }
       }
+    } else if (q.type === "addsub") {
+      const an = parseIntSafe(document.getElementById("quiz-ans-n")?.value);
+      const ad = parseIntSafe(document.getElementById("quiz-ans-d")?.value);
+
+      if (an === null || ad === null) {
+        quizSetQFeedback("bad", "Type both numbers (numerator and denominator).");
+        return;
+      }
+      if (ad === 0) {
+        quizSetQFeedback("bad", "The denominator cannot be 0.");
+        return;
+      }
+
+      const userSimp = simplifyFraction(an, ad);
+      ok = userSimp.n === q.expected.n && userSimp.d === q.expected.d;
+      if (ok) {
+        kind = "good";
+        msg = "Correct.";
+      } else {
+        msg = `Not quite. Correct answer: ${q.expected.n}/${q.expected.d}.`;
+      }
     } else if (q.type === "cmp") {
       if (!q.picked) {
         quizSetQFeedback("bad", "Pick <, =, or >.");
@@ -976,7 +1090,7 @@
     quiz.questions = [];
     quiz.idx = 0;
     quiz.score = 0;
-    quiz.misses = { eq: 0, simp: 0, cmp: 0, point: 0 };
+    quiz.misses = { eq: 0, simp: 0, cmp: 0, point: 0, addsub: 0 };
     quizSetFeedback(null, "");
     quizSetQFeedback(null, "");
     quizUpdateScoreUI();
@@ -994,7 +1108,7 @@
     quiz.questions = quizMakeQuestions({ count, mix, includeNumberLine });
     quiz.idx = 0;
     quiz.score = 0;
-    quiz.misses = { eq: 0, simp: 0, cmp: 0, point: 0 };
+    quiz.misses = { eq: 0, simp: 0, cmp: 0, point: 0, addsub: 0 };
     quizUpdateScoreUI();
     quizRender();
   }
@@ -1331,6 +1445,214 @@
     if (state.showSteps) cmpExplain();
   }
 
+  // Add & Subtract
+  const addsub = { a: 2, b: 5, c: 1, d: 5, op: "+", level: 1 };
+
+  function addsubExpected() {
+    const common = lcm(addsub.b, addsub.d);
+    const m1 = common / addsub.b;
+    const m2 = common / addsub.d;
+    const a2 = addsub.a * m1;
+    const c2 = addsub.c * m2;
+    const resultN = addsub.op === "+" ? a2 + c2 : a2 - c2;
+    return simplifyFraction(resultN, common);
+  }
+
+  function addsubMakeNew() {
+    const level = parseInt(document.getElementById("addsub-level")?.value, 10) || addsub.level;
+    addsub.level = level;
+
+    if (level === 1) {
+      addsub.op = "+";
+      addsub.b = randInt(3, 12);
+      addsub.d = addsub.b;
+      addsub.a = randInt(1, addsub.b - 2);
+      addsub.c = randInt(1, addsub.b - addsub.a - 1);
+    } else if (level === 2) {
+      addsub.op = "-";
+      addsub.b = randInt(3, 12);
+      addsub.d = addsub.b;
+      addsub.a = randInt(2, addsub.b - 1);
+      addsub.c = randInt(1, addsub.a - 1);
+    } else if (level === 3) {
+      addsub.op = "+";
+      addsub.b = randInt(2, 8);
+      addsub.d = randInt(2, 8);
+      let tries = 0;
+      while (addsub.d === addsub.b && tries < 5) { addsub.d = randInt(2, 8); tries++; }
+      const common = lcm(addsub.b, addsub.d);
+      addsub.a = randInt(1, addsub.b - 1);
+      const used = addsub.a * (common / addsub.b);
+      const maxC = Math.floor((common - used - 1) / (common / addsub.d));
+      addsub.c = randInt(1, clamp(maxC, 1, addsub.d - 1));
+      if (addsub.a * (common / addsub.b) + addsub.c * (common / addsub.d) >= common) {
+        addsub.a = 1;
+        addsub.c = 1;
+      }
+    } else if (level === 4) {
+      addsub.op = "-";
+      addsub.b = randInt(2, 8);
+      addsub.d = randInt(2, 8);
+      let tries = 0;
+      while (addsub.d === addsub.b && tries < 5) { addsub.d = randInt(2, 8); tries++; }
+      addsub.a = randInt(2, addsub.b - 1);
+      const leftVal = addsub.a / addsub.b;
+      const maxC = Math.max(1, Math.ceil(leftVal * addsub.d) - 1);
+      addsub.c = randInt(1, clamp(maxC, 1, addsub.d - 1));
+      if (addsub.a / addsub.b <= addsub.c / addsub.d) {
+        const tmp = { a: addsub.a, b: addsub.b };
+        addsub.a = addsub.c;
+        addsub.b = addsub.d;
+        addsub.c = tmp.a;
+        addsub.d = tmp.b;
+      }
+      const common = lcm(addsub.b, addsub.d);
+      const resultN = addsub.a * (common / addsub.b) - addsub.c * (common / addsub.d);
+      if (resultN <= 0) { addsub.a = 2; addsub.b = 3; addsub.c = 1; addsub.d = 4; }
+    } else {
+      const subLevel = pick([1, 2, 3, 4]);
+      const saved = addsub.level;
+      addsub.level = subLevel;
+      addsubMakeNew();
+      addsub.level = saved;
+      return;
+    }
+
+    addsubRender();
+  }
+
+  function addsubRender() {
+    document.getElementById("addsub-left-n").textContent = String(addsub.a);
+    document.getElementById("addsub-left-d").textContent = String(addsub.b);
+    document.getElementById("addsub-right-n").textContent = String(addsub.c);
+    document.getElementById("addsub-right-d").textContent = String(addsub.d);
+    document.getElementById("addsub-op").textContent = addsub.op === "+" ? "+" : "\u2212";
+    setFractionAria(document.getElementById("addsub-left-frac"), "First fraction", addsub.a, addsub.b);
+    setFractionAria(document.getElementById("addsub-right-frac"), "Second fraction", addsub.c, addsub.d);
+    document.getElementById("addsub-ans-n").value = "";
+    document.getElementById("addsub-ans-d").value = "";
+    setFeedback(document.getElementById("addsub-feedback"), null, "Solve the problem, then press Check.");
+    hideSteps(document.getElementById("addsub-steps"));
+    addsubRenderModels(null);
+  }
+
+  function addsubRenderModels(ans) {
+    const leftHost = document.getElementById("addsub-model-left");
+    const rightHost = document.getElementById("addsub-model-right");
+    const resultHost = document.getElementById("addsub-model-result");
+    leftHost.textContent = "";
+    rightHost.textContent = "";
+    resultHost.textContent = "";
+
+    const common = lcm(addsub.b, addsub.d);
+    const leftN = addsub.a * (common / addsub.b);
+    const rightN = addsub.c * (common / addsub.d);
+    leftHost.appendChild(makeTapeSvg(leftN, common));
+    rightHost.appendChild(makeTapeSvg(rightN, common));
+
+    document.getElementById("addsub-model-left-label").textContent =
+      addsub.b === addsub.d ? `First (${addsub.a}/${addsub.b})` : `First as ${leftN}/${common}`;
+    document.getElementById("addsub-model-right-label").textContent =
+      addsub.b === addsub.d ? `Second (${addsub.c}/${addsub.d})` : `Second as ${rightN}/${common}`;
+
+    if (!ans || !Number.isFinite(ans.n) || !Number.isFinite(ans.d)) {
+      const ph = document.createElement("div");
+      ph.className = "model-placeholder";
+      ph.textContent = "Type an answer to see the result model.";
+      resultHost.appendChild(ph);
+      return;
+    }
+
+    resultHost.appendChild(makeTapeSvg(ans.n, ans.d));
+  }
+
+  function addsubCheck() {
+    const an = parseIntSafe(document.getElementById("addsub-ans-n").value);
+    const ad = parseIntSafe(document.getElementById("addsub-ans-d").value);
+    const feedback = document.getElementById("addsub-feedback");
+    const steps = document.getElementById("addsub-steps");
+
+    if (an === null || ad === null) {
+      setFeedback(feedback, "bad", "Type both numbers (numerator and denominator).");
+      return;
+    }
+    if (ad === 0) {
+      setFeedback(feedback, "bad", "The denominator cannot be 0.");
+      return;
+    }
+
+    addsubRenderModels({ n: an, d: ad });
+
+    const expected = addsubExpected();
+    const userSimp = simplifyFraction(an, ad);
+    const ok = userSimp.n === expected.n && userSimp.d === expected.d;
+
+    if (ok) {
+      setFeedback(feedback, "good", "Correct.");
+    } else {
+      const userVal = an / ad;
+      const expectedVal = expected.n / expected.d;
+      if (Math.abs(userVal - expectedVal) < 0.0001 && an !== expected.n) {
+        setFeedback(feedback, "bad", `Almost. Your fraction is equivalent, but simplify to lowest terms: ${expected.n}/${expected.d}.`);
+      } else {
+        setFeedback(feedback, "bad", `Not quite. Correct answer: ${expected.n}/${expected.d}.`);
+      }
+    }
+
+    recordResult(ok);
+
+    if (state.showSteps) {
+      addsubShowSteps(steps);
+    } else {
+      hideSteps(steps);
+    }
+  }
+
+  function addsubShowSteps(container) {
+    const common = lcm(addsub.b, addsub.d);
+    const m1 = common / addsub.b;
+    const m2 = common / addsub.d;
+    const a2 = addsub.a * m1;
+    const c2 = addsub.c * m2;
+    const resultN = addsub.op === "+" ? a2 + c2 : a2 - c2;
+    const simplified = simplifyFraction(resultN, common);
+    const opWord = addsub.op === "+" ? "+" : "\u2212";
+
+    let html = "";
+    if (addsub.b !== addsub.d) {
+      html += `<div>Common denominator: <strong>${common}</strong></div>`;
+      html += `<div>${addsub.a}/${addsub.b} = ${addsub.a}\u00d7${m1}/${addsub.b}\u00d7${m1} = <strong>${a2}/${common}</strong></div>`;
+      html += `<div>${addsub.c}/${addsub.d} = ${addsub.c}\u00d7${m2}/${addsub.d}\u00d7${m2} = <strong>${c2}/${common}</strong></div>`;
+    }
+    html += `<div>${a2}/${common} ${opWord} ${c2}/${common} = <strong>${resultN}/${common}</strong></div>`;
+    if (simplified.g > 1) {
+      html += `<div>Simplify: ${resultN}/${common} \u00f7 ${simplified.g} = <strong>${simplified.n}/${simplified.d}</strong></div>`;
+    }
+    revealSteps(container, html);
+  }
+
+  function addsubHint() {
+    const feedback = document.getElementById("addsub-feedback");
+    if (addsub.b === addsub.d) {
+      const opWord = addsub.op === "+" ? "Add" : "Subtract";
+      setFeedback(feedback, null, `Hint: same denominator. ${opWord} the numerators, keep the denominator.`);
+    } else {
+      const common = lcm(addsub.b, addsub.d);
+      setFeedback(feedback, null, `Hint: find a common denominator. Try ${common}. Rename both fractions, then ${addsub.op === "+" ? "add" : "subtract"}.`);
+    }
+  }
+
+  function addsubReveal() {
+    const expected = addsubExpected();
+    document.getElementById("addsub-ans-n").value = String(expected.n);
+    document.getElementById("addsub-ans-d").value = String(expected.d);
+    addsubRenderModels(expected);
+    setFeedback(document.getElementById("addsub-feedback"), null, "Revealed. Try to work through the steps yourself next time.");
+    if (state.showSteps) {
+      addsubShowSteps(document.getElementById("addsub-steps"));
+    }
+  }
+
   function recordResult(ok) {
     state.total += 1;
     if (ok) {
@@ -1352,6 +1674,7 @@
     setFeedback(document.getElementById("eq-feedback"), null, "Progress reset. Start with a fresh problem.");
     setFeedback(document.getElementById("simp-feedback"), null, "Progress reset. Start with a fresh problem.");
     setFeedback(document.getElementById("cmp-feedback"), null, "Progress reset. Start with a fresh problem.");
+    setFeedback(document.getElementById("addsub-feedback"), null, "Progress reset. Start with a fresh problem.");
   }
 
   // Worksheet generator
@@ -1381,6 +1704,49 @@
       return { type: "simp", prompt: `Simplify ${baseN * k}/${baseD * k}`, answer: `${baseN}/${baseD}` };
     }
 
+    if (kind === "addsub" || kind === "addsub-like" || kind === "addsub-unlike") {
+      const useLike = kind === "addsub-like" ? true : kind === "addsub-unlike" ? false : pick([true, false]);
+      const op = pick(["+", "-"]);
+      let a, b, c, d;
+      if (useLike) {
+        b = randInt(3, 12);
+        d = b;
+        if (op === "+") {
+          a = randInt(1, b - 2);
+          c = randInt(1, b - a - 1);
+        } else {
+          a = randInt(2, b - 1);
+          c = randInt(1, a - 1);
+        }
+      } else {
+        b = randInt(2, 8);
+        d = randInt(2, 8);
+        let tries = 0;
+        while (d === b && tries < 5) { d = randInt(2, 8); tries++; }
+        if (op === "+") {
+          const common = lcm(b, d);
+          a = randInt(1, b - 1);
+          const used = a * (common / b);
+          const maxC = Math.floor((common - used - 1) / (common / d));
+          c = randInt(1, clamp(maxC, 1, d - 1));
+          if (a * (common / b) + c * (common / d) >= common) { a = 1; c = 1; }
+        } else {
+          a = randInt(2, b - 1);
+          const leftVal = a / b;
+          const maxC = Math.max(1, Math.ceil(leftVal * d) - 1);
+          c = randInt(1, clamp(maxC, 1, d - 1));
+          if (a / b <= c / d) { const ta = a; const tb = b; a = c; b = d; c = ta; d = tb; }
+          const common = lcm(b, d);
+          if (a * (common / b) - c * (common / d) <= 0) { a = 2; b = 3; c = 1; d = 4; }
+        }
+      }
+      const common = lcm(b, d);
+      const resultN = op === "+" ? a * (common / b) + c * (common / d) : a * (common / b) - c * (common / d);
+      const simplified = simplifyFraction(resultN, common);
+      const opSymbol = op === "+" ? "+" : "\u2212";
+      return { type: "addsub", prompt: `${a}/${b} ${opSymbol} ${c}/${d} = ___/___`, answer: `${simplified.n}/${simplified.d}` };
+    }
+
     // compare
     const b = randInt(2, 12);
     const a = randInt(1, b - 1);
@@ -1401,12 +1767,20 @@
 
     const kinds =
       mix === "mixed"
-        ? ["equivalent", "simplify", "compare"]
+        ? ["equivalent", "simplify", "compare", "addsub"]
         : mix === "equivalent"
           ? ["equivalent"]
           : mix === "simplify"
             ? ["simplify"]
-            : ["compare"];
+            : mix === "compare"
+              ? ["compare"]
+              : mix === "addsub"
+                ? ["addsub"]
+                : mix === "addsub-like"
+                  ? ["addsub-like"]
+                  : mix === "addsub-unlike"
+                    ? ["addsub-unlike"]
+                    : ["compare"];
 
     for (let i = 0; i < count; i++) {
       problems.push(wsMakeProblem(pick(kinds)));
@@ -1548,6 +1922,15 @@
       cmpExplain();
     });
 
+    document.getElementById("addsub-new").addEventListener("click", addsubMakeNew);
+    document.getElementById("addsub-check").addEventListener("click", addsubCheck);
+    document.getElementById("addsub-hint").addEventListener("click", addsubHint);
+    document.getElementById("addsub-reveal").addEventListener("click", addsubReveal);
+    document.getElementById("addsub-level").addEventListener("change", addsubMakeNew);
+    document.getElementById("addsub-ans-d").addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") addsubCheck();
+    });
+
     document.getElementById("ws-form").addEventListener("submit", wsGeneratePrintable);
     document.getElementById("ws-reset").addEventListener("click", resetProgress);
     setWsFeedback(null, "");
@@ -1575,6 +1958,7 @@
     eqMakeNew();
     simpMakeNew();
     cmpMakeNew();
+    addsubMakeNew();
   }
 
   if (document.readyState === "loading") {

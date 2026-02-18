@@ -480,6 +480,22 @@ h2 {
   color: rgba(11, 18, 32, 0.64);
 }
 
+.op-sign {
+  font-size: 26px;
+  font-weight: 900;
+  color: rgba(11, 18, 32, 0.72);
+  min-width: 32px;
+  text-align: center;
+}
+
+.addsub-level-row {
+  margin-bottom: 10px;
+}
+
+.addsub-level-row select {
+  min-width: 210px;
+}
+
 .actions {
   display: flex;
   gap: 10px;

@@ -35,6 +35,7 @@
           <a href="#eq">Equivalent</a>
           <a href="#simplify">Simplify</a>
           <a href="#compare">Compare</a>
+          <a href="#addsub">Add/Sub</a>
           <a href="#worksheet">Worksheet</a>
         </div>
 
@@ -52,8 +53,8 @@
         <div class="hero-copy" data-reveal>
           <h1 id="hero-title">Fractions, made visible.</h1>
           <p class="lead">
-            Practice equivalent fractions, simplifying, and comparing with tape diagrams and number lines that
-            explain the "why".
+            Practice equivalent fractions, simplifying, comparing, adding, and subtracting with tape diagrams and
+            number lines that explain the "why".
           </p>
 
           <div class="hero-cta">
@@ -154,6 +155,8 @@
                     <option value="mixed" selected>Topic B + C</option>
                     <option value="topicb">Topic B only</option>
                     <option value="topicc">Topic C only</option>
+                    <option value="topicd">Topic D only (Add/Sub)</option>
+                    <option value="bcd">Topic B + C + D</option>
                   </select>
                 </label>
                 <label class="ws-check">
@@ -363,6 +366,91 @@
         </div>
       </section>
 
+      <section class="panel" id="addsub" aria-labelledby="addsub-title">
+        <div class="panel-head" data-reveal>
+          <h2 id="addsub-title">Add &amp; Subtract Lab</h2>
+          <p class="panel-sub">Add and subtract fractions — start with same denominators, then level up to unlike denominators.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card" data-reveal>
+            <div class="card-title-row">
+              <h3 class="card-title">Solve</h3>
+              <button class="linkish" type="button" id="addsub-new">New</button>
+            </div>
+
+            <div class="addsub-level-row">
+              <label>
+                Level
+                <select id="addsub-level">
+                  <option value="1" selected>1 — Same denom +</option>
+                  <option value="2">2 — Same denom &minus;</option>
+                  <option value="3">3 — Unlike denom +</option>
+                  <option value="4">4 — Unlike denom &minus;</option>
+                  <option value="5">5 — Mixed</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="prompt">
+              <div class="fraction big" id="addsub-left-frac" aria-label="First fraction">
+                <span class="top" id="addsub-left-n">2</span>
+                <span class="bar"></span>
+                <span class="bottom" id="addsub-left-d">5</span>
+              </div>
+
+              <div class="op-sign" id="addsub-op" aria-hidden="true">+</div>
+
+              <div class="fraction big" id="addsub-right-frac" aria-label="Second fraction">
+                <span class="top" id="addsub-right-n">1</span>
+                <span class="bar"></span>
+                <span class="bottom" id="addsub-right-d">5</span>
+              </div>
+
+              <div class="arrow" aria-hidden="true">=</div>
+
+              <div class="fraction big" aria-label="Your answer">
+                <label class="sr-only" for="addsub-ans-n">Numerator</label>
+                <input id="addsub-ans-n" inputmode="numeric" pattern="[0-9]*" maxlength="3" />
+                <span class="bar"></span>
+                <label class="sr-only" for="addsub-ans-d">Denominator</label>
+                <input id="addsub-ans-d" inputmode="numeric" pattern="[0-9]*" maxlength="3" />
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn primary" type="button" id="addsub-check">Check</button>
+              <button class="btn" type="button" id="addsub-hint">Hint</button>
+              <button class="btn ghost" type="button" id="addsub-reveal">Reveal</button>
+            </div>
+
+            <div class="feedback" id="addsub-feedback" aria-live="polite"></div>
+            <div class="steps" id="addsub-steps" hidden></div>
+          </div>
+
+          <div class="card model-card" data-reveal>
+            <h3 class="card-title">Model</h3>
+            <div class="model-shelf" aria-label="Add/Subtract models">
+              <div class="model-block">
+                <div class="model-label" id="addsub-model-left-label">First</div>
+                <div id="addsub-model-left"></div>
+              </div>
+              <div class="model-block">
+                <div class="model-label" id="addsub-model-right-label">Second</div>
+                <div id="addsub-model-right"></div>
+              </div>
+              <div class="model-block">
+                <div class="model-label">Result</div>
+                <div id="addsub-model-result"></div>
+              </div>
+            </div>
+            <p class="model-note">
+              Tip: to add or subtract, both fractions need the same denominator (same-size parts).
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section class="panel" id="worksheet" aria-labelledby="ws-title">
         <div class="panel-head" data-reveal>
           <h2 id="ws-title">Worksheet Maker</h2>
@@ -379,10 +467,13 @@
               <label>
                 Mix
                 <select id="ws-mix">
-                  <option value="mixed" selected>Mixed</option>
+                  <option value="mixed" selected>Mixed (all topics)</option>
                   <option value="equivalent">Equivalent only</option>
                   <option value="simplify">Simplify only</option>
                   <option value="compare">Compare only</option>
+                  <option value="addsub">Add/Sub only</option>
+                  <option value="addsub-like">Add/Sub (same denom)</option>
+                  <option value="addsub-unlike">Add/Sub (unlike denom)</option>
                 </select>
               </label>
               <label class="ws-check">
