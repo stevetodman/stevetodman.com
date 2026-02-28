@@ -21,7 +21,7 @@ stevetodman.com/
 │           ├── bp-family-handout.docx
 │           ├── peds-dyslipidemia-intake-v3.pdf
 │           └── peds-syncope-intake-v2.pdf
-├── twins/                        # Kids' Study Hub (stevetodman.com/twins)
+├── study/                        # Kids' Study Hub (stevetodman.com/study)
 │   ├── index.html                # Study Hub landing page
 │   ├── greek-vocab-quiz.html     # Ancient Greece vocabulary + chapter review
 │   ├── fract-vocab-quiz.html     # Root words: fract, frag, frail
@@ -129,7 +129,7 @@ Clinic intake forms and patient education materials go in `/admin/clinic-resourc
 
 ## Adding a Study Tool (twins/)
 
-Kids' study tools for 4th grade — vocab quizzes, math quizzes, and drills. Live at stevetodman.com/twins.
+Kids' study tools for 4th grade — vocab quizzes, math quizzes, and drills. Live at stevetodman.com/study. Linked from the homework tracker at /twins/.
 
 ### Design patterns
 
@@ -150,8 +150,8 @@ Kids' study tools for 4th grade — vocab quizzes, math quizzes, and drills. Liv
 
 ### When adding a new tool
 
-1. Create `twins/[tool-name].html`
-2. Update `twins/index.html` with a new card (use `badge-purple` for quizzes, `badge-orange` for drills)
+1. Create `study/[tool-name].html`
+2. Update `study/index.html` with a new card (use `badge-purple` for quizzes, `badge-orange` for drills)
 3. Update this CLAUDE.md project structure
 4. Verify all math answers computationally before deploying
 
@@ -165,10 +165,10 @@ Kids' study tools for 4th grade — vocab quizzes, math quizzes, and drills. Liv
 
 - Dark theme: #1a1a2e to #16213e gradient (homepage, cooking timers)
 - Light theme: #f8fafc background (clinic resources)
-- Kids theme: #f0f4f8 background, white cards (twins/)
+- Kids theme: #f0f4f8 background, white cards (study/)
 - Accent color: #00cec9 (teal — homepage/cooking)
 - Alert color: #e94560 (coral red — homepage/cooking)
-- Quiz accent: #667eea purple (twins/ vocab), #ed8936 orange (twins/ math)
+- Quiz accent: #667eea purple (study/ vocab), #ed8936 orange (study/ math)
 - Font: system fonts (-apple-system, BlinkMacSystemFont, etc.)
 - No external dependencies (single-file HTML)
 
