@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>100 Fact Club</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f0f4f8;
+    color: #2d3748;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+  .container { max-width: 500px; width: 100%; }
+  h1 { text-align: center; font-size: 1.6rem; margin-bottom: 6px; color: #1a365d; }
+  .subtitle { text-align: center; color: #718096; font-size: 0.95rem; margin-bottom: 24px; }
+  .card {
+    background: #fff; border-radius: 16px; padding: 28px 24px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom: 20px; text-align: center;
+  }
+
+  /* Timer */
+  .timer-display {
+    font-size: 3rem; font-weight: 800; font-variant-numeric: tabular-nums;
+    margin: 8px 0; letter-spacing: 1px;
+  }
+  .timer-display.green { color: #38a169; }
+  .timer-display.yellow { color: #d69e2e; }
+  .timer-display.red { color: #e53e3e; }
+  .timer-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #a0aec0; }
+
+  /* Stats bar */
+  .stats {
+    display: flex; justify-content: space-around; font-size: 0.9rem;
+    color: #4a5568; margin-bottom: 16px; flex-wrap: wrap; gap: 4px;
+  }
+  .stats .stat { text-align: center; min-width: 60px; }
+  .stats .stat-val { font-size: 1.3rem; font-weight: 700; color: #1a365d; }
+  .stats .stat-label { font-size: 0.7rem; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* Progress */
+  .progress-bar { background: #e2e8f0; border-radius: 999px; height: 10px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { background: linear-gradient(90deg, #ed8936, #dd6b20); height: 100%; border-radius: 999px; transition: width 0.3s ease; }
+
+  /* Problem display */
+  .problem { font-size: 3.4rem; font-weight: 700; color: #1a365d; margin: 16px 0 8px; letter-spacing: 2px; }
+  .problem .op { color: #ed8936; }
+
+  /* Input */
+  .answer-row { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 16px 0; }
+  .answer-input {
+    width: 120px; font-size: 2.2rem; font-weight: 700; text-align: center;
+    border: 3px solid #e2e8f0; border-radius: 12px; padding: 10px 8px;
+    outline: none; transition: border-color 0.15s; color: #1a365d;
+    -moz-appearance: textfield;
+  }
+  .answer-input::-webkit-outer-spin-button,
+  .answer-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .answer-input:focus { border-color: #ed8936; }
+  .answer-input.flash-correct { border-color: #38a169; background: #f0fff4; }
+  .answer-input.flash-wrong { border-color: #e53e3e; background: #fff5f5; }
+
+  .go-btn {
+    padding: 12px 24px; font-size: 1.1rem; font-weight: 600; border: none; border-radius: 10px;
+    background: linear-gradient(135deg, #ed8936, #dd6b20); color: #fff; cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .go-btn:hover { opacity: 0.9; }
+
+  /* Feedback */
+  .feedback { font-size: 1.1rem; font-weight: 600; min-height: 28px; }
+  .feedback.correct-fb { color: #38a169; }
+  .feedback.wrong-fb { color: #e53e3e; }
+
+  /* Streak */
+  .streak-display { font-size: 0.95rem; color: #dd6b20; font-weight: 600; min-height: 22px; margin-bottom: 4px; }
+
+  /* Menu */
+  .menu-cards { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+  .menu-card {
+    background: #fff; border-radius: 14px; padding: 22px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    cursor: pointer; border: 2px solid transparent; transition: all 0.15s ease;
+  }
+  .menu-card:hover { border-color: #ed8936; transform: translateY(-2px); box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
+  .menu-card h2 { font-size: 1.15rem; color: #1a365d; margin-bottom: 4px; }
+  .menu-card p { font-size: 0.9rem; color: #718096; line-height: 1.4; }
+  .menu-card .badge { display: inline-block; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px; }
+  .badge-orange { background: #ed8936; }
+  .badge-red { background: #e53e3e; }
+  .badge-green { background: #38a169; }
+  .menu-card.challenge-card { border: 2px solid #ed8936; background: linear-gradient(135deg, #fffaf0, #fff); }
+  .menu-card.challenge-card h2 { color: #c05621; }
+
+  /* Section heading */
+  .section-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: #a0aec0; margin: 24px 0 10px; font-weight: 600; }
+
+  /* Results */
+  .results { text-align: center; }
+  .results .score-big { font-size: 3.5rem; font-weight: 700; color: #ed8936; margin: 12px 0 4px; }
+  .results .score-label { font-size: 1.1rem; color: #718096; margin-bottom: 8px; }
+  .results .time-label { font-size: 1rem; color: #4a5568; margin-bottom: 20px; }
+  .results .message { font-size: 1.15rem; margin-bottom: 24px; line-height: 1.5; }
+  .club-banner {
+    background: linear-gradient(135deg, #f6e05e, #ed8936);
+    color: #fff; padding: 20px; border-radius: 14px; margin-bottom: 20px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  }
+  .club-banner .trophy { font-size: 3rem; margin-bottom: 8px; }
+  .club-banner h2 { font-size: 1.4rem; margin-bottom: 6px; }
+  .club-banner p { font-size: 1rem; opacity: 0.9; }
+  .missed-list { text-align: left; margin: 0 auto 24px; max-width: 400px; }
+  .missed-list h3 { font-size: 1rem; color: #e53e3e; margin-bottom: 10px; }
+  .missed-item {
+    display: flex; justify-content: space-between; padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0; font-size: 1rem;
+  }
+  .missed-item .prob { font-weight: 600; color: #2d3748; }
+  .missed-item .ans { color: #38a169; font-weight: 600; }
+  .missed-item .gave { color: #e53e3e; font-size: 0.85rem; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-row button { padding: 12px 28px; font-size: 1rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; transition: opacity 0.2s; }
+  .btn-row button:hover { opacity: 0.85; }
+  .btn-retry { background: #e53e3e; color: #fff; }
+  .btn-restart { background: linear-gradient(135deg, #ed8936, #dd6b20); color: #fff; }
+  .btn-home { background: #4a5568; color: #fff; }
+  a.back-link { display: block; text-align: center; color: #667eea; font-size: 0.9rem; margin-top: 12px; }
+
+  /* Countdown intro */
+  .countdown-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); display: flex; align-items: center;
+    justify-content: center; z-index: 100;
+  }
+  .countdown-num {
+    font-size: 8rem; font-weight: 800; color: #fff;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    animation: countPop 0.6s ease;
+  }
+  @keyframes countPop {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Confetti */
+  .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99; overflow: hidden; }
+  .confetti-piece {
+    position: absolute; top: -20px; width: 10px; height: 10px;
+    animation: confettiFall 3s ease-in forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Time-up overlay */
+  .time-up-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(229, 62, 62, 0.85); display: flex; align-items: center;
+    justify-content: center; z-index: 100; flex-direction: column;
+  }
+  .time-up-text { font-size: 3rem; font-weight: 800; color: #fff; margin-bottom: 12px; }
+  .time-up-sub { font-size: 1.2rem; color: rgba(255,255,255,0.9); }
+</style>
+</head>
+<body>
+<div class="container" id="app"></div>
+
+<script>
+/* ── STATE ── */
+var problems, current, score, missed, streak, bestStreak, timerLimit, timerRef, startTime, gameOver, mode;
+
+/* ── GENERATE RANDOM FACTS ── */
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function generateFacts(count) {
+  // Build all 169 possible facts (0-12 x 0-12), shuffle, then take what we need.
+  // If count > 169, cycle through again with a fresh shuffle.
+  var all = [];
+  for (var a = 0; a <= 12; a++) {
+    for (var b = 0; b <= 12; b++) {
+      all.push({ a: a, b: b, answer: a * b });
+    }
+  }
+  var facts = [];
+  while (facts.length < count) {
+    var batch = shuffle(all);
+    for (var i = 0; i < batch.length && facts.length < count; i++) {
+      facts.push(batch[i]);
+    }
+  }
+  return facts;
+}
+
+/* ── MENU ── */
+function showMenu() {
+  var app = document.getElementById("app");
+  app.innerHTML =
+    '<h1>100 Fact Club</h1>' +
+    '<p class="subtitle">Train your multiplication speed and join the club!</p>' +
+    '<div class="section-label">Sprint Training</div>' +
+    '<div class="menu-cards">' +
+      '<div class="menu-card" data-mode="sprint25">' +
+        '<span class="badge badge-green">Warm Up</span>' +
+        '<h2>Sprint 25</h2>' +
+        '<p>25 random facts \u2014 45 second countdown. Build your speed!</p>' +
+      '</div>' +
+      '<div class="menu-card" data-mode="sprint50">' +
+        '<span class="badge badge-orange">Training</span>' +
+        '<h2>Sprint 50</h2>' +
+        '<p>50 random facts \u2014 90 second countdown. Find your rhythm.</p>' +
+      '</div>' +
+      '<div class="menu-card" data-mode="sprint75">' +
+        '<span class="badge badge-orange">Advanced</span>' +
+        '<h2>Sprint 75</h2>' +
+        '<p>75 random facts \u2014 105 second countdown. Almost there!</p>' +
+      '</div>' +
+    '</div>' +
+    '<div class="section-label">The Challenge</div>' +
+    '<div class="menu-cards">' +
+      '<div class="menu-card challenge-card" data-mode="challenge">' +
+        '<span class="badge badge-red">100 Facts \u2022 2 Minutes</span>' +
+        '<h2>100 Fact Club Challenge</h2>' +
+        '<p>100 multiplication facts. 2 minute countdown. No mistakes. Can you do it?</p>' +
+      '</div>' +
+    '</div>' +
+    '<a class="back-link" href="./">Back to Study Hub</a>';
+
+  app.querySelectorAll(".menu-card").forEach(function(card) {
+    card.addEventListener("click", function() {
+      mode = card.dataset.mode;
+      var count, time;
+      if (mode === "sprint25") { count = 25; time = 45; }
+      else if (mode === "sprint50") { count = 50; time = 90; }
+      else if (mode === "sprint75") { count = 75; time = 105; }
+      else { count = 100; time = 120; }
+      startCountdown(count, time);
+    });
+  });
+}
+
+/* ── 3-2-1 COUNTDOWN ── */
+function startCountdown(count, time) {
+  var nums = ["3", "2", "1", "GO!"];
+  var idx = 0;
+  var overlay = document.createElement("div");
+  overlay.className = "countdown-overlay";
+  overlay.innerHTML = '<div class="countdown-num">' + nums[0] + '</div>';
+  document.body.appendChild(overlay);
+
+  var iv = setInterval(function() {
+    idx++;
+    if (idx >= nums.length) {
+      clearInterval(iv);
+      document.body.removeChild(overlay);
+      startChallenge(count, time);
+      return;
+    }
+    overlay.innerHTML = '<div class="countdown-num">' + nums[idx] + '</div>';
+  }, 700);
+}
+
+/* ── START CHALLENGE ── */
+function startChallenge(count, time) {
+  problems = generateFacts(count);
+  current = 0;
+  score = 0;
+  missed = [];
+  streak = 0;
+  bestStreak = 0;
+  timerLimit = time;
+  gameOver = false;
+  startTime = Date.now();
+
+  timerRef = setInterval(function() {
+    if (gameOver) return;
+    var elapsed = (Date.now() - startTime) / 1000;
+    var remaining = Math.max(0, timerLimit - elapsed);
+    updateTimerDisplay(remaining);
+    if (remaining <= 0) {
+      gameOver = true;
+      clearInterval(timerRef);
+      showTimeUp();
+    }
+  }, 100);
+
+  renderProblem();
+}
+
+function updateTimerDisplay(remaining) {
+  var el = document.getElementById("timerVal");
+  if (!el) return;
+  var mins = Math.floor(remaining / 60);
+  var secs = Math.floor(remaining % 60);
+  var tenths = Math.floor((remaining % 1) * 10);
+  el.textContent = mins + ":" + (secs < 10 ? "0" : "") + secs + "." + tenths;
+
+  if (remaining > timerLimit * 0.5) el.className = "timer-display green";
+  else if (remaining > timerLimit * 0.2) el.className = "timer-display yellow";
+  else el.className = "timer-display red";
+}
+
+/* ── TIME UP OVERLAY ── */
+function showTimeUp() {
+  var overlay = document.createElement("div");
+  overlay.className = "time-up-overlay";
+  overlay.innerHTML =
+    '<div class="time-up-text">Time\'s Up!</div>' +
+    '<div class="time-up-sub">You answered ' + current + ' out of ' + problems.length + '</div>';
+  document.body.appendChild(overlay);
+  setTimeout(function() {
+    document.body.removeChild(overlay);
+    renderResults();
+  }, 2000);
+}
+
+/* ── RENDER PROBLEM ── */
+function renderProblem() {
+  var app = document.getElementById("app");
+  if (current >= problems.length) {
+    gameOver = true;
+    clearInterval(timerRef);
+    renderResults();
+    return;
+  }
+
+  var p = problems[current];
+  var pct = Math.round((current / problems.length) * 100);
+  var elapsed = (Date.now() - startTime) / 1000;
+  var remaining = Math.max(0, timerLimit - elapsed);
+  var mins = Math.floor(remaining / 60);
+  var secs = Math.floor(remaining % 60);
+  var tenths = Math.floor((remaining % 1) * 10);
+  var timerClass = remaining > timerLimit * 0.5 ? "green" : remaining > timerLimit * 0.2 ? "yellow" : "red";
+  var streakText = streak >= 3 ? "\uD83D\uDD25".repeat(Math.min(streak - 2, 5)) + " " + streak + " in a row!" : "";
+
+  app.innerHTML =
+    '<h1>100 Fact Club</h1>' +
+    '<div class="timer-label">Time Remaining</div>' +
+    '<div class="timer-display ' + timerClass + '" id="timerVal">' + mins + ':' + (secs < 10 ? '0' : '') + secs + '.' + tenths + '</div>' +
+    '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+    '<div class="stats">' +
+      '<div class="stat"><div class="stat-val">' + (current + 1) + '/' + problems.length + '</div><div class="stat-label">Problem</div></div>' +
+      '<div class="stat"><div class="stat-val">' + score + '</div><div class="stat-label">Correct</div></div>' +
+      '<div class="stat"><div class="stat-val">' + missed.length + '</div><div class="stat-label">Missed</div></div>' +
+      '<div class="stat"><div class="stat-val">' + bestStreak + '</div><div class="stat-label">Best Streak</div></div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="streak-display">' + streakText + '</div>' +
+      '<div class="problem">' + p.a + ' <span class="op">&times;</span> ' + p.b + ' <span class="op">=</span></div>' +
+      '<div class="answer-row">' +
+        '<input type="number" class="answer-input" id="answerInput" autocomplete="off" inputmode="numeric">' +
+        '<button class="go-btn" id="goBtn">Go</button>' +
+      '</div>' +
+      '<div class="feedback" id="feedback"></div>' +
+    '</div>';
+
+  var input = document.getElementById("answerInput");
+  input.focus();
+  input.addEventListener("keydown", function(e) { if (e.key === "Enter") submitAnswer(); });
+  document.getElementById("goBtn").addEventListener("click", submitAnswer);
+}
+
+/* ── SUBMIT ── */
+function submitAnswer() {
+  if (gameOver) return;
+  var input = document.getElementById("answerInput");
+  var val = input.value.trim();
+  if (val === "") return;
+
+  var p = problems[current];
+  var given = parseInt(val);
+  var isCorrect = given === p.answer;
+  var fb = document.getElementById("feedback");
+
+  input.disabled = true;
+  document.getElementById("goBtn").disabled = true;
+
+  if (isCorrect) {
+    input.classList.add("flash-correct");
+    fb.textContent = "Correct!";
+    fb.className = "feedback correct-fb";
+    score++;
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    setTimeout(function() { current++; renderProblem(); }, 350);
+  } else {
+    input.classList.add("flash-wrong");
+    streak = 0;
+    fb.innerHTML = p.a + ' &times; ' + p.b + ' = <strong>' + p.answer + '</strong>';
+    fb.className = "feedback wrong-fb";
+    missed.push({ a: p.a, b: p.b, answer: p.answer, given: given });
+    setTimeout(function() { current++; renderProblem(); }, 1200);
+  }
+}
+
+/* ── CONFETTI ── */
+function launchConfetti() {
+  var container = document.createElement("div");
+  container.className = "confetti-container";
+  document.body.appendChild(container);
+  var colors = ["#f6e05e", "#ed8936", "#38a169", "#667eea", "#e53e3e", "#9f7aea"];
+  for (var i = 0; i < 80; i++) {
+    var piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    piece.style.left = Math.random() * 100 + "%";
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = Math.random() * 2 + "s";
+    piece.style.animationDuration = 2 + Math.random() * 2 + "s";
+    piece.style.width = 6 + Math.random() * 8 + "px";
+    piece.style.height = 6 + Math.random() * 8 + "px";
+    piece.style.borderRadius = Math.random() > 0.5 ? "50%" : "0";
+    container.appendChild(piece);
+  }
+  setTimeout(function() { document.body.removeChild(container); }, 5000);
+}
+
+/* ── RESULTS ── */
+function renderResults() {
+  var app = document.getElementById("app");
+  var totalTime = (Date.now() - startTime) / 1000;
+  var usedTime = Math.min(totalTime, timerLimit);
+  var completed = current;
+  var attempted = score + missed.length;
+  var pct = attempted > 0 ? Math.round((score / attempted) * 100) : 0;
+  var mins = Math.floor(usedTime / 60);
+  var secs = Math.floor(usedTime % 60);
+  var tenths = Math.floor((usedTime % 1) * 10);
+  var timeStr = mins + ":" + (secs < 10 ? "0" : "") + secs + "." + tenths;
+  var pace = attempted > 0 ? (usedTime / attempted).toFixed(1) : "0";
+
+  var isClubMember = mode === "challenge" && score === 100 && missed.length === 0 && usedTime <= 120;
+  var completedAll = completed >= problems.length;
+
+  var msg;
+  if (isClubMember) {
+    msg = "";
+    launchConfetti();
+  } else if (completedAll && pct === 100) {
+    msg = "PERFECT! Every single one correct! Time: " + timeStr;
+  } else if (completedAll && pct >= 90) {
+    msg = "So close to perfect! " + missed.length + " to practice.";
+  } else if (completedAll) {
+    msg = "You finished! Keep drilling the ones you missed.";
+  } else {
+    msg = "You got through " + completed + " of " + problems.length + " before time ran out. Keep training!";
+  }
+
+  var clubHTML = "";
+  if (isClubMember) {
+    clubHTML =
+      '<div class="club-banner">' +
+        '<div class="trophy">\uD83C\uDFC6</div>' +
+        '<h2>WELCOME TO THE 100 FACT CLUB!</h2>' +
+        '<p>100 facts \u2022 0 mistakes \u2022 ' + timeStr + '</p>' +
+      '</div>';
+  }
+
+  var missedHTML = "";
+  if (missed.length) {
+    missedHTML = '<div class="missed-list"><h3>Facts to practice (' + missed.length + ')</h3>' +
+      missed.map(function(m) {
+        return '<div class="missed-item">' +
+          '<span class="prob">' + m.a + ' &times; ' + m.b + '</span>' +
+          '<span class="ans">= ' + m.answer + '</span>' +
+          '<span class="gave">(you said ' + m.given + ')</span>' +
+        '</div>';
+      }).join("") + '</div>';
+  }
+
+  var retryBtn = missed.length
+    ? '<button class="btn-retry" id="retryMissed">Drill Missed (' + missed.length + ')</button>' : "";
+
+  // Pace projection for sprint modes
+  var projectionHTML = "";
+  if (mode !== "challenge" && completedAll && attempted > 0) {
+    var projected = (usedTime / attempted) * 100;
+    var projMins = Math.floor(projected / 60);
+    var projSecs = Math.floor(projected % 60);
+    var projStr = projMins + ":" + (projSecs < 10 ? "0" : "") + projSecs;
+    var onTrack = projected <= 120;
+    projectionHTML =
+      '<div style="margin-bottom:20px;padding:14px;border-radius:10px;' +
+        (onTrack ? 'background:#f0fff4;border-left:4px solid #38a169;color:#22543d;' : 'background:#fffaf0;border-left:4px solid #ed8936;color:#7b341e;') + '">' +
+        '<strong>100 Fact Pace:</strong> At this speed, 100 facts would take ~' + projStr +
+        (onTrack ? ' \u2014 You\'re on track for the Challenge!' : ' \u2014 Keep training to get under 2:00!') +
+      '</div>';
+  }
+
+  app.innerHTML =
+    '<h1>100 Fact Club</h1>' +
+    '<div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>' +
+    '<div class="card results">' +
+      clubHTML +
+      '<div class="score-big">' + score + '/' + attempted + '</div>' +
+      '<div class="score-label">' + pct + '% accuracy</div>' +
+      '<div class="time-label">' + timeStr + ' total \u00B7 ' + pace + 's avg per fact \u00B7 Best streak: ' + bestStreak + '</div>' +
+      (msg ? '<div class="message">' + msg + '</div>' : '') +
+      projectionHTML +
+      missedHTML +
+      '<div class="btn-row">' +
+        retryBtn +
+        '<button class="btn-restart" id="restart">Try Again</button>' +
+        '<button class="btn-home" id="home">Back to Menu</button>' +
+      '</div>' +
+    '</div>';
+
+  document.getElementById("restart").addEventListener("click", function() {
+    var count, time;
+    if (mode === "sprint25") { count = 25; time = 45; }
+    else if (mode === "sprint50") { count = 50; time = 90; }
+    else if (mode === "sprint75") { count = 75; time = 105; }
+    else { count = 100; time = 120; }
+    startCountdown(count, time);
+  });
+  document.getElementById("home").addEventListener("click", showMenu);
+  if (missed.length) {
+    document.getElementById("retryMissed").addEventListener("click", function() {
+      var pool = missed.map(function(m) { return { a: m.a, b: m.b, answer: m.answer }; });
+      problems = pool;
+      current = 0; score = 0; missed = []; streak = 0; bestStreak = 0;
+      gameOver = false;
+      timerLimit = Math.max(30, Math.ceil(pool.length * 1.5));
+      startTime = Date.now();
+      timerRef = setInterval(function() {
+        if (gameOver) return;
+        var remaining = Math.max(0, timerLimit - (Date.now() - startTime) / 1000);
+        updateTimerDisplay(remaining);
+        if (remaining <= 0) { gameOver = true; clearInterval(timerRef); showTimeUp(); }
+      }, 100);
+      renderProblem();
+    });
+  }
+}
+
+/* ── START ── */
+showMenu();
+</script>
+</body>
+</html>

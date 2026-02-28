@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fractions Greater Than 1 Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f0f4f8;
+    color: #2d3748;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+  .container { max-width: 600px; width: 100%; }
+  h1 { text-align: center; font-size: 1.6rem; margin-bottom: 6px; color: #1a365d; }
+  .subtitle { text-align: center; color: #718096; font-size: 0.95rem; margin-bottom: 24px; }
+  .progress-bar { background: #e2e8f0; border-radius: 999px; height: 10px; margin-bottom: 20px; overflow: hidden; }
+  .progress-fill { background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; border-radius: 999px; transition: width 0.4s ease; }
+  .score-line { display: flex; justify-content: space-between; font-size: 0.9rem; color: #4a5568; margin-bottom: 16px; }
+  .card { background: #fff; border-radius: 16px; padding: 28px 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .q-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #a0aec0; margin-bottom: 8px; }
+  .q-text { font-size: 1.15rem; line-height: 1.6; color: #2d3748; margin-bottom: 24px; }
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    display: block; width: 100%; padding: 14px 18px; font-size: 1.05rem;
+    border: 2px solid #e2e8f0; border-radius: 12px; background: #fff;
+    color: #2d3748; cursor: pointer; text-align: left; transition: all 0.15s ease;
+  }
+  .choice-btn:hover:not(:disabled) { border-color: #667eea; background: #f7f8ff; }
+  .choice-btn:disabled { cursor: default; }
+  .choice-btn.correct { border-color: #38a169; background: #f0fff4; color: #22543d; font-weight: 600; }
+  .choice-btn.wrong { border-color: #e53e3e; background: #fff5f5; color: #9b2c2c; }
+  .choice-btn.reveal { border-color: #38a169; background: #f0fff4; color: #22543d; }
+  .feedback { text-align: center; font-size: 1.1rem; font-weight: 600; margin-top: 18px; min-height: 28px; }
+  .feedback.correct-fb { color: #38a169; }
+  .feedback.wrong-fb { color: #e53e3e; }
+  .explain-box {
+    margin-top: 14px; padding: 14px 16px; border-radius: 10px;
+    font-size: 0.95rem; line-height: 1.6;
+  }
+  .explain-box.wrong-ex { background: #fff5f5; border-left: 4px solid #e53e3e; color: #742a2a; }
+  .explain-box.correct-ex { background: #f0fff4; border-left: 4px solid #38a169; color: #22543d; }
+  .explain-box strong { font-weight: 700; }
+  .next-btn {
+    display: block; margin: 16px auto 0; padding: 12px 32px; font-size: 1rem; font-weight: 600;
+    border: none; border-radius: 10px; background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff; cursor: pointer; transition: opacity 0.2s;
+  }
+  .next-btn:hover { opacity: 0.9; }
+  .results { text-align: center; }
+  .results .score-big { font-size: 3.5rem; font-weight: 700; color: #667eea; margin: 12px 0 4px; }
+  .results .score-label { font-size: 1.1rem; color: #718096; margin-bottom: 20px; }
+  .results .message { font-size: 1.15rem; margin-bottom: 24px; line-height: 1.5; }
+  .missed-list { text-align: left; margin: 0 auto 24px; max-width: 480px; }
+  .missed-list h3 { font-size: 1rem; color: #e53e3e; margin-bottom: 10px; }
+  .missed-item { padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; line-height: 1.4; }
+  .missed-item strong { color: #2d3748; }
+  .missed-item .mi-answer { color: #38a169; font-weight: 600; }
+  .missed-item .mi-explain { color: #718096; font-size: 0.88rem; margin-top: 4px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-row button { padding: 12px 28px; font-size: 1rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; transition: opacity 0.2s; }
+  .btn-row button:hover { opacity: 0.85; }
+  .btn-retry-missed { background: #e53e3e; color: #fff; }
+  .btn-restart { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+  .btn-home { background: #4a5568; color: #fff; }
+
+  /* Menu */
+  .menu-cards { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+  .menu-card {
+    background: #fff; border-radius: 14px; padding: 22px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    cursor: pointer; border: 2px solid transparent; transition: all 0.15s ease;
+  }
+  .menu-card:hover { border-color: #667eea; transform: translateY(-2px); box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
+  .menu-card h2 { font-size: 1.15rem; color: #1a365d; margin-bottom: 4px; }
+  .menu-card p { font-size: 0.9rem; color: #718096; line-height: 1.4; }
+  .menu-card .badge { display: inline-block; background: #667eea; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px; }
+
+  /* Concept cards */
+  .concept-card {
+    background: #fff; border-radius: 14px; padding: 20px; margin-bottom: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06); border-left: 4px solid #667eea;
+  }
+  .concept-card h3 { font-size: 1.05rem; color: #1a365d; margin-bottom: 8px; }
+  .concept-card p { font-size: 0.92rem; color: #4a5568; line-height: 1.6; }
+  .concept-card .example { font-family: monospace; font-size: 1rem; background: #f7fafc; padding: 10px; border-radius: 8px; margin-top: 8px; color: #2d3748; line-height: 1.8; }
+  .study-nav { display: flex; gap: 12px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+  .study-nav button { padding: 10px 24px; font-size: 0.95rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="container" id="app"></div>
+
+<script>
+/* ── QUESTION BANK ── */
+/* Eureka Math G4 M5 Topic E: Extending Fraction Equivalence to Fractions Greater Than 1 */
+
+/* Lessons 22-23: Add/subtract fraction to/from whole number; build fractions > 1 */
+var WHOLE_NUM = [
+  {
+    question: "Solve: 4 + 3/5 = ?",
+    choices: ["4 3/5", "7/5", "4 3/10", "3 4/5"],
+    answer: "4 3/5",
+    explain: "When you add a fraction to a whole number, you get a mixed number. 4 + 3/5 = 4 3/5. The whole number and the fraction just sit side by side.",
+    tag: "Whole + Fraction"
+  },
+  {
+    question: "Solve: 5 - 2/3 = ?",
+    choices: ["3 2/3", "4 1/3", "4 2/3", "5 2/3"],
+    answer: "4 1/3",
+    explain: "Decompose 5 into 4 + 1. Since 1 = 3/3, we have 4 + 3/3 - 2/3 = 4 + 1/3 = 4 1/3. You break one whole into thirds so you have enough to subtract.",
+    tag: "Whole - Fraction"
+  },
+  {
+    question: "Solve: 8 - 5/6 = ?",
+    choices: ["7 1/6", "7 5/6", "3/6", "8 1/6"],
+    answer: "7 1/6",
+    explain: "Decompose 8 into 7 + 1. Since 1 = 6/6, we have 7 + 6/6 - 5/6 = 7 + 1/6 = 7 1/6.",
+    tag: "Whole - Fraction"
+  },
+  {
+    question: "Solve: 7 \u00d7 1/4 = ? (Write as a mixed number.)",
+    choices: ["7/4", "1 3/4", "7 1/4", "3 1/4"],
+    answer: "1 3/4",
+    explain: "7 \u00d7 1/4 = 7/4. To convert: 7/4 = 4/4 + 3/4 = 1 + 3/4 = 1 3/4. Multiplying a unit fraction is the same as repeated addition: 1/4 + 1/4 + 1/4 + 1/4 + 1/4 + 1/4 + 1/4 = 7/4.",
+    tag: "Unit Fractions"
+  }
+];
+
+/* Lesson 24: Improper fraction \u2192 mixed number */
+var IMP_TO_MIXED = [
+  {
+    question: "Write 17/5 as a mixed number.",
+    choices: ["3 2/5", "2 7/5", "3 1/5", "2 3/5"],
+    answer: "3 2/5",
+    explain: "17/5 = 15/5 + 2/5 = 3 + 2/5 = 3 2/5. Find the largest multiple of 5 that fits inside 17 (that\u2019s 15), then the leftover is 2.",
+    tag: "Improper \u2192 Mixed"
+  },
+  {
+    question: "Write 11/3 as a mixed number.",
+    choices: ["3 2/3", "3 1/3", "2 2/3", "4 1/3"],
+    answer: "3 2/3",
+    explain: "11/3 = 9/3 + 2/3 = 3 + 2/3 = 3 2/3. Since 3 \u00d7 3 = 9, there are 3 whole groups with 2 thirds left over.",
+    tag: "Improper \u2192 Mixed"
+  },
+  {
+    question: "Write 19/4 as a mixed number.",
+    choices: ["4 1/4", "4 3/4", "3 3/4", "5 1/4"],
+    answer: "4 3/4",
+    explain: "19/4 = 16/4 + 3/4 = 4 + 3/4 = 4 3/4. Since 4 \u00d7 4 = 16, there are 4 wholes with 3 fourths remaining.",
+    tag: "Improper \u2192 Mixed"
+  },
+  {
+    question: "Write 15/8 as a mixed number.",
+    choices: ["1 7/8", "1 5/8", "2 1/8", "2 7/8"],
+    answer: "1 7/8",
+    explain: "15/8 = 8/8 + 7/8 = 1 + 7/8 = 1 7/8. One group of 8 eighths makes 1 whole, with 7 eighths left.",
+    tag: "Improper \u2192 Mixed"
+  }
+];
+
+/* Lesson 25: Mixed number \u2192 improper fraction */
+var MIXED_TO_IMP = [
+  {
+    question: "Write 3 1/4 as a fraction greater than 1.",
+    choices: ["13/4", "7/4", "12/4", "31/4"],
+    answer: "13/4",
+    explain: "3 1/4 = 3 + 1/4 = 12/4 + 1/4 = 13/4. Convert the 3 wholes into fourths (3 \u00d7 4 = 12 fourths) then add the extra fourth.",
+    tag: "Mixed \u2192 Improper"
+  },
+  {
+    question: "Write 2 4/5 as a fraction greater than 1.",
+    choices: ["10/5", "14/5", "24/5", "9/5"],
+    answer: "14/5",
+    explain: "2 4/5 = 2 + 4/5 = 10/5 + 4/5 = 14/5. The 2 wholes become 10 fifths, plus the 4 extra fifths.",
+    tag: "Mixed \u2192 Improper"
+  },
+  {
+    question: "Write 4 2/3 as a fraction greater than 1.",
+    choices: ["14/3", "12/3", "42/3", "10/3"],
+    answer: "14/3",
+    explain: "4 2/3 = 4 + 2/3 = 12/3 + 2/3 = 14/3. Multiply 4 \u00d7 3 = 12 thirds, then add 2 more thirds.",
+    tag: "Mixed \u2192 Improper"
+  }
+];
+
+/* Lessons 26-27: Compare fractions > 1 */
+var COMPARE = [
+  {
+    question: "Compare using &lt;, &gt;, or =: &nbsp; 2 3/8 ____ 2 5/8",
+    choices: ["2 3/8 < 2 5/8", "2 3/8 > 2 5/8", "2 3/8 = 2 5/8"],
+    answer: "2 3/8 < 2 5/8",
+    explain: "Both have 2 wholes, so compare the fractions. 3/8 < 5/8 (3 eighths is less than 5 eighths), so 2 3/8 < 2 5/8.",
+    tag: "Compare"
+  },
+  {
+    question: "Compare using &lt;, &gt;, or =: &nbsp; 3 2/6 ____ 3 1/3",
+    choices: ["3 2/6 < 3 1/3", "3 2/6 > 3 1/3", "3 2/6 = 3 1/3"],
+    answer: "3 2/6 = 3 1/3",
+    explain: "2/6 and 1/3 are equivalent fractions (2/6 = 1/3 because 2 \u00f7 2 = 1 and 6 \u00f7 2 = 3). So 3 2/6 = 3 1/3.",
+    tag: "Compare"
+  },
+  {
+    question: "Compare using &lt;, &gt;, or =: &nbsp; 2 3/4 ____ 2 5/8",
+    choices: ["2 3/4 < 2 5/8", "2 3/4 > 2 5/8", "2 3/4 = 2 5/8"],
+    answer: "2 3/4 > 2 5/8",
+    explain: "Find a common denominator. 3/4 = 6/8. Now compare: 2 6/8 vs 2 5/8. Since 6/8 > 5/8, we know 2 3/4 > 2 5/8.",
+    tag: "Compare (Common Denom)"
+  },
+  {
+    question: "Compare using &lt;, &gt;, or =: &nbsp; 7/3 ____ 9/4",
+    choices: ["7/3 < 9/4", "7/3 > 9/4", "7/3 = 9/4"],
+    answer: "7/3 > 9/4",
+    explain: "Convert to mixed numbers: 7/3 = 2 1/3 and 9/4 = 2 1/4. Both have 2 wholes, so compare 1/3 and 1/4. Since thirds are bigger pieces than fourths, 1/3 > 1/4, so 7/3 > 9/4.",
+    tag: "Compare (Common Denom)"
+  },
+  {
+    question: "Which fraction is closest to 3?",
+    choices: ["2 7/8", "3 1/5", "2 2/3", "3 1/2"],
+    answer: "2 7/8",
+    explain: "2 7/8 is only 1/8 away from 3. 3 1/5 is 1/5 away. Since 1/8 < 1/5 (eighths are smaller pieces), 2 7/8 is the closest to 3.",
+    tag: "Benchmarks"
+  }
+];
+
+/* Concepts and word problems */
+var CONCEPTS = [
+  {
+    question: "To solve 6 - 3/8, you need to decompose 6 first. Which decomposition works?",
+    choices: ["5 + 8/8", "5 + 3/8", "6 + 8/8", "5 + 6/8"],
+    answer: "5 + 8/8",
+    explain: "Rewrite 6 as 5 + 1. Since 1 = 8/8, you get 5 + 8/8. Now you can subtract: 5 + 8/8 - 3/8 = 5 + 5/8 = 5 5/8.",
+    tag: "Concept"
+  },
+  {
+    question: "Mia counted by 1/3s: 1/3, 2/3, 3/3, 4/3, 5/3. What is 5/3 as a mixed number?",
+    choices: ["1 1/3", "1 2/3", "2 1/3", "2 2/3"],
+    answer: "1 2/3",
+    explain: "5/3 = 3/3 + 2/3 = 1 + 2/3 = 1 2/3. One group of 3 thirds makes 1 whole, with 2 thirds left over.",
+    tag: "Word Problem"
+  },
+  {
+    question: "Sam has a piece of rope that is 15/4 feet long. What is this as a mixed number?",
+    choices: ["3 1/4 feet", "3 3/4 feet", "4 1/4 feet", "2 3/4 feet"],
+    answer: "3 3/4 feet",
+    explain: "15/4 = 12/4 + 3/4 = 3 + 3/4 = 3 3/4 feet. Since 4 \u00d7 3 = 12, there are 3 whole feet with 3 fourths left.",
+    tag: "Word Problem"
+  },
+  {
+    question: "Which two are equal? 11/4 and ____",
+    choices: ["2 1/4", "2 3/4", "3 1/4", "1 3/4"],
+    answer: "2 3/4",
+    explain: "11/4 = 8/4 + 3/4 = 2 + 3/4 = 2 3/4. On a number line, 11/4 and 2 3/4 are the same exact point.",
+    tag: "Concept"
+  }
+];
+
+var ALL_QUESTIONS = WHOLE_NUM.concat(IMP_TO_MIXED).concat(MIXED_TO_IMP).concat(COMPARE).concat(CONCEPTS);
+
+/* ── HELPERS ── */
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function esc(s) { return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+function unesc(s) { var d = document.createElement('div'); d.innerHTML = s; return d.textContent; }
+
+/* ── STATE ── */
+var questions, current, score, missed, answered, quizMode;
+
+/* ── MENU ── */
+function showMenu() {
+  var app = document.getElementById("app");
+  app.innerHTML =
+    '<h1>Fractions Greater Than 1</h1>' +
+    '<p class="subtitle">G4 M5 Topic E &mdash; Lessons 22\u201328</p>' +
+    '<div class="menu-cards">' +
+      '<div class="menu-card" data-mode="study">' +
+        '<span class="badge">Study</span>' +
+        '<h2>Review Concepts</h2>' +
+        '<p>Step-by-step examples for every skill in Topic E</p>' +
+      '</div>' +
+      '<div class="menu-card" data-mode="whole">' +
+        '<span class="badge">4 questions</span>' +
+        '<h2>Whole +/\u2013 Fraction</h2>' +
+        '<p>Add a fraction to, or subtract a fraction from, a whole number (Lessons 22\u201323)</p>' +
+      '</div>' +
+      '<div class="menu-card" data-mode="convert">' +
+        '<span class="badge">7 questions</span>' +
+        '<h2>Convert Fractions</h2>' +
+        '<p>Improper fractions \u2194 mixed numbers (Lessons 24\u201325)</p>' +
+      '</div>' +
+      '<div class="menu-card" data-mode="compare">' +
+        '<span class="badge">5 questions</span>' +
+        '<h2>Compare Fractions</h2>' +
+        '<p>Use benchmarks and common denominators to compare (Lessons 26\u201327)</p>' +
+      '</div>' +
+      '<div class="menu-card" data-mode="all">' +
+        '<span class="badge">20 questions</span>' +
+        '<h2>Full Quiz</h2>' +
+        '<p>All question types mixed \u2014 the complete Topic E review</p>' +
+      '</div>' +
+    '</div>' +
+    '<a class="back-link" href="./" style="display:block;text-align:center;color:#667eea;font-size:0.9rem;margin-top:12px;">Back to Study Hub</a>';
+
+  app.querySelectorAll(".menu-card").forEach(function(card) {
+    card.addEventListener("click", function() {
+      quizMode = card.dataset.mode;
+      if (quizMode === "study") { showStudy(); return; }
+      var pool;
+      if (quizMode === "whole") pool = WHOLE_NUM.slice();
+      else if (quizMode === "convert") pool = IMP_TO_MIXED.concat(MIXED_TO_IMP);
+      else if (quizMode === "compare") pool = COMPARE.slice();
+      else pool = ALL_QUESTIONS.slice();
+      startQuiz(pool);
+    });
+  });
+}
+
+/* ── STUDY MODE ── */
+function showStudy() {
+  var app = document.getElementById("app");
+  app.innerHTML =
+    '<h1>Fractions Greater Than 1</h1>' +
+    '<p class="subtitle">Study Guide \u2014 Topic E Key Concepts</p>' +
+
+    '<div class="concept-card">' +
+      '<h3>1. Adding a Fraction to a Whole Number</h3>' +
+      '<p>When you add a fraction to a whole number, you get a mixed number. Easy!</p>' +
+      '<div class="example">4 + 3/5 = <strong>4 3/5</strong></div>' +
+    '</div>' +
+
+    '<div class="concept-card">' +
+      '<h3>2. Subtracting a Fraction from a Whole Number</h3>' +
+      '<p>Decompose the whole: take 1 away, turn it into a fraction, then subtract.</p>' +
+      '<div class="example">5 - 2/3<br>Decompose: 5 = 4 + 3/3<br>Subtract: 4 + 3/3 - 2/3 = 4 + 1/3<br>Answer: <strong>4 1/3</strong></div>' +
+    '</div>' +
+
+    '<div class="concept-card">' +
+      '<h3>3. Improper Fraction \u2192 Mixed Number</h3>' +
+      '<p>Find how many whole groups fit, then find the leftover.</p>' +
+      '<div class="example">17/5 \u2192 how many 5s fit in 17?<br>15/5 + 2/5 = 3 + 2/5<br>Answer: <strong>3 2/5</strong></div>' +
+    '</div>' +
+
+    '<div class="concept-card">' +
+      '<h3>4. Mixed Number \u2192 Improper Fraction</h3>' +
+      '<p>Multiply the whole number by the denominator, then add the numerator.</p>' +
+      '<div class="example">3 1/4 \u2192 improper fraction<br>3 \u00d7 4 = 12 fourths + 1 fourth = 13 fourths<br>Answer: <strong>13/4</strong></div>' +
+    '</div>' +
+
+    '<div class="concept-card">' +
+      '<h3>5. Comparing with Benchmarks</h3>' +
+      '<p>Use 0, 1/2, and 1 as benchmarks. If one fraction is above 1/2 and the other is below, you know which is bigger.</p>' +
+      '<div class="example">Compare 2 3/8 and 2 5/8<br>Same wholes (2), so compare fractions.<br>3/8 &lt; 5/8<br>So <strong>2 3/8 &lt; 2 5/8</strong></div>' +
+    '</div>' +
+
+    '<div class="concept-card">' +
+      '<h3>6. Comparing with Common Denominators</h3>' +
+      '<p>When denominators are different, find a common one so you can compare fairly.</p>' +
+      '<div class="example">Compare 2 3/4 and 2 5/8<br>Convert 3/4 to eighths: 3/4 = 6/8<br>Now compare: 2 6/8 vs 2 5/8<br>6/8 &gt; 5/8, so <strong>2 3/4 &gt; 2 5/8</strong></div>' +
+    '</div>' +
+
+    '<div class="study-nav">' +
+      '<button class="btn-restart" id="toQuiz" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;">Take the Full Quiz</button>' +
+      '<button class="btn-home" id="toMenu" style="background:#4a5568;color:#fff;">Back to Menu</button>' +
+    '</div>';
+
+  document.getElementById("toQuiz").addEventListener("click", function() {
+    quizMode = "all";
+    startQuiz(ALL_QUESTIONS.slice());
+  });
+  document.getElementById("toMenu").addEventListener("click", showMenu);
+}
+
+/* ── QUIZ ENGINE ── */
+function startQuiz(pool) {
+  questions = shuffle(pool);
+  current = 0;
+  score = 0;
+  missed = [];
+  answered = false;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  var app = document.getElementById("app");
+  if (current >= questions.length) { renderResults(app); return; }
+
+  var q = questions[current];
+  var pct = Math.round((current / questions.length) * 100);
+  var choicesHTML;
+  if (q.choices.length === 3) {
+    choicesHTML = q.choices.map(function(c) {
+      return '<button class="choice-btn" data-val="' + esc(c) + '">' + c + '</button>';
+    }).join("");
+  } else {
+    var opts = shuffle(q.choices.slice());
+    choicesHTML = opts.map(function(c) {
+      return '<button class="choice-btn" data-val="' + esc(c) + '">' + c + '</button>';
+    }).join("");
+  }
+
+  app.innerHTML =
+    '<h1>Fractions Greater Than 1</h1>' +
+    '<p class="subtitle">G4 M5 Topic E &mdash; Lessons 22\u201328</p>' +
+    '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+    '<div class="score-line">' +
+      '<span>Question ' + (current + 1) + ' of ' + questions.length + '</span>' +
+      '<span>' + score + ' correct</span>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="q-label">' + q.tag + '</div>' +
+      '<div class="q-text">' + q.question + '</div>' +
+      '<div class="choices" id="choices">' + choicesHTML + '</div>' +
+      '<div class="feedback" id="feedback"></div>' +
+      '<div id="explainArea"></div>' +
+    '</div>';
+
+  document.querySelectorAll(".choice-btn").forEach(function(btn) {
+    btn.addEventListener("click", function() { handleAnswer(btn, q); });
+  });
+}
+
+function handleAnswer(btn, q) {
+  if (answered) return;
+  answered = true;
+  var chosen = unesc(btn.dataset.val);
+  var isCorrect = chosen === q.answer;
+  var fb = document.getElementById("feedback");
+
+  document.querySelectorAll(".choice-btn").forEach(function(b) {
+    b.disabled = true;
+    var bVal = unesc(b.dataset.val);
+    if (bVal === q.answer) b.classList.add(isCorrect ? "correct" : "reveal");
+  });
+
+  if (isCorrect) {
+    btn.classList.add("correct");
+    fb.textContent = "Correct!";
+    fb.className = "feedback correct-fb";
+    score++;
+  } else {
+    btn.classList.add("wrong");
+    fb.textContent = "Not quite!";
+    fb.className = "feedback wrong-fb";
+    missed.push(q);
+  }
+
+  var area = document.getElementById("explainArea");
+  var cls = isCorrect ? "correct-ex" : "wrong-ex";
+  var prefix = isCorrect ? "Nice!" : "Here\u2019s why:";
+  area.innerHTML = '<div class="explain-box ' + cls + '"><strong>' + prefix + '</strong> ' + q.explain + '</div>';
+
+  var nextBtn = document.createElement("button");
+  nextBtn.className = "next-btn";
+  nextBtn.textContent = current + 1 < questions.length ? "Next" : "See Results";
+  nextBtn.addEventListener("click", function() { current++; answered = false; renderQuestion(); });
+  document.querySelector(".card").appendChild(nextBtn);
+}
+
+/* ── RESULTS ── */
+function renderResults(app) {
+  var pct = Math.round((score / questions.length) * 100);
+  var msg;
+  if (pct === 100) msg = "Perfect score! You really understand fractions greater than 1!";
+  else if (pct >= 80) msg = "Great job! Almost there \u2014 just a few to review.";
+  else if (pct >= 60) msg = "Good effort! Review the Study Guide and try again.";
+  else msg = "Keep studying \u2014 check the Study Guide and practice each section!";
+
+  var missedHTML = "";
+  if (missed.length) {
+    missedHTML = '<div class="missed-list"><h3>To review (' + missed.length + ')</h3>' +
+      missed.map(function(m) {
+        var qShort = m.question.length > 60 ? m.question.slice(0, 60) + "..." : m.question;
+        return '<div class="missed-item"><strong>' + qShort + '</strong><br>' +
+          '<span class="mi-answer">Answer: ' + m.answer + '</span>' +
+          '<div class="mi-explain">' + m.explain + '</div></div>';
+      }).join("") + '</div>';
+  }
+
+  var retryBtn = missed.length
+    ? '<button class="btn-retry-missed" id="retryMissed">Retry Missed (' + missed.length + ')</button>' : "";
+
+  app.innerHTML =
+    '<h1>Fractions Greater Than 1</h1>' +
+    '<p class="subtitle">G4 M5 Topic E &mdash; Lessons 22\u201328</p>' +
+    '<div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>' +
+    '<div class="card results">' +
+      '<div class="score-big">' + pct + '%</div>' +
+      '<div class="score-label">' + score + ' out of ' + questions.length + ' correct</div>' +
+      '<div class="message">' + msg + '</div>' +
+      missedHTML +
+      '<div class="btn-row">' +
+        retryBtn +
+        '<button class="btn-restart" id="restart">Play Again</button>' +
+        '<button class="btn-home" id="home">Back to Menu</button>' +
+      '</div>' +
+    '</div>';
+
+  document.getElementById("restart").addEventListener("click", function() {
+    var pool;
+    if (quizMode === "whole") pool = WHOLE_NUM.slice();
+    else if (quizMode === "convert") pool = IMP_TO_MIXED.concat(MIXED_TO_IMP);
+    else if (quizMode === "compare") pool = COMPARE.slice();
+    else pool = ALL_QUESTIONS.slice();
+    startQuiz(pool);
+  });
+  document.getElementById("home").addEventListener("click", showMenu);
+  if (missed.length) {
+    document.getElementById("retryMissed").addEventListener("click", function() {
+      startQuiz(missed.slice());
+    });
+  }
+}
+
+/* ── START ── */
+showMenu();
+</script>
+</body>
+</html>
