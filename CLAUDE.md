@@ -21,6 +21,13 @@ stevetodman.com/
 │           ├── bp-family-handout.docx
 │           ├── peds-dyslipidemia-intake-v3.pdf
 │           └── peds-syncope-intake-v2.pdf
+├── twins/                        # Kids' Study Hub (stevetodman.com/twins)
+│   ├── index.html                # Study Hub landing page
+│   ├── greek-vocab-quiz.html     # Ancient Greece vocabulary + chapter review
+│   ├── fract-vocab-quiz.html     # Root words: fract, frag, frail
+│   ├── topic-e-quiz.html         # Eureka Math G4M5 Topic E fractions quiz
+│   ├── math-facts.html           # Multiplication speed drill
+│   └── 100-fact-club.html        # 100 Fact Club sprint training + challenge
 ├── cooking/
 │   ├── index.html                # Cooking timers listing
 │   ├── ahi-tuna-timer.html
@@ -120,6 +127,34 @@ Clinic intake forms and patient education materials go in `/admin/clinic-resourc
 </div>
 ```
 
+## Adding a Study Tool (twins/)
+
+Kids' study tools for 4th grade — vocab quizzes, math quizzes, and drills. Live at stevetodman.com/twins.
+
+### Design patterns
+
+- Single-file HTML, no build step, no external dependencies
+- Light theme: `#f0f4f8` background, white cards with `border-radius: 16px`
+- Purple gradient (`#667eea` → `#764ba2`) for vocab/academic quizzes
+- Orange gradient (`#ed8936` → `#dd6b20`) for math/speed tools
+- All internal links use relative paths (e.g., `href="./"` for back to hub)
+- String concatenation for HTML building (not template literals)
+
+### Quiz structure
+
+- Menu → mode selection (Flashcards, Quiz, Full Test, etc.)
+- Shuffled questions with multiple choice
+- Immediate feedback with explanations
+- Results screen with retry-missed option
+- "Back to Study Hub" link on every page
+
+### When adding a new tool
+
+1. Create `twins/[tool-name].html`
+2. Update `twins/index.html` with a new card (use `badge-purple` for quizzes, `badge-orange` for drills)
+3. Update this CLAUDE.md project structure
+4. Verify all math answers computationally before deploying
+
 ## Deployment
 
 - Push to main branch auto-deploys to Cloudflare Pages
@@ -128,10 +163,12 @@ Clinic intake forms and patient education materials go in `/admin/clinic-resourc
 
 ## Style Guide
 
-- Dark theme: #1a1a2e to #16213e gradient (cooking timers)
+- Dark theme: #1a1a2e to #16213e gradient (homepage, cooking timers)
 - Light theme: #f8fafc background (clinic resources)
-- Accent color: #00cec9 (teal)
-- Alert color: #e94560 (coral red)
+- Kids theme: #f0f4f8 background, white cards (twins/)
+- Accent color: #00cec9 (teal — homepage/cooking)
+- Alert color: #e94560 (coral red — homepage/cooking)
+- Quiz accent: #667eea purple (twins/ vocab), #ed8936 orange (twins/ math)
 - Font: system fonts (-apple-system, BlinkMacSystemFont, etc.)
 - No external dependencies (single-file HTML)
 
