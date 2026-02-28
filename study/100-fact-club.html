@@ -396,12 +396,9 @@ function submitAnswer() {
     if (streak > bestStreak) bestStreak = streak;
     setTimeout(function() { current++; renderProblem(); }, 350);
   } else {
-    input.classList.add("flash-wrong");
     streak = 0;
-    fb.innerHTML = p.a + ' &times; ' + p.b + ' = <strong>' + p.answer + '</strong>';
-    fb.className = "feedback wrong-fb";
     missed.push({ a: p.a, b: p.b, answer: p.answer, given: given });
-    setTimeout(function() { current++; renderProblem(); }, 1200);
+    setTimeout(function() { current++; renderProblem(); }, 350);
   }
 }
 
