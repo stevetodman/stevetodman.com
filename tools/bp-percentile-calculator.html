@@ -341,69 +341,247 @@
             border-radius: 3px;
             font-style: normal;
         }
+    
+        .scope-note {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e3a8a;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.82rem;
+            margin-bottom: 1rem;
+        }
+        .step-heading {
+            color: #0f172a;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin: 1.25rem 0 0.6rem;
+            padding-top: 0.15rem;
+        }
+        .step-heading:first-child { margin-top: 0; }
+        .input-note {
+            color: #64748b;
+            font-size: 0.76rem;
+            margin: -0.25rem 0 0.75rem;
+            line-height: 1.45;
+        }
+        .reading-grid {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.9rem;
+            margin-bottom: 0.85rem;
+        }
+        .reading-grid + .reading-grid { margin-top: 0.65rem; }
+        .reading-label {
+            color: #334155;
+            font-size: 0.84rem;
+            font-weight: 700;
+            margin-bottom: 0.55rem;
+        }
+        .reading-label span {
+            color: #64748b;
+            font-weight: 400;
+        }
+        .checkbox-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            margin: 0.25rem 0 1rem;
+            color: #334155;
+            font-size: 0.82rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        .checkbox-row input {
+            width: auto;
+            margin-top: 0.16rem;
+            flex: 0 0 auto;
+        }
+        .action-card {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 2px solid #bfdbfe;
+            background: #eff6ff;
+            color: #172554;
+        }
+        .action-card.action-measurement {
+            background: #fffbeb;
+            border-color: #fbbf24;
+            color: #78350f;
+        }
+        .action-card.action-caution {
+            background: #fff7ed;
+            border-color: #fb923c;
+            color: #7c2d12;
+        }
+        .action-card.action-routine {
+            background: #f0fdf4;
+            border-color: #86efac;
+            color: #14532d;
+        }
+        .action-card.action-elevated {
+            background: #fefce8;
+            border-color: #fde047;
+            color: #713f12;
+        }
+        .action-card.action-stage1 {
+            background: #fff7ed;
+            border-color: #fdba74;
+            color: #7c2d12;
+        }
+        .action-card.action-stage2 {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            color: #7f1d1d;
+        }
+        .action-card.action-emergency {
+            background: #7f1d1d;
+            border-color: #450a0a;
+            color: #fff;
+        }
+        .action-card h3 {
+            font-size: 1.05rem;
+            line-height: 1.35;
+            margin: 0.15rem 0 0.4rem;
+        }
+        .action-eyebrow {
+            font-size: 0.69rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            opacity: 0.78;
+        }
+        .action-card p {
+            font-size: 0.86rem;
+            line-height: 1.5;
+            margin: 0.35rem 0;
+        }
+        .action-card ul {
+            margin: 0.6rem 0 0.35rem 1.1rem;
+            padding: 0;
+            font-size: 0.85rem;
+            line-height: 1.48;
+        }
+        .action-card li { margin-bottom: 0.32rem; }
+        .action-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            margin: 0.75rem 0 0.55rem;
+        }
+        .action-meta span {
+            background: rgba(255,255,255,0.72);
+            border: 1px solid rgba(100,116,139,0.24);
+            color: inherit;
+            border-radius: 999px;
+            padding: 0.22rem 0.5rem;
+            font-size: 0.72rem;
+            line-height: 1.25;
+        }
+        .action-card.action-emergency .action-meta span {
+            background: rgba(255,255,255,0.14);
+            border-color: rgba(255,255,255,0.35);
+        }
+        .source-line {
+            font-size: 0.74rem !important;
+            opacity: 0.9;
+            margin-top: 0.65rem !important;
+        }
+        .action-card a {
+            color: inherit;
+            font-weight: 700;
+        }
+        .copy-note {
+            width: auto;
+            display: inline-block;
+            margin-top: 0.55rem;
+            padding: 0.58rem 0.8rem;
+            background: #0f172a;
+            font-size: 0.8rem;
+        }
+        .copy-note:hover { background: #020617; }
+        .action-card.action-emergency .copy-note {
+            background: #fff;
+            color: #7f1d1d;
+        }
+        .copy-status {
+            display: inline-block;
+            margin-left: 0.5rem;
+            font-size: 0.76rem;
+            font-weight: 600;
+        }
+        .threshold-note {
+            margin-top: 0.55rem;
+            line-height: 1.42;
+        }
+        @media (max-width: 440px) {
+            .row { gap: 0.65rem; }
+            .card { padding: 1rem; }
+            .action-meta { gap: 0.3rem; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Pediatric BP Percentile Calculator</h1>
-        <p class="subtitle">AAP 2017 Clinical Practice Guidelines</p>
-        
+        <h1>Pediatric BP Pathway</h1>
+        <p class="subtitle">AAP 2017 guideline-informed outpatient office-BP workflow</p>
+
         <details class="instructions-panel">
-            <summary>📋 How to Use This Calculator</summary>
+            <summary>How this guided pathway works</summary>
             <div class="instructions-content">
-                <h4>For Best Accuracy:</h4>
+                <h4>Use it as a clinician-facing checklist</h4>
                 <ol>
-                    <li><strong>Age:</strong> Enter the child's exact age using <em>Years + Months</em> (e.g., 8 years, 4 months). This matches how percentiles are calculated in the AAP reference tables.</li>
-                    <li><strong>Height:</strong> Measure height accurately — small errors affect percentile calculations. The calculator will show a height z-score to help identify measurement errors.</li>
-                    <li><strong>BP Measurement:</strong> Use the average of 2-3 auscultatory readings taken after 5 minutes of rest, per AAP guidelines.</li>
+                    <li>Enter the patient’s date of birth, the date of this measurement, reference-table sex, and height for children age 1–&lt;13 years.</li>
+                    <li>Enter the initial reading. If it is elevated or higher, enter two additional same-visit readings; the tool uses the average of readings 2 and 3.</li>
+                    <li>For an elevated oscillometric result, enter two <em>auscultatory</em> readings before using a qualifying office-BP pathway.</li>
+                    <li>Answer the symptom and follow-up-state prompts. The card then shows the AAP next-step options to consider.</li>
                 </ol>
-                
-                <h4>Understanding Results:</h4>
+                <h4>Important boundaries</h4>
                 <ul>
-                    <li><strong>Accuracy:</strong> Results are within ±1 percentile of published AAP tables</li>
-                    <li><strong>For ages ≥13:</strong> Classification uses absolute thresholds (120/130/140 mmHg) per adult guidelines</li>
-                    <li><strong>For ages &lt;13:</strong> Classification uses both percentiles AND absolute thresholds, whichever is lower</li>
-                </ul>
-                
-                <h4>When to Be Cautious:</h4>
-                <ul>
-                    <li>⚠️ Height z-score &gt; 3 or &lt; -3 may indicate measurement error</li>
-                    <li>⚠️ Ages &lt;5 or &gt;17 years are outside the validated range</li>
-                    <li>⚠️ Single readings should not be used to diagnose hypertension</li>
+                    <li>One high reading does not diagnose hypertension. Same-day readings are one visit.</li>
+                    <li>For age 13 and older, fixed adolescent thresholds apply; height and reference-table sex do not change the category.</li>
+                    <li>This version does not interpret raw ABPM, home/school/cuffless readings, neonatal/infant, pregnancy, or inpatient/acute-care data, and it does not select medications or doses.</li>
                 </ul>
             </div>
         </details>
-        
+
         <div class="card">
+            <div class="scope-note">
+                <strong>Clinician review required.</strong> This is a transparent, outpatient AAP office-BP decision-support pathway. It shows the measurement gates, category logic, and guideline-linked next-step options; it does not make a diagnosis or replace local policy.
+            </div>
+
+            <div class="step-heading">1. Patient and visit</div>
             <div class="row">
                 <div class="form-group">
-                    <label>Date of Birth</label>
+                    <label for="dob">Date of birth</label>
                     <input type="date" id="dob" required>
                 </div>
                 <div class="form-group">
-                    <label>Measurement Date</label>
+                    <label for="measureDate">Measurement date</label>
                     <input type="date" id="measureDate">
                 </div>
             </div>
             <div class="age-display" id="ageDisplay"></div>
 
             <div class="form-group">
-                <label>Sex</label>
+                <label>Reference-table sex <span class="precision-note">(required only for age 1–&lt;13 years)</span></label>
                 <div class="sex-toggle" id="sexToggle">
-                    <button type="button" class="sex-btn active" data-value="M">Male</button>
-                    <button type="button" class="sex-btn" data-value="F">Female</button>
+                    <button type="button" class="sex-btn" data-value="M" aria-pressed="false">Male</button>
+                    <button type="button" class="sex-btn" data-value="F" aria-pressed="false">Female</button>
                 </div>
-                <input type="hidden" id="sex" value="M">
+                <input type="hidden" id="sex" value="">
             </div>
 
             <div class="row">
                 <div class="form-group">
-                    <label>Height</label>
-                    <input type="number" id="height" step="0.1" inputmode="decimal" placeholder="Enter height">
+                    <label for="height">Height at this visit</label>
+                    <input type="number" id="height" step="0.1" inputmode="decimal" placeholder="Required for age &lt;13">
                     <div class="height-zscore" id="heightZscore"></div>
                 </div>
                 <div class="form-group">
-                    <label>Unit</label>
+                    <label for="heightUnit">Unit</label>
                     <select id="heightUnit">
                         <option value="cm">cm</option>
                         <option value="in">in</option>
@@ -411,21 +589,112 @@
                 </div>
             </div>
 
+            <div class="step-heading">2. Measurement context</div>
             <div class="row">
                 <div class="form-group">
-                    <label>Systolic BP (mmHg)</label>
-                    <input type="number" id="sbp" min="50" max="250" placeholder="Systolic">
+                    <label for="careContext">Where was this measured?</label>
+                    <select id="careContext">
+                        <option value="outpatient-office">Outpatient office / clinic</option>
+                        <option value="acute">Emergency / acute-care setting</option>
+                        <option value="inpatient">Inpatient / ICU</option>
+                        <option value="home">Home, school, or cuffless device</option>
+                        <option value="abpm">Raw ambulatory BP monitoring (ABPM)</option>
+                        <option value="unknown">Unknown / other</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label>Diastolic BP (mmHg)</label>
-                    <input type="number" id="dbp" min="30" max="150" placeholder="Diastolic">
+                    <label for="initialMethod">Method for reading 1</label>
+                    <select id="initialMethod">
+                        <option value="">Select method</option>
+                        <option value="auscultatory">Auscultatory</option>
+                        <option value="oscillometric">Oscillometric device</option>
+                        <option value="unknown">Unknown</option>
+                    </select>
                 </div>
             </div>
-            <button onclick="calculate()">Calculate Percentiles</button>
-            <div id="error" class="error"></div>
-            <div id="warnings"></div>
+            <label class="checkbox-row">
+                <input type="checkbox" id="techniqueConfirmed">
+                <span>Standard upper-arm office technique confirmed: correct cuff, quiet seated rest, back/feet supported, arm at heart level, and no talking.</span>
+            </label>
+
+            <div class="reading-grid">
+                <div class="reading-label">Reading 1 <span>— initial screen</span></div>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="sbp">Systolic BP (mmHg)</label>
+                        <input type="number" id="sbp" min="40" max="300" step="1" inputmode="decimal" placeholder="Systolic">
+                    </div>
+                    <div class="form-group">
+                        <label for="dbp">Diastolic BP (mmHg)</label>
+                        <input type="number" id="dbp" min="20" max="200" step="1" inputmode="decimal" placeholder="Diastolic">
+                    </div>
+                </div>
+            </div>
+
+            <div class="reading-grid">
+                <div class="reading-label">Readings 2 and 3 <span>— enter both if repeating at this visit</span></div>
+                <p class="input-note">If the initial screen is elevated or higher, two additional readings are required. The calculator uses the average of readings 2 and 3; if their average remains abnormal, it must be auscultatory to advance the office-BP pathway.</p>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="sbp2">Reading 2 SBP / DBP</label>
+                        <div class="row">
+                            <input type="number" id="sbp2" min="40" max="300" step="1" inputmode="decimal" placeholder="SBP">
+                            <input type="number" id="dbp2" min="20" max="200" step="1" inputmode="decimal" placeholder="DBP">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="sbp3">Reading 3 SBP / DBP</label>
+                        <div class="row">
+                            <input type="number" id="sbp3" min="40" max="300" step="1" inputmode="decimal" placeholder="SBP">
+                            <input type="number" id="dbp3" min="20" max="200" step="1" inputmode="decimal" placeholder="DBP">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="confirmMethod">Method for readings 2 and 3</label>
+                    <select id="confirmMethod">
+                        <option value="">Select if readings 2 and 3 were entered</option>
+                        <option value="auscultatory">Auscultatory</option>
+                        <option value="oscillometric">Oscillometric device</option>
+                        <option value="unknown">Unknown</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="step-heading">3. Safety and pathway state</div>
+            <div class="row">
+                <div class="form-group">
+                    <label for="acuteSymptoms">Symptoms/signs concerning for acute severe hypertension?</label>
+                    <select id="acuteSymptoms">
+                        <option value="">Required for Stage 1 or Stage 2</option>
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                        <option value="unknown">Unable to assess / unknown</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="visitState">Where is this patient in the AAP follow-up sequence?</label>
+                    <select id="visitState">
+                        <option value="unknown">Unknown / review chart</option>
+                        <option value="initial">First qualifying abnormal office visit</option>
+                        <option value="elevated-6mo">Elevated BP at scheduled 6-month follow-up</option>
+                        <option value="elevated-12mo">Elevated BP at 12 months / 3 qualifying visits</option>
+                        <option value="stage1-second">Stage 1 at 1–2-week follow-up</option>
+                        <option value="stage1-third">Stage 1 after 3 qualifying visits</option>
+                        <option value="stage2-persistent">Stage 2 persists at 1-week follow-up</option>
+                    </select>
+                </div>
+            </div>
+            <label class="checkbox-row">
+                <input type="checkbox" id="highRisk">
+                <span>Known high-risk condition or BP-raising medication that warrants BP at every encounter (for example obesity, CKD, diabetes, transplant, or repaired coarctation).</span>
+            </label>
+
+            <button type="button" onclick="calculate()">Classify and show guideline pathway</button>
+            <div id="error" class="error" role="alert"></div>
+            <div id="warnings" aria-live="polite"></div>
         </div>
-        
+
         <div id="results" class="results">
             <div class="card">
                 <div class="row">
@@ -441,7 +710,7 @@
                     </div>
                 </div>
 
-                <div class="gauge-section">
+                <div class="gauge-section" id="gaugeSection">
                     <div class="gauge-row">
                         <span class="gauge-label">SBP</span>
                         <div class="gauge-bar">
@@ -460,38 +729,42 @@
                 </div>
 
                 <div id="classification" class="classification"></div>
-                <div class="thresholds">
-                    <h4>BP Thresholds for this patient:</h4>
-                    <div class="threshold-row"><span>90th percentile:</span><span id="p90"></span></div>
-                    <div class="threshold-row"><span>95th percentile:</span><span id="p95"></span></div>
-                    <div class="threshold-row"><span>95th + 12 mmHg:</span><span id="p95plus12"></span></div>
+                <section id="actionCard" class="action-card" aria-live="polite"></section>
+                <div class="thresholds" id="thresholds">
+                    <h4 id="thresholdTitle">BP thresholds for this patient:</h4>
+                    <div class="threshold-row"><span id="p90Label">90th percentile:</span><span id="p90"></span></div>
+                    <div class="threshold-row"><span id="p95Label">95th percentile:</span><span id="p95"></span></div>
+                    <div class="threshold-row"><span id="p95plus12Label">95th + 12 mmHg:</span><span id="p95plus12"></span></div>
+                    <p class="precision-note threshold-note" id="thresholdNote"></p>
                 </div>
                 <div class="info-box" id="calcDetails"></div>
             </div>
         </div>
-        
+
         <div class="disclaimer">
-            <strong>For educational purposes only.</strong> Not a substitute for professional medical judgment. 
+            <strong>AAP 2017 guideline-informed outpatient office-BP pathway.</strong> Implemented with the published 2018 age-boundary erratum (age 1–&lt;13 years). It supports independent clinician review and local policy, not autonomous diagnosis or treatment. It excludes neonatal/infant, pregnancy, inpatient/acute-care, home/school/cuffless, and raw ABPM interpretation; no medication choice or dose is generated.
             <details class="validation-details">
-                <summary>Accuracy: ±1 percentile ▸</summary>
+                <summary>Computation and source transparency ▸</summary>
                 <div class="validation-content">
-                    <strong>Validation performed against:</strong>
+                    <strong>What the tool does:</strong>
                     <ul>
-                        <li><strong>AAP 2017 Table 4</strong> — 24 test points, all within ±1 mmHg</li>
-                        <li><strong>Rosner sample data</strong> — 87.5% exact match, 100% within ±1 percentile</li>
-                        <li><strong>bsolomon.us calculator</strong> — BP values match to &lt;0.01 mmHg</li>
+                        <li>Uses date-at-measurement age and height/reference-table sex for age 1–&lt;13 years.</li>
+                        <li>Uses unrounded calculated thresholds for classification; displayed percentiles are nearest-whole-percentile approximations.</li>
+                        <li>Shows measurement, auscultatory-confirmation, safety, and qualifying-visit gates before longitudinal management guidance.</li>
                     </ul>
-                    <strong>Sources of ±1 variation:</strong> floating-point rounding, integer percentile discretization
+                    <strong>What it does not do:</strong> validate a diagnosis from one visit, interpret raw ABPM, infer qualifying prior visits, or select a medication/dose.
                 </div>
             </details>
         </div>
-        
+
         <div class="credits">
-            Flynn JT et al. <em>Pediatrics</em> 2017;140(3):e20171904 &bull; 
-            Rosner B et al. <em>Am J Epidemiol</em> 2008;167(6):653-66
+            <a href="https://publications.aap.org/pediatrics/article/140/3/e20171904/38358/Clinical-Practice-Guideline-for-Screening-and" target="_blank" rel="noopener noreferrer">AAP Clinical Practice Guideline (2017)</a>
+            &bull;
+            <a href="https://publications.aap.org/pediatrics/article/142/3/e20181739/38680/Flynn-JT-Kaelber-DC-Baker-Smith-CM-et-al" target="_blank" rel="noopener noreferrer">2018 erratum</a>
+            &bull; Rosner B et al. <em>Am J Epidemiol</em> 2008;167(6):653-66
         </div>
     </div>
-    
+
     <script>
 // =============================================================================
 // PEDIATRIC BP PERCENTILE CALCULATOR - AAP 2017
@@ -644,56 +917,93 @@ function findPercentile(coefficients, bp, age, height, sex) {
 // =============================================================================
 // CLASSIFICATION (AAP 2017)
 // =============================================================================
-function classify(age, sbp, dbp, sbpPct, dbpPct, sbp95, dbp95) {
+function componentCategory(age, value, p90, p95, component) {
     if (age >= 13) {
-        if (sbp >= 140 || dbp >= 90) return { class: 'Stage 2 HTN', css: 'stage2' };
-        if (sbp >= 130 || dbp >= 80) return { class: 'Stage 1 HTN', css: 'stage1' };
-        if (sbp >= 120) return { class: 'Elevated BP', css: 'elevated' };
-        return { class: 'Normal', css: 'normal' };
-    } else {
-        const sbp95p12 = sbp95 + 12;
-        const dbp95p12 = dbp95 + 12;
-        
-        if (sbp >= sbp95p12 || dbp >= dbp95p12 || sbp >= 140 || dbp >= 90) {
-            return { class: 'Stage 2 HTN', css: 'stage2' };
+        if (component === 'sbp') {
+            if (value >= 140) return 'stage2';
+            if (value >= 130) return 'stage1';
+            if (value >= 120) return 'elevated';
+            return 'normal';
         }
-        if (sbpPct >= 95 || dbpPct >= 95 || sbp >= 130 || dbp >= 80) {
-            return { class: 'Stage 1 HTN', css: 'stage1' };
-        }
-        if (sbpPct >= 90 || dbpPct >= 90 || sbp >= 120) {
-            return { class: 'Elevated BP', css: 'elevated' };
-        }
-        return { class: 'Normal', css: 'normal' };
+        if (value >= 90) return 'stage2';
+        if (value >= 80) return 'stage1';
+        return 'normal';
     }
+
+    const absolute = component === 'sbp'
+        ? { elevated: 120, stage1: 130, stage2: 140 }
+        : { elevated: 80, stage1: 80, stage2: 90 };
+    const stage2Threshold = Math.min(p95 + 12, absolute.stage2);
+    const stage1Threshold = Math.min(p95, absolute.stage1);
+    const elevatedThreshold = Math.min(p90, absolute.elevated);
+
+    if (value >= stage2Threshold) return 'stage2';
+    if (value >= stage1Threshold) return 'stage1';
+    if (value >= elevatedThreshold) return 'elevated';
+    return 'normal';
 }
 
-// =============================================================================
-// UI HELPERS
-// =============================================================================
+function classify(age, sbp, dbp, sbp90, dbp90, sbp95, dbp95) {
+    const sbpCategory = componentCategory(age, sbp, sbp90, sbp95, 'sbp');
+    const dbpCategory = componentCategory(age, dbp, dbp90, dbp95, 'dbp');
+    const rank = { normal: 0, elevated: 1, stage1: 2, stage2: 3 };
+    const category = rank[sbpCategory] >= rank[dbpCategory] ? sbpCategory : dbpCategory;
+    const labels = {
+        normal: 'Normal BP',
+        elevated: 'Elevated BP',
+        stage1: 'Stage 1 hypertension range',
+        stage2: 'Stage 2 hypertension range'
+    };
+    const css = { normal: 'normal', elevated: 'elevated', stage1: 'stage1', stage2: 'stage2' };
+    let driver = 'both';
+    if (rank[sbpCategory] > rank[dbpCategory]) driver = 'SBP';
+    if (rank[dbpCategory] > rank[sbpCategory]) driver = 'DBP';
 
-// Calculate age from DOB (optionally relative to a reference date)
+    return {
+        category: category,
+        class: labels[category],
+        css: css[category],
+        rank: rank[category],
+        driver: driver,
+        sbpCategory: sbpCategory,
+        dbpCategory: dbpCategory
+    };
+}
+
+function parseLocalDate(value) {
+    if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+    const parts = value.split('-').map(Number);
+    const date = new Date(parts[0], parts[1] - 1, parts[2]);
+    if (date.getFullYear() !== parts[0] || date.getMonth() !== parts[1] - 1 || date.getDate() !== parts[2]) return null;
+    return date;
+}
+
+function localDateString(date) {
+    const value = date || new Date();
+    const offsetDate = new Date(value.getTime() - value.getTimezoneOffset() * 60000);
+    return offsetDate.toISOString().slice(0, 10);
+}
+
+// Calculate age from DOB using calendar dates at the measurement date.
 function calculateAgeFromDOB(dob, referenceDate) {
-    const refDate = referenceDate ? new Date(referenceDate) : new Date();
-    const birthDate = new Date(dob);
+    const birthDate = parseLocalDate(dob);
+    const refDate = referenceDate ? parseLocalDate(referenceDate) : new Date();
+    if (!birthDate || !refDate) return { years: NaN, months: NaN, decimal: NaN };
+
     let years = refDate.getFullYear() - birthDate.getFullYear();
     let months = refDate.getMonth() - birthDate.getMonth();
-    if (months < 0 || (months === 0 && refDate.getDate() < birthDate.getDate())) {
+    if (refDate.getDate() < birthDate.getDate()) months--;
+    if (months < 0) {
         years--;
         months += 12;
     }
-    if (refDate.getDate() < birthDate.getDate()) {
-        months--;
-        if (months < 0) months += 12;
-    }
-    return { years, months, decimal: years + months / 12 };
+    return { years: years, months: months, decimal: years + months / 12 };
 }
 
-// Get measurement date (defaults to today)
 function getMeasureDate() {
-    return document.getElementById('measureDate').value || new Date().toISOString().split('T')[0];
+    return document.getElementById('measureDate').value || localDateString();
 }
 
-// Update age display based on DOB and measurement date
 function updateAgeDisplay() {
     const ageDisplay = document.getElementById('ageDisplay');
     const dobValue = document.getElementById('dob').value;
@@ -701,238 +1011,889 @@ function updateAgeDisplay() {
         ageDisplay.textContent = '';
         return;
     }
-    const age = calculateAgeFromDOB(dobValue, getMeasureDate());
-    if (age.decimal < 1 || age.decimal > 18) {
-        ageDisplay.textContent = `${age.years}y ${age.months}m — outside valid range (1-17 years)`;
+    const measureDate = getMeasureDate();
+    const age = calculateAgeFromDOB(dobValue, measureDate);
+    const dobDate = parseLocalDate(dobValue);
+    const measureDateObject = parseLocalDate(measureDate);
+
+    if (!dobDate || !measureDateObject || dobDate > measureDateObject) {
+        ageDisplay.textContent = 'Enter a measurement date on or after the date of birth.';
+        ageDisplay.style.color = '#dc2626';
+    } else if (age.years < 1 || age.years >= 18) {
+        ageDisplay.textContent = age.years + 'y ' + age.months + 'm — outside this outpatient pathway (age 1 to <18 years).';
         ageDisplay.style.color = '#dc2626';
     } else {
-        ageDisplay.textContent = `Age at measurement: ${age.years} years, ${age.months} months`;
+        ageDisplay.textContent = 'Age at measurement: ' + age.years + ' years, ' + age.months + ' months';
         ageDisplay.style.color = '#2563eb';
     }
     updateHeightZscore();
 }
-
-// DOB and measurement date handlers
-document.getElementById('dob').addEventListener('change', updateAgeDisplay);
-document.getElementById('measureDate').addEventListener('change', updateAgeDisplay);
-
-// Set today's date as default measurement date on load
-document.getElementById('measureDate').value = new Date().toISOString().split('T')[0];
-
-// Sex toggle handler
-document.querySelectorAll('.sex-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.sex-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        document.getElementById('sex').value = this.dataset.value;
-        updateHeightZscore();
-    });
-});
-
-// Real-time height z-score display
-document.getElementById('height').addEventListener('input', updateHeightZscore);
-document.getElementById('heightUnit').addEventListener('change', updateHeightZscore);
-document.getElementById('dob').addEventListener('change', updateHeightZscore);
-document.getElementById('sex').addEventListener('change', updateHeightZscore);
 
 function updateHeightZscore() {
     const zscoreEl = document.getElementById('heightZscore');
     const sex = document.getElementById('sex').value;
     let height = parseFloat(document.getElementById('height').value);
     const heightUnit = document.getElementById('heightUnit').value;
-    
-    // Get age from DOB
     const dobValue = document.getElementById('dob').value;
     if (!dobValue) {
         zscoreEl.textContent = '';
         return;
     }
+
     const ageData = calculateAgeFromDOB(dobValue, getMeasureDate());
     const age = ageData.decimal;
-
-    if (isNaN(height) || height <= 0 || age < 1) {
+    if (ageData.years >= 13 && ageData.years < 18) {
+        zscoreEl.textContent = 'Height is not used for the age 13+ category.';
+        zscoreEl.style.color = '#64748b';
+        return;
+    }
+    if (!sex || isNaN(height) || height <= 0 || ageData.years < 1) {
         zscoreEl.textContent = '';
         return;
     }
+    if (heightUnit === 'in') height = height * 2.54;
 
-    if (heightUnit === 'in') {
-        height = height * 2.54;
-    }
-    
     const zscore = calculateHeightZScore(height, age, sex);
     const zscoreText = zscore.toFixed(2);
     let warning = '';
-    
     if (Math.abs(zscore) > 3.09) {
-        warning = ' ⚠️ OUTLIER - outside ±3.09 SD';
+        warning = '  Outlier — outside ±3.09 SD';
         zscoreEl.style.color = '#dc2626';
     } else if (Math.abs(zscore) > 2) {
-        warning = ' ⚠️ Unusual height for age';
+        warning = '  Unusual height for age';
         zscoreEl.style.color = '#d97706';
     } else {
         zscoreEl.style.color = '#64748b';
     }
-    
-    zscoreEl.textContent = `Height Z-score: ${zscoreText}${warning}`;
+    zscoreEl.textContent = 'Height Z-score: ' + zscoreText + warning;
 }
 
-// =============================================================================
-// MAIN CALCULATION
-// =============================================================================
-function calculate() {
-    const errorEl = document.getElementById('error');
-    const warningsEl = document.getElementById('warnings');
-    const resultsEl = document.getElementById('results');
-    errorEl.textContent = '';
-    warningsEl.innerHTML = '';
-    resultsEl.classList.remove('show');
-    
-    const sex = document.getElementById('sex').value;
-    let height = parseFloat(document.getElementById('height').value);
-    const heightUnit = document.getElementById('heightUnit').value;
-    const sbp = parseFloat(document.getElementById('sbp').value);
-    const dbp = parseFloat(document.getElementById('dbp').value);
-    
-    // Parse age from DOB relative to measurement date
-    const dobValue = document.getElementById('dob').value;
-    if (!dobValue) {
-        errorEl.textContent = 'Please enter date of birth.';
-        return;
-    }
-    const ageData = calculateAgeFromDOB(dobValue, getMeasureDate());
-    const age = ageData.decimal;
+function getInputValue(id) {
+    return document.getElementById(id).value.trim();
+}
 
-    // =========================================================================
-    // ROSNER AGE ADJUSTMENT
-    // DOB gives us exact age in Y+M format, so use +0.5 months adjustment
-    // =========================================================================
-    const adjustedAge = age + 0.5/12;
-    const ageAdjustment = '+0.5mo';
-    
-    // Validation
-    if (isNaN(age) || age < 1 || age > 17.99) {
-        errorEl.textContent = 'Please enter age between 1 and 17 years.';
-        return;
+function parseReadingPair(sbpId, dbpId, label, required) {
+    const sbpText = getInputValue(sbpId);
+    const dbpText = getInputValue(dbpId);
+    if (!sbpText && !dbpText) {
+        return required ? { error: 'Enter both systolic and diastolic values for ' + label + '.' } : { empty: true };
     }
-    if (isNaN(height) || height <= 0) {
-        errorEl.textContent = 'Please enter a valid height.';
-        return;
+    if (!sbpText || !dbpText) {
+        return { error: 'Enter both systolic and diastolic values for ' + label + '.' };
     }
-    if (isNaN(sbp) || isNaN(dbp)) {
-        errorEl.textContent = 'Please enter valid blood pressure values.';
-        return;
+    const sbp = Number(sbpText);
+    const dbp = Number(dbpText);
+    if (!Number.isFinite(sbp) || !Number.isFinite(dbp) || sbp < 40 || sbp > 300 || dbp < 20 || dbp > 200 || sbp <= dbp) {
+        return { error: label + ' must be a plausible systolic/diastolic pair with systolic greater than diastolic.' };
     }
-    
-    // Convert height to cm if needed
-    if (heightUnit === 'in') {
-        height = height * 2.54;
+    return { sbp: sbp, dbp: dbp, empty: false };
+}
+
+function collectOfficeReadings() {
+    const initial = parseReadingPair('sbp', 'dbp', 'Reading 1', true);
+    if (initial.error) return { error: initial.error };
+
+    const second = parseReadingPair('sbp2', 'dbp2', 'Reading 2', false);
+    const third = parseReadingPair('sbp3', 'dbp3', 'Reading 3', false);
+    if (second.error) return { error: second.error };
+    if (third.error) return { error: third.error };
+    if (second.empty !== third.empty) {
+        return { error: 'Enter both Reading 2 and Reading 3, or leave both blank.' };
     }
-    
-    // =========================================================================
-    // HEIGHT Z-SCORE VALIDATION
-    // =========================================================================
-    const heightZscore = calculateHeightZScore(height, age, sex);
-    const warnings = [];
-    
-    if (Math.abs(heightZscore) > 3.09) {
-        warnings.push({
-            type: 'error',
-            text: `⚠️ HEIGHT OUTLIER: Z-score ${heightZscore.toFixed(2)} is outside ±3.09 SD. Results may be unreliable due to extrapolation beyond validated range.`
-        });
-    } else if (Math.abs(heightZscore) > 2.5) {
-        warnings.push({
-            type: 'warning',
-            text: `⚠️ Unusual height for age (Z-score: ${heightZscore.toFixed(2)}). Verify measurement accuracy.`
-        });
+
+    return {
+        initial: initial,
+        confirmations: second.empty ? [] : [second, third],
+        confirmationCount: second.empty ? 0 : 2
+    };
+}
+
+function formatBP(value) {
+    return Number(value).toFixed(1).replace(/\.0$/, '');
+}
+
+function displayMethod(value) {
+    const labels = {
+        auscultatory: 'auscultatory',
+        oscillometric: 'oscillometric device',
+        unknown: 'unknown'
+    };
+    return labels[value] || 'not recorded';
+}
+
+function displayVisitState(value) {
+    const labels = {
+        unknown: 'unknown / chart review needed',
+        initial: 'first qualifying abnormal visit',
+        'elevated-6mo': 'elevated BP 6-month follow-up',
+        'elevated-12mo': 'elevated BP at 12 months / 3 visits',
+        'stage1-second': 'Stage 1 at 1–2-week follow-up',
+        'stage1-third': 'Stage 1 after 3 qualifying visits',
+        'stage2-persistent': 'Stage 2 at 1-week follow-up'
+    };
+    return labels[value] || 'unknown';
+}
+
+function displayCareContext(value) {
+    const labels = {
+        'outpatient-office': 'outpatient office / clinic',
+        acute: 'emergency / acute-care setting',
+        inpatient: 'inpatient / ICU',
+        home: 'home, school, or cuffless device',
+        abpm: 'raw ABPM',
+        unknown: 'unknown / other'
+    };
+    return labels[value] || 'unknown';
+}
+
+function driverText(result) {
+    if (result.driver === 'both') return 'SBP and DBP';
+    return result.driver;
+}
+
+function worseResult(first, second) {
+    return first.rank >= second.rank ? first : second;
+}
+
+function getSevereTrigger(context) {
+    const values = [context.readings.initial].concat(context.readings.confirmations);
+    const maxSbp = Math.max.apply(null, values.map(function(reading) { return reading.sbp; }));
+    const maxDbp = Math.max.apply(null, values.map(function(reading) { return reading.dbp; }));
+
+    if (context.isAdolescent) {
+        if (maxSbp > 180 || maxDbp > 120) {
+            return {
+                trigger: true,
+                reason: 'a recorded BP exceeds the adolescent severe threshold (>180 systolic or >120 diastolic mmHg)'
+            };
+        }
+        return { trigger: false, reason: '' };
     }
-    
-    // Age boundary warnings
-    if (adjustedAge < 5.06 && sex === 'M') {
-        warnings.push({
-            type: 'warning',
-            text: '⚠️ Age below minimum knot (5.06 years for males). Spline extrapolation may reduce accuracy.'
-        });
+
+    if (maxSbp > context.metrics.sbp95 + 30 || maxDbp > context.metrics.dbp95 + 30) {
+        return {
+            trigger: true,
+            reason: 'a recorded BP is >30 mmHg above the patient-specific 95th-percentile threshold'
+        };
     }
-    if (adjustedAge < 5.00 && sex === 'F') {
-        warnings.push({
-            type: 'warning',
-            text: '⚠️ Age below minimum knot (5.00 years for females). Spline extrapolation may reduce accuracy.'
-        });
+    return { trigger: false, reason: '' };
+}
+
+function makeGuidance(context, tone, code, title, summary, actions, rule, diagnosis) {
+    return {
+        tone: tone,
+        code: code,
+        title: title,
+        summary: summary,
+        actions: actions,
+        rule: rule,
+        diagnosis: diagnosis,
+        isFinal: context.qualifiedOfficeCategory
+    };
+}
+
+function getAAPGuidance(context) {
+    const finalResult = context.selectedResult;
+    const safetyResult = context.safetyResult;
+    const severe = context.severe;
+    const unknownSymptoms = !context.symptoms || context.symptoms === 'unknown';
+    const diagnosisStatement = 'A same-day set of readings is one visit. Hypertension is not established by one reading; qualifying auscultatory results at separate visits and clinician review are required.';
+
+    if (safetyResult.category === 'stage2' && (context.symptoms === 'yes' || severe.trigger)) {
+        const triggers = [];
+        if (context.symptoms === 'yes') triggers.push('symptoms/signs concerning for acute severe hypertension were reported');
+        if (severe.trigger) triggers.push(severe.reason);
+        return makeGuidance(
+            context,
+            'action-emergency',
+            'immediate-care',
+            'Immediate action — outside routine outpatient follow-up',
+            'The routine office-BP pathway is overridden because ' + triggers.join(' and ') + '.',
+            [
+                'Refer to an immediate source of care, such as an emergency department, now.',
+                'Do not wait for a routine follow-up interval or use this calculator for treatment selection.'
+            ],
+            'AAP 2017 CPG Table 11 / acute severe hypertension safety rule',
+            diagnosisStatement
+        );
     }
-    if (adjustedAge > 17.30 && sex === 'M') {
-        warnings.push({
-            type: 'warning',
-            text: '⚠️ Age above maximum knot (17.30 years for males). Spline extrapolation may reduce accuracy.'
-        });
+
+    if (context.careContext !== 'outpatient-office') {
+        return makeGuidance(
+            context,
+            'action-measurement',
+            'scope-gate',
+            'This input is outside the outpatient office-BP pathway',
+            'The entered setting is ' + displayCareContext(context.careContext) + '. This tool does not classify that setting as a qualifying AAP outpatient office-BP visit.',
+            [
+                'Use setting-specific clinical guidance and clinician judgment.',
+                'Do not use this entry to advance an elevated-BP or hypertension visit count in this tool.'
+            ],
+            'AAP 2017 CPG scope and office-BP measurement pathway',
+            diagnosisStatement
+        );
     }
-    if (adjustedAge > 17.33 && sex === 'F') {
-        warnings.push({
-            type: 'warning',
-            text: '⚠️ Age above maximum knot (17.33 years for females). Spline extrapolation may reduce accuracy.'
-        });
+
+    if (safetyResult.category === 'stage2' && unknownSymptoms) {
+        return makeGuidance(
+            context,
+            'action-caution',
+            'stage2-symptom-gate',
+            'Stage 2 range — symptom assessment required now',
+            'Do not default unknown to asymptomatic. A routine 1-week-only pathway cannot be shown until symptoms/signs concerning for acute severe hypertension are assessed.',
+            [
+                'Assess and record symptoms/signs as yes or no now.',
+                'If symptoms/signs are present, refer to an immediate source of care rather than using the routine outpatient path.'
+            ],
+            'AAP 2017 CPG Table 11 / acute severe hypertension safety rule',
+            diagnosisStatement
+        );
     }
-    
-    // Display warnings
-    if (warnings.length > 0) {
-        warningsEl.innerHTML = warnings.map(w => 
-            `<div class="warning">${w.text}</div>`
-        ).join('');
+
+    if (safetyResult.category === 'stage1' && context.symptoms === 'yes') {
+        return makeGuidance(
+            context,
+            'action-caution',
+            'stage1-symptomatic',
+            'Stage 1 range with symptoms — routine pathway does not apply',
+            'The routine asymptomatic Stage 1 recheck pathway is not complete when symptoms/signs are present.',
+            [
+                'Arrange urgent clinician assessment.',
+                'Do not treat the 1–2-week routine follow-up card as sufficient until urgency is clinically assessed.'
+            ],
+            'AAP 2017 CPG Table 11 (asymptomatic Stage 1 pathway)',
+            diagnosisStatement
+        );
     }
-    
-    // =========================================================================
-    // CALCULATE PERCENTILES
-    // =========================================================================
-    const sbpCoef = sex === 'M' ? SBP_M : SBP_F;
-    const dbpCoef = sex === 'M' ? DBP_M : DBP_F;
-    
-    const sbpPct = findPercentile(sbpCoef, sbp, adjustedAge, height, sex);
-    const dbpPct = findPercentile(dbpCoef, dbp, adjustedAge, height, sex);
-    
-    // Get threshold values
-    const sbp90 = getBPAtPercentile(sbpCoef, 89, adjustedAge, height, sex);
-    const dbp90 = getBPAtPercentile(dbpCoef, 89, adjustedAge, height, sex);
-    const sbp95 = getBPAtPercentile(sbpCoef, 94, adjustedAge, height, sex);
-    const dbp95 = getBPAtPercentile(dbpCoef, 94, adjustedAge, height, sex);
-    
-    // Classification
-    const result = classify(adjustedAge, sbp, dbp, sbpPct, dbpPct, sbp95, dbp95);
-    
-    // =========================================================================
-    // DISPLAY RESULTS
-    // =========================================================================
-    document.getElementById('sbpPct').textContent = sbpPct + 'th %ile';
-    document.getElementById('sbpDetail').textContent = sbp + ' mmHg';
-    document.getElementById('dbpPct').textContent = dbpPct + 'th %ile';
-    document.getElementById('dbpDetail').textContent = dbp + ' mmHg';
-    
+
+    if (safetyResult.category === 'stage1' && unknownSymptoms) {
+        return makeGuidance(
+            context,
+            'action-caution',
+            'stage1-symptom-gate',
+            'Stage 1 range — symptom assessment required',
+            'The routine Stage 1 pathway applies only when the patient is asymptomatic; symptoms/signs are not yet documented as no.',
+            [
+                'Assess and record symptoms/signs as yes or no.',
+                'If symptoms/signs are present, use urgent clinician assessment rather than the routine 1–2-week path.'
+            ],
+            'AAP 2017 CPG Table 11 (asymptomatic Stage 1 pathway)',
+            diagnosisStatement
+        );
+    }
+
+    if (!context.techniqueConfirmed) {
+        return makeGuidance(
+            context,
+            'action-measurement',
+            'technique-gate',
+            'Measurement conditions need confirmation',
+            'A qualifying office-BP category should not be recorded until standard upper-arm technique is confirmed.',
+            [
+                'Confirm appropriate cuff, quiet seated rest, supported back/feet, arm at heart level, and no talking.',
+                'Repeat BP with the correct technique before using a longitudinal AAP pathway.'
+            ],
+            'AAP 2017 CPG §4.1 office-BP measurement',
+            diagnosisStatement
+        );
+    }
+
+    if (!context.initialMethod || context.initialMethod === 'unknown') {
+        return makeGuidance(
+            context,
+            'action-measurement',
+            'method-gate',
+            'Record the method used for Reading 1',
+            'Auscultatory versus oscillometric method is needed to determine whether the reading can qualify for the outpatient office-BP pathway.',
+            [
+                'Record the method for Reading 1.',
+                'If an elevated oscillometric screening result is confirmed, enter two auscultatory readings and use their average.'
+            ],
+            'AAP 2017 CPG Key Action Statement 5 / Table 11',
+            diagnosisStatement
+        );
+    }
+
+    if (context.usedConfirmation && (!context.effectiveMethod || context.effectiveMethod === 'unknown')) {
+        return makeGuidance(
+            context,
+            'action-measurement',
+            'confirmation-method-gate',
+            'Record the method for Readings 2 and 3',
+            'The average of Readings 2 and 3 is being used for this visit, but its measurement method is not documented.',
+            [
+                'Record whether Readings 2 and 3 were auscultatory or oscillometric.',
+                'If their average is abnormal, it must be auscultatory before it can advance the qualifying office-BP pathway.'
+            ],
+            'AAP 2017 CPG Key Action Statement 5 / Table 11',
+            diagnosisStatement
+        );
+    }
+
+    if (finalResult.category !== 'normal' && context.confirmationCount !== 2) {
+        const methodWord = context.initialMethod === 'oscillometric' ? 'auscultatory' : 'auscultatory';
+        return makeGuidance(
+            context,
+            'action-measurement',
+            'same-visit-repeat',
+            'A final office-BP category needs confirmation',
+            'The current screening range is ' + context.initialResult.class + '. Take two additional ' + methodWord + ' readings at this visit and average readings 2 and 3.',
+            [
+                'Enter both Reading 2 and Reading 3.',
+                'Use their average for the visit-level BP category; same-day readings count as one visit.'
+            ],
+            'AAP 2017 CPG §4.3 / Table 11 same-visit averaging',
+            diagnosisStatement
+        );
+    }
+
+    if (finalResult.category !== 'normal' && context.usedConfirmation && context.effectiveMethod !== 'auscultatory') {
+        return makeGuidance(
+            context,
+            'action-measurement',
+            'auscultatory-confirmation',
+            'Auscultatory confirmation is needed before advancing this pathway',
+            'The average of Readings 2 and 3 remains in ' + finalResult.class + ', but the entered method is ' + displayMethod(context.effectiveMethod) + '.',
+            [
+                'Obtain and average two auscultatory readings before recording a qualifying abnormal office-BP category.',
+                'Do not count an abnormal oscillometric average as a persistent qualifying visit in this tool.'
+            ],
+            'AAP 2017 CPG Key Action Statement 5 / Table 11',
+            diagnosisStatement
+        );
+    }
+
+    if (finalResult.category === 'normal') {
+        const normalAction = context.highRisk
+            ? 'BP is normal today. Because a high-risk condition or BP-raising medication was recorded, check BP at every health care encounter.'
+            : 'BP is normal today. Continue routine BP screening at annual well-child visits.';
+        return makeGuidance(
+            context,
+            'action-routine',
+            'normal',
+            'Normal BP today',
+            normalAction,
+            [
+                'No abnormal-BP follow-up sequence is advanced by this result.',
+                'Document the measurement method and technique; repeat sooner if clinical concern or local policy indicates.'
+            ],
+            'AAP 2017 CPG Table 11 / Key Action Statement 2',
+            'A normal result today does not create or confirm a hypertension diagnosis.'
+        );
+    }
+
+    const stateMismatch = {
+        elevated: ['elevated-6mo', 'elevated-12mo'],
+        stage1: ['stage1-second', 'stage1-third'],
+        stage2: ['stage2-persistent']
+    };
+    const permittedStates = stateMismatch[finalResult.category] || [];
+    const historyUnknown = context.visitState === 'unknown';
+    const mismatchedState = context.visitState !== 'initial' && !historyUnknown && permittedStates.indexOf(context.visitState) === -1;
+    const historyMessage = historyUnknown
+        ? ' Prior qualifying office readings are unknown, so this is shown as the current-category initial pathway; review the chart rather than inferring persistence.'
+        : (mismatchedState
+            ? ' The selected follow-up state does not match today’s category, so this is shown as the current-category initial pathway; review prior qualifying readings.'
+            : '');
+
+    if (finalResult.category === 'elevated') {
+        if (context.visitState === 'elevated-12mo') {
+            return makeGuidance(
+                context,
+                'action-elevated',
+                'elevated-12-month',
+                'Elevated BP persists after 12 months / 3 qualifying visits',
+                'Elevated BP — screening classification, not a hypertension diagnosis.',
+                [
+                    'Order ABPM if available.',
+                    'Conduct a diagnostic evaluation and consider cardiology or nephrology referral.',
+                    'Confirm that the three qualifying readings were auscultatory and occurred at separate visits.'
+                ],
+                'AAP 2017 CPG Table 11 / §4.3b',
+                diagnosisStatement
+            );
+        }
+        if (context.visitState === 'elevated-6mo') {
+            return makeGuidance(
+                context,
+                'action-elevated',
+                'elevated-6-month',
+                'Elevated BP persists at the 6-month follow-up',
+                'Elevated BP — screening classification, not a hypertension diagnosis.',
+                [
+                    'Measure BP in the right arm, left arm, and one leg.',
+                    'Repeat lifestyle counseling.',
+                    'Recheck BP by auscultation in 6 months.'
+                ],
+                'AAP 2017 CPG Table 11 / §4.3b',
+                diagnosisStatement
+            );
+        }
+        return makeGuidance(
+            context,
+            'action-elevated',
+            'elevated-initial',
+            'Elevated BP — first-pathway action',
+            'Elevated BP — screening classification, not a hypertension diagnosis.' + historyMessage,
+            [
+                'Provide lifestyle counseling.',
+                'Repeat BP by auscultation in 6 months.',
+                'Consider nutrition or weight-management referral as appropriate.'
+            ],
+            'AAP 2017 CPG Table 11 / §4.3b',
+            diagnosisStatement
+        );
+    }
+
+    if (finalResult.category === 'stage1') {
+        if (context.visitState === 'stage1-third') {
+            return makeGuidance(
+                context,
+                'action-stage1',
+                'stage1-third',
+                'Stage 1 range persists after 3 qualifying visits',
+                'Stage 1 hypertension range — screening classification with persistent qualifying readings.',
+                [
+                    'Order ABPM if available.',
+                    'Conduct diagnostic evaluation.',
+                    'Initiate clinician-directed treatment and consider subspecialty referral.'
+                ],
+                'AAP 2017 CPG Table 11 / §4.3c / Key Action Statement 3',
+                diagnosisStatement
+            );
+        }
+        if (context.visitState === 'stage1-second') {
+            return makeGuidance(
+                context,
+                'action-stage1',
+                'stage1-second',
+                'Stage 1 range persists at the 1–2-week follow-up',
+                'Stage 1 hypertension range — screening classification in an asymptomatic patient.',
+                [
+                    'Measure BP in the right arm, left arm, and one leg.',
+                    'Recheck BP by auscultation in 3 months.',
+                    'Consider nutrition or weight-management referral as appropriate.'
+                ],
+                'AAP 2017 CPG Table 11 / §4.3c',
+                diagnosisStatement
+            );
+        }
+        return makeGuidance(
+            context,
+            'action-stage1',
+            'stage1-initial',
+            'Stage 1 range — first-pathway action',
+            'Stage 1 hypertension range — screening classification. If asymptomatic, use the following next-step options.' + historyMessage,
+            [
+                'Provide lifestyle counseling.',
+                'Recheck BP by auscultation in 1–2 weeks.'
+            ],
+            'AAP 2017 CPG Table 11 / §4.3c',
+            diagnosisStatement
+        );
+    }
+
+    if (finalResult.category === 'stage2') {
+        if (context.visitState === 'stage2-persistent') {
+            return makeGuidance(
+                context,
+                'action-stage2',
+                'stage2-persistent',
+                'Stage 2 range persists at the 1-week follow-up',
+                'Stage 2 hypertension range in an asymptomatic patient.',
+                [
+                    'Conduct diagnostic evaluation including ABPM.',
+                    'Initiate clinician-directed treatment, or refer to subspecialty care, within 1 week.'
+                ],
+                'AAP 2017 CPG Table 11 / §4.3d',
+                diagnosisStatement
+            );
+        }
+        return makeGuidance(
+            context,
+            'action-stage2',
+            'stage2-initial',
+            'Stage 2 range — first-pathway action',
+            'Stage 2 hypertension range in an asymptomatic patient.' + historyMessage,
+            [
+                'Measure BP in the right arm, left arm, and one leg and provide lifestyle recommendations.',
+                'Repeat BP or arrange subspecialty referral within 1 week.'
+            ],
+            'AAP 2017 CPG Table 11 / §4.3d',
+            diagnosisStatement
+        );
+    }
+
+    return makeGuidance(
+        context,
+        'action-measurement',
+        'unexpected',
+        'Unable to map this result',
+        'Review the entered values and measurement context.',
+        ['Repeat the office-BP measurement and review the chart.'],
+        'AAP 2017 CPG',
+        diagnosisStatement
+    );
+}
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, function(character) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[character];
+    });
+}
+
+function buildThresholdSummary(context) {
+    if (context.isAdolescent) {
+        return 'Age 13+ fixed thresholds: elevated SBP 120–129 with DBP <80; Stage 1 at SBP 130–139 or DBP 80–89; Stage 2 at SBP ≥140 or DBP ≥90.';
+    }
+    return 'Patient thresholds (unrounded internally): 90th ' + formatBP(context.metrics.sbp90) + '/' + formatBP(context.metrics.dbp90) +
+        ', 95th ' + formatBP(context.metrics.sbp95) + '/' + formatBP(context.metrics.dbp95) +
+        ', 95th+12 ' + formatBP(context.metrics.sbp95 + 12) + '/' + formatBP(context.metrics.dbp95 + 12) + ' mmHg.';
+}
+
+function renderGuidance(guidance, context) {
+    const card = document.getElementById('actionCard');
+    const sourceUrl = 'https://publications.aap.org/pediatrics/article/140/3/e20171904/38358/Clinical-Practice-Guideline-for-Screening-and';
+    const erratumUrl = 'https://publications.aap.org/pediatrics/article/142/3/e20181739/38680/Flynn-JT-Kaelber-DC-Baker-Smith-CM-et-al';
+    const actionList = guidance.actions.map(function(action) {
+        return '<li>' + escapeHTML(action) + '</li>';
+    }).join('');
+    const selectedSource = context.usedConfirmation ? 'average of Readings 2 and 3' : 'Reading 1';
+    const techniqueText = context.techniqueConfirmed ? 'technique confirmed' : 'technique not confirmed';
+    const qualifyingText = guidance.isFinal
+        ? 'current office-BP category qualified'
+        : 'confirmation or context still pending';
+
+    card.className = 'action-card ' + guidance.tone;
+    card.innerHTML =
+        '<div class="action-eyebrow">AAP 2017 office-BP pathway — clinician review required</div>' +
+        '<h3>' + escapeHTML(guidance.title) + '</h3>' +
+        '<p>' + escapeHTML(guidance.summary) + '</p>' +
+        '<ul>' + actionList + '</ul>' +
+        '<div class="action-meta">' +
+            '<span>Selected BP: ' + formatBP(context.selectedBP.sbp) + '/' + formatBP(context.selectedBP.dbp) + ' mmHg (' + selectedSource + ')</span>' +
+            '<span>Method: ' + escapeHTML(displayMethod(context.effectiveMethod)) + '</span>' +
+            '<span>' + techniqueText + '</span>' +
+            '<span>Driver: ' + escapeHTML(driverText(context.selectedResult)) + '</span>' +
+            '<span>Visit state: ' + escapeHTML(displayVisitState(context.visitState)) + '</span>' +
+            '<span>' + qualifyingText + '</span>' +
+        '</div>' +
+        '<p><strong>Diagnosis status:</strong> ' + escapeHTML(guidance.diagnosis) + '</p>' +
+        '<p class="source-line"><strong>Rule:</strong> ' + escapeHTML(guidance.rule) + '. ' +
+            '<a href="' + sourceUrl + '" target="_blank" rel="noopener noreferrer">AAP 2017 CPG</a> · ' +
+            '<a href="' + erratumUrl + '" target="_blank" rel="noopener noreferrer">2018 age-boundary erratum</a></p>' +
+        '<button type="button" class="copy-note" onclick="copyClinicalNote()">Copy clinical note</button>' +
+        '<span id="copyStatus" class="copy-status" aria-live="polite"></span>';
+
+    const noteLines = [
+        'AAP 2017 guideline-informed outpatient office-BP pathway — clinician review required',
+        'Measurement date: ' + context.measureDate,
+        'Age at measurement: ' + context.ageData.years + 'y ' + context.ageData.months + 'm',
+        'Care context: ' + displayCareContext(context.careContext),
+        'Reading 1: ' + formatBP(context.readings.initial.sbp) + '/' + formatBP(context.readings.initial.dbp) + ' mmHg (' + displayMethod(context.initialMethod) + ')',
+        context.usedConfirmation
+            ? 'Readings 2/3 average: ' + formatBP(context.selectedBP.sbp) + '/' + formatBP(context.selectedBP.dbp) + ' mmHg (' + displayMethod(context.effectiveMethod) + ')'
+            : 'No Readings 2/3 average used.',
+        'Technique: ' + (context.techniqueConfirmed ? 'confirmed' : 'not confirmed'),
+        'Symptoms/signs acute severe hypertension: ' + (context.symptoms || 'not documented'),
+        'Visit state: ' + displayVisitState(context.visitState),
+        'Current range: ' + context.selectedResult.class + ', driven by ' + driverText(context.selectedResult),
+        buildThresholdSummary(context),
+        'Guideline action (' + guidance.code + '): ' + guidance.actions.join(' '),
+        'Rule: ' + guidance.rule + '.',
+        'Diagnosis status: ' + guidance.diagnosis,
+        'Source: AAP 2017 CPG with 2018 age-boundary erratum. This output does not select medication/dose or interpret raw ABPM.'
+    ];
+    window.guidedClinicalNote = noteLines.join('\n');
+}
+
+function copyClinicalNote() {
+    const note = window.guidedClinicalNote || '';
+    const status = document.getElementById('copyStatus');
+    if (!note) return;
+
+    function copied() {
+        if (status) status.textContent = 'Copied';
+    }
+    function fallback() {
+        const textarea = document.createElement('textarea');
+        textarea.value = note;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            copied();
+        } catch (error) {
+            if (status) status.textContent = 'Copy failed — select text manually.';
+        }
+        document.body.removeChild(textarea);
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(note).then(copied).catch(fallback);
+    } else {
+        fallback();
+    }
+}
+
+function setWarningMessages(messages) {
+    const warningsEl = document.getElementById('warnings');
+    warningsEl.innerHTML = messages.map(function(message) {
+        return '<div class="warning">' + escapeHTML(message) + '</div>';
+    }).join('');
+}
+
+function renderResults(context, guidance) {
+    const result = context.selectedResult;
     const classEl = document.getElementById('classification');
-    classEl.textContent = result.class;
+    const resultsEl = document.getElementById('results');
+    const gaugeSection = document.getElementById('gaugeSection');
+    const thresholdTitle = document.getElementById('thresholdTitle');
+    const thresholdNote = document.getElementById('thresholdNote');
+
+    const resultPrefix = guidance.isFinal ? 'Office-BP screening classification: ' : 'Provisional screening range: ';
+    classEl.textContent = resultPrefix + result.class + ' (driven by ' + driverText(result) + ')';
     classEl.className = 'classification ' + result.css;
 
-    // Update visual gauges (map percentile 1-99 to 0-100% bar position)
-    // Bar zones: 0-80% = <90th (green), 80-90% = 90-95th (yellow), 90-95% = 95-99th (orange), 95-100% = >99th (red)
-    function pctToGaugePos(pct) {
-        if (pct <= 50) return (pct / 50) * 40;  // 1-50 maps to 0-40%
-        if (pct <= 90) return 40 + ((pct - 50) / 40) * 40;  // 50-90 maps to 40-80%
-        if (pct <= 95) return 80 + ((pct - 90) / 5) * 10;  // 90-95 maps to 80-90%
-        return 90 + ((pct - 95) / 5) * 10;  // 95-100 maps to 90-100%
-    }
-    document.getElementById('sbpMarker').style.left = pctToGaugePos(sbpPct) + '%';
-    document.getElementById('dbpMarker').style.left = pctToGaugePos(dbpPct) + '%';
+    if (context.isAdolescent) {
+        document.getElementById('sbpPct').textContent = 'Fixed cut points';
+        document.getElementById('dbpPct').textContent = 'Fixed cut points';
+        document.getElementById('sbpDetail').textContent = formatBP(context.selectedBP.sbp) + ' mmHg';
+        document.getElementById('dbpDetail').textContent = formatBP(context.selectedBP.dbp) + ' mmHg';
+        gaugeSection.style.display = 'none';
+        thresholdTitle.textContent = 'Age 13+ fixed thresholds:';
+        document.getElementById('p90Label').textContent = 'Elevated BP';
+        document.getElementById('p90').textContent = 'SBP 120–129 and DBP <80';
+        document.getElementById('p95Label').textContent = 'Stage 1 range';
+        document.getElementById('p95').textContent = 'SBP 130–139 or DBP 80–89';
+        document.getElementById('p95plus12Label').textContent = 'Stage 2 range';
+        document.getElementById('p95plus12').textContent = 'SBP ≥140 or DBP ≥90';
+        thresholdNote.textContent = 'At age 13 or older, height and reference-table sex do not change the category.';
+    } else {
+        const sbpPct = findPercentile(context.metrics.sbpCoef, context.selectedBP.sbp, context.adjustedAge, context.heightCm, context.sex);
+        const dbpPct = findPercentile(context.metrics.dbpCoef, context.selectedBP.dbp, context.adjustedAge, context.heightCm, context.sex);
+        document.getElementById('sbpPct').textContent = '~' + sbpPct + 'th %ile';
+        document.getElementById('dbpPct').textContent = '~' + dbpPct + 'th %ile';
+        document.getElementById('sbpDetail').textContent = formatBP(context.selectedBP.sbp) + ' mmHg';
+        document.getElementById('dbpDetail').textContent = formatBP(context.selectedBP.dbp) + ' mmHg';
+        gaugeSection.style.display = 'block';
 
-    document.getElementById('p90').textContent = Math.round(sbp90) + '/' + Math.round(dbp90) + ' mmHg';
-    document.getElementById('p95').textContent = Math.round(sbp95) + '/' + Math.round(dbp95) + ' mmHg';
-    document.getElementById('p95plus12').textContent = Math.round(sbp95 + 12) + '/' + Math.round(dbp95 + 12) + ' mmHg';
-    
-    // Calculation details
+        function pctToGaugePos(pct) {
+            if (pct <= 50) return (pct / 50) * 40;
+            if (pct <= 90) return 40 + ((pct - 50) / 40) * 40;
+            if (pct <= 95) return 80 + ((pct - 90) / 5) * 10;
+            return 90 + ((pct - 95) / 5) * 10;
+        }
+        document.getElementById('sbpMarker').style.left = pctToGaugePos(sbpPct) + '%';
+        document.getElementById('dbpMarker').style.left = pctToGaugePos(dbpPct) + '%';
+
+        thresholdTitle.textContent = 'BP thresholds for this patient:';
+        document.getElementById('p90Label').textContent = '90th percentile:';
+        document.getElementById('p90').textContent = formatBP(context.metrics.sbp90) + '/' + formatBP(context.metrics.dbp90) + ' mmHg';
+        document.getElementById('p95Label').textContent = '95th percentile:';
+        document.getElementById('p95').textContent = formatBP(context.metrics.sbp95) + '/' + formatBP(context.metrics.dbp95) + ' mmHg';
+        document.getElementById('p95plus12Label').textContent = '95th + 12 mmHg:';
+        document.getElementById('p95plus12').textContent = formatBP(context.metrics.sbp95 + 12) + '/' + formatBP(context.metrics.dbp95 + 12) + ' mmHg';
+        thresholdNote.textContent = 'Classification uses unrounded values and the lower applicable percentile or absolute threshold; displayed percentiles are nearest-whole-percentile approximations.';
+    }
+
     const detailsEl = document.getElementById('calcDetails');
-    detailsEl.innerHTML = `
-        Age: ${adjustedAge.toFixed(2)} yrs${ageAdjustment !== 'no adjustment' ? ' (' + ageAdjustment + ')' : ''} &bull; 
-        Height: ${height.toFixed(1)} cm (Z: ${heightZscore.toFixed(2)})
-    `;
-    
+    const sourceDescription = context.usedConfirmation ? 'Average of Readings 2 and 3 used.' : 'Reading 1 used.';
+    const heightDescription = context.isAdolescent
+        ? 'Age 13+ fixed thresholds apply; height/reference-table sex do not change the category.'
+        : 'Height: ' + context.heightCm.toFixed(1) + ' cm (Z: ' + context.heightZscore.toFixed(2) + ').';
+    detailsEl.textContent =
+        'Age at measurement: ' + context.ageData.years + 'y ' + context.ageData.months + 'm • ' +
+        sourceDescription + ' • ' + heightDescription;
+
+    renderGuidance(guidance, context);
     resultsEl.classList.add('show');
 }
+
+function calculate() {
+    const errorEl = document.getElementById('error');
+    const resultsEl = document.getElementById('results');
+    errorEl.textContent = '';
+    setWarningMessages([]);
+    resultsEl.classList.remove('show');
+
+    const dobValue = document.getElementById('dob').value;
+    const measureDate = getMeasureDate();
+    const dobDate = parseLocalDate(dobValue);
+    const measureDateObject = parseLocalDate(measureDate);
+    if (!dobDate || !measureDateObject) {
+        errorEl.textContent = 'Enter a valid date of birth and measurement date.';
+        return;
+    }
+    if (dobDate > measureDateObject) {
+        errorEl.textContent = 'Measurement date must be on or after the date of birth.';
+        return;
+    }
+
+    const ageData = calculateAgeFromDOB(dobValue, measureDate);
+    if (ageData.years < 1 || ageData.years >= 18) {
+        errorEl.textContent = 'This outpatient office-BP pathway supports patients age 1 to <18 years at the measurement date.';
+        return;
+    }
+
+    const readings = collectOfficeReadings();
+    if (readings.error) {
+        errorEl.textContent = readings.error;
+        return;
+    }
+
+    const sex = document.getElementById('sex').value;
+    const isAdolescent = ageData.years >= 13;
+    const ageForSpline = ageData.decimal + 0.5 / 12;
+    const categoryAge = isAdolescent ? 13 : ageData.decimal;
+    let heightCm = null;
+    let heightZscore = null;
+    let metrics;
+
+    if (!isAdolescent) {
+        if (!sex) {
+            errorEl.textContent = 'Select the reference-table sex for a patient age 1 to <13 years.';
+            return;
+        }
+        heightCm = parseFloat(document.getElementById('height').value);
+        if (!Number.isFinite(heightCm) || heightCm <= 0) {
+            errorEl.textContent = 'Enter height at this visit for a patient age 1 to <13 years.';
+            return;
+        }
+        if (document.getElementById('heightUnit').value === 'in') heightCm = heightCm * 2.54;
+
+        heightZscore = calculateHeightZScore(heightCm, ageData.decimal, sex);
+        const sbpCoef = sex === 'M' ? SBP_M : SBP_F;
+        const dbpCoef = sex === 'M' ? DBP_M : DBP_F;
+        metrics = {
+            sbpCoef: sbpCoef,
+            dbpCoef: dbpCoef,
+            sbp90: getBPAtPercentile(sbpCoef, 89, ageForSpline, heightCm, sex),
+            dbp90: getBPAtPercentile(dbpCoef, 89, ageForSpline, heightCm, sex),
+            sbp95: getBPAtPercentile(sbpCoef, 94, ageForSpline, heightCm, sex),
+            dbp95: getBPAtPercentile(dbpCoef, 94, ageForSpline, heightCm, sex)
+        };
+    } else {
+        metrics = { sbp90: null, dbp90: null, sbp95: null, dbp95: null };
+    }
+
+    const initialResult = classify(
+        categoryAge,
+        readings.initial.sbp,
+        readings.initial.dbp,
+        metrics.sbp90,
+        metrics.dbp90,
+        metrics.sbp95,
+        metrics.dbp95
+    );
+
+    let selectedBP = readings.initial;
+    let usedConfirmation = false;
+    let effectiveMethod = document.getElementById('initialMethod').value;
+    if (readings.confirmationCount === 2) {
+        selectedBP = {
+            sbp: (readings.confirmations[0].sbp + readings.confirmations[1].sbp) / 2,
+            dbp: (readings.confirmations[0].dbp + readings.confirmations[1].dbp) / 2
+        };
+        usedConfirmation = true;
+        effectiveMethod = document.getElementById('confirmMethod').value;
+    }
+
+    const selectedResult = classify(
+        categoryAge,
+        selectedBP.sbp,
+        selectedBP.dbp,
+        metrics.sbp90,
+        metrics.dbp90,
+        metrics.sbp95,
+        metrics.dbp95
+    );
+    const safetyResult = worseResult(initialResult, selectedResult);
+    const careContext = document.getElementById('careContext').value;
+    const initialMethod = document.getElementById('initialMethod').value;
+    const techniqueConfirmed = document.getElementById('techniqueConfirmed').checked;
+    const symptoms = document.getElementById('acuteSymptoms').value;
+    const visitState = document.getElementById('visitState').value;
+    const highRisk = document.getElementById('highRisk').checked;
+
+    const context = {
+        measureDate: measureDate,
+        ageData: ageData,
+        isAdolescent: isAdolescent,
+        adjustedAge: ageForSpline,
+        sex: sex,
+        heightCm: heightCm,
+        heightZscore: heightZscore,
+        metrics: metrics,
+        readings: readings,
+        confirmationCount: readings.confirmationCount,
+        selectedBP: selectedBP,
+        usedConfirmation: usedConfirmation,
+        initialResult: initialResult,
+        selectedResult: selectedResult,
+        safetyResult: safetyResult,
+        careContext: careContext,
+        initialMethod: initialMethod,
+        effectiveMethod: effectiveMethod,
+        techniqueConfirmed: techniqueConfirmed,
+        symptoms: symptoms,
+        visitState: visitState,
+        highRisk: highRisk,
+        qualifiedOfficeCategory: false
+    };
+    context.severe = getSevereTrigger(context);
+    context.qualifiedOfficeCategory =
+        context.careContext === 'outpatient-office' &&
+        context.techniqueConfirmed &&
+        !!context.initialMethod &&
+        context.initialMethod !== 'unknown' &&
+        (
+            (context.selectedResult.category === 'normal' && (!context.usedConfirmation || (context.effectiveMethod && context.effectiveMethod !== 'unknown'))) ||
+            (context.selectedResult.category !== 'normal' && context.usedConfirmation && context.effectiveMethod === 'auscultatory')
+        );
+
+    const warnings = [];
+    if (!isAdolescent) {
+        if (Math.abs(heightZscore) > 3.09) {
+            warnings.push('Height outlier: Z-score ' + heightZscore.toFixed(2) + ' is outside ±3.09 SD. Verify height; spline extrapolation may reduce reliability.');
+        } else if (Math.abs(heightZscore) > 2.5) {
+            warnings.push('Unusual height for age (Z-score ' + heightZscore.toFixed(2) + '). Verify the measurement.');
+        }
+        if ((sex === 'M' && ageForSpline < 5.06) || (sex === 'F' && ageForSpline < 5.00)) {
+            warnings.push('Age is below the lowest spline knot; interpret percentile calculations with caution.');
+        }
+    }
+    if (context.severe.trigger) {
+        warnings.push('Safety threshold triggered: ' + context.severe.reason + '.');
+    }
+    setWarningMessages(warnings);
+
+    const guidance = getAAPGuidance(context);
+    renderResults(context, guidance);
+}
+
+// Set a local-calendar measurement date on load.
+document.getElementById('measureDate').value = localDateString();
+document.getElementById('dob').addEventListener('change', updateAgeDisplay);
+document.getElementById('measureDate').addEventListener('change', updateAgeDisplay);
+document.getElementById('height').addEventListener('input', updateHeightZscore);
+document.getElementById('heightUnit').addEventListener('change', updateHeightZscore);
+document.querySelectorAll('.sex-btn').forEach(function(button) {
+    button.addEventListener('click', function() {
+        document.querySelectorAll('.sex-btn').forEach(function(otherButton) {
+            otherButton.classList.remove('active');
+            otherButton.setAttribute('aria-pressed', 'false');
+        });
+        button.classList.add('active');
+        button.setAttribute('aria-pressed', 'true');
+        document.getElementById('sex').value = button.dataset.value;
+        updateHeightZscore();
+    });
+});
+
     </script>
 </body>
 </html>
