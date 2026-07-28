@@ -1,0 +1,20 @@
+{
+  "releaseCandidate": "pediatric-abpm-preview-v1.1.0",
+  "visibility": "noindex synthetic/de-identified test preview only",
+  "algorithm": {
+    "version": "AHA-2022-pediatric-ABPM-summary-v1.1.0",
+    "rulesetId": "pediatric-abpm-report-summary-v1.1.0",
+    "rulesetSha256": "4e1a9b2802caf6ceb7676030bb73b1979004d061273fd9aaca02e5753617e116"
+  },
+  "assets": {
+    "pediatric-abpm-pathway-preview.css": "sha384-fcm9Xk/e/JmhnORiPeVpyCbFp3HuVwf8gDww0QPNiUk+6bbaqtTwVX/QBNywYbyB",
+    "pediatric-abpm-core.js": "sha384-hH2V5PZP50O5jtr9ppwfP90cDX0moJMaj+rC8dsaQLBqksJlAjZzTIcGAVI3UQ/G",
+    "pediatric-abpm-ui.js": "sha384-1rH0FPLR40JTD4dWpwmSy1necVTQJLEFivVyW7OjlzaInagQkP9y1BQVZREY/CtX"
+  },
+  "hardStops": [
+    "No real-patient or PHI use on a public static route.",
+    "No clinical pilot without independently validated under-13 LMS data and blinded vendor-report comparison.",
+    "No deployment until source, DOM, and asset-integrity release gates pass.",
+    "No claim that host/CDN protections are in place until response headers are independently captured."
+  ]
+}

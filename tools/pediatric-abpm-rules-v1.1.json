@@ -1,0 +1,78 @@
+{
+  "ruleSetId": "pediatric-abpm-report-summary-v1.1.0",
+  "algorithmVersion": "AHA-2022-pediatric-ABPM-summary-v1.1.0",
+  "purpose": "Transparent, browser-local pediatric outpatient ABPM report-summary comparison. This rule set does not validate a device, ingest raw readings, establish a diagnosis, triage acute illness, calculate CKD MAP targets, or select treatment.",
+  "sources": [
+    {
+      "id": "AHA-2022-ABPM",
+      "title": "Ambulatory Blood Pressure Monitoring in Children and Adolescents: 2022 Update",
+      "url": "https://doi.org/10.1161/HYP.0000000000000215",
+      "use": "Pediatric ABPM thresholds, phenotype framework, quality conditions, diary-derived wake/sleep periods, dipping, and removal of BP load."
+    },
+    {
+      "id": "WUHL-2002",
+      "title": "Distribution of 24-h ambulatory blood pressure in children: normalized reference values and role of body dimensions",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/12359978/",
+      "use": "Reference-data provenance for the under-13 report-transcribed p95 workflow."
+    },
+    {
+      "id": "KDIGO-BP-CKD",
+      "title": "KDIGO Blood Pressure in CKD guideline resources",
+      "url": "https://kdigo.org/guidelines/blood-pressure-in-ckd/",
+      "use": "Future, separate pediatric CKD 24-hour MAP review module; not used in phenotype classification."
+    }
+  ],
+  "scope": {
+    "ageYears": { "minimum": 5, "maximumExclusive": 18 },
+    "setting": "stable outpatient only",
+    "excluded": ["acute or symptomatic triage", "inpatient", "pregnancy", "adult ABPM", "neonatal ABPM", "home BP", "cuffless BP", "raw-file interpretation"],
+    "treatment": "Active or undocumented antihypertensive treatment withholds the untreated diagnostic phenotype."
+  },
+  "thresholds": {
+    "age13OrOlder": {
+      "h24": { "sbp": 125, "dbp": 75 },
+      "wake": { "sbp": 130, "dbp": 80 },
+      "sleep": { "sbp": 110, "dbp": 65 }
+    },
+    "under13": {
+      "method": "For every period and component, use the lower of the validated report p95 and the fixed age-13 threshold. A value equal to the applicable threshold is abnormal.",
+      "reportP95Only": true,
+      "referenceDomainCm": {
+        "female": { "minimum": 120, "maximum": 175 },
+        "male": { "minimum": 120, "maximum": 185 }
+      }
+    }
+  },
+  "quality": {
+    "classification": {
+      "confirmed": "Documented as met.",
+      "notDocumented": "Does not become a negative answer; comparison can be shown but automated phenotype is withheld pending clinician review.",
+      "notMet": "Known failure; automated phenotype is withheld."
+    },
+    "optimalStudyCriteria": {
+      "durationHours": { "optimal": 24, "minimumPathway": 18 },
+      "successfulReadingRate": 0.7,
+      "minimumReadingFrequency": "At least one reading per recorded hour including sleep.",
+      "usualSuccessfulReadings": "40–50",
+      "wakeCadenceMinutes": "15–20",
+      "sleepCadenceMinutes": "20–30",
+      "wakeSleepPeriods": "Diary-derived"
+    },
+    "localSafetyPolicy": "The preview withholds automated phenotype output when these criteria are known to fail. This does not assert that a suboptimal study lacks all clinical utility."
+  },
+  "phenotypes": {
+    "requires": ["eligible outpatient scope", "adequate/documented quality for automated output", "confirmed office status", "untreated recording context"],
+    "normalAbpm": "All six means below the applicable threshold.",
+    "abnormalAbpm": "Any period/component mean at or above the applicable threshold.",
+    "excludedTerms": ["BP load", "ambulatory prehypertension"]
+  },
+  "descriptors": {
+    "dipping": "Calculated separately for SBP and DBP from diary-derived wake/sleep means. Descriptive only; isolated nondipping does not create masked hypertension.",
+    "patterns": ["isolated nocturnal", "isolated wake", "24-hour-only", "wake-and-sleep", "sleep-predominant", "wake-predominant"]
+  },
+  "knownLimits": [
+    "The under-13 p95 values are transcribed from a validated report in this release; embedded LMS calculation and reconciliation are future work requiring independently validated coefficients.",
+    "The CKD MAP target is not assessed in this report-summary pathway.",
+    "A public static test page is not PHI-safe."
+  ]
+}
