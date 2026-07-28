@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="color-scheme" content="light">
+    <title>TEST PREVIEW — Pediatric ABPM Pathway</title>
+    <script src="pediatric-abpm-core.js"></script>
+    <style>
+        :root {
+            --ink: #0f172a;
+            --muted: #526176;
+            --line: #dbe4ee;
+            --surface: #ffffff;
+            --canvas: #f5f8fc;
+            --brand: #0958c9;
+            --brand-dark: #073b84;
+            --blue-wash: #edf5ff;
+            --green: #087443;
+            --green-wash: #eaf8ef;
+            --amber: #9a5b00;
+            --amber-wash: #fff6df;
+            --red: #a51d2d;
+            --red-wash: #ffedf0;
+            --violet: #6246a8;
+            --shadow: 0 10px 28px rgba(15, 23, 42, .07);
+        }
+        * { box-sizing: border-box; }
+        html { background: var(--canvas); }
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: var(--canvas);
+            font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.45;
+        }
+        button, input, select { font: inherit; }
+        button { cursor: pointer; }
+        .shell { width: min(100%, 920px); margin: 0 auto; padding: 16px 14px 40px; }
+        .masthead { text-align: center; padding: 8px 8px 18px; }
+        .kicker {
+            display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px;
+            border: 1px solid #bed6fc; border-radius: 999px; color: var(--brand-dark);
+            background: #f5f9ff; font-size: .75rem; font-weight: 760; letter-spacing: .02em;
+        }
+        h1 { margin: 10px 0 5px; font-size: clamp(1.56rem, 5.7vw, 2.25rem); line-height: 1.1; letter-spacing: -.035em; }
+        .lede { max-width: 700px; margin: 0 auto; color: var(--muted); font-size: .96rem; }
+        .preview-banner {
+            background: #721421; color: white; border-radius: 14px; padding: 14px 16px;
+            box-shadow: var(--shadow); font-size: .88rem; line-height: 1.48; margin-bottom: 14px;
+        }
+        .preview-banner strong { font-size: .95rem; }
+        .overview, .card, .results-card, .source-card {
+            background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow);
+        }
+        .overview { padding: 13px 15px; margin-bottom: 14px; }
+        .overview summary { cursor: pointer; font-weight: 760; color: var(--brand-dark); }
+        .overview p, .overview li { color: #40516a; font-size: .88rem; }
+        .overview p { margin: 9px 0 0; }
+        .overview ul { margin: 9px 0 0; padding-left: 20px; }
+        .overview li + li { margin-top: 5px; }
+        .progress { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 12px; }
+        .progress span { border-radius: 99px; background: #eaf1fb; color: #284464; padding: 5px 9px; font-size: .72rem; font-weight: 700; }
+        .card { padding: clamp(15px, 3vw, 22px); margin-bottom: 14px; }
+        .card h2, .results-card h2, .source-card h2 { margin: 0; font-size: 1.08rem; letter-spacing: -.015em; }
+        .section-intro { margin: 5px 0 14px; color: var(--muted); font-size: .86rem; }
+        .step-number { color: var(--brand); font-size: .76rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+        .grid { display: grid; gap: 12px; }
+        .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        label, .field-label { display: block; color: #23364e; font-size: .82rem; font-weight: 740; }
+        label small, .field-label small { display: block; color: var(--muted); font-size: .72rem; font-weight: 500; line-height: 1.35; margin-top: 3px; }
+        input, select {
+            width: 100%; min-height: 43px; margin-top: 6px; padding: 9px 10px; color: var(--ink);
+            background: white; border: 1px solid #b9c8d9; border-radius: 9px;
+        }
+        input:focus, select:focus, button:focus-visible, summary:focus-visible { outline: 3px solid rgba(9, 88, 201, .25); outline-offset: 2px; }
+        input::placeholder { color: #8391a3; }
+        .check-list { display: grid; gap: 9px; margin-top: 12px; }
+        .check-row {
+            display: flex; gap: 10px; align-items: flex-start; padding: 10px 11px;
+            border: 1px solid #d9e4f0; border-radius: 10px; background: #fbfdff; color: #32465f;
+            font-size: .83rem; font-weight: 560; line-height: 1.37;
+        }
+        .check-row input { width: 18px; min-height: 18px; margin: 0; flex: 0 0 auto; accent-color: var(--brand); }
+        .select-row { padding: 10px 11px; border: 1px solid #d9e4f0; border-radius: 10px; background: #fbfdff; }
+        .select-row select { background: #fff; }
+        .notice { margin: 12px 0 0; padding: 11px 12px; border-radius: 10px; font-size: .82rem; }
+        .notice.info { color: #124787; background: var(--blue-wash); border: 1px solid #bfdbfe; }
+        .notice.warn { color: #774800; background: var(--amber-wash); border: 1px solid #f3d28a; }
+        .notice strong { font-weight: 800; }
+        .age-line { min-height: 22px; margin: 9px 0 0; color: var(--brand-dark); font-size: .84rem; font-weight: 750; }
+        .hidden { display: none !important; }
+        .mean-table-wrap { overflow-x: auto; border: 1px solid #dce6f0; border-radius: 11px; margin-top: 4px; }
+        .mean-table { width: 100%; min-width: 545px; border-collapse: collapse; }
+        .mean-table th, .mean-table td { padding: 10px; border-bottom: 1px solid #e5edf5; text-align: left; vertical-align: middle; }
+        .mean-table tr:last-child td { border-bottom: 0; }
+        .mean-table th { color: #4a5b70; background: #f7faff; font-size: .74rem; letter-spacing: .02em; text-transform: uppercase; }
+        .mean-table td:first-child { width: 26%; font-size: .86rem; font-weight: 760; }
+        .mean-table input { min-width: 95px; margin: 0; }
+        .subsection { margin-top: 18px; padding-top: 17px; border-top: 1px solid #e2eaf3; }
+        .subsection h3 { font-size: .94rem; margin: 0 0 5px; }
+        .subsection p { color: var(--muted); font-size: .82rem; margin: 0 0 11px; }
+        .actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; }
+        .primary, .secondary, .copy-btn {
+            border: 0; border-radius: 10px; padding: 11px 15px; font-weight: 800; font-size: .88rem;
+        }
+        .primary { color: white; background: var(--brand); box-shadow: 0 4px 11px rgba(9, 88, 201, .22); }
+        .primary:hover { background: #064aa9; }
+        .secondary { color: #25425f; background: #edf3f9; }
+        .secondary:hover { background: #e1ebf5; }
+        .error { margin: 0 0 14px; padding: 12px 13px; color: #851426; background: var(--red-wash); border: 1px solid #ffc6ce; border-radius: 11px; font-size: .85rem; font-weight: 650; }
+        .results { margin-top: 14px; }
+        .results-card { padding: clamp(15px, 3vw, 22px); margin-bottom: 14px; }
+        .result-grid { display: grid; gap: 13px; grid-template-columns: 1.1fr .9fr; }
+        .status-card { border-radius: 13px; padding: 13px; border: 1px solid transparent; }
+        .status-card .eyebrow { font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; opacity: .82; }
+        .status-card h3 { margin: 3px 0 5px; font-size: 1rem; line-height: 1.25; }
+        .status-card p { margin: 0; font-size: .82rem; line-height: 1.42; }
+        .status-card.positive { color: #0b5f37; background: var(--green-wash); border-color: #b6e7c9; }
+        .status-card.review { color: #714600; background: var(--amber-wash); border-color: #f3d28a; }
+        .status-card.alert { color: #8c1830; background: var(--red-wash); border-color: #ffc4cc; }
+        .status-card.neutral { color: #173c6b; background: var(--blue-wash); border-color: #c7dcfb; }
+        .quality-list { margin: 8px 0 0; padding-left: 18px; font-size: .8rem; }
+        .quality-list li + li { margin-top: 4px; }
+        .data-points { display: grid; gap: 7px; margin-top: 9px; }
+        .data-point { display: flex; justify-content: space-between; gap: 11px; padding: 7px 0; border-bottom: 1px solid rgba(23, 60, 107, .13); font-size: .8rem; }
+        .data-point:last-child { border-bottom: 0; }
+        .data-point span:first-child { color: #58708a; }
+        .data-point strong { text-align: right; }
+        .result-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+        .result-heading p { margin: 4px 0 0; color: var(--muted); font-size: .82rem; }
+        .pill { padding: 5px 8px; border-radius: 99px; font-size: .71rem; font-weight: 800; white-space: nowrap; }
+        .pill.neutral { color: #17447b; background: #e6f0ff; }
+        .pill.alert { color: #8b1530; background: #ffe7eb; }
+        .pill.positive { color: #086035; background: #e5f7eb; }
+        .result-table { width: 100%; border-collapse: collapse; }
+        .result-table th, .result-table td { padding: 9px 7px; border-bottom: 1px solid #e5edf5; text-align: left; font-size: .82rem; }
+        .result-table th { color: #526176; font-size: .71rem; letter-spacing: .04em; text-transform: uppercase; }
+        .result-table tr:last-child td { border-bottom: 0; }
+        .comparison-bad { color: #9a1630; font-weight: 800; }
+        .comparison-good { color: #0b6c3c; font-weight: 800; }
+        .descriptor { margin-top: 10px; padding: 10px 11px; background: #faf7ff; border: 1px solid #e5dcff; border-radius: 10px; color: #4a3a72; font-size: .81rem; }
+        .next-step { margin-top: 13px; border-radius: 13px; padding: 14px; border: 1px solid; }
+        .next-step h3 { margin: 3px 0 6px; font-size: 1rem; }
+        .next-step p, .next-step li { font-size: .83rem; line-height: 1.42; }
+        .next-step p { margin: 0; }
+        .next-step ul { margin: 9px 0 0; padding-left: 18px; }
+        .next-step li + li { margin-top: 5px; }
+        .next-step.routine { color: #095f37; background: var(--green-wash); border-color: #b6e7c9; }
+        .next-step.review { color: #714600; background: var(--amber-wash); border-color: #f3d28a; }
+        .next-step.alert, .next-step.caution { color: #8c1830; background: var(--red-wash); border-color: #ffc4cc; }
+        .copy-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
+        .copy-btn { color: white; background: #15233a; }
+        .copy-btn:hover { background: #0d1727; }
+        .copy-status { color: #526176; font-size: .78rem; font-weight: 700; }
+        .source-card { padding: 15px; margin-top: 14px; }
+        .source-card p, .source-card li { color: #455870; font-size: .81rem; }
+        .source-card p { margin: 7px 0 0; }
+        .source-card ul { margin: 8px 0 0; padding-left: 18px; }
+        a { color: #075ecb; font-weight: 720; }
+        .footer { padding: 2px 5px; color: #65778f; font-size: .74rem; text-align: center; }
+        @media (max-width: 620px) {
+            .shell { padding: 12px 10px 30px; }
+            .grid.two, .grid.three, .result-grid { grid-template-columns: 1fr; }
+            .card, .results-card { border-radius: 13px; }
+            .actions > * { flex: 1 1 155px; }
+        }
+        @media (max-width: 400px) {
+            .preview-banner { border-radius: 11px; }
+            .mean-table { min-width: 500px; }
+        }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <header class="masthead">
+            <div class="kicker">AHA 2022 · report-summary pathway</div>
+            <h1>Pediatric ABPM Pathway</h1>
+            <p class="lede">A transparent, clinician-facing comparison of a complete ambulatory BP report with a confirmed office-BP context.</p>
+        </header>
+
+        <div class="preview-banner" role="note">
+            <strong>TEST PREVIEW — not for clinical use.</strong><br>
+            Use synthetic or de-identified values only. This browser-local prototype does not validate a monitor, establish a diagnosis, provide emergency triage, or select treatment.
+        </div>
+
+        <details class="overview">
+            <summary>What this test tool does—and does not do</summary>
+            <p>It compares the six ABPM report means against the AHA 2022 pediatric thresholds, checks the quality metadata you attest to, and only then maps a confirmed office-BP context to a phenotype.</p>
+            <ul>
+                <li>It accepts a report summary—not raw monitor files, PDFs, images, home BP, cuffless readings, or a fixed nighttime clock window.</li>
+                <li>For children under 13, it requires the validated report’s Wühl-based 95th-percentile limits, the height used, and the reference dataset. It never estimates or extrapolates them.</li>
+                <li>BP load is deliberately excluded. Dipping is displayed as a descriptive calculation only and never changes the phenotype.</li>
+                <li>Outpatient ages 5 to &lt;18 only. Pregnancy, inpatient/acute settings, and active antihypertensive treatment require clinician-led interpretation outside this prototype.</li>
+            </ul>
+        </details>
+
+        <div class="progress" aria-label="Workflow steps">
+            <span>1. Scope</span><span>2. Quality gate</span><span>3. Office bridge</span><span>4. Means &amp; thresholds</span><span>5. Review prompt</span>
+        </div>
+
+        <form id="abpmForm" novalidate>
+            <section class="card">
+                <div class="step-number">Step 1 · Scope</div>
+                <h2>Patient context</h2>
+                <p class="section-intro">Age is calculated on the ABPM study date. This page does not transmit or retain entries; do not enter identifiers.</p>
+                <div class="grid two">
+                    <label for="dob">Date of birth
+                        <input id="dob" type="date" autocomplete="off">
+                    </label>
+                    <label for="studyDate">ABPM study date
+                        <input id="studyDate" type="date" autocomplete="off">
+                    </label>
+                </div>
+                <div id="ageDisplay" class="age-line" aria-live="polite"></div>
+                <div class="grid two" style="margin-top:12px">
+                    <label for="specialContext">Context
+                        <select id="specialContext">
+                            <option value="none">Stable outpatient ABPM</option>
+                            <option value="inpatient">Inpatient / acute-care setting</option>
+                            <option value="pregnancy">Pregnancy</option>
+                            <option value="other">Other out-of-scope setting</option>
+                        </select>
+                    </label>
+                    <label for="indication">ABPM indication <small>Visible in the note; does not alter thresholds.</small>
+                        <select id="indication">
+                            <option value="suspected hypertension">Suspected hypertension</option>
+                            <option value="possible masked hypertension">Possible masked hypertension</option>
+                            <option value="high-risk surveillance">High-risk surveillance</option>
+                            <option value="treated hypertension review">Treated hypertension review</option>
+                            <option value="other">Other / not recorded</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="check-list">
+                    <label class="check-row"><input id="outpatientStable" type="checkbox">I confirm this is a stable outpatient context; I am not using the ABPM averages for acute or emergency triage.</label>
+                    <label class="check-row"><input id="noAcuteConcern" type="checkbox">I confirm there is no current acute or symptomatic concern requiring the local urgent/emergency clinical process. If unsure, stop here—this page is not a triage tool.</label>
+                    <label class="select-row" for="treatmentContext">Antihypertensive treatment during recording
+                        <select id="treatmentContext">
+                            <option value="">Select</option>
+                            <option value="none">No antihypertensive treatment and no medication change during recording</option>
+                            <option value="active">On antihypertensive treatment or medication changed during recording</option>
+                            <option value="unknown">Unknown / not documented</option>
+                        </select>
+                        <small>Required for a diagnostic phenotype. Active or unknown treatment context withholds that label.</small>
+                    </label>
+                    <label class="check-row"><input id="highRisk" type="checkbox">Relevant high-risk context is present (for example CKD, diabetes, transplant, repaired coarctation, OSA/severe obesity, sickle-cell disease, or lupus).</label>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="step-number">Step 2 · Quality gate</div>
+                <h2>Confirm the complete ABPM report</h2>
+                <p class="section-intro">AHA 2022 quality conditions are checked before an automated phenotype. A report-summary entry cannot independently audit raw readings.</p>
+                <div class="grid three">
+                    <label for="deviceType">Device type
+                        <select id="deviceType">
+                            <option value="">Select</option>
+                            <option value="validated-cuff-abpm">Validated cuff-based ABPM device</option>
+                            <option value="cuffless">Cuffless / wearable / phone-based device</option>
+                            <option value="home">Home or school cuff</option>
+                            <option value="unknown">Unknown</option>
+                        </select>
+                    </label>
+                    <label for="durationHours">Recording duration
+                        <input id="durationHours" type="number" min="0" max="48" step="0.1" inputmode="decimal" placeholder="hours">
+                    </label>
+                    <label for="attemptedReadings">Attempted readings
+                        <input id="attemptedReadings" type="number" min="0" step="1" inputmode="numeric" placeholder="count">
+                    </label>
+                    <label for="successfulReadings">Successful readings
+                        <input id="successfulReadings" type="number" min="0" step="1" inputmode="numeric" placeholder="count">
+                    </label>
+                    <label for="applicationCheck">Same-arm application check
+                        <select id="applicationCheck">
+                            <option value="">Select</option>
+                            <option value="within5">Same arm, another validated clinic device, same technique; avg. of 3 within 5 mm Hg</option>
+                            <option value="outside5">Those checks completed; difference &gt;5 mm Hg</option>
+                            <option value="unknown">Not documented / unknown</option>
+                        </select>
+                    </label>
+                    <label for="unit">Report unit
+                        <select id="unit">
+                            <option value="">Select</option>
+                            <option value="mmHg">mm Hg</option>
+                            <option value="kPa">kPa (not supported in this page)</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="check-list">
+                    <label class="check-row"><input id="deviceValidated" type="checkbox">Validated device model and current pediatric use were confirmed.</label>
+                    <label class="check-row"><input id="cuffAndArmVerified" type="checkbox">Appropriate cuff, arm selection, and application were confirmed.</label>
+                    <label class="check-row"><input id="sleepCaptured" type="checkbox">Sleep was captured in the recording.</label>
+                    <label class="check-row"><input id="diaryReviewed" type="checkbox">Patient diary supplied actual wake/sleep periods; the report used those periods rather than a default clock window.</label>
+                    <label class="check-row"><input id="oneReadingPerHour" type="checkbox">At least one BP reading per hour, including sleep, was confirmed.</label>
+                    <label class="check-row"><input id="cadenceConfirmed" type="checkbox">Standard programming cadence was confirmed: every 15–20 minutes awake and 20–30 minutes asleep. <span style="font-weight:500">A missing confirmation creates a review flag.</span></label>
+                    <label class="check-row"><input id="exclusionsReviewed" type="checkbox">The source report reviewed post-application test readings, diary-marked vigorous activity, and implausible values before its means were finalized.</label>
+                    <label class="check-row"><input id="rawDataAudited" type="checkbox">Raw readings and every exclusion were independently audited in addition to the source report. <span style="font-weight:500">Optional; leave blank for summary-only entry.</span></label>
+                </div>
+                <div class="notice info"><strong>Important:</strong> ≥70% successful readings, sleep capture, and ≥1 reading/hour including sleep are required here. A 24-hour study is ideal; 18–20 hours may be acceptable if sleep is captured. BP load is not entered or used.</div>
+            </section>
+
+            <section class="card">
+                <div class="step-number">Step 3 · Office-BP bridge</div>
+                <h2>Confirm the office-BP status</h2>
+                <p class="section-intro">ABPM means alone cannot distinguish normotension, white-coat, masked, and ambulatory hypertension. This is a phenotype screen, not an office-BP calculator—use the separate <a href="bp-percentile-calculator-preview.html">office-BP test pathway</a> when an AAP office-BP assessment is needed.</p>
+                <label class="check-row"><input id="officeConfirmed" type="checkbox">I confirm the office-BP assessment is clinically qualifying for phenotype use (method, technique, and follow-up context reviewed).</label>
+                <div id="adolescentOffice" class="grid two hidden" style="margin-top:12px">
+                    <label for="officeSbp">Confirmed office SBP
+                        <input id="officeSbp" type="number" min="1" max="300" step="0.1" inputmode="decimal" placeholder="mm Hg">
+                    </label>
+                    <label for="officeDbp">Confirmed office DBP
+                        <input id="officeDbp" type="number" min="1" max="300" step="0.1" inputmode="decimal" placeholder="mm Hg">
+                    </label>
+                </div>
+                <div id="pediatricOffice" class="hidden" style="margin-top:12px">
+                    <label for="officeUnder13Status">Confirmed under-13 office-BP status
+                        <select id="officeUnder13Status">
+                            <option value="">Select</option>
+                            <option value="below">Below the 95th-percentile hypertension threshold</option>
+                            <option value="elevated">Elevated (but below the 95th-percentile hypertension threshold)</option>
+                            <option value="hypertensive">At or above the 95th-percentile hypertension threshold</option>
+                        </select>
+                        <small>Use a qualified AAP office-BP assessment. This page does not derive an office percentile.</small>
+                    </label>
+                </div>
+                <div id="officeAwaitingAge" class="notice warn">Enter date of birth and ABPM study date to display the correct office-BP bridge.</div>
+            </section>
+
+            <section class="card">
+                <div class="step-number">Step 4 · Report means and thresholds</div>
+                <h2>Enter the six report means</h2>
+                <p class="section-intro">Enter the unrounded report values in mm Hg where available. Classification checks every period and component; a single value meeting or exceeding its threshold is abnormal.</p>
+                <div class="mean-table-wrap">
+                    <table class="mean-table">
+                        <thead><tr><th scope="col">Diary-based period</th><th scope="col">Mean SBP (mm Hg)</th><th scope="col">Mean DBP (mm Hg)</th></tr></thead>
+                        <tbody>
+                            <tr><td>24-hour</td><td><input id="mean-day-sbp" type="number" min="1" max="300" step="0.1" inputmode="decimal" aria-label="24-hour mean systolic BP"></td><td><input id="mean-day-dbp" type="number" min="1" max="300" step="0.1" inputmode="decimal" aria-label="24-hour mean diastolic BP"></td></tr>
+                            <tr><td>Wake</td><td><input id="mean-wake-sbp" type="number" min="1" max="300" step="0.1" inputmode="decimal" aria-label="Wake mean systolic BP"></td><td><input id="mean-wake-dbp" type="number" min="1" max="300" step="0.1" inputmode="decimal" aria-label="Wake mean diastolic BP"></td></tr>
+                            <tr><td>Sleep</td><td><input id="mean-sleep-sbp" type="number" min="1" max="300" step="0.1" inputmode="decimal" aria-label="Sleep mean systolic BP"></td><td><input id="mean-sleep-dbp" type="number" min="1" max="300" step="0.1" inputmode="decimal" aria-label="Sleep mean diastolic BP"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="fixedThresholds" class="notice info hidden"><strong>Age 13 or older:</strong> fixed AHA thresholds are 24-hour &lt;125/75, wake &lt;130/80, and sleep &lt;110/65 mm Hg. The page uses the exact 13th birthday—not rounded age.</div>
+
+                <div id="pediatricThresholds" class="subsection hidden">
+                    <h3>Under-13 validated report thresholds</h3>
+                    <p>Use the validated report’s Wühl-based 95th-percentile limits for this patient—not office-BP percentiles. This page applies the lower of each entered limit and the AHA fixed adolescent cutoff.</p>
+                    <div class="grid two">
+                        <label for="referenceDataset">Reference dataset used by the report
+                            <select id="referenceDataset">
+                                <option value="">Select</option>
+                                <option value="male">Male Wühl reference dataset</option>
+                                <option value="female">Female Wühl reference dataset</option>
+                            </select>
+                            <small>Selection is for the reference data only; do not infer it from a name or identity.</small>
+                        </label>
+                        <label for="heightCm">Height used for the ABPM report
+                            <input id="heightCm" type="number" min="0" max="250" step="0.1" inputmode="decimal" placeholder="cm">
+                            <small>This v1 blocks values &lt;120 cm rather than extrapolating the reference limits.</small>
+                        </label>
+                    </div>
+                    <div class="mean-table-wrap" style="margin-top:12px">
+                        <table class="mean-table">
+                            <thead><tr><th scope="col">Period</th><th scope="col">Report p95 SBP</th><th scope="col">Report p95 DBP</th></tr></thead>
+                            <tbody>
+                                <tr><td>24-hour</td><td><input id="p95-day-sbp" type="number" min="1" max="300" step="0.1" inputmode="decimal" aria-label="24-hour report p95 systolic threshold"></td><td><input id="p95-day-dbp" type="number" min="1" max="300" step="0.1" inputmode="decimal" aria-label="24-hour report p95 diastolic threshold"></td></tr>
+                                <tr><td>Wake</td><td><input id="p95-wake-sbp" type="number" min="1" max="300" step="0.1" inputmode="decimal" aria-label="Wake report p95 systolic threshold"></td><td><input id="p95-wake-dbp" type="number" min="1" max="300" step="0.1" inputmode="decimal" aria-label="Wake report p95 diastolic threshold"></td></tr>
+                                <tr><td>Sleep</td><td><input id="p95-sleep-sbp" type="number" min="1" max="300" step="0.1" inputmode="decimal" aria-label="Sleep report p95 systolic threshold"></td><td><input id="p95-sleep-dbp" type="number" min="1" max="300" step="0.1" inputmode="decimal" aria-label="Sleep report p95 diastolic threshold"></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <label class="check-row" style="margin-top:12px"><input id="reportP95ProvenanceConfirmed" type="checkbox">I confirm these six values were transcribed from this ABPM study report’s validated Wühl-based 95th-percentile reference. This page cannot independently verify the report provenance.</label>
+                </div>
+                <div id="thresholdAwaitingAge" class="notice warn">Enter date of birth and ABPM study date before the applicable threshold fields appear.</div>
+            </section>
+
+            <section class="card">
+                <div class="step-number">Synthetic test data</div>
+                <h2>Try a safe example</h2>
+                <p class="section-intro">Loads only synthetic values so you can test the workflow on an iPhone before entering any real report details.</p>
+                <div class="grid two">
+                    <label for="exampleScenario">Scenario
+                        <select id="exampleScenario">
+                            <option value="normal">Normal ABPM / office BP below hypertension threshold</option>
+                            <option value="white-coat">White-coat phenotype</option>
+                            <option value="masked-nocturnal">Masked phenotype from isolated sleep DBP elevation</option>
+                            <option value="ambulatory">Ambulatory hypertension phenotype</option>
+                            <option value="inadequate">Inadequate study — phenotype withheld</option>
+                        </select>
+                    </label>
+                    <div style="display:flex;align-items:end"><button id="loadExample" class="secondary" type="button">Load synthetic example</button></div>
+                </div>
+                <div class="actions">
+                    <button class="primary" type="submit">Run quality gate &amp; compare report</button>
+                    <button id="clearForm" class="secondary" type="button">Clear this page</button>
+                </div>
+            </section>
+        </form>
+
+        <div id="error" class="error hidden" role="alert"></div>
+
+        <section id="results" class="results hidden" aria-live="polite">
+            <div class="results-card">
+                <div class="result-heading"><div><h2>Interpretation workspace</h2><p id="resultIntro"></p></div><span id="resultPill" class="pill neutral"></span></div>
+                <div class="result-grid">
+                    <div id="qualityCard" class="status-card neutral"></div>
+                    <div id="officeCard" class="status-card neutral"></div>
+                </div>
+            </div>
+
+            <div class="results-card">
+                <div class="result-heading"><div><h2>ABPM mean comparison</h2><p>Threshold comparisons are transparent. A phenotype is withheld if the scope or quality gate fails.</p></div></div>
+                <div style="overflow-x:auto">
+                    <table class="result-table">
+                        <thead><tr><th scope="col">Period</th><th scope="col">Component</th><th scope="col">Mean</th><th scope="col">Applicable threshold</th><th scope="col">Comparison</th></tr></thead>
+                        <tbody id="comparisonRows"></tbody>
+                    </table>
+                </div>
+                <div id="comparisonMessage" class="descriptor"></div>
+            </div>
+
+            <div class="results-card">
+                <div id="phenotypeCard" class="status-card neutral"></div>
+                <div id="dippingCard" class="descriptor"></div>
+                <div id="nextStepCard" class="next-step review"></div>
+                <div class="copy-row"><button id="copyNote" class="copy-btn" type="button">Copy de-identified clinical note</button><span id="copyStatus" class="copy-status" aria-live="polite"></span></div>
+            </div>
+        </section>
+
+        <section class="source-card">
+            <h2>Algorithm, sources, and release boundary</h2>
+            <p><strong>Version:</strong> <span id="algorithmVersion">AHA-2022-pediatric-ABPM-summary-v1.0</span>. This test route is clinician-facing decision support, not an autonomous diagnosis system.</p>
+            <ul>
+                <li><a href="https://www.ahajournals.org/doi/10.1161/HYP.0000000000000215" target="_blank" rel="noopener noreferrer">AHA 2022 pediatric ABPM scientific statement</a>: classification, quality conditions, diary-derived periods, and removal of BP load.</li>
+                <li><a href="https://publications.aap.org/pediatrics/article/140/3/e20171904/38358/Clinical-Practice-Guideline-for-Screening-and" target="_blank" rel="noopener noreferrer">AAP 2017 pediatric office-BP guideline</a>: office-BP pathway context.</li>
+                <li>Before any real clinical release: pediatric hypertension/nephrology review, blinded fixture comparison, privacy/security review, and regulatory review—especially before any raw monitor-file feature.</li>
+            </ul>
+        </section>
+        <p class="footer">No data leaves this page. Do not use a public test route for patient identifiers.</p>
+    </main>
+
+    <script>
+    (function() {
+        'use strict';
+        const core = window.PediatricABPMCore;
+        const form = document.getElementById('abpmForm');
+        const results = document.getElementById('results');
+        const errorBox = document.getElementById('error');
+        const ageDisplay = document.getElementById('ageDisplay');
+        const fixedThresholds = document.getElementById('fixedThresholds');
+        const pediatricThresholds = document.getElementById('pediatricThresholds');
+        const thresholdAwaitingAge = document.getElementById('thresholdAwaitingAge');
+        const adolescentOffice = document.getElementById('adolescentOffice');
+        const pediatricOffice = document.getElementById('pediatricOffice');
+        const officeAwaitingAge = document.getElementById('officeAwaitingAge');
+        let noteText = '';
+
+        function byId(id) { return document.getElementById(id); }
+        function value(id) { return byId(id).value; }
+        function checked(id) { return byId(id).checked; }
+        function titleCase(value) { return String(value).replace(/(^|[-\s])(\w)/g, function(match, start, letter) { return start + letter.toUpperCase(); }); }
+        function localDateString() {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            return new Date(now.getTime() - offset).toISOString().slice(0, 10);
+        }
+        function fieldNumber(id) {
+            const raw = value(id).trim();
+            return raw === '' ? null : Number(raw);
+        }
+        function appendText(parent, tag, text, className) {
+            const node = document.createElement(tag);
+            if (className) node.className = className;
+            node.textContent = text;
+            parent.appendChild(node);
+            return node;
+        }
+        function makeList(parent, values) {
+            const list = document.createElement('ul');
+            list.className = 'quality-list';
+            values.forEach(function(item) { appendText(list, 'li', item); });
+            parent.appendChild(list);
+        }
+        function clearNode(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+        function getAge() { return core.ageOnStudyDate(value('dob'), value('studyDate')); }
+        function updateAgeUi() {
+            const age = getAge();
+            const hasAge = !!age;
+            fixedThresholds.classList.toggle('hidden', !hasAge || !age.exact13OrOlder);
+            pediatricThresholds.classList.toggle('hidden', !hasAge || age.exact13OrOlder);
+            thresholdAwaitingAge.classList.toggle('hidden', hasAge);
+            adolescentOffice.classList.toggle('hidden', !hasAge || !age.exact13OrOlder);
+            pediatricOffice.classList.toggle('hidden', !hasAge || age.exact13OrOlder);
+            officeAwaitingAge.classList.toggle('hidden', hasAge);
+            if (!hasAge) {
+                ageDisplay.textContent = '';
+                return;
+            }
+            ageDisplay.textContent = 'Age on ABPM study date: ' + age.years + ' years ' + age.months + ' months (' + (age.exact13OrOlder ? 'fixed adolescent ABPM thresholds' : 'validated pediatric report thresholds required') + ').';
+        }
+        function invalidate() {
+            results.classList.add('hidden');
+            errorBox.classList.add('hidden');
+            errorBox.textContent = '';
+            noteText = '';
+        }
+        function reportMeans() {
+            return {
+                day: { sbp: fieldNumber('mean-day-sbp'), dbp: fieldNumber('mean-day-dbp') },
+                wake: { sbp: fieldNumber('mean-wake-sbp'), dbp: fieldNumber('mean-wake-dbp') },
+                sleep: { sbp: fieldNumber('mean-sleep-sbp'), dbp: fieldNumber('mean-sleep-dbp') }
+            };
+        }
+        function pediatricInput() {
+            return {
+                referenceDataset: value('referenceDataset'),
+                heightCm: fieldNumber('heightCm'),
+                reportP95ProvenanceConfirmed: checked('reportP95ProvenanceConfirmed'),
+                p95: {
+                    day: { sbp: fieldNumber('p95-day-sbp'), dbp: fieldNumber('p95-day-dbp') },
+                    wake: { sbp: fieldNumber('p95-wake-sbp'), dbp: fieldNumber('p95-wake-dbp') },
+                    sleep: { sbp: fieldNumber('p95-sleep-sbp'), dbp: fieldNumber('p95-sleep-dbp') }
+                }
+            };
+        }
+        function qualityInput() {
+            return {
+                durationHours: fieldNumber('durationHours'),
+                attemptedReadings: fieldNumber('attemptedReadings'),
+                successfulReadings: fieldNumber('successfulReadings'),
+                deviceType: value('deviceType'),
+                deviceValidated: checked('deviceValidated'),
+                cuffAndArmVerified: checked('cuffAndArmVerified'),
+                sleepCaptured: checked('sleepCaptured'),
+                diaryReviewed: checked('diaryReviewed'),
+                oneReadingPerHour: checked('oneReadingPerHour'),
+                cadenceConfirmed: checked('cadenceConfirmed'),
+                applicationCheck: value('applicationCheck'),
+                exclusionsReviewed: checked('exclusionsReviewed'),
+                rawDataAudited: checked('rawDataAudited')
+            };
+        }
+        function scopeInput(age) {
+            return {
+                age: age,
+                outpatientStable: checked('outpatientStable'),
+                noAcuteConcern: checked('noAcuteConcern'),
+                specialContext: value('specialContext'),
+                treatmentContext: value('treatmentContext')
+            };
+        }
+        function officeInput() {
+            return {
+                confirmed: checked('officeConfirmed'),
+                sbp: fieldNumber('officeSbp'),
+                dbp: fieldNumber('officeDbp'),
+                under13Status: value('officeUnder13Status')
+            };
+        }
+        function showError(messages) {
+            errorBox.textContent = messages.join(' ');
+            errorBox.classList.remove('hidden');
+            results.classList.add('hidden');
+            errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        function statusTone(status) {
+            if (status === 'interpretable') return 'positive';
+            if (status === 'abnormal' || status === 'hypertensive') return 'alert';
+            return 'review';
+        }
+        function renderQuality(quality) {
+            const card = byId('qualityCard');
+            clearNode(card);
+            card.className = 'status-card ' + (quality.status === 'interpretable' ? 'positive' : quality.eligibleForPhenotype ? 'review' : 'alert');
+            appendText(card, 'div', 'Study quality', 'eyebrow');
+            const titles = { interpretable: 'Interpretable in this pathway', 'interpretable-with-review': 'Interpretable with review flags', insufficient: 'Insufficient for automated phenotype' };
+            appendText(card, 'h3', titles[quality.status] || 'Study quality not established');
+            appendText(card, 'p', quality.eligibleForPhenotype ? 'The required gate items were confirmed. Review any flags alongside the complete report.' : 'Do not assign a normal result or office–ambulatory phenotype from this page.');
+            const points = document.createElement('div');
+            points.className = 'data-points';
+            const summary = [
+                ['Duration', fieldNumber('durationHours') === null ? '—' : fieldNumber('durationHours').toFixed(1) + ' h'],
+                ['Successful / attempted', quality.completionRate === null ? '—' : fieldNumber('successfulReadings') + ' / ' + fieldNumber('attemptedReadings') + ' (' + (quality.completionRate * 100).toFixed(1) + '%)']
+            ];
+            summary.forEach(function(pair) { const row = document.createElement('div'); row.className = 'data-point'; appendText(row, 'span', pair[0]); appendText(row, 'strong', pair[1]); points.appendChild(row); });
+            card.appendChild(points);
+            if (quality.blockers.length) makeList(card, quality.blockers);
+            if (quality.flags.length) makeList(card, quality.flags);
+        }
+        function renderOffice(office, age) {
+            const card = byId('officeCard');
+            clearNode(card);
+            card.className = 'status-card ' + (office.status === 'hypertensive' ? 'alert' : office.status === 'unavailable' ? 'review' : 'neutral');
+            appendText(card, 'div', 'Office-BP bridge', 'eyebrow');
+            appendText(card, 'h3', office.status === 'unavailable' ? 'Office status unavailable' : titleCase(office.status.replace('below-hypertensive-threshold', 'below hypertension threshold')));
+            appendText(card, 'p', office.message);
+            if (age && age.exact13OrOlder && office.status !== 'unavailable') {
+                const details = document.createElement('div'); details.className = 'data-points';
+                const row = document.createElement('div'); row.className = 'data-point'; appendText(row, 'span', 'Confirmed office BP'); appendText(row, 'strong', value('officeSbp') + '/' + value('officeDbp') + ' mm Hg'); details.appendChild(row); card.appendChild(details);
+            }
+        }
+        function renderComparisons(evaluation, thresholdMode, quality, scope) {
+            const rows = byId('comparisonRows');
+            clearNode(rows);
+            if (evaluation && evaluation.comparisons.length) {
+                evaluation.comparisons.forEach(function(item) {
+                    const tr = document.createElement('tr');
+                    appendText(tr, 'td', item.period === 'day' ? '24-hour' : titleCase(item.period));
+                    appendText(tr, 'td', item.component.toUpperCase());
+                    appendText(tr, 'td', item.mean.toFixed(1) + ' mm Hg');
+                    appendText(tr, 'td', item.threshold.toFixed(1) + ' mm Hg');
+                    appendText(tr, 'td', item.abnormal ? 'Meets / exceeds' : 'Below', item.abnormal ? 'comparison-bad' : 'comparison-good');
+                    rows.appendChild(tr);
+                });
+            } else {
+                const tr = document.createElement('tr'); const td = document.createElement('td'); td.colSpan = 5; td.textContent = 'No complete comparison is available.'; tr.appendChild(td); rows.appendChild(tr);
+            }
+            const message = byId('comparisonMessage');
+            if (!evaluation || !evaluation.status) {
+                message.textContent = 'No ABPM mean status was assigned: ' + ((evaluation && evaluation.errors) || []).join(' ');
+                return;
+            }
+            const source = thresholdMode === 'adolescent-fixed' ? 'Fixed age-13+ thresholds were used.' : 'For this under-13 report, each applicable threshold is the lower of the entered validated p95 and the AHA fixed cutoff.';
+            const status = evaluation.status === 'normal' ? 'All six entered means are below their applicable threshold.' : 'At least one entered mean meets or exceeds its applicable threshold: ' + core.formatDrivers(evaluation.drivers) + '.';
+            const gated = quality.eligibleForPhenotype && scope.eligibleForPhenotype ? ' The quality/scope gate permits phenotype review below.' : ' This is not a final ABPM status in this page because the quality, scope, or treatment-context gate failed.';
+            message.textContent = source + ' ' + status + gated;
+        }
+        function renderPhenotype(phenotype) {
+            const card = byId('phenotypeCard');
+            clearNode(card);
+            const tone = phenotype.code === 'normotension' ? 'positive' : phenotype.code === 'masked' || phenotype.code === 'ambulatory-hypertension' ? 'alert' : 'review';
+            card.className = 'status-card ' + tone;
+            appendText(card, 'div', 'Office–ambulatory phenotype', 'eyebrow');
+            appendText(card, 'h3', phenotype.title);
+            appendText(card, 'p', phenotype.reason || 'Review the complete report and clinical context.');
+        }
+        function renderDipping(dipping) {
+            const card = byId('dippingCard');
+            if (!dipping) {
+                card.textContent = 'Dipping could not be calculated because complete wake and sleep means are not available.';
+                return;
+            }
+            card.textContent = 'Circadian descriptor only: systolic wake-to-sleep fall ' + dipping.sbp.toFixed(1) + '%; diastolic wake-to-sleep fall ' + dipping.dbp.toFixed(1) + '%. Dipping does not change the phenotype, and isolated blunted dipping with normal mean BP is not masked hypertension in this pathway.';
+        }
+        function renderNextStep(next) {
+            const card = byId('nextStepCard');
+            clearNode(card);
+            card.className = 'next-step ' + next.tone;
+            appendText(card, 'div', 'Clinician review prompt', 'eyebrow');
+            appendText(card, 'h3', next.title);
+            appendText(card, 'p', next.text);
+            const list = document.createElement('ul');
+            next.actions.forEach(function(action) { appendText(list, 'li', action); });
+            card.appendChild(list);
+        }
+        function buildNote(age, quality, office, thresholds, evaluation, phenotype, dipping, scope) {
+            const mean = reportMeans();
+            const formatPair = function(period) { return mean[period].sbp + '/' + mean[period].dbp; };
+            const thresholdPair = function(period) { return thresholds ? thresholds[period].sbp.toFixed(1) + '/' + thresholds[period].dbp.toFixed(1) : 'not available'; };
+            const qualityText = quality.status + '; duration ' + (fieldNumber('durationHours') === null ? 'not entered' : fieldNumber('durationHours').toFixed(1) + ' h') + '; successful/attempted ' + (quality.completionRate === null ? 'not entered' : fieldNumber('successfulReadings') + '/' + fieldNumber('attemptedReadings') + ' (' + (quality.completionRate * 100).toFixed(1) + '%)') + '; sleep ' + (checked('sleepCaptured') ? 'captured' : 'not confirmed') + '; diary-derived periods ' + (checked('diaryReviewed') ? 'confirmed' : 'not confirmed') + '.';
+            const officeText = office.status === 'unavailable' ? 'not available for phenotype.' : office.message;
+            const resultText = evaluation && evaluation.status ? evaluation.status + '; drivers: ' + core.formatDrivers(evaluation.drivers) + '.' : 'withheld; ' + ((evaluation && evaluation.errors) || []).join(' ');
+            return [
+                'Pediatric ABPM report-summary comparison — AHA 2022 (clinician review required)',
+                'De-identified note: enter patient identifiers and study date only in the EHR, not in this copied text.',
+                'Age at ABPM: ' + (age ? age.years + ' years ' + age.months + ' months' : 'not available') + '.',
+                'Indication: ' + value('indication') + '.',
+                'Study quality: ' + qualityText,
+                'Office BP bridge: ' + officeText,
+                'ABPM means (24-hour/wake/sleep): ' + formatPair('day') + '; ' + formatPair('wake') + '; ' + formatPair('sleep') + ' mm Hg.',
+                'Applicable thresholds (24-hour/wake/sleep): ' + thresholdPair('day') + '; ' + thresholdPair('wake') + '; ' + thresholdPair('sleep') + ' mm Hg.',
+                'ABPM mean comparison: ' + resultText,
+                'Phenotype: ' + phenotype.title + '. ' + (phenotype.reason || ''),
+                'Dipping: ' + (dipping ? 'SBP ' + dipping.sbp.toFixed(1) + '%; DBP ' + dipping.dbp.toFixed(1) + '% (descriptive only; not used for phenotype).' : 'not available.'),
+                'BP load: not used for phenotype classification under AHA 2022.',
+                'Boundary: This report-summary aid does not validate the device, diagnose a patient, provide emergency triage, or select medication/dose. Review the complete report, diary, office-BP quality, treatment context, and patient-specific risks.'
+            ].join('\n');
+        }
+        function calculate() {
+            invalidate();
+            const age = getAge();
+            const scope = core.validateScope(scopeInput(age));
+            const quality = core.validateStudy(qualityInput());
+            if (!scope.eligibleForComparison) {
+                showError(scope.reasons);
+                return;
+            }
+            if (value('unit') !== 'mmHg') {
+                showError(['Select “mm Hg” as the report unit. This page does not auto-detect or convert units.']);
+                return;
+            }
+            const thresholdResult = core.buildThresholds(age, pediatricInput());
+            const evaluation = thresholdResult.thresholds ? core.evaluateMeans(reportMeans(), thresholdResult.thresholds) : { status: null, comparisons: [], errors: thresholdResult.errors, drivers: [] };
+            if (thresholdResult.errors.length || evaluation.errors.length) {
+                showError(thresholdResult.errors.concat(evaluation.errors));
+                return;
+            }
+            const office = core.getOfficeStatus(officeInput(), age);
+            const phenotype = core.assignPhenotype(scope, quality, office, evaluation);
+            const dipping = core.calculateDipping(reportMeans());
+            const next = core.nextStep(scope, quality, office, evaluation, phenotype, checked('highRisk'));
+
+            renderQuality(quality);
+            renderOffice(office, age);
+            renderComparisons(evaluation, thresholdResult.mode, quality, scope);
+            renderPhenotype(phenotype);
+            renderDipping(dipping);
+            renderNextStep(next);
+            const intro = byId('resultIntro');
+            intro.textContent = 'Algorithm ' + core.VERSION + '. ' + (quality.eligibleForPhenotype && scope.eligibleForPhenotype ? 'Quality and scope permit phenotype review.' : 'Phenotype is intentionally withheld until the blocking condition is resolved.');
+            const pill = byId('resultPill');
+            pill.textContent = phenotype.code === 'normotension' ? 'Review complete' : phenotype.code === 'withheld' ? 'Not classifiable' : 'Clinician review';
+            pill.className = 'pill ' + (phenotype.code === 'normotension' ? 'positive' : phenotype.code === 'withheld' ? 'alert' : 'neutral');
+            noteText = buildNote(age, quality, office, thresholdResult.thresholds, evaluation, phenotype, dipping, scope);
+            results.classList.remove('hidden');
+            results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        function setValue(id, next) { byId(id).value = next; }
+        function setChecked(id, next) { byId(id).checked = !!next; }
+        function loadExample() {
+            const scenario = value('exampleScenario');
+            form.reset();
+            const common = function() {
+                setValue('dob', '2009-07-27');
+                setValue('studyDate', '2026-07-27');
+                setValue('specialContext', 'none');
+                setValue('indication', 'suspected hypertension');
+                setValue('treatmentContext', 'none');
+                setChecked('outpatientStable', true);
+                setChecked('noAcuteConcern', true);
+                setValue('deviceType', 'validated-cuff-abpm');
+                setValue('durationHours', '24');
+                setValue('attemptedReadings', '60');
+                setValue('successfulReadings', '50');
+                setValue('applicationCheck', 'within5');
+                setValue('unit', 'mmHg');
+                ['deviceValidated','cuffAndArmVerified','sleepCaptured','diaryReviewed','oneReadingPerHour','cadenceConfirmed','exclusionsReviewed','officeConfirmed'].forEach(function(id) { setChecked(id, true); });
+            };
+            common();
+            const scenarios = {
+                normal: { office: ['118','70'], means: ['118','70','122','74','105','60'] },
+                'white-coat': { office: ['134','82'], means: ['118','70','122','74','105','60'] },
+                'masked-nocturnal': { office: ['118','70'], means: ['120','70','124','74','108','65'] },
+                ambulatory: { office: ['134','82'], means: ['126','76','132','82','111','66'] },
+                inadequate: { office: ['118','70'], means: ['118','70','122','74','105','60'], duration: '17', successful: '32' }
+            };
+            const sample = scenarios[scenario];
+            setValue('officeSbp', sample.office[0]); setValue('officeDbp', sample.office[1]);
+            ['mean-day-sbp','mean-day-dbp','mean-wake-sbp','mean-wake-dbp','mean-sleep-sbp','mean-sleep-dbp'].forEach(function(id, index) { setValue(id, sample.means[index]); });
+            if (sample.duration) setValue('durationHours', sample.duration);
+            if (sample.successful) setValue('successfulReadings', sample.successful);
+            updateAgeUi();
+            calculate();
+        }
+        function copyNote() {
+            if (!noteText) return;
+            const status = byId('copyStatus');
+            const done = function() { status.textContent = 'Copied.'; };
+            const fallback = function() {
+                const area = document.createElement('textarea');
+                area.value = noteText; area.setAttribute('readonly', ''); area.style.position = 'fixed'; area.style.opacity = '0';
+                document.body.appendChild(area); area.select();
+                try { document.execCommand('copy'); done(); } catch (error) { status.textContent = 'Copy failed — select the note manually.'; }
+                document.body.removeChild(area);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(noteText).then(done).catch(fallback);
+            else fallback();
+        }
+
+        byId('algorithmVersion').textContent = core.VERSION;
+        byId('studyDate').value = localDateString();
+        ['dob','studyDate'].forEach(function(id) { byId(id).addEventListener('change', function() { updateAgeUi(); invalidate(); }); });
+        form.addEventListener('input', invalidate);
+        form.addEventListener('change', invalidate);
+        form.addEventListener('submit', function(event) { event.preventDefault(); calculate(); });
+        byId('loadExample').addEventListener('click', loadExample);
+        byId('clearForm').addEventListener('click', function() { form.reset(); byId('studyDate').value = localDateString(); updateAgeUi(); invalidate(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+        byId('copyNote').addEventListener('click', copyNote);
+        updateAgeUi();
+    })();
+    </script>
+</body>
+</html>
