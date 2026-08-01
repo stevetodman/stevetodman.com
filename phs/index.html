@@ -1,37 +1,184 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PHS — Night Shift: The Closing Window</title>
-<link rel="stylesheet" href="styles.css?v=13">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PHS — Maya Deep Encounter</title>
+  <link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body>
-<header class="top">
-  <div class="brand">Pediatric Hospital Simulator<small>Night Shift: The Closing Window</small></div>
-  <div class="pill">Elapsed <strong id="clock">00:00</strong></div>
-  <div class="pill"><span id="runState">Not started</span> · <strong>1×</strong></div>
+<header class="topbar">
+  <div class="brand">Pediatric Hospital Simulator <span>Maya Deep Encounter</span></div>
+  <div class="clockbox"><small>Scenario time</small><strong id="clock">00:00</strong></div>
+  <div class="clockbox"><small>Status</small><strong id="runState">Not started</strong></div>
   <div class="spacer"></div>
-  <div class="runtime">HOSTED v1.3</div>
-  <button id="play" disabled>▶ Play</button><button id="reset">Reset</button><button id="end" class="danger" disabled>End shift</button>
+  <div class="version">HOSTED v1.4</div>
+  <button id="pauseBtn" type="button" disabled>Pause</button>
+  <button id="resetBtn" type="button">Reset</button>
+  <button id="endBtn" class="danger" type="button" disabled>End encounter</button>
 </header>
+
+<div id="criticalBanner" class="critical-banner hidden" role="alert" aria-live="assertive"></div>
+
 <main class="layout">
-<section class="left">
-  <div class="panel"><div class="hd"><h2>Patient board</h2><span id="objective" class="status warnText">Start sign-out</span></div><div class="body patients" id="patients"></div></div>
-  <div class="panel"><div class="hd"><h2 id="patientTitle"></h2><span id="patientStatus" class="status"></span></div><div class="body vitals" id="vitals"></div></div>
-  <div class="panel"><div class="hd"><h2>History and physical</h2><span class="subtle">Chart history is available; your bedside exam must be performed</span></div><div class="body" id="hp"></div></div>
-  <div class="panel"><div class="hd"><h2>Patient-specific actions</h2><span class="subtle">Options change with the selected patient</span></div><div class="body actionGroups" id="actionGroups"></div></div>
-</section>
-<section class="right">
-  <div class="panel"><div class="tabs"><button class="tab active" data-tab="results">Results</button><button class="tab" data-tab="pages">Pages <span id="pageCount"></span></button><button class="tab" data-tab="team">Team</button><button class="tab" data-tab="reasoning">Reasoning</button><button class="tab" data-tab="debrief">Debrief</button></div><div class="body">
-    <div class="pane active" id="results"></div><div class="pane" id="pages"></div><div class="pane" id="team"></div>
-    <div class="pane" id="reasoning"><h3>Problem representation and priorities</h3><textarea id="reasoningText" rows="7" placeholder="Example: 6-day-old with poor feeding, differential perfusion and shock concerning for ductal-dependent systemic circulation; immediate priorities are stabilization, PGE, echo and escalation."></textarea><p><button id="saveReasoning" class="primary">Record reasoning</button></p></div>
-    <div class="pane" id="debrief"></div>
-  </div></div>
-  <div class="panel"><div class="hd"><h2>Shift activity</h2><span id="eventCount"></span></div><div class="body log" id="log"></div></div>
-</section>
+  <section class="leftcol">
+    <section class="panel patient-panel" aria-labelledby="patientHeading">
+      <div class="panel-head">
+        <div>
+          <h1 id="patientHeading">Maya Carter</h1>
+          <p>6-day-old · NICU 4 · transferred for poor feeding and tachypnea</p>
+        </div>
+        <div id="acuityBadge" class="acuity warning"><span class="dot"></span><span>Concerning</span></div>
+      </div>
+      <div class="vitals" aria-label="Current vital signs">
+        <div><small>HR</small><strong id="vHR">168</strong></div>
+        <div><small>RR</small><strong id="vRR">62</strong></div>
+        <div><small>SpO₂</small><strong id="vSpO2">94%</strong></div>
+        <div><small>BP</small><strong id="vBP">62/38</strong></div>
+        <div><small>Temp</small><strong id="vTemp">36.7 °C</strong></div>
+        <div><small>Lactate</small><strong id="vLactate">3.1</strong></div>
+      </div>
+      <div class="trajectory" id="trajectory" aria-live="polite">No trend established. Gather information and reassess.</div>
+    </section>
+
+    <section class="panel workbench">
+      <div class="tabs" role="tablist" aria-label="Clinical workbench">
+        <button id="tab-interview" role="tab" aria-selected="true" aria-controls="panel-interview" data-tab="interview">Interview</button>
+        <button id="tab-exam" role="tab" aria-selected="false" aria-controls="panel-exam" data-tab="exam">Examination</button>
+        <button id="tab-orders" role="tab" aria-selected="false" aria-controls="panel-orders" data-tab="orders">Orders</button>
+        <button id="tab-team" role="tab" aria-selected="false" aria-controls="panel-team" data-tab="team">Team</button>
+        <button id="tab-reasoning" role="tab" aria-selected="false" aria-controls="panel-reasoning" data-tab="reasoning">Reasoning</button>
+      </div>
+
+      <div id="panel-interview" class="tab-panel active" role="tabpanel" aria-labelledby="tab-interview">
+        <h2>Ask Maya’s parent or bedside nurse</h2>
+        <p class="muted">Ask one focused question at a time. The simulation recognizes common clinical wording; no diagnosis is shown in advance.</p>
+        <div class="inline-form">
+          <label class="sr-only" for="historyInput">History question</label>
+          <input id="historyInput" type="text" placeholder="Example: How have her feeds and wet diapers changed?" autocomplete="off">
+          <select id="historySource" aria-label="Question recipient">
+            <option value="parent">Parent</option>
+            <option value="nurse">Bedside nurse</option>
+          </select>
+          <button id="askHistoryBtn" class="primary" type="button" disabled>Ask</button>
+        </div>
+        <div id="historyTranscript" class="transcript" aria-live="polite"><p class="placeholder">No questions asked yet.</p></div>
+      </div>
+
+      <div id="panel-exam" class="tab-panel" role="tabpanel" aria-labelledby="tab-exam" hidden>
+        <h2>Choose examination components</h2>
+        <p class="muted">Findings are revealed only for components you perform. Components can be repeated after treatment.</p>
+        <div id="examMenu" class="component-grid"></div>
+        <div id="examFindings" class="findings" aria-live="polite"><p class="placeholder">No examination findings documented.</p></div>
+      </div>
+
+      <div id="panel-orders" class="tab-panel" role="tabpanel" aria-labelledby="tab-orders" hidden>
+        <h2>Search orders and treatments</h2>
+        <p class="muted">Search by test, treatment, or task. Options are displayed neutrally; appropriateness is assessed after the encounter.</p>
+        <label for="orderSearch">Order search</label>
+        <input id="orderSearch" type="search" placeholder="Type at least 2 characters, e.g. blood gas, echo, fluid, prostaglandin">
+        <div id="orderResults" class="order-results" aria-live="polite"><p class="placeholder">Search to display matching options.</p></div>
+        <h3>Placed orders</h3>
+        <div id="placedOrders" class="placed-orders"><p class="placeholder">No orders placed.</p></div>
+      </div>
+
+      <div id="panel-team" class="tab-panel" role="tabpanel" aria-labelledby="tab-team" hidden>
+        <h2>Communicate with the care team</h2>
+        <div class="team-grid" id="teamRoles"></div>
+        <label for="teamMessage">Your message</label>
+        <textarea id="teamMessage" rows="5" placeholder="State your assessment, urgency, requested task, and what you need confirmed."></textarea>
+        <div class="inline-actions">
+          <button id="sendTeamBtn" class="primary" type="button" disabled>Send message</button>
+          <button id="confirmReadbackBtn" type="button" class="hidden">Confirm read-back</button>
+        </div>
+        <div id="teamTranscript" class="transcript" aria-live="polite"><p class="placeholder">Select a team member and communicate directly.</p></div>
+      </div>
+
+      <div id="panel-reasoning" class="tab-panel" role="tabpanel" aria-labelledby="tab-reasoning" hidden>
+        <h2>Commit your reasoning</h2>
+        <p class="muted">Each submission is timestamped and locked. Update your model as new information arrives.</p>
+        <div class="reasoning-form">
+          <label for="problemRepresentation">Problem representation</label>
+          <textarea id="problemRepresentation" rows="3"></textarea>
+          <label for="differential">Prioritized differential</label>
+          <textarea id="differential" rows="3"></textarea>
+          <label for="mostLikely">Most likely diagnosis</label>
+          <input id="mostLikely" type="text">
+          <label for="mustNotMiss">Must-not-miss alternative</label>
+          <input id="mustNotMiss" type="text">
+          <label for="nextPlan">Immediate priorities and reassessment plan</label>
+          <textarea id="nextPlan" rows="3"></textarea>
+          <label for="confidence">Confidence <span id="confidenceValue">50%</span></label>
+          <input id="confidence" type="range" min="0" max="100" value="50">
+          <button id="commitReasoningBtn" class="primary" type="button" disabled>Commit checkpoint 1</button>
+        </div>
+        <div id="reasoningHistory" class="reasoning-history"><p class="placeholder">No reasoning checkpoint submitted.</p></div>
+      </div>
+    </section>
+  </section>
+
+  <aside class="rightcol">
+    <section class="panel">
+      <div class="panel-title"><h2>Incoming pages</h2><span id="pageCount">0 open</span></div>
+      <div id="pages" class="pages" aria-live="polite"><p class="placeholder">No pages yet.</p></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title"><h2>Results and responses</h2><span id="pendingCount">0 pending</span></div>
+      <div id="results" class="results" aria-live="polite"><p class="placeholder">No results available.</p></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title"><h2>Clinical timeline</h2><span id="eventCount">0 events</span></div>
+      <div id="timeline" class="timeline" aria-live="polite"><p class="placeholder">The encounter has not started.</p></div>
+    </section>
+  </aside>
 </main>
-<div class="modal" id="intro"><div class="card"><h1>Night Shift: The Closing Window</h1><p>You are the senior pediatric resident receiving four active patients. Each chart, bedside examination, action set, results stream and deterioration path is different. The clock starts when sign-out begins.</p><div class="notice">Educational simulation only. Serious deterioration is possible. Work across the patient board rather than treating every patient with the same pathway.</div><p><button id="start" class="primary">Start sign-out</button></p></div></div>
-<script src="app.js?v=13"></script>
+
+<section id="debriefSection" class="debrief-shell hidden" aria-labelledby="debriefHeading">
+  <div class="debrief-card">
+    <div class="debrief-header">
+      <div><h2 id="debriefHeading">Structured debrief</h2><p id="debriefOutcome"></p></div>
+      <div id="masteryBadge" class="mastery"></div>
+    </div>
+    <div class="debrief-block">
+      <h3>1. Reaction</h3>
+      <label for="reactionText">What felt most difficult or uncertain?</label>
+      <textarea id="reactionText" rows="3"></textarea>
+      <button id="saveReactionBtn" type="button">Save reflection</button>
+    </div>
+    <div id="debriefScore" class="debrief-block"></div>
+    <div id="debriefMisses" class="debrief-block"></div>
+    <div id="debriefReasoning" class="debrief-block"></div>
+    <div id="debriefTimeline" class="debrief-block"></div>
+    <div class="debrief-block">
+      <h3>Future-practice commitment</h3>
+      <label for="futureCommitment">What will you do differently in the next similar encounter?</label>
+      <textarea id="futureCommitment" rows="3"></textarea>
+    </div>
+    <div class="debrief-actions">
+      <button id="variantBtn" class="primary" type="button">Run immediate variant</button>
+      <button id="restartBtn" type="button">Repeat current variant</button>
+    </div>
+    <p class="fineprint">Formative educational feedback only. The score and keyword analysis are not validated for summative entrustment decisions.</p>
+  </div>
+</section>
+
+<div id="intro" class="modal" role="dialog" aria-modal="true" aria-labelledby="introTitle">
+  <div class="modal-card">
+    <h1 id="introTitle">Maya Deep Encounter</h1>
+    <p>You are the senior pediatric resident receiving a 6-day-old with poor feeding and tachypnea. The sign-out is incomplete. Gather the history, perform the examination, commit your reasoning, place orders, communicate with the team, and reassess.</p>
+    <ul>
+      <li>The diagnostic pathway is not displayed as a button checklist.</li>
+      <li>Physiology and results evolve on the scenario clock.</li>
+      <li>Missed critical actions and their consequences are named during debrief.</li>
+      <li>A second surface variant is available immediately after the encounter.</li>
+    </ul>
+    <div class="notice">Educational simulation only. Scenario timing is deterministic for training and is not a prediction of an individual patient’s clinical course.</div>
+    <button id="startBtn" class="primary large" type="button">Begin encounter</button>
+  </div>
+</div>
+
+<script src="app.js?v=14"></script>
 </body>
 </html>
