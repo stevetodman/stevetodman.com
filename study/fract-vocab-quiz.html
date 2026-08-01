@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Root word quiz for fract, frag, and frail — flashcards, quiz, and full test.">
 <title>Root Words: Fract, Frag, Frail</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -17,7 +19,7 @@
   }
   .container { max-width: 600px; width: 100%; }
   h1 { text-align: center; font-size: 1.6rem; margin-bottom: 6px; color: #1a365d; }
-  .subtitle { text-align: center; color: #718096; font-size: 0.95rem; margin-bottom: 24px; }
+  .subtitle { text-align: center; color: #5a6678; font-size: 0.95rem; margin-bottom: 24px; }
   .progress-bar { background: #e2e8f0; border-radius: 999px; height: 10px; margin-bottom: 20px; overflow: hidden; }
   .progress-fill { background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; border-radius: 999px; transition: width 0.4s ease; }
   .score-line { display: flex; justify-content: space-between; font-size: 0.9rem; color: #4a5568; margin-bottom: 16px; }
@@ -53,13 +55,13 @@
   .next-btn:hover { opacity: 0.9; }
   .results { text-align: center; }
   .results .score-big { font-size: 3.5rem; font-weight: 700; color: #667eea; margin: 12px 0 4px; }
-  .results .score-label { font-size: 1.1rem; color: #718096; margin-bottom: 20px; }
+  .results .score-label { font-size: 1.1rem; color: #5a6678; margin-bottom: 20px; }
   .results .message { font-size: 1.15rem; margin-bottom: 24px; line-height: 1.5; }
   .missed-list { text-align: left; margin: 0 auto 24px; max-width: 480px; }
   .missed-list h3 { font-size: 1rem; color: #e53e3e; margin-bottom: 10px; }
   .missed-item { padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; line-height: 1.4; }
   .missed-item strong { color: #2d3748; }
-  .missed-item .mi-explain { color: #718096; font-size: 0.88rem; margin-top: 4px; }
+  .missed-item .mi-explain { color: #5a6678; font-size: 0.88rem; margin-top: 4px; }
   .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   .btn-row button { padding: 12px 28px; font-size: 1rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; transition: opacity 0.2s; }
   .btn-row button:hover { opacity: 0.85; }
@@ -69,14 +71,14 @@
 
   /* Menu */
   .menu-cards { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
-  .menu-card {
+  .menu-card { appearance: none; font: inherit; text-align: left; width: 100%; color: inherit;
     background: #fff; border-radius: 14px; padding: 22px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);
     cursor: pointer; border: 2px solid transparent; transition: all 0.15s ease;
   }
   .menu-card:hover { border-color: #667eea; transform: translateY(-2px); box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
   .menu-card h2 { font-size: 1.15rem; color: #1a365d; margin-bottom: 4px; }
-  .menu-card p { font-size: 0.9rem; color: #718096; line-height: 1.4; }
-  .menu-card .badge { display: inline-block; background: #667eea; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px; }
+  .menu-card p { font-size: 0.9rem; color: #5a6678; line-height: 1.4; }
+  .menu-card .badge { display: inline-block; background: #5b4fd1; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px; }
 
   /* Flashcard */
   .fc-scene { perspective: 800px; margin: 0 auto 16px; max-width: 440px; }
@@ -101,8 +103,8 @@
     background: #fff; color: #2d3748; transform: rotateY(180deg);
   }
   .fc-back .fc-def { font-size: 1.15rem; line-height: 1.6; margin-bottom: 12px; }
-  .fc-back .fc-explain { font-size: 0.88rem; color: #718096; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 12px; }
-  .fc-counter { text-align: center; font-size: 0.9rem; color: #718096; margin-bottom: 12px; }
+  .fc-back .fc-explain { font-size: 0.88rem; color: #5a6678; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+  .fc-counter { text-align: center; font-size: 0.9rem; color: #5a6678; margin-bottom: 12px; }
   .fc-grade { display: flex; gap: 12px; justify-content: center; margin-top: 4px; }
   .fc-grade button {
     padding: 12px 24px; font-size: 1rem; font-weight: 600; border: none;
@@ -126,11 +128,14 @@
   .fc-still h3 { font-size: 1rem; color: #ed8936; margin-bottom: 10px; }
   .fc-still-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; }
   .fc-still-item strong { color: #2d3748; }
-  .fc-still-item span { color: #718096; }
+  .fc-still-item span { color: #5a6678; }
+  .menu-card:focus-visible, .choice-btn:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #667eea; outline-offset: 2px; }
 </style>
 </head>
 <body>
-<div class="container" id="app"></div>
+<main>
+<div class="container" id="app"></div></main>
+
 
 <script>
 /* ── VOCAB DATA (frail, fract, frag = break; shatter) ── */
@@ -223,26 +228,26 @@ function showMenu() {
     '<h1>Root Words Quiz</h1>' +
     '<p class="subtitle">frail, fract, frag = break; shatter</p>' +
     '<div class="menu-cards">' +
-      '<div class="menu-card" data-mode="flashcards">' +
+      '<button type="button" class="menu-card" data-mode="flashcards">' +
         '<span class="badge">Study</span>' +
         '<h2>Flashcards</h2>' +
         '<p>Tap to flip \u2014 see the word, then reveal the definition. Mark each as \u201CGot it\u201D or \u201CStill learning\u201D</p>' +
-      '</div>' +
-      '<div class="menu-card" data-mode="vocab">' +
+      '</button>' +
+      '<button type="button" class="menu-card" data-mode="vocab">' +
         '<span class="badge">10 questions</span>' +
         '<h2>Vocabulary Quiz</h2>' +
         '<p>Read the definition and pick the correct word</p>' +
-      '</div>' +
-      '<div class="menu-card" data-mode="reverse">' +
+      '</button>' +
+      '<button type="button" class="menu-card" data-mode="reverse">' +
         '<span class="badge">10 questions</span>' +
         '<h2>Reverse Quiz</h2>' +
         '<p>See the word and pick the correct definition</p>' +
-      '</div>' +
-      '<div class="menu-card" data-mode="all">' +
+      '</button>' +
+      '<button type="button" class="menu-card" data-mode="all">' +
         '<span class="badge">20 questions</span>' +
         '<h2>Full Test</h2>' +
         '<p>All questions both ways \u2014 definitions and words combined</p>' +
-      '</div>' +
+      '</button>' +
     '</div>' +
     '<a class="back-link" href="./" style="display:block;text-align:center;color:#667eea;font-size:0.9rem;margin-top:12px;">Back to Study Hub</a>';
 
@@ -523,7 +528,7 @@ function renderFcSummary(app) {
     '<div class="card fc-summary">' +
       '<div class="big-check">' + (allGood ? "&#x2705;" : "&#x1F4DA;") + '</div>' +
       '<div class="score-big" style="color:#667eea;">' + fcGotIt.length + '/' + total + '</div>' +
-      '<div class="score-label" style="color:#718096;">words mastered</div>' +
+      '<div class="score-label" style="color:#5a6678;">words mastered</div>' +
       '<div class="fc-msg">' + msg + '</div>' +
       stillHTML +
       '<div class="btn-row">' +

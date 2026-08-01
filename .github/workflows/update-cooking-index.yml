@@ -63,7 +63,7 @@ jobs:
               .timer-time {
                 display: inline-block;
                 background: rgba(0, 184, 148, 0.2);
-                color: #00cec9;
+                color: #2ee6e0;
                 padding: 4px 10px;
                 border-radius: 12px;
                 font-size: 0.8rem;

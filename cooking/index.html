@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cooking Timers</title>
+  <meta name="description" content="Step-by-step cooking timers with audio alerts, progress tracking, and doneness cues.">
+<title>Cooking Timers</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -43,15 +45,17 @@
     .timer-time {
       display: inline-block;
       background: rgba(0, 184, 148, 0.2);
-      color: #00cec9;
+      color: #2ee6e0;
       padding: 4px 10px;
       border-radius: 12px;
       font-size: 0.8rem;
       margin-top: 10px;
     }
-  </style>
+      a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px solid #00cec9; outline-offset: 2px; }
+</style>
 </head>
 <body>
+<main>
   <a href="/" class="back-link">← Back to Home</a>
   <h1>🍳 Cooking Timers</h1>
   <p class="subtitle">Step-by-step timers for complex recipes</p>
@@ -72,5 +76,6 @@
       <span class="timer-time">~4.5 hours total</span>
     </a>
   </div>
+</main>
 </body>
 </html>

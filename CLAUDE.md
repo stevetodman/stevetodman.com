@@ -21,6 +21,18 @@ stevetodman.com/
 │           ├── bp-family-handout.docx
 │           ├── peds-dyslipidemia-intake-v3.pdf
 │           └── peds-syncope-intake-v2.pdf
+├── phs/                          # Pediatric Hospital Simulator (stevetodman.com/phs)
+│   ├── index.html                # Canonical hosted entrypoint (loads v17/ only)
+│   ├── README.md
+│   └── v17/                      # Current declarative educational platform
+│       ├── cases/                # Objective-linked manifest + patient case files
+│       ├── tests/integrity.mjs   # Dependency and cross-reference audit (runs in CI)
+│       └── schema.json           # Assembled-case authoring schema
+├── math/                         # Math Lab: Fractions (stevetodman.com/math)
+│   ├── index.html
+│   └── assets/                   # app.js, styles.css, favicon.svg
+├── clipboard-sanitizer/          # Standalone shell utilities (not deployed)
+├── .github/workflows/            # phs-v17-integrity.yml, update-cooking-index.yml
 ├── study/                        # Kids' Study Hub (stevetodman.com/study)
 │   ├── index.html                # Study Hub landing page
 │   ├── greek-vocab-quiz.html     # Ancient Greece vocabulary + chapter review
@@ -127,9 +139,9 @@ Clinic intake forms and patient education materials go in `/admin/clinic-resourc
 </div>
 ```
 
-## Adding a Study Tool (twins/)
+## Adding a Study Tool (study/)
 
-Kids' study tools for 4th grade — vocab quizzes, math quizzes, and drills. Live at stevetodman.com/study. Linked from the homework tracker at /twins/.
+Kids' study tools for 4th grade — vocab quizzes, math quizzes, and drills. Live at stevetodman.com/study, linked from the homepage.
 
 ### Design patterns
 
@@ -154,6 +166,18 @@ Kids' study tools for 4th grade — vocab quizzes, math quizzes, and drills. Liv
 2. Update `study/index.html` with a new card (use `badge-purple` for quizzes, `badge-orange` for drills)
 3. Update this CLAUDE.md project structure
 4. Verify all math answers computationally before deploying
+
+## Page conventions
+
+Every page should have:
+
+- `<meta name="description">` and a favicon link
+- exactly one `<h1>`
+- `<label for="...">` on every input, or an `aria-label` where a visible label would be redundant
+- a visible `:focus-visible` outline on all interactive elements
+- interactive controls built from `<button>`/`<a>`, never `<div onclick>`
+- text contrast of at least 4.5:1 (3:1 for large text)
+- no external network dependencies — no CDN fonts, scripts, or stylesheets
 
 ## Deployment
 

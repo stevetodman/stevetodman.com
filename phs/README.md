@@ -31,8 +31,9 @@ PHS is an AI-native pediatric hospital simulation platform centered on clinical 
 - `v17/schema.json` — assembled-case authoring schema
 - `v17/tests/integrity.mjs` — dependency and cross-reference audit
 - `v17/EXPERT_REVIEW_PACKET.md` — clinical and assessment review package
+
+The superseded v1.6 implementation was removed from the deploy path; it remains available in git history.
 - `v17/RELEASE_NOTES.md` — current release scope
-- `v16/` — preserved prior implementation
 
 See [`v17/README.md`](v17/README.md) for the complete runtime dependency inventory and validation instructions.
 

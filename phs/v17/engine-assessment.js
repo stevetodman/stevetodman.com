@@ -7,6 +7,7 @@ function finalizeAttempt(){
 function evaluateCondition(c){const p=c.patientId?state.patients[c.patientId]:null;switch(c.type){
   case'ranking':return state[`${c.phase}Ranking`]?.[c.patientId]===c.rank;
   case'allUrgentPagesResponded':return state.pages.filter(x=>x.urgent).every(x=>x.responseAt!=null&&x.responseAt-x.createdAt<=c.within);
+  case'urgentPagesRespondedFraction':{const u=state.pages.filter(x=>x.urgent);if(!u.length)return true;const ok=u.filter(x=>x.responseAt!=null&&x.responseAt-x.createdAt<=c.within).length;return ok/u.length>=c.minimum;}
   case'firstDisconfirmingBefore':{const e=state.timeline.filter(x=>x.patientId==='maya'&&x.meta?.disconfirming).sort((a,b)=>a.time-b.time)[0];return!!e&&e.time<=c.seconds;}
   case'correctReasoning':return p.reasoning.some(r=>r.diagnosis===state.caseData.patients[c.patientId].correctDiagnosis);
   case'flag':return state.flags[c.flag]===c.value||p?.flags?.[c.flag]===c.value;

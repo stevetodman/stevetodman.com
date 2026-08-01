@@ -16,7 +16,7 @@ function bindEvents(){
   $('pauseBtn').onclick=togglePause;
   $('resetBtn').onclick=()=>resetSimulation(state.caseData,state.variant.id,state.mode);
   $('endBtn').onclick=openEndShift;
-  $('cancelEndBtn').onclick=()=>{$('endModal').classList.add('hidden');state.running=true;renderAll();};
+  $('cancelEndBtn').onclick=()=>{if(state.flags.handoffForced)return;$('endModal').classList.add('hidden');state.running=true;renderAll();};
   $('completeBtn').onclick=()=>{const ranking=readRanking('final'),handoffs=readHandoffs();if(!validRanking(ranking)){$('endError').textContent='Use each final rank from 1 through 4 exactly once.';return;}completeShift(ranking,handoffs);};
   $('askBtn').onclick=()=>{askHistory($('historyInput').value,$('historySource').value);$('historyInput').value='';};
   $('historyInput').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('askBtn').click();}};

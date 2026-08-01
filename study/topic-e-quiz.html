@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Eureka Math G4 M5 Topic E quiz — improper fractions, mixed numbers, and comparing fractions.">
 <title>Fractions Greater Than 1 Quiz</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -17,7 +19,7 @@
   }
   .container { max-width: 600px; width: 100%; }
   h1 { text-align: center; font-size: 1.6rem; margin-bottom: 6px; color: #1a365d; }
-  .subtitle { text-align: center; color: #718096; font-size: 0.95rem; margin-bottom: 24px; }
+  .subtitle { text-align: center; color: #5a6678; font-size: 0.95rem; margin-bottom: 24px; }
   .progress-bar { background: #e2e8f0; border-radius: 999px; height: 10px; margin-bottom: 20px; overflow: hidden; }
   .progress-fill { background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; border-radius: 999px; transition: width 0.4s ease; }
   .score-line { display: flex; justify-content: space-between; font-size: 0.9rem; color: #4a5568; margin-bottom: 16px; }
@@ -53,14 +55,14 @@
   .next-btn:hover { opacity: 0.9; }
   .results { text-align: center; }
   .results .score-big { font-size: 3.5rem; font-weight: 700; color: #667eea; margin: 12px 0 4px; }
-  .results .score-label { font-size: 1.1rem; color: #718096; margin-bottom: 20px; }
+  .results .score-label { font-size: 1.1rem; color: #5a6678; margin-bottom: 20px; }
   .results .message { font-size: 1.15rem; margin-bottom: 24px; line-height: 1.5; }
   .missed-list { text-align: left; margin: 0 auto 24px; max-width: 480px; }
   .missed-list h3 { font-size: 1rem; color: #e53e3e; margin-bottom: 10px; }
   .missed-item { padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; line-height: 1.4; }
   .missed-item strong { color: #2d3748; }
   .missed-item .mi-answer { color: #38a169; font-weight: 600; }
-  .missed-item .mi-explain { color: #718096; font-size: 0.88rem; margin-top: 4px; }
+  .missed-item .mi-explain { color: #5a6678; font-size: 0.88rem; margin-top: 4px; }
   .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   .btn-row button { padding: 12px 28px; font-size: 1rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; transition: opacity 0.2s; }
   .btn-row button:hover { opacity: 0.85; }
@@ -70,14 +72,14 @@
 
   /* Menu */
   .menu-cards { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
-  .menu-card {
+  .menu-card { appearance: none; font: inherit; text-align: left; width: 100%; color: inherit;
     background: #fff; border-radius: 14px; padding: 22px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);
     cursor: pointer; border: 2px solid transparent; transition: all 0.15s ease;
   }
   .menu-card:hover { border-color: #667eea; transform: translateY(-2px); box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
   .menu-card h2 { font-size: 1.15rem; color: #1a365d; margin-bottom: 4px; }
-  .menu-card p { font-size: 0.9rem; color: #718096; line-height: 1.4; }
-  .menu-card .badge { display: inline-block; background: #667eea; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px; }
+  .menu-card p { font-size: 0.9rem; color: #5a6678; line-height: 1.4; }
+  .menu-card .badge { display: inline-block; background: #5b4fd1; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px; }
 
   /* Concept cards */
   .concept-card {
@@ -89,10 +91,13 @@
   .concept-card .example { font-family: monospace; font-size: 1rem; background: #f7fafc; padding: 10px; border-radius: 8px; margin-top: 8px; color: #2d3748; line-height: 1.8; }
   .study-nav { display: flex; gap: 12px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
   .study-nav button { padding: 10px 24px; font-size: 0.95rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; }
+  .menu-card:focus-visible, .choice-btn:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #667eea; outline-offset: 2px; }
 </style>
 </head>
 <body>
-<div class="container" id="app"></div>
+<main>
+<div class="container" id="app"></div></main>
+
 
 <script>
 /* ── QUESTION BANK ── */
@@ -283,31 +288,31 @@ function showMenu() {
     '<h1>Fractions Greater Than 1</h1>' +
     '<p class="subtitle">G4 M5 Topic E &mdash; Lessons 22\u201328</p>' +
     '<div class="menu-cards">' +
-      '<div class="menu-card" data-mode="study">' +
+      '<button type="button" class="menu-card" data-mode="study">' +
         '<span class="badge">Study</span>' +
         '<h2>Review Concepts</h2>' +
         '<p>Step-by-step examples for every skill in Topic E</p>' +
-      '</div>' +
-      '<div class="menu-card" data-mode="whole">' +
+      '</button>' +
+      '<button type="button" class="menu-card" data-mode="whole">' +
         '<span class="badge">4 questions</span>' +
         '<h2>Whole +/\u2013 Fraction</h2>' +
         '<p>Add a fraction to, or subtract a fraction from, a whole number (Lessons 22\u201323)</p>' +
-      '</div>' +
-      '<div class="menu-card" data-mode="convert">' +
+      '</button>' +
+      '<button type="button" class="menu-card" data-mode="convert">' +
         '<span class="badge">7 questions</span>' +
         '<h2>Convert Fractions</h2>' +
         '<p>Improper fractions \u2194 mixed numbers (Lessons 24\u201325)</p>' +
-      '</div>' +
-      '<div class="menu-card" data-mode="compare">' +
+      '</button>' +
+      '<button type="button" class="menu-card" data-mode="compare">' +
         '<span class="badge">5 questions</span>' +
         '<h2>Compare Fractions</h2>' +
         '<p>Use benchmarks and common denominators to compare (Lessons 26\u201327)</p>' +
-      '</div>' +
-      '<div class="menu-card" data-mode="all">' +
+      '</button>' +
+      '<button type="button" class="menu-card" data-mode="all">' +
         '<span class="badge">20 questions</span>' +
         '<h2>Full Quiz</h2>' +
         '<p>All question types mixed \u2014 the complete Topic E review</p>' +
-      '</div>' +
+      '</button>' +
     '</div>' +
     '<a class="back-link" href="./" style="display:block;text-align:center;color:#667eea;font-size:0.9rem;margin-top:12px;">Back to Study Hub</a>';
 
