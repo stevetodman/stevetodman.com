@@ -3,7 +3,29 @@ const $=id=>document.getElementById(id);
 const clone=v=>JSON.parse(JSON.stringify(v));
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtTime=s=>`${String(Math.floor((s||0)/60)).padStart(2,'0')}:${String(Math.floor((s||0)%60)).padStart(2,'0')}`;
-const hasTerms=(text,terms)=>terms.some(t=>text.includes(t));
+// Word-aware topic matching. A naive substring test matched the term "eat"
+// inside "breathe", so respiratory questions returned the feeding answer, while
+// "urinating" missed the term "urine" entirely. Terms now match a whole word, or
+// a word prefix when the term is long enough to be unambiguous.
+const tokenize=text=>String(text).toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(Boolean);
+function termScore(term,normalised,tokens){
+  const t=String(term).toLowerCase().trim();if(!t)return 0;
+  if(t.includes(' '))return normalised.includes(t)?2:0;
+  if(tokens.includes(t))return 2;
+  if(t.length>=4&&tokens.some(tok=>tok.startsWith(t)))return 1;
+  return 0;
+}
+/** Best-matching history topic id, or null when nothing is understood. */
+function matchHistoryTopic(question,history){
+  const tokens=tokenize(question),normalised=tokens.join(' ');
+  let best=null,bestScore=0;
+  for(const [key,item] of Object.entries(history)){
+    let score=0;for(const term of item.terms||[])score+=termScore(term,normalised,tokens);
+    if(score>bestScore){bestScore=score;best=key;}
+  }
+  return bestScore>0?best:null;
+}
+const hasTerms=(text,terms)=>{const tokens=tokenize(text);return terms.some(t=>termScore(t,tokens.join(' '),tokens)>0);};
 const uid=p=>`${p}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
 let state=null,timerId=null,learnerRecord=loadLearnerRecord();
 const TEAM_ROLES=[{id:'nurse',label:'Bedside nurse'},{id:'intern',label:'Intern'},{id:'attending',label:'Supervising attending'},{id:'cardiology',label:'Cardiology / cardiac ICU'},{id:'parent',label:'Parent or caregiver'}];
@@ -43,7 +65,7 @@ function spendAttention(seconds,label,patientId=null){
 function realTimeTick(){if(!state?.running||state.ended)return;advanceScenario(1,true);renderDynamic();}
 function advanceScenario(seconds,background){for(let i=0;i<seconds;i++){if(state.ended)break;state.time+=1;updatePhysiology();fireScheduledEvents();completeProcesses();if(state.time%30===0)recordPhysiology();}if(!background)renderDynamic();}
 function recordPhysiology(){for(const p of Object.values(state.patients))p.physiologyHistory.push({time:state.time,...clone(p.vitals)});}
-function threshold(name){return state.variant.timingOverrides?.[name]??({mayaWorsening:180,mayaSevere:330,mayaTerminal:480}[name]);}
+function threshold(name){return state.variant.timingOverrides?.[name]??({mayaWorsening:180,mayaSevere:330,mayaTerminal:480,eliDesat:210,noraPreliminary:300,jamalFamily:360}[name]);}
 function orderRecord(pid,id){return state.patients[pid].ordersPlaced.find(o=>o.id===id)||null;}
 function orderCompleted(pid,id){const o=orderRecord(pid,id);return !!o&&['available','reviewed','interpreted','complete'].includes(o.status);}
 function updatePhysiology(){updateMaya();updateEli();updateNora();checkShiftWindow();}
@@ -65,7 +87,7 @@ function updateMaya(){
 }
 function updateEli(){const p=state.patients.eli;if(state.time>180&&!p.flags.oxygenStarted&&!p.flags.hfncStarted){p.flags.deteriorating=true;p.vitals.SpO2=Math.max(85,Number(p.vitals.SpO2)-.006);p.vitals.RR=Math.min(66,Number(p.vitals.RR)+.012);}if(p.flags.oxygenStarted)p.vitals.SpO2=Math.min(95,Number(p.vitals.SpO2)+.008);if(p.flags.hfncStarted){p.flags.postTreatment=true;p.flags.stabilized=true;p.vitals.SpO2=Math.min(97,Number(p.vitals.SpO2)+.012);p.vitals.RR=Math.max(42,Number(p.vitals.RR)-.02);}}
 function updateNora(){const p=state.patients.nora;if(state.flags.noraPreliminary&&!p.flags.antibioticsStarted&&state.time>600){p.flags.deteriorating=true;p.vitals.HR=Math.min(182,Number(p.vitals.HR)+.018);p.vitals.Temp=Math.min(39.2,Number(p.vitals.Temp)+.001);}if(p.flags.antibioticsStarted&&p.flags.admitted){p.flags.postTreatment=true;p.flags.stabilized=true;}}
-function fireScheduledEvents(){if(state.time>=210&&!state.flags.eliPage){state.flags.eliPage=true;addPage('eli','Ward nurse: Eli is desaturating','SpO2 is persistently below the prior target despite repositioning.',true,'eli-desat');}if(state.time>=300&&!state.flags.noraPreliminary){state.flags.noraPreliminary=true;addPage('nora','Microbiology: positive blood culture','Preliminary blood culture is growing gram-positive cocci. Review collection details, reassess Nora, and make a provisional interpretation.',true,'nora-prelim');}if(state.time>=360&&!state.flags.jamalPage){state.flags.jamalPage=true;addPage('jamal','Jamal caregiver requests an update','His mother is asking whether a CT scan is being ordered.',false,'jamal-family');}}
+function fireScheduledEvents(){if(state.time>=threshold('eliDesat')&&!state.flags.eliPage){state.flags.eliPage=true;addPage('eli','Ward nurse: Eli is desaturating','SpO2 is persistently below the prior target despite repositioning.',true,'eli-desat');}if(state.time>=threshold('noraPreliminary')&&!state.flags.noraPreliminary){state.flags.noraPreliminary=true;addPage('nora','Microbiology: positive blood culture','Preliminary blood culture is growing gram-positive cocci. Review collection details, reassess Nora, and make a provisional interpretation.',true,'nora-prelim');}if(state.time>=threshold('jamalFamily')&&!state.flags.jamalPage){state.flags.jamalPage=true;addPage('jamal','Jamal caregiver requests an update','His mother is asking whether a CT scan is being ordered.',false,'jamal-family');}}
 function addPage(patientId,title,text,urgent=false,key=null){if(key&&state.pages.some(p=>p.key===key))return;state.pages.push({id:uid('page'),key,patientId,title,text,urgent,createdAt:state.time,ackAt:null,responseAt:null,resolvedAt:null});addTimeline(`Page received: ${title}.`,patientId,'page');}
 function acknowledgePage(pageId){if(!canInteract())return;const page=state.pages.find(p=>p.id===pageId);if(!page||page.ackAt!=null)return;if(!spendAttention(10,`Acknowledge page: ${page.title}`,page.patientId))return;page.ackAt=state.time;selectPatient(page.patientId);addTimeline(`Page acknowledged: ${page.title}.`,page.patientId,'page-ack');renderAll();}
 function markPageResponse(pid){for(const page of state.pages)if(page.patientId===pid&&page.responseAt==null){page.responseAt=state.time;addTimeline(`Clinical response began for page: ${page.title}.`,pid,'page-response');}}
