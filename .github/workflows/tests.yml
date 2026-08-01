@@ -1,0 +1,51 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  behaviour:
+    name: Behavioural tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install test dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in phs/v17/*.js tests/*.mjs tests/helpers/*.mjs; do
+            node --check "$file"
+          done
+
+      - name: Verify case package integrity
+        run: npm run test:integrity
+
+      - name: Simulator behaviour
+        run: npm run test:phs
+
+      - name: BP calculator correctness
+        run: npm run test:bp
+
+      - name: Site conventions and smoke
+        run: npm run test:smoke

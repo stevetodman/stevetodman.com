@@ -179,6 +179,28 @@ Every page should have:
 - text contrast of at least 4.5:1 (3:1 for large text)
 - no external network dependencies — no CDN fonts, scripts, or stylesheets
 
+## Testing
+
+Behavioural tests live in `tests/` and run in a real browser. They exist because
+`phs/v17/tests/integrity.mjs` validates structure only — it passed clean while
+blood pressure rendered as `NaN`, the simulator's mastery standard was
+unreachable, and the BP calculator contradicted its own displayed thresholds.
+
+```sh
+npm install && npx playwright install --with-deps chromium
+npm test              # all suites (~35s)
+npm run test:phs      # simulator behaviour and score calibration
+npm run test:bp       # BP calculator correctness
+npm run test:smoke    # page conventions, links, mobile, keyboard access
+```
+
+Run `npm test` before pushing anything that touches `phs/`, `tools/`, or
+`study/`. CI runs the same suites on every push and pull request.
+
+When adding a page, add it to `SITE_PAGES` in `tests/helpers/harness.mjs` — it is
+then automatically checked against the page conventions above. See
+`tests/README.md`.
+
 ## Deployment
 
 - Push to main branch auto-deploys to Cloudflare Pages
