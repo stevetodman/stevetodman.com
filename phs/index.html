@@ -3,32 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>PHS — Closing Window v1.5</title>
-  <link rel="stylesheet" href="styles.css?v=15">
+  <title>PHS — Closing Window v1.6</title>
+  <link rel="stylesheet" href="v16/styles.css?v=16">
 </head>
 <body>
 <header class="topbar">
   <div class="brand">Pediatric Hospital Simulator <span>Night Shift: The Closing Window</span></div>
   <div class="clockbox"><small>Scenario time</small><strong id="clock">00:00</strong></div>
   <div class="clockbox"><small>Status</small><strong id="runState">Not started</strong></div>
-  <div class="clockbox"><small>Available staff</small><strong id="staffState">RN ready · Intern ready</strong></div>
+  <div class="clockbox"><small>Mode</small><strong id="modeState">Assessment</strong></div>
+  <div class="clockbox"><small>Staff</small><strong id="staffState">RN ready · Intern ready</strong></div>
   <div class="spacer"></div>
-  <div class="version">HOSTED v1.5</div>
+  <div class="version">HOSTED v1.6</div>
   <button id="pauseBtn" type="button" disabled>Pause</button>
   <button id="resetBtn" type="button">Reset</button>
   <button id="endBtn" class="danger" type="button" disabled>End shift</button>
 </header>
-
+<div id="pauseBanner" class="pause-banner hidden" role="status" aria-live="polite"></div>
 <div id="urgentBanner" class="urgent-banner hidden" role="alert" aria-live="assertive"></div>
-
 <main class="layout">
   <section class="leftcol">
     <section class="panel">
       <div class="panel-head compact">
-        <div>
-          <h1>Patient board</h1>
-          <p id="boardInstruction">Commit an initial acuity ranking before the clinical workspace unlocks.</p>
-        </div>
+        <div><h1>Patient board</h1><p id="boardInstruction">Commit an initial acuity ranking before opening the workspace.</p></div>
         <span id="openPagesBadge" class="badge">0 open pages</span>
       </div>
       <div id="patientBoard" class="patient-board" aria-label="Patient board"></div>
@@ -36,172 +33,108 @@
 
     <section id="patientWorkspace" class="panel workspace muted-workspace" aria-labelledby="patientTitle">
       <div class="panel-head">
-        <div>
-          <h2 id="patientTitle">No patient selected</h2>
-          <p id="patientSubtitle">Select a patient after committing your initial ranking.</p>
-        </div>
+        <div><h2 id="patientTitle">No patient selected</h2><p id="patientSubtitle">Select a patient after committing your initial ranking.</p></div>
         <div id="patientState" class="patient-state">Unreviewed</div>
       </div>
-
-      <div id="vitals" class="vitals" aria-label="Current vital signs"></div>
-      <div id="trajectory" class="trajectory" aria-live="polite">No trajectory available.</div>
+      <div id="vitals" class="vitals" aria-label="Last observed vital signs"></div>
+      <div class="trend-shell">
+        <div class="trend-head"><strong>Observed trend</strong><span id="trendLabel">No measurements</span></div>
+        <div id="trendChart" class="trend-chart" aria-label="Observed vital-sign trend"></div>
+      </div>
 
       <div class="tabs" role="tablist" aria-label="Clinical workspace">
         <button id="tab-history" role="tab" aria-selected="true" aria-controls="panel-history" data-tab="history">History</button>
         <button id="tab-exam" role="tab" aria-selected="false" aria-controls="panel-exam" data-tab="exam">Examination</button>
         <button id="tab-reasoning" role="tab" aria-selected="false" aria-controls="panel-reasoning" data-tab="reasoning">Reasoning</button>
         <button id="tab-orders" role="tab" aria-selected="false" aria-controls="panel-orders" data-tab="orders">Orders</button>
-        <button id="tab-team" role="tab" aria-selected="false" aria-controls="panel-team" data-tab="team">Team & delegation</button>
+        <button id="tab-team" role="tab" aria-selected="false" aria-controls="panel-team" data-tab="team">Team</button>
       </div>
 
       <div id="panel-history" class="tab-panel active" role="tabpanel" aria-labelledby="tab-history">
         <h3>Ask one focused question</h3>
-        <p class="muted">Each question consumes learner attention while every patient’s physiology continues to evolve.</p>
+        <p class="muted">Focused history consumes attention. Physiologic processes continue in parallel.</p>
         <div class="inline-form">
           <label class="sr-only" for="historyInput">History question</label>
           <input id="historyInput" type="text" placeholder="Ask the parent or nurse…" autocomplete="off">
-          <select id="historySource" aria-label="Question recipient">
-            <option value="parent">Parent/patient</option>
-            <option value="nurse">Bedside nurse</option>
-          </select>
-          <button id="askHistoryBtn" class="primary" type="button" disabled>Ask · 0:20</button>
+          <select id="historySource" aria-label="Question recipient"><option value="parent">Parent/patient</option><option value="nurse">Bedside nurse</option></select>
+          <button id="askHistoryBtn" class="primary clinical-control" type="button" disabled>Ask · 0:20</button>
         </div>
         <div id="historyTranscript" class="transcript" aria-live="polite"><p class="placeholder">No patient selected.</p></div>
       </div>
 
       <div id="panel-exam" class="tab-panel" role="tabpanel" aria-labelledby="tab-exam" hidden>
-        <h3>Choose examination components</h3>
-        <p class="muted">Components have different attention costs. Repeating a focused component after treatment is scored as reassessment.</p>
+        <h3>Examine and reassess</h3>
+        <p class="muted">Assessment actions are repeatable and return findings from the patient’s current state.</p>
+        <div class="inline-actions"><button id="repeatVitalsBtn" class="primary clinical-control" type="button" disabled>Repeat full vital signs · 0:20</button></div>
         <div id="examMenu" class="component-grid"></div>
         <div id="examFindings" class="findings" aria-live="polite"><p class="placeholder">No examination findings yet.</p></div>
       </div>
 
       <div id="panel-reasoning" class="tab-panel" role="tabpanel" aria-labelledby="tab-reasoning" hidden>
-        <h3>Commit before disease-specific treatment</h3>
-        <p class="muted">Commitments are timestamped. You can revise your diagnosis, but the prior version remains visible.</p>
+        <h3>Diagnostic commitment</h3>
+        <p class="muted">Disease-specific treatment requires a provisional diagnosis. Revisions remain visible.</p>
         <label for="problemRepresentation">Problem representation</label>
         <textarea id="problemRepresentation" rows="3" placeholder="One-sentence synthesis using discriminating findings"></textarea>
-        <label for="diagnosisChoice">Leading diagnosis</label>
-        <select id="diagnosisChoice"></select>
-        <label for="alternatives">Plausible alternatives and why</label>
-        <textarea id="alternatives" rows="3"></textarea>
-        <label for="immediatePlan">Immediate priorities and reassessment plan</label>
-        <textarea id="immediatePlan" rows="3"></textarea>
-        <label for="confidence">Confidence <span id="confidenceValue">50%</span></label>
-        <input id="confidence" type="range" min="0" max="100" value="50">
-        <button id="commitReasoningBtn" class="primary" type="button" disabled>Commit reasoning · 0:30</button>
+        <label for="diagnosisChoice">Leading diagnosis</label><select id="diagnosisChoice"></select>
+        <label for="alternatives">Plausible alternatives and why</label><textarea id="alternatives" rows="3"></textarea>
+        <label for="immediatePlan">Immediate priorities and reassessment plan</label><textarea id="immediatePlan" rows="3"></textarea>
+        <label for="confidence">Confidence <span id="confidenceValue">50%</span></label><input id="confidence" type="range" min="0" max="100" value="50">
+        <button id="commitReasoningBtn" class="primary clinical-control" type="button" disabled>Commit reasoning · 0:30</button>
         <div id="reasoningHistory" class="reasoning-history"><p class="placeholder">No reasoning commitment yet.</p></div>
       </div>
 
       <div id="panel-orders" class="tab-panel" role="tabpanel" aria-labelledby="tab-orders" hidden>
-        <h3>Search orders, treatments, or procedures</h3>
-        <p class="muted">Results are presented neutrally. “Attention” is your occupied time; “process” continues in parallel.</p>
-        <label for="orderSearch">Order search</label>
-        <input id="orderSearch" type="search" placeholder="Type at least 2 characters">
-        <div id="orderResults" class="order-results" aria-live="polite"><p class="placeholder">Search to display options for the selected patient.</p></div>
-        <h4>Placed orders and active processes</h4>
-        <div id="placedOrders" class="placed-orders"><p class="placeholder">No orders placed.</p></div>
+        <h3>Search orders, treatments, and procedures</h3>
+        <p class="muted">Placing an order, receiving a result, reviewing it, interpreting it, and acting are scored separately.</p>
+        <label for="orderSearch">Order search</label><input id="orderSearch" type="search" placeholder="Type at least 2 characters">
+        <div id="orderResults" class="order-results" aria-live="polite"><p class="placeholder">Search to display options.</p></div>
+        <h4>Orders and workflow</h4><div id="placedOrders" class="placed-orders"><p class="placeholder">No orders placed.</p></div>
       </div>
 
       <div id="panel-team" class="tab-panel" role="tabpanel" aria-labelledby="tab-team" hidden>
         <h3>Communicate and delegate</h3>
         <div id="teamRoles" class="team-grid"></div>
-        <label for="teamMessage">Message</label>
-        <textarea id="teamMessage" rows="4" placeholder="State your assessment, urgency, request, and what you need confirmed."></textarea>
-        <div class="inline-actions">
-          <button id="sendTeamBtn" class="primary" type="button" disabled>Send · 0:30</button>
-          <button id="confirmReadbackBtn" type="button" class="hidden">Confirm read-back · 0:10</button>
-        </div>
+        <label for="teamMessage">Message</label><textarea id="teamMessage" rows="4" placeholder="Assessment, urgency, request, and confirmation needed"></textarea>
+        <div class="inline-actions"><button id="sendTeamBtn" class="primary clinical-control" type="button" disabled>Send · 0:30</button><button id="confirmReadbackBtn" type="button" class="clinical-control hidden">Confirm read-back · 0:10</button></div>
         <div id="teamTranscript" class="transcript" aria-live="polite"><p class="placeholder">Select a team member.</p></div>
-        <h4>Delegation</h4>
-        <div id="delegationMenu" class="delegation-grid"></div>
+        <h4>Delegation</h4><div id="delegationMenu" class="delegation-grid"></div>
       </div>
     </section>
   </section>
 
   <aside class="rightcol">
-    <section class="panel">
-      <div class="panel-title"><h2>Incoming pages</h2><span id="pageCount">0 open</span></div>
-      <div id="pages" class="pages" aria-live="polite"><p class="placeholder">No pages yet.</p></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-title"><h2>Results and task completions</h2><span id="pendingCount">0 pending</span></div>
-      <div id="results" class="results" aria-live="polite"><p class="placeholder">No results available.</p></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-title"><h2>Attention ledger</h2><span id="attentionTotal">0:00 used</span></div>
-      <div id="attentionLedger" class="ledger"><p class="placeholder">No learner attention spent.</p></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-title"><h2>Clinical timeline</h2><span id="eventCount">0 events</span></div>
-      <div id="timeline" class="timeline" aria-live="polite"><p class="placeholder">The shift has not started.</p></div>
-    </section>
+    <section class="panel"><div class="panel-title"><h2>Incoming pages</h2><span id="pageCount">0 open</span></div><div id="pages" class="pages" aria-live="polite"><p class="placeholder">No pages yet.</p></div></section>
+    <section class="panel"><div class="panel-title"><h2>Results and tasks</h2><span id="pendingCount">0 pending</span></div><div id="results" class="results" aria-live="polite"><p class="placeholder">No results available.</p></div></section>
+    <section class="panel"><div class="panel-title"><h2>Attention ledger</h2><span id="attentionTotal">0:00 used</span></div><div id="attentionLedger" class="ledger"><p class="placeholder">No learner attention spent.</p></div></section>
+    <section class="panel"><div class="panel-title"><h2>Clinical timeline</h2><span id="eventCount">0 events</span></div><div id="timeline" class="timeline" aria-live="polite"><p class="placeholder">The shift has not started.</p></div></section>
   </aside>
 </main>
 
-<section id="debriefSection" class="debrief-shell hidden" aria-labelledby="debriefHeading">
-  <div class="debrief-card">
-    <div class="debrief-header">
-      <div><h2 id="debriefHeading">Structured debrief</h2><p id="debriefOutcome"></p></div>
-      <div id="masteryBadge" class="mastery"></div>
-    </div>
-    <div id="debriefRanking" class="debrief-block"></div>
-    <div id="debriefAttention" class="debrief-block"></div>
-    <div id="debriefScore" class="debrief-block"></div>
-    <div id="debriefMisses" class="debrief-block"></div>
-    <div id="debriefReasoning" class="debrief-block"></div>
-    <div id="debriefHandoff" class="debrief-block"></div>
-    <div id="debriefTimeline" class="debrief-block"></div>
-    <div class="debrief-block">
-      <h3>Future-practice commitment</h3>
-      <label for="futureCommitment">What will you do differently next time?</label>
-      <textarea id="futureCommitment" rows="3"></textarea>
-    </div>
-    <div class="debrief-actions">
-      <button id="variantBtn" class="primary" type="button">Run immediate variant</button>
-      <button id="restartBtn" type="button">Repeat this variant</button>
-    </div>
-    <p class="fineprint">Formative educational feedback only. Scenario timing and scoring are deterministic training constructs and are not validated for summative entrustment decisions.</p>
-  </div>
-</section>
+<section id="debriefSection" class="debrief-shell hidden" aria-labelledby="debriefHeading"><div class="debrief-card">
+  <div class="debrief-header"><div><h2 id="debriefHeading">Structured debrief</h2><p id="debriefOutcome"></p></div><div id="masteryBadge" class="mastery"></div></div>
+  <div id="debriefRanking" class="debrief-block"></div><div id="debriefAttention" class="debrief-block"></div><div id="debriefScore" class="debrief-block"></div><div id="debriefMisses" class="debrief-block"></div><div id="debriefReasoning" class="debrief-block"></div><div id="debriefPages" class="debrief-block"></div><div id="debriefHandoff" class="debrief-block"></div><div id="debriefTimeline" class="debrief-block"></div>
+  <div class="debrief-block"><h3>Future-practice commitment</h3><label for="futureCommitment">What will you do differently next time?</label><textarea id="futureCommitment" rows="3"></textarea></div>
+  <div class="debrief-actions"><button id="variantBtn" class="primary" type="button">Run immediate variant</button><button id="restartBtn" type="button">Repeat this variant</button></div>
+  <p class="fineprint">Formative educational feedback only. Deterministic timing and provisional weights are not validated for summative entrustment decisions.</p>
+</div></section>
 
-<div id="intro" class="modal" role="dialog" aria-modal="true" aria-labelledby="introTitle">
-  <div class="modal-card wide">
-    <h1 id="introTitle">Night-shift sign-out</h1>
-    <p>The outgoing resident gives you four patients. The framing may be incomplete or wrong. Before opening a chart or entering a room, rank all four by current acuity.</p>
-    <div id="signoutCards" class="signout-grid"></div>
-    <h2>Initial acuity ranking</h2>
-    <p class="muted">Assign each patient a unique rank from 1 (highest priority) to 4 (lowest priority).</p>
-    <div id="initialRanking" class="ranking-grid"></div>
-    <div id="rankingError" class="form-error" role="alert"></div>
-    <div class="notice">Educational simulation only. Time windows and physiologic trajectories are intentionally deterministic to make prioritization and delayed rescue observable.</div>
-    <button id="startBtn" class="primary large" type="button">Commit ranking and accept sign-out</button>
-  </div>
-</div>
+<div id="intro" class="modal" role="dialog" aria-modal="true" aria-labelledby="introTitle"><div class="modal-card wide">
+  <h1 id="introTitle">Night-shift sign-out</h1><p>The inherited framing may be incomplete or wrong. Rank all four patients before opening a chart.</p>
+  <fieldset class="mode-picker"><legend>Run mode</legend><label><input type="radio" name="runMode" value="assessment" checked> <strong>Assessment</strong> — pause disables all clinical work</label><label><input type="radio" name="runMode" value="practice"> <strong>Practice</strong> — coached pause permits exploration; run is non-comparable</label></fieldset>
+  <div id="signoutCards" class="signout-grid"></div><h2>Initial acuity ranking</h2><p class="muted">Assign each patient a unique rank from 1 (highest priority) to 4.</p><div id="initialRanking" class="ranking-grid"></div><div id="rankingError" class="form-error" role="alert"></div>
+  <div class="notice">Educational simulation only. Timing and physiologic trajectories are intentionally deterministic.</div><button id="startBtn" class="primary large" type="button">Commit ranking and accept sign-out</button>
+</div></div>
 
-<div id="finalModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="finalTitle">
-  <div class="modal-card wide">
-    <h1 id="finalTitle">End-of-shift synthesis</h1>
-    <p>Re-rank the patients based on what you now know, then give a concise handoff to the next resident.</p>
-    <div id="finalRanking" class="ranking-grid"></div>
-    <label for="handoffText">Receiver-facing handoff</label>
-    <textarea id="handoffText" rows="7" placeholder="Illness severity, concise summary, active problems, pending tasks, contingency plans"></textarea>
-    <div id="finalError" class="form-error" role="alert"></div>
-    <div class="inline-actions">
-      <button id="completeShiftBtn" class="primary" type="button">Complete shift and debrief</button>
-      <button id="cancelEndBtn" type="button">Return to shift</button>
-    </div>
-  </div>
-</div>
+<div id="noraJudgmentModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="noraJudgmentTitle"><div class="modal-card">
+  <h1 id="noraJudgmentTitle">Interpret preliminary blood culture</h1><p>Based on the current clinical context and collection details, classify the result before speciation returns.</p>
+  <label for="noraCultureJudgment">Current interpretation</label><select id="noraCultureJudgment"><option value="">Choose…</option><option value="pathogen">Likely true pathogen</option><option value="contaminant">Likely contaminant</option><option value="indeterminate">Indeterminate — treat and investigate while awaiting clarification</option></select>
+  <label for="noraJudgmentRationale">Rationale</label><textarea id="noraJudgmentRationale" rows="4"></textarea><div id="noraJudgmentError" class="form-error"></div><button id="commitNoraJudgmentBtn" class="primary" type="button">Commit interpretation · 0:20</button>
+</div></div>
 
-<script src="data.js?v=15"></script>
-<script src="core.js?v=15"></script>
-<script src="actions.js?v=15"></script>
-<script src="debrief.js?v=15"></script>
-<script src="ui.js?v=15"></script>
-<script src="app.js?v=15"></script>
-</body>
-</html>
+<div id="finalModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="finalTitle"><div class="modal-card wide">
+  <h1 id="finalTitle">End-of-shift synthesis</h1><p>Re-rank the patients and complete a patient-by-patient I-PASS handoff.</p><div id="finalRanking" class="ranking-grid"></div><div id="handoffFields" class="handoff-grid"></div><div id="finalError" class="form-error" role="alert"></div>
+  <div class="inline-actions"><button id="completeShiftBtn" class="primary" type="button">Complete shift and debrief</button><button id="cancelEndBtn" type="button">Return to shift</button></div>
+</div></div>
+
+<script src="v16/data.js?v=16"></script><script src="v16/core.js?v=16"></script><script src="v16/actions.js?v=16"></script><script src="v16/debrief.js?v=16"></script><script src="v16/ui.js?v=16"></script><script src="v16/app.js?v=16"></script>
+</body></html>
