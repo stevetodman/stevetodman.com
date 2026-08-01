@@ -207,6 +207,178 @@ describe('assessment calibration', () => {
   });
 });
 
+describe('history taking', () => {
+  /** Boot a shift and select Maya, returning the page. */
+  async function openMaya() {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await page.goto(`${server.origin}/phs/`);
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    await page.waitForFunction(() => typeof state !== 'undefined' && state !== null && !!state.caseData);
+    await page.evaluate(ranking => {
+      for (const [pid, rank] of Object.entries(ranking)) document.getElementById(`initial-rank-${pid}`).value = rank;
+      document.getElementById('startBtn').click();
+    }, CORRECT_RANKING);
+    return { context, page };
+  }
+
+  // Regression: with no patient selected the input and Ask button were enabled,
+  // askHistory() returned silently, and the typed question was cleared. The
+  // learner saw nothing happen and got no explanation.
+  test('history controls are inert and clearly disabled until a patient is chosen', async () => {
+    const { context, page } = await openMaya();
+    const before = await page.evaluate(() => ({
+      selected: state.selectedId,
+      askDisabled: document.getElementById('askBtn').disabled,
+      inputDisabled: document.getElementById('historyInput').disabled,
+      hint: document.getElementById('historyLog').innerText.trim(),
+    }));
+    assert.equal(before.selected, null);
+    assert.equal(before.askDisabled, true, 'Ask must be disabled with no patient selected');
+    assert.equal(before.inputDisabled, true, 'the question field must be disabled with no patient selected');
+    assert.match(before.hint, /choose a patient/i, 'the panel must say what to do');
+
+    // Even if invoked directly, it must explain itself rather than no-op.
+    const outcome = await page.evaluate(() => {
+      const t = state.time;
+      askHistory('How has she been feeding?', 'parent');
+      return { cost: state.time - t, banner: document.getElementById('urgentBanner').textContent };
+    });
+    assert.equal(outcome.cost, 0, 'a rejected question must not cost clinical time');
+    assert.match(outcome.banner, /select a patient/i);
+    await context.close();
+  });
+
+  // Regression: the term "eat" matched inside "breathe", so respiratory
+  // questions returned the feeding answer — wrong information, full price.
+  test('questions match the topic they are actually about', async () => {
+    const { context, page } = await openMaya();
+    await page.click('[data-patient="maya"]');
+    const expectations = [
+      ['Is she working hard to breathe?', 'breathing'],
+      ['Is she breathing fast?', 'breathing'],
+      ['Any trouble breathing?', 'breathing'],
+      ['How has she been feeding?', 'feeding'],
+      ['Is she urinating less than before?', 'urine'],
+      ['How many wet diapers?', 'urine'],
+      ['Has she looked blue or mottled?', 'color'],
+      ['When did this start?', 'onset'],
+      ['Any fever?', 'fever'],
+      ['How was the delivery?', 'birth'],
+    ];
+    const matched = await page.evaluate(qs =>
+      qs.map(([q]) => matchHistoryTopic(q, state.patients.maya.history)), expectations);
+    for (const [i, [question, expected]] of expectations.entries()) {
+      assert.equal(matched[i], expected, `"${question}" should reach the ${expected} topic, got ${matched[i]}`);
+    }
+    await context.close();
+  });
+
+  // Regression: an uninterpretable question cost the same 20 seconds as a
+  // productive one and returned a dead-end answer with no guidance.
+  test('an uninterpretable question costs less and says what can be asked', async () => {
+    const { context, page } = await openMaya();
+    await page.click('[data-patient="maya"]');
+    const result = await page.evaluate(() => {
+      const before = state.time;
+      askHistory('Has she had any rash or vomiting?', 'parent');
+      const entry = state.patients.maya.historyLog.at(-1);
+      return { cost: state.time - before, entry, banner: document.getElementById('urgentBanner').textContent };
+    });
+    assert.equal(result.entry.category, 'unrecognised');
+    assert.ok(result.cost < 20, `a parser miss must cost less than a real question, cost ${result.cost}s`);
+    assert.match(result.entry.answer, /Feeding/, 'the answer must list the available topics');
+    assert.match(result.banner, /not understood/i);
+    await context.close();
+  });
+
+  test('suggestion chips are offered and fill a question that matches', async () => {
+    const { context, page } = await openMaya();
+    await page.click('[data-patient="maya"]');
+    const chips = await page.$$eval('.topic-chip', els => els.map(e => e.textContent.trim()));
+    assert.ok(chips.length >= 5, `expected topic chips, got ${chips.length}`);
+
+    // Every chip must produce a question the matcher actually understands.
+    const unmatched = await page.evaluate(() => {
+      const bad = [];
+      for (const [key, item] of Object.entries(state.patients.maya.history)) {
+        const prompt = item.prompt || `Tell me about ${(item.label || key).toLowerCase()}.`;
+        if (matchHistoryTopic(prompt, state.patients.maya.history) !== key) bad.push(`${key}: "${prompt}"`);
+      }
+      return bad;
+    });
+    assert.deepEqual(unmatched, [], `chip prompts must match their own topic:\n${unmatched.join('\n')}`);
+    await context.close();
+  });
+
+  test('every patient exposes labelled history topics', async () => {
+    const { context, page } = await openMaya();
+    const missing = await page.evaluate(() => {
+      const bad = [];
+      for (const [pid, patient] of Object.entries(state.patients)) {
+        for (const [key, item] of Object.entries(patient.history)) {
+          if (!item.label) bad.push(`${pid}.${key} has no label`);
+          if (!item.prompt) bad.push(`${pid}.${key} has no prompt`);
+        }
+      }
+      return bad;
+    });
+    assert.deepEqual(missing, []);
+    await context.close();
+  });
+});
+
+describe('scheduled page timing', () => {
+  // Regression: page times were hardcoded at 210/300/360s while Maya's
+  // deterioration thresholds shifted per variant, so the intended choreography
+  // — competing demands arriving as she declines — drifted between variants.
+  test('page times hold the same offsets from Maya\'s decline in every variant', async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await page.goto(`${server.origin}/phs/`);
+    await page.waitForFunction(() => typeof state !== 'undefined' && state !== null && !!state.caseData);
+
+    const offsets = [];
+    for (const variant of ['A', 'B', 'C']) {
+      const r = await page.evaluate(v => {
+        localStorage.clear();
+        resetSimulation(state.caseData, v, 'assessment');
+        for (const [pid, rank] of Object.entries({ maya: 1, eli: 2, nora: 3, jamal: 4 })) {
+          document.getElementById(`initial-rank-${pid}`).value = String(rank);
+        }
+        document.getElementById('startBtn').click();
+        state.running = false;
+        while (state.time < 700 && !state.ended) advanceScenario(10, true);
+        const at = key => state.pages.find(p => p.key === key)?.createdAt;
+        return {
+          id: state.variant.id,
+          worsening: threshold('mayaWorsening'),
+          severe: threshold('mayaSevere'),
+          eli: at('eli-desat'), nora: at('nora-prelim'), jamal: at('jamal-family'),
+        };
+      }, variant);
+
+      assert.ok(r.eli != null && r.nora != null && r.jamal != null,
+        `variant ${r.id} did not fire all scheduled pages`);
+      offsets.push({
+        id: r.id,
+        eli: r.eli - r.worsening,
+        nora: r.nora - r.severe,
+        jamal: r.jamal - r.severe,
+      });
+    }
+
+    const [a, ...rest] = offsets;
+    for (const o of rest) {
+      assert.equal(o.eli, a.eli, `variant ${o.id}: Eli's page drifted relative to Maya's decline`);
+      assert.equal(o.nora, a.nora, `variant ${o.id}: Nora's page drifted relative to Maya's decline`);
+      assert.equal(o.jamal, a.jamal, `variant ${o.id}: Jamal's page drifted relative to Maya's decline`);
+    }
+    await context.close();
+  });
+});
+
 describe('runtime health', () => {
   test('a full attempt raises no page errors', async () => {
     const r = await runScenario(browser, server.origin, { plan: PLAN_EXPERT });

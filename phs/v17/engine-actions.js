@@ -1,5 +1,27 @@
 'use strict';
-function askHistory(question,source){const pid=state.selectedId;if(!pid||!canInteract()||!question.trim())return;const p=state.patients[pid];if(!spendAttention(20,`Focused ${source} history`,pid))return;const text=question.trim().toLowerCase();let answer='I do not have additional information about that.',category='other',disconfirming=false;for(const [key,item] of Object.entries(p.history)){if(hasTerms(text,item.terms)){answer=item[source]||item.parent;category=key;disconfirming=!!item.disconfirming;break;}}p.historyLog.push({time:state.time,source,question:question.trim(),answer,category,disconfirming});addTimeline(`History obtained: ${category}.`,pid,'history',{category,disconfirming});markPageResponse(pid);renderAll();}
+function askHistory(question,source){
+  if(!canInteract())return;
+  const pid=state.selectedId;
+  if(!pid){showUrgent('Select a patient from the board before asking a question.');return;}
+  if(!question.trim()){showUrgent('Type a question before asking.');return;}
+  const p=state.patients[pid],text=question.trim(),category=matchHistoryTopic(text,p.history);
+  // A question the simulation cannot interpret is a parser limitation, not a
+  // clinical decision, so it costs a fraction of a real focused question.
+  if(!spendAttention(category?20:5,category?`Focused ${source} history`:'Question not understood',pid))return;
+  if(!category){
+    const topics=historyTopicLabels(p).join(', ');
+    p.historyLog.push({time:state.time,source,question:text,answer:`The ${source==='nurse'?'nurse':'parent'} is not sure what you mean. You can ask about: ${topics}.`,category:'unrecognised',disconfirming:false,unrecognised:true});
+    showUrgent(`Question not understood. Ask about: ${topics}.`);
+    addTimeline('Question not understood by the simulation.',pid,'history',{category:'unrecognised'});
+    renderAll();return;
+  }
+  const item=p.history[category],answer=item[source]||item.parent,disconfirming=!!item.disconfirming;
+  p.historyLog.push({time:state.time,source,question:text,answer,category,disconfirming});
+  addTimeline(`History obtained: ${category}.`,pid,'history',{category,disconfirming});
+  markPageResponse(pid);renderAll();
+}
+/** Human-readable topic names for a patient, for prompts and suggestion chips. */
+function historyTopicLabels(patient){return Object.entries(patient.history).map(([key,item])=>item.label||key);}
 function currentPatientState(pid){const p=state.patients[pid];if(p.flags.postTreatment||p.flags.stabilized||p.flags.responding)return'postTreatment';if(p.flags.deteriorating||p.flags.critical||p.flags.arrest)return'deteriorating';return'default';}
 function performExam(examId){const pid=state.selectedId;if(!pid||!canInteract())return;const p=state.patients[pid],exam=p.exams.find(x=>x.id===examId);if(!exam)return;const repeat=(p.examCounts[examId]||0)>0;if(!spendAttention(exam.attention,`${exam.label}${repeat?' reassessment':''}`,pid))return;const key=currentPatientState(pid),finding=exam.findings[key]||exam.findings.default;p.examCounts[examId]=(p.examCounts[examId]||0)+1;p.examLog.push({time:state.time,examId,label:exam.label,finding,count:p.examCounts[examId],disconfirming:!!exam.disconfirming});addTimeline(`Examination: ${exam.label}.`,pid,'exam',{examId,disconfirming:!!exam.disconfirming});markPageResponse(pid);renderAll();}
 function repeatVitals(){const pid=state.selectedId;if(!pid||!canInteract())return;if(!spendAttention(20,'Repeat full vital signs',pid))return;state.patients[pid].observedVitals.push({time:state.time,source:'Repeat vital signs',...clone(state.patients[pid].vitals)});addTimeline('Repeat vital signs recorded.',pid,'observation');markPageResponse(pid);renderAll();}
