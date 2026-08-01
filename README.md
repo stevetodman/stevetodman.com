@@ -15,4 +15,15 @@ Personal website and tools. Deployed via Cloudflare Pages.
 
 Push to `main` branch auto-deploys to Cloudflare Pages.
 
+### Tests
+
+```sh
+npm install && npx playwright install --with-deps chromium
+npm test
+```
+
+Behavioural tests drive real pages in a real browser — simulator physiology and
+scoring, BP calculator correctness, and site-wide conventions. See
+[tests/README.md](tests/README.md).
+
 See [CLAUDE.md](CLAUDE.md) for project structure and conventions.
