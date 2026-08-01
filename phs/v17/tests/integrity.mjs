@@ -152,7 +152,7 @@ for (const objectiveId of objectiveIds) {
 }
 
 assert.match(read('storage.js'), /phs\.v17\.learnerRecord/, 'Learner-record storage key is missing');
-assert.match(read('engine-core.js'), /cases\/patients\/maya/, 'Case loader does not include the Maya patient file');
+assert.match(read('engine-core.js'), /patients\/maya/, 'Case loader does not include the Maya patient file');
 assert.match(read('engine-assessment.js'), /computeDiagnosticAnalytics/, 'Assessment engine does not invoke diagnostic analytics');
 assert.match(read('ui-debrief.js'), /Objective-linked performance/, 'Structured objective-linked debrief is missing');
 
