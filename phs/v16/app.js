@@ -1,11 +1,20 @@
 'use strict';
 
+const baseCompleteSpecialForCommitGate = completeSpecial;
+completeSpecial = function(special){
+  if(special==='nora-speciation'&&!state.flags.noraSpeciated&&!state.noraJudgment){
+    scheduleProcess({kind:'special',special:'nora-speciation',due:state.time+30});
+    return;
+  }
+  baseCompleteSpecialForCommitGate(special);
+};
+
 function readRanking(prefix){const ranking={};for(const id of state.patientOrder)ranking[id]=Number($(`${prefix}-${id}`).value)||0;return ranking;}
 function validRanking(ranking){const values=Object.values(ranking);return values.every(v=>v>=1&&v<=4)&&new Set(values).size===4;}
 function startSimulation(){
   const ranking=readRanking('initial-rank');if(!validRanking(ranking)){$('rankingError').textContent='Use each rank from 1 through 4 exactly once.';return;}
   state.mode=document.querySelector('input[name="runMode"]:checked')?.value||'assessment';state.initialRanking=ranking;state.started=true;state.running=true;state.time=0;
-  for(const p of Object.values(state.patients))p.observedVitals.push({time:0,source:'Pre-shift charted vital signs',...clone(p.initial)});
+  for(const [id,p] of Object.entries(state.patients))p.observedVitals.push({time:0,source:'Pre-shift charted vital signs',...clone(p.initial)});
   addTimeline(`Initial ranking committed: ${state.patientOrder.map(id=>`${state.patients[id].name} ${ranking[id]}`).join(', ')}.`);addTimeline(`Run started in ${state.mode} mode.`);$('intro').classList.add('hidden');$('rankingError').textContent='';renderAll();
 }
 function togglePause(){if(!state.started||state.ended)return;state.running=!state.running;if(!state.running)state.pauseCount+=1;addTimeline(state.running?'Scenario resumed.':`Scenario paused in ${state.mode} mode.`);renderAll();}
@@ -22,5 +31,5 @@ $('startBtn').onclick=startSimulation;$('pauseBtn').onclick=togglePause;$('reset
 $('askHistoryBtn').onclick=askHistory;$('repeatVitalsBtn').onclick=repeatVitals;$('commitReasoningBtn').onclick=commitReasoning;$('sendTeamBtn').onclick=sendTeamMessage;$('confirmReadbackBtn').onclick=confirmReadback;$('commitNoraJudgmentBtn').onclick=commitNoraJudgment;
 $('confidence').oninput=e=>$('confidenceValue').textContent=`${e.target.value}%`;$('orderSearch').oninput=()=>{if(state.selectedId)renderOrders();applyInteractionGate();};document.querySelectorAll('[role="tab"]').forEach(btn=>btn.onclick=()=>switchTab(btn.dataset.tab));
 $('variantBtn').onclick=()=>resetSimulation((state.variantIndex+1)%PHS_DATA.variants.length);$('restartBtn').onclick=()=>resetSimulation(state.variantIndex);
-window.__PHS_TEST__={getState:()=>state,startWithRanking:(mode='assessment')=>{state.mode=mode;state.initialRanking={maya:1,eli:2,nora:3,jamal:4};state.started=true;state.running=true;for(const p of Object.values(state.patients))p.observedVitals.push({time:0,source:'Test baseline',...clone(p.initial)});$('intro').classList.add('hidden');renderAll();},advance:seconds=>{advanceScenario(seconds,false);renderAll();},select:id=>{state.selectedId=id;renderAll();},order:id=>placeOrder(id),exam:id=>performExam(id),pause:()=>togglePause()};
+window.__PHS_TEST__={getState:()=>state,startWithRanking:(mode='assessment')=>{state.mode=mode;state.initialRanking={maya:1,eli:2,nora:3,jamal:4};state.started=true;state.running=true;for(const [id,p] of Object.entries(state.patients))p.observedVitals.push({time:0,source:'Test baseline',...clone(p.initial)});$('intro').classList.add('hidden');renderAll();},advance:seconds=>{advanceScenario(seconds,false);renderAll();},select:id=>{state.selectedId=id;renderAll();},order:id=>placeOrder(id),exam:id=>performExam(id),pause:()=>togglePause()};
 resetSimulation(0);
