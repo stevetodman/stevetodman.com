@@ -24,4 +24,12 @@ All results remain formative. The weights, thresholds, and mastery standard have
 
 ## v1.6 preservation
 
-The prior v1.6 implementation remains preserved in the versioned `phs/v16/` directory. v1.7 does not overwrite those source modules.
+The superseded v1.6 implementation was removed from the deploy path. It remains available in git history.
+
+## v1.7.1 corrections
+
+- Blood pressure rendered as `NaN` in the vital-sign panel because a string value was passed through numeric rounding. Non-numeric vitals are now displayed verbatim.
+- The shift previously ended automatically at 900 s, which forfeited both handoff rubric items and made the mastery standard unreachable. Clinical time now ends at 840 s with a warning at 720 s, and the end-of-shift handoff is completed on a stopped clock.
+- Untreated prostaglandin-associated apnea had no clinical consequence and the patient was still marked stabilized. Unsupported apnea now deteriorates to arrest if airway support is not provided.
+- The urgent-page rubric item required every urgent page to be answered within 90 s, which conflicted with correctly stabilising the highest-acuity patient first. It now requires two-thirds of urgent pages within 210 s.
+- The prioritization objective contained only two rubric items, so a single miss fell below its 65 percent minimum. Its minimum is now 50 percent.

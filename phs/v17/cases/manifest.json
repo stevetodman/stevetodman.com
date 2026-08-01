@@ -1,6 +1,7 @@
 {
   "id":"closing-window","title":"Night Shift: The Closing Window","version":"1.7.0",
   "description":"A senior pediatric resident inherits four patients during a night shift. The outgoing framing may be incomplete or wrong. The learner must prioritize, seek disconfirming evidence, stabilize under uncertainty, reassess, communicate, and transfer responsibility safely.",
+  "timing":{"shiftSeconds":960,"handoffWarningSeconds":720,"handoffDeadlineSeconds":840},
   "objectives":[
     {"id":"O1","label":"Prioritization","description":"Prioritize competing pediatric patients and reallocate attention when new acuity signals appear.","framework":[{"system":"ABP/ACGME contextual mapping","code":"acute-care-prioritization","label":"Recognize and manage the acutely ill child","claimBoundary":"Curriculum alignment only; one simulation does not establish entrustment."}]},
     {"id":"O2","label":"Diagnostic reasoning","description":"Recognize neonatal shock despite inherited framing, seek disconfirming evidence, and revise the working diagnosis.","framework":[{"system":"ACGME contextual mapping","code":"clinical-reasoning","label":"Clinical reasoning and diagnostic formulation","claimBoundary":"Formative mapping; milestone achievement requires longitudinal evidence."}]},
@@ -16,7 +17,7 @@
   ],
   "rubric":[
     {"id":"R1","objectiveId":"O1","label":"Initial ranking identifies Maya as highest priority","points":10,"condition":{"type":"ranking","phase":"initial","patientId":"maya","rank":1},"rationale":"The central task is recognizing the highest-risk patient despite inherited framing.","consequence":"Attention may be allocated to lower-acuity patients while shock progresses."},
-    {"id":"R2","objectiveId":"O1","label":"Urgent pages receive a timely clinical response","points":10,"condition":{"type":"allUrgentPagesResponded","within":90},"rationale":"Prioritization is dynamic and includes new escalation signals.","consequence":"Nursing deterioration signals remain unaddressed."},
+    {"id":"R2","objectiveId":"O1","label":"Urgent pages receive a timely clinical response","points":10,"condition":{"type":"urgentPagesRespondedFraction","within":210,"minimum":0.67},"rationale":"Prioritization is dynamic and includes new escalation signals. Stabilising the highest-acuity patient first is correct; the expectation is that pages are then answered without being forgotten.","consequence":"Nursing deterioration signals remain unaddressed."},
     {"id":"R3","objectiveId":"O2","label":"Seeks disconfirming evidence early","points":12,"condition":{"type":"firstDisconfirmingBefore","seconds":120},"rationale":"The inherited frame should be actively tested.","consequence":"Diagnostic momentum persists longer than necessary."},
     {"id":"R4","objectiveId":"O2","label":"Commits to the ductal-dependent systemic circulation mechanism","points":12,"condition":{"type":"correctReasoning","patientId":"maya"},"rationale":"The diagnostic model should explain the perfusion pattern.","consequence":"Management may be correct without demonstrated understanding."},
     {"id":"R5","objectiveId":"O2","label":"Makes a provisional pathogen-versus-contaminant judgment","points":8,"condition":{"type":"flag","flag":"noraJudgmentMade","value":true},"rationale":"Uncertainty should be explicit before definitive speciation.","consequence":"The learner waits for the answer rather than reasoning prospectively."},
@@ -34,7 +35,7 @@
     {"id":"R17","objectiveId":"O6","label":"Completes patient-by-patient I-PASS fields","points":15,"condition":{"type":"handoffCompleteness","minimum":0.8},"rationale":"Safe transfer requires severity, summary, actions, pending work, and contingencies.","consequence":"The next clinician receives incomplete ownership information."},
     {"id":"R18","objectiveId":"O6","label":"Assigns ownership of pending work","points":8,"condition":{"type":"pendingOwnership"},"rationale":"Pending work must be completed or explicitly transferred.","consequence":"Critical results or pages may be lost at shift change."}
   ],
-  "mastery":{"overallMinimum":80,"objectiveMinimums":{"O1":65,"O2":65,"O3":75,"O4":65,"O5":60,"O6":70},"criticalItems":["R10"]},
+  "mastery":{"overallMinimum":80,"objectiveMinimums":{"O1":50,"O2":65,"O3":75,"O4":65,"O5":60,"O6":70},"criticalItems":["R10"]},
   "remediation":[
     {"objectiveId":"O1","title":"Prioritization remediation","instruction":"Review the attention ledger and identify where lower-acuity work displaced a higher-acuity need. Repeat with a 60-second re-triage rule after urgent pages.","nextVariantRule":"different-signout"},
     {"objectiveId":"O2","title":"Diagnostic reasoning remediation","instruction":"Rewrite Maya's problem representation using discriminating findings. State one inherited assumption and one way to falsify it.","nextVariantRule":"different-frame"},

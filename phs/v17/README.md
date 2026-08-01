@@ -59,4 +59,4 @@ All scores and objective mappings are formative. The current rubric, weights, ti
 
 ## Version preservation
 
-The previous implementation remains under `phs/v16/`. The live entrypoint currently references only `phs/v17/` assets.
+The live entrypoint references only `phs/v17/` assets. The superseded v1.6 implementation was removed from the deploy path and remains available in git history.

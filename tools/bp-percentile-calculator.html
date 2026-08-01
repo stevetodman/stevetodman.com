@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pediatric BP Percentile Calculator - AAP 2017</title>
+    <meta name="description" content="Pediatric blood pressure percentile calculator using AAP 2017 guidelines. Computes SBP/DBP percentiles and hypertension classification for ages 1-17.">
+<title>Pediatric BP Percentile Calculator - AAP 2017</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
     <style>
         :root {
             --primary: #2563eb;
@@ -32,7 +34,7 @@
         }
         .subtitle {
             text-align: center;
-            color: #64748b;
+            color: #556070;
             font-size: 0.875rem;
             margin-bottom: 1.5rem;
         }
@@ -44,7 +46,12 @@
             margin-bottom: 1rem;
         }
         .form-group { margin-bottom: 1rem; }
-        label {
+        .info-box h2, .thresholds h2, details h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        label, .field-label {
             display: block;
             font-weight: 500;
             margin-bottom: 0.25rem;
@@ -63,6 +70,10 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        input, select { max-width: 100%; min-width: 0; }
+        @media (max-width: 480px) {
+            .row, .row-3 { grid-template-columns: 1fr; }
+        }
         .row-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.5rem; }
         button {
             width: 100%;
@@ -127,7 +138,7 @@
             width: 40px;
             font-size: 0.75rem;
             font-weight: 600;
-            color: #64748b;
+            color: #556070;
         }
         .gauge-bar {
             flex: 1;
@@ -209,7 +220,7 @@
         .disclaimer {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            color: #64748b;
+            color: #556070;
             padding: 0.75rem;
             border-radius: 8px;
             font-size: 0.75rem;
@@ -245,7 +256,7 @@
         }
         .height-zscore {
             font-size: 0.8rem;
-            color: #64748b;
+            color: #556070;
             margin-top: 0.25rem;
         }
         .precision-note {
@@ -273,7 +284,7 @@
             background: transparent;
             font-size: 0.95rem;
             font-weight: 500;
-            color: #64748b;
+            color: #556070;
             cursor: pointer;
             border-radius: 6px;
             transition: all 0.2s;
@@ -344,6 +355,7 @@
     </style>
 </head>
 <body>
+<main>
     <div class="container">
         <h1>Pediatric BP Percentile Calculator</h1>
         <p class="subtitle">AAP 2017 Clinical Practice Guidelines</p>
@@ -351,21 +363,21 @@
         <details class="instructions-panel">
             <summary>📋 How to Use This Calculator</summary>
             <div class="instructions-content">
-                <h4>For Best Accuracy:</h4>
+                <h2>For Best Accuracy:</h2>
                 <ol>
                     <li><strong>Age:</strong> Enter the child's exact age using <em>Years + Months</em> (e.g., 8 years, 4 months). This matches how percentiles are calculated in the AAP reference tables.</li>
                     <li><strong>Height:</strong> Measure height accurately — small errors affect percentile calculations. The calculator will show a height z-score to help identify measurement errors.</li>
                     <li><strong>BP Measurement:</strong> Use the average of 2-3 auscultatory readings taken after 5 minutes of rest, per AAP guidelines.</li>
                 </ol>
                 
-                <h4>Understanding Results:</h4>
+                <h2>Understanding Results:</h2>
                 <ul>
                     <li><strong>Accuracy:</strong> Results are within ±1 percentile of published AAP tables</li>
                     <li><strong>For ages ≥13:</strong> Classification uses absolute thresholds (120/130/140 mmHg) per adult guidelines</li>
                     <li><strong>For ages &lt;13:</strong> Classification uses both percentiles AND absolute thresholds, whichever is lower</li>
                 </ul>
                 
-                <h4>When to Be Cautious:</h4>
+                <h2>When to Be Cautious:</h2>
                 <ul>
                     <li>⚠️ Height z-score &gt; 3 or &lt; -3 may indicate measurement error</li>
                     <li>⚠️ Ages &lt;5 or &gt;17 years are outside the validated range</li>
@@ -375,35 +387,36 @@
         </details>
         
         <div class="card">
+            <form id="bpForm" novalidate>
             <div class="row">
                 <div class="form-group">
-                    <label>Date of Birth</label>
+                    <label for="dob">Date of Birth</label>
                     <input type="date" id="dob" required>
                 </div>
                 <div class="form-group">
-                    <label>Measurement Date</label>
+                    <label for="measureDate">Measurement Date</label>
                     <input type="date" id="measureDate">
                 </div>
             </div>
             <div class="age-display" id="ageDisplay"></div>
 
             <div class="form-group">
-                <label>Sex</label>
-                <div class="sex-toggle" id="sexToggle">
-                    <button type="button" class="sex-btn active" data-value="M">Male</button>
-                    <button type="button" class="sex-btn" data-value="F">Female</button>
+                <span class="field-label" id="sexLabel">Sex</span>
+                <div class="sex-toggle" id="sexToggle" role="group" aria-labelledby="sexLabel">
+                    <button type="button" class="sex-btn active" data-value="M" aria-pressed="true">Male</button>
+                    <button type="button" class="sex-btn" data-value="F" aria-pressed="false">Female</button>
                 </div>
                 <input type="hidden" id="sex" value="M">
             </div>
 
             <div class="row">
                 <div class="form-group">
-                    <label>Height</label>
+                    <label for="height">Height</label>
                     <input type="number" id="height" step="0.1" inputmode="decimal" placeholder="Enter height">
                     <div class="height-zscore" id="heightZscore"></div>
                 </div>
                 <div class="form-group">
-                    <label>Unit</label>
+                    <label for="heightUnit">Unit</label>
                     <select id="heightUnit">
                         <option value="cm">cm</option>
                         <option value="in">in</option>
@@ -413,16 +426,17 @@
 
             <div class="row">
                 <div class="form-group">
-                    <label>Systolic BP (mmHg)</label>
+                    <label for="sbp">Systolic BP (mmHg)</label>
                     <input type="number" id="sbp" min="50" max="250" placeholder="Systolic">
                 </div>
                 <div class="form-group">
-                    <label>Diastolic BP (mmHg)</label>
+                    <label for="dbp">Diastolic BP (mmHg)</label>
                     <input type="number" id="dbp" min="30" max="150" placeholder="Diastolic">
                 </div>
             </div>
-            <button onclick="calculate()">Calculate Percentiles</button>
-            <div id="error" class="error"></div>
+            <button type="submit">Calculate Percentiles</button>
+            </form>
+            <div id="error" class="error" role="alert"></div>
             <div id="warnings"></div>
         </div>
         
@@ -461,7 +475,7 @@
 
                 <div id="classification" class="classification"></div>
                 <div class="thresholds">
-                    <h4>BP Thresholds for this patient:</h4>
+                    <h2>BP Thresholds for this patient:</h2>
                     <div class="threshold-row"><span>90th percentile:</span><span id="p90"></span></div>
                     <div class="threshold-row"><span>95th percentile:</span><span id="p95"></span></div>
                     <div class="threshold-row"><span>95th + 12 mmHg:</span><span id="p95plus12"></span></div>
@@ -490,7 +504,8 @@
             Flynn JT et al. <em>Pediatrics</em> 2017;140(3):e20171904 &bull; 
             Rosner B et al. <em>Am J Epidemiol</em> 2008;167(6):653-66
         </div>
-    </div>
+    </div></main>
+
     
     <script>
 // =============================================================================
@@ -641,26 +656,39 @@ function findPercentile(coefficients, bp, age, height, sex) {
     return closestPct;
 }
 
+function ordinal(n) {
+    const a = n % 100, b = n % 10;
+    const suffix = (a < 11 || a > 13) && b > 0 && b < 4 ? ['st', 'nd', 'rd'][b - 1] : 'th';
+    return n + suffix;
+}
+
 // =============================================================================
 // CLASSIFICATION (AAP 2017)
 // =============================================================================
-function classify(age, sbp, dbp, sbpPct, dbpPct, sbp95, dbp95) {
+// Classification is driven by the same continuous percentile values that are
+// displayed as the patient's thresholds, so the stated 90th/95th cut-points and
+// the reported category can never disagree. The integer percentile from
+// findPercentile() is for display only — rounding it to the nearest of 99
+// discrete ranks moved the Elevated/Stage 1 boundary by up to 1 mmHg.
+function classify(age, sbp, dbp, sbp90, dbp90, sbp95, dbp95) {
     if (age >= 13) {
         if (sbp >= 140 || dbp >= 90) return { class: 'Stage 2 HTN', css: 'stage2' };
         if (sbp >= 130 || dbp >= 80) return { class: 'Stage 1 HTN', css: 'stage1' };
         if (sbp >= 120) return { class: 'Elevated BP', css: 'elevated' };
         return { class: 'Normal', css: 'normal' };
     } else {
-        const sbp95p12 = sbp95 + 12;
-        const dbp95p12 = dbp95 + 12;
-        
-        if (sbp >= sbp95p12 || dbp >= dbp95p12 || sbp >= 140 || dbp >= 90) {
+        // AAP 2017: percentile cut-point or absolute threshold, whichever is lower.
+        // Compare against the rounded thresholds shown to the user.
+        const s90 = Math.round(sbp90), d90 = Math.round(dbp90);
+        const s95 = Math.round(sbp95), d95 = Math.round(dbp95);
+
+        if (sbp >= s95 + 12 || dbp >= d95 + 12 || sbp >= 140 || dbp >= 90) {
             return { class: 'Stage 2 HTN', css: 'stage2' };
         }
-        if (sbpPct >= 95 || dbpPct >= 95 || sbp >= 130 || dbp >= 80) {
+        if (sbp >= s95 || dbp >= d95 || sbp >= 130 || dbp >= 80) {
             return { class: 'Stage 1 HTN', css: 'stage1' };
         }
-        if (sbpPct >= 90 || dbpPct >= 90 || sbp >= 120) {
+        if (sbp >= s90 || dbp >= d90 || sbp >= 120) {
             return { class: 'Elevated BP', css: 'elevated' };
         }
         return { class: 'Normal', css: 'normal' };
@@ -712,6 +740,11 @@ function updateAgeDisplay() {
     updateHeightZscore();
 }
 
+document.getElementById('bpForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    calculate();
+});
+
 // DOB and measurement date handlers
 document.getElementById('dob').addEventListener('change', updateAgeDisplay);
 document.getElementById('measureDate').addEventListener('change', updateAgeDisplay);
@@ -725,8 +758,23 @@ document.querySelectorAll('.sex-btn').forEach(btn => {
         document.querySelectorAll('.sex-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
         document.getElementById('sex').value = this.dataset.value;
+        this.setAttribute('aria-pressed', 'true');
+        document.querySelectorAll('.sex-btn').forEach(b => { if (b !== this) b.setAttribute('aria-pressed', 'false'); });
+        invalidateResults();
         updateHeightZscore();
     });
+});
+
+// Any change to the inputs invalidates the displayed result, so a stale
+// classification can never sit on screen next to different numbers.
+function invalidateResults() {
+    document.getElementById('results').classList.remove('show');
+    document.getElementById('error').textContent = '';
+}
+['dob', 'measureDate', 'height', 'heightUnit', 'sbp', 'dbp', 'sex'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', invalidateResults);
+    el.addEventListener('change', invalidateResults);
 });
 
 // Real-time height z-score display
@@ -822,10 +870,26 @@ function calculate() {
         errorEl.textContent = 'Please enter valid blood pressure values.';
         return;
     }
+    if (sbp < 50 || sbp > 250) {
+        errorEl.textContent = 'Systolic BP must be between 50 and 250 mmHg.';
+        return;
+    }
+    if (dbp < 30 || dbp > 150) {
+        errorEl.textContent = 'Diastolic BP must be between 30 and 150 mmHg.';
+        return;
+    }
+    if (dbp >= sbp) {
+        errorEl.textContent = 'Diastolic BP must be lower than systolic BP — check the values entered.';
+        return;
+    }
     
     // Convert height to cm if needed
     if (heightUnit === 'in') {
         height = height * 2.54;
+    }
+    if (height < 60 || height > 210) {
+        errorEl.textContent = `Height of ${height.toFixed(1)} cm is outside the plausible range for ages 1–17. Check the value and the unit selected.`;
+        return;
     }
     
     // =========================================================================
@@ -895,14 +959,14 @@ function calculate() {
     const dbp95 = getBPAtPercentile(dbpCoef, 94, adjustedAge, height, sex);
     
     // Classification
-    const result = classify(adjustedAge, sbp, dbp, sbpPct, dbpPct, sbp95, dbp95);
+    const result = classify(adjustedAge, sbp, dbp, sbp90, dbp90, sbp95, dbp95);
     
     // =========================================================================
     // DISPLAY RESULTS
     // =========================================================================
-    document.getElementById('sbpPct').textContent = sbpPct + 'th %ile';
+    document.getElementById('sbpPct').textContent = ordinal(sbpPct) + ' %ile';
     document.getElementById('sbpDetail').textContent = sbp + ' mmHg';
-    document.getElementById('dbpPct').textContent = dbpPct + 'th %ile';
+    document.getElementById('dbpPct').textContent = ordinal(dbpPct) + ' %ile';
     document.getElementById('dbpDetail').textContent = dbp + ' mmHg';
     
     const classEl = document.getElementById('classification');

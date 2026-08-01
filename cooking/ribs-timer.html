@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Baby Back Ribs Timer</title>
+  <meta name="description" content="Step-by-step timer for baby back ribs with audio alerts and doneness cues.">
+<title>Baby Back Ribs Timer</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
   <style>
     * {
       box-sizing: border-box;
@@ -618,9 +620,11 @@
         color: #333;
       }
     }
-  </style>
+      a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px solid #00cec9; outline-offset: 2px; }
+</style>
 </head>
 <body>
+<main>
   <h1>🍖 Baby Back Ribs Timer</h1>
   <div class="recipe-credit">Alton Brown • Good Eats • ~4.5 hours total</div>
 
@@ -661,7 +665,7 @@
     <div class="current-step-header">
       <div class="current-step-label">⏰ Do This Now</div>
       <label class="step-checkbox">
-        <input type="checkbox" id="currentStepCheck" onchange="markCurrentComplete()">
+        <input type="checkbox" id="currentStepCheck" onchange="markCurrentComplete()" aria-label="Mark the current step complete">
         Done
       </label>
     </div>
@@ -751,7 +755,8 @@
     <div class="not-started" id="notStartedMsg">
       Press START to begin your cooking timer
     </div>
-  </div>
+  </div></main>
+
 
   <script>
     const STORAGE_KEY = 'ribsTimerV2';
@@ -1403,6 +1408,7 @@
               <input type="checkbox"
                 ${isCompleted ? 'checked' : ''}
                 onchange="toggleStepComplete(${i})"
+                aria-label="Mark step ${i + 1} complete: ${step.title.replace(/"/g, '&quot;')}"
                 ${elapsed === null ? 'disabled' : ''}>
             </div>
             <div class="timeline-time">${timeDisplay}</div>

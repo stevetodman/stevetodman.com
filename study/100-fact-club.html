@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="100 Fact Club — multiplication sprint training and timed challenge.">
 <title>100 Fact Club</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -17,7 +19,7 @@
   }
   .container { max-width: 500px; width: 100%; }
   h1 { text-align: center; font-size: 1.6rem; margin-bottom: 6px; color: #1a365d; }
-  .subtitle { text-align: center; color: #718096; font-size: 0.95rem; margin-bottom: 24px; }
+  .subtitle { text-align: center; color: #5a6678; font-size: 0.95rem; margin-bottom: 24px; }
   .card {
     background: #fff; border-radius: 16px; padding: 28px 24px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom: 20px; text-align: center;
@@ -81,17 +83,17 @@
 
   /* Menu */
   .menu-cards { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
-  .menu-card {
+  .menu-card { appearance: none; font: inherit; text-align: left; width: 100%; color: inherit;
     background: #fff; border-radius: 14px; padding: 22px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);
     cursor: pointer; border: 2px solid transparent; transition: all 0.15s ease;
   }
   .menu-card:hover { border-color: #ed8936; transform: translateY(-2px); box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
   .menu-card h2 { font-size: 1.15rem; color: #1a365d; margin-bottom: 4px; }
-  .menu-card p { font-size: 0.9rem; color: #718096; line-height: 1.4; }
+  .menu-card p { font-size: 0.9rem; color: #5a6678; line-height: 1.4; }
   .menu-card .badge { display: inline-block; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px; }
-  .badge-orange { background: #ed8936; }
+  .badge-orange { background: #b04a12; }
   .badge-red { background: #e53e3e; }
-  .badge-green { background: #38a169; }
+  .badge-green { background: #2f7d55; }
   .menu-card.challenge-card { border: 2px solid #ed8936; background: linear-gradient(135deg, #fffaf0, #fff); }
   .menu-card.challenge-card h2 { color: #c05621; }
 
@@ -101,7 +103,7 @@
   /* Results */
   .results { text-align: center; }
   .results .score-big { font-size: 3.5rem; font-weight: 700; color: #ed8936; margin: 12px 0 4px; }
-  .results .score-label { font-size: 1.1rem; color: #718096; margin-bottom: 8px; }
+  .results .score-label { font-size: 1.1rem; color: #5a6678; margin-bottom: 8px; }
   .results .time-label { font-size: 1rem; color: #4a5568; margin-bottom: 20px; }
   .results .message { font-size: 1.15rem; margin-bottom: 24px; line-height: 1.5; }
   .club-banner {
@@ -165,10 +167,13 @@
   }
   .time-up-text { font-size: 3rem; font-weight: 800; color: #fff; margin-bottom: 12px; }
   .time-up-sub { font-size: 1.2rem; color: rgba(255,255,255,0.9); }
+  .menu-card:focus-visible, .choice-btn:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #667eea; outline-offset: 2px; }
 </style>
 </head>
 <body>
-<div class="container" id="app"></div>
+<main>
+<div class="container" id="app"></div></main>
+
 
 <script>
 /* ── STATE ── */
@@ -211,29 +216,29 @@ function showMenu() {
     '<p class="subtitle">Train your multiplication speed and join the club!</p>' +
     '<div class="section-label">Sprint Training</div>' +
     '<div class="menu-cards">' +
-      '<div class="menu-card" data-mode="sprint25">' +
+      '<button type="button" class="menu-card" data-mode="sprint25">' +
         '<span class="badge badge-green">Warm Up</span>' +
         '<h2>Sprint 25</h2>' +
         '<p>25 random facts \u2014 45 second countdown. Build your speed!</p>' +
-      '</div>' +
-      '<div class="menu-card" data-mode="sprint50">' +
+      '</button>' +
+      '<button type="button" class="menu-card" data-mode="sprint50">' +
         '<span class="badge badge-orange">Training</span>' +
         '<h2>Sprint 50</h2>' +
         '<p>50 random facts \u2014 90 second countdown. Find your rhythm.</p>' +
-      '</div>' +
-      '<div class="menu-card" data-mode="sprint75">' +
+      '</button>' +
+      '<button type="button" class="menu-card" data-mode="sprint75">' +
         '<span class="badge badge-orange">Advanced</span>' +
         '<h2>Sprint 75</h2>' +
         '<p>75 random facts \u2014 105 second countdown. Almost there!</p>' +
-      '</div>' +
+      '</button>' +
     '</div>' +
     '<div class="section-label">The Challenge</div>' +
     '<div class="menu-cards">' +
-      '<div class="menu-card challenge-card" data-mode="challenge">' +
+      '<button type="button" class="menu-card challenge-card" data-mode="challenge">' +
         '<span class="badge badge-red">100 Facts \u2022 2 Minutes</span>' +
         '<h2>100 Fact Club Challenge</h2>' +
         '<p>100 multiplication facts. 2 minute countdown. No mistakes. Can you do it?</p>' +
-      '</div>' +
+      '</button>' +
     '</div>' +
     '<a class="back-link" href="./">Back to Study Hub</a>';
 
