@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stevetodman.com/phs/v17/schema.json",
+  "title": "Pediatric Hospital Simulator Case Schema v1.0",
+  "type": "object",
+  "required": ["id", "title", "version", "objectives", "variants", "patients", "rubric", "mastery"],
+  "properties": {
+    "id": {"type": "string"},
+    "title": {"type": "string"},
+    "version": {"type": "string"},
+    "description": {"type": "string"},
+    "objectives": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "description"],
+        "properties": {
+          "id": {"type": "string"},
+          "label": {"type": "string"},
+          "description": {"type": "string"},
+          "framework": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["system", "code", "label"],
+              "properties": {
+                "system": {"type": "string"},
+                "code": {"type": "string"},
+                "label": {"type": "string"},
+                "claimBoundary": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "variants": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "signoutOverrides", "timingOverrides"],
+        "properties": {
+          "id": {"type": "string"},
+          "label": {"type": "string"},
+          "signoutOverrides": {"type": "object"},
+          "timingOverrides": {"type": "object"}
+        }
+      }
+    },
+    "patients": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["name", "age", "room", "correctRank", "signout", "initialVitals", "diagnosisChoices", "correctDiagnosis", "history", "exams", "orders"],
+        "properties": {
+          "name": {"type": "string"},
+          "age": {"type": "string"},
+          "room": {"type": "string"},
+          "weightKg": {"type": ["number", "null"]},
+          "correctRank": {"type": "integer", "minimum": 1},
+          "signout": {"type": "string"},
+          "initialVitals": {"type": "object"},
+          "diagnosisChoices": {"type": "array", "items": {"type": "string"}},
+          "correctDiagnosis": {"type": "string"},
+          "history": {"type": "object"},
+          "exams": {"type": "array"},
+          "orders": {"type": "array"},
+          "events": {"type": "array"}
+        }
+      }
+    },
+    "rubric": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "objectiveId", "label", "points", "condition", "rationale", "consequence"],
+        "properties": {
+          "id": {"type": "string"},
+          "objectiveId": {"type": "string"},
+          "patientId": {"type": ["string", "null"]},
+          "label": {"type": "string"},
+          "points": {"type": "number"},
+          "condition": {"type": "object"},
+          "rationale": {"type": "string"},
+          "consequence": {"type": "string"},
+          "critical": {"type": "boolean"}
+        }
+      }
+    },
+    "mastery": {
+      "type": "object",
+      "required": ["overallMinimum", "objectiveMinimums"],
+      "properties": {
+        "overallMinimum": {"type": "number"},
+        "objectiveMinimums": {"type": "object"},
+        "criticalItems": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "remediation": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["objectiveId", "title", "instruction", "nextVariantRule"],
+        "properties": {
+          "objectiveId": {"type": "string"},
+          "title": {"type": "string"},
+          "instruction": {"type": "string"},
+          "nextVariantRule": {"type": "string"}
+        }
+      }
+    }
+  }
+}
