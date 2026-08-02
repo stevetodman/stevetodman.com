@@ -2,7 +2,7 @@
 
 async function loadAuditRemediation(){
   if(window.__PHS_AUDIT_REMEDIATION_LOADED__)return;
-  const modules=['integrity-base.js','integrity-engine.js','integrity-ui.js','integrity-assessment.js','integrity-layout.js','clinical-validation.js'];
+  const modules=['integrity-base.js','integrity-engine.js','integrity-ui.js','integrity-assessment.js','integrity-layout.js','clinical-validation.js','clinical-validation-compat.js'];
   for(const module of modules){
     await new Promise((resolve,reject)=>{
       const script=document.createElement('script');
