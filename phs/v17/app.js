@@ -1,7 +1,23 @@
 'use strict';
 
+async function loadAuditRemediation(){
+  if(window.__PHS_AUDIT_REMEDIATION_LOADED__)return;
+  const modules=['integrity-base','integrity-engine','integrity-ui','integrity-assessment'];
+  for(const module of modules){
+    await new Promise((resolve,reject)=>{
+      const script=document.createElement('script');
+      script.src=`v17/${module}.js?v=18`;
+      script.onload=resolve;
+      script.onerror=()=>reject(new Error(`PHS v1.8 module failed to load: ${module}.js`));
+      document.head.appendChild(script);
+    });
+  }
+  window.__PHS_AUDIT_REMEDIATION_LOADED__=true;
+}
+
 async function init(){
   try{
+    await loadAuditRemediation();
     const caseData=await loadCase();
     state=createState(caseData,chooseInitialVariant(caseData),'assessment');
     timerId=setInterval(realTimeTick,1000);
