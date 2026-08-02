@@ -1,14 +1,22 @@
 'use strict';
 
+// Essential modal semantics are applied synchronously while the parser loads
+// this script, so they are available from first paint rather than after the
+// asynchronous remediation modules finish loading.
+for(const id of ['prebrief','endModal','debrief']){
+  const modal=document.getElementById(id);
+  if(modal){modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');}
+}
+
 async function loadAuditRemediation(){
   if(window.__PHS_AUDIT_REMEDIATION_LOADED__)return;
-  const modules=['integrity-base.js','integrity-engine.js','integrity-ui.js','integrity-assessment.js','integrity-layout.js'];
+  const modules=['integrity-base.js','integrity-engine.js','integrity-ui.js','integrity-assessment.js','integrity-layout.js','clinical-validation.js','clinical-validation-compat.js'];
   for(const module of modules){
     await new Promise((resolve,reject)=>{
       const script=document.createElement('script');
-      script.src=`v17/${module}?v=18`;
+      script.src=`v17/${module}?v=19`;
       script.onload=resolve;
-      script.onerror=()=>reject(new Error(`PHS v1.8 module failed to load: ${module}`));
+      script.onerror=()=>reject(new Error(`PHS clinical-validation module failed to load: ${module}`));
       document.head.appendChild(script);
     });
   }
