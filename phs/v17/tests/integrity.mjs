@@ -24,7 +24,10 @@ const remediationFiles = [
   'integrity-base.js',
   'integrity-engine.js',
   'integrity-ui.js',
-  'integrity-assessment.js'
+  'integrity-assessment.js',
+  'integrity-layout.js',
+  'clinical-validation.js',
+  'clinical-validation-compat.js'
 ];
 
 const runtimeFiles = [...entrypointRuntimeFiles, ...remediationFiles];
@@ -67,8 +70,11 @@ for (const relativePath of [...runtimeFiles, ...caseFiles, ...supportFiles]) {
 const indexPath = path.join(phsRoot, 'index.html');
 assert.ok(fs.existsSync(indexPath), 'Missing canonical entrypoint: phs/index.html');
 const index = fs.readFileSync(indexPath, 'utf8');
-assert.match(index, /HOSTED v1\.8/, 'Entrypoint does not identify v1.8');
-assert.match(index, /app\.js\?v=18/, 'Entrypoint does not cache-bust the v1.8 application bootstrap');
+assert.match(index, /CLINICAL VALIDATION v1\.9/, 'Entrypoint does not identify the v1.9 clinical-validation release');
+assert.match(index, /app\.js\?v=19/, 'Entrypoint does not cache-bust the v1.9 application bootstrap');
+assert.match(index, /id="prebrief"[^>]*role="dialog"[^>]*aria-modal="true"/, 'Prebrief dialog semantics are not present in static markup');
+assert.match(index, /id="endModal"[^>]*role="dialog"[^>]*aria-modal="true"/, 'End-shift dialog semantics are not present in static markup');
+assert.match(index, /id="debrief"[^>]*role="dialog"[^>]*aria-modal="true"/, 'Debrief dialog semantics are not present in static markup');
 
 const localReferences = [...index.matchAll(/(?:src|href)="([^"]+)"/g)]
   .map(match => match[1].split(/[?#]/)[0])
@@ -102,8 +108,9 @@ const assembledCase = { ...manifest, patients };
 for (const key of ['id', 'title', 'version', 'objectives', 'variants', 'patients', 'rubric', 'mastery']) {
   assert.ok(Object.hasOwn(assembledCase, key), `Assembled case is missing required field: ${key}`);
 }
-assert.equal(manifest.version, '1.7.0', 'The declarative base case remains version 1.7.0; the v1.8 runtime records the remediated release version');
-assert.match(read('integrity-base.js'), /PHS_RELEASE_VERSION = '1\.8\.0'/, 'Runtime release version is not v1.8.0');
+assert.equal(manifest.version, '1.7.0', 'The declarative base case remains version 1.7.0; runtime layers record remediated release versions');
+assert.match(read('integrity-base.js'), /PHS_RELEASE_VERSION = '1\.8\.0'/, 'Base remediation release version is not v1.8.0');
+assert.match(read('clinical-validation.js'), /PHS_CLINICAL_VALIDATION_VERSION = '1\.9\.0-rc2'/, 'Clinical-validation runtime version is not v1.9.0-rc2');
 assert.ok(manifest.objectives.length > 0, 'At least one learning objective is required');
 assert.ok(manifest.variants.length > 1, 'At least two surface variants are required');
 
@@ -172,5 +179,7 @@ assert.match(read('ui-debrief.js'), /Objective-linked performance/, 'Structured 
 assert.match(read('integrity-engine.js'), /state\.time >= deadline/, 'Hard clinical deadline guard is missing');
 assert.match(read('integrity-ui.js'), /data-interpretation-input/, 'Learner-entered result interpretation is missing');
 assert.match(read('integrity-assessment.js'), /qualityAdequate/, 'Content-dependent communication assessment is missing');
+assert.match(read('clinical-validation.js'), /phsDangerousNegation/, 'Negation-aware clinical interpretation safeguard is missing');
+assert.match(read('clinical-validation-compat.js'), /vascularAccess/, 'Emergency monitored-access compatibility safeguard is missing');
 
-console.log(`PHS v1.8 integrity passed: ${runtimeFiles.length} runtime files, ${caseFiles.length} case files, ${manifest.objectives.length} objectives, ${manifest.rubric.length} rubric items, ${manifest.variants.length} variants.`);
+console.log(`PHS v1.9 integrity passed: ${runtimeFiles.length} runtime files, ${caseFiles.length} case files, ${manifest.objectives.length} objectives, ${manifest.rubric.length} rubric items, ${manifest.variants.length} variants.`);
