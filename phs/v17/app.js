@@ -1,10 +1,26 @@
 'use strict';
 
+async function loadAuditRemediation(){
+  if(window.__PHS_AUDIT_REMEDIATION_LOADED__)return;
+  const modules=['integrity-base.js','integrity-engine.js','integrity-ui.js','integrity-assessment.js','integrity-layout.js'];
+  for(const module of modules){
+    await new Promise((resolve,reject)=>{
+      const script=document.createElement('script');
+      script.src=`v17/${module}?v=18`;
+      script.onload=resolve;
+      script.onerror=()=>reject(new Error(`PHS v1.8 module failed to load: ${module}`));
+      document.head.appendChild(script);
+    });
+  }
+  window.__PHS_AUDIT_REMEDIATION_LOADED__=true;
+}
+
 async function init(){
   try{
+    await loadAuditRemediation();
     const caseData=await loadCase();
     state=createState(caseData,chooseInitialVariant(caseData),'assessment');
-    timerId=setInterval(realTimeTick,1000);
+    timerId=setInterval(realTimeTick,250);
     bindEvents();renderAll();showPrebrief();
   }catch(error){
     console.error(error);document.body.innerHTML=`<main class="panel" style="margin:2rem"><h1>Simulator failed to load</h1><p>${esc(error.message)}</p></main>`;

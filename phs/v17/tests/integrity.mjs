@@ -8,7 +8,7 @@ const repoRoot = path.resolve(here, '../../..');
 const phsRoot = path.join(repoRoot, 'phs');
 const v17Root = path.join(phsRoot, 'v17');
 
-const runtimeFiles = [
+const entrypointRuntimeFiles = [
   'styles.css',
   'storage.js',
   'analytics.js',
@@ -19,6 +19,15 @@ const runtimeFiles = [
   'ui-debrief.js',
   'app.js'
 ];
+
+const remediationFiles = [
+  'integrity-base.js',
+  'integrity-engine.js',
+  'integrity-ui.js',
+  'integrity-assessment.js'
+];
+
+const runtimeFiles = [...entrypointRuntimeFiles, ...remediationFiles];
 
 const caseFiles = [
   'cases/manifest.json',
@@ -58,18 +67,24 @@ for (const relativePath of [...runtimeFiles, ...caseFiles, ...supportFiles]) {
 const indexPath = path.join(phsRoot, 'index.html');
 assert.ok(fs.existsSync(indexPath), 'Missing canonical entrypoint: phs/index.html');
 const index = fs.readFileSync(indexPath, 'utf8');
-assert.match(index, /HOSTED v1\.7/, 'Entrypoint does not identify v1.7');
+assert.match(index, /HOSTED v1\.8/, 'Entrypoint does not identify v1.8');
+assert.match(index, /app\.js\?v=18/, 'Entrypoint does not cache-bust the v1.8 application bootstrap');
 
 const localReferences = [...index.matchAll(/(?:src|href)="([^"]+)"/g)]
   .map(match => match[1].split(/[?#]/)[0])
   .filter(reference => reference.startsWith('v17/'));
 
-assert.ok(localReferences.length >= runtimeFiles.length, 'Entrypoint is missing v1.7 asset references');
+assert.ok(localReferences.length >= entrypointRuntimeFiles.length, 'Entrypoint is missing runtime asset references');
 for (const reference of localReferences) {
   assert.ok(fs.existsSync(path.join(phsRoot, reference)), `Entrypoint references missing file: phs/${reference}`);
 }
-for (const runtimeFile of runtimeFiles) {
+for (const runtimeFile of entrypointRuntimeFiles) {
   assert.ok(localReferences.includes(`v17/${runtimeFile}`), `Entrypoint does not load v17/${runtimeFile}`);
+}
+
+const appSource = read('app.js');
+for (const remediationFile of remediationFiles) {
+  assert.match(appSource, new RegExp(remediationFile.replace('.', '\\.')), `Application bootstrap does not load ${remediationFile}`);
 }
 
 for (const script of runtimeFiles.filter(file => file.endsWith('.js'))) {
@@ -81,15 +96,14 @@ assert.equal(schema.$schema, 'https://json-schema.org/draft/2020-12/schema');
 
 const manifest = parseJson('cases/manifest.json');
 const patientIds = ['maya', 'eli', 'nora', 'jamal'];
-const patients = Object.fromEntries(
-  patientIds.map(id => [id, parseJson(`cases/patients/${id}.json`)])
-);
+const patients = Object.fromEntries(patientIds.map(id => [id, parseJson(`cases/patients/${id}.json`)]));
 const assembledCase = { ...manifest, patients };
 
 for (const key of ['id', 'title', 'version', 'objectives', 'variants', 'patients', 'rubric', 'mastery']) {
   assert.ok(Object.hasOwn(assembledCase, key), `Assembled case is missing required field: ${key}`);
 }
-assert.equal(manifest.version, '1.7.0', 'Case version must match the v1.7 release');
+assert.equal(manifest.version, '1.7.0', 'The declarative base case remains version 1.7.0; the v1.8 runtime records the remediated release version');
+assert.match(read('integrity-base.js'), /PHS_RELEASE_VERSION = '1\.8\.0'/, 'Runtime release version is not v1.8.0');
 assert.ok(manifest.objectives.length > 0, 'At least one learning objective is required');
 assert.ok(manifest.variants.length > 1, 'At least two surface variants are required');
 
@@ -155,5 +169,8 @@ assert.match(read('storage.js'), /phs\.v17\.learnerRecord/, 'Learner-record stor
 assert.match(read('engine-core.js'), /patients\/maya/, 'Case loader does not include the Maya patient file');
 assert.match(read('engine-assessment.js'), /computeDiagnosticAnalytics/, 'Assessment engine does not invoke diagnostic analytics');
 assert.match(read('ui-debrief.js'), /Objective-linked performance/, 'Structured objective-linked debrief is missing');
+assert.match(read('integrity-engine.js'), /state\.time >= deadline/, 'Hard clinical deadline guard is missing');
+assert.match(read('integrity-ui.js'), /data-interpretation-input/, 'Learner-entered result interpretation is missing');
+assert.match(read('integrity-assessment.js'), /qualityAdequate/, 'Content-dependent communication assessment is missing');
 
-console.log(`PHS v1.7 integrity passed: ${runtimeFiles.length} runtime files, ${caseFiles.length} case files, ${manifest.objectives.length} objectives, ${manifest.rubric.length} rubric items, ${manifest.variants.length} variants.`);
+console.log(`PHS v1.8 integrity passed: ${runtimeFiles.length} runtime files, ${caseFiles.length} case files, ${manifest.objectives.length} objectives, ${manifest.rubric.length} rubric items, ${manifest.variants.length} variants.`);

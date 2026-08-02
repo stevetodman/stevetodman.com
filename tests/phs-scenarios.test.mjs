@@ -26,9 +26,7 @@ after(async () => {
 });
 
 describe('vital-sign rendering', () => {
-  // Regression: formatVital() applied Math.round to the BP string "62/38",
-  // so the primary vitals tile read "NaN" for every patient in every state.
-  test('blood pressure renders as a fraction, never NaN', async () => {
+  test('observed blood pressure renders as a fraction or sentinel, never NaN', async () => {
     const context = await browser.newContext();
     const page = await context.newPage();
     await page.goto(`${server.origin}/phs/`);
@@ -44,13 +42,18 @@ describe('vital-sign rendering', () => {
     assert.equal(initial.BP, '62/38', 'Maya opens at 62/38');
     assert.ok(!Object.values(initial).includes('NaN'), `no NaN tiles: ${JSON.stringify(initial)}`);
 
-    // Non-numeric sentinel values must survive too.
-    await page.evaluate(() => { state.patients.maya.vitals.BP = 'unobtainable'; renderVitals(); });
-    const unobtainable = await readVitalTiles(page);
-    assert.equal(unobtainable.BP, 'unobtainable');
+    // v1.8 intentionally renders the last learner-observed measurement rather
+    // than hidden physiology. Mutate that observed record to test formatting.
+    await page.evaluate(() => {
+      state.patients.maya.observedVitals.at(-1).BP = 'unobtainable';
+      renderVitals();
+    });
+    assert.equal((await readVitalTiles(page)).BP, 'unobtainable');
 
-    // Numeric vitals still round to one decimal.
-    await page.evaluate(() => { state.patients.maya.vitals.HR = 168.44; renderVitals(); });
+    await page.evaluate(() => {
+      state.patients.maya.observedVitals.at(-1).HR = 168.44;
+      renderVitals();
+    });
     assert.equal((await readVitalTiles(page)).HR, '168.4');
 
     await context.close();
@@ -76,9 +79,6 @@ describe('deterioration and safety consequences', () => {
     assert.equal(r.mastery, false);
   });
 
-  // Regression: the post-treatment branch overwrote the apnea vitals and set
-  // `stabilized` regardless, so a learner who never provided airway support
-  // finished the shift with the patient marked stable at SpO2 71%.
   test('unsupported prostaglandin apnea deteriorates to arrest', async () => {
     const r = await runScenario(browser, server.origin, { plan: PLAN_PGE_NO_AIRWAY, completeShift: false });
     assert.equal(r.maya.flags.pgeApnea, true, 'apnea should fire without airway support');
@@ -124,8 +124,6 @@ describe('deterioration and safety consequences', () => {
 });
 
 describe('shift window and handoff', () => {
-  // Regression: the shift auto-ended at 900s, which forfeited both handoff
-  // rubric items (all of objective O6) and made mastery unreachable.
   test('clinical time ends with a warning and the handoff runs on a stopped clock', async () => {
     const r = await runScenario(browser, server.origin, {
       completeShift: false,
@@ -135,7 +133,7 @@ describe('shift window and handoff', () => {
     assert.equal(r.beforeHandoff.handoffWarned, true, 'learner must be warned before clinical time ends');
     assert.equal(r.beforeHandoff.handoffForced, true, 'clinical time must hand off rather than end the attempt');
     assert.equal(r.beforeHandoff.ended, false, 'the attempt must stay open so I-PASS can be completed');
-    assert.ok(r.beforeHandoff.time <= 900, `handoff should open by 840s, got ${r.beforeHandoff.time}s`);
+    assert.equal(r.beforeHandoff.time, 840, `handoff must open exactly at 840s, got ${r.beforeHandoff.time}s`);
   });
 
   test('clinical actions are blocked once the handoff window opens', async () => {
@@ -168,8 +166,6 @@ describe('shift window and handoff', () => {
 });
 
 describe('assessment calibration', () => {
-  // Regression: a maximally efficient expert run peaked at 70% against an 80%
-  // minimum, so the mastery loop could never close.
   test('a well-sequenced expert run meets the mastery standard', async () => {
     const r = await runScenario(browser, server.origin, { plan: PLAN_EXPERT });
     assert.equal(r.criticalFailure, false, `unexpected critical failure; missed ${r.missedItems.join(', ')}`);
@@ -208,7 +204,6 @@ describe('assessment calibration', () => {
 });
 
 describe('history taking', () => {
-  /** Boot a shift and select Maya, returning the page. */
   async function openMaya() {
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -223,9 +218,6 @@ describe('history taking', () => {
     return { context, page };
   }
 
-  // Regression: with no patient selected the input and Ask button were enabled,
-  // askHistory() returned silently, and the typed question was cleared. The
-  // learner saw nothing happen and got no explanation.
   test('history controls are inert and clearly disabled until a patient is chosen', async () => {
     const { context, page } = await openMaya();
     const before = await page.evaluate(() => ({
@@ -239,7 +231,6 @@ describe('history taking', () => {
     assert.equal(before.inputDisabled, true, 'the question field must be disabled with no patient selected');
     assert.match(before.hint, /choose a patient/i, 'the panel must say what to do');
 
-    // Even if invoked directly, it must explain itself rather than no-op.
     const outcome = await page.evaluate(() => {
       const t = state.time;
       askHistory('How has she been feeding?', 'parent');
@@ -250,8 +241,6 @@ describe('history taking', () => {
     await context.close();
   });
 
-  // Regression: the term "eat" matched inside "breathe", so respiratory
-  // questions returned the feeding answer — wrong information, full price.
   test('questions match the topic they are actually about', async () => {
     const { context, page } = await openMaya();
     await page.click('[data-patient="maya"]');
@@ -275,8 +264,6 @@ describe('history taking', () => {
     await context.close();
   });
 
-  // Regression: an uninterpretable question cost the same 20 seconds as a
-  // productive one and returned a dead-end answer with no guidance.
   test('an uninterpretable question costs less and says what can be asked', async () => {
     const { context, page } = await openMaya();
     await page.click('[data-patient="maya"]');
@@ -299,7 +286,6 @@ describe('history taking', () => {
     const chips = await page.$$eval('.topic-chip', els => els.map(e => e.textContent.trim()));
     assert.ok(chips.length >= 5, `expected topic chips, got ${chips.length}`);
 
-    // Every chip must produce a question the matcher actually understands.
     const unmatched = await page.evaluate(() => {
       const bad = [];
       for (const [key, item] of Object.entries(state.patients.maya.history)) {
@@ -330,9 +316,6 @@ describe('history taking', () => {
 });
 
 describe('scheduled page timing', () => {
-  // Regression: page times were hardcoded at 210/300/360s while Maya's
-  // deterioration thresholds shifted per variant, so the intended choreography
-  // — competing demands arriving as she declines — drifted between variants.
   test('page times hold the same offsets from Maya\'s decline in every variant', async () => {
     const context = await browser.newContext();
     const page = await context.newPage();

@@ -9,27 +9,43 @@ import { watchForErrors } from './harness.mjs';
 
 export const CORRECT_RANKING = { maya: '1', eli: '2', nora: '3', jamal: '4' };
 
-/** A complete I-PASS handoff. Field keys must match readHandoffs()/handoffCompleteness(). */
+/** A clinically meaningful I-PASS handoff that satisfies the v1.8 content checks. */
 export function fullHandoffs() {
-  const handoffs = {};
-  for (const pid of ['maya', 'eli', 'nora', 'jamal']) {
-    handoffs[pid] = {
-      illness: 'Watcher — unstable overnight',
-      summary: 'Full patient summary with mechanism and current trajectory documented.',
-      actions: 'Actions taken during this shift are documented in full detail.',
-      pending: 'Pending work is owned by the night attending and bedside nurse.',
-      contingency: 'If deterioration occurs then escalate to the attending immediately.',
-    };
-  }
-  return handoffs;
+  return {
+    maya: {
+      illness: 'Critical watcher after neonatal shock stabilization.',
+      summary: 'Neonate with shock, weak femoral pulses, and ductal-dependent systemic perfusion.',
+      actions: 'Prostaglandin, monitoring, cultures, antibiotics, cardiology escalation, and reassessment completed.',
+      pending: 'Incoming resident owns pending echo results and repeat perfusion reassessment.',
+      contingency: 'If perfusion worsens or lactate rises, call cardiology and the attending immediately.',
+    },
+    eli: {
+      illness: 'Watcher for hypoxemic respiratory deterioration.',
+      summary: 'Infant with bronchiolitis, increased work of breathing, and oxygen requirement.',
+      actions: 'Respiratory exam, suction, oxygen support, and hydration reassessment completed.',
+      pending: 'Incoming resident and nurse own repeat oxygen saturation and feeding assessment.',
+      contingency: 'If breathing worsens or desaturation recurs, escalate respiratory support and call the attending.',
+    },
+    nora: {
+      illness: 'Watcher with invasive bacterial infection risk.',
+      summary: 'Young infant with fever and positive culture requiring bacteremia and meningitis evaluation.',
+      actions: 'Culture review, antibiotics, CSF evaluation, and admission planning completed.',
+      pending: 'Incoming resident owns speciation, CSF result review, and antibiotic adjustment.',
+      contingency: 'If fever, perfusion, or mental status worsens, call the attending and escalate sepsis care.',
+    },
+    jamal: {
+      illness: 'Stable low-risk chest pain patient.',
+      summary: 'Adolescent with reproducible musculoskeletal chest pain and no current high-risk features.',
+      actions: 'Chest-wall exam, analgesia, risk explanation, and caregiver update completed.',
+      pending: 'No pending work; incoming resident confirms symptom improvement before discharge.',
+      contingency: 'If exertional pain, syncope, dyspnea, or worsening symptoms occur, reassess and escalate.',
+    },
+  };
 }
 
 /**
  * Boot the simulator, commit the given ranking, run `plan`, then optionally
  * complete the shift with a full handoff.
- *
- * @returns {object} score, objectives, mastery, end state, Maya's vitals/flags,
- *                   urgent-page latencies, and any page errors.
  */
 export async function runScenario(browser, origin, {
   plan = '',
@@ -42,7 +58,6 @@ export async function runScenario(browser, origin, {
   const errors = watchForErrors(page);
 
   await page.goto(`${origin}/phs/`);
-  // A fresh learner record each run: attempt number and assigned variant are persisted.
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForFunction(() => typeof state !== 'undefined' && state !== null && !!state.caseData, { timeout: 15000 });
@@ -54,7 +69,6 @@ export async function runScenario(browser, origin, {
     }
     document.querySelector(`input[name=mode][value=${mode}]`).checked = true;
     document.getElementById('startBtn').click();
-    // Freeze wall-clock ticking; scenarios advance time deterministically.
     state.running = false;
   }, { ranking, mode });
 
@@ -115,17 +129,10 @@ export async function readVitalTiles(page) {
   });
 }
 
-// ---------------------------------------------------------------------------
-// Scenario plans. Each is a documented clinical pathway, not an arbitrary
-// sequence, so a failure says something about the simulation rather than the test.
-// ---------------------------------------------------------------------------
-
-/** Learner never engages. Maya's duct closes. */
 export const PLAN_DO_NOTHING = `
   while (state.time < 950 && !state.ended) { advanceScenario(30, true); }
 `;
 
-/** Accepts the inherited sepsis frame and fluid-loads an obstructed left heart. */
 export const PLAN_NOVICE_BOLUS = `
   selectPatient('maya');
   commitReasoning({problem:'Neonatal sepsis',diagnosis:'Neonatal sepsis',alternatives:'none',plan:'fluids and antibiotics',confidence:85});
@@ -133,7 +140,6 @@ export const PLAN_NOVICE_BOLUS = `
   while (state.time < 950 && !state.ended) { advanceScenario(30, true); }
 `;
 
-/** Correct diagnosis and treatment, but prostaglandin started with no airway support. */
 export const PLAN_PGE_NO_AIRWAY = `
   selectPatient('maya'); performExam('fourbp');
   commitReasoning({problem:'Neonatal shock',diagnosis:'Ductal-dependent systemic circulation / critical coarctation',alternatives:'Sepsis',plan:'PGE1',confidence:80});
@@ -141,7 +147,6 @@ export const PLAN_PGE_NO_AIRWAY = `
   while (state.time < 950 && !state.ended) { advanceScenario(30, true); }
 `;
 
-/** Same misstep, but the learner recognises the apnea and provides airway support. */
 export const PLAN_PGE_RESCUED = `
   selectPatient('maya'); performExam('fourbp');
   commitReasoning({problem:'Neonatal shock',diagnosis:'Ductal-dependent systemic circulation / critical coarctation',alternatives:'Sepsis',plan:'PGE1',confidence:80});
@@ -151,12 +156,6 @@ export const PLAN_PGE_RESCUED = `
   for (let i = 0; i < 8 && !state.ended; i++) advanceScenario(30, true);
 `;
 
-/**
- * A well-sequenced senior resident: stabilise Maya, then work the competing
- * patients, then close every loop. This is the run the mastery standard is
- * calibrated against — if it stops meeting the standard, either the engine
- * regressed or the standard drifted.
- */
 export const PLAN_EXPERT = `
   selectPatient('maya');
   askHistory('feeding and urine output','parent');
@@ -189,11 +188,6 @@ export const PLAN_EXPERT = `
   }
 `;
 
-/**
- * Stabilise Maya quickly, so a scenario can run to the end of the shift without
- * the attempt terminating in an arrest. Used by the shift-window tests, which
- * need the clock to actually reach the handoff deadline.
- */
 export const PLAN_STABILISE_MAYA = `
   selectPatient('maya'); performExam('fourbp');
   commitReasoning({problem:'Neonatal shock',diagnosis:'Ductal-dependent systemic circulation / critical coarctation',alternatives:'Sepsis',plan:'PGE1 with airway ready',confidence:80});
