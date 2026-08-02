@@ -14,7 +14,7 @@ jobs:
   behaviour:
     name: Behavioural tests
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -27,8 +27,8 @@ jobs:
       - name: Install test dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install browser engines
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Check JavaScript syntax
         shell: bash
@@ -41,14 +41,20 @@ jobs:
       - name: Verify case package integrity
         run: npm run test:integrity
 
-      - name: Simulator behaviour
+      - name: Simulator regression behaviour
         run: npm run test:phs
 
-      - name: UI-only simulator audit
-        run: node --test tests/phs-ui-audit.test.mjs
+      - name: Full UI completion and persistence
+        run: node --test tests/phs-ui-completion.test.mjs
+
+      - name: Chromium Firefox and WebKit UI smoke
+        run: node --test tests/phs-cross-browser.test.mjs
 
       - name: BP calculator correctness
         run: npm run test:bp
 
       - name: Site conventions and smoke
         run: npm run test:smoke
+
+      - name: Rigorous UI-only simulator audit
+        run: node --test tests/phs-ui-audit.test.mjs
