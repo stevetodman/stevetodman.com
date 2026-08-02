@@ -2,13 +2,13 @@
 
 async function loadAuditRemediation(){
   if(window.__PHS_AUDIT_REMEDIATION_LOADED__)return;
-  const modules=['integrity-base','integrity-engine','integrity-ui','integrity-assessment'];
+  const modules=['integrity-base.js','integrity-engine.js','integrity-ui.js','integrity-assessment.js'];
   for(const module of modules){
     await new Promise((resolve,reject)=>{
       const script=document.createElement('script');
-      script.src=`v17/${module}.js?v=18`;
+      script.src=`v17/${module}?v=18`;
       script.onload=resolve;
-      script.onerror=()=>reject(new Error(`PHS v1.8 module failed to load: ${module}.js`));
+      script.onerror=()=>reject(new Error(`PHS v1.8 module failed to load: ${module}`));
       document.head.appendChild(script);
     });
   }
