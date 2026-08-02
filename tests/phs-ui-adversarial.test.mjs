@@ -126,7 +126,7 @@ describe('assessment gaming', () => {
     await page.locator('[data-order="echo"]').click();
     for (let i = 0; i < 6; i++) await exam(page, 'appearance');
     await tab(page, 'results');
-    const echo = page.locator('#resultLog .feed-item').filter({ hasText: 'Urgent echocardiogram' });
+    const echo = page.locator('#resultLog .feed-item').filter({ hasText: 'Urgent transthoracic echocardiogram' });
     await echo.waitFor();
     await echo.locator('[data-review]').click();
     await echo.locator('[data-interpret]').click();
