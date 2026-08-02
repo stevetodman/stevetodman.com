@@ -6,19 +6,72 @@ on:
       - main
     paths:
       - 'cooking/*-timer.html'
+  workflow_dispatch:
+
+concurrency:
+  group: update-cooking-index
+  cancel-in-progress: true
+
+permissions:
+  contents: write
 
 jobs:
   update-index:
+    name: Rebuild cooking index
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-      - uses: actions/checkout@v4
-      
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Generate cooking index
+        shell: bash
         run: |
-          cat > cooking/index.html << 'HTMLEOF'
-          <!DOCTYPE html>
+          python3 <<'PY'
+          from pathlib import Path
+          import html
+          import re
+
+          root = Path('cooking')
+          cards = []
+
+          def first_match(pattern, text, default=''):
+              match = re.search(pattern, text, re.I | re.S)
+              return html.unescape(match.group(1).strip()) if match else default
+
+          def emoji_for(filename):
+              name = filename.lower()
+              if 'ribeye' in name or 'steak' in name or 'beef' in name:
+                  return '🥩'
+              if 'rib' in name:
+                  return '🍖'
+              if 'chicken' in name:
+                  return '🍗'
+              if 'fish' in name or 'salmon' in name or 'tuna' in name:
+                  return '🐟'
+              if 'pork' in name:
+                  return '🐷'
+              if 'pasta' in name:
+                  return '🍝'
+              if 'bread' in name:
+                  return '🍞'
+              if 'cake' in name or 'dessert' in name:
+                  return '🍰'
+              return '🍳'
+
+          for path in sorted(root.glob('*-timer.html')):
+              text = path.read_text(encoding='utf-8')
+              title = first_match(r'<title>([^<]+)</title>', text, path.stem)
+              title = re.sub(r'\s+Timer$', '', title, flags=re.I)
+              credit = first_match(r'class=["\']recipe-credit["\'][^>]*>([^<]+)<', text)
+              time_match = re.search(r'~[0-9.]+\s+(?:hours?|min(?:utes?)?)(?:\s+total)?', text, re.I)
+              time_est = time_match.group(0) if time_match else 'See recipe'
+              cards.append(f'''<a href="{html.escape(path.name)}" class="timer-card">
+                <div class="timer-title">{emoji_for(path.name)} {html.escape(title)}</div>
+                <div class="timer-meta">{html.escape(credit)}</div>
+                <span class="timer-time">{html.escape(time_est)}</span>
+              </a>''')
+
+          document = '''<!DOCTYPE html>
           <html lang="en">
           <head>
             <meta charset="UTF-8">
@@ -28,119 +81,45 @@ jobs:
             <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
             <style>
               * { box-sizing: border-box; margin: 0; padding: 0; }
-              body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-                min-height: 100vh;
-                color: #fff;
-                padding: 24px;
-              }
-              .back-link {
-                display: inline-block;
-                color: #00cec9;
-                text-decoration: none;
-                margin-bottom: 24px;
-                font-size: 0.9rem;
-              }
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: #fff; padding: 24px; }
+              .back-link { display: inline-block; color: #00cec9; text-decoration: none; margin-bottom: 24px; font-size: 0.9rem; }
               .back-link:hover { text-decoration: underline; }
               h1 { font-size: 2rem; text-align: center; margin-bottom: 8px; }
               .subtitle { text-align: center; opacity: 0.7; margin-bottom: 32px; font-size: 1rem; }
               .timers { max-width: 600px; margin: 0 auto; }
-              .timer-card {
-                background: #1e3a5f;
-                border-radius: 16px;
-                padding: 20px;
-                margin-bottom: 16px;
-                text-decoration: none;
-                color: #fff;
-                display: block;
-                transition: transform 0.2s, box-shadow 0.2s;
-              }
-              .timer-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 32px rgba(0, 184, 148, 0.2);
-              }
+              .timer-card { background: #1e3a5f; border-radius: 16px; padding: 20px; margin-bottom: 16px; text-decoration: none; color: #fff; display: block; transition: transform 0.2s, box-shadow 0.2s; }
+              .timer-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0, 184, 148, 0.2); }
               .timer-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
               .timer-meta { font-size: 0.9rem; opacity: 0.7; }
-              .timer-time {
-                display: inline-block;
-                background: rgba(0, 184, 148, 0.2);
-                color: #2ee6e0;
-                padding: 4px 10px;
-                border-radius: 12px;
-                font-size: 0.8rem;
-                margin-top: 10px;
-              }
-    a:focus-visible, button:focus-visible { outline: 3px solid #00cec9; outline-offset: 2px; }
+              .timer-time { display: inline-block; background: rgba(0, 184, 148, 0.2); color: #2ee6e0; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; margin-top: 10px; }
+              a:focus-visible, button:focus-visible { outline: 3px solid #00cec9; outline-offset: 2px; }
             </style>
           </head>
           <body>
-          <main>
-            <a href="/" class="back-link">← Back to Home</a>
-            <h1>🍳 Cooking Timers</h1>
-            <p class="subtitle">Step-by-step timers for complex recipes</p>
-            <div class="timers">
-          HTMLEOF
-
-          # Loop through all timer files and extract info
-          for file in cooking/*-timer.html; do
-            if [ -f "$file" ]; then
-              filename=$(basename "$file")
-              
-              # Extract title (text between <title> tags, remove " Timer" suffix)
-              title=$(grep -o '<title>[^<]*</title>' "$file" | sed 's/<[^>]*>//g' | sed 's/ Timer$//')
-              
-              # Extract recipe credit line (usually in .recipe-credit div)
-              credit=$(grep -o 'class="recipe-credit">[^<]*<' "$file" | sed 's/class="recipe-credit">//' | sed 's/<$//' | head -1)
-              
-              # If no credit found, try to extract from other patterns
-              if [ -z "$credit" ]; then
-                credit=$(grep -oP '(?<=<div class="recipe-credit">)[^<]+' "$file" | head -1)
-              fi
-              
-              # Extract time estimate (look for pattern like "~X hours" or "~X min")
-              time_est=$(grep -oE '~[0-9.]+ (hours?|min(utes?)?)( total)?' "$file" | head -1)
-              if [ -z "$time_est" ]; then
-                time_est="See recipe"
-              fi
-              
-              # Determine emoji based on filename
-              emoji="🍳"
-              case "$filename" in
-                *rib*) emoji="🍖" ;;
-                *steak*|*ribeye*) emoji="🥩" ;;
-                *chicken*) emoji="🍗" ;;
-                *fish*|*salmon*) emoji="🐟" ;;
-                *pork*) emoji="🐷" ;;
-                *beef*) emoji="🥩" ;;
-                *pasta*) emoji="🍝" ;;
-                *bread*) emoji="🍞" ;;
-                *cake*|*dessert*) emoji="🍰" ;;
-              esac
-              
-              # Add timer card to index
-              cat >> cooking/index.html << CARDEOF
-              <a href="$filename" class="timer-card">
-                <div class="timer-title">$emoji $title</div>
-                <div class="timer-meta">$credit</div>
-                <span class="timer-time">$time_est</span>
-              </a>
-          CARDEOF
-            fi
-          done
-
-          # Close the HTML
-          cat >> cooking/index.html << 'HTMLEOF'
-            </div>
-          </main>
+            <main>
+              <a href="/" class="back-link">← Back to Home</a>
+              <h1>🍳 Cooking Timers</h1>
+              <p class="subtitle">Step-by-step timers for complex recipes</p>
+              <div class="timers">
+          ''' + '\n'.join(cards) + '''
+              </div>
+            </main>
           </body>
           </html>
-          HTMLEOF
+          '''
 
-      - name: Commit changes
+          root.joinpath('index.html').write_text(document, encoding='utf-8')
+          PY
+
+      - name: Commit generated index when changed
+        shell: bash
         run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
           git add cooking/index.html
-          git diff --staged --quiet || git commit -m "Auto-update cooking index"
+          if git diff --cached --quiet; then
+            echo "Cooking index is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Auto-update cooking index [CF-Pages-Skip]"
           git push

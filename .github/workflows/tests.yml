@@ -4,8 +4,34 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'phs/**'
+      - 'tests/**'
+      - 'tools/**'
+      - 'cooking/**'
+      - 'study/**'
+      - 'admin/**'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/tests.yml'
   pull_request:
+    paths:
+      - 'phs/**'
+      - 'tests/**'
+      - 'tools/**'
+      - 'cooking/**'
+      - 'study/**'
+      - 'admin/**'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/tests.yml'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
