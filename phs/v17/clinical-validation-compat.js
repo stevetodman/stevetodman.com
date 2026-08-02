@@ -2,21 +2,27 @@
 
 // Compatibility and calibration layer for the v1.9 clinical-validation rules.
 // Emergency PGE initiation bundles monitored vascular access rather than
-// delaying ductal support. Prostaglandin-associated apnea is an authored event
-// in variant C; regression plans may force it explicitly.
+// delaying ductal support. The standalone order remains available afterward
+// for explicit documentation and rubric credit.
 
 const phsRc2PlaceOrder = placeOrder;
 placeOrder = function placeOrderClinicalValidationRc3(orderId) {
+  let bundledAccess = null;
   if (state.selectedId === 'maya' && orderId === 'pge' && !phsCompleted('maya', 'monitoriv')) {
-    if (!orderRecord('maya', 'monitoriv')) phsRc2PlaceOrder('monitoriv');
-    const access = orderRecord('maya', 'monitoriv');
-    if (access?.status === 'pending') {
-      state.processes = state.processes.filter(process => !(process.kind === 'order' && process.patientId === 'maya' && process.orderId === 'monitoriv'));
-      completeOrder('maya', 'monitoriv');
-    }
+    const patient = state.patients.maya;
+    const template = patient.orders.find(order => order.id === 'monitoriv');
+    bundledAccess = { ...clone(template), placedAt: state.time, status: 'available', availableAt: state.time, autoBundled: true };
+    patient.ordersPlaced.push(bundledAccess);
+    for (const effect of template.effects || []) patient.flags[effect.flag] = effect.value;
+    patient.flags.vascularAccess = true;
     addTimeline('Monitored vascular access was bundled with emergency prostaglandin initiation.', 'maya', 'safety');
   }
-  return phsRc2PlaceOrder(orderId);
+  const outcome = phsRc2PlaceOrder(orderId);
+  if (bundledAccess) {
+    state.patients.maya.ordersPlaced = state.patients.maya.ordersPlaced.filter(order => order !== bundledAccess);
+    renderAll();
+  }
+  return outcome;
 };
 
 const phsRc2ApplyEffects = applyEffects;
