@@ -20,7 +20,7 @@ async function init(){
     await loadAuditRemediation();
     const caseData=await loadCase();
     state=createState(caseData,chooseInitialVariant(caseData),'assessment');
-    timerId=setInterval(realTimeTick,1000);
+    timerId=setInterval(realTimeTick,250);
     bindEvents();renderAll();showPrebrief();
   }catch(error){
     console.error(error);document.body.innerHTML=`<main class="panel" style="margin:2rem"><h1>Simulator failed to load</h1><p>${esc(error.message)}</p></main>`;
