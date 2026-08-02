@@ -14,7 +14,7 @@ jobs:
   behaviour:
     name: Behavioural tests
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -43,6 +43,9 @@ jobs:
 
       - name: Simulator behaviour
         run: npm run test:phs
+
+      - name: UI-only audit remediation regression
+        run: node --test tests/phs-v18-audit-remediation.test.mjs
 
       - name: BP calculator correctness
         run: npm run test:bp
