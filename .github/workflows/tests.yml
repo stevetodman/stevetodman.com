@@ -50,6 +50,9 @@ jobs:
       - name: Chromium Firefox and WebKit UI smoke
         run: node --test tests/phs-cross-browser.test.mjs
 
+      - name: Adversarial UI assessment audit
+        run: node --test tests/phs-ui-adversarial.test.mjs
+
       - name: BP calculator correctness
         run: npm run test:bp
 
