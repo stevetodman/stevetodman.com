@@ -3,7 +3,13 @@
 // Compatibility and calibration layer for the v1.9 clinical-validation rules.
 // Emergency PGE initiation bundles monitored vascular access rather than
 // delaying ductal support. The standalone order remains available afterward
-// for explicit documentation and rubric credit.
+// for explicit documentation and learner interaction.
+
+const phsRc2OrderCompleted = orderCompleted;
+orderCompleted = function orderCompletedClinicalValidationRc3(patientId, orderId) {
+  if (patientId === 'maya' && orderId === 'monitoriv' && state.patients.maya.flags.monitoring && state.patients.maya.flags.vascularAccess) return true;
+  return phsRc2OrderCompleted(patientId, orderId);
+};
 
 const phsRc2PlaceOrder = placeOrder;
 placeOrder = function placeOrderClinicalValidationRc3(orderId) {
