@@ -1,6 +1,6 @@
 'use strict';
 
-const PHS_CLINICAL_VALIDATION_VERSION = '1.9.0-rc1';
+const PHS_CLINICAL_VALIDATION_VERSION = '1.9.0-rc2';
 
 function phsCompleted(patientId, orderId) {
   return orderCompleted(patientId, orderId);
@@ -42,7 +42,7 @@ loadCase = async function loadCaseClinicalValidation() {
       attention: 25,
       process: 90,
       type: 'Laboratory',
-      result: 'Inflammatory markers are abnormal: procalcitonin 1.2 ng/mL, CRP 32 mg/L, ANC 6,400/mm³.',
+      result: 'Inflammatory markers are abnormal: procalcitonin 1.2 ng/mL, CRP 32 mg/L, ANC 6,400/mm3.',
       tone: 'bad',
       requiresInterpretation: true,
       effects: [{ flag: 'inflammatoryMarkersObtained', value: true }],
@@ -65,7 +65,7 @@ const phsClinicalOriginalPlaceOrder = placeOrder;
 placeOrder = function placeOrderClinicalValidation(orderId) {
   const patientId = state.selectedId;
   if (patientId === 'maya' && orderId === 'pge' && !phsCompleted('maya', 'monitoriv')) {
-    showUrgent('Establish monitored vascular access before starting the continuous prostaglandin infusion. Do not delay emergency stabilization: complete the monitoring/access task now.');
+    showUrgent('Establish monitored vascular access before starting the continuous prostaglandin infusion. Complete the monitoring and access task now.');
     return false;
   }
   if (patientId === 'maya' && orderId === 'ventilation' && !state.patients.maya.flags.pgeApnea) {
@@ -76,10 +76,10 @@ placeOrder = function placeOrderClinicalValidation(orderId) {
     const oxygen = orderRecord('eli', 'oxygen');
     const reassessed = oxygen?.availableAt != null && (
       state.patients.eli.observedVitals.some(item => item.time > oxygen.availableAt) ||
-      state.patients.eli.examLog.some(item => item.time > oxygen.availableAt)
+      state.patients.eli.examLog.some(item => item.time > oxygen.availableAt && item.examId === 'respiratory')
     );
     if (!phsCompleted('eli', 'suction') || !phsCompleted('eli', 'oxygen') || !reassessed) {
-      showUrgent('High-flow support should follow suction, indicated low-flow oxygen, and documented reassessment showing inadequate response or worsening respiratory distress.');
+      showUrgent('High-flow support should follow suction, indicated low-flow oxygen, and documented respiratory reassessment showing inadequate response or worsening distress.');
       return false;
     }
   }
@@ -88,8 +88,18 @@ placeOrder = function placeOrderClinicalValidation(orderId) {
 
 const phsClinicalOriginalApplyEffects = applyEffects;
 applyEffects = function applyEffectsClinicalValidation(patientId, order) {
-  phsClinicalOriginalApplyEffects(patientId, order);
   const patient = state.patients[patientId];
+  const preserveApnea = patientId === 'maya' && order.id === 'airway' && patient.flags.pgeApnea;
+  const apneaAt = patient.flags.pgeApneaAt;
+  if (preserveApnea) patient.flags.pgeApnea = false;
+  phsClinicalOriginalApplyEffects(patientId, order);
+  if (preserveApnea) {
+    patient.flags.pgeApnea = true;
+    patient.flags.pgeApneaAt = apneaAt;
+    patient.flags.critical = true;
+    state.flags.pgeApneaResolved = false;
+    addTimeline('Airway equipment is now available, but active apnea still requires positive-pressure ventilation.', 'maya', 'safety');
+  }
 
   if (patientId === 'maya' && order.id === 'pge') {
     state.processes = state.processes.filter(process => !(process.kind === 'special' && process.special === 'pge-apnea'));
@@ -164,12 +174,22 @@ phsInterpretationQuality = function phsInterpretationQualityClinical(patientId, 
   return phsClinicalOriginalInterpretationQuality(patientId, result, text);
 };
 
+const phsClinicalOriginalSubmitNoraJudgment = submitNoraJudgment;
+submitNoraJudgment = function submitNoraJudgmentClinical(value, confidence) {
+  const reviewed = state.patients.nora.results.some(result => result.orderId === 'reviewculture' && result.reviewedAt != null);
+  if (!state.flags.noraJudgmentPrompt || !reviewed) {
+    showUrgent('Review the preliminary culture details before committing a pathogen-versus-contaminant judgment.');
+    return false;
+  }
+  return phsClinicalOriginalSubmitNoraJudgment(value, confidence);
+};
+
 const phsClinicalOriginalEvaluateCondition = evaluateCondition;
 evaluateCondition = function evaluateConditionClinical(condition) {
   if (condition.type === 'flag' && condition.flag === 'noraJudgmentMade') {
     if (!state.noraJudgment) return false;
     if (state.noraJudgment.value === 'likely pathogen') return true;
-    return state.noraJudgment.value === 'indeterminate' && !!orderRecord('nora', 'antibiotics') && !!orderRecord('nora', 'lp');
+    return state.noraJudgment.value === 'indeterminate' && phsCompleted('nora', 'antibiotics') && phsCompleted('nora', 'lp');
   }
   if (condition.type === 'pendingOwnership') {
     for (const [patientId, patient] of Object.entries(state.patients)) {
@@ -205,5 +225,5 @@ renderDebrief = function renderDebriefClinicalValidation() {
 };
 
 const validationBadge = document.querySelector('.version');
-if (validationBadge) validationBadge.textContent = 'CLINICAL VALIDATION v1.9 RC';
-document.title = 'PHS — Clinical Validation v1.9 RC';
+if (validationBadge) validationBadge.textContent = 'CLINICAL VALIDATION v1.9 RC2';
+document.title = 'PHS - Clinical Validation v1.9 RC2';
