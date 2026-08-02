@@ -44,6 +44,9 @@ jobs:
       - name: Simulator behaviour
         run: npm run test:phs
 
+      - name: UI-only simulator audit
+        run: node --test tests/phs-ui-audit.test.mjs
+
       - name: BP calculator correctness
         run: npm run test:bp
 
