@@ -16,9 +16,13 @@ after(async () => {
 
 const ranks = { maya: '1', eli: '2', nora: '3', jamal: '4' };
 
-async function boot(page) {
+async function load(page) {
   await page.goto(`${server.origin}/phs/`, { waitUntil: 'domcontentloaded' });
   await page.locator('#startBtn').waitFor();
+}
+
+async function boot(page) {
+  await load(page);
   for (const [id, rank] of Object.entries(ranks)) await page.locator(`#initial-rank-${id}`).selectOption(rank);
   await page.locator('#startBtn').click();
   await page.locator('#prebrief').waitFor({ state: 'hidden' });
@@ -44,6 +48,30 @@ async function fillJunkHandoff(page) {
   await page.locator('#completeBtn').click();
   await page.locator('#debrief').waitFor({ state: 'visible' });
 }
+
+describe('answer-key cueing', () => {
+  test('prebrief explicitly reveals the intended ductal-dependent mechanism', { timeout: 60000 }, async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await load(page);
+    assert.match(await page.locator('#prebriefObjectives').innerText(), /ductal-dependent systemic circulation/i,
+      'the prebrief no longer reveals the target diagnosis; update this audit if intentionally fixed');
+    await context.close();
+  });
+
+  test('Maya order tab exposes prostaglandin and all other orders before any search', { timeout: 60000 }, async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await boot(page);
+    await page.locator('[data-patient="maya"]').click();
+    await tab(page, 'orders');
+    assert.equal(await page.locator('#orderSearch').inputValue(), '');
+    assert.ok(await page.locator('[data-order]').count() >= 10);
+    assert.match(await page.locator('#orderMenu').innerText(), /Prostaglandin E1/i,
+      'the order tab no longer exposes the answer before search; update this audit if intentionally fixed');
+    await context.close();
+  });
+});
 
 describe('unobserved-state cueing', () => {
   test('patient board exposes Maya deterioration without examining Maya', { timeout: 90000 }, async () => {
@@ -79,16 +107,20 @@ describe('unobserved-state cueing', () => {
 });
 
 describe('assessment gaming', () => {
-  test('eight-character nonsense receives 100% structured handoff completeness', { timeout: 90000 }, async () => {
+  test('eight-character nonsense receives 100% handoff completeness and no-page response credit', { timeout: 90000 }, async () => {
     const context = await browser.newContext();
     const page = await context.newPage();
     await boot(page);
+    assert.equal(await page.locator('#pages .feed-item').count(), 0, 'this test must end before any page exists');
     await page.locator('#endBtn').click();
     await page.locator('#endModal').waitFor({ state: 'visible' });
     await fillJunkHandoff(page);
     assert.match(await page.locator('#handoffDebrief').innerText(), /100%/,
       'handoff assessment is no longer length-only; update this audit if intentionally fixed');
-    assert.match(await page.locator('#missesDebrief').innerText(), /Completes patient-by-patient I-PASS fields|Demonstrated/i);
+    const demonstrated = (await page.locator('#missesDebrief').innerText()).split(/Demonstrated/i).at(-1);
+    assert.match(demonstrated, /Completes patient-by-patient I-PASS fields/i);
+    assert.match(demonstrated, /Urgent pages receive a timely clinical response/i,
+      'empty urgent-page set no longer earns credit; update this audit if intentionally fixed');
     await context.close();
   });
 
@@ -104,11 +136,10 @@ describe('assessment gaming', () => {
     await page.locator('#readbackBtn').click();
     await page.locator('#endBtn').click();
     await fillJunkHandoff(page);
-    assert.match(await page.locator('#missesDebrief').innerText(), /Uses closed-loop cardiac escalation/i,
-      'team assessment is no longer presence-only; update this audit if intentionally fixed');
     const text = await page.locator('#missesDebrief').innerText();
     const demonstrated = text.split(/Demonstrated/i).at(-1);
-    assert.match(demonstrated, /Uses closed-loop cardiac escalation/i);
+    assert.match(demonstrated, /Uses closed-loop cardiac escalation/i,
+      'team assessment is no longer presence-only; update this audit if intentionally fixed');
     await context.close();
   });
 
