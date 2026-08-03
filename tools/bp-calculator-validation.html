@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Validation report, clinical acceptance criteria, and known limits for the pediatric BP percentile calculator.">
+  <link rel="canonical" href="https://stevetodman.com/tools/bp-calculator-validation.html">
+  <title>BP Calculator Validation Report</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9C%85%3C/text%3E%3C/svg%3E">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 1rem; background: #f1f5f9; color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+    main { width: min(100%, 880px); margin: 0 auto; }
+    a { color: #1d4ed8; }
+    a:focus-visible, summary:focus-visible { outline: 3px solid #0f766e; outline-offset: 3px; }
+    .back { display: inline-block; margin-bottom: 0.8rem; font-weight: 700; }
+    h1 { margin: 0; color: #1e40af; font-size: clamp(1.6rem, 4vw, 2.2rem); line-height: 1.2; }
+    h2 { margin-top: 1.35rem; font-size: 1.1rem; }
+    .subtitle { margin: 0.35rem 0 1.2rem; color: #526072; }
+    .card { margin-bottom: 1rem; padding: clamp(1rem, 3vw, 1.5rem); border: 1px solid #dbe3ee; border-radius: 14px; background: #fff; box-shadow: 0 2px 8px rgba(15,23,42,.06); }
+    .status { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 999px; background: #dcfce7; color: #14532d; font-size: 0.8rem; font-weight: 800; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+    .metric { padding: 0.9rem; border-radius: 9px; background: #eff6ff; color: #1e3a8a; text-align: center; }
+    .metric strong { display: block; font-size: 1.35rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    th, td { padding: 0.55rem; border: 1px solid #cbd5e1; text-align: left; vertical-align: top; }
+    th { background: #e2e8f0; }
+    ul { padding-left: 1.25rem; }
+    code { padding: 0.1rem 0.3rem; border-radius: 4px; background: #e2e8f0; }
+    .note { padding: 0.8rem; border-left: 4px solid #1d4ed8; background: #eff6ff; }
+    .limits { border-left-color: #a16207; background: #fffbeb; }
+    footer { color: #64748b; font-size: 0.76rem; text-align: center; }
+    @media (max-width: 620px) { .summary-grid { grid-template-columns: 1fr; } .table-wrap { overflow-x: auto; } }
+  </style>
+</head>
+<body>
+<main>
+  <a class="back" href="bp-percentile-calculator.html">← BP percentile calculator</a>
+  <header>
+    <h1>BP Calculator Validation Report</h1>
+    <p class="subtitle">Version 3.0 • AAP 2017 / Rosner model • Reviewed August 3, 2026</p>
+  </header>
+
+  <section class="card">
+    <span class="status">Automated acceptance suite: passing</span>
+    <div class="summary-grid">
+      <div class="metric"><strong>1,904</strong>published table cells</div>
+      <div class="metric"><strong>98.9%</strong>within 1 mmHg</div>
+      <div class="metric"><strong>≤2 mmHg</strong>maximum difference</div>
+    </div>
+    <p class="note">The clinical risk being tested is a plausible-looking wrong answer. The suite therefore checks numerical agreement, category boundaries, explanatory text, and user-interface behavior in a real browser.</p>
+  </section>
+
+  <section class="card">
+    <h2>Reference-table validation</h2>
+    <p>The regression engine is compared with every printed numeric BP value in AAP 2017 Tables 4 and 5:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dimension</th><th>Coverage</th><th>Count contribution</th></tr></thead>
+        <tbody>
+          <tr><td>Sex</td><td>Male and female reference models</td><td>2</td></tr>
+          <tr><td>Age</td><td>Every whole year from 1 through 17</td><td>17</td></tr>
+          <tr><td>Height</td><td>5th, 10th, 25th, 50th, 75th, 90th, and 95th percentiles using the printed centimeter heights</td><td>7</td></tr>
+          <tr><td>BP component</td><td>Systolic and diastolic</td><td>2</td></tr>
+          <tr><td>Printed row</td><td>50th, 90th, 95th, and 95th + 12 mmHg</td><td>4</td></tr>
+        </tbody>
+        <tfoot><tr><th colspan="2">Total comparisons</th><th>2 × 17 × 7 × 2 × 4 = 1,904</th></tr></tfoot>
+      </table>
+    </div>
+    <p>The frozen comparison result is 1,016 exact matches and 1,883 of 1,904 cells (98.9%) within 1 mmHg; all cells are within 2 mmHg. The automated acceptance criterion is no cell beyond 2 mmHg and no change to that distribution without clinical review.</p>
+    <p>The calculator retains the continuous Rosner model for smooth month-by-month age and measured-height output, matching Baylor’s implementation. The AAP tables are an independent integer-valued reference at rounded printed heights, so a small number of model-versus-table cells differ by 2 mmHg. Category logic uses the model’s rounded 90th and 95th thresholds exactly as shown to the user; it does not apply this validation tolerance to an individual reading.</p>
+  </section>
+
+  <section class="card">
+    <h2>Boundary and behavior coverage</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Area</th><th>What is asserted</th></tr></thead>
+        <tbody>
+          <tr><td>Category edges</td><td>Normal, elevated, stage 1, and stage 2 boundaries; percentile versus absolute “whichever is lower” rules; independent SBP/DBP drivers.</td></tr>
+          <tr><td>Age 13 transition</td><td>Fixed adolescent thresholds begin at 13 years and the visual scales agree with the reported category.</td></tr>
+          <tr><td>Height reference</td><td>Official monthly CDC LMS values, length under age 2, stature from age 2, and height-percentile display checks.</td></tr>
+          <tr><td>Units and dates</td><td>Centimeter/inch equivalence, automatic unit conversion, completed-month age calculation, month-end dates, and timezone-safe date-only parsing.</td></tr>
+          <tr><td>Invalid inputs</td><td>Missing dates, unsupported ages, implausible heights, BP input ranges, and DBP greater than or equal to SBP.</td></tr>
+          <tr><td>Presentation</td><td>No stale results after edits, well-formed percentile labels, reading-not-diagnosis language, driver text, category-specific next steps, copy, print, and interactive chart rendering.</td></tr>
+          <tr><td>Accessibility/layout</td><td>Labels, keyboard controls, live status regions, focus indicators, semantic controls, no horizontal overflow at 375 px, and no external runtime dependencies.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Independent comparisons</h2>
+    <ul>
+      <li>The same Rosner coefficient implementation was cross-checked against Baylor College of Medicine’s age-based reference calculator across childhood, adolescence, both sexes, and category-boundary cases.</li>
+      <li>Official AAP Table 6 values are reproduced only as a clearly labeled screening reference; they are not used as diagnostic thresholds.</li>
+      <li>CDC length/stature percentiles use the official monthly LMS data files rather than nearest-year approximations.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Known limits</h2>
+    <div class="note limits">
+      <ul>
+        <li>This validates faithful implementation of the cited references; it does not validate the underlying guideline as a clinical trial.</li>
+        <li>The tool does not diagnose hypertension, assess symptoms, select cuff size, interpret ABPM, provide hypotension limits, or cover children under 1 year.</li>
+        <li>The age curves project the entered child’s current length/height-for-age percentile across ages. They are explanatory reference curves, not a forecast of an individual child’s future BP.</li>
+        <li>Institutional policies and newer guidance should take precedence if they differ.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Reproducibility</h2>
+    <p>The browser tests, reference fixture provenance, and calculator source are versioned with the website. The main acceptance command is <code>npm run test:bp</code>; the full site regression command is <code>npm test</code>.</p>
+    <p><a href="https://github.com/stevetodman/stevetodman.com/tree/main/tests">View the test suite on GitHub</a> • <a href="https://publications.aap.org/pediatrics/article/140/3/e20171904/38358/Clinical-Practice-Guideline-for-Screening-and">AAP guideline</a> • <a href="https://www.cdc.gov/growthcharts/cdc-data-files.htm">CDC growth data</a></p>
+  </section>
+
+  <footer>Clinical support software should be revalidated after changes to the model, thresholds, input handling, or result presentation.</footer>
+</main>
+</body>
+</html>

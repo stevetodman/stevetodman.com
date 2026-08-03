@@ -1,6 +1,6 @@
 ---
 status: active
-next:
+next: Monitor BP calculator feedback and revalidate after guideline or model changes
 ---
 
 # CLAUDE.md
@@ -47,7 +47,9 @@ stevetodman.com/
 │   └── ribs-timer.html
 └── tools/
     ├── index.html                # Tools listing
-    └── bp-percentile-calculator.html
+    ├── bp-percentile-calculator.html # AAP pediatric BP calculator + interactive curves
+    ├── bp-growth-lms.js          # Official monthly CDC length/stature LMS values
+    └── bp-calculator-validation.html # Public validation and known-limits report
 ```
 
 ## Adding a New Cooking Timer
@@ -231,3 +233,4 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-03: Rebuilt the pediatric BP calculator with monthly CDC growth references, exact AAP reading categories and drivers, category-specific follow-up, interactive age curves, copy/print support, a screening table, public validation documentation, and exhaustive 1,904-cell browser regression coverage.

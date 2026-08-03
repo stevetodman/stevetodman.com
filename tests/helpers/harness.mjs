@@ -71,6 +71,7 @@ export const SITE_PAGES = [
   '/',
   '/tools/',
   '/tools/bp-percentile-calculator.html',
+  '/tools/bp-calculator-validation.html',
   '/cooking/',
   '/cooking/ahi-tuna-timer.html',
   '/cooking/ribeye-timer.html',

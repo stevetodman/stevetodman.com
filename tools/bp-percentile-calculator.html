@@ -3,539 +3,384 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Pediatric blood pressure percentile calculator using AAP 2017 guidelines. Computes SBP/DBP percentiles and hypertension classification for ages 1-17.">
-<title>Pediatric BP Percentile Calculator - AAP 2017</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
+    <meta name="description" content="Calculate pediatric systolic and diastolic blood pressure percentiles, reading category, AAP thresholds, and follow-up guidance for ages 1–17.">
+    <meta name="theme-color" content="#1d4ed8">
+    <link rel="canonical" href="https://stevetodman.com/tools/bp-percentile-calculator.html">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Pediatric BP Percentile Calculator — AAP 2017">
+    <meta property="og:description" content="Pediatric BP percentiles, reading-specific categories, threshold visuals, and interactive age curves for ages 1–17.">
+    <meta property="og:url" content="https://stevetodman.com/tools/bp-percentile-calculator.html">
+    <meta name="twitter:card" content="summary">
+    <title>Pediatric BP Percentile Calculator — AAP 2017</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"MedicalWebPage","name":"Pediatric BP Percentile Calculator","url":"https://stevetodman.com/tools/bp-percentile-calculator.html","description":"AAP 2017 pediatric blood pressure percentile and reading-category calculator for ages 1–17.","lastReviewed":"2026-08-03","mainEntity":{"@type":"WebApplication","name":"Pediatric BP Percentile Calculator","applicationCategory":"HealthApplication","operatingSystem":"Any modern browser"}}</script>
     <style>
         :root {
-            --primary: #2563eb;
-            --success: #16a34a;
-            --warning: #eab308;
-            --danger: #dc2626;
-            --bg: #f8fafc;
+            --primary: #1d4ed8;
+            --primary-dark: #1e40af;
+            --success: #15803d;
+            --warning: #a16207;
+            --orange: #c2410c;
+            --danger: #b91c1c;
+            --bg: #f1f5f9;
             --card: #ffffff;
-            --text: #1e293b;
-            --border: #e2e8f0;
+            --text: #172033;
+            --muted: #526072;
+            --border: #cbd5e1;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; }
+        html { color-scheme: light; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 1rem;
             background: var(--bg);
             color: var(--text);
-            line-height: 1.6;
-            padding: 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.55;
         }
-        .container { max-width: 600px; margin: 0 auto; }
-        h1 {
-            font-size: 1.5rem;
-            text-align: center;
-            margin-bottom: 0.5rem;
-            color: var(--primary);
-        }
-        .subtitle {
-            text-align: center;
-            color: #556070;
-            font-size: 0.875rem;
-            margin-bottom: 1.5rem;
-        }
-        .card {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .container { width: min(100%, 980px); margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 0.75rem; color: var(--primary); font-weight: 600; }
+        h1 { margin: 0; color: var(--primary-dark); font-size: clamp(1.65rem, 4vw, 2.25rem); line-height: 1.2; }
+        h2, h3 { line-height: 1.25; }
+        .page-header { margin-bottom: 1.25rem; text-align: center; }
+        .subtitle { margin: 0.35rem 0 0; color: var(--muted); }
+        .scope-line { margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem; }
+        a { color: var(--primary); }
+        .card, .instructions-panel, .reference-panel {
             margin-bottom: 1rem;
+            border: 1px solid #dbe3ee;
+            border-radius: 14px;
+            background: var(--card);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
         }
-        .form-group { margin-bottom: 1rem; }
-        .info-box h2, .thresholds h2, details h2 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        label, .field-label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-            font-size: 0.875rem;
-        }
+        .card { padding: clamp(1rem, 3vw, 1.5rem); }
+        .form-grid, .reading-grid, .chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+        .form-group { margin: 0; }
+        .form-span { grid-column: 1 / -1; }
+        label, .field-label { display: block; margin-bottom: 0.3rem; font-size: 0.875rem; font-weight: 650; }
         input, select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 1rem;
+            width: 100%; min-width: 0; padding: 0.72rem 0.75rem;
+            border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--text); font: inherit;
         }
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.14); outline: none; }
+        a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
+            outline: 3px solid #0f766e; outline-offset: 3px;
         }
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        input, select { max-width: 100%; min-width: 0; }
-        @media (max-width: 480px) {
-            .row, .row-3 { grid-template-columns: 1fr; }
-        }
-        .row-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.5rem; }
-        button {
-            width: 100%;
-            padding: 0.875rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        button:hover { background: #1d4ed8; }
+        .field-hint, .height-zscore { margin-top: 0.3rem; color: var(--muted); font-size: 0.78rem; }
+        .height-zscore { min-height: 1.2em; }
+        .age-display { min-height: 1.4em; color: var(--primary-dark); font-size: 0.88rem; font-weight: 650; }
+        .sex-toggle { display: flex; gap: 4px; padding: 4px; border-radius: 9px; background: #e2e8f0; }
+        button { border: 0; border-radius: 8px; font: inherit; font-weight: 700; cursor: pointer; }
+        .sex-btn { flex: 1; padding: 0.62rem; background: transparent; color: var(--muted); }
+        .sex-btn.active { background: #fff; color: var(--primary-dark); box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12); }
+        .primary-button { width: 100%; padding: 0.85rem 1rem; background: var(--primary); color: #fff; }
+        .primary-button:hover { background: var(--primary-dark); }
+        .secondary-button { padding: 0.65rem 0.85rem; border: 1px solid var(--border); background: #fff; color: var(--primary-dark); }
+        .secondary-button:hover { background: #eff6ff; }
+        .actions { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1rem; }
         .results { display: none; }
         .results.show { display: block; }
-        .result-box {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 0.75rem;
+        .reading-card { padding: 1rem; border-radius: 10px; }
+        .sbp-box { background: #dbeafe; color: #1e3a8a; }
+        .dbp-box { background: #fef3c7; color: #713f12; }
+        .result-label { font-size: 0.72rem; font-weight: 750; letter-spacing: 0.06em; text-transform: uppercase; }
+        .result-value { margin-top: 0.15rem; font-size: 1.55rem; font-weight: 800; }
+        .result-detail { font-size: 0.86rem; }
+        .classification { margin-top: 1rem; padding: 1.1rem; border-radius: 10px; text-align: center; }
+        .classification .eyebrow { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+        .classification .category-value { display: block; margin-top: 0.2rem; font-size: 1.35rem; font-weight: 800; }
+        .classification .driver { display: block; margin-top: 0.3rem; font-size: 0.86rem; font-weight: 650; }
+        .normal { background: #dcfce7; color: #14532d; }
+        .elevated { background: #fef9c3; color: #713f12; }
+        .stage1 { background: #ffedd5; color: #7c2d12; }
+        .stage2 { background: #fee2e2; color: #7f1d1d; }
+        .diagnosis-note { margin: 0.75rem 0 0; color: var(--muted); font-size: 0.82rem; text-align: center; }
+        .section-title { margin: 1.35rem 0 0.65rem; font-size: 1rem; }
+        .component-scale { margin-top: 0.75rem; padding: 0.85rem; border: 1px solid #dbe3ee; border-radius: 10px; background: #f8fafc; }
+        .scale-heading { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 0.45rem; font-size: 0.86rem; }
+        .scale-heading strong:last-child { text-align: right; }
+        .scale-track { position: relative; display: flex; height: 18px; overflow: visible; border-radius: 9px; background: #e2e8f0; }
+        .scale-segment { min-width: 1px; border-right: 2px solid #fff; }
+        .scale-segment:first-child { border-radius: 9px 0 0 9px; }
+        .scale-segment:last-child { border-right: 0; border-radius: 0 9px 9px 0; }
+        .scale-segment.normal-segment { background: #22c55e; }
+        .scale-segment.elevated-segment { background: #eab308; }
+        .scale-segment.stage1-segment { background: #f97316; }
+        .scale-segment.stage2-segment { background: #dc2626; }
+        .scale-marker { position: absolute; top: -5px; width: 4px; height: 28px; border-radius: 2px; background: #0f172a; transform: translateX(-50%); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+        .scale-key { display: flex; flex-wrap: wrap; gap: 0.35rem 0.75rem; margin-top: 0.55rem; color: var(--muted); font-size: 0.72rem; }
+        .scale-key .current { color: var(--text); font-weight: 800; text-decoration: underline 2px; text-underline-offset: 2px; }
+        .thresholds, .next-step { margin-top: 1rem; padding: 1rem; border-radius: 10px; background: #f8fafc; }
+        .thresholds { border: 1px solid #dbe3ee; }
+        .next-step { border-left: 5px solid var(--primary); background: #eff6ff; }
+        .thresholds h2, .next-step h2 { margin: 0 0 0.5rem; font-size: 1rem; }
+        .threshold-row { display: flex; justify-content: space-between; gap: 1rem; padding: 0.28rem 0; border-bottom: 1px solid #e2e8f0; }
+        .threshold-row:last-child { border: 0; }
+        .next-step p { margin: 0.4rem 0 0; font-size: 0.88rem; }
+        .urgent-note { color: #7f1d1d; font-weight: 700; }
+        .info-box { margin-top: 0.8rem; padding: 0.75rem; border: 1px solid #bfdbfe; border-radius: 8px; background: #eff6ff; color: #1e3a8a; font-size: 0.78rem; }
+        .chart-card { position: relative; padding: 0.75rem; border: 1px solid #dbe3ee; border-radius: 10px; background: #fff; }
+        .chart-card h3 { margin: 0; font-size: 0.95rem; }
+        .chart-subtitle { margin: 0.15rem 0 0.4rem; color: var(--muted); font-size: 0.72rem; }
+        .bp-chart { display: block; width: 100%; height: auto; border-radius: 8px; background: #fff; touch-action: none; }
+        .chart-tooltip { position: absolute; z-index: 2; top: 3.6rem; max-width: 180px; padding: 0.45rem 0.55rem; border: 1px solid #94a3b8; border-radius: 7px; background: rgba(255,255,255,.97); color: var(--text); font-size: 0.7rem; line-height: 1.35; white-space: pre-line; pointer-events: none; transform: translateX(-50%); box-shadow: 0 2px 8px rgba(15,23,42,.16); }
+        .chart-tooltip[hidden] { display: none; }
+        .chart-legend { display: flex; flex-wrap: wrap; gap: 0.35rem 0.75rem; margin-top: 0.35rem; font-size: 0.68rem; color: var(--muted); }
+        .legend-swatch { display: inline-block; width: 14px; height: 3px; margin-right: 0.25rem; vertical-align: middle; }
+        .chart-note { margin: 0.7rem 0 0; color: var(--muted); font-size: 0.76rem; }
+        .error { margin-top: 0.75rem; color: var(--danger); font-size: 0.88rem; font-weight: 650; }
+        .warning { margin-top: 0.75rem; padding: 0.75rem; border: 1px solid #f59e0b; border-radius: 8px; background: #fffbeb; color: #78350f; font-size: 0.84rem; }
+        details > summary { cursor: pointer; font-weight: 700; }
+        .instructions-panel { background: #f0f9ff; border-color: #bae6fd; }
+        .instructions-panel summary, .reference-panel summary { padding: 0.9rem 1rem; color: #075985; }
+        .instructions-content, .reference-content { padding: 0 1rem 1rem; color: #164e63; font-size: 0.86rem; }
+        .instructions-content h2, .reference-content h2 { margin: 0.85rem 0 0.35rem; font-size: 0.95rem; }
+        .instructions-content ol, .instructions-content ul, .reference-content ul { margin: 0.3rem 0 0; padding-left: 1.25rem; }
+        .screening-table { width: 100%; margin-top: 0.75rem; border-collapse: collapse; font-size: 0.78rem; }
+        .screening-table th, .screening-table td { padding: 0.4rem; border: 1px solid #cbd5e1; text-align: center; }
+        .screening-table th { background: #e2e8f0; }
+        .table-wrap { overflow-x: auto; }
+        .disclaimer { margin: 1rem 0; padding: 1rem; border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; color: var(--muted); font-size: 0.78rem; }
+        .validation-content { margin-top: 0.65rem; padding: 0.75rem; border: 1px solid #dbe3ee; border-radius: 8px; background: #f8fafc; }
+        .validation-content ul { margin: 0.4rem 0; padding-left: 1.2rem; }
+        .credits { margin: 1rem 0 0.25rem; color: #64748b; font-size: 0.75rem; text-align: center; }
+        .visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        .noscript { margin-bottom: 1rem; padding: 0.8rem; border: 1px solid #fecaca; background: #fef2f2; color: #7f1d1d; }
+        @media (max-width: 700px) {
+            body { padding: 0.75rem; }
+            .form-grid, .reading-grid, .chart-grid { grid-template-columns: 1fr; }
+            .form-span { grid-column: auto; }
+            .threshold-row { align-items: flex-start; }
         }
-        .result-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            opacity: 0.8;
-        }
-        .result-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        .result-detail {
-            font-size: 0.875rem;
-            opacity: 0.9;
-        }
-        .sbp-box { background: #dbeafe; color: #1e40af; }
-        .dbp-box { background: #fef3c7; color: #92400e; }
-        .classification {
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 600;
-        }
-        .normal { background: #dcfce7; color: #166534; }
-        .elevated { background: #fef9c3; color: #854d0e; }
-        .stage1 { background: #fed7aa; color: #9a3412; }
-        .stage2 { background: #fecaca; color: #991b1b; }
-
-        /* Visual Gauge */
-        .gauge-section {
-            margin: 1rem 0;
-            padding: 0.75rem;
-            background: #f8fafc;
-            border-radius: 8px;
-        }
-        .gauge-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-        .gauge-label {
-            width: 40px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #556070;
-        }
-        .gauge-bar {
-            flex: 1;
-            height: 10px;
-            background: linear-gradient(90deg,
-                #22c55e 0%, #22c55e 80%,
-                #eab308 80%, #eab308 90%,
-                #f97316 90%, #f97316 95%,
-                #dc2626 95%, #dc2626 100%);
-            border-radius: 5px;
-            position: relative;
-        }
-        .gauge-marker {
-            position: absolute;
-            top: -3px;
-            width: 4px;
-            height: 16px;
-            background: #1e293b;
-            border-radius: 2px;
-            transform: translateX(-50%);
-            transition: left 0.5s ease-out;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-        .gauge-legend {
-            display: flex;
-            justify-content: space-between;
-            margin-left: 40px;
-            font-size: 0.65rem;
-            color: #94a3b8;
-            margin-top: 0.25rem;
-        }
-
-        .thresholds {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #f1f5f9;
-            border-radius: 8px;
-            font-size: 0.875rem;
-        }
-        .thresholds h4 { margin-bottom: 0.5rem; font-size: 0.875rem; }
-        .threshold-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.25rem 0;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .threshold-row:last-child { border-bottom: none; }
-        .error {
-            color: var(--danger);
-            font-size: 0.875rem;
-            margin-top: 0.5rem;
-        }
-        .warning {
-            background: #fef3c7;
-            border: 1px solid #fbbf24;
-            color: #92400e;
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin-top: 0.75rem;
-            font-size: 0.875rem;
-        }
-        .warning-icon { margin-right: 0.5rem; }
-        .info-box {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #1e40af;
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin-top: 0.75rem;
-            font-size: 0.8rem;
-        }
-        .credits {
-            text-align: center;
-            font-size: 0.75rem;
-            color: #94a3b8;
-            margin-top: 1rem;
-        }
-        .credits a { color: var(--primary); }
-        .disclaimer {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            color: #556070;
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            margin-top: 1rem;
-            text-align: center;
-        }
-        .validation-details {
-            display: inline;
-        }
-        .validation-details summary {
-            cursor: pointer;
-            color: var(--primary);
-            list-style: none;
-            display: inline;
-        }
-        .validation-details summary::-webkit-details-marker { display: none; }
-        .validation-details[open] summary { display: block; margin-bottom: 0.5rem; }
-        .validation-content {
-            text-align: left;
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 0.75rem;
-            margin-top: 0.5rem;
-            color: #475569;
-        }
-        .validation-content ul {
-            margin: 0.25rem 0 0.5rem 1rem;
-            padding: 0;
-        }
-        .validation-content li {
-            margin-bottom: 0.25rem;
-        }
-        .height-zscore {
-            font-size: 0.8rem;
-            color: #556070;
-            margin-top: 0.25rem;
-        }
-        .precision-note {
-            font-size: 0.7rem;
-            color: #94a3b8;
-            font-style: italic;
-        }
-        .age-display {
-            font-size: 0.9rem;
-            color: var(--primary);
-            font-weight: 600;
-            margin-top: 0.5rem;
-            min-height: 1.4em;
-        }
-        .sex-toggle {
-            display: flex;
-            background: #e2e8f0;
-            border-radius: 8px;
-            padding: 4px;
-        }
-        .sex-btn {
-            flex: 1;
-            padding: 0.6rem 1rem;
-            border: none;
-            background: transparent;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: #556070;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-        .sex-btn.active {
-            background: #fff;
-            color: var(--primary);
-            font-weight: 600;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .toggle-precision {
-            font-size: 0.75rem;
-            color: var(--primary);
-            cursor: pointer;
-            text-decoration: underline;
-            margin-left: 0.5rem;
-        }
-        .age-input-row {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .age-input-row input { flex: 1; }
-        .age-input-row select { width: auto; min-width: 100px; }
-        #ageMonths { width: 80px; }
-        
-        /* Instructions panel */
-        .instructions-panel {
-            background: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            font-size: 0.875rem;
-        }
-        .instructions-panel summary {
-            padding: 0.75rem 1rem;
-            cursor: pointer;
-            font-weight: 600;
-            color: #0369a1;
-            list-style: none;
-        }
-        .instructions-panel summary::-webkit-details-marker { display: none; }
-        .instructions-panel summary::before { content: "▶ "; font-size: 0.7rem; }
-        .instructions-panel[open] summary::before { content: "▼ "; }
-        .instructions-content {
-            padding: 0 1rem 1rem 1rem;
-            color: #0c4a6e;
-        }
-        .instructions-content h4 {
-            margin: 0.75rem 0 0.5rem 0;
-            font-size: 0.875rem;
-            color: #0369a1;
-        }
-        .instructions-content ol, .instructions-content ul {
-            margin: 0;
-            padding-left: 1.25rem;
-        }
-        .instructions-content li {
-            margin-bottom: 0.35rem;
-            line-height: 1.4;
-        }
-        .instructions-content em {
-            background: #e0f2fe;
-            padding: 0.1rem 0.3rem;
-            border-radius: 3px;
-            font-style: normal;
+        @media print {
+            body { padding: 0; background: #fff; }
+            .back-link, .instructions-panel, #inputCard, .actions, .reference-panel, .disclaimer { display: none !important; }
+            .results { display: block !important; }
+            .card { border: 0; box-shadow: none; }
+            .chart-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
 <body>
 <main>
     <div class="container">
-        <h1>Pediatric BP Percentile Calculator</h1>
-        <p class="subtitle">AAP 2017 Clinical Practice Guidelines</p>
-        
+        <a class="back-link" href="./">← Clinical tools</a>
+        <header class="page-header">
+            <h1>Pediatric BP Percentile Calculator</h1>
+            <p class="subtitle">AAP 2017 percentiles, category thresholds, and age curves</p>
+            <p class="scope-line">Office right-arm BP • Ages 1–17 • Auscultatory reference data</p>
+        </header>
+
+        <noscript><div class="noscript">JavaScript is required to calculate blood pressure percentiles.</div></noscript>
+
         <details class="instructions-panel">
-            <summary>📋 How to Use This Calculator</summary>
+            <summary>Measurement and interpretation guide</summary>
             <div class="instructions-content">
-                <h2>For Best Accuracy:</h2>
+                <h2>Before entering a reading</h2>
                 <ol>
-                    <li><strong>Age:</strong> Enter the child's exact age using <em>Years + Months</em> (e.g., 8 years, 4 months). This matches how percentiles are calculated in the AAP reference tables.</li>
-                    <li><strong>Height:</strong> Measure height accurately — small errors affect percentile calculations. The calculator will show a height z-score to help identify measurement errors.</li>
-                    <li><strong>BP Measurement:</strong> Use the average of 2-3 auscultatory readings taken after 5 minutes of rest, per AAP guidelines.</li>
+                    <li>Seat the child quietly for 3–5 minutes with back supported, feet uncrossed, and the right arm supported at heart level.</li>
+                    <li>Use the correct cuff size. If the initial BP is elevated, obtain 2 additional readings at the same visit and average them.</li>
+                    <li>Confirm an elevated oscillometric average with 2 auscultatory readings and use their average for categorization.</li>
                 </ol>
-                
-                <h2>Understanding Results:</h2>
+                <h2>What this result means</h2>
                 <ul>
-                    <li><strong>Accuracy:</strong> Results are within ±1 percentile of published AAP tables</li>
-                    <li><strong>For ages ≥13:</strong> Classification uses absolute thresholds (120/130/140 mmHg) per adult guidelines</li>
-                    <li><strong>For ages &lt;13:</strong> Classification uses both percentiles AND absolute thresholds, whichever is lower</li>
-                </ul>
-                
-                <h2>When to Be Cautious:</h2>
-                <ul>
-                    <li>⚠️ Height z-score &gt; 3 or &lt; -3 may indicate measurement error</li>
-                    <li>⚠️ Ages &lt;5 or &gt;17 years are outside the validated range</li>
-                    <li>⚠️ Single readings should not be used to diagnose hypertension</li>
+                    <li>The output is the <strong>category for this reading</strong>, not a diagnosis.</li>
+                    <li>For ages 1–12, the lower of the percentile-based or absolute AAP threshold applies. At age 13 and older, fixed AAP adolescent thresholds apply.</li>
+                    <li>The BP model uses measured height directly. The CDC length/height percentile is shown as a measurement check and does not limit the BP model’s age range.</li>
                 </ul>
             </div>
         </details>
-        
-        <div class="card">
+
+        <section class="card" id="inputCard" aria-labelledby="inputHeading">
+            <h2 class="visually-hidden" id="inputHeading">Patient and blood pressure inputs</h2>
             <form id="bpForm" novalidate>
-            <div class="row">
-                <div class="form-group">
-                    <label for="dob">Date of Birth</label>
-                    <input type="date" id="dob" required>
-                </div>
-                <div class="form-group">
-                    <label for="measureDate">Measurement Date</label>
-                    <input type="date" id="measureDate">
-                </div>
-            </div>
-            <div class="age-display" id="ageDisplay"></div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="dob">Date of birth</label>
+                        <input type="date" id="dob" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="measureDate">Measurement date</label>
+                        <input type="date" id="measureDate" required>
+                    </div>
+                    <div class="form-span age-display" id="ageDisplay" aria-live="polite"></div>
 
-            <div class="form-group">
-                <span class="field-label" id="sexLabel">Sex</span>
-                <div class="sex-toggle" id="sexToggle" role="group" aria-labelledby="sexLabel">
-                    <button type="button" class="sex-btn active" data-value="M" aria-pressed="true">Male</button>
-                    <button type="button" class="sex-btn" data-value="F" aria-pressed="false">Female</button>
-                </div>
-                <input type="hidden" id="sex" value="M">
-            </div>
+                    <div class="form-group form-span">
+                        <span class="field-label" id="sexLabel">Sex used by the reference model</span>
+                        <div class="sex-toggle" id="sexToggle" role="group" aria-labelledby="sexLabel">
+                            <button type="button" class="sex-btn active" data-value="M" aria-pressed="true">Male</button>
+                            <button type="button" class="sex-btn" data-value="F" aria-pressed="false">Female</button>
+                        </div>
+                        <input type="hidden" id="sex" value="M">
+                    </div>
 
-            <div class="row">
-                <div class="form-group">
-                    <label for="height">Height</label>
-                    <input type="number" id="height" step="0.1" inputmode="decimal" placeholder="Enter height">
-                    <div class="height-zscore" id="heightZscore"></div>
-                </div>
-                <div class="form-group">
-                    <label for="heightUnit">Unit</label>
-                    <select id="heightUnit">
-                        <option value="cm">cm</option>
-                        <option value="in">in</option>
-                    </select>
-                </div>
-            </div>
+                    <div class="form-group">
+                        <label for="height">Length / height</label>
+                        <input type="number" id="height" step="0.1" min="20" inputmode="decimal" placeholder="e.g., 130.8" required>
+                        <div class="height-zscore" id="heightZscore" aria-live="polite"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="heightUnit">Length / height unit</label>
+                        <select id="heightUnit">
+                            <option value="cm">Centimeters (cm)</option>
+                            <option value="in">Inches (in)</option>
+                        </select>
+                        <div class="field-hint">Changing the unit converts the entered value.</div>
+                    </div>
 
-            <div class="row">
-                <div class="form-group">
-                    <label for="sbp">Systolic BP (mmHg)</label>
-                    <input type="number" id="sbp" min="50" max="250" placeholder="Systolic">
+                    <div class="form-group">
+                        <label for="sbp">Systolic BP (mmHg)</label>
+                        <input type="number" id="sbp" min="50" max="250" inputmode="numeric" placeholder="e.g., 110" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dbp">Diastolic BP (mmHg)</label>
+                        <input type="number" id="dbp" min="30" max="150" inputmode="numeric" placeholder="e.g., 70" required>
+                    </div>
+                    <div class="form-span">
+                        <button class="primary-button" type="submit">Calculate reading category</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="dbp">Diastolic BP (mmHg)</label>
-                    <input type="number" id="dbp" min="30" max="150" placeholder="Diastolic">
-                </div>
-            </div>
-            <button type="submit">Calculate Percentiles</button>
             </form>
             <div id="error" class="error" role="alert"></div>
-            <div id="warnings"></div>
-        </div>
-        
-        <div id="results" class="results">
+            <div id="warnings" aria-live="polite"></div>
+        </section>
+
+        <section id="results" class="results" tabindex="-1" aria-live="polite" aria-labelledby="resultsHeading">
             <div class="card">
-                <div class="row">
-                    <div class="result-box sbp-box">
-                        <div class="result-label">Systolic BP</div>
+                <h2 class="visually-hidden" id="resultsHeading">Blood pressure result</h2>
+                <div class="reading-grid">
+                    <div class="reading-card sbp-box">
+                        <div class="result-label">Systolic percentile</div>
                         <div class="result-value" id="sbpPct">--</div>
                         <div class="result-detail" id="sbpDetail"></div>
                     </div>
-                    <div class="result-box dbp-box">
-                        <div class="result-label">Diastolic BP</div>
+                    <div class="reading-card dbp-box">
+                        <div class="result-label">Diastolic percentile</div>
                         <div class="result-value" id="dbpPct">--</div>
                         <div class="result-detail" id="dbpDetail"></div>
                     </div>
                 </div>
 
-                <div class="gauge-section">
-                    <div class="gauge-row">
-                        <span class="gauge-label">SBP</span>
-                        <div class="gauge-bar">
-                            <div class="gauge-marker" id="sbpMarker"></div>
-                        </div>
-                    </div>
-                    <div class="gauge-row">
-                        <span class="gauge-label">DBP</span>
-                        <div class="gauge-bar">
-                            <div class="gauge-marker" id="dbpMarker"></div>
-                        </div>
-                    </div>
-                    <div class="gauge-legend">
-                        <span>50th</span><span>90th</span><span>95th</span><span>99th</span>
-                    </div>
+                <div id="classification" class="classification">
+                    <span class="eyebrow">Category for this reading</span>
+                    <span class="category-value" id="categoryValue"></span>
+                    <span class="driver" id="categoryDriver"></span>
                 </div>
+                <p class="diagnosis-note">A single reading does not diagnose hypertension. Diagnosis requires auscultatory-confirmed high readings across separate visits.</p>
 
-                <div id="classification" class="classification"></div>
+                <h2 class="section-title">AAP category thresholds for this reading</h2>
+                <div id="sbpScale"></div>
+                <div id="dbpScale"></div>
+
                 <div class="thresholds">
-                    <h2>BP Thresholds for this patient:</h2>
-                    <div class="threshold-row"><span>90th percentile:</span><span id="p90"></span></div>
-                    <div class="threshold-row"><span>95th percentile:</span><span id="p95"></span></div>
-                    <div class="threshold-row"><span>95th + 12 mmHg:</span><span id="p95plus12"></span></div>
+                    <h2>Percentile reference values</h2>
+                    <div class="threshold-row"><span>90th percentile</span><strong id="p90"></strong></div>
+                    <div class="threshold-row"><span>95th percentile</span><strong id="p95"></strong></div>
+                    <div class="threshold-row"><span>95th percentile + 12 mmHg</span><strong id="p95plus12"></strong></div>
                 </div>
-                <div class="info-box" id="calcDetails"></div>
-            </div>
-        </div>
-        
-        <div class="disclaimer">
-            <strong>For educational purposes only.</strong> Not a substitute for professional medical judgment. 
-            <details class="validation-details">
-                <summary>Accuracy: ±1 percentile ▸</summary>
-                <div class="validation-content">
-                    <strong>Validation performed against:</strong>
-                    <ul>
-                        <li><strong>AAP 2017 Table 4</strong> — 24 test points, all within ±1 mmHg</li>
-                        <li><strong>Rosner sample data</strong> — 87.5% exact match, 100% within ±1 percentile</li>
-                        <li><strong>bsolomon.us calculator</strong> — BP values match to &lt;0.01 mmHg</li>
-                    </ul>
-                    <strong>Sources of ±1 variation:</strong> floating-point rounding, integer percentile discretization
-                </div>
-            </details>
-        </div>
-        
-        <div class="credits">
-            Flynn JT et al. <em>Pediatrics</em> 2017;140(3):e20171904 &bull; 
-            Rosner B et al. <em>Am J Epidemiol</em> 2008;167(6):653-66
-        </div>
-    </div></main>
 
-    
+                <div class="next-step" id="nextStep"></div>
+                <div class="info-box" id="calcDetails"></div>
+
+                <div class="actions" aria-label="Result actions">
+                    <button type="button" class="secondary-button" id="copyResult">Copy result</button>
+                    <button type="button" class="secondary-button" id="printResult">Print result</button>
+                    <span id="copyStatus" class="field-hint" role="status" aria-live="polite"></span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="section-title" style="margin-top:0">Interactive BP reference curves</h2>
+                <p class="chart-note" style="margin-top:0">Curves follow the patient’s current CDC length/height-for-age percentile across ages. Hover, touch, or use the arrow keys on a chart to inspect values.</p>
+                <div class="chart-grid">
+                    <div class="chart-card" id="sbpChartCard">
+                        <h3>Systolic BP by age</h3>
+                        <p class="chart-subtitle" id="sbpChartSubtitle"></p>
+                        <svg id="sbpChart" class="bp-chart" viewBox="0 0 520 310" role="img" tabindex="0" aria-describedby="sbpChartSummary"></svg>
+                        <div class="chart-tooltip" id="sbpTooltip" hidden></div>
+                        <p class="visually-hidden" id="sbpChartSummary"></p>
+                    </div>
+                    <div class="chart-card" id="dbpChartCard">
+                        <h3>Diastolic BP by age</h3>
+                        <p class="chart-subtitle" id="dbpChartSubtitle"></p>
+                        <svg id="dbpChart" class="bp-chart" viewBox="0 0 520 310" role="img" tabindex="0" aria-describedby="dbpChartSummary"></svg>
+                        <div class="chart-tooltip" id="dbpTooltip" hidden></div>
+                        <p class="visually-hidden" id="dbpChartSummary"></p>
+                    </div>
+                </div>
+                <div class="chart-legend" aria-label="Chart legend">
+                    <span><i class="legend-swatch" style="background:#475569"></i>50th</span>
+                    <span><i class="legend-swatch" style="background:#a16207"></i>90th</span>
+                    <span><i class="legend-swatch" style="background:#c2410c"></i>95th</span>
+                    <span><i class="legend-swatch" style="background:#b91c1c"></i>95th + 12</span>
+                    <span><i class="legend-swatch" style="height:8px;width:8px;border-radius:50%;background:#1d4ed8"></i>Reading</span>
+                </div>
+                <p class="chart-note" id="adolescentChartNote"></p>
+            </div>
+        </section>
+
+        <details class="reference-panel">
+            <summary>AAP simplified screening table</summary>
+            <div class="reference-content">
+                <p>These are screening cutoffs for deciding whether a reading needs further evaluation. They are intentionally conservative and are <strong>not diagnostic thresholds</strong>.</p>
+                <div class="table-wrap">
+                    <table class="screening-table">
+                        <thead><tr><th rowspan="2">Age</th><th colspan="2">Male</th><th colspan="2">Female</th></tr><tr><th>SBP</th><th>DBP</th><th>SBP</th><th>DBP</th></tr></thead>
+                        <tbody>
+                            <tr><th>1</th><td>98</td><td>52</td><td>98</td><td>54</td></tr>
+                            <tr><th>2</th><td>100</td><td>55</td><td>101</td><td>58</td></tr>
+                            <tr><th>3</th><td>101</td><td>58</td><td>102</td><td>60</td></tr>
+                            <tr><th>4</th><td>102</td><td>60</td><td>103</td><td>62</td></tr>
+                            <tr><th>5</th><td>103</td><td>63</td><td>104</td><td>64</td></tr>
+                            <tr><th>6</th><td>105</td><td>66</td><td>105</td><td>67</td></tr>
+                            <tr><th>7</th><td>106</td><td>68</td><td>106</td><td>68</td></tr>
+                            <tr><th>8</th><td>107</td><td>69</td><td>107</td><td>69</td></tr>
+                            <tr><th>9</th><td>107</td><td>70</td><td>108</td><td>71</td></tr>
+                            <tr><th>10</th><td>108</td><td>72</td><td>109</td><td>72</td></tr>
+                            <tr><th>11</th><td>110</td><td>74</td><td>111</td><td>74</td></tr>
+                            <tr><th>12</th><td>113</td><td>75</td><td>114</td><td>75</td></tr>
+                            <tr><th>≥13</th><td>120</td><td>80</td><td>120</td><td>80</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </details>
+
+        <details class="reference-panel">
+            <summary>Methods, references, and validation</summary>
+            <div class="reference-content">
+                <h2>Scope</h2>
+                <p>This tool interprets office BP for ages 1–17. It is not an ABPM calculator, a hypotension reference, or a neonatal/infant-under-1 reference. It does not account for symptoms, comorbidities, cuff error, or treatment history.</p>
+                <h2>Primary references</h2>
+                <ul>
+                    <li><a href="https://publications.aap.org/pediatrics/article/140/3/e20171904/38358/Clinical-Practice-Guideline-for-Screening-and">AAP 2017 Clinical Practice Guideline</a> — definitions, thresholds, measurement, and follow-up.</li>
+                    <li><a href="https://academic.oup.com/aje/article-abstract/167/6/653/154351">Rosner et al., 2008</a> — quantile-regression method underlying the BP curves.</li>
+                    <li><a href="https://www.cdc.gov/growthcharts/cdc-data-files.htm">CDC 2000 growth-chart LMS data</a> — monthly length/stature percentile check.</li>
+                </ul>
+                <h2>Validation</h2>
+                <div class="validation-content">
+                    <ul>
+                        <li><strong>1,904 published-table comparisons:</strong> both sexes, ages 1–17, seven height percentiles, SBP/DBP, and four printed rows (50th, 90th, 95th, 95th + 12).</li>
+                        <li><strong>Boundary coverage:</strong> pediatric/adolescent transition, all category edges, unit conversion, extreme percentiles, invalid inputs, and date handling.</li>
+                        <li><strong>Browser regressions:</strong> interaction, keyboard behavior, copy/print controls, graph rendering, mobile overflow, internal links, and runtime errors.</li>
+                    </ul>
+                    <a href="bp-calculator-validation.html">Read the validation report and acceptance criteria</a>
+                </div>
+                <p><strong>Version 3.0 • Reviewed August 3, 2026.</strong> Calculations run locally in your browser; entries are not submitted or stored.</p>
+            </div>
+        </details>
+
+        <div class="disclaimer"><strong>Clinical support, not medical advice.</strong> Verify unexpected values and use current institutional guidance and clinical judgment. A result from one reading must not be presented as a hypertension diagnosis.</div>
+        <p class="credits">Built from AAP 2017 / Rosner reference methods • No external scripts, trackers, or data submission</p>
+    </div>
+</main>
+
+    <script src="bp-growth-lms.js"></script>
     <script>
 // =============================================================================
 // PEDIATRIC BP PERCENTILE CALCULATOR - AAP 2017
-// Version 2.0 with premortem fixes
+// Version 3.0 — reading-specific categories and interactive reference curves
 // =============================================================================
-
-// CDC LMS parameters for height-for-age (ages 2-20 years)
-// Source: CDC Growth Charts, 2000
-// Format: age_months: [L, M, S]
-const CDC_HEIGHT_LMS = {
-    M: {
-        24: [-0.1058, 86.4513, 0.03711], 36: [-0.0574, 95.0265, 0.03856], 48: [0.0017, 102.4931, 0.03928],
-        60: [0.0694, 109.1782, 0.03972], 72: [0.1373, 115.4153, 0.04011], 84: [0.1916, 121.4265, 0.04058],
-        96: [0.2256, 127.2841, 0.04117], 108: [0.2398, 132.9084, 0.04188], 120: [0.2389, 138.2109, 0.04266],
-        132: [0.2296, 143.3419, 0.04349], 144: [0.2174, 149.0575, 0.04428], 156: [0.2049, 155.5361, 0.04489],
-        168: [0.1928, 162.1742, 0.04516], 180: [0.1807, 167.8238, 0.04494], 192: [0.1686, 172.0466, 0.04426],
-        204: [0.1565, 174.7165, 0.04330], 216: [0.1444, 176.1158, 0.04230], 228: [0.1323, 176.7862, 0.04145],
-        240: [0.1202, 176.9843, 0.04086]
-    },
-    F: {
-        24: [0.1139, 85.7153, 0.03879], 36: [0.2204, 94.1248, 0.04043], 48: [0.3275, 101.5981, 0.04141],
-        60: [0.4275, 108.4122, 0.04215], 72: [0.5059, 114.7015, 0.04287], 84: [0.5521, 120.6386, 0.04369],
-        96: [0.5632, 126.3574, 0.04468], 108: [0.5444, 131.8942, 0.04586], 120: [0.5032, 137.3971, 0.04721],
-        132: [0.4466, 143.2552, 0.04859], 144: [0.3793, 149.5424, 0.04970], 156: [0.3047, 155.4755, 0.05023],
-        168: [0.2265, 159.8245, 0.04996], 180: [0.1505, 162.3640, 0.04909], 192: [0.0835, 163.6686, 0.04803],
-        204: [0.0320, 164.2264, 0.04712], 216: [0.0000, 164.3777, 0.04654], 228: [-0.0114, 164.3775, 0.04625],
-        240: [-0.0114, 164.3375, 0.04613]
-    }
-};
 
 // Coefficient arrays from BenSolomon/pediatric-bp (originally from Rosner lab)
 // Array order per row: [b0, b1, b2, b3, b4, ba1, ba2, ba3, ba4, bb1, bb2, bb3, bb4]
@@ -561,47 +406,74 @@ const KNOTS = {
     }
 };
 
-// Valid height ranges by age (approximate, for warning purposes)
-const HEIGHT_RANGES = {
-    M: { min: 70, max: 200 },  // Males
-    F: { min: 65, max: 190 }   // Females
-};
+// =============================================================================
+// GROWTH REFERENCE (CDC 2000 MONTHLY LMS)
+// =============================================================================
+function clamp(value, minimum, maximum) {
+    return Math.min(maximum, Math.max(minimum, value));
+}
 
-// =============================================================================
-// HEIGHT Z-SCORE CALCULATION (CDC LMS method)
-// =============================================================================
-function calculateHeightZScore(heightCm, ageYears, sex) {
-    const ageMonths = Math.round(ageYears * 12);
-    const lmsData = CDC_HEIGHT_LMS[sex];
-    
-    // Find closest age in LMS table
-    const ages = Object.keys(lmsData).map(Number).sort((a, b) => a - b);
-    let closestAge = ages[0];
-    let minDiff = Math.abs(ageMonths - closestAge);
-    
-    for (const age of ages) {
-        const diff = Math.abs(ageMonths - age);
-        if (diff < minDiff) {
-            minDiff = diff;
-            closestAge = age;
-        }
-    }
-    
-    const [L, M, S] = lmsData[closestAge];
-    
-    // LMS Z-score formula
-    if (L === 0) {
-        return Math.log(heightCm / M) / S;
-    } else {
-        return (Math.pow(heightCm / M, L) - 1) / (L * S);
-    }
+function getGrowthLMS(ageYears, sex) {
+    const ageMonths = ageYears * 12;
+    const useLength = ageMonths < 24;
+    const start = useLength ? CDC_LENGTH_START : CDC_STATURE_START;
+    const data = useLength ? CDC_LENGTH_LMS[sex] : CDC_STATURE_LMS[sex];
+    const index = Math.round(ageMonths - start);
+    if (!data || index < 0 || index >= data.length) return null;
+    const values = data[index];
+    return {
+        L: values[0],
+        M: values[1],
+        S: values[2],
+        measure: useLength ? 'Length-for-age' : 'Stature-for-age',
+        ageMonths: start + index
+    };
+}
+
+function normalCDF(z) {
+    const absolute = Math.abs(z);
+    const t = 1 / (1 + 0.2316419 * absolute);
+    const density = 0.3989422804014327 * Math.exp(-0.5 * absolute * absolute);
+    const tail = density * t * (
+        0.319381530 + t * (
+            -0.356563782 + t * (
+                1.781477937 + t * (
+                    -1.821255978 + t * 1.330274429
+                )
+            )
+        )
+    );
+    const probability = 1 - tail;
+    return z >= 0 ? probability : 1 - probability;
+}
+
+function calculateHeightStats(heightCm, ageYears, sex) {
+    const lms = getGrowthLMS(ageYears, sex);
+    if (!lms) return null;
+    const z = Math.abs(lms.L) < 1e-12
+        ? Math.log(heightCm / lms.M) / lms.S
+        : (Math.pow(heightCm / lms.M, lms.L) - 1) / (lms.L * lms.S);
+    return {
+        z: z,
+        percentile: normalCDF(z) * 100,
+        measure: lms.measure,
+        referenceAgeMonths: lms.ageMonths
+    };
+}
+
+function heightAtZ(ageYears, sex, z) {
+    const lms = getGrowthLMS(ageYears, sex);
+    if (!lms) return NaN;
+    if (Math.abs(lms.L) < 1e-12) return lms.M * Math.exp(lms.S * z);
+    const base = 1 + lms.L * lms.S * z;
+    return base > 0 ? lms.M * Math.pow(base, 1 / lms.L) : NaN;
 }
 
 // =============================================================================
-// SPLINE CALCULATIONS
+// ROSNER RESTRICTED CUBIC SPLINE MODEL
 // =============================================================================
 function calculateSplineBasis(value, knots) {
-    const [t1, t2, t3, t4, t5] = knots;
+    const t1 = knots[0], t2 = knots[1], t3 = knots[2], t4 = knots[3], t5 = knots[4];
     const x2a = Math.max(0, value - t1);
     const x2b = Math.max(0, value - t4);
     const x2c = Math.max(0, value - t5);
@@ -616,387 +488,782 @@ function calculateSplineBasis(value, knots) {
 function getBPAtPercentile(coefficients, percentileIndex, age, height, sex) {
     const knots = KNOTS[sex];
     const coef = coefficients[percentileIndex];
-    
-    const x = height;
+
     const xSpline = calculateSplineBasis(height, knots.height);
     const x2s = xSpline.s2 / 100;
     const x3s = xSpline.s3 / 100;
     const x4s = xSpline.s4 / 100;
-    
-    const y = age;
+
     const ySpline = calculateSplineBasis(age, knots.age);
     const y2s = ySpline.s2 / 100;
     const y3s = ySpline.s3 / 100;
     const y4s = ySpline.s4 / 100;
-    
-    const w = (age - 10) * (height - 150);
-    const wSpline = calculateSplineBasis(w, knots.interaction);
+
+    const interaction = (age - 10) * (height - 150);
+    const wSpline = calculateSplineBasis(interaction, knots.interaction);
     const w2s = wSpline.s2 / 10000;
     const w3s = wSpline.s3 / 10000;
     const w4s = wSpline.s4 / 10000;
-    
-    return coef[0] 
-        + coef[1] * x + coef[2] * x2s + coef[3] * x3s + coef[4] * x4s
-        + coef[5] * y + coef[6] * y2s + coef[7] * y3s + coef[8] * y4s
-        + coef[9] * w + coef[10] * w2s + coef[11] * w3s + coef[12] * w4s;
+
+    return coef[0]
+        + coef[1] * height + coef[2] * x2s + coef[3] * x3s + coef[4] * x4s
+        + coef[5] * age + coef[6] * y2s + coef[7] * y3s + coef[8] * y4s
+        + coef[9] * interaction + coef[10] * w2s + coef[11] * w3s + coef[12] * w4s;
 }
 
 function findPercentile(coefficients, bp, age, height, sex) {
-    let closestPct = 1;
-    let minDiff = Infinity;
-    
-    for (let pct = 0; pct < 99; pct++) {
-        const bpAtPct = getBPAtPercentile(coefficients, pct, age, height, sex);
-        const diff = Math.abs(bp - bpAtPct);
-        if (diff < minDiff) {
-            minDiff = diff;
-            closestPct = pct + 1;
+    let closest = 1;
+    let minimumDifference = Infinity;
+    for (let index = 0; index < 99; index += 1) {
+        const difference = Math.abs(bp - getBPAtPercentile(coefficients, index, age, height, sex));
+        if (difference < minimumDifference) {
+            minimumDifference = difference;
+            closest = index + 1;
         }
     }
-    return closestPct;
+    return closest;
 }
 
-function ordinal(n) {
-    const a = n % 100, b = n % 10;
-    const suffix = (a < 11 || a > 13) && b > 0 && b < 4 ? ['st', 'nd', 'rd'][b - 1] : 'th';
-    return n + suffix;
+function ordinal(number) {
+    const lastTwo = number % 100;
+    const lastOne = number % 10;
+    const suffix = (lastTwo < 11 || lastTwo > 13) && lastOne > 0 && lastOne < 4
+        ? ['st', 'nd', 'rd'][lastOne - 1]
+        : 'th';
+    return String(number) + suffix;
+}
+
+function bpPercentileLabel(coefficients, bp, age, height, sex) {
+    const first = getBPAtPercentile(coefficients, 0, age, height, sex);
+    const ninetyNinth = getBPAtPercentile(coefficients, 98, age, height, sex);
+    if (bp < first) return '<1st %ile';
+    if (bp > ninetyNinth) return '>99th %ile';
+    return ordinal(findPercentile(coefficients, bp, age, height, sex)) + ' %ile';
+}
+
+function growthPercentileLabel(percentile) {
+    if (percentile < 1) return '<1st percentile';
+    if (percentile > 99) return '>99th percentile';
+    return ordinal(Math.round(percentile)) + ' percentile';
 }
 
 // =============================================================================
-// CLASSIFICATION (AAP 2017)
+// AAP 2017 READING CATEGORIES
 // =============================================================================
-// Classification is driven by the same continuous percentile values that are
-// displayed as the patient's thresholds, so the stated 90th/95th cut-points and
-// the reported category can never disagree. The integer percentile from
-// findPercentile() is for display only — rounding it to the nearest of 99
-// discrete ranks moved the Elevated/Stage 1 boundary by up to 1 mmHg.
-function classify(age, sbp, dbp, sbp90, dbp90, sbp95, dbp95) {
+const CATEGORY_META = {
+    normal: { severity: 0, label: 'Normal range', short: 'Normal', css: 'normal' },
+    elevated: { severity: 1, label: 'Elevated BP range', short: 'Elevated', css: 'elevated' },
+    stage1: { severity: 2, label: 'Stage 1 hypertension range', short: 'Stage 1', css: 'stage1' },
+    stage2: { severity: 3, label: 'Stage 2 hypertension range', short: 'Stage 2', css: 'stage2' }
+};
+
+function getComponentThresholds(age, type, p90, p95) {
+    const ninety = Math.round(p90);
+    const ninetyFive = Math.round(p95);
     if (age >= 13) {
-        if (sbp >= 140 || dbp >= 90) return { class: 'Stage 2 HTN', css: 'stage2' };
-        if (sbp >= 130 || dbp >= 80) return { class: 'Stage 1 HTN', css: 'stage1' };
-        if (sbp >= 120) return { class: 'Elevated BP', css: 'elevated' };
-        return { class: 'Normal', css: 'normal' };
+        return type === 'SBP'
+            ? { elevated: 120, stage1: 130, stage2: 140 }
+            : { elevated: null, stage1: 80, stage2: 90 };
+    }
+    return type === 'SBP'
+        ? {
+            elevated: Math.min(ninety, 120),
+            stage1: Math.min(ninetyFive, 130),
+            stage2: Math.min(ninetyFive + 12, 140)
+        }
+        : {
+            elevated: ninety,
+            stage1: Math.min(ninetyFive, 80),
+            stage2: Math.min(ninetyFive + 12, 90)
+        };
+}
+
+function classifyComponent(value, thresholds) {
+    let key = 'normal';
+    if (value >= thresholds.stage2) key = 'stage2';
+    else if (value >= thresholds.stage1) key = 'stage1';
+    else if (thresholds.elevated !== null && value >= thresholds.elevated) key = 'elevated';
+    return Object.assign({ key: key, thresholds: thresholds, value: value }, CATEGORY_META[key]);
+}
+
+function classify(age, sbp, dbp, sbp90, dbp90, sbp95, dbp95) {
+    const systolic = classifyComponent(sbp, getComponentThresholds(age, 'SBP', sbp90, sbp95));
+    const diastolic = classifyComponent(dbp, getComponentThresholds(age, 'DBP', dbp90, dbp95));
+    const overall = systolic.severity >= diastolic.severity ? systolic : diastolic;
+    let driver;
+    if (overall.severity === 0) {
+        driver = 'Both systolic and diastolic are below the applicable thresholds.';
+    } else if (systolic.severity === diastolic.severity) {
+        driver = 'Both systolic and diastolic reach this range.';
+    } else if (systolic.severity > diastolic.severity) {
+        driver = 'Driven by systolic BP; diastolic is ' + diastolic.short.toLowerCase() + '.';
     } else {
-        // AAP 2017: percentile cut-point or absolute threshold, whichever is lower.
-        // Compare against the rounded thresholds shown to the user.
-        const s90 = Math.round(sbp90), d90 = Math.round(dbp90);
-        const s95 = Math.round(sbp95), d95 = Math.round(dbp95);
-
-        if (sbp >= s95 + 12 || dbp >= d95 + 12 || sbp >= 140 || dbp >= 90) {
-            return { class: 'Stage 2 HTN', css: 'stage2' };
-        }
-        if (sbp >= s95 || dbp >= d95 || sbp >= 130 || dbp >= 80) {
-            return { class: 'Stage 1 HTN', css: 'stage1' };
-        }
-        if (sbp >= s90 || dbp >= d90 || sbp >= 120) {
-            return { class: 'Elevated BP', css: 'elevated' };
-        }
-        return { class: 'Normal', css: 'normal' };
+        driver = 'Driven by diastolic BP; systolic is ' + systolic.short.toLowerCase() + '.';
     }
+    return {
+        key: overall.key,
+        class: overall.label,
+        label: overall.label,
+        css: overall.css,
+        severity: overall.severity,
+        driver: driver,
+        systolic: systolic,
+        diastolic: diastolic
+    };
 }
 
 // =============================================================================
-// UI HELPERS
+// DATE, INPUT, AND DISPLAY HELPERS
 // =============================================================================
+function parseDateInput(value) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || '');
+    if (!match) return null;
+    const year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
+    const check = new Date(Date.UTC(year, month - 1, day));
+    if (check.getUTCFullYear() !== year || check.getUTCMonth() !== month - 1 || check.getUTCDate() !== day) return null;
+    return { year: year, month: month, day: day };
+}
 
-// Calculate age from DOB (optionally relative to a reference date)
 function calculateAgeFromDOB(dob, referenceDate) {
-    const refDate = referenceDate ? new Date(referenceDate) : new Date();
-    const birthDate = new Date(dob);
-    let years = refDate.getFullYear() - birthDate.getFullYear();
-    let months = refDate.getMonth() - birthDate.getMonth();
-    if (months < 0 || (months === 0 && refDate.getDate() < birthDate.getDate())) {
-        years--;
-        months += 12;
-    }
-    if (refDate.getDate() < birthDate.getDate()) {
-        months--;
-        if (months < 0) months += 12;
-    }
-    return { years, months, decimal: years + months / 12 };
+    const birth = parseDateInput(dob);
+    const reference = parseDateInput(referenceDate);
+    if (!birth || !reference) return { years: NaN, months: NaN, decimal: NaN, totalMonths: NaN };
+    let totalMonths = (reference.year - birth.year) * 12 + (reference.month - birth.month);
+    if (reference.day < birth.day) totalMonths -= 1;
+    if (totalMonths < 0) return { years: -1, months: 0, decimal: -1, totalMonths: totalMonths };
+    const years = Math.floor(totalMonths / 12);
+    const months = totalMonths % 12;
+    return { years: years, months: months, decimal: totalMonths / 12, totalMonths: totalMonths };
 }
 
-// Get measurement date (defaults to today)
+function localTodayISO() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return String(year) + '-' + month + '-' + day;
+}
+
 function getMeasureDate() {
-    return document.getElementById('measureDate').value || new Date().toISOString().split('T')[0];
+    return document.getElementById('measureDate').value || localTodayISO();
 }
 
-// Update age display based on DOB and measurement date
+function heightInCentimeters() {
+    const entered = Number(document.getElementById('height').value);
+    if (!Number.isFinite(entered)) return NaN;
+    return document.getElementById('heightUnit').value === 'in' ? entered * 2.54 : entered;
+}
+
 function updateAgeDisplay() {
-    const ageDisplay = document.getElementById('ageDisplay');
-    const dobValue = document.getElementById('dob').value;
-    if (!dobValue) {
-        ageDisplay.textContent = '';
+    const output = document.getElementById('ageDisplay');
+    const dob = document.getElementById('dob').value;
+    if (!dob) {
+        output.textContent = '';
+        updateHeightDisplay();
         return;
     }
-    const age = calculateAgeFromDOB(dobValue, getMeasureDate());
-    if (age.decimal < 1 || age.decimal > 18) {
-        ageDisplay.textContent = `${age.years}y ${age.months}m — outside valid range (1-17 years)`;
-        ageDisplay.style.color = '#dc2626';
+    const age = calculateAgeFromDOB(dob, getMeasureDate());
+    if (!Number.isFinite(age.decimal) || age.decimal < 1 || age.decimal >= 18) {
+        output.textContent = Number.isFinite(age.decimal)
+            ? 'Age at measurement is outside the supported range of 1 through 17 years.'
+            : 'Check the birth and measurement dates.';
+        output.style.color = '#b91c1c';
     } else {
-        ageDisplay.textContent = `Age at measurement: ${age.years} years, ${age.months} months`;
-        ageDisplay.style.color = '#2563eb';
+        output.textContent = 'Age at measurement: ' + age.years + ' years, ' + age.months + ' months';
+        output.style.color = '#1e40af';
     }
-    updateHeightZscore();
+    updateHeightDisplay();
 }
 
-document.getElementById('bpForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    calculate();
-});
+function updateHeightDisplay() {
+    const output = document.getElementById('heightZscore');
+    const heightCm = heightInCentimeters();
+    const age = calculateAgeFromDOB(document.getElementById('dob').value, getMeasureDate());
+    if (!Number.isFinite(heightCm) || heightCm <= 0 || !Number.isFinite(age.decimal) || age.decimal < 1 || age.decimal >= 18) {
+        output.textContent = '';
+        return;
+    }
+    const stats = calculateHeightStats(heightCm, age.decimal + 0.5 / 12, document.getElementById('sex').value);
+    if (!stats) {
+        output.textContent = '';
+        return;
+    }
+    let suffix = '';
+    if (Math.abs(stats.z) > 3.09) {
+        suffix = ' — verify measurement and unit';
+        output.style.color = '#b91c1c';
+    } else if (Math.abs(stats.z) > 2.5) {
+        suffix = ' — unusual for age; verify measurement';
+        output.style.color = '#a16207';
+    } else {
+        output.style.color = '#526072';
+    }
+    const sign = stats.z >= 0 ? '+' : '';
+    output.textContent = stats.measure + ': ' + growthPercentileLabel(stats.percentile) + ' (z ' + sign + stats.z.toFixed(2) + ')' + suffix;
+}
 
-// DOB and measurement date handlers
-document.getElementById('dob').addEventListener('change', updateAgeDisplay);
-document.getElementById('measureDate').addEventListener('change', updateAgeDisplay);
-
-// Set today's date as default measurement date on load
-document.getElementById('measureDate').value = new Date().toISOString().split('T')[0];
-
-// Sex toggle handler
-document.querySelectorAll('.sex-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.sex-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        document.getElementById('sex').value = this.dataset.value;
-        this.setAttribute('aria-pressed', 'true');
-        document.querySelectorAll('.sex-btn').forEach(b => { if (b !== this) b.setAttribute('aria-pressed', 'false'); });
-        invalidateResults();
-        updateHeightZscore();
-    });
-});
-
-// Any change to the inputs invalidates the displayed result, so a stale
-// classification can never sit on screen next to different numbers.
 function invalidateResults() {
     document.getElementById('results').classList.remove('show');
     document.getElementById('error').textContent = '';
+    document.getElementById('warnings').replaceChildren();
+    document.getElementById('copyStatus').textContent = '';
+    lastResult = null;
 }
-['dob', 'measureDate', 'height', 'heightUnit', 'sbp', 'dbp', 'sex'].forEach(id => {
-    const el = document.getElementById(id);
-    el.addEventListener('input', invalidateResults);
-    el.addEventListener('change', invalidateResults);
-});
 
-// Real-time height z-score display
-document.getElementById('height').addEventListener('input', updateHeightZscore);
-document.getElementById('heightUnit').addEventListener('change', updateHeightZscore);
-document.getElementById('dob').addEventListener('change', updateHeightZscore);
-document.getElementById('sex').addEventListener('change', updateHeightZscore);
+function addWarning(message) {
+    const warning = document.createElement('div');
+    warning.className = 'warning';
+    warning.textContent = message;
+    document.getElementById('warnings').appendChild(warning);
+}
 
-function updateHeightZscore() {
-    const zscoreEl = document.getElementById('heightZscore');
-    const sex = document.getElementById('sex').value;
-    let height = parseFloat(document.getElementById('height').value);
-    const heightUnit = document.getElementById('heightUnit').value;
-    
-    // Get age from DOB
-    const dobValue = document.getElementById('dob').value;
-    if (!dobValue) {
-        zscoreEl.textContent = '';
-        return;
+function renderCategoryScale(targetId, label, component) {
+    const target = document.getElementById(targetId);
+    const thresholds = component.thresholds;
+    const inputMinimum = label === 'Systolic' ? 50 : 30;
+    const maximum = Math.max(thresholds.stage2 + (label === 'Systolic' ? 20 : 15), component.value + 5);
+    const minimum = Math.min(inputMinimum, component.value - 5);
+
+    const cuts = [];
+    if (thresholds.elevated !== null && thresholds.elevated < thresholds.stage1) {
+        cuts.push({ value: thresholds.elevated, key: 'elevated' });
     }
-    const ageData = calculateAgeFromDOB(dobValue, getMeasureDate());
-    const age = ageData.decimal;
+    cuts.push({ value: thresholds.stage1, key: 'stage1' });
+    cuts.push({ value: thresholds.stage2, key: 'stage2' });
+    cuts.sort(function (a, b) { return a.value - b.value; });
 
-    if (isNaN(height) || height <= 0 || age < 1) {
-        zscoreEl.textContent = '';
-        return;
-    }
+    const distinctCuts = cuts.filter(function (cut, index, array) {
+        return cut.value > minimum && (index === 0 || cut.value !== array[index - 1].value);
+    });
+    const bands = [];
+    let start = minimum;
+    let key = 'normal';
+    distinctCuts.forEach(function (cut) {
+        if (cut.value > start) bands.push({ key: key, start: start, end: cut.value });
+        start = cut.value;
+        key = cut.key;
+    });
+    if (maximum > start) bands.push({ key: key, start: start, end: maximum });
 
-    if (heightUnit === 'in') {
-        height = height * 2.54;
-    }
-    
-    const zscore = calculateHeightZScore(height, age, sex);
-    const zscoreText = zscore.toFixed(2);
-    let warning = '';
-    
-    if (Math.abs(zscore) > 3.09) {
-        warning = ' ⚠️ OUTLIER - outside ±3.09 SD';
-        zscoreEl.style.color = '#dc2626';
-    } else if (Math.abs(zscore) > 2) {
-        warning = ' ⚠️ Unusual height for age';
-        zscoreEl.style.color = '#d97706';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'component-scale';
+    wrapper.setAttribute('aria-label', label + ' category scale. Reading ' + component.value + ' millimeters of mercury, ' + component.label + '.');
+
+    const heading = document.createElement('div');
+    heading.className = 'scale-heading';
+    const name = document.createElement('strong');
+    name.textContent = label + ' category';
+    const current = document.createElement('strong');
+    current.textContent = component.value + ' mmHg • ' + component.short;
+    heading.append(name, current);
+
+    const track = document.createElement('div');
+    track.className = 'scale-track';
+    bands.forEach(function (band) {
+        const segment = document.createElement('span');
+        segment.className = 'scale-segment ' + band.key + '-segment';
+        segment.style.flexGrow = String(band.end - band.start);
+        segment.title = CATEGORY_META[band.key].label;
+        track.appendChild(segment);
+    });
+    const marker = document.createElement('span');
+    marker.className = 'scale-marker';
+    marker.style.left = clamp((component.value - minimum) / (maximum - minimum) * 100, 0, 100) + '%';
+    marker.title = label + ' reading: ' + component.value + ' mmHg';
+    track.appendChild(marker);
+
+    const keyList = document.createElement('div');
+    keyList.className = 'scale-key';
+    bands.forEach(function (band) {
+        const item = document.createElement('span');
+        if (band.key === component.key) item.className = 'current';
+        if (band.key === 'normal') {
+            item.textContent = 'Normal <' + Math.round(band.end);
+        } else if (band.key === 'stage2') {
+            item.textContent = 'Stage 2 ≥' + Math.round(band.start);
+        } else {
+            item.textContent = CATEGORY_META[band.key].short + ' ' + Math.round(band.start) + '–' + Math.max(Math.round(band.start), Math.round(band.end) - 1);
+        }
+        keyList.appendChild(item);
+    });
+
+    wrapper.append(heading, track, keyList);
+    target.replaceChildren(wrapper);
+}
+
+function renderNextStep(result, age, sbp, dbp, sbp95, dbp95) {
+    const target = document.getElementById('nextStep');
+    target.replaceChildren();
+    const heading = document.createElement('h2');
+    heading.textContent = 'AAP next step for an initial reading';
+    const main = document.createElement('p');
+    if (result.key === 'normal') {
+        main.textContent = 'If the BP is normal or normalizes after repeat readings, no additional action is needed; measure again at the next routine well-child visit. Routine annual screening begins at age 3.';
+    } else if (result.key === 'elevated') {
+        main.textContent = 'Confirm the category with the same-visit averaging process, provide healthy diet, sleep, and activity counseling, and repeat the BP by auscultation in 6 months.';
+    } else if (result.key === 'stage1') {
+        main.textContent = 'If asymptomatic, confirm the category with the same-visit averaging process, provide lifestyle counseling, and recheck by auscultation in 1–2 weeks. Persistent stage 1 readings require the AAP multi-visit pathway.';
     } else {
-        zscoreEl.style.color = '#64748b';
+        main.textContent = 'Check right arm, left arm, and one leg; give lifestyle recommendations; and repeat the BP or arrange subspecialty care within 1 week. Persistent stage 2 readings require prompt diagnostic evaluation, including ABPM when available.';
     }
-    
-    zscoreEl.textContent = `Height Z-score: ${zscoreText}${warning}`;
+    target.append(heading, main);
+
+    if (result.severity > 0) {
+        const confirm = document.createElement('p');
+        confirm.textContent = 'Same visit: take 2 additional readings and average them. If an oscillometric average is elevated, obtain and average 2 auscultatory readings.';
+        target.appendChild(confirm);
+    }
+
+    const urgent = result.key === 'stage2'
+        && (sbp > Math.round(sbp95) + 30 || dbp > Math.round(dbp95) + 30 || (age >= 13 && (sbp > 180 || dbp > 120)));
+    if (result.key === 'stage2') {
+        const emergency = document.createElement('p');
+        emergency.className = 'urgent-note';
+        emergency.textContent = urgent
+            ? 'This entered BP exceeds an AAP urgent-value criterion. If confirmed, seek an immediate source of care; symptoms also require immediate evaluation.'
+            : 'If the child is symptomatic, or a confirmed BP is more than 30 mmHg above the 95th percentile (or over 180/120 in an adolescent), seek an immediate source of care.';
+        target.appendChild(emergency);
+    }
+}
+
+// =============================================================================
+// INTERACTIVE SVG REFERENCE CURVES
+// =============================================================================
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function svgElement(name, attributes, textValue) {
+    const element = document.createElementNS(SVG_NS, name);
+    Object.keys(attributes || {}).forEach(function (attribute) {
+        element.setAttribute(attribute, String(attributes[attribute]));
+    });
+    if (textValue !== undefined) element.textContent = textValue;
+    return element;
+}
+
+function curveValuesAtAge(coefficients, sex, heightZ, completedAge) {
+    const adjustedAge = completedAge + 0.5 / 12;
+    const trajectoryHeight = heightAtZ(adjustedAge, sex, heightZ);
+    return {
+        p50: getBPAtPercentile(coefficients, 49, adjustedAge, trajectoryHeight, sex),
+        p90: getBPAtPercentile(coefficients, 89, adjustedAge, trajectoryHeight, sex),
+        p95: getBPAtPercentile(coefficients, 94, adjustedAge, trajectoryHeight, sex),
+        p95plus12: getBPAtPercentile(coefficients, 94, adjustedAge, trajectoryHeight, sex) + 12
+    };
+}
+
+function renderGraph(options) {
+    const svg = document.getElementById(options.svgId);
+    const tooltip = document.getElementById(options.tooltipId);
+    const summary = document.getElementById(options.summaryId);
+    const subtitle = document.getElementById(options.subtitleId);
+    svg.replaceChildren();
+
+    const width = 520, height = 310;
+    const margin = { left: 48, right: 14, top: 18, bottom: 40 };
+    const plotWidth = width - margin.left - margin.right;
+    const plotHeight = height - margin.top - margin.bottom;
+    const minimumAge = 1;
+    const maximumAge = 17 + 11 / 12;
+    const ages = [];
+    for (let age = 1; age <= 17.75; age += 0.25) ages.push(age);
+    ages.push(maximumAge);
+
+    const data = ages.map(function (age) {
+        return Object.assign({ age: age }, curveValuesAtAge(options.coefficients, options.sex, options.heightZ, age));
+    });
+    const fixedThresholds = options.type === 'SBP' ? [120, 130, 140] : [80, 90];
+    const allValues = [options.reading].concat(fixedThresholds);
+    data.forEach(function (point) {
+        allValues.push(point.p50, point.p90, point.p95, point.p95plus12);
+    });
+    const yMinimum = Math.floor((Math.min.apply(null, allValues) - 5) / 5) * 5;
+    const yMaximum = Math.ceil((Math.max.apply(null, allValues) + 5) / 5) * 5;
+
+    const xScale = function (age) {
+        return margin.left + (age - minimumAge) / (maximumAge - minimumAge) * plotWidth;
+    };
+    const yScale = function (value) {
+        return margin.top + (yMaximum - value) / (yMaximum - yMinimum) * plotHeight;
+    };
+
+    svg.appendChild(svgElement('title', {}, options.type === 'SBP' ? 'Systolic blood pressure reference curves by age' : 'Diastolic blood pressure reference curves by age'));
+    svg.appendChild(svgElement('desc', {}, 'Interactive 50th, 90th, 95th, and 95th percentile plus 12 millimeters of mercury curves. The patient reading is marked in blue.'));
+    svg.appendChild(svgElement('rect', {
+        x: margin.left, y: margin.top, width: plotWidth, height: plotHeight,
+        fill: '#ffffff', stroke: '#cbd5e1', rx: 4
+    }));
+
+    for (let index = 0; index <= 5; index += 1) {
+        const value = yMinimum + (yMaximum - yMinimum) * index / 5;
+        const y = yScale(value);
+        svg.appendChild(svgElement('line', {
+            x1: margin.left, x2: width - margin.right, y1: y, y2: y,
+            stroke: '#e2e8f0', 'stroke-width': 1
+        }));
+        svg.appendChild(svgElement('text', {
+            x: margin.left - 8, y: y + 4, 'text-anchor': 'end',
+            fill: '#526072', 'font-size': 11
+        }, String(Math.round(value))));
+    }
+
+    [1, 5, 9, 13, 17].forEach(function (age) {
+        const x = xScale(age);
+        svg.appendChild(svgElement('line', {
+            x1: x, x2: x, y1: margin.top, y2: height - margin.bottom,
+            stroke: '#f1f5f9', 'stroke-width': 1
+        }));
+        svg.appendChild(svgElement('text', {
+            x: x, y: height - 17, 'text-anchor': 'middle',
+            fill: '#526072', 'font-size': 11
+        }, String(age)));
+    });
+    svg.appendChild(svgElement('text', {
+        x: margin.left + plotWidth / 2, y: height - 2, 'text-anchor': 'middle',
+        fill: '#526072', 'font-size': 11
+    }, 'Age (years)'));
+    svg.appendChild(svgElement('text', {
+        x: 13, y: margin.top + plotHeight / 2, 'text-anchor': 'middle',
+        fill: '#526072', 'font-size': 11,
+        transform: 'rotate(-90 13 ' + (margin.top + plotHeight / 2) + ')'
+    }, 'mmHg'));
+
+    const fixedColors = options.type === 'SBP'
+        ? ['#a16207', '#c2410c', '#b91c1c']
+        : ['#c2410c', '#b91c1c'];
+    fixedThresholds.forEach(function (value, index) {
+        if (value < yMinimum || value > yMaximum) return;
+        const line = svgElement('line', {
+            x1: xScale(13), x2: xScale(maximumAge), y1: yScale(value), y2: yScale(value),
+            stroke: fixedColors[index], 'stroke-width': 1.5, 'stroke-dasharray': '4 4', opacity: 0.55
+        });
+        line.appendChild(svgElement('title', {}, 'Fixed adolescent threshold: ' + value + ' mmHg'));
+        svg.appendChild(line);
+    });
+
+    const specifications = [
+        { key: 'p50', color: '#475569', width: 2 },
+        { key: 'p90', color: '#a16207', width: 2.5 },
+        { key: 'p95', color: '#c2410c', width: 2.5 },
+        { key: 'p95plus12', color: '#b91c1c', width: 2.5 }
+    ];
+    specifications.forEach(function (specification) {
+        const pathData = data.map(function (point, index) {
+            return (index === 0 ? 'M' : 'L') + xScale(point.age).toFixed(2) + ' ' + yScale(point[specification.key]).toFixed(2);
+        }).join(' ');
+        svg.appendChild(svgElement('path', {
+            d: pathData, fill: 'none', stroke: specification.color,
+            'stroke-width': specification.width, 'stroke-linejoin': 'round', 'stroke-linecap': 'round'
+        }));
+    });
+
+    const currentX = xScale(options.age);
+    svg.appendChild(svgElement('line', {
+        x1: currentX, x2: currentX, y1: margin.top, y2: height - margin.bottom,
+        stroke: '#1d4ed8', 'stroke-width': 1.5, 'stroke-dasharray': '3 4', opacity: 0.6
+    }));
+    const patientPoint = svgElement('circle', {
+        cx: currentX, cy: yScale(options.reading), r: 5.5,
+        fill: '#1d4ed8', stroke: '#ffffff', 'stroke-width': 2
+    });
+    patientPoint.appendChild(svgElement('title', {}, 'Patient reading: ' + options.reading + ' mmHg at age ' + options.age.toFixed(2)));
+    svg.appendChild(patientPoint);
+
+    const focusLine = svgElement('line', {
+        x1: currentX, x2: currentX, y1: margin.top, y2: height - margin.bottom,
+        stroke: '#0f172a', 'stroke-width': 1, opacity: 0
+    });
+    svg.appendChild(focusLine);
+
+    function showAt(requestedAge) {
+        const selectedAge = clamp(Math.round(requestedAge * 2) / 2, minimumAge, 17.5);
+        const values = curveValuesAtAge(options.coefficients, options.sex, options.heightZ, selectedAge);
+        const selectedX = xScale(selectedAge);
+        focusLine.setAttribute('x1', selectedX);
+        focusLine.setAttribute('x2', selectedX);
+        focusLine.setAttribute('opacity', '0.45');
+        tooltip.textContent = 'Age ' + selectedAge.toFixed(1)
+            + '\n50th: ' + Math.round(values.p50)
+            + '  90th: ' + Math.round(values.p90)
+            + '\n95th: ' + Math.round(values.p95)
+            + '  95th+12: ' + Math.round(values.p95plus12) + ' mmHg';
+        tooltip.style.left = clamp(selectedX / width * 100, 15, 85) + '%';
+        tooltip.hidden = false;
+        svg.dataset.selectedAge = String(selectedAge);
+        svg.setAttribute('aria-label', (options.type === 'SBP' ? 'Systolic' : 'Diastolic')
+            + ' reference chart. Selected age ' + selectedAge.toFixed(1)
+            + ', 90th percentile ' + Math.round(values.p90)
+            + ', 95th percentile ' + Math.round(values.p95) + ' millimeters of mercury.');
+    }
+
+    svg.onpointermove = function (event) {
+        const rectangle = svg.getBoundingClientRect();
+        const svgX = (event.clientX - rectangle.left) / rectangle.width * width;
+        const requestedAge = minimumAge + (svgX - margin.left) / plotWidth * (maximumAge - minimumAge);
+        showAt(requestedAge);
+    };
+    svg.onpointerleave = function () {
+        if (document.activeElement !== svg) {
+            tooltip.hidden = true;
+            focusLine.setAttribute('opacity', 0);
+        }
+    };
+    svg.onfocus = function () { showAt(options.age); };
+    svg.onblur = function () {
+        tooltip.hidden = true;
+        focusLine.setAttribute('opacity', 0);
+    };
+    svg.onkeydown = function (event) {
+        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+        event.preventDefault();
+        const current = Number(svg.dataset.selectedAge || options.age);
+        showAt(current + (event.key === 'ArrowRight' ? 0.5 : -0.5));
+    };
+
+    subtitle.textContent = 'Current: ' + options.reading + ' mmHg • ' + options.percentileLabel;
+    summary.textContent = 'Current ' + options.type + ' reading is ' + options.reading + ' mmHg at age '
+        + options.age.toFixed(2) + ' years. Curves shown are the 50th, 90th, 95th, and 95th percentile plus 12.';
+}
+
+// =============================================================================
+// RESULT ACTIONS
+// =============================================================================
+let lastResult = null;
+
+async function copyResultToClipboard() {
+    const status = document.getElementById('copyStatus');
+    if (!lastResult) return;
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(lastResult.copyText);
+        } else {
+            const temporary = document.createElement('textarea');
+            temporary.value = lastResult.copyText;
+            temporary.setAttribute('readonly', '');
+            temporary.style.position = 'fixed';
+            temporary.style.opacity = '0';
+            document.body.appendChild(temporary);
+            temporary.select();
+            if (!document.execCommand('copy')) throw new Error('Copy command failed');
+            temporary.remove();
+        }
+        status.textContent = 'Result copied.';
+    } catch (error) {
+        status.textContent = 'Copy was blocked. Select and copy the result manually.';
+    }
 }
 
 // =============================================================================
 // MAIN CALCULATION
 // =============================================================================
 function calculate() {
-    const errorEl = document.getElementById('error');
-    const warningsEl = document.getElementById('warnings');
-    const resultsEl = document.getElementById('results');
-    errorEl.textContent = '';
-    warningsEl.innerHTML = '';
-    resultsEl.classList.remove('show');
-    
+    const error = document.getElementById('error');
+    const warnings = document.getElementById('warnings');
+    const results = document.getElementById('results');
+    error.textContent = '';
+    warnings.replaceChildren();
+    results.classList.remove('show');
+    document.getElementById('copyStatus').textContent = '';
+
+    function fail(message) {
+        error.textContent = message;
+        lastResult = null;
+        return null;
+    }
+
+    const dob = document.getElementById('dob').value;
+    const measurementDate = getMeasureDate();
+    const ageData = calculateAgeFromDOB(dob, measurementDate);
     const sex = document.getElementById('sex').value;
-    let height = parseFloat(document.getElementById('height').value);
+    const enteredHeight = Number(document.getElementById('height').value);
     const heightUnit = document.getElementById('heightUnit').value;
-    const sbp = parseFloat(document.getElementById('sbp').value);
-    const dbp = parseFloat(document.getElementById('dbp').value);
-    
-    // Parse age from DOB relative to measurement date
-    const dobValue = document.getElementById('dob').value;
-    if (!dobValue) {
-        errorEl.textContent = 'Please enter date of birth.';
-        return;
-    }
-    const ageData = calculateAgeFromDOB(dobValue, getMeasureDate());
-    const age = ageData.decimal;
+    const heightCm = heightInCentimeters();
+    const sbp = Number(document.getElementById('sbp').value);
+    const dbp = Number(document.getElementById('dbp').value);
 
-    // =========================================================================
-    // ROSNER AGE ADJUSTMENT
-    // DOB gives us exact age in Y+M format, so use +0.5 months adjustment
-    // =========================================================================
-    const adjustedAge = age + 0.5/12;
-    const ageAdjustment = '+0.5mo';
-    
-    // Validation
-    if (isNaN(age) || age < 1 || age > 17.99) {
-        errorEl.textContent = 'Please enter age between 1 and 17 years.';
-        return;
+    if (!dob) return fail('Please enter date of birth.');
+    if (!parseDateInput(measurementDate)) return fail('Please enter a valid measurement date.');
+    if (!Number.isFinite(ageData.decimal) || ageData.decimal < 0) return fail('Measurement date must be on or after the date of birth.');
+    if (ageData.decimal < 1 || ageData.decimal >= 18) return fail('Please enter an age between 1 and 17 years.');
+    if (!Number.isFinite(enteredHeight) || enteredHeight <= 0) return fail('Please enter a valid length or height.');
+    if (!Number.isFinite(sbp) || !Number.isFinite(dbp)) return fail('Please enter valid systolic and diastolic blood pressure values.');
+    if (sbp < 50 || sbp > 250) return fail('Systolic BP must be between 50 and 250 mmHg.');
+    if (dbp < 30 || dbp > 150) return fail('Diastolic BP must be between 30 and 150 mmHg.');
+    if (dbp >= sbp) return fail('Diastolic BP must be lower than systolic BP — check the entered values.');
+    if (heightCm < 60 || heightCm > 210) {
+        return fail('Length or height of ' + heightCm.toFixed(1) + ' cm is outside the plausible range for ages 1–17. Check the value and selected unit.');
     }
-    if (isNaN(height) || height <= 0) {
-        errorEl.textContent = 'Please enter a valid height.';
-        return;
-    }
-    if (isNaN(sbp) || isNaN(dbp)) {
-        errorEl.textContent = 'Please enter valid blood pressure values.';
-        return;
-    }
-    if (sbp < 50 || sbp > 250) {
-        errorEl.textContent = 'Systolic BP must be between 50 and 250 mmHg.';
-        return;
-    }
-    if (dbp < 30 || dbp > 150) {
-        errorEl.textContent = 'Diastolic BP must be between 30 and 150 mmHg.';
-        return;
-    }
-    if (dbp >= sbp) {
-        errorEl.textContent = 'Diastolic BP must be lower than systolic BP — check the values entered.';
-        return;
-    }
-    
-    // Convert height to cm if needed
-    if (heightUnit === 'in') {
-        height = height * 2.54;
-    }
-    if (height < 60 || height > 210) {
-        errorEl.textContent = `Height of ${height.toFixed(1)} cm is outside the plausible range for ages 1–17. Check the value and the unit selected.`;
-        return;
-    }
-    
-    // =========================================================================
-    // HEIGHT Z-SCORE VALIDATION
-    // =========================================================================
-    const heightZscore = calculateHeightZScore(height, age, sex);
-    const warnings = [];
-    
-    if (Math.abs(heightZscore) > 3.09) {
-        warnings.push({
-            type: 'error',
-            text: `⚠️ HEIGHT OUTLIER: Z-score ${heightZscore.toFixed(2)} is outside ±3.09 SD. Results may be unreliable due to extrapolation beyond validated range.`
-        });
-    } else if (Math.abs(heightZscore) > 2.5) {
-        warnings.push({
-            type: 'warning',
-            text: `⚠️ Unusual height for age (Z-score: ${heightZscore.toFixed(2)}). Verify measurement accuracy.`
-        });
-    }
-    
-    // Age boundary warnings
-    if (adjustedAge < 5.06 && sex === 'M') {
-        warnings.push({
-            type: 'warning',
-            text: '⚠️ Age below minimum knot (5.06 years for males). Spline extrapolation may reduce accuracy.'
-        });
-    }
-    if (adjustedAge < 5.00 && sex === 'F') {
-        warnings.push({
-            type: 'warning',
-            text: '⚠️ Age below minimum knot (5.00 years for females). Spline extrapolation may reduce accuracy.'
-        });
-    }
-    if (adjustedAge > 17.30 && sex === 'M') {
-        warnings.push({
-            type: 'warning',
-            text: '⚠️ Age above maximum knot (17.30 years for males). Spline extrapolation may reduce accuracy.'
-        });
-    }
-    if (adjustedAge > 17.33 && sex === 'F') {
-        warnings.push({
-            type: 'warning',
-            text: '⚠️ Age above maximum knot (17.33 years for females). Spline extrapolation may reduce accuracy.'
-        });
-    }
-    
-    // Display warnings
-    if (warnings.length > 0) {
-        warningsEl.innerHTML = warnings.map(w => 
-            `<div class="warning">${w.text}</div>`
-        ).join('');
-    }
-    
-    // =========================================================================
-    // CALCULATE PERCENTILES
-    // =========================================================================
-    const sbpCoef = sex === 'M' ? SBP_M : SBP_F;
-    const dbpCoef = sex === 'M' ? DBP_M : DBP_F;
-    
-    const sbpPct = findPercentile(sbpCoef, sbp, adjustedAge, height, sex);
-    const dbpPct = findPercentile(dbpCoef, dbp, adjustedAge, height, sex);
-    
-    // Get threshold values
-    const sbp90 = getBPAtPercentile(sbpCoef, 89, adjustedAge, height, sex);
-    const dbp90 = getBPAtPercentile(dbpCoef, 89, adjustedAge, height, sex);
-    const sbp95 = getBPAtPercentile(sbpCoef, 94, adjustedAge, height, sex);
-    const dbp95 = getBPAtPercentile(dbpCoef, 94, adjustedAge, height, sex);
-    
-    // Classification
-    const result = classify(adjustedAge, sbp, dbp, sbp90, dbp90, sbp95, dbp95);
-    
-    // =========================================================================
-    // DISPLAY RESULTS
-    // =========================================================================
-    document.getElementById('sbpPct').textContent = ordinal(sbpPct) + ' %ile';
-    document.getElementById('sbpDetail').textContent = sbp + ' mmHg';
-    document.getElementById('dbpPct').textContent = ordinal(dbpPct) + ' %ile';
-    document.getElementById('dbpDetail').textContent = dbp + ' mmHg';
-    
-    const classEl = document.getElementById('classification');
-    classEl.textContent = result.class;
-    classEl.className = 'classification ' + result.css;
 
-    // Update visual gauges (map percentile 1-99 to 0-100% bar position)
-    // Bar zones: 0-80% = <90th (green), 80-90% = 90-95th (yellow), 90-95% = 95-99th (orange), 95-100% = >99th (red)
-    function pctToGaugePos(pct) {
-        if (pct <= 50) return (pct / 50) * 40;  // 1-50 maps to 0-40%
-        if (pct <= 90) return 40 + ((pct - 50) / 40) * 40;  // 50-90 maps to 40-80%
-        if (pct <= 95) return 80 + ((pct - 90) / 5) * 10;  // 90-95 maps to 80-90%
-        return 90 + ((pct - 95) / 5) * 10;  // 95-100 maps to 90-100%
-    }
-    document.getElementById('sbpMarker').style.left = pctToGaugePos(sbpPct) + '%';
-    document.getElementById('dbpMarker').style.left = pctToGaugePos(dbpPct) + '%';
+    const adjustedAge = ageData.decimal + 0.5 / 12;
+    const heightStats = calculateHeightStats(heightCm, adjustedAge, sex);
+    if (!heightStats) return fail('A CDC growth reference could not be selected for this age.');
 
-    document.getElementById('p90').textContent = Math.round(sbp90) + '/' + Math.round(dbp90) + ' mmHg';
-    document.getElementById('p95').textContent = Math.round(sbp95) + '/' + Math.round(dbp95) + ' mmHg';
-    document.getElementById('p95plus12').textContent = Math.round(sbp95 + 12) + '/' + Math.round(dbp95 + 12) + ' mmHg';
-    
-    // Calculation details
-    const detailsEl = document.getElementById('calcDetails');
-    detailsEl.innerHTML = `
-        Age: ${adjustedAge.toFixed(2)} yrs${ageAdjustment !== 'no adjustment' ? ' (' + ageAdjustment + ')' : ''} &bull; 
-        Height: ${height.toFixed(1)} cm (Z: ${heightZscore.toFixed(2)})
-    `;
-    
-    resultsEl.classList.add('show');
+    if (Math.abs(heightStats.z) > 3.09) {
+        addWarning('Length/height is outside ±3.09 SD on the CDC reference (z ' + heightStats.z.toFixed(2) + '). Verify the measurement and unit. The BP model still uses the entered centimeter value directly.');
+    } else if (Math.abs(heightStats.z) > 2.5) {
+        addWarning('Length/height is unusual for age on the CDC reference (z ' + heightStats.z.toFixed(2) + '). Verify measurement accuracy.');
+    }
+
+    const sbpCoefficients = sex === 'M' ? SBP_M : SBP_F;
+    const dbpCoefficients = sex === 'M' ? DBP_M : DBP_F;
+    const sbp90 = getBPAtPercentile(sbpCoefficients, 89, adjustedAge, heightCm, sex);
+    const dbp90 = getBPAtPercentile(dbpCoefficients, 89, adjustedAge, heightCm, sex);
+    const sbp95 = getBPAtPercentile(sbpCoefficients, 94, adjustedAge, heightCm, sex);
+    const dbp95 = getBPAtPercentile(dbpCoefficients, 94, adjustedAge, heightCm, sex);
+    const sbpLabel = bpPercentileLabel(sbpCoefficients, sbp, adjustedAge, heightCm, sex);
+    const dbpLabel = bpPercentileLabel(dbpCoefficients, dbp, adjustedAge, heightCm, sex);
+    const category = classify(adjustedAge, sbp, dbp, sbp90, dbp90, sbp95, dbp95);
+
+    document.getElementById('sbpPct').textContent = sbpLabel;
+    document.getElementById('dbpPct').textContent = dbpLabel;
+    document.getElementById('sbpDetail').textContent = sbp + ' mmHg • ' + category.systolic.label;
+    document.getElementById('dbpDetail').textContent = dbp + ' mmHg • ' + category.diastolic.label;
+
+    const categoryBox = document.getElementById('classification');
+    categoryBox.className = 'classification ' + category.css;
+    document.getElementById('categoryValue').textContent = category.label;
+    document.getElementById('categoryDriver').textContent = category.driver;
+
+    renderCategoryScale('sbpScale', 'Systolic', category.systolic);
+    renderCategoryScale('dbpScale', 'Diastolic', category.diastolic);
+
+    const p90Text = Math.round(sbp90) + '/' + Math.round(dbp90) + ' mmHg';
+    const p95Text = Math.round(sbp95) + '/' + Math.round(dbp95) + ' mmHg';
+    const p95plus12Text = Math.round(sbp95 + 12) + '/' + Math.round(dbp95 + 12) + ' mmHg';
+    document.getElementById('p90').textContent = p90Text;
+    document.getElementById('p95').textContent = p95Text;
+    document.getElementById('p95plus12').textContent = p95plus12Text;
+
+    renderNextStep(category, adjustedAge, sbp, dbp, sbp95, dbp95);
+
+    const sign = heightStats.z >= 0 ? '+' : '';
+    document.getElementById('calcDetails').textContent =
+        'Age ' + ageData.years + 'y ' + ageData.months + 'm (model age ' + adjustedAge.toFixed(2) + 'y) • '
+        + 'Length/height ' + heightCm.toFixed(1) + ' cm • '
+        + heightStats.measure + ' ' + growthPercentileLabel(heightStats.percentile) + ' (z ' + sign + heightStats.z.toFixed(2) + '). '
+        + (adjustedAge < 2 ? 'CDC percentile uses recumbent length under age 2.' : 'CDC percentile uses standing stature from age 2.');
+
+    const chartHeightZ = clamp(heightStats.z, -3.09, 3.09);
+    renderGraph({
+        svgId: 'sbpChart', tooltipId: 'sbpTooltip', summaryId: 'sbpChartSummary',
+        subtitleId: 'sbpChartSubtitle', type: 'SBP', coefficients: sbpCoefficients,
+        sex: sex, heightZ: chartHeightZ, age: ageData.decimal, reading: sbp, percentileLabel: sbpLabel
+    });
+    renderGraph({
+        svgId: 'dbpChart', tooltipId: 'dbpTooltip', summaryId: 'dbpChartSummary',
+        subtitleId: 'dbpChartSubtitle', type: 'DBP', coefficients: dbpCoefficients,
+        sex: sex, heightZ: chartHeightZ, age: ageData.decimal, reading: dbp, percentileLabel: dbpLabel
+    });
+    let chartNote = 'Dashed horizontal segments from age 13 mark the fixed AAP adolescent category thresholds.';
+    if (adjustedAge >= 13) chartNote += ' Those fixed thresholds determine this reading category; percentile curves remain descriptive.';
+    if (chartHeightZ !== heightStats.z) chartNote += ' The age-trajectory height percentile is limited to ±3.09 SD for graph stability.';
+    document.getElementById('adolescentChartNote').textContent = chartNote;
+
+    const sexLabel = sex === 'M' ? 'Male' : 'Female';
+    const copyText = [
+        'Pediatric BP result (AAP 2017)',
+        'Age: ' + ageData.years + ' years, ' + ageData.months + ' months',
+        'Reference sex: ' + sexLabel,
+        'Length/height: ' + heightCm.toFixed(1) + ' cm; ' + heightStats.measure + ' ' + growthPercentileLabel(heightStats.percentile) + ' (z ' + sign + heightStats.z.toFixed(2) + ')',
+        'Reading: ' + sbp + '/' + dbp + ' mmHg',
+        'Systolic: ' + sbpLabel + '; ' + category.systolic.label,
+        'Diastolic: ' + dbpLabel + '; ' + category.diastolic.label,
+        'Category for this reading: ' + category.label,
+        category.driver,
+        '90th percentile: ' + p90Text,
+        '95th percentile: ' + p95Text,
+        '95th percentile + 12: ' + p95plus12Text,
+        'A single reading is not a hypertension diagnosis.'
+    ].join('\n');
+
+    lastResult = {
+        copyText: copyText,
+        age: ageData,
+        adjustedAge: adjustedAge,
+        sex: sex,
+        heightCm: heightCm,
+        heightStats: heightStats,
+        sbp: sbp,
+        dbp: dbp,
+        sbp90: sbp90,
+        dbp90: dbp90,
+        sbp95: sbp95,
+        dbp95: dbp95,
+        category: category
+    };
+
+    results.classList.add('show');
+    results.focus({ preventScroll: true });
+    results.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start'
+    });
+    return lastResult;
 }
+
+// =============================================================================
+// EVENT WIRING AND TESTABLE PUBLIC SURFACE
+// =============================================================================
+document.getElementById('measureDate').value = localTodayISO();
+let previousHeightUnit = document.getElementById('heightUnit').value;
+
+document.getElementById('bpForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+    calculate();
+});
+
+document.querySelectorAll('.sex-btn').forEach(function (button) {
+    button.addEventListener('click', function () {
+        document.querySelectorAll('.sex-btn').forEach(function (candidate) {
+            const selected = candidate === button;
+            candidate.classList.toggle('active', selected);
+            candidate.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        });
+        document.getElementById('sex').value = button.dataset.value;
+        invalidateResults();
+        updateHeightDisplay();
+    });
+});
+
+['dob', 'measureDate'].forEach(function (id) {
+    document.getElementById(id).addEventListener('change', function () {
+        invalidateResults();
+        updateAgeDisplay();
+    });
+});
+['height', 'sbp', 'dbp'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', function () {
+        invalidateResults();
+        if (id === 'height') updateHeightDisplay();
+    });
+});
+
+document.getElementById('heightUnit').addEventListener('change', function () {
+    const unit = this.value;
+    const height = Number(document.getElementById('height').value);
+    if (Number.isFinite(height) && height > 0 && unit !== previousHeightUnit) {
+        document.getElementById('height').value = previousHeightUnit === 'cm'
+            ? (height / 2.54).toFixed(2)
+            : (height * 2.54).toFixed(1);
+    }
+    previousHeightUnit = unit;
+    invalidateResults();
+    updateHeightDisplay();
+});
+
+document.getElementById('copyResult').addEventListener('click', copyResultToClipboard);
+document.getElementById('printResult').addEventListener('click', function () { window.print(); });
+
+window.BPCalculator = {
+    calculate: calculate,
+    calculateHeightStats: calculateHeightStats,
+    calculateAgeFromDOB: calculateAgeFromDOB,
+    heightAtZ: heightAtZ,
+    getBPAtPercentile: getBPAtPercentile,
+    findPercentile: findPercentile,
+    classify: classify,
+    getComponentThresholds: getComponentThresholds,
+    coefficients: { SBP_M: SBP_M, SBP_F: SBP_F, DBP_M: DBP_M, DBP_F: DBP_F }
+};
     </script>
 </body>
 </html>
