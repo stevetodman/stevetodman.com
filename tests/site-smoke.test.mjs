@@ -57,7 +57,9 @@ async function inspectPage(pagePath, viewport) {
       lang: document.documentElement.lang,
       unlabelled,
       clickableDivs: all('div[onclick], span[onclick]').length,
-      externalSubresources: all('script[src], link[href], img[src], iframe[src]')
+      // Canonical links are metadata and do not load a resource. Everything
+      // else in this selector can create a runtime network dependency.
+      externalSubresources: all('script[src], link[href]:not([rel~="canonical"]), img[src], iframe[src]')
         .map(el => el.getAttribute('src') || el.getAttribute('href'))
         .filter(url => url && /^(https?:)?\/\//i.test(url)),
       internalLinks: all('a[href]')
