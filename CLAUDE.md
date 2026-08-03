@@ -233,4 +233,5 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-03: Advanced the BP calculator to version 3.1 with years/months-first age entry, DOB alternative, simultaneous accessible validation, 2–3-reading auto-averaging, drift-free cm/ft+in toggles with local preference, new-patient clearing, explicit threshold deltas, normal-equivalent BP z-scores, clinical-threshold chart mode, direct labels and line patterns, and dark-mode coverage. Expanded the browser regression suite for each workflow.
 - 2026-08-03: Rebuilt the pediatric BP calculator with monthly CDC growth references, exact AAP reading categories and drivers, category-specific follow-up, interactive age curves, copy/print support, a screening table, public validation documentation, and exhaustive 1,904-cell browser regression coverage.

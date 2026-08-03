@@ -38,7 +38,7 @@
   <a class="back" href="bp-percentile-calculator.html">← BP percentile calculator</a>
   <header>
     <h1>BP Calculator Validation Report</h1>
-    <p class="subtitle">Version 3.0 • AAP 2017 / Rosner model • Reviewed August 3, 2026</p>
+    <p class="subtitle">Version 3.1 • AAP 2017 / Rosner model • Implementation and automated test suite reviewed August 3, 2026; not independent clinical certification</p>
   </header>
 
   <section class="card">
@@ -80,10 +80,11 @@
           <tr><td>Category edges</td><td>Normal, elevated, stage 1, and stage 2 boundaries; percentile versus absolute “whichever is lower” rules; independent SBP/DBP drivers.</td></tr>
           <tr><td>Age 13 transition</td><td>Fixed adolescent thresholds begin at 13 years and the visual scales agree with the reported category.</td></tr>
           <tr><td>Height reference</td><td>Official monthly CDC LMS values, length under age 2, stature from age 2, and height-percentile display checks.</td></tr>
-          <tr><td>Units and dates</td><td>Centimeter/inch equivalence, automatic unit conversion, completed-month age calculation, month-end dates, and timezone-safe date-only parsing.</td></tr>
-          <tr><td>Invalid inputs</td><td>Missing dates, unsupported ages, implausible heights, BP input ranges, and DBP greater than or equal to SBP.</td></tr>
-          <tr><td>Presentation</td><td>No stale results after edits, well-formed percentile labels, reading-not-diagnosis language, driver text, category-specific next steps, copy, print, and interactive chart rendering.</td></tr>
-          <tr><td>Accessibility/layout</td><td>Labels, keyboard controls, live status regions, focus indicators, semantic controls, no horizontal overflow at 375 px, and no external runtime dependencies.</td></tr>
+          <tr><td>Age, units, and dates</td><td>Age-years/months versus DOB equivalence; centimeter versus feet/inches equivalence; drift-free unit toggling; completed-month age calculation; month-end dates; required measurement date; and timezone-safe date-only parsing.</td></tr>
+          <tr><td>Repeat readings</td><td>Two- and three-reading arithmetic means, individual-value display, decimal means, classification of the mean, and copy-result fidelity.</td></tr>
+          <tr><td>Invalid inputs</td><td>All invalid fields reported together, inline error association, <code>aria-invalid</code>, first-invalid focus, missing dates, unsupported ages, implausible heights, BP input ranges, and DBP greater than or equal to SBP.</td></tr>
+          <tr><td>Presentation</td><td>No stale results after edits, percentile and normal-equivalent z-score output, explicit distance to thresholds, reading-not-diagnosis language, driver text, category-specific next steps, copy, print, and interactive chart rendering.</td></tr>
+          <tr><td>Accessibility/layout</td><td>Labels, keyboard controls, live status regions, focus indicators, semantic controls, pattern-distinguished/directly labeled chart lines, dark-mode rendering, no horizontal overflow at 375 px, and no external runtime dependencies.</td></tr>
         </tbody>
       </table>
     </div>
@@ -105,6 +106,7 @@
         <li>This validates faithful implementation of the cited references; it does not validate the underlying guideline as a clinical trial.</li>
         <li>The tool does not diagnose hypertension, assess symptoms, select cuff size, interpret ABPM, provide hypotension limits, or cover children under 1 year.</li>
         <li>The age curves project the entered child’s current length/height-for-age percentile across ages. They are explanatory reference curves, not a forecast of an individual child’s future BP.</li>
+        <li>BP z-scores are normal-equivalent transforms interpolated from the 1st–99th Rosner quantile curves. Values outside that range are bounded rather than extrapolated.</li>
         <li>Institutional policies and newer guidance should take precedence if they differ.</li>
       </ul>
     </div>

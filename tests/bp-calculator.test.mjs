@@ -35,11 +35,19 @@ after(async () => {
 /** Fill the form and return the complete rendered result. */
 async function calculate({ dob, measure = '2025-08-01', sex = 'M', height, unit = 'cm', sbp, dbp }) {
   return page.evaluate(args => {
+    window.BPCalculator.setAgeMode('dob');
+    window.BPCalculator.setReadingMode('single');
     document.getElementById('dob').value = args.dob;
     document.getElementById('measureDate').value = args.measure;
     document.getElementById('sex').value = args.sex;
-    document.getElementById('height').value = String(args.height);
-    document.getElementById('heightUnit').value = args.unit;
+    if (args.unit === 'cm') {
+      window.BPCalculator.setHeightUnit('cm', false);
+      document.getElementById('height').value = String(args.height);
+    } else {
+      window.BPCalculator.setHeightUnit('imperial', false);
+      document.getElementById('heightFeet').value = String(Math.floor(args.height / 12));
+      document.getElementById('heightInches').value = String(args.height % 12);
+    }
     document.getElementById('sbp').value = String(args.sbp);
     document.getElementById('dbp').value = String(args.dbp);
     window.BPCalculator.calculate();
@@ -62,8 +70,13 @@ async function calculate({ dob, measure = '2025-08-01', sex = 'M', height, unit 
       driver: text('categoryDriver'),
       nextStep: text('nextStep'),
       details: text('calcDetails'),
+      readingSummary: text('readingSummary'),
+      distance: text('distanceToThreshold'),
       sbpScale: text('sbpScale'),
       dbpScale: text('dbpScale'),
+      sbpDetail: text('sbpDetail'),
+      dbpDetail: text('dbpDetail'),
+      chartLegend: text('chartLegend'),
       sbp90,
       dbp90,
       sbp95,
@@ -71,9 +84,38 @@ async function calculate({ dob, measure = '2025-08-01', sex = 'M', height, unit 
       sbpPaths: document.querySelectorAll('#sbpChart path').length,
       dbpPaths: document.querySelectorAll('#dbpChart path').length,
       patientPoints: document.querySelectorAll('#sbpChart circle, #dbpChart circle').length,
+      curveLabels: document.querySelectorAll('#sbpChart .curve-label, #dbpChart .curve-label').length,
+      patterns: [...document.querySelectorAll('#sbpChart .curve-line')].map(path => path.getAttribute('stroke-dasharray')),
       invalidSvgAttributes,
     };
   }, { dob, measure, sex, height, unit, sbp, dbp });
+}
+
+async function calculateByAge({ years, months = 0, measure = '2025-08-01', sex = 'M', height, sbp, dbp }) {
+  return page.evaluate(args => {
+    window.BPCalculator.setAgeMode('age');
+    window.BPCalculator.setReadingMode('single');
+    window.BPCalculator.setHeightUnit('cm', false);
+    document.getElementById('ageYears').value = String(args.years);
+    document.getElementById('ageMonths').value = String(args.months);
+    document.getElementById('measureDate').value = args.measure;
+    document.getElementById('sex').value = args.sex;
+    document.getElementById('height').value = String(args.height);
+    document.getElementById('sbp').value = String(args.sbp);
+    document.getElementById('dbp').value = String(args.dbp);
+    const result = window.BPCalculator.calculate();
+    const text = id => (document.getElementById(id)?.textContent || '').trim();
+    return {
+      result: result && { sbp90: result.sbp90, dbp90: result.dbp90, sbp95: result.sbp95, dbp95: result.dbp95 },
+      shown: document.getElementById('results').classList.contains('show'),
+      error: text('error'),
+      classification: text('categoryValue'),
+      p90: text('p90'),
+      p95: text('p95'),
+      details: text('calcDetails'),
+      distance: text('distanceToThreshold'),
+    };
+  }, { years, months, measure, sex, height, sbp, dbp });
 }
 
 /** Date of birth for a child exactly `years` old on the default date. */
@@ -143,6 +185,40 @@ describe('AAP 2017 model validation', () => {
     assert.equal(inches.sbp95, centimeters.sbp95);
     assert.equal(inches.dbp95, centimeters.dbp95);
     assert.equal(inches.classification, centimeters.classification);
+  });
+
+  test('defaults to fast age entry and produces the same model result as DOB', async () => {
+    await page.reload();
+    assert.equal(await page.inputValue('#ageMode'), 'age');
+    assert.equal(await page.isVisible('#ageEntryPanel'), true);
+    assert.equal(await page.isVisible('#dobEntryPanel'), false);
+
+    const byAge = await calculateByAge({ years: 8, months: 4, sex: 'F', height: 132, sbp: 111, dbp: 70 });
+    const byDob = await calculate({ dob: '2017-04-01', sex: 'F', height: 132, sbp: 111, dbp: 70 });
+    assert.equal(byAge.shown, true);
+    assert.equal(byAge.classification, byDob.classification);
+    assert.equal(byAge.p90, `${byDob.sbp90}/${byDob.dbp90} mmHg`);
+    assert.equal(byAge.p95, `${byDob.sbp95}/${byDob.dbp95} mmHg`);
+  });
+
+  test('reports normal-equivalent BP z-scores consistently with modeled quantiles', async () => {
+    const scores = await page.evaluate(() => {
+      const c = window.BPCalculator;
+      const age = 8 + 0.5 / 12;
+      const height = 130.8;
+      const coefficients = c.coefficients.SBP_M;
+      const p50 = c.getBPAtPercentile(coefficients, 49, age, height, 'M');
+      const p95 = c.getBPAtPercentile(coefficients, 94, age, height, 'M');
+      return {
+        median: c.bpZScore(coefficients, p50, age, height, 'M'),
+        ninetyFifth: c.bpZScore(coefficients, p95, age, height, 'M'),
+      };
+    });
+    assert.ok(Math.abs(scores.median.value) < 0.02);
+    assert.ok(Math.abs(scores.ninetyFifth.value - 1.64485) < 0.02);
+
+    const result = await calculateByAge({ years: 8, height: 130.8, sbp: 100, dbp: 60 });
+    assert.match(result.details, /SBP normal-equivalent z [<>+−\d.-]+.*DBP normal-equivalent z/s);
   });
 
   test('uses official monthly CDC length and stature LMS values', async () => {
@@ -304,17 +380,140 @@ describe('input and date validation', () => {
     assert.deepEqual(ages.dayBefore, { years: 7, months: 11, decimal: 95 / 12, totalMonths: 95 });
   });
 
-  test('converts the entered height when the unit is changed', async () => {
+  test('uses one-tap ft + in entry and avoids round-trip conversion drift', async () => {
     await page.reload();
     await page.fill('#height', '130.8');
-    await page.selectOption('#heightUnit', 'in');
-    assert.ok(Math.abs(Number(await page.inputValue('#height')) - 51.5) < 0.02);
-    await page.selectOption('#heightUnit', 'cm');
-    assert.ok(Math.abs(Number(await page.inputValue('#height')) - 130.8) < 0.1);
+    await page.click('.height-unit-btn[data-value="imperial"]');
+    assert.equal(await page.inputValue('#heightFeet'), '4');
+    assert.ok(Math.abs(Number(await page.inputValue('#heightInches')) - 3.5) < 0.02);
+    for (let index = 0; index < 10; index += 1) {
+      await page.click('.height-unit-btn[data-value="cm"]');
+      await page.click('.height-unit-btn[data-value="imperial"]');
+    }
+    await page.click('.height-unit-btn[data-value="cm"]');
+    assert.equal(await page.inputValue('#height'), '130.8');
+    assert.equal(await page.getAttribute('#height', 'min'), '60');
+    assert.equal(await page.getAttribute('#height', 'max'), '210');
+  });
+
+  test('validates all fields together, marks each input, and focuses the first invalid field', async () => {
+    await page.reload();
+    await page.evaluate(() => window.BPCalculator.setHeightUnit('cm', false));
+    await page.fill('#measureDate', '');
+    await page.click('button[type="submit"]');
+
+    const state = await page.evaluate(() => ({
+      summary: document.getElementById('error').textContent,
+      summaryVisible: document.getElementById('error').classList.contains('show'),
+      invalidIds: [...document.querySelectorAll('[aria-invalid="true"]')].map(input => input.id),
+      focused: document.activeElement.id,
+      ageInline: document.getElementById('ageYearsError').textContent,
+      dateInline: document.getElementById('measureDateError').textContent,
+      heightInline: document.getElementById('heightError').textContent,
+      sbpInline: document.getElementById('sbpError').textContent,
+      dbpInline: document.getElementById('dbpError').textContent,
+    }));
+    assert.equal(state.summaryVisible, true);
+    assert.match(state.summary, /whole years.*measurement date.*height.*systolic.*diastolic/is);
+    assert.deepEqual(state.invalidIds, ['ageYears', 'measureDate', 'height', 'sbp', 'dbp']);
+    assert.equal(state.focused, 'ageYears');
+    for (const message of [state.ageInline, state.dateInline, state.heightInline, state.sbpInline, state.dbpInline]) {
+      assert.ok(message.length > 0);
+    }
+  });
+
+  test('requires the displayed measurement date instead of silently substituting today', async () => {
+    await page.reload();
+    await page.fill('#ageYears', '8');
+    await page.fill('#ageMonths', '4');
+    await page.fill('#measureDate', '');
+    await page.fill('#height', '132');
+    await page.fill('#sbp', '110');
+    await page.fill('#dbp', '70');
+    await page.click('button[type="submit"]');
+    assert.equal(await page.evaluate(() => document.getElementById('results').classList.contains('show')), false);
+    assert.match((await page.textContent('#measureDateError')) || '', /valid measurement date/i);
+    assert.equal(await page.inputValue('#measureDate'), '');
   });
 });
 
 describe('result presentation and interactions', () => {
+  test('averages two or three repeat readings and categorizes the mean', async () => {
+    await page.reload();
+    await page.fill('#ageYears', '15');
+    await page.fill('#ageMonths', '0');
+    await page.fill('#measureDate', '2025-08-01');
+    await page.fill('#height', '170');
+    await page.click('.reading-mode-btn[data-value="repeat"]');
+    await page.fill('#sbp1', '140');
+    await page.fill('#dbp1', '90');
+    await page.fill('#sbp2', '100');
+    await page.fill('#dbp2', '60');
+    await page.click('button[type="submit"]');
+    assert.equal(await page.textContent('#categoryValue'), 'Elevated BP range');
+    assert.match((await page.textContent('#readingSummary')) || '', /140\/90, 100\/60.*Mean used for categorization: 120\/75 mmHg/s);
+    assert.equal(await page.textContent('#classification .eyebrow'), 'Category for the mean reading');
+    assert.equal(await page.textContent('#thresholdHeading'), 'AAP category thresholds for the mean reading');
+    assert.match((await page.textContent('#nextStep')) || '', /after same-visit averaging.*oscillometric.*auscultatory/is);
+    assert.doesNotMatch((await page.textContent('#nextStep')) || '', /confirm the category with the same-visit averaging process/i);
+
+    await page.click('#toggleThirdReading');
+    await page.fill('#sbp3', '130');
+    await page.fill('#dbp3', '80');
+    await page.click('button[type="submit"]');
+    assert.match((await page.textContent('#readingSummary')) || '', /Mean used for categorization: 123\.3\/76\.7 mmHg/);
+    assert.equal(await page.textContent('#categoryValue'), 'Elevated BP range');
+    assert.match((await page.textContent('#sbpScale')) || '', /123\.3 mmHg/);
+  });
+
+  test('states distance to percentile and active classification thresholds', async () => {
+    const child = await calculateByAge({ years: 8, height: 130.8, sbp: 111, dbp: 70 });
+    assert.match(child.distance, /SBP is 3 mmHg below the 95th percentile \(114 mmHg\)/i);
+    assert.match(child.distance, /applicable .* cutoff/i);
+
+    const adolescent = await calculateByAge({ years: 15, height: 170, sbp: 120, dbp: 70 });
+    assert.match(adolescent.distance, /fixed .* cutoff/i);
+    assert.match(adolescent.distance, /Percentile values are descriptive, not classificatory, from age 13/i);
+  });
+
+  test('starts a new patient without losing the measurement date or unit preference', async () => {
+    await page.reload();
+    await page.fill('#ageYears', '12');
+    await page.fill('#ageMonths', '7');
+    await page.fill('#measureDate', '2025-08-01');
+    await page.click('.height-unit-btn[data-value="imperial"]');
+    await page.fill('#heightFeet', '5');
+    await page.fill('#heightInches', '2');
+    await page.fill('#sbp', '120');
+    await page.fill('#dbp', '75');
+    await page.click('button[type="submit"]');
+    assert.equal(await page.evaluate(() => document.getElementById('results').classList.contains('show')), true);
+
+    await page.click('#newPatient');
+    const reset = await page.evaluate(() => ({
+      measure: document.getElementById('measureDate').value,
+      unit: document.getElementById('heightUnit').value,
+      ageMode: document.getElementById('ageMode').value,
+      readingMode: document.getElementById('readingMode').value,
+      sex: document.getElementById('sex').value,
+      values: ['ageYears', 'ageMonths', 'dob', 'height', 'heightFeet', 'heightInches', 'sbp', 'dbp', 'sbp1', 'dbp1']
+        .map(id => document.getElementById(id).value),
+      shown: document.getElementById('results').classList.contains('show'),
+    }));
+    assert.equal(reset.measure, '2025-08-01');
+    assert.equal(reset.unit, 'imperial');
+    assert.equal(reset.ageMode, 'age');
+    assert.equal(reset.readingMode, 'single');
+    assert.equal(reset.sex, 'M');
+    assert.deepEqual(reset.values, Array(reset.values.length).fill(''));
+    assert.equal(reset.shown, false);
+
+    await page.reload();
+    assert.equal(await page.inputValue('#heightUnit'), 'imperial');
+    assert.match((await page.textContent('body')) || '', /only the height-unit preference is retained/i);
+    await page.click('.height-unit-btn[data-value="cm"]');
+  });
+
   test('editing an input clears the previous result', async () => {
     const before = await calculate({ dob: dobFor(8), sex: 'M', height: 130.8, sbp: 126, dbp: 88 });
     assert.equal(before.shown, true);
@@ -346,7 +545,8 @@ describe('result presentation and interactions', () => {
 
   test('submits on Enter and frames the output as a reading, not a diagnosis', async () => {
     await page.reload();
-    await page.fill('#dob', dobFor(8));
+    await page.fill('#ageYears', '8');
+    await page.fill('#ageMonths', '0');
     await page.fill('#measureDate', '2025-08-01');
     await page.fill('#height', '130.8');
     await page.fill('#sbp', '114');
@@ -370,9 +570,12 @@ describe('result presentation and interactions', () => {
 
   test('renders finite interactive systolic and diastolic reference curves', async () => {
     const result = await calculate({ dob: dobFor(13), sex: 'F', height: 158, sbp: 120, dbp: 70 });
-    assert.equal(result.sbpPaths, 4);
-    assert.equal(result.dbpPaths, 4);
+    assert.equal(result.sbpPaths, 3);
+    assert.equal(result.dbpPaths, 3);
     assert.ok(result.patientPoints >= 2);
+    assert.ok(result.curveLabels >= 6);
+    assert.equal(new Set(result.patterns).size, 3);
+    assert.match(result.chartLegend, /Elevated cutoff.*Stage 1 cutoff.*Stage 2 cutoff/s);
     assert.deepEqual(result.invalidSvgAttributes, []);
 
     await page.focus('#sbpChart');
@@ -381,7 +584,14 @@ describe('result presentation and interactions', () => {
     const after = Number(await page.getAttribute('#sbpChart', 'data-selected-age'));
     assert.equal(after, before + 0.5);
     assert.equal(await page.isVisible('#sbpTooltip'), true);
+    assert.match((await page.textContent('#sbpTooltip')) || '', /Stage 1:.*Stage 2:/s);
+
+    await page.click('.chart-view-btn[data-value="reference"]');
+    assert.equal(await page.locator('#sbpChart path').count(), 4);
+    assert.match((await page.textContent('#chartLegend')) || '', /50th percentile.*95th \+ 12/s);
+    await page.focus('#sbpChart');
     assert.match((await page.textContent('#sbpTooltip')) || '', /50th:.*90th:/s);
+    await page.click('.chart-view-btn[data-value="clinical"]');
   });
 
   test('copies a privacy-conscious result and supports print', async () => {
@@ -402,6 +612,36 @@ describe('result presentation and interactions', () => {
 
     await page.click('#printResult');
     assert.equal(await page.evaluate(() => window.__printed), true);
+  });
+
+  test('adapts the form, result surfaces, and charts to dark color preference', async () => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.reload();
+    await page.fill('#ageYears', '15');
+    await page.fill('#ageMonths', '0');
+    await page.fill('#height', '170');
+    await page.fill('#sbp', '130');
+    await page.fill('#dbp', '80');
+    await page.click('button[type="submit"]');
+    const colors = await page.evaluate(() => ({
+      preferred: matchMedia('(prefers-color-scheme: dark)').matches,
+      body: getComputedStyle(document.body).backgroundColor,
+      card: getComputedStyle(document.querySelector('.card')).backgroundColor,
+      input: getComputedStyle(document.getElementById('height')).backgroundColor,
+      classification: getComputedStyle(document.getElementById('classification')).backgroundColor,
+      chart: getComputedStyle(document.querySelector('#sbpChart .chart-frame')).fill,
+      secondary: getComputedStyle(document.getElementById('newPatient')).backgroundColor,
+      disclaimer: getComputedStyle(document.querySelector('.disclaimer')).backgroundColor,
+    }));
+    assert.equal(colors.preferred, true);
+    assert.equal(colors.body, 'rgb(11, 18, 32)');
+    assert.equal(colors.card, 'rgb(17, 24, 39)');
+    assert.equal(colors.input, 'rgb(15, 23, 42)');
+    assert.notEqual(colors.classification, 'rgb(255, 255, 255)');
+    assert.equal(colors.chart, 'rgb(15, 23, 42)');
+    assert.equal(colors.secondary, 'rgb(30, 41, 59)');
+    assert.equal(colors.disclaimer, 'rgb(17, 24, 39)');
+    await page.emulateMedia({ colorScheme: 'light' });
   });
 
   test('raises no runtime, console, or request errors', () => {

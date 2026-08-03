@@ -58,7 +58,17 @@ export async function getChromium() {
   for (const spec of candidates) {
     try {
       const mod = await import(spec);
-      if (mod.chromium) return mod.chromium;
+      if (mod.chromium) {
+        const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+        if (!executablePath) return mod.chromium;
+        return {
+          launch: options => mod.chromium.launch({
+            ...(options || {}),
+            executablePath,
+            args: [...(options?.args || []), '--no-sandbox', '--disable-setuid-sandbox'],
+          }),
+        };
+      }
     } catch (error) {
       errors.push(`${spec}: ${error.message}`);
     }
