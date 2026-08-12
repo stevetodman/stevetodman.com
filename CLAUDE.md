@@ -29,10 +29,10 @@ stevetodman.com/
 │       ├── tests/integrity.mjs   # Dependency and cross-reference audit (runs in CI)
 │       └── schema.json           # Assembled-case authoring schema
 ├── math/                         # Math Lab: Fractions (stevetodman.com/math)
-├── newbornscreen/                # Interactive 2025 AAP CCHD screening module
-│   └── index.html                # Resident teaching, algorithm, and 17-question quiz
 │   ├── index.html
 │   └── assets/                   # app.js, styles.css, favicon.svg
+├── newbornscreen/                # Interactive 2025 AAP CCHD screening module
+│   └── index.html                # Resident teaching, algorithm, and 17-question quiz
 ├── clipboard-sanitizer/          # Standalone shell utilities (not deployed)
 ├── .github/workflows/            # phs-v17-integrity.yml, update-cooking-index.yml
 ├── study/                        # Kids' Study Hub (stevetodman.com/study)
