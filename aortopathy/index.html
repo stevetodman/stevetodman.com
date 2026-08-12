@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive pediatric resident module on recognizing, evaluating, counseling, and referring children with aortopathy, based on current primary guidance through 2026.">
+  <title>Pediatric Aortopathy Resident Academy</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2786%27%3E%F0%9F%AB%80%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to learning content</a>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <a class="home-link" href="/">&larr; Steve Todman, MD</a>
+      <p class="eyebrow">Pediatric &amp; Med-Peds Resident Academy</p>
+      <h1>Pediatric Aortopathy</h1>
+      <p class="hero-lead">Recognize the child at risk. Start the right evaluation. Protect activity and development. Escalate before the aorta declares itself.</p>
+      <div class="hero-meta" aria-label="Module features">
+        <span>30–45 minute core</span>
+        <span>5 branching cases</span>
+        <span>15-question mastery test</span>
+        <span>80% to pass</span>
+        <span>Evidence current through Aug 2026</span>
+      </div>
+      <div class="hero-actions">
+        <button class="button button-light" type="button" data-open-tab="start">Begin with the pretest</button>
+        <button class="button button-ghost" type="button" data-open-tab="quick">Open the quick reference</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="progress-shell no-print" aria-label="Module progress">
+    <div class="progress-inner">
+      <span>Your progress</span>
+      <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
+      <span id="progress-percent">0% complete</span>
+    </div>
+  </div>
+
+  <nav class="module-nav no-print" aria-label="Module sections">
+    <div class="nav-inner" role="tablist" aria-label="Aortopathy academy sections">
+      <button class="tab is-active" id="tab-start" type="button" role="tab" aria-selected="true" aria-controls="panel-start" data-tab="start">Start</button>
+      <button class="tab" id="tab-core" type="button" role="tab" aria-selected="false" aria-controls="panel-core" data-tab="core">Core lesson</button>
+      <button class="tab" id="tab-pathway" type="button" role="tab" aria-selected="false" aria-controls="panel-pathway" data-tab="pathway">Action pathways</button>
+      <button class="tab" id="tab-conditions" type="button" role="tab" aria-selected="false" aria-controls="panel-conditions" data-tab="conditions">Condition atlas</button>
+      <button class="tab" id="tab-cases" type="button" role="tab" aria-selected="false" aria-controls="panel-cases" data-tab="cases">Cases</button>
+      <button class="tab" id="tab-assessment" type="button" role="tab" aria-selected="false" aria-controls="panel-assessment" data-tab="assessment">Posttest</button>
+      <button class="tab" id="tab-quick" type="button" role="tab" aria-selected="false" aria-controls="panel-quick" data-tab="quick">Quick reference</button>
+    </div>
+  </nav>
+
+  <main class="shell" id="main-content">
+    <section class="panel" id="panel-start" role="tabpanel" aria-labelledby="tab-start" data-panel="start">
+      <div class="section-heading">
+        <p class="kicker">The clinical problem</p>
+        <h2>The dangerous child may look completely well</h2>
+        <p>Aortopathy is not one disease, one diameter, or one surveillance interval. The resident’s job is to recognize the pattern, establish immediate safety, and launch gene- and phenotype-aware care.</p>
+      </div>
+
+      <article class="card opening-case">
+        <div>
+          <p class="kicker">Opening case</p>
+          <h3>A normal examination does not close the case</h3>
+          <p>An asymptomatic 9-year-old is referred because the child’s mother underwent emergency repair of an ascending aortic dissection at age 34. The child has normal growth, no pectus deformity, no murmur, normal pulses, and no joint hypermobility.</p>
+          <p><strong>What is the best next step?</strong></p>
+        </div>
+        <div class="decision-prompt">
+          <div class="choice-list" data-opening-choices>
+            <button class="choice-button" type="button" data-opening="0">Reassure because the phenotype is absent</button>
+            <button class="choice-button" type="button" data-opening="1">Obtain a 3-generation pedigree, TTE, and genetics/aortopathy referral</button>
+            <button class="choice-button" type="button" data-opening="2">Wait until adolescence, when syndromic features become reliable</button>
+          </div>
+          <div id="opening-feedback" aria-live="polite"></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <p class="kicker">Competencies</p>
+        <h3>By the end, you should be able to</h3>
+        <div class="objective-grid">
+          <div><span>1</span><p>Recognize syndromic and nonsyndromic aortopathy clues and high-risk family history.</p></div>
+          <div><span>2</span><p>Order the initial evaluation and interpret a reported pediatric aortic Z score safely.</p></div>
+          <div><span>3</span><p>Explain how diagnosis, growth, family history, and phenotype drive surveillance and therapy.</p></div>
+          <div><span>4</span><p>Counsel families about exercise, school participation, medication hazards, and emergencies.</p></div>
+          <div><span>5</span><p>Refer to genetics, cardiology, vascular, surgical, or emergency care at the right time.</p></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <p class="kicker">Evidence honesty</p>
+        <h3>Not every recommendation is equally certain</h3>
+        <p>The anchor AHA document is a 2024 scientific statement combining available evidence with expert consensus; it is not an evidence-graded pediatric clinical practice guideline.<a class="cite" href="#ref-aha">1</a> This module labels the practical consequence.</p>
+        <div class="evidence-grid">
+          <div class="evidence-item"><span class="evidence-badge trial">Trial supported</span><p>Randomized evidence exists, principally for beta-blocker and ARB therapy in Marfan syndrome.</p></div>
+          <div class="evidence-item"><span class="evidence-badge consensus">Expert consensus</span><p>Reasonable practice, but the recommendation rests mainly on observational evidence and expert agreement.</p></div>
+          <div class="evidence-item"><span class="evidence-badge extrapolated">Extrapolated</span><p>Evidence from Marfan syndrome, adults, animal models, or related aortopathies is being applied cautiously.</p></div>
+          <div class="evidence-item"><span class="evidence-badge consensus">Specialist owned</span><p>Gene-specific surveillance, procedural planning, and surgical thresholds require an aortopathy center.</p></div>
+        </div>
+      </article>
+
+      <article class="card quiz-shell" id="pretest-card">
+        <div class="pretest-intro">
+          <div><p class="kicker">Diagnostic pretest</p><h3>Six decisions before the lesson</h3><p class="note">This establishes your baseline. Explanations are withheld until completion; the score does not affect mastery.</p></div>
+          <button class="button" id="pretest-start" type="button">Start pretest</button>
+        </div>
+        <div id="pretest-stage" aria-live="polite"></div>
+      </article>
+
+      <div class="bottom-actions">
+        <button class="button" type="button" data-open-tab="core">Continue to the core lesson</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-core" role="tabpanel" aria-labelledby="tab-core" data-panel="core" hidden>
+      <div class="section-heading">
+        <p class="kicker">Core lesson</p>
+        <h2>Eight moves that prevent failure</h2>
+        <p>Residents do not need to memorize every gene-specific surgical diameter. They do need a reliable process that does not miss an inherited disorder, normalize a dangerous trend, or over-restrict a child.</p>
+      </div>
+
+      <div class="lesson-grid">
+        <article class="card lesson-card">
+          <div class="lesson-number">01</div>
+          <h3>Suspect the disease before the phenotype is complete</h3>
+          <ul class="check-list">
+            <li>Take a <strong>3-generation family history</strong>: aneurysm, dissection, rupture, aortic surgery, BAV, congenital heart disease, unexplained sudden death, early stroke or myocardial infarction, and organ rupture.</li>
+            <li>Ask the age, aortic size, and circumstances at each event; “grandfather died of an aneurysm” is insufficient.</li>
+            <li>Examine cardiovascular, ocular, craniofacial, skeletal, skin, joint, and neurologic systems.</li>
+            <li>Repeat phenotype assessment over time: many findings emerge with growth.</li>
+          </ul>
+          <div class="pearl"><strong>Non-negotiable:</strong> a normal examination or negative family history does not rule out HTAD.<a class="cite" href="#ref-aha">1</a></div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">02</div>
+          <h3>Recognize the high-risk modifiers</h3>
+          <ul class="check-list">
+            <li>Dissection in a relative at an aortic diameter &lt;5 cm, or aortic surgery/dissection/rupture in childhood.</li>
+            <li>Moderate-or-greater aortic valve dysfunction.</li>
+            <li>Rapid growth: &ge;0.8 cm/year before age 2; &ge;0.5 cm/year after age 2; or &gt;0.3 cm/year for 2 consecutive years after adult height.</li>
+            <li>Pregnancy or pregnancy planning.</li>
+            <li>Gene/condition modifiers: early-onset Marfan, marked tortuosity, high-risk LDS variants/phenotype, high-risk COL3A1 variant types, ACTA2 R179, PRKG1, or severe EFEMP2 disease.</li>
+          </ul>
+          <div class="resident-action"><strong>Your action:</strong> shorten the time to specialist review. High-risk features can change imaging, medication, activity counseling, and operative timing even before the aorta is “large.”</div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">03</div>
+          <h3>Launch the initial evaluation</h3>
+          <ol class="check-list">
+            <li><strong>TTE</strong> to assess aortic valve morphology/function, aortic root and ascending aorta, and associated cardiac anatomy.</li>
+            <li><strong>Genetics/aortopathy referral</strong> when HTAD is suspected; testing should use a multigene HTAD panel when diagnosis or management may change.</li>
+            <li><strong>Cross-sectional imaging</strong> when TTE is incomplete, when the disorder involves distal/peripheral arteries, for concerning symptoms, or for procedural planning.</li>
+            <li><strong>Family cascade evaluation</strong>: test for a known familial pathogenic/likely pathogenic variant and image at-risk relatives.</li>
+          </ol>
+          <div class="alert"><strong>Do not test a VUS in relatives as though it were causal.</strong> Variant interpretation belongs with genetics; a VUS is not a diagnosis and should not drive irreversible management.<a class="cite" href="#ref-acmg">8</a></div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">04</div>
+          <h3>Read the echo report without over-reading it</h3>
+          <p>For a child under 16, the statement’s narrative defines aortic root or ascending aortic dilation as a <strong>Z score &gt;2</strong>; its consensus grading table begins “mild” at <strong>Z &ge;2</strong>. At an exact boundary, verify the report, nomogram, and specialist interpretation. The severity table is:</p>
+          <div class="report-grid">
+            <div><strong>None</strong><p>Z &lt;2</p></div>
+            <div><strong>Mild</strong><p>Z &ge;2 to &lt;3.5</p></div>
+            <div><strong>Moderate</strong><p>Z &ge;3.5 to &lt;5</p></div>
+            <div><strong>Severe</strong><p>Z &ge;5</p></div>
+          </div>
+          <p class="note">At age &ge;16, the statement uses maximum diameter: &lt;3.5 cm none; 3.5 to &lt;4 mild; 4 to &lt;4.5 moderate; &ge;4.5 severe.<a class="cite" href="#ref-aha">1</a></p>
+          <details>
+            <summary>When a Z score may mislead</summary>
+            <p>Verify height, weight, body surface area, image plane, measurement convention, and nomogram. Extreme body size can produce implausible values. Serial comparisons should use the same technique and nomogram. A reported Z &gt;2 is a prompt to verify—not permission to ignore the images or the child.</p>
+          </details>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">05</div>
+          <h3>Surveillance is a risk equation, not a lookup by Z score alone</h3>
+          <p>Frequency depends on <strong>diagnosis/gene + current size + growth rate + valve function + family history + age/puberty + prior surgery + extracardiac vascular disease</strong>.</p>
+          <ul class="check-list">
+            <li>TTE is the primary modality for the root and ascending aorta.</li>
+            <li>MRI/MRA is preferred for repeated cross-sectional surveillance when feasible; CTA is faster and often necessary for acute disease or when MRI is not diagnostic.</li>
+            <li>More severe dilation, rapid growth, high-risk genotype/phenotype, or symptoms shorten the interval—often to 3–6 months in the AHA framework.</li>
+            <li>Stable mild disease may be followed at substantially longer intervals, but an LDS child and an isolated BAV child with the same Z score are not interchangeable.</li>
+          </ul>
+          <div class="alert danger"><strong>Resident trap:</strong> never invent a surveillance interval from the word “mild.” Confirm that a cardiology plan exists and that the family can execute it.</div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">06</div>
+          <h3>Know what medication evidence can—and cannot—say</h3>
+          <p><span class="evidence-badge trial">Trial supported</span> In Marfan syndrome, beta-blockers and ARBs both slow aortic root growth; neither was superior in the Pediatric Heart Network trial, and benefit appeared greater when therapy began younger.<a class="cite" href="#ref-aha">1</a></p>
+          <p><span class="evidence-badge extrapolated">Extrapolated</span> Therapy in LDS, vEDS, nonsyndromic HTAD, and BAV relies far more on mechanistic reasoning, observational evidence, and specialist consensus.</p>
+          <ul class="check-list">
+            <li>Treat hypertension aggressively and monitor heart rate, BP, kidney function, electrolytes, and adverse effects appropriate to the drug.</li>
+            <li>Avoid fluoroquinolones when reasonable alternatives exist; minimize sustained vasoconstrictor, hypertensive, or tachycardic exposures.</li>
+            <li>ARBs are teratogenic: address pregnancy potential and contraception before prescribing.</li>
+            <li>Do not automatically withhold needed ADHD therapy; monitor BP and heart rate closely.</li>
+          </ul>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">07</div>
+          <h3>Prescribe participation, not fear</h3>
+          <p>Healthy aerobic activity, social inclusion, and normal development matter. Adult restriction tables tend to over-restrict children. Use shared decision-making that considers diagnosis, size/growth, BP response, sport intensity, collision/trauma risk, and noncardiac features.<a class="cite" href="#ref-sports">4</a></p>
+          <div class="two-column">
+            <div class="mini-card"><strong>Usually encourage</strong><p>Regular aerobic activity, play, skill development, hydration, breaks, and inclusive modified participation.</p></div>
+            <div class="mini-card"><strong>Usually avoid or modify</strong><p>Heavy isometric strain, maximal lifting/Valsalva, high-intensity power work, and collision/trauma exposure when the condition makes these hazardous.</p></div>
+          </div>
+          <div class="pearl"><strong>School letter essentials:</strong> individualized activity plan, permitted water/restroom/rest breaks, symptoms that stop activity, and a safe replacement activity rather than exclusion.</div>
+        </article>
+
+        <article class="card lesson-card danger-card">
+          <div class="lesson-number">08</div>
+          <h3>Treat acute pain or neurologic change as time-critical</h3>
+          <p>In known or suspected aortopathy, sudden severe chest, back, neck, or abdominal pain; syncope; focal neurologic deficit; pulse/BP asymmetry; unexplained hypotension; or a new perfusion deficit requires emergency evaluation for dissection, rupture, or branch-vessel catastrophe.</p>
+          <div class="alert danger"><strong>Immediate action:</strong> activate emergency transport/evaluation, alert cardiology/aortic surgery early, and do not let a reassuring TTE or a previously normal scan rule out acute arterial disease. CTA is often the rapid definitive study for an acute aortic event; modality depends on stability and anatomy.<a class="cite" href="#ref-accaha">2</a></div>
+          <p>For vEDS, communicate tissue fragility before invasive procedures and involve experienced vascular teams; necessary care should not be withheld, but avoid unnecessary arterial instrumentation.</p>
+        </article>
+      </div>
+
+      <article class="card trap-card">
+        <p class="kicker">Failure modes</p>
+        <h3>Six shortcuts that create harm</h3>
+        <div class="trap-grid">
+          <div><strong>“No Marfan habitus, no HTAD”</strong><p>ACTA2 and other nonsyndromic HTADs can have no external phenotype.</p></div>
+          <div><strong>“The panel was negative”</strong><p>A negative panel does not exclude HTAD; genes and variant classifications evolve.</p></div>
+          <div><strong>“The Z score improved”</strong><p>Check body growth, measurement technique, and nomogram before calling true regression.</p></div>
+          <div><strong>“Normal imaging means no vEDS risk”</strong><p>Arterial events may occur without a pre-existing aneurysm.</p></div>
+          <div><strong>“All exercise is dangerous”</strong><p>Over-restriction harms cardiovascular health, identity, and participation.</p></div>
+          <div><strong>“Surgery is always at 5 cm”</strong><p>Thresholds vary by gene, variant, body size, growth, family history, and center expertise.</p></div>
+        </div>
+      </article>
+
+      <div class="bottom-actions">
+        <button class="button" type="button" data-open-tab="pathway">Apply the action pathways</button>
+        <button class="button button-secondary" type="button" data-open-tab="conditions">Open optional deep dives</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-pathway" role="tabpanel" aria-labelledby="tab-pathway" data-panel="pathway" hidden>
+      <div class="section-heading">
+        <p class="kicker">Action pathways</p>
+        <h2>Convert the signal into today’s plan</h2>
+        <p>Select the clinical entry point. The output emphasizes what a resident can execute now and what must be owned by an aortopathy specialist.</p>
+      </div>
+
+      <div class="pathway-selector" role="group" aria-label="Choose a pediatric aortopathy pathway">
+        <button class="path-button is-active" type="button" data-path="suspected">Suspected HTAD</button>
+        <button class="path-button" type="button" data-path="bav">Bicuspid aortic valve</button>
+        <button class="path-button" type="button" data-path="known">Known genetic aortopathy</button>
+        <button class="path-button" type="button" data-path="acute">Acute symptoms</button>
+      </div>
+      <article class="card pathway-stage" id="pathway-stage" aria-live="polite"></article>
+
+      <article class="card">
+        <p class="kicker">Genetic evaluation</p>
+        <h3>Who should trigger an HTAD genetics pathway?</h3>
+        <div class="action-grid">
+          <div><strong>Aortic phenotype</strong><p>Root or ascending Z &ge;2 with another clue; moderate/severe dilation; rapid growth; or unexplained thoracic aortic disease.</p></div>
+          <div><strong>Syndromic phenotype</strong><p>Marfan, LDS, vEDS, smooth-muscle dysfunction, arterial tortuosity, cutis laxa, FLNA, or another connective-tissue pattern.</p></div>
+          <div><strong>Family phenotype</strong><p>Aneurysm/dissection/rupture, early aortic surgery, unexplained sudden death, or known pathogenic/likely pathogenic HTAD variant.</p></div>
+          <div><strong>BAV plus red flags</strong><p>Syndromic features, personal/family dissection or rupture, first-degree relative with HTAD variant, or disproportionate root/ascending dilation.</p></div>
+        </div>
+        <div class="alert"><strong>After testing:</strong> positive pathogenic/likely pathogenic result &rarr; gene-based care and cascade testing. Negative result or VUS &rarr; return to phenotype and family history; do not close the case.<a class="cite" href="#ref-aha">1</a></div>
+      </article>
+
+      <article class="card">
+        <p class="kicker">Referral map</p>
+        <h3>Where does the patient need to go?</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Finding</th><th>Resident action</th><th>Destination</th></tr></thead>
+            <tbody>
+              <tr><td>Suspected HTAD; stable</td><td>TTE, detailed pedigree/exam, activity precautions while awaiting review</td><td>Pediatric cardiology/aortopathy + cardiovascular genetics</td></tr>
+              <tr><td>Known syndrome with multisystem findings</td><td>Reconcile overdue surveillance and medications; address school/emergency plan</td><td>Multidisciplinary syndrome-specific team</td></tr>
+              <tr><td>Rapid growth, severe dilation, high-risk gene/family history</td><td>Do not wait for the next routine visit</td><td>Expedited pediatric aortopathy center; surgical review when indicated</td></tr>
+              <tr><td>Sudden pain, syncope, neurologic/perfusion deficit</td><td>Emergency pathway now</td><td>ED/EMS + aortic/vascular team</td></tr>
+              <tr><td>Pregnancy or pregnancy planning</td><td>Review ARB exposure and current imaging; avoid abrupt self-discontinuation without clinician plan</td><td>Aortopathy cardiology + maternal-fetal medicine/genetics</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <div class="bottom-actions">
+        <button class="button" type="button" data-open-tab="cases">Practice with cases</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-conditions" role="tabpanel" aria-labelledby="tab-conditions" data-panel="conditions" hidden>
+      <div class="section-heading">
+        <p class="kicker">Optional deep dives</p>
+        <h2>Pattern recognition by condition</h2>
+        <p>These are referral-level maps, not substitutes for gene-specific surveillance protocols. Filter to compare the phenotypes most likely to be confused.</p>
+      </div>
+
+      <div class="condition-filter" role="group" aria-label="Filter condition deep dives">
+        <button class="filter-button is-active" type="button" data-condition-filter="all">All</button>
+        <button class="filter-button" type="button" data-condition-filter="syndromic">Syndromic</button>
+        <button class="filter-button" type="button" data-condition-filter="nonsyndromic">Nonsyndromic</button>
+        <button class="filter-button" type="button" data-condition-filter="congenital">Congenital heart disease</button>
+      </div>
+
+      <div class="condition-grid">
+        <details class="card condition-card" data-condition="syndromic" open>
+          <summary>Marfan syndrome <span class="gene">FBN1</span></summary>
+          <div class="condition-body">
+            <p><strong>Recognize:</strong> aortic root-predominant dilation, ectopia lentis, disproportionate long-bone/digit growth, pectus, scoliosis, myopia, and mitral valve disease. The systemic score is a screen, not a pediatric rule-out test.</p>
+            <p><strong>Evaluate:</strong> TTE at diagnosis; annual TTE is adequate for most stable children. Genetic testing is recommended because another HTAD—especially LDS—can mimic Marfan but carry different risk.</p>
+            <p><strong>Manage:</strong> beta-blocker or ARB therapy has trial support. The 2024 European pediatric consensus recommends medication with aortic dilation (Z &ge;2) and considers it earlier with aggressive phenotype; details remain specialist owned.<a class="cite" href="#ref-marfan">3</a></p>
+            <p><strong>Resident pearl:</strong> a child can have Marfan before the phenotype earns a high systemic score.</p>
+          </div>
+        </details>
+
+        <details class="card condition-card" data-condition="syndromic">
+          <summary>Loeys-Dietz syndrome <span class="gene">TGFBR1/2, SMAD2/3, TGFB2/3</span></summary>
+          <div class="condition-body">
+            <p><strong>Recognize:</strong> hypertelorism, craniosynostosis, bifid uvula/cleft palate, clubfoot, cervical instability, arterial tortuosity, translucent skin/easy bruising, allergy/asthma/eczema, and inflammatory GI disease. Phenotype varies sharply by gene and variant.</p>
+            <p><strong>Evaluate:</strong> TTE plus cross-sectional imaging from head to pelvis at baseline; timing can be individualized in young children with milder genotypes to limit sedation.</p>
+            <p><strong>Manage:</strong> ARB, beta-blocker, or both is reasonable, but there are no LDS RCTs. Distal and branch-vessel disease matters; events may occur at smaller dimensions than in Marfan.</p>
+            <p><strong>2026 overlay:</strong> the updated international primer emphasizes precision care based on genotype, phenotype, prior events, family history, and multidisciplinary quality-of-life needs.<a class="cite" href="#ref-lds">6</a></p>
+          </div>
+        </details>
+
+        <details class="card condition-card" data-condition="syndromic">
+          <summary>Vascular Ehlers-Danlos syndrome <span class="gene">COL3A1</span></summary>
+          <div class="condition-body">
+            <p><strong>Recognize:</strong> excessive bruising, translucent skin/visible veins, characteristic but often subtle facial features, small-joint hypermobility, clubfoot, pneumothorax, bowel/organ perforation, arterial events, or a family history. Findings may be absent.</p>
+            <p><strong>Diagnose:</strong> a pathogenic/likely pathogenic COL3A1 variant is necessary. TTE and noninvasive arterial imaging inform care, but normal imaging does not eliminate rupture/dissection risk.</p>
+            <p><strong>Manage:</strong> tissue fragility changes procedural risk. A 2025 pediatric cohort reported events from the neonatal period through adolescence and described one-center surveillance practice, while explicitly stating that standardized international pediatric guidelines do not exist.<a class="cite" href="#ref-veds">5</a></p>
+            <p><strong>Resident pearl:</strong> sudden abdominal/chest/neck pain or neurologic change is an emergency; inform the receiving team of vEDS before invasive procedures.</p>
+          </div>
+        </details>
+
+        <details class="card condition-card" data-condition="nonsyndromic">
+          <summary>Nonsyndromic HTAD <span class="gene">ACTA2, PRKG1, MYH11, MYLK, LOX</span></summary>
+          <div class="condition-body">
+            <p><strong>Recognize:</strong> thoracic aortic disease with few or no external features. A negative physical examination is expected—not reassuring.</p>
+            <p><strong>Gene clues:</strong> ACTA2 may pair aortopathy with PDA, iris flocculi, early coronary disease, stroke/Moyamoya-like disease, or pulmonary hypertension. MYH11 can associate with PDA. PRKG1 can dissect in adolescence with minimal/no dilation. MYLK events can also occur without marked enlargement.</p>
+            <p><strong>Manage:</strong> do not apply a generic Marfan threshold. Imaging, medication, cerebrovascular evaluation, and surgery are gene/variant specific.</p>
+            <p><strong>Resident pearl:</strong> unexplained early stroke or coronary disease plus family aortic disease should trigger a smooth-muscle aortopathy differential.</p>
+          </div>
+        </details>
+
+        <details class="card condition-card" data-condition="congenital">
+          <summary>Bicuspid aortic valve <span class="gene">Often multifactorial; sometimes NOTCH1/SMAD6/HTAD</span></summary>
+          <div class="condition-body">
+            <p><strong>Recognize:</strong> valve stenosis/regurgitation and root or ascending phenotype. Ascending dilation is common; isolated childhood BAV dissection without a known HTAD variant has not been reported.</p>
+            <p><strong>Evaluate:</strong> lifelong TTE surveillance based on valve function, size, and growth. Screen first-degree relatives by TTE for BAV and/or aortic dilation.</p>
+            <p><strong>Genetics:</strong> isolated BAV alone usually does not mandate a broad panel. Add genetics when syndromic features, a personal/family dissection or rupture, disproportionate dilation, or a known familial HTAD variant changes the prior probability.</p>
+            <p><strong>Manage:</strong> pediatric drug evidence is limited and practice varies. Do not present extrapolated ARB/beta-blocker use as proven BAV therapy.</p>
+          </div>
+        </details>
+
+        <details class="card condition-card" data-condition="syndromic">
+          <summary>Other genetic aortopathies <span class="gene">FLNA, EFEMP2, SLC2A10 and others</span></summary>
+          <div class="condition-body">
+            <p><strong>FLNA:</strong> periventricular nodular heterotopia/seizures, lung disease/pulmonary hypertension, PDA/BAV/valve disease, and ascending-predominant dilation; serial imaging continues even when initial aortic dimensions are normal.</p>
+            <p><strong>EFEMP2 cutis laxa:</strong> early severe diffuse arterial tortuosity, aneurysm/stenosis, airway compression, loose skin, hernia, and joint laxity; lesion-driven multidisciplinary care.</p>
+            <p><strong>Arterial tortuosity syndrome (SLC2A10):</strong> diffuse tortuosity plus stenoses and connective-tissue phenotype; head-to-pelvis definition of anatomy is often necessary.</p>
+            <p><strong>Classic EDS:</strong> baseline TTE is reasonable, but long-term serial aortic imaging is not required when the initial TTE is normal—do not confuse classic EDS with vEDS.</p>
+          </div>
+        </details>
+
+        <details class="card condition-card full" data-condition="congenital">
+          <summary>Congenital or acquired aortic dilation without a clear HTAD diagnosis</summary>
+          <div class="condition-body">
+            <p><strong>Congenital substrates:</strong> repaired transposition after arterial switch, tetralogy of Fallot/pulmonary atresia-VSD, truncus arteriosus, Fontan physiology, and the pulmonary autograft after Ross procedure require lesion-specific surveillance.</p>
+            <p><strong>Other causes:</strong> chronic hypertension, stimulant exposure, congenital complete heart block, PHACE, aortitis, renal disease, 22q11.2 deletion, Alagille, Noonan, Turner syndrome, and neurofibromatosis.</p>
+            <p><strong>If testing is negative but suspicion remains:</strong> continue phenotype-based follow-up, image first-degree relatives, and revisit genetics as genes and variant classifications evolve. For a child with a gene-negative affected parent and normal imaging, the AHA statement suggests repeat imaging in 5–10 years, individualized to the family history.<a class="cite" href="#ref-aha">1</a></p>
+          </div>
+        </details>
+      </div>
+
+      <div class="bottom-actions">
+        <button class="button" type="button" data-open-tab="cases">Apply this in branching cases</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-cases" role="tabpanel" aria-labelledby="tab-cases" data-panel="cases" hidden>
+      <div class="section-heading">
+        <p class="kicker">Branching practice</p>
+        <h2>Five patients. Fifteen decisions.</h2>
+        <p>Each case tests a different failure mode. Feedback is immediate; complete all five before the posttest for the strongest transfer.</p>
+      </div>
+
+      <div class="case-picker" role="group" aria-label="Choose a branching case">
+        <button class="case-button is-active" type="button" data-case="0">1. Quiet pedigree<small>Normal examination</small></button>
+        <button class="case-button" type="button" data-case="1">2. Marfan athlete<small>Z-score trend</small></button>
+        <button class="case-button" type="button" data-case="2">3. LDS pain<small>Emergency recognition</small></button>
+        <button class="case-button" type="button" data-case="3">4. BAV family<small>Genetics threshold</small></button>
+        <button class="case-button" type="button" data-case="4">5. vEDS abdomen<small>Tissue fragility</small></button>
+      </div>
+      <article class="card case-stage" id="case-stage" aria-live="polite"></article>
+      <div class="case-log" id="case-log" aria-label="Current case decision results"></div>
+
+      <div class="bottom-actions">
+        <button class="button" type="button" data-open-tab="assessment">Take the mastery posttest</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-assessment" role="tabpanel" aria-labelledby="tab-assessment" data-panel="assessment" hidden>
+      <div class="section-heading">
+        <p class="kicker">Mastery assessment</p>
+        <h2>Can you act safely without the article open?</h2>
+        <p>Fifteen board-style questions test recognition, initial evaluation, management/counseling, and escalation. A score of 12/15 (80%) passes. Explanations appear after each answer; retries are unlimited.</p>
+      </div>
+
+      <article class="card quiz-shell" id="posttest-card">
+        <div id="posttest-intro">
+          <p class="kicker">Posttest</p>
+          <h3>15 questions &middot; 80% to pass</h3>
+          <p>Choose the single best answer. Your first selection is scored. The best score is saved only in this browser.</p>
+          <button class="button" id="posttest-start" type="button">Start posttest</button>
+        </div>
+        <div id="posttest-stage" aria-live="polite"></div>
+      </article>
+    </section>
+
+    <section class="panel" id="panel-quick" role="tabpanel" aria-labelledby="tab-quick" data-panel="quick" hidden>
+      <div class="section-heading">
+        <p class="kicker">Bedside reference</p>
+        <h2>Pediatric aortopathy: first moves</h2>
+        <p class="print-only">Resident quick reference. Evidence reviewed through August 12, 2026.</p>
+        <p class="no-print">Print this section as a compact clinical memory aid. It deliberately omits specialist surgical thresholds.</p>
+      </div>
+
+      <div class="quick-grid">
+        <div>
+          <article class="card">
+            <h3>When to suspect HTAD</h3>
+            <ul class="check-list">
+              <li>Aortic root/ascending Z &gt;2, especially if unexplained or disproportionate</li>
+              <li>Syndromic connective-tissue, craniofacial, ocular, skin, skeletal, or neurologic phenotype</li>
+              <li>First-degree relative with HTAD variant, aneurysm, dissection, rupture, or early aortic surgery</li>
+              <li>Unexplained sudden death, early stroke/coronary disease, organ rupture, pneumothorax, or extreme bruising in the family</li>
+              <li>BAV plus syndromic/family red flags or disproportionate aortopathy</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Initial resident orders/actions</h3>
+            <ol class="check-list">
+              <li>Detailed history, multisystem examination, and 3-generation pedigree</li>
+              <li>TTE: valve morphology/function, aortic root, ascending aorta, associated anatomy</li>
+              <li>Pediatric cardiology/aortopathy and cardiovascular genetics referral</li>
+              <li>MRI/MRA or CTA when TTE is incomplete, peripheral disease is expected, symptoms are acute, or procedural planning requires it</li>
+              <li>Family cascade testing/imaging based on the proband’s result and phenotype</li>
+            </ol>
+          </article>
+          <article class="card">
+            <h3>Reported aortic severity</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Age</th><th>None</th><th>Mild</th><th>Moderate</th><th>Severe</th></tr></thead>
+                <tbody>
+                  <tr><td>&lt;16 years</td><td>Z &lt;2</td><td>Z 2 to &lt;3.5</td><td>Z 3.5 to &lt;5</td><td>Z &ge;5</td></tr>
+                  <tr><td>&ge;16 years</td><td>&lt;3.5 cm</td><td>3.5 to &lt;4 cm</td><td>4 to &lt;4.5 cm</td><td>&ge;4.5 cm</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="note">Verify technique, body data, and nomogram. Use the same method serially. Severity alone does not determine the follow-up interval.</p>
+          </article>
+        </div>
+        <div>
+          <article class="emergency-strip">
+            <h3>Emergency symptoms</h3>
+            <p>Sudden severe chest, back, neck, or abdominal pain; syncope; focal neurologic change; pulse/BP asymmetry; hypotension; or new malperfusion.</p>
+            <p><strong>Act:</strong> emergency evaluation/transport, early aortic/vascular team contact, rapid definitive imaging appropriate to stability. A previously normal scan does not exclude today’s event.</p>
+          </article>
+          <article class="card">
+            <h3>Safe counseling</h3>
+            <ul class="check-list">
+              <li>Encourage individualized aerobic activity and social inclusion.</li>
+              <li>Avoid maximal isometric strain/Valsalva and modify collision risk when appropriate.</li>
+              <li>Provide school water, restroom, and rest access plus replacement activity.</li>
+              <li>Review fluoroquinolones, vasoconstrictors, excess caffeine, and pregnancy risk with ARBs.</li>
+              <li>Give the family an emergency plan and a diagnosis/medication list.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Never close the loop with</h3>
+            <ul class="check-list">
+              <li>Normal physical examination</li>
+              <li>Negative family history alone</li>
+              <li>Negative panel or a VUS</li>
+              <li>Normal TTE/MRA in vEDS</li>
+              <li>A single smaller Z score without measurement review</li>
+              <li>A generic 5-cm surgical rule</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+
+      <div class="bottom-actions no-print">
+        <button class="button" id="print-reference" type="button">Print quick reference</button>
+        <button class="button button-secondary" type="button" data-open-tab="assessment">Return to posttest</button>
+      </div>
+
+      <article class="card" id="sources">
+        <p class="kicker">Primary-source provenance</p>
+        <h3>Sources and current-guidance overlay</h3>
+        <ol class="source-list">
+          <li id="ref-aha"><strong>Morris SA, et al.</strong> Cardiovascular Management of Aortopathy in Children: A Scientific Statement From the American Heart Association. <em>Circulation</em>. 2024;150:e228–e254. <a href="https://www.ahajournals.org/doi/10.1161/CIR.0000000000001265">doi:10.1161/CIR.0000000000001265</a>. Anchor source; expert consensus plus available evidence.</li>
+          <li id="ref-accaha"><strong>Isselbacher EM, et al.</strong> 2022 ACC/AHA Guideline for the Diagnosis and Management of Aortic Disease. <em>Circulation</em>. 2022;146:e334–e482. <a href="https://www.ahajournals.org/doi/10.1161/CIR.0000000000001106">doi:10.1161/CIR.0000000000001106</a>. Genetic/family evaluation and acute aortic disease framework.</li>
+          <li id="ref-marfan"><strong>Muiño-Mosquera L, et al.</strong> Management of aortic disease in children with FBN1-related Marfan syndrome: VASCERN/AEPC joint statement. <em>European Heart Journal</em>. 2024;45:4156–4169. <a href="https://academic.oup.com/eurheartj/article/45/39/4156/7754076">doi:10.1093/eurheartj/ehae526</a>. Pediatric Marfan imaging, medication, surgery, and sport consensus.</li>
+          <li id="ref-sports"><strong>Kim JH, et al.</strong> Clinical Considerations for Competitive Sports Participation for Athletes With Cardiovascular Abnormalities. <em>Circulation</em>. 2025;151:e771–e862. <a href="https://www.ahajournals.org/doi/10.1161/CIR.0000000000001297">doi:10.1161/CIR.0000000000001297</a>. Current shared decision-making overlay for athletes.</li>
+          <li id="ref-veds"><strong>Wilkinson NR, et al.</strong> Vascular Ehlers-Danlos syndrome in children: evaluating the importance of diagnosis and follow-up during childhood. <em>European Journal of Human Genetics</em>. 2025;33:368–376. <a href="https://www.nature.com/articles/s41431-024-01773-x">doi:10.1038/s41431-024-01773-x</a>. Pediatric cohort and explicitly nonstandardized surveillance experience.</li>
+          <li id="ref-lds"><strong>MacCarrick G, et al.</strong> Loeys-Dietz syndrome: 2026 updated care management primer. <em>Genetics in Medicine</em>. 2026;28:102577. <a href="https://pubmed.ncbi.nlm.nih.gov/41988792/">doi:10.1016/j.gim.2026.102577</a>. International precision-care update.</li>
+          <li id="ref-ghent"><strong>Loeys BL, et al.</strong> The revised Ghent nosology for the Marfan syndrome. <em>Journal of Medical Genetics</em>. 2010;47:476–485. <a href="https://jmg.bmj.com/content/47/7/476">doi:10.1136/jmg.2009.072785</a>. Diagnostic nosology, applied cautiously in children.</li>
+          <li id="ref-acmg"><strong>Richards S, et al.</strong> Standards and guidelines for the interpretation of sequence variants: ACMG/AMP consensus. <em>Genetics in Medicine</em>. 2015;17:405–424. <a href="https://www.nature.com/articles/gim201530">doi:10.1038/gim.2015.30</a>. Variant classification framework.</li>
+        </ol>
+        <p class="note"><strong>Scope note:</strong> Turner syndrome is not covered by the 2024 pediatric aortopathy statement and requires its separate Turner-specific cardiovascular guidance. This educational module does not replace patient-specific specialist judgment.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>Educational use only. Clinical decisions must be individualized to diagnosis, gene/variant, phenotype, family history, growth, imaging quality, and local aortopathy expertise.</p>
+  </footer>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
