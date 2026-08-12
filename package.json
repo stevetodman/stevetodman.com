@@ -8,6 +8,7 @@
     "test:phs": "node --test tests/phs-scenarios.test.mjs",
     "test:bp": "node --test tests/bp-calculator.test.mjs",
     "test:hypertension": "node --test tests/hypertension-academy.test.mjs",
+    "test:cardiovascular-risk": "node --test tests/cardiovascular-risk-academy.test.mjs",
     "test:smoke": "node --test tests/site-smoke.test.mjs",
     "test:integrity": "node phs/v17/tests/integrity.mjs"
   },

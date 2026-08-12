@@ -95,6 +95,7 @@ export const SITE_PAGES = [
   '/math/',
   '/newbornscreen/',
   '/hypertension/',
+  '/cardiovascular-risk/',
   '/phs/',
   '/admin/',
   '/admin/clinic-resources/',

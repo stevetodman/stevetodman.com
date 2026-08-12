@@ -1,6 +1,6 @@
 ---
 status: active
-next: Obtain pediatric resident feedback on the hypertension and ABPM academy
+next: Obtain pediatric resident feedback on the hypertension/ABPM and cardiovascular prevention/dyslipidemia academies
 ---
 
 # CLAUDE.md
@@ -36,6 +36,8 @@ stevetodman.com/
 ├── hypertension/                 # Pediatric hypertension and ABPM resident academy
 │   ├── index.html                # Layered lesson, office pathway, ABPM lab, cases, quiz
 │   └── assets/                   # Local styles and interaction logic
+├── cardiovascular-risk/          # Cardiovascular prevention and dyslipidemia academy
+│   └── index.html                # Age rail, lipid tools, current overlays, reference tables, cases
 ├── clipboard-sanitizer/          # Standalone shell utilities (not deployed)
 ├── .github/workflows/            # phs-v17-integrity.yml, update-cooking-index.yml
 ├── study/                        # Kids' Study Hub (stevetodman.com/study)
@@ -198,6 +200,7 @@ npm install && npx playwright install --with-deps chromium
 npm test              # all suites (~35s)
 npm run test:phs      # simulator behaviour and score calibration
 npm run test:bp       # BP calculator correctness
+npm run test:cardiovascular-risk # prevention academy interactions and 2026 lipid logic
 npm run test:smoke    # page conventions, links, mobile, keyboard access
 ```
 

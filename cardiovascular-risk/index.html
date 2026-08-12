@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pediatric Cardiovascular Prevention &amp; Dyslipidemia Academy</title>
+<meta name="description" content="An interactive, age-driven pediatric resident academy for cardiovascular prevention, lipid screening, dyslipidemia interpretation, risk conditions, and board-style clinical reasoning.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://stevetodman.com/cardiovascular-risk/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%AB%80%3C/text%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   Design tokens
+   Palette: institutional navy/teal on cool paper, with two
+   functional signal colors reserved for risk tiers only.
+   ============================================================ */
+:root{
+  --navy:#1B2A4A;
+  --navy-80:#33415f;
+  --teal:#0D6E6E;
+  --teal-dark:#095353;
+  --teal-wash:#E1EDED;
+  --paper:#F5F7FA;
+  --card:#FFFFFF;
+  --ink:#2B2B2B;
+  --ink-soft:#4E5765;
+  --rule:#D3DAE4;
+  --rule-strong:#A9B4C4;
+  --amber:#8A5300;
+  --amber-wash:#FBF0DE;
+  --crimson:#9E1B32;
+  --crimson-wash:#FBE9EC;
+  --green:#1F6B3B;
+  --green-wash:#E4F1E8;
+
+  --display:"Helvetica Neue",Inter,"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  --body:"Helvetica Neue",Inter,"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  --serif:Charter,"Iowan Old Style",Georgia,"Times New Roman",serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,"Liberation Mono",monospace;
+
+  --maxw:1180px;
+  --r:3px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--body);font-size:16.5px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--display);color:var(--navy);margin:0;line-height:1.12;letter-spacing:-.02em}
+h1{font-size:clamp(2rem,5.2vw,3.35rem);font-weight:800;letter-spacing:-.035em}
+h2{font-size:clamp(1.5rem,3.2vw,2.1rem);font-weight:800}
+h3{font-size:1.14rem;font-weight:750;letter-spacing:-.012em}
+h4{font-size:.95rem;font-weight:700}
+p{margin:0 0 .85em}
+a{color:var(--teal-dark);text-underline-offset:2px}
+a:hover{color:var(--navy)}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px;border-radius:2px}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+.skip{position:absolute;left:-9999px;top:0;background:var(--navy);color:#fff;padding:10px 16px;z-index:100}
+.skip:focus{left:8px;top:8px}
+
+/* Utility type roles: mono = every number, dose, cut point.  */
+.num,code,kbd{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.eyebrow{
+  font-family:var(--mono);font-size:.685rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--teal-dark);font-weight:600;
+}
+.note{font-family:var(--serif);font-size:1rem;line-height:1.6;color:var(--ink-soft)}
+
+/* ============================================================
+   Masthead
+   ============================================================ */
+.mast{background:var(--navy);color:#EAEFF6;padding:44px 0 34px;border-bottom:5px solid var(--teal)}
+.mast .eyebrow{color:#7FD0CC}
+.mast h1{color:#fff;margin:.35em 0 .3em;max-width:17ch}
+.mast .lede{max-width:62ch;color:#C6D0E0;font-size:1.06rem}
+.site-home{display:inline-block;color:#CDEBE8;font-size:.82rem;font-weight:700;text-decoration:none;margin-bottom:16px}
+.site-home:hover{color:#fff;text-decoration:underline}
+.mast-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(290px,.9fr);gap:46px;align-items:start}
+@media (max-width:900px){.mast-grid{grid-template-columns:1fr;gap:30px}}
+.chain{border:1px solid rgba(255,255,255,.22);border-radius:var(--r);padding:20px 22px 18px;background:rgba(255,255,255,.04)}
+.chain h2{color:#fff;font-size:1.05rem;letter-spacing:-.01em;margin-bottom:6px}
+.chain p{font-family:var(--serif);font-size:.92rem;color:#AFBFD6;margin-bottom:14px}
+.chain ol{list-style:none;margin:0;padding:0;counter-reset:link}
+.chain li{
+  counter-increment:link;position:relative;padding:0 0 13px 34px;font-size:.93rem;color:#DCE4EF;line-height:1.45;
+}
+.chain li::before{
+  content:counter(link);position:absolute;left:0;top:1px;width:21px;height:21px;border-radius:50%;
+  background:var(--teal);color:#fff;font-family:var(--mono);font-size:.7rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.chain li::after{content:"";position:absolute;left:10px;top:24px;bottom:2px;width:1px;background:rgba(127,208,204,.45)}
+.chain li:last-child{padding-bottom:0}
+.chain li:last-child::after{display:none}
+section{scroll-margin-top:132px}
+#p-lipid select,#p-screen select{max-width:100%}
+.cite{
+  margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,.18);
+  font-family:var(--mono);font-size:.76rem;line-height:1.7;color:#9FB0CA;max-width:70ch;
+}
+.cite strong{color:#D9E2EE;font-weight:600}
+
+/* ============================================================
+   SIGNATURE: the age rail. One control drives the whole page.
+   ============================================================ */
+.rail-shell{position:sticky;top:0;z-index:40;background:var(--paper);border-bottom:1px solid var(--rule);box-shadow:0 1px 0 rgba(27,42,74,.04)}
+.rail-shell.stuck{box-shadow:0 6px 18px -12px rgba(27,42,74,.45)}
+.rail{padding:14px 0 10px}
+.rail fieldset{border:0;margin:0;padding:0}
+.rail legend{
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-soft);padding:0 0 8px;
+}
+.rail-track{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;position:relative}
+.rail-track::after{
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--rule-strong);
+}
+.band{position:relative}
+.band input{position:absolute;opacity:0;width:1px;height:1px}
+.band label{
+  display:block;text-align:center;cursor:pointer;padding:9px 4px 11px;
+  border:1px solid var(--rule);border-bottom:2px solid var(--rule-strong);
+  background:var(--card);border-radius:var(--r) var(--r) 0 0;
+  transition:background .15s ease,color .15s ease,border-color .15s ease;
+}
+.band label .band-age{display:block;font-family:var(--mono);font-size:.9rem;font-weight:600;color:var(--navy);letter-spacing:-.01em}
+.band label .band-tag{display:block;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);margin-top:2px}
+.band label:hover{background:var(--teal-wash);border-color:var(--rule-strong)}
+.band input:checked + label{background:var(--teal);border-color:var(--teal);border-bottom-color:var(--navy)}
+.band input:checked + label .band-age{color:#fff}
+.band input:checked + label .band-tag{color:#CDEBE8}
+.band input:focus-visible + label{outline:3px solid var(--navy);outline-offset:2px}
+.rail-marks{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:7px;
+  font-family:var(--mono);font-size:.63rem;line-height:1.35;color:var(--ink-soft);
+}
+.rail-marks span{display:block;text-align:center;padding:0 2px}
+.rail-marks b{color:var(--crimson);font-weight:600}
+@media (max-width:720px){
+  .rail-track{grid-template-columns:repeat(3,1fr);row-gap:6px}
+  .rail-track::after{display:none}
+  .rail-marks{display:none}
+  .band label{border-radius:var(--r)}
+}
+
+/* ============================================================
+   Sections & cards
+   ============================================================ */
+section{padding:52px 0;border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:0}
+.sec-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.sec-head h2{margin:0}
+.sec-sub{max-width:70ch;color:var(--ink-soft);margin:8px 0 26px}
+
+.grid{display:grid;gap:14px}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(275px,1fr))}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+
+.card{
+  background:var(--card);border:1px solid var(--rule);border-radius:var(--r);
+  padding:16px 18px 18px;position:relative;
+}
+.card > h3{display:flex;align-items:center;gap:9px;margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid var(--rule)}
+.card .rf-key{
+  font-family:var(--mono);font-size:.66rem;font-weight:600;letter-spacing:.1em;
+  background:var(--navy);color:#fff;padding:3px 6px;border-radius:2px;
+}
+.card ul{margin:0;padding-left:1.05em}
+.card li{margin-bottom:6px}
+.card li:last-child{margin-bottom:0}
+.card .supportive{
+  margin-top:12px;padding-top:10px;border-top:1px dashed var(--rule);
+  font-size:.9rem;color:var(--ink-soft);
+}
+.card .supportive .eyebrow{display:block;margin-bottom:4px;color:var(--ink-soft)}
+
+/* grade chips */
+.grade{
+  display:inline-block;font-family:var(--mono);font-size:.66rem;font-weight:700;
+  padding:2px 5px;border-radius:2px;letter-spacing:.05em;vertical-align:1px;white-space:nowrap;
+}
+.gA{background:#12503f;color:#fff}
+.gB{background:var(--teal);color:#fff}
+.gC{background:#5A6B8C;color:#fff}
+.gD{background:#EDEFF3;color:#3C4658;border:1px solid var(--rule-strong)}
+
+/* callouts */
+.callout{border-left:4px solid var(--teal);background:var(--teal-wash);padding:14px 16px;border-radius:0 var(--r) var(--r) 0;margin:18px 0}
+.callout.warn{border-left-color:var(--amber);background:var(--amber-wash)}
+.callout.stop{border-left-color:var(--crimson);background:var(--crimson-wash)}
+.callout h4{margin-bottom:5px}
+.callout p:last-child,.callout ul:last-child{margin-bottom:0}
+
+/* ============================================================
+   Tools
+   ============================================================ */
+.tabs{display:flex;flex-wrap:wrap;gap:3px;border-bottom:2px solid var(--navy);margin-bottom:0}
+.tabs button{
+  font-family:var(--display);font-size:.9rem;font-weight:650;letter-spacing:-.01em;
+  background:transparent;border:1px solid var(--rule);border-bottom:0;color:var(--navy-80);
+  padding:10px 14px;border-radius:var(--r) var(--r) 0 0;cursor:pointer;
+}
+.tabs button:hover{background:var(--teal-wash)}
+.tabs button[aria-selected="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tabpanel{background:var(--card);border:1px solid var(--rule);border-top:0;padding:22px}
+.tool-grid{display:grid;grid-template-columns:minmax(280px,1fr) minmax(300px,1.15fr);gap:26px}
+@media (max-width:820px){.tool-grid{grid-template-columns:1fr}}
+
+fieldset.q{border:0;padding:0;margin:0 0 16px}
+fieldset.q legend{font-family:var(--display);font-weight:700;font-size:.95rem;color:var(--navy);padding:0 0 7px}
+.hint{font-size:.83rem;color:var(--ink-soft);margin:-4px 0 8px}
+label.opt{display:flex;gap:9px;align-items:flex-start;padding:7px 9px;border:1px solid var(--rule);border-radius:var(--r);margin-bottom:5px;cursor:pointer;background:#fff;font-size:.93rem}
+label.opt:hover{background:var(--teal-wash);border-color:var(--rule-strong)}
+label.opt input{margin:3px 0 0}
+input[type=number],select{
+  font-family:var(--mono);font-size:.95rem;padding:8px 9px;border:1px solid var(--rule-strong);
+  border-radius:var(--r);background:#fff;color:var(--ink);width:100%;max-width:220px;
+}
+.inline-fields{display:flex;flex-wrap:wrap;gap:12px}
+.inline-fields > div{flex:1 1 130px}
+.inline-fields label{display:block;font-size:.8rem;font-weight:600;color:var(--ink-soft);margin-bottom:4px}
+button.act{
+  font-family:var(--display);font-weight:700;font-size:.95rem;background:var(--teal);color:#fff;
+  border:1px solid var(--teal-dark);padding:11px 20px;border-radius:var(--r);cursor:pointer;
+}
+button.act:hover{background:var(--teal-dark)}
+.act-link{
+  display:inline-block;font-family:var(--display);font-weight:700;font-size:.95rem;
+  background:var(--teal);color:#fff;border:1px solid var(--teal-dark);
+  padding:11px 20px;border-radius:var(--r);text-decoration:none;
+}
+.act-link:hover{background:var(--teal-dark);color:#fff}
+button.ghost{background:#fff;color:var(--navy);border:1px solid var(--rule-strong)}
+button.ghost:hover{background:var(--teal-wash)}
+
+.out{
+  border:1px solid var(--rule-strong);border-radius:var(--r);background:var(--paper);
+  padding:18px;min-height:170px;
+}
+.out .placeholder{color:var(--ink-soft);font-family:var(--serif);font-style:italic}
+.verdict{
+  font-family:var(--display);font-weight:800;font-size:1.16rem;letter-spacing:-.02em;
+  color:var(--navy);margin:0 0 4px;line-height:1.2;
+}
+.verdict-tag{
+  display:inline-block;font-family:var(--mono);font-size:.66rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;padding:3px 7px;border-radius:2px;margin-bottom:9px;
+}
+.t-go{background:var(--green-wash);color:var(--green);border:1px solid var(--green)}
+.t-watch{background:var(--amber-wash);color:var(--amber);border:1px solid var(--amber)}
+.t-act{background:var(--crimson-wash);color:var(--crimson);border:1px solid var(--crimson)}
+.t-info{background:var(--teal-wash);color:var(--teal-dark);border:1px solid var(--teal)}
+.out ol,.out ul{margin:10px 0 0;padding-left:1.15em}
+.out li{margin-bottom:7px}
+.out .src{margin-top:14px;padding-top:10px;border-top:1px solid var(--rule);font-family:var(--mono);font-size:.72rem;color:var(--ink-soft)}
+
+/* ============================================================
+   Tables
+   ============================================================ */
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:var(--r);background:#fff}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+caption{
+  text-align:left;padding:12px 14px;font-family:var(--display);font-weight:750;color:var(--navy);
+  border-bottom:1px solid var(--rule);background:var(--paper);
+}
+caption span{display:block;font-family:var(--mono);font-size:.68rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-top:3px}
+th,td{padding:8px 12px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}
+thead th{background:var(--navy);color:#fff;font-size:.74rem;letter-spacing:.07em;text-transform:uppercase;font-weight:650;position:sticky;top:0}
+tbody th{font-weight:650;color:var(--navy);background:var(--paper)}
+td.n,th.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}
+.row-high{background:var(--crimson-wash)}
+.row-border{background:var(--amber-wash)}
+.row-ok{background:var(--green-wash)}
+
+/* ============================================================
+   Quiz
+   ============================================================ */
+.case{background:var(--card);border:1px solid var(--rule);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.case .stem{font-family:var(--serif);font-size:1.02rem;line-height:1.6;margin-bottom:14px;max-width:80ch}
+.fb p,.fb{max-width:88ch}
+.case .stem b{font-family:var(--body);font-weight:700}
+.case .caseno{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal-dark);display:block;margin-bottom:8px}
+.fb{margin-top:12px;padding:13px 15px;border-radius:var(--r);display:none;font-size:.95rem}
+.fb.show{display:block}
+.fb.right{background:var(--green-wash);border-left:4px solid var(--green)}
+.fb.wrong{background:var(--crimson-wash);border-left:4px solid var(--crimson)}
+.fb b{display:block;margin-bottom:4px;font-family:var(--display)}
+.fb .src{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);margin-top:8px;display:block}
+.score{font-family:var(--mono);font-size:.85rem;color:var(--navy);background:var(--teal-wash);border:1px solid var(--teal);padding:10px 14px;border-radius:var(--r);display:inline-block}
+
+/* ============================================================
+   Footer / print
+   ============================================================ */
+footer{background:var(--navy);color:#B9C6DA;padding:38px 0 46px;font-size:.88rem}
+footer h3{color:#fff;margin-bottom:8px}
+footer a{color:#8FD6D2}
+.disclaim{border:1px solid rgba(255,255,255,.22);border-radius:var(--r);padding:14px 16px;margin-top:18px;max-width:80ch}
+@media print{
+  .rail-shell,.tabs,button,.skip,.site-home{display:none!important}
+  body{background:#fff;font-size:10.5pt}
+  section{padding:14pt 0;break-inside:avoid}
+  .card,.tablewrap,.case{break-inside:avoid}
+  .mast{background:#fff;color:#000;border-bottom:2pt solid #000}
+  .mast h1,.mast .lede,.mast .cite,.chain h2,.chain p,.chain li{color:#000}
+  .mast-grid{display:block}
+  .chain{border:1px solid #999;background:#fff;margin-top:12pt}
+  .chain li::before{background:#fff;color:#000;border:1px solid #000}
+  .chain li::after{background:#777}
+  .tabpanel{display:block!important;border:1px solid #999}
+  .tabpanel[hidden]{display:block!important}
+  a{color:#000}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="mast">
+  <div class="wrap">
+    <a class="site-home" href="/">&larr; Steve Todman, MD</a>
+    <div class="mast-grid">
+      <div>
+        <p class="eyebrow">Pediatric Resident Learning Academy &middot; Reviewed August 2026</p>
+        <h1>Cardiovascular prevention &amp; dyslipidemia.</h1>
+        <p class="lede">Choose the age of the patient in front of you. The module rebuilds itself around that visit: the screening you owe, the lipid cut points that define abnormal, and the next defensible step when a result comes back high.</p>
+      </div>
+      <div class="chain">
+        <h2>Why any of this is justified</h2>
+        <p>The definitive trial &mdash; randomize children to treatment or not, then follow them for decades &mdash; is unaffordable, and medicine would change enough during it to make the result irrelevant. The panel assembled a chain of inference instead. Every recommendation on this page hangs from these five links.</p>
+        <ol>
+          <li>Atherosclerosis, the pathologic basis for clinical cardiovascular disease, originates in childhood.</li>
+          <li>The risk factors that drive it can be identified in childhood.</li>
+          <li>Its extent and severity scale with the number and intensity of those risk factors.</li>
+          <li>Risk factors track from childhood into adult life &mdash; obesity most strongly of all.</li>
+          <li>Interventions exist that manage the risk factors we identify.</li>
+        </ol>
+      </div>
+    </div>
+    <p class="cite" style="max-width:none"><strong>Guideline backbone:</strong> NHLBI 2011 Integrated Guidelines, interpreted alongside the 2017 AAP pediatric hypertension guideline, 2023 AAP obesity guideline, and 2026 ACC/AHA multisociety dyslipidemia guideline.<br><strong>Educational use only.</strong> The active blood-pressure and obesity tools have been replaced by current-guideline bridges; historical recommendations remain clearly labeled where they are taught for context.</p>
+  </div>
+</header>
+
+<div class="rail-shell" id="railShell">
+  <div class="wrap rail">
+    <fieldset>
+      <legend>Age of the patient in front of you</legend>
+      <div class="rail-track" role="none">
+        <div class="band"><input type="radio" name="ageband" id="b0" value="0" checked><label for="b0"><span class="band-age">Birth&ndash;12 mo</span><span class="band-tag">Infant</span></label></div>
+        <div class="band"><input type="radio" name="ageband" id="b1" value="1"><label for="b1"><span class="band-age">1&ndash;4 y</span><span class="band-tag">Toddler / preschool</span></label></div>
+        <div class="band"><input type="radio" name="ageband" id="b2" value="2"><label for="b2"><span class="band-age">5&ndash;9 y</span><span class="band-tag">School age</span></label></div>
+        <div class="band"><input type="radio" name="ageband" id="b3" value="3"><label for="b3"><span class="band-age">9&ndash;11 y</span><span class="band-tag">Pre-pubertal window</span></label></div>
+        <div class="band"><input type="radio" name="ageband" id="b4" value="4"><label for="b4"><span class="band-age">12&ndash;17 y</span><span class="band-tag">Adolescent</span></label></div>
+        <div class="band"><input type="radio" name="ageband" id="b5" value="5"><label for="b5"><span class="band-age">18&ndash;21 y</span><span class="band-tag">Young adult</span></label></div>
+      </div>
+      <div class="rail-marks" aria-hidden="true">
+        <span><b>6 mo</b> exclusive breastfeeding</span>
+        <span><b>2 y</b> CHILD-1 diet &middot; <b>3 y</b> family history, annual BP</span>
+        <span>selective lipid screening only</span>
+        <span><b>9&ndash;11 y</b> universal lipid screen</span>
+        <span><b>12&ndash;16 y</b> selective screening</span>
+        <span><b>19 y</b> universal adult-pathway screen</span>
+      </div>
+    </fieldset>
+  </div>
+</div>
+
+<main id="main">
+
+<section id="visit">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Section 3 &middot; Integrated cardiovascular health schedule</p>
+    </div>
+    <h2 id="visitTitle">This visit: birth to 12 months</h2>
+    <p class="sec-sub" id="visitSub">Eight risk domains, every well-child visit. The panel&rsquo;s design intent is that none of these is a specialist referral question — all of it belongs to the primary pediatric care provider.</p>
+    <div class="grid grid-3" id="visitCards" aria-live="polite"></div>
+    <div class="callout" id="visitNote"></div>
+  </div>
+</section>
+
+<section id="tools">
+  <div class="wrap">
+    <div class="sec-head"><p class="eyebrow">Apply it &middot; Five decisions residents get asked to make</p></div>
+    <h2>Decision tools</h2>
+    <p class="sec-sub">Each tool walks the guideline&rsquo;s own algorithm and returns the next step with its evidence grade. Nothing is stored, sent, or logged — all logic runs in this page. Use it to check your reasoning, not to replace it.</p>
+
+    <div class="tabs" role="tablist" aria-label="Decision tools">
+      <button role="tab" id="tab-screen" aria-controls="p-screen" aria-selected="true">1 &middot; Lipid screening</button>
+      <button role="tab" id="tab-lipid" aria-controls="p-lipid" aria-selected="false" tabindex="-1">2 &middot; Abnormal lipid panel</button>
+      <button role="tab" id="tab-bp" aria-controls="p-bp" aria-selected="false" tabindex="-1">3 &middot; Blood pressure</button>
+      <button role="tab" id="tab-obes" aria-controls="p-obes" aria-selected="false" tabindex="-1">4 &middot; Weight status</button>
+      <button role="tab" id="tab-risk" aria-controls="p-risk" aria-selected="false" tabindex="-1">5 &middot; Legacy risk tiers</button>
+    </div>
+
+    <!-- TOOL 1 ------------------------------------------------->
+    <div class="tabpanel" id="p-screen" role="tabpanel" aria-labelledby="tab-screen">
+      <div class="tool-grid">
+        <form id="f-screen" novalidate>
+          <fieldset class="q">
+            <legend><label for="s-age">Age in years</label></legend>
+            <p class="hint">Whole years. Use <span class="num">0</span> for infants under 12 months.</p>
+            <input type="number" id="s-age" min="0" max="21" step="1" value="9" inputmode="numeric">
+          </fieldset>
+          <fieldset class="q">
+            <legend>Selective-screening triggers present</legend>
+            <p class="hint">Check every one that applies. These are what pull a child into screening outside the universal windows.</p>
+            <label class="opt"><input type="checkbox" id="s-fhx"><span>Parent, grandparent, aunt, uncle, or sibling with MI, angina, stroke, CABG/stent/angioplasty, or sudden cardiac death &mdash; men &lt;<span class="num">55&nbsp;y</span>, women &lt;<span class="num">65&nbsp;y</span></span></label>
+            <label class="opt"><input type="checkbox" id="s-parent"><span>Parent with total cholesterol &ge;<span class="num">240&nbsp;mg/dL</span> or known dyslipidemia</span></label>
+            <label class="opt"><input type="checkbox" id="s-rf"><span>Child has diabetes, hypertension, or smokes cigarettes</span></label>
+            <label class="opt"><input type="checkbox" id="s-bmi"><span>Obesity at ages 2&ndash;9, or overweight/obesity at age &ge;<span class="num">10</span> (current AAP obesity-related lipid evaluation)</span></label>
+            <label class="opt"><input type="checkbox" id="s-cond"><span>Moderate- or high-risk medical condition (diabetes, CKD, post-transplant, Kawasaki with aneurysms, chronic inflammatory disease, HIV, nephrotic syndrome)</span></label>
+          </fieldset>
+          <button type="submit" class="act">Show the screening plan</button>
+        </form>
+        <div class="out" id="o-screen" role="status" aria-live="polite"><p class="placeholder">Enter an age and press the button. Current screening pivots at age 2, the universal 9&ndash;11-year window, and age 19.</p></div>
+      </div>
+    </div>
+
+    <!-- TOOL 2 ------------------------------------------------->
+    <div class="tabpanel" id="p-lipid" role="tabpanel" aria-labelledby="tab-lipid" hidden>
+      <div class="tool-grid">
+        <form id="f-lipid" novalidate>
+          <fieldset class="q">
+            <legend>Patient</legend>
+            <div class="inline-fields">
+              <div><label for="l-age">Age (years)</label><input type="number" id="l-age" min="0" max="21" step="1" value="12"></div>
+              <div><label for="l-stage">Where are you in the pathway?</label>
+                <select id="l-stage">
+                  <option value="initial">First abnormal panel</option>
+                  <option value="post">Completed the lifestyle trial (3&ndash;6 months for suspected FH)</option>
+                </select>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset class="q">
+            <legend>Averaged fasting lipid profile</legend>
+            <p class="hint">Confirm a clinically important abnormality before treatment. When two fasting panels are available, enter their average. Leave a field blank if not measured.</p>
+            <div class="inline-fields">
+              <div><label for="l-ldl">LDL-C (mg/dL)</label><input type="number" id="l-ldl" min="0" max="900" step="1"></div>
+              <div><label for="l-hdl">HDL-C (mg/dL)</label><input type="number" id="l-hdl" min="0" max="150" step="1"></div>
+              <div><label for="l-tc">Total cholesterol (mg/dL)</label><input type="number" id="l-tc" min="0" max="999" step="1"></div>
+              <div><label for="l-tg">Triglycerides (mg/dL)</label><input type="number" id="l-tg" min="0" max="5000" step="1"></div>
+            </div>
+          </fieldset>
+          <fieldset class="q">
+            <legend>Risk factors and risk conditions</legend>
+            <p class="hint">These are the legacy NHLBI 2011 risk modifiers. The current 2026 FH rule—age &ge;8, LDL-C &ge;160, FH-consistent presentation after 3&ndash;6 months of lifestyle therapy—takes precedence.</p>
+            <label class="opt"><input type="checkbox" id="l-fhx"><span><b>Positive family history</b> &mdash; premature CVD in a first-degree relative (also count parent, grandparent, aunt, uncle: men &lt;<span class="num">55</span>, women &lt;<span class="num">65</span>)</span></label>
+            <label class="opt"><input type="checkbox" id="l-h1"><span><b>High</b> &middot; hypertension requiring drug therapy (legacy NHLBI modifier)</span></label>
+            <label class="opt"><input type="checkbox" id="l-h2"><span><b>High</b> &middot; current cigarette smoker</span></label>
+            <label class="opt"><input type="checkbox" id="l-h3"><span><b>High</b> &middot; BMI &ge;<span class="num">97th</span> percentile</span></label>
+            <label class="opt"><input type="checkbox" id="l-h4"><span><b>High</b> &middot; high-risk condition: type 1 or 2 diabetes, CKD/ESRD/post-renal transplant, post-heart transplant, Kawasaki with current aneurysms</span></label>
+            <label class="opt"><input type="checkbox" id="l-m1"><span><b>Moderate</b> &middot; hypertension not requiring drug therapy</span></label>
+            <label class="opt"><input type="checkbox" id="l-m2"><span><b>Moderate</b> &middot; BMI &ge;<span class="num">95th</span> to &lt;<span class="num">97th</span> percentile</span></label>
+            <label class="opt"><input type="checkbox" id="l-m3"><span><b>Moderate</b> &middot; HDL-C &lt;<span class="num">40&nbsp;mg/dL</span></span></label>
+            <label class="opt"><input type="checkbox" id="l-m4"><span><b>Moderate</b> &middot; moderate-risk condition: Kawasaki with regressed aneurysms, chronic inflammatory disease (SLE, JIA), HIV, nephrotic syndrome</span></label>
+          </fieldset>
+          <button type="submit" class="act">Interpret and plan</button>
+        </form>
+        <div class="out" id="o-lipid" role="status" aria-live="polite"><p class="placeholder">Enter a panel. The tool classifies every value against the pediatric cut points, then runs the LDL and triglyceride algorithms (Figures 9-1 and 9-2).</p></div>
+      </div>
+    </div>
+
+    <!-- TOOL 3 ------------------------------------------------->
+    <div class="tabpanel" id="p-bp" role="tabpanel" aria-labelledby="tab-bp" hidden>
+      <div class="callout">
+        <h4>Use the current hypertension academy</h4>
+        <p>The 2004/Fourth Report tool in the source upload was intentionally removed. Its categories and thresholds are obsolete. The linked academy implements the 2017 AAP office pathway and the 2022 AHA ambulatory BP update, including measurement technique, age-specific classification, follow-up timing, ABPM phenotypes, workup, and treatment.</p>
+      </div>
+      <div class="grid grid-3">
+        <article class="card"><h3><span class="rf-key">&lt;13</span> Percentile-based</h3><p>Use the lower of the age/sex/height percentile rule or the guideline&rsquo;s absolute threshold. The higher category of systolic or diastolic BP controls.</p></article>
+        <article class="card"><h3><span class="rf-key">&ge;13</span> Fixed thresholds</h3><p>Normal &lt;<span class="num">120/&lt;80</span>; elevated <span class="num">120&ndash;129/&lt;80</span>; stage 1 <span class="num">130/80&ndash;139/89</span>; stage 2 &ge;<span class="num">140/90</span>.</p></article>
+        <article class="card"><h3><span class="rf-key">ABPM</span> Confirm phenotype</h3><p>Use ambulatory monitoring to distinguish sustained, white-coat, masked, and isolated nocturnal hypertension. BP load is no longer part of the 2022 classification.</p></article>
+      </div>
+      <p style="margin-top:20px"><a class="act-link" href="/hypertension/">Open Pediatric Hypertension &amp; ABPM Academy &rarr;</a></p>
+    </div>
+
+    <!-- TOOL 4 ------------------------------------------------->
+    <div class="tabpanel" id="p-obes" role="tabpanel" aria-labelledby="tab-obes" hidden>
+      <div class="callout">
+        <h4>The 2023 AAP guideline replaced staged watchful waiting</h4>
+        <p>Treat overweight or obesity and associated comorbidities concurrently. Use a family-centered, nonstigmatizing chronic-care model; do not require a failed six-month lifestyle trial before offering evidence-based treatment.</p>
+      </div>
+      <div class="grid grid-2">
+        <article class="card"><h3><span class="rf-key">Define</span> Measure precisely</h3><p>Overweight is BMI &ge;<span class="num">85th</span> to &lt;<span class="num">95th</span> percentile; obesity is &ge;<span class="num">95th</span>; severe obesity is &ge;<span class="num">120%</span> of the 95th percentile. Measure BMI percentile at least annually from ages <span class="num">2&ndash;18</span>.</p></article>
+        <article class="card"><h3><span class="rf-key">Evaluate</span> Find comorbidity</h3><p>At age &ge;<span class="num">10</span> with obesity, obtain fasting lipids and evaluate glucose metabolism and ALT; with overweight, obtain fasting lipids and add glucose/ALT when risk factors are present. Measure BP at every visit from age <span class="num">3</span> with overweight or obesity.</p></article>
+        <article class="card"><h3><span class="rf-key">IHBLT</span> Dose matters</h3><p>Provide or refer children &ge;<span class="num">6</span> years—and consider ages <span class="num">2&ndash;5</span>—for intensive, family-based, multicomponent treatment. The most effective programs provide at least <span class="num">26</span> face-to-face hours over <span class="num">3&ndash;12</span> months.</p></article>
+        <article class="card"><h3><span class="rf-key">Escalate</span> Do not delay</h3><p>Offer weight-loss pharmacotherapy from age <span class="num">12</span> with obesity as an adjunct to behavioral treatment. Offer referral for metabolic/bariatric surgery evaluation from age <span class="num">13</span> with severe obesity.</p></article>
+      </div>
+      <p style="margin-top:20px"><a class="act-link" href="https://doi.org/10.1542/peds.2022-060640">Open the 2023 AAP obesity guideline &rarr;</a></p>
+    </div>
+
+    <!-- TOOL 5 ------------------------------------------------->
+    <div class="tabpanel" id="p-risk" role="tabpanel" aria-labelledby="tab-risk" hidden>
+      <div class="callout warn">
+        <h4>Historical risk-tier model</h4>
+        <p>This tool reconstructs the NHLBI/Kavey high- and moderate-risk tiers for board-oriented context. It is not a current condition-specific treatment protocol. Verify targets and drug decisions against the current diabetes, CKD, transplant, Kawasaki disease, inflammatory disease, HIV, or nephrotic-syndrome guidance.</p>
+      </div>
+      <div class="tool-grid">
+        <form id="f-risk" novalidate>
+          <fieldset class="q">
+            <legend>Predisposing condition</legend>
+            <select id="r-cond" aria-label="Predisposing condition">
+              <option value="dm">Type 1 or type 2 diabetes</option>
+              <option value="ckd">CKD, ESRD, or post-renal transplant</option>
+              <option value="htx">Post-orthotopic heart transplant</option>
+              <option value="kda">Kawasaki disease with current coronary aneurysms</option>
+              <option value="kdr">Kawasaki disease with regressed aneurysms</option>
+              <option value="infl">Chronic inflammatory disease (SLE, JIA)</option>
+              <option value="hiv">HIV infection</option>
+              <option value="neph">Nephrotic syndrome</option>
+            </select>
+          </fieldset>
+          <fieldset class="q">
+            <legend>Additional cardiovascular risk factors</legend>
+            <p class="hint">Two or more comorbid risk factors move a Tier II patient up to Tier II&rarr;I management.</p>
+            <select id="r-rfs" aria-label="Additional cardiovascular risk factors">
+              <option value="0">None</option>
+              <option value="1">One</option>
+              <option value="2">Two or more</option>
+            </select>
+          </fieldset>
+          <fieldset class="q">
+            <legend>Age</legend>
+            <select id="r-age" aria-label="Age group"><option value="lt10">Under 10 years</option><option value="ge10" selected>10 years or older</option></select>
+          </fieldset>
+          <button type="submit" class="act">Stratify and set targets</button>
+        </form>
+        <div class="out" id="o-risk" role="status" aria-live="polite"><p class="placeholder">These children are managed to tighter numbers than everyone else on this page. One condition skips the six-month lifestyle trial entirely.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tables">
+  <div class="wrap">
+    <div class="sec-head"><p class="eyebrow">Know cold &middot; The numbers behind every decision</p></div>
+    <h2>Reference tables</h2>
+    <p class="sec-sub">These tables preserve the NHLBI framework residents still encounter. Pediatric population cut points remain useful for classification, but the 2026 FH treatment rule and current adult pathway supersede legacy medication and transition rules.</p>
+
+    <div class="grid grid-2">
+      <div class="tablewrap">
+        <table>
+          <caption>Plasma lipid cut points, children and adolescents<span>Table 9-1 &middot; mg/dL &middot; divide by 38.6 for SI (88.6 for triglycerides)</span></caption>
+          <thead><tr><th scope="col">Measure</th><th scope="col" class="n">Acceptable</th><th scope="col" class="n">Borderline</th><th scope="col" class="n">High</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Total cholesterol</th><td class="n">&lt;170</td><td class="n row-border">170&ndash;199</td><td class="n row-high">&ge;200</td></tr>
+            <tr><th scope="row">LDL cholesterol</th><td class="n">&lt;110</td><td class="n row-border">110&ndash;129</td><td class="n row-high">&ge;130</td></tr>
+            <tr><th scope="row">Non-HDL cholesterol</th><td class="n">&lt;120</td><td class="n row-border">120&ndash;144</td><td class="n row-high">&ge;145</td></tr>
+            <tr><th scope="row">Apolipoprotein B</th><td class="n">&lt;90</td><td class="n row-border">90&ndash;109</td><td class="n row-high">&ge;110</td></tr>
+            <tr><th scope="row">Triglycerides, 0&ndash;9 y</th><td class="n">&lt;75</td><td class="n row-border">75&ndash;99</td><td class="n row-high">&ge;100</td></tr>
+            <tr><th scope="row">Triglycerides, 10&ndash;19 y</th><td class="n">&lt;90</td><td class="n row-border">90&ndash;129</td><td class="n row-high">&ge;130</td></tr>
+            <tr><th scope="row">HDL cholesterol</th><td class="n">&gt;45</td><td class="n row-border">40&ndash;45</td><td class="n row-high">&lt;40 (low)</td></tr>
+            <tr><th scope="row">Apolipoprotein A-1</th><td class="n">&gt;120</td><td class="n row-border">115&ndash;120</td><td class="n row-high">&lt;115 (low)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tablewrap">
+        <table>
+          <caption>Legacy NHLBI young-adult cut points, 20&ndash;21 years<span>Table 9-2 &middot; historical context only; the 2026 adult pathway starts at age 19</span></caption>
+          <thead><tr><th scope="col">Measure</th><th scope="col" class="n">Acceptable</th><th scope="col" class="n">Borderline</th><th scope="col" class="n">High</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Total cholesterol</th><td class="n">&lt;190</td><td class="n row-border">190&ndash;224</td><td class="n row-high">&ge;225</td></tr>
+            <tr><th scope="row">LDL cholesterol</th><td class="n">&lt;120</td><td class="n row-border">120&ndash;159</td><td class="n row-high">&ge;160</td></tr>
+            <tr><th scope="row">Non-HDL cholesterol</th><td class="n">&lt;150</td><td class="n row-border">150&ndash;189</td><td class="n row-high">&ge;190</td></tr>
+            <tr><th scope="row">Triglycerides</th><td class="n">&lt;115</td><td class="n row-border">115&ndash;149</td><td class="n row-high">&ge;150</td></tr>
+            <tr><th scope="row">HDL cholesterol</th><td class="n">&ge;45</td><td class="n row-border">40&ndash;44</td><td class="n row-high">&lt;40 (low)</td></tr>
+          </tbody>
+        </table>
+        <table>
+          <caption>Risk factors and risk conditions<span>Tables 9-6 and 9-7 &middot; these set the LDL threshold for drug therapy</span></caption>
+          <thead><tr><th scope="col">Level</th><th scope="col">Counts as</th></tr></thead>
+          <tbody>
+            <tr><th scope="row" class="row-high">High</th><td>Hypertension requiring drug therapy &middot; current smoker &middot; BMI &ge;<span class="num">97th</span> percentile &middot; diabetes (type 1 or 2) &middot; CKD/ESRD/post-renal transplant &middot; post-heart transplant &middot; Kawasaki with current aneurysms</td></tr>
+            <tr><th scope="row" class="row-border">Moderate</th><td>Hypertension not requiring drugs &middot; BMI &ge;<span class="num">95th</span> to &lt;<span class="num">97th</span> percentile &middot; HDL-C &lt;<span class="num">40&nbsp;mg/dL</span> &middot; Kawasaki with regressed aneurysms &middot; chronic inflammatory disease &middot; HIV &middot; nephrotic syndrome</td></tr>
+            <tr><th scope="row">Family history</th><td>MI, angina, CABG/stent/angioplasty, or sudden cardiac death in a parent, grandparent, aunt, or uncle &mdash; men &lt;<span class="num">55&nbsp;y</span>, women &lt;<span class="num">65&nbsp;y</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tablewrap" style="margin-top:14px">
+      <table>
+        <caption>The three CHILD diets<span>Tables 5-1 and 9-8 &middot; CHILD-1 is the entry point for every identified risk factor; CHILD-2 is lipid-specific escalation</span></caption>
+        <thead><tr><th scope="col">Diet</th><th scope="col">Use it when</th><th scope="col">Fat prescription</th><th scope="col">The distinguishing feature</th></tr></thead>
+        <tbody>
+          <tr>
+            <th scope="row">CHILD-1</th>
+            <td>Any of: positive family history, dyslipidemia, obesity, primary hypertension, diabetes, smoke exposure at home. Also the universal diet from age <span class="num">2</span>.</td>
+            <td class="n">Total fat 25&ndash;30% kcal<br>Saturated 8&ndash;10%<br>Cholesterol &lt;300 mg/d<br>Trans fat: avoid</td>
+            <td>Fat-free unflavored milk as the primary beverage from age <span class="num">2</span>. No sugar-sweetened beverages; juice capped at <span class="num">4</span>&ndash;<span class="num">6&nbsp;oz/d</span>. DASH-style pattern.</td>
+          </tr>
+          <tr>
+            <th scope="row">CHILD-2&ndash;LDL</th>
+            <td>Elevated LDL persisting after <span class="num">3</span> months of CHILD-1.</td>
+            <td class="n">Total fat 25&ndash;30% kcal<br>Saturated &lt;7%<br>Monounsaturated ~10%<br>Cholesterol &lt;200 mg/d</td>
+            <td>Registered dietitian referral is <span class="grade gB">B</span> strongly recommended. Optional adjuncts: plant sterol/stanol esters up to <span class="num">2&nbsp;g/d</span> after age <span class="num">2</span>; psyllium <span class="num">6&nbsp;g/d</span> ages 2&ndash;12, <span class="num">12&nbsp;g/d</span> over 12.</td>
+          </tr>
+          <tr>
+            <th scope="row">CHILD-2&ndash;TG</th>
+            <td>Elevated triglycerides or elevated non-HDL after CHILD-1.</td>
+            <td class="n">Same fat targets as CHILD-2&ndash;LDL</td>
+            <td>Carbohydrate is the lever, not fat: cut simple sugars, replace with complex carbohydrate, eliminate sugar-sweetened beverages, increase dietary fish. Weight loss when obesity is present.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tablewrap" style="margin-top:14px">
+      <table>
+        <caption>Legacy NHLBI statin monitoring protocol<span>Table 9-12 &middot; historical framework; use the selected agent&rsquo;s current labeling and specialist protocol</span></caption>
+        <thead><tr><th scope="col">When</th><th scope="col">What you check</th><th scope="col">Action threshold</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Baseline</th><td>Hepatic panel (ALT, AST); CK when muscle symptoms or myopathy risk make it informative. Screen current medications for interactions. Address pregnancy potential.</td><td>Choose an age-approved agent and initial dose; document the monitoring plan.</td></tr>
+          <tr><th scope="row" class="n">4 weeks</th><td>Fasting lipid profile, ALT, AST</td><td class="n">ALT or AST &gt;3&times; ULN &rarr; hold, repeat in 2 weeks</td></tr>
+          <tr><th scope="row" class="n">8 weeks, then 3 months</th><td>Fasting lipid profile, ALT, AST</td><td>Goal LDL-C &lt;<span class="num">130&nbsp;mg/dL</span> minimum; ideal &lt;<span class="num">110&nbsp;mg/dL</span></td></tr>
+          <tr><th scope="row">Any muscle symptom</th><td>Stop the drug, measure CK, ask about recent exercise</td><td class="n">CK &gt;10&times; ULN is the worrisome level</td></tr>
+          <tr><th scope="row">Maintenance</th><td>Lipids, ALT, AST every <span class="num">3</span>&ndash;<span class="num">4</span> months in year one, then every <span class="num">6</span> months. Track height, weight, BMI, and sexual maturation at every visit.</td><td>Escalate by one dose increment (usually <span class="num">10&nbsp;mg</span>) only after <span class="num">3</span> months of compliant use.</td></tr>
+          <tr><th scope="row">Interacting drugs</th><td colspan="2">Cyclosporine, niacin, fibric acid derivatives, erythromycin and other macrolides, azole antifungals, nefazodone, HIV protease inhibitors, antiarrhythmics &mdash; all via cytochrome P-450.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="cases">
+  <div class="wrap">
+    <div class="sec-head"><p class="eyebrow">Test yourself &middot; Eight clinic decisions</p></div>
+    <h2>Can you apply it unaided?</h2>
+    <p class="sec-sub">Single best answer. Feedback explains why the distractors fail and names the table or figure the answer comes from — the same discipline the guideline uses on itself.</p>
+    <div id="quiz"></div>
+    <p><span class="score" id="score" role="status" aria-live="polite">Answered 0 of 8</span></p>
+  </div>
+</section>
+
+<section id="since">
+  <div class="wrap">
+    <div class="sec-head"><p class="eyebrow">Honesty about vintage</p></div>
+    <h2>What has changed since 2011</h2>
+    <p class="sec-sub">This document is fifteen years old. Most of it has held up; two sections have been formally replaced. Teach it with the amendments attached.</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3><span class="rf-key">BP</span> Superseded</h3>
+        <p>The <a href="https://doi.org/10.1542/peds.2017-1904"><b>2017 AAP Clinical Practice Guideline</b></a> replaced the Fourth Report tables. &ldquo;Prehypertension&rdquo; became <em>elevated blood pressure</em>; normative tables were rebuilt from normal-weight children; adolescents &ge;<span class="num">13&nbsp;y</span> use fixed thresholds; and ABPM gained a formal confirmatory role. The obsolete calculator was removed from this module and replaced by a bridge to the dedicated hypertension academy.</p>
+      </div>
+      <div class="card">
+        <h3><span class="rf-key">Lipids</span> Reinforced and extended</h3>
+        <p>The <a href="https://doi.org/10.1161/CIR.0000000000001423"><b>2026 ACC/AHA multisociety dyslipidemia guideline</b></a> retired the 2018 cholesterol guideline. It recommends universal screening at <span class="num">9</span>&ndash;<span class="num">11</span>, repeat screening at age <span class="num">19</span> and at least every <span class="num">5</span> years thereafter, cascade screening from age <span class="num">2</span> when family history is concerning, and generally permits nonfasting screening. For an FH-consistent presentation, statin therapy is recommended from age <span class="num">8</span> when LDL-C remains &ge;<span class="num">160 mg/dL</span> after <span class="num">3</span>&ndash;<span class="num">6</span> months of lifestyle therapy. The <a href="https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/lipid-disorders-in-children-screening">USPSTF 2023 statement</a> remains an I statement; that is uncertainty about population-level net benefit, not evidence that screening is ineffective.</p>
+      </div>
+      <div class="card">
+        <h3><span class="rf-key">Obesity</span> Superseded</h3>
+        <p>The <a href="https://doi.org/10.1542/peds.2022-060640"><b>2023 AAP Clinical Practice Guideline</b></a> moved away from watchful waiting: provide or refer for intensive health behavior and lifestyle treatment, treat comorbidities concurrently, offer pharmacotherapy as an adjunct from age <span class="num">12</span> with obesity, and offer surgical evaluation from age <span class="num">13</span> with severe obesity. The uploaded six-month-failure calculator was removed.</p>
+      </div>
+      <div class="card">
+        <h3><span class="rf-key">DM</span> Screening criteria revised</h3>
+        <p>The ADA table reproduced in the 2011 report required overweight <em>plus two</em> risk factors. The <a href="https://diabetesjournals.org/care/article/49/Supplement_1/S297/163923/14-Children-and-Adolescents-Standards-of-Care-in">2026 ADA Standards of Care</a> require overweight or obesity plus <em>one</em> risk factor, accept A1c or an oral glucose tolerance test alongside fasting glucose, and use a minimum retesting interval of every three years when results are normal.</p>
+      </div>
+      <div class="card">
+        <h3><span class="rf-key">Diet</span> Refreshed on a 5-year cycle</h3>
+        <p>The original report cited the 2010 edition. The current <a href="https://odphp.health.gov/our-work/nutrition-physical-activity/dietary-guidelines/current-dietary-guidelines"><em>Dietary Guidelines for Americans, 2025&ndash;2030</em></a> was released in January 2026. The CHILD diet remains the lipid-specific framework here; use the current federal guideline for broader nutrition counseling.</p>
+      </div>
+      <div class="card">
+        <h3><span class="rf-key">Core</span> What has not changed</h3>
+        <p>The state-of-the-science argument in Section 2 is the durable part: atherosclerosis begins in childhood, its extent tracks with the number and intensity of risk factors, those risk factors track into adult life, and effective interventions exist. That chain of inference — assembled because the definitive randomized trial is unaffordable and would take decades — is still the justification for everything pediatricians do in primary prevention.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <h4>How to read an evidence grade in this document</h4>
+      <p><span class="grade gA">A</span> well-designed RCTs or diagnostic studies in a similar population &nbsp; <span class="grade gB">B</span> RCTs with minor limitations, genetic natural-history studies, or overwhelmingly consistent observational evidence &nbsp; <span class="grade gC">C</span> observational studies &nbsp; <span class="grade gD">D</span> expert opinion, case reports, or first-principles reasoning.</p>
+      <p>The grade describes the <em>evidence</em>; the strength of recommendation is stated separately. A strong recommendation may sit on grade B or C evidence where the panel judged that high-quality evidence is impossible to obtain and benefit clearly outweighs harm — which is exactly the situation across most of pediatric primary prevention.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <h3>Source and scope</h3>
+    <p><a href="https://doi.org/10.1542/peds.2009-2107C">NHLBI Expert Panel Integrated Guidelines (2011)</a> &middot; <a href="https://doi.org/10.1161/CIR.0000000000001423">ACC/AHA Multisociety Dyslipidemia Guideline (2026)</a> &middot; <a href="https://doi.org/10.1542/peds.2017-1904">AAP Pediatric Hypertension CPG (2017)</a> &middot; <a href="https://doi.org/10.1542/peds.2022-060640">AAP Obesity CPG (2023)</a> &middot; <a href="https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/lipid-disorders-in-children-screening">USPSTF Pediatric Lipid Screening Statement (2023)</a>.</p>
+    <p>Nothing on this page is transmitted, stored, or analyzed. All calculations run locally in the browser. Related resources: <a href="/hypertension/">Pediatric Hypertension &amp; ABPM Academy</a> &middot; <a href="/tools/bp-percentile-calculator.html">office BP percentile calculator</a> &middot; <a href="/">return to stevetodman.com</a>.</p>
+    <div class="disclaim">
+      <b>Educational resource for pediatric trainees.</b> Not validated clinical decision support and not a substitute for the primary guidelines or the judgment of the responsible clinician. Reviewed August 12, 2026.
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   1. THE SCHEDULE  (Section 3 periodic table, band by band)
+   ============================================================ */
+var G = {A:'<span class="grade gA">A</span>',B:'<span class="grade gB">B</span>',C:'<span class="grade gC">C</span>',D:'<span class="grade gD">D</span>'};
+function n(s){return '<span class="num">'+s+'</span>';}
+
+var DOMAINS = ['FHx','Smoke','Diet','BMI','Lipids','BP','Activity','Glucose'];
+var NAMES = ['Family history','Tobacco exposure','Nutrition and diet','Growth and weight','Lipids','Blood pressure','Physical activity','Glucose'];
+
+var BANDS = [
+ { title:'This visit: birth to 12 months',
+   sub:'Almost everything at this age is anticipatory. Two things are concrete: the home is smoke-free, and blood pressure gets measured only if there is a reason.',
+   note:'<h4>The one hard rule in infancy</h4><p>Fat intake in infants under '+n('12')+' months must not be restricted without a medical indication '+G.D+'. Fat is required for brain and cognitive development. Every dietary conversation before the first birthday is about adequacy, not restriction.</p>',
+   rows:[
+   ['&mdash; not yet indicated. The first formal family-history evaluation happens at '+n('3')+' years.',''],
+   ['Advise a smoke-free home. Offer smoking-cessation assistance or referral to the parents '+G.B+'.','Reinforce at every encounter, including urgent visits for respiratory problems '+G.C+'. This is also the interpregnancy window &mdash; you see the mother more often than anyone else does '+G.A+'.'],
+   ['Exclusive breastfeeding to '+n('6')+' months '+G.B+', continued to at least '+n('12')+' months with complementary foods. If breastfeeding decreases or stops before '+n('12')+' months, use iron-fortified formula.','Limit other drinks to '+n('4 oz/d')+' of 100% fruit juice; no sweetened beverages; encourage water '+G.D+'. Long-term follow-up of breastfed infants shows lower cholesterol, lower BMI, less type 2 diabetes, and lower carotid intima-media thickness in adulthood '+G.B+'.'],
+   ['Review the family history for obesity. Discuss weight-for-height tracking and the growth chart with the parents.',''],
+   ['No lipid screening '+G.C+'.',''],
+   ['Measure BP only in infants with a renal, urologic, or cardiac diagnosis, or a neonatal intensive care history.','Full list of indications: prematurity or very low birth weight, congenital heart disease repaired or not, recurrent UTI, hematuria or proteinuria, known renal disease or urologic malformation, family history of congenital renal disease, solid-organ transplant, malignancy or bone marrow transplant, drugs known to raise BP, neurofibromatosis or tuberous sclerosis, raised intracranial pressure.'],
+   ['Parents create an environment that models routine activity and limits sedentary time '+G.D+'. Discourage television viewing altogether.',''],
+   ['&mdash; not indicated.','']
+ ]},
+
+ { title:'This visit: 1 to 4 years',
+   sub:'Two milestones sit inside this band and both are easy to miss: the diet changes at 2 years, and the first family-history evaluation plus annual blood pressure both begin at 3 years.',
+   note:'<h4>Age 3 is a checkpoint, not a coincidence</h4><p>Two distinct actions start here. Take a detailed family history of cardiovascular disease &mdash; extending beyond parents to grandparents, aunts, and uncles '+G.D+', because the parents of a 3-year-old are usually too young to have declared themselves. And begin measuring blood pressure annually in every child '+G.D+'.</p>',
+   rows:[
+   ['At '+n('3')+' years, evaluate the family history for early CVD in parents, grandparents, aunts, and uncles &mdash; men &lt;'+n('55 y')+', women &lt;'+n('65 y')+' '+G.B+'. A positive history flags this child for intensive risk-factor attention.','If the history is positive, evaluate the child for other risk factors and evaluate the family &mdash; especially the parents &mdash; for cardiovascular risk factors '+G.B+'. Educate parents on why accurate family health information matters.'],
+   ['Continue active antismoking advice with the parents; offer cessation assistance and referral as needed '+G.B+'.','Advocate for school- and community-based smoke-free interventions.'],
+   ['At '+n('12')+'&ndash;'+n('24')+' months, transition to reduced-fat ('+n('2%')+' to fat-free) unflavored cow&rsquo;s milk '+G.B+'. After age '+n('2')+', fat-free milk for all '+G.A+'. Juice &le;'+n('4 oz/d')+'. Transition to the CHILD-1 diet by age '+n('2')+'.','Fat content of milk at 12&ndash;24 months is decided jointly with the family based on growth, appetite, other nutrient-dense intake, and obesity/CVD risk. Reduced-fat milk only within an overall diet supplying '+n('30%')+' of calories as fat. Avoid sugar-sweetened beverages '+G.B+'.'],
+   ['Measure height and weight, calculate BMI, and assess BMI percentile at least annually from age '+n('2')+'.','Treat overweight or obesity and comorbidities concurrently. Ages '+n('2')+'&ndash;'+n('5')+' may be referred for intensive, family-based, multicomponent treatment; do not require watchful waiting.'],
+   ['No routine lipid screening. Screen from age '+n('2')+' when a first- or second-degree relative has premature ASCVD, severe hypercholesterolemia, or FH, or when a high-risk condition applies.','A nonfasting profile is generally sufficient; use fasting testing for triglycerides &ge;'+n('400 mg/dL')+', suspected triglyceride disorders, or a strong family history of hyperlipidemia.'],
+   ['Measure BP annually in every child from age '+n('3')+'. Chart for age, sex, and height percentile and review with the parent '+G.D+'.','Select the correct cuff size. Confirm any oscillometric reading &ge;'+n('90th')+' percentile by auscultation.'],
+   ['Allow unlimited active play in safe, supportive environments '+G.D+'. Limit sedentary time, especially TV and video '+G.D+'.','Total media &le;'+n('1')+'&ndash;'+n('2 h/d')+' of quality programming; discourage TV entirely under age '+n('2')+'; no TV in the bedroom; family activity at least weekly; counsel parents to model routine activity.'],
+   ['&mdash; not indicated.','']
+ ]},
+
+ { title:'This visit: 5 to 9 years',
+   sub:'The child becomes a source of history rather than a subject of it. You start asking them directly about smoke exposure, and the obesity algorithm becomes actionable.',
+   note:'<h4>Why the antismoking conversation moves to the child</h4><p>Nicotine is highly addicting in childhood and dependence symptoms appear after brief intermittent use. The panel graded office-based interventions only '+G.B+' or '+G.C+' &mdash; but graded the harm of smoking and the benefit of avoiding it '+G.A+', and recommended intervention strongly anyway on the grounds that it carries no harm.</p>',
+   rows:[
+   ['Update the family history at each nonurgent health encounter '+G.D+'.','Family history evolves as a child matures; use it to restratify risk as the profile changes.'],
+   ['Obtain a smoke-exposure history from the child, including any personal tobacco use '+G.C+'. Begin active antismoking advice directed at the child '+G.C+'.','Give explicit information about the addictive and adverse health effects of smoking.'],
+   ['Reinforce CHILD-1: fat-free unflavored milk as primary beverage '+G.A+', total fat '+n('25')+'&ndash;'+n('30%')+' of calories '+G.A+', saturated fat '+n('8')+'&ndash;'+n('10%')+' '+G.A+', cholesterol &lt;'+n('300 mg/d')+' '+G.A+'.','Encourage dietary fiber from food: age + '+n('5 g/d')+'. Limit sodium. Limit juice with no added sugar to '+n('4 oz/d')+'. Teach portions against estimated energy requirement for age, sex, and activity.'],
+   ['Measure BMI percentile annually. Treat overweight or obesity and comorbidities concurrently; provide or refer from age '+n('6')+' for family-based, multicomponent treatment, ideally &ge;'+n('26')+' contact hours over '+n('3')+'&ndash;'+n('12')+' months.','Use motivational interviewing and a nonstigmatizing chronic-care model.'],
+   ['Before the universal window, screen selectively for an FH-consistent family history or another high-risk condition. Obesity at ages '+n('2')+'&ndash;'+n('9')+' may independently prompt lipid evaluation.','Nonfasting screening is generally sufficient unless triglyceride or severe-family-history features require fasting.'],
+   ['Check BP annually and chart for age, sex, and height. Work up and manage per the BP algorithm '+G.D+'.',''],
+   ['Recommend moderate-to-vigorous physical activity &ge;'+n('1 h/d')+' '+G.A+' with vigorous activity on '+n('3 d/wk')+'. Limit leisure screen time to &le;'+n('2 h/d')+' '+G.B+'.','Take an activity and screen-time history once a year. No TV in the bedroom. Match activity to energy intake. Support daily physical education in schools '+G.A+'.'],
+   ['&mdash; not indicated.','']
+ ]},
+
+ { title:'This visit: 9 to 11 years',
+   sub:'The single highest-yield visit in the entire schedule. This is the universal lipid screening window, and it exists because of puberty.',
+   note:'<h4>Why 9 to 11, and why not 12 to 16</h4><p>Total and LDL cholesterol fall by '+n('10')+'&ndash;'+n('20%')+' or more during puberty '+G.B+'. Screen inside that dip and you get false negatives. The window at '+n('9')+'&ndash;'+n('11')+' years is chosen as a stable pre-pubertal point '+G.D+'. The panel also found that using family history as the trigger misses '+n('30')+'&ndash;'+n('60%')+' of children with dyslipidemia '+G.B+' &mdash; which is the entire argument for universal screening.</p>',
+   rows:[
+   ['Reevaluate the family history for early CVD in parents, grandparents, aunts, and uncles '+G.B+'.','A newly positive history at this age changes the LDL threshold at which drug therapy is considered.'],
+   ['Assess the child&rsquo;s own smoking status; active antismoking counseling or referral as needed '+G.B+'.','Use the 5 A&rsquo;s &mdash; ask, advise, assess, assist, arrange. Quit line: 1-800-QUIT-NOW.'],
+   ['Reinforce CHILD-1 messages as needed.','Encourage breakfast daily, family meals, and limited fast food from age '+n('11')+'.'],
+   ['Measure BMI percentile and treat overweight or obesity at diagnosis. Provide or refer for intensive, family-based, multicomponent treatment; treat identified comorbidities concurrently.','From age '+n('10')+' with obesity, obtain fasting lipids and evaluate glucose metabolism and ALT; with overweight, obtain fasting lipids and add glucose/ALT when risk factors are present.'],
+   ['<b>Universal lipid screen.</b> Nonfasting non-HDL cholesterol (total cholesterol minus HDL) or a fasting lipid profile, strongly recommended '+G.B+'.','Non-HDL &ge;'+n('145')+' or HDL &lt;'+n('40')+' &rarr; obtain a fasting profile twice and average. On a fasting profile, repeat and average if LDL &ge;'+n('130')+', non-HDL &ge;'+n('145')+', HDL &lt;'+n('40')+', or triglycerides &ge;'+n('130')+'. Non-HDL needs no fast, which is why the panel added it.'],
+   ['Check BP annually, chart for age, sex, and height, review with the parent '+G.D+'.',''],
+   ['Take an activity history from the child. MVPA &ge;'+n('1 h/d')+' '+G.A+'; screen and sedentary time &le;'+n('2 h/d')+' '+G.B+'.',''],
+   ['Screen for prediabetes/type 2 diabetes after puberty begins or from age '+n('10')+', whichever occurs earlier, when overweight or obesity coexists with at least one additional risk factor.','Use fasting plasma glucose, A1c, or a '+n('2')+'-hour oral glucose tolerance test. If normal, repeat at least every '+n('3')+' years, sooner if BMI or risk worsens.']
+ ]},
+
+ { title:'This visit: 12 to 17 years',
+   sub:'After the universal 9&ndash;11-year screen, repeat testing is risk-directed until age 19. Obesity treatment, nicotine prevention, blood pressure, and transition skills intensify.',
+   note:'<h4>No routine repeat does not mean no indicated testing</h4><p>The 2026 lipid guideline next specifies universal screening at age '+n('19')+', but family history and medical risk still trigger testing. The 2023 AAP obesity guideline independently recommends a fasting lipid panel at age &ge;'+n('10')+' with overweight or obesity.</p>',
+   rows:[
+   ['Update the family history at each nonurgent health encounter '+G.D+'. A newly positive history triggers a fasting lipid profile.',''],
+   ['Obtain a personal smoking history at every nonurgent encounter '+G.B+'. Explicitly recommend against smoking '+G.B+'. Provide specific cessation guidance '+G.B+' &mdash; all strongly recommended.','Assess readiness to quit with the 5 A&rsquo;s. Make your practice a cessation resource: quit-line number, community programs, information on pharmacotherapy.'],
+   ['Obtain diet information from the adolescent directly and use it to reinforce a healthy diet and its limits.','Fat-free unflavored milk '+G.A+'; total fat '+n('25')+'&ndash;'+n('30%')+', saturated '+n('8')+'&ndash;'+n('10%')+', cholesterol &lt;'+n('300 mg/d')+'; fiber goal '+n('14 g')+' per '+n('1000 kcal')+'; juice '+n('4')+'&ndash;'+n('6 oz/d')+'; limit sodium.'],
+   ['Treat overweight or obesity at diagnosis with intensive behavioral treatment. From age '+n('12')+' with obesity, offer weight-loss pharmacotherapy as an adjunct; from age '+n('13')+' with severe obesity, offer referral for metabolic/bariatric surgery evaluation.','Use shared decision-making; treatment intensity reflects severity, comorbidity, access, and patient/family preferences.'],
+   ['No routine repeat screen before age '+n('19')+' after a completed '+n('9')+'&ndash;'+n('11')+' screen, but screen when family history, obesity/overweight, diabetes, hypertension, nicotine exposure, or another risk condition indicates.','A fasting panel is specifically recommended at age &ge;'+n('10')+' with overweight or obesity under the 2023 AAP obesity guideline.'],
+   ['Check BP annually, or at every encounter when high risk. At age &ge;'+n('13')+', use fixed AAP thresholds; confirm suspected elevation by auscultation and use ABPM when indicated.',''],
+   ['Reinforce MVPA &ge;'+n('1 h/d')+' '+G.A+' with vigorous activity '+n('3 d/wk')+'; leisure screen time &le;'+n('2 h/d')+' '+G.B+'.','Encourage year-round activity and continued family support. Endorse appropriate safety equipment for each sport.'],
+   ['Screen for prediabetes/type 2 diabetes with fasting glucose, A1c, or oral glucose tolerance testing when overweight or obesity coexists with at least one additional risk factor.','If normal, repeat at least every '+n('3')+' years, sooner if BMI or risk worsens.']
+ ]},
+
+ { title:'This visit: 18 to 21 years',
+   sub:'The handoff. The 2026 guideline begins the adult screening pathway at age 19, and preventive care becomes an explicit exercise in continuity and shared ownership.',
+   note:'<h4>The current transition point is age 19</h4><p>Screen at age '+n('19')+' and at least every '+n('5')+' years thereafter, then manage using the current adult dyslipidemia framework. The NHLBI age-20 cut-point table is retained below only as historical context.</p>',
+   rows:[
+   ['Review the family history of heart disease with the young adult patient '+G.B+' &mdash; strongly recommended.','Educate the patient about family and personal risk for early heart disease, including the need for evaluation of all cardiovascular risk factors.'],
+   ['Reinforce a strong antismoking message; offer cessation assistance or referral as needed '+G.B+'.',''],
+   ['Review a healthy diet with the patient.',''],
+   ['Review height, weight, BMI, comorbidities, and treatment continuity during transition to adult care. Continue evidence-based obesity treatment rather than restarting a watchful-waiting sequence.',''],
+   ['<b>Screen at age '+n('19')+'</b> and at least every '+n('5')+' years thereafter under the 2026 ACC/AHA guideline.','A nonfasting lipid profile is generally sufficient. Use the current adult dyslipidemia pathway from age '+n('19')+'; do not apply legacy ATP III or pediatric medication thresholds.'],
+   ['Measure BP and review with the patient. Normal is &lt;'+n('120/&lt;80')+', elevated is '+n('120')+'&ndash;'+n('129/&lt;80')+', stage 1 is '+n('130')+'&ndash;'+n('139')+' or '+n('80')+'&ndash;'+n('89')+', and stage 2 is &ge;'+n('140')+' or &ge;'+n('90')+'.',''],
+   ['Discuss lifelong activity and sedentary-time limits with the patient '+G.A+'. Combined leisure screen time &le;'+n('2 h/d')+'.',''],
+   ['Obtain a fasting glucose if indicated; refer to endocrinology as needed.','']
+ ]}
+];
+
+function renderBand(i){
+  var b = BANDS[i];
+  document.getElementById('visitTitle').textContent = b.title;
+  document.getElementById('visitSub').textContent = b.sub;
+  document.getElementById('visitNote').innerHTML = b.note;
+  var html='';
+  for(var r=0;r<b.rows.length;r++){
+    var main=b.rows[r][0], sup=b.rows[r][1];
+    if(main.indexOf('&mdash; not')===0 && !sup) continue;
+    html += '<article class="card"><h3><span class="rf-key">'+DOMAINS[r]+'</span>'+NAMES[r]+'</h3><ul><li>'+main+'</li></ul>';
+    if(sup) html += '<div class="supportive"><span class="eyebrow">Supportive actions</span>'+sup+'</div>';
+    html += '</article>';
+  }
+  document.getElementById('visitCards').innerHTML = html;
+}
+var radios = document.querySelectorAll('input[name=ageband]');
+for(var i=0;i<radios.length;i++){
+  radios[i].addEventListener('change', function(){ renderBand(parseInt(this.value,10)); });
+}
+renderBand(0);
+
+var shell=document.getElementById('railShell');
+window.addEventListener('scroll',function(){
+  if(window.scrollY>140){shell.classList.add('stuck');}else{shell.classList.remove('stuck');}
+},{passive:true});
+
+/* ============================================================
+   2. TABS
+   ============================================================ */
+var tabs = [].slice.call(document.querySelectorAll('[role=tab]'));
+function selectTab(t){
+  tabs.forEach(function(x){
+    var sel = (x===t);
+    x.setAttribute('aria-selected', sel?'true':'false');
+    x.tabIndex = sel?0:-1;
+    document.getElementById(x.getAttribute('aria-controls')).hidden = !sel;
+  });
+}
+tabs.forEach(function(t,idx){
+  t.addEventListener('click',function(){selectTab(t);});
+  t.addEventListener('keydown',function(e){
+    var d = e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:e.key==='Home'?-99:e.key==='End'?99:0;
+    if(!d) return;
+    e.preventDefault();
+    var j = d===-99?0:d===99?tabs.length-1:(idx+d+tabs.length)%tabs.length;
+    tabs[j].focus(); selectTab(tabs[j]);
+  });
+});
+
+/* ============================================================
+   3. HELPERS
+   ============================================================ */
+function out(id,tag,tagClass,verdict,bodyHtml,src){
+  document.getElementById(id).innerHTML =
+    '<span class="verdict-tag '+tagClass+'">'+tag+'</span>'+
+    '<p class="verdict">'+verdict+'</p>'+bodyHtml+
+    '<div class="src">'+src+'</div>';
+}
+function val(id){var v=document.getElementById(id).value; return v===''?null:parseFloat(v);}
+function chk(id){return document.getElementById(id).checked;}
+function radioVal(name){var e=document.querySelector('input[name='+name+']:checked');return e?e.value:null;}
+
+/* ============================================================
+   4. TOOL 1 — lipid screening
+   ============================================================ */
+document.getElementById('f-screen').addEventListener('submit',function(e){
+  e.preventDefault();
+  var a = val('s-age'); if(a===null||isNaN(a)){a=0;}
+  var trig = chk('s-fhx')||chk('s-parent')||chk('s-rf')||chk('s-bmi')||chk('s-cond');
+  var strongFamily = chk('s-fhx')||chk('s-parent');
+  var body='', tag, cls, verdict, src;
+
+  if(a<2){
+    verdict='No lipid screening.';
+    tag='No screening'; cls='t-go';
+    body='<p>Routine screening is not recommended before '+n('2')+' years. Record the family history now; if it suggests familial hypercholesterolemia (FH), begin cascade screening at age '+n('2')+'.</p>';
+    src='2026 ACC/AHA dyslipidemia guideline, Section 3.1.';
+  } else if(a<9){
+    if(trig){
+      verdict='Screen selectively &mdash; this child qualifies.';
+      tag='Screen now'; cls='t-act';
+      body='<ol><li>Obtain a lipid profile. A <b>nonfasting</b> profile is generally sufficient.</li><li>Use a fasting sample when triglycerides are &ge;'+n('400 mg/dL')+', a triglyceride disorder is suspected, or the family history suggests severe hyperlipidemia.</li><li>Confirm a clinically important abnormality before treatment and evaluate for secondary causes.</li></ol>'+
+           (strongFamily?'<p>A first- or second-degree relative with premature ASCVD, severe hypercholesterolemia, or FH supports cascade screening from age '+n('2')+'.</p>':'<p>The 2023 AAP obesity guideline independently recommends lipid evaluation from ages '+n('2')+'&ndash;'+n('9')+' when obesity is present.</p>');
+      src='2026 ACC/AHA dyslipidemia guideline, Sections 3.1&ndash;3.2 &middot; 2023 AAP obesity CPG KAS 5.';
+    } else {
+      verdict='No routine screening at this age.';
+      tag='No screening'; cls='t-go';
+      body='<p>Reassess family history and risk conditions at preventive visits. A concerning first- or second-degree family history can trigger FH screening now; otherwise plan the universal screen at ages '+n('9')+'&ndash;'+n('11')+'.</p>';
+      src='2026 ACC/AHA dyslipidemia guideline, Section 3.1.';
+    }
+  } else if(a<12){
+    verdict='Universal screening window &mdash; screen everyone.';
+    tag='Screen now'; cls='t-act';
+    body='<p>Recommended for every child age '+n('9')+'&ndash;'+n('11')+' who has not previously been screened, regardless of weight or reported family history.</p>'+
+         '<ol><li><b>Nonfasting is generally sufficient.</b> Calculate non-HDL-C as total cholesterol minus HDL-C.</li>'+
+         '<li>Use a fasting profile when triglycerides are &ge;'+n('400 mg/dL')+', a triglyceride-metabolism disorder is suspected, or there is a strong family history of hyperlipidemia.</li><li>Confirm important abnormalities before labeling or treating and consider FH when LDL-C is markedly elevated.</li></ol>'+
+         '<p class="note">Why here: LDL and total cholesterol drop '+n('10')+'&ndash;'+n('20%')+' or more through puberty, and selective screening on family history alone misses '+n('30')+'&ndash;'+n('60%')+' of affected children.</p>';
+    src='2026 ACC/AHA dyslipidemia guideline, Sections 3.1&ndash;3.2 &middot; Class 1 universal screening recommendation.';
+  } else if(a<19){
+    if(trig){
+      verdict='Targeted screening is indicated.';
+      tag='Screen now'; cls='t-act';
+      body='<p>Obtain a lipid profile because a family-history, medical-risk, nicotine, hypertension, or weight trigger is present. Nonfasting testing is generally sufficient; use fasting testing for triglycerides &ge;'+n('400 mg/dL')+', a suspected triglyceride disorder, or a strong family history of hyperlipidemia.</p>'+
+           '<p>Separately, the 2023 AAP obesity guideline recommends a fasting lipid panel at age &ge;'+n('10')+' with overweight or obesity.</p>';
+      src='2026 ACC/AHA dyslipidemia guideline, Sections 3.1&ndash;3.2 &middot; 2023 AAP obesity CPG KAS 5.';
+    } else {
+      verdict='No routine repeat screen before age 19.';
+      tag='Defer'; cls='t-watch';
+      body='<p>Update family history and risk conditions. If the child missed the '+n('9')+'&ndash;'+n('11')+' screen, use clinical judgment rather than waiting automatically; the next explicit universal point in the 2026 guideline is age '+n('19')+'.</p>';
+      src='2026 ACC/AHA dyslipidemia guideline, Section 3.1.';
+    }
+  } else {
+    verdict='Screen now and enter the adult prevention pathway.';
+    tag='Adult thresholds'; cls='t-info';
+    body='<p>The 2026 ACC/AHA guideline recommends screening again at age '+n('19')+' and at least every '+n('5')+' years thereafter. Interpret and manage using the current adult dyslipidemia guideline; do not apply the legacy ATP III or pediatric medication algorithm.</p>';
+    src='2026 ACC/AHA dyslipidemia guideline, Section 3.1.';
+  }
+  out('o-screen',tag,cls,verdict,body,src);
+});
+
+/* ============================================================
+   5. TOOL 2 — abnormal lipid panel
+   ============================================================ */
+function classify(v,cuts,inverse){
+  if(v===null||isNaN(v)) return null;
+  if(inverse) return v<cuts[0]?'high':(v<=cuts[1]?'borderline':'acceptable');
+  return v<cuts[0]?'acceptable':(v<cuts[1]?'borderline':'high');
+}
+function pill(label,v,cat,unit){
+  if(v===null||isNaN(v)) return '';
+  var c = cat==='high'?'row-high':cat==='borderline'?'row-border':'row-ok';
+  var word = cat==='high'?(label.indexOf('HDL-C')===0?'LOW':'HIGH'):cat==='borderline'?'BORDERLINE':'ACCEPTABLE';
+  return '<tr class="'+c+'"><th scope="row">'+label+'</th><td class="n">'+v+' '+unit+'</td><td class="n">'+word+'</td></tr>';
+}
+
+document.getElementById('f-lipid').addEventListener('submit',function(e){
+  e.preventDefault();
+  var age=val('l-age'), ldl=val('l-ldl'), hdl=val('l-hdl'), tc=val('l-tc'), tg=val('l-tg');
+  var stage=document.getElementById('l-stage').value;
+  var nonhdl = (tc!==null&&hdl!==null)?(tc-hdl):null;
+  if(age===null||isNaN(age)){document.getElementById('o-lipid').innerHTML='<p class="placeholder">Enter an age first.</p>';return;}
+
+  var adult = age>=19;
+  var hi = (chk('l-h1')?1:0)+(chk('l-h2')?1:0)+(chk('l-h3')?1:0)+(chk('l-h4')?1:0);
+  var mod = (chk('l-m1')?1:0)+(chk('l-m2')?1:0)+(chk('l-m3')?1:0)+(chk('l-m4')?1:0);
+  var fhx = chk('l-fhx');
+
+  /* classification table */
+  var rows='';
+  if(adult){
+    rows += pill('LDL-C',ldl,classify(ldl,[120,160]),'mg/dL');
+    rows += pill('Non-HDL-C',nonhdl,classify(nonhdl,[150,190]),'mg/dL');
+    rows += pill('Triglycerides',tg,classify(tg,[115,150]),'mg/dL');
+    rows += pill('HDL-C',hdl,classify(hdl,[40,44],true),'mg/dL');
+    rows += pill('Total cholesterol',tc,classify(tc,[190,225]),'mg/dL');
+  } else {
+    var tgCuts = age<10?[75,100]:[90,130];
+    rows += pill('LDL-C',ldl,classify(ldl,[110,130]),'mg/dL');
+    rows += pill('Non-HDL-C',nonhdl,classify(nonhdl,[120,145]),'mg/dL');
+    rows += pill('Triglycerides',tg,classify(tg,tgCuts),'mg/dL');
+    rows += pill('HDL-C',hdl,classify(hdl,[40,45],true),'mg/dL');
+    rows += pill('Total cholesterol',tc,classify(tc,[170,200]),'mg/dL');
+  }
+  var table = rows? '<div class="tablewrap" style="margin:10px 0 14px"><table><caption style="padding:8px 12px;font-size:.85rem">Classification against '+(adult?'Table 9-2 (young adult)':'Table 9-1 (pediatric)')+(nonhdl!==null?'<span>Non-HDL calculated as TC &minus; HDL = '+nonhdl+' mg/dL</span>':'')+'</caption><tbody>'+rows+'</tbody></table></div>' : '';
+
+  var tag,cls,verdict,body='',src='';
+
+  /* --- hard stops first --- */
+  if(tg!==null && tg>=500){
+    tag='Refer'; cls='t-act';
+    verdict='Triglycerides &ge;'+n('500 mg/dL')+' &mdash; refer to a lipid specialist.';
+    body = table+'<ol><li>Consult a lipid specialist '+G.B+'. Above '+n('500')+' the patient is at risk for pancreatitis.</li>'+
+      '<li>Start CHILD-2&ndash;TG now: cut simple sugars, no sugar-sweetened beverages, replace with complex carbohydrate, increase dietary fish.</li>'+
+      '<li>Fish oil, a fibrate, or niacin may be used to prevent pancreatitis, in conjunction with the specialist '+G.D+'.</li>'+
+      '<li>Screen for secondary causes: uncontrolled diabetes, nephrotic syndrome, hypothyroidism, alcohol, corticosteroids, isotretinoin, some oral contraceptives, protease inhibitors.</li></ol>';
+    src='Figure 9-2 &middot; Table 9-9, triglycerides.';
+    out('o-lipid',tag,cls,verdict,body,src); return;
+  }
+  if(ldl!==null && ldl>=250 && !adult){
+    tag='Refer'; cls='t-act';
+    verdict='LDL-C &ge;'+n('250 mg/dL')+' &mdash; refer directly to a lipid specialist.';
+    body = table+'<p>Do not run the six-month diet trial first '+G.B+'. At this level, consider familial hypercholesterolemia: check for a family history of premature CVD or markedly elevated cholesterol, examine for tendon xanthomas and corneal arcus, and screen the parents.</p>'+
+      '<p>Homozygous familial hypercholesterolemia (LDL often &gt;'+n('400')+', historically described above '+n('800')+') produces coronary events in the first decade and is managed with apheresis in specialist centres '+G.C+'.</p>';
+    src='Table 9-9 &middot; Figure 9-1.';
+    out('o-lipid',tag,cls,verdict,body,src); return;
+  }
+  if(age<8){
+    tag='Lifestyle only'; cls='t-watch';
+    verdict='Under '+n('8')+' years: lifestyle management and specialist-directed exceptions.';
+    body = table+'<p>Pharmacologic treatment below age '+n('8')+' is reserved for severe or monogenic dyslipidemia and high-risk conditions under a pediatric lipid specialist:</p>'+
+      '<ul><li>Homozygous familial hypercholesterolemia, LDL-C &ge;'+n('400 mg/dL')+'</li><li>Primary hypertriglyceridemia with triglycerides &ge;'+n('500 mg/dL')+'</li><li>Evident cardiovascular disease in the first two decades</li><li>Post-cardiac transplantation</li></ul>'+
+      '<p>Otherwise: CHILD-1 &rarr; CHILD-2 with a registered dietitian, weight management if BMI &ge;'+n('85th')+' percentile, and repeat the profile.</p>';
+    src='2026 ACC/AHA dyslipidemia guideline, pediatric special populations &middot; NHLBI Figure 9-1.';
+    out('o-lipid',tag,cls,verdict,body,src); return;
+  }
+  if(adult){
+    tag='Adult pathway'; cls='t-info';
+    verdict='Age '+n('19')+'+ &mdash; interpret and manage using the adult pathway.';
+    body = table+'<p>The 2026 guideline begins adult screening at age '+n('19')+' and at least every '+n('5')+' years thereafter. Use the current adult treatment framework; the pediatric statin thresholds on this page no longer apply.</p>'+
+      '<p>Lifestyle remains the foundation: CHILD-1-equivalent diet, &ge;'+n('1 h/d')+' of moderate-to-vigorous activity, tobacco cessation, weight management.</p>';
+    src='2026 ACC/AHA dyslipidemia guideline, Section 3.1.';
+    out('o-lipid',tag,cls,verdict,body,src); return;
+  }
+
+  /* --- ages 10 to 19 --- */
+  if(stage==='initial'){
+    tag='Start here'; cls='t-watch';
+    verdict='First step is diet and activity, not a prescription.';
+    var focus = (ldl!==null&&ldl>=130)?'CHILD-2&ndash;LDL':'CHILD-2&ndash;TG';
+    var trial = (ldl!==null&&ldl>=160&&(fhx||ldl>=190)) ? n('3')+'&ndash;'+n('6') : n('6');
+    body = table+'<ol>'+
+      '<li>Confirm on the <b>average of two fasting profiles</b> drawn '+n('2')+' weeks to '+n('3')+' months apart '+G.C+'.</li>'+
+      '<li>Exclude secondary causes: hypothyroidism, diabetes, nephrotic syndrome, chronic renal or obstructive liver disease, PCOS, corticosteroids, isotretinoin, beta-blockers, some oral contraceptives, antiretrovirals, anorexia nervosa. Delay measurement until '+n('3')+' weeks after an acute infection.</li>'+
+      '<li>Take a detailed family history and count risk factors and risk conditions (Tables 9-6, 9-7).</li>'+
+      '<li>Refer to a registered dietitian for CHILD-1, escalating to <b>'+focus+'</b> &mdash; '+trial+' months. The '+n('3')+'&ndash;'+n('6')+'-month interval applies when the presentation is consistent with FH.</li>'+
+      '<li>If BMI &ge;'+n('85th')+' percentile, add calorie restriction, increased activity, and reduced screen time.</li>'+
+      '<li>Repeat the lipid profile after the planned interval, then re-run this tool with &ldquo;completed the lifestyle trial&rdquo; selected.</li></ol>'+
+      '<p class="note">High-risk children unlikely to reach target on lifestyle alone &mdash; severe primary dyslipidemia, post-cardiac transplant &mdash; are considered for medication concurrently '+G.C+'.</p>';
+    src='2026 ACC/AHA dyslipidemia guideline, Sections 4.2.8.1 and 4.2.4.4 &middot; NHLBI Figures 9-1 and 9-2.';
+    out('o-lipid',tag,cls,verdict,body,src); return;
+  }
+
+  /* post-diet: statin thresholds */
+  var steps=[], statin=false, reason='', currentFhRule=false;
+  if(ldl!==null){
+    if(age>=8 && ldl>=160 && (fhx||ldl>=190)){ statin=true; currentFhRule=true; reason='age &ge;'+n('8')+', LDL-C &ge;'+n('160')+', and a presentation consistent with familial hypercholesterolemia after '+n('3')+'&ndash;'+n('6')+' months of lifestyle therapy'; }
+    else if(ldl>=160 && (fhx||hi>=1||mod>=2)){ statin=true; reason='LDL-C '+n('160')+'&ndash;'+n('189')+' with '+(fhx?'a positive family history':'')+(fhx&&(hi>=1||mod>=2)?' and ':'')+(hi>=1?hi+' high-level risk factor(s)/condition(s)':'')+((hi>=1&&mod>=2)?' and ':'')+(mod>=2?mod+' moderate-level risk factors/conditions':'')+' '+G.B; }
+    else if(ldl>=130 && (hi>=2 || (hi>=1&&mod>=2))){ statin=true; reason='LDL-C '+n('130')+'&ndash;'+n('159')+' with '+(hi>=2?hi+' high-level risk factors/conditions':'1 high-level plus '+mod+' moderate-level risk factors/conditions')+' '+G.C; }
+  }
+
+  if(statin){
+    tag=currentFhRule?'Statin recommended':'Consider a statin'; cls='t-act';
+    verdict=currentFhRule?'The 2026 pediatric FH treatment threshold is met.':'A risk-modified NHLBI treatment threshold is met.';
+    steps.push('<b>Why the threshold is met:</b> '+reason+'.');
+    steps.push('Statins are '+G.A+' for LDL reduction in children with marked elevation or familial hypercholesterolemia, studied from '+n('8')+' weeks to '+n('2')+' years in ages '+n('8')+'&ndash;'+n('18')+'. No adverse effect on growth, development, or sexual maturation was seen, and adverse-event profiles matched adult studies.');
+    steps.push('Obtain baseline hepatic enzymes; obtain CK when symptoms or myopathy risk make it informative. Choose an age-approved agent and monitoring plan with the patient, family, and lipid specialist as appropriate.');
+    steps.push('Escalate by one increment (usually '+n('10 mg')+') only after '+n('3')+' months of compliant use that has not reached target '+G.B+'.');
+    steps.push('<b>Target:</b> LDL-C &lt;'+n('130 mg/dL')+' minimum, ideally &lt;'+n('110 mg/dL')+'.');
+    steps.push('Counsel adolescent girls about pregnancy risk and contraception '+G.D+'. Oral contraceptives are not contraindicated with a statin.');
+    steps.push('Screen every concurrent medication for interaction &mdash; cyclosporine, niacin, fibrates, macrolides, azole antifungals, nefazodone, HIV protease inhibitors.');
+    src=(currentFhRule?'2026 ACC/AHA dyslipidemia guideline, Sections 4.2.8.1 and 4.2.4.4':'NHLBI Figure 9-1 &middot; Tables 9-9, 9-11, 9-12')+'.';
+  } else if(ldl!==null && ldl>=130){
+    tag='Continue lifestyle'; cls='t-watch';
+    verdict='LDL still elevated, but below the drug threshold for this risk profile.';
+    steps.push('Risk profile counted: '+(fhx?'positive family history, ':'negative family history, ')+hi+' high-level and '+mod+' moderate-level risk factors or conditions.');
+    steps.push('Continue CHILD-2&ndash;LDL. Follow every '+n('6')+' months with a fasting profile and an updated family history and risk-factor count '+G.B+' &mdash; the threshold can be crossed by the risk profile changing, not just the LDL.');
+    steps.push('Add weight management if BMI &ge;'+n('85th')+' percentile.');
+    steps.push('Bile acid sequestrants may be considered in consultation with a lipid specialist at this level '+G.B+'. They lower LDL '+n('10')+'&ndash;'+n('20%')+' and are safe, but gastrointestinal effects limit adherence '+G.A+'.');
+    src='Figure 9-1 &middot; Table 9-9.';
+  } else if(ldl!==null){
+    tag='At target'; cls='t-go';
+    verdict='LDL-C below '+n('130 mg/dL')+' &mdash; hold the gains.';
+    steps.push('Continue CHILD-2&ndash;LDL and reevaluate in '+n('12')+' months '+G.A+'.');
+    src='Figure 9-1.';
+  } else {
+    tag='Incomplete'; cls='t-info';
+    verdict='Enter an LDL-C value to run the drug-therapy algorithm.';
+    steps.push('The LDL pathway (Figure 9-1) is driven by the averaged LDL value plus the risk-factor count.');
+    src='Figure 9-1.';
+  }
+
+  /* triglyceride / non-HDL branch */
+  var tgFloor = age<10?100:130;
+  if(tg!==null){
+    if(tg>=200){
+      steps.push('<b>Triglycerides '+n('200')+'&ndash;'+n('499')+':</b> recalculate non-HDL and manage to a goal &lt;'+n('145 mg/dL')+' '+G.D+'. If the LDL goal is achieved and non-HDL remains &ge;'+n('145')+', consult a lipid specialist for drug therapy and consider omega-3 fish oil '+G.D+'.');
+    } else if(tg>=tgFloor){
+      steps.push('<b>Triglycerides '+n(tgFloor)+'&ndash;'+n('199')+':</b> intensify CHILD-2&ndash;TG with a weight-loss goal, increase dietary fish, repeat the fasting profile in '+n('6')+' months '+G.B+'. Cutting simple carbohydrate and losing weight is what moves this number, not cutting fat.');
+    } else {
+      steps.push('<b>Triglycerides below the action threshold</b> for age (&lt;'+n(tgFloor)+' mg/dL) &mdash; continue CHILD-2&ndash;TG and reassess in '+n('12')+' months '+G.B+'. A borderline value on Table 9-1 still warrants dietary attention even though the algorithm does not escalate.');
+    }
+  }
+  if(nonhdl!==null && nonhdl>=145 && ldl!==null && ldl<130){
+    steps.push('<b>Non-HDL &ge;'+n('145')+' despite an LDL at goal:</b> in a patient '+n('10')+' years or older, further statin intensification or addition of a fibrate or niacin may be considered, with lipid specialist consultation '+G.D+'.');
+  }
+
+  body = table+'<ol><li>'+steps.join('</li><li>')+'</li></ol>';
+  out('o-lipid',tag,cls,verdict,body,src);
+});
+
+/* ============================================================
+   6. TOOL 3 — blood pressure
+   ============================================================ */
+var bpForm = document.getElementById('f-bp');
+if(bpForm){bpForm.addEventListener('submit',function(e){
+  e.preventDefault();
+  var age=document.getElementById('bp-age').value, cat=radioVal('bpcat');
+  var obese=chk('bp-obese'), ckd=chk('bp-ckd');
+  var tag,cls,verdict,body,src='Table 8-1 &middot; Figures 8-1 and 8-2 &middot; all grade D, from the 2004 Fourth Report.';
+  var goal = ckd ? 'Goal BP &lt;'+n('90th')+' percentile for age, sex, and height &mdash; the tighter goal applies with CKD, diabetes, or target-organ damage.'
+                 : 'Goal BP &lt;'+n('95th')+' percentile for age, sex, and height.';
+
+  if(age==='u3'){
+    tag='Indication-based'; cls='t-info';
+    verdict='Under '+n('3')+' years: no routine measurement.';
+    body='<p>Measure only with a qualifying indication: prematurity, very low birth weight, or another neonatal complication requiring intensive care; congenital heart disease repaired or unrepaired; recurrent UTI, hematuria, or proteinuria; known renal disease or urologic malformation; family history of congenital renal disease; solid-organ transplant; malignancy or bone marrow transplant; drugs known to raise BP; neurofibromatosis, tuberous sclerosis, or another systemic illness associated with hypertension; evidence of raised intracranial pressure.</p>'+
+      '<p>If BP is &ge;'+n('90th')+' percentile by oscillometry, <b>confirm by auscultation</b>. If confirmed &ge;'+n('90th')+' percentile, begin evaluation for an etiology and treat per the algorithm &mdash; secondary hypertension is far more likely at this age.</p>';
+    out('o-bp',tag,cls,verdict,body,'Table 8-1 &middot; Table 8-2.'); return;
+  }
+  if(age==='ya'){
+    tag='Adult thresholds'; cls='t-info';
+    verdict='Age '+n('18')+'+: fixed numbers replace percentiles.';
+    body='<ul><li><span class="num">120/80</span>&ndash;<span class="num">139/89</span> &rarr; pre-hypertension</li><li><span class="num">140/90</span>&ndash;<span class="num">159/99</span> &rarr; stage 1</li><li>&ge;<span class="num">160/100</span> &rarr; stage 2</li></ul>'+
+      '<p>Measure at all health care visits. Evaluate and treat per current adult guidelines.</p>';
+    out('o-bp',tag,cls,verdict,body,'Table 8-1, 18 to 21 years.'); return;
+  }
+
+  if(cat==='norm'){
+    tag='Normal'; cls='t-go';
+    verdict='Below the '+n('90th')+' percentile &mdash; recheck at the next visit.';
+    body='<ul><li>Repeat BP at the next preventive visit; annual measurement continues from age '+n('3')+'.</li>'+
+      '<li>Educate on the CHILD-1 diet and activity levels '+G.D+'. Lower sodium intake is associated with lower BP in infants, children, and adolescents; a DASH-style pattern is associated with lower BP.</li></ul>';
+  } else if(cat==='pre'){
+    tag='Prehypertension'; cls='t-watch';
+    verdict='Repeat twice by auscultation, average, then reassess the category.';
+    body='<ol><li>Repeat the measurement &times;'+n('2')+' by auscultation at this visit and average all readings.</li>'+
+      '<li>If confirmed: CHILD-1 diet, activity prescription, and weight management if indicated '+G.D+'.</li>'+
+      '<li>Assess all other cardiovascular risk factors.</li>'+
+      '<li><b>Recheck in '+n('6')+' months.</b></li>'+
+      (obese?'<li>Because this patient is obese or has other cardiovascular risk factors: consider a basic workup and cardiac ultrasound for target-organ damage.</li>':'')+
+      '<li>'+goal+'</li></ol>'+
+      '<p class="note">Prehypertension progresses to hypertension at about '+n('7%')+' per year, so &ldquo;recheck in 6 months&rdquo; is an active plan, not a dismissal.</p>';
+  } else if(cat==='s1'){
+    tag='Stage 1'; cls='t-act';
+    verdict='Confirm over three visits, then work it up.';
+    body='<ol><li>Repeat in '+n('1')+'&ndash;'+n('2')+' weeks. Average the BP across all three visits and reassess the category.</li>'+
+      '<li>If still stage 1, complete the <b>basic workup</b>: medical, family, and sleep history; physical examination; CBC; renal panel; urinalysis; renal ultrasound; lipids; glucose.</li>'+
+      '<li><b>Echocardiography</b> for left ventricular mass is recommended for persistent stage 1 hypertension. Elevated LV mass may itself establish the need for drug therapy.</li>'+
+      '<li>CHILD-1 diet, activity prescription, weight management '+G.D+'.</li>'+
+      '<li>Primary hypertension without LVH &rarr; monitor every '+n('3')+'&ndash;'+n('6')+' months. Secondary hypertension or LVH present &rarr; treat the secondary cause and start an antihypertensive.</li>'+
+      '<li>'+goal+'</li></ol>';
+  } else {
+    tag='Stage 2'; cls='t-act';
+    verdict='Confirm at this visit, then refer or treat within one week.';
+    body='<ol><li>Repeat by auscultation &times;'+n('3')+' <b>at this visit</b>, average all readings, and reassess.</li>'+
+      '<li>If confirmed: refer to a pediatric hypertension expert <b>within '+n('1')+' week</b>, or begin treatment and initiate the basic workup yourself.</li>'+
+      '<li>Echocardiography for left ventricular mass is recommended.</li>'+
+      '<li>Antihypertensive drug therapy, plus treatment of any secondary cause, plus weight management and CHILD-1/activity education.</li>'+
+      '<li>Follow until BP is controlled, every '+n('1')+'&ndash;'+n('2')+' weeks, then every '+n('1')+'&ndash;'+n('3')+' months.</li>'+
+      '<li>'+goal+'</li></ol>'+
+      '<p class="note">Agents with pediatric RCT evidence added by this guideline: losartan, amlodipine, felodipine, fosinopril, lisinopril, metoprolol, valsartan &mdash; predominantly effective in adolescents. There are no data supporting a specific agent for a specific age group. ACE inhibitors and ARBs are contraindicated in pregnancy; counsel about contraception.</p>';
+  }
+  out('o-bp',tag,cls,verdict,body,src);
+});}
+
+/* ============================================================
+   7. TOOL 4 — weight status
+   ============================================================ */
+var obesityForm = document.getElementById('f-obes');
+if(obesityForm){obesityForm.addEventListener('submit',function(e){
+  e.preventDefault();
+  var a=document.getElementById('ob-age').value, c=radioVal('obcat');
+  var com=chk('ob-comorb'), cross=chk('ob-cross');
+  var tag,cls,verdict,body,src='Table 10-1 &middot; Section 10.';
+  var agent = (a==='d')?'the adolescent as the change agent':'the parents as the focus of the intervention';
+  var agentWhy = (a==='d')
+    ? 'In adolescents the greatest weight change occurs when the adolescent is the primary focus '+G.B+', and peer-involved programs produce more sustained loss '+G.B+'.'
+    : 'In children the greatest weight loss is achieved when the parents are the focus of the intervention '+G.A+'.';
+
+  if(a==='a'){
+    tag='No BMI plan'; cls='t-info';
+    verdict='Birth to '+n('24')+' months: no weight-for-height-specific recommendations.';
+    body='<p>BMI classification begins at age '+n('2')+'. Use this period for the CHILD-1 diet, support of breastfeeding, and review of the family history for obesity.</p>'+
+      '<p class="note">One caution from the evidence review: in small-for-gestational-age infants, a nutrient-enriched diet promoting rapid weight gain was associated with <em>higher</em> blood pressure in late childhood. Weigh that when such diets are chosen.</p>';
+    out('o-obes',tag,cls,verdict,body,src); return;
+  }
+
+  if(c==='norm'){
+    if(cross){
+      tag='At risk'; cls='t-watch';
+      verdict='Normal BMI, but this child is on the at-risk list.';
+      body='<p>Observational studies identify children who are at special risk of becoming obese even at a normal weight '+G.B+': BMI between the '+n('85th')+' and '+n('95th')+' percentile; parental obesity in one or both parents; early upward crossing of weight percentiles, identifiable in the first year; excessive weight gain during adolescence; and a previously active child who becomes inactive.</p>'+
+        '<ol><li>Focused CHILD-1 diet and physical activity education now, before overweight develops.</li>'+
+        '<li>BMI percentile stable at '+n('6')+' months &rarr; reinforce the current program.</li>'+
+        '<li>BMI percentile rising &rarr; dietitian counseling for an energy-balanced diet and intensified activity, follow up in '+n('3')+' months.</li></ol>'+
+        '<p class="note">No randomized trial addresses this population. The panel recommends acting anyway, on epidemiologic grounds '+G.B+'.</p>';
+    } else {
+      tag='On track'; cls='t-go';
+      verdict='BMI below the '+n('85th')+' percentile &mdash; continue routine care.';
+      body='<p>Chart height, weight, and BMI at every visit and review with the family. CHILD-1 with BMI monitoring is all that is needed nutritionally to prevent obesity in a healthy child.</p>'+
+        '<p>Reducing sedentary behavior appears more effective at preventing obesity than increasing activity in isolation '+G.B+' &mdash; the screen-time limit is doing more work than it looks like it is.</p>';
+    }
+    out('o-obes',tag,cls,verdict,body,src); return;
+  }
+
+  if(c==='ow'){
+    tag='Overweight'; cls='t-watch';
+    verdict='BMI '+n('85th')+'&ndash;'+n('94th')+' percentile &mdash; prevent excess gain, with '+agent+'.';
+    body='<ol><li>Excess weight-gain prevention: energy-balanced diet with '+agent+', reinforce the activity recommendations, review at '+n('6')+' months '+G.D+'.</li>'+
+      '<li>Improving or stable BMI percentile &rarr; continue the current program.</li>'+
+      '<li>Rising BMI percentile &rarr; registered dietitian counseling for an energy-balanced CHILD-1 diet, intensified activity, follow up at '+n('3')+' months.</li>'+
+      '<li>Treat the position of the BMI on the growth chart as the message: this band has wide variation in future risk, so track the trajectory rather than assigning a label.</li></ol>'+
+      '<p class="note">'+agentWhy+'</p>';
+    out('o-obes',tag,cls,verdict,body,src); return;
+  }
+
+  /* obese or severe */
+  var severe = (c==='sev') || com;
+  tag = severe?'Refer':'Office-based plan'; cls='t-act';
+  verdict = severe
+    ? 'Refer to a comprehensive multidisciplinary weight-loss program.'
+    : 'Start an office-based, family-centred weight-loss plan.';
+  body = '<ol><li><b>First, assess for comorbidities</b> '+G.B+' &mdash; hypertension, dyslipidemia, and type 2 diabetes. Obesity plus any other cardiovascular risk factor should also prompt evaluation for liver-function abnormalities, left ventricular hypertrophy, and sleep apnea.</li>';
+  if(!severe){
+    body += '<li>Office-based weight-loss plan: family-centred behavior modification with '+agent+', dietitian counseling for a negative-energy-balance diet, a prescription for increased moderate-to-vigorous activity, and reduced sedentary time &mdash; '+n('6')+' months '+G.A+'.</li>'+
+      '<li>Improvement &rarr; continue. No improvement in BMI percentile &rarr; refer to a comprehensive multidisciplinary lifestyle weight-loss program'+(a==='d'?', ideally one that includes peers':'')+'.</li>';
+  } else {
+    body += '<li>Refer now for intensive multidisciplinary management, '+n('6')+(a==='d'?'&ndash;'+n('12'):'')+' months '+G.A+' &mdash; indicated by BMI &ge;'+n('97th')+' percentile, comorbidities, or a progressive rise despite therapy.</li>'+
+      '<li>No improvement &rarr; consider a second comprehensive program'+(a==='d'?', or orlistat under a clinician experienced in weight management for '+n('6')+'&ndash;'+n('12')+' months '+G.A:'')+'.</li>';
+  }
+  if(a==='d'){
+    body += '<li><b>Medication, adolescents only.</b> Orlistat is FDA-approved from age '+n('12')+' as an adjunct to a reduced-calorie diet and improved weight and BMI '+G.A+', at the cost of frequent gastrointestinal effects; labeling was updated in 2010 for rare severe liver injury. Metformin added to a comprehensive program improved fasting insulin, weight, and BMI in adolescents with severe obesity and insulin resistance '+G.B+' &mdash; it is approved for type 2 diabetes from age '+n('10')+', <em>not</em> for weight loss.</li>'+
+      '<li><b>Surgery.</b> For BMI far above '+n('35')+' with comorbidities unresponsive to lifestyle therapy for '+n('1')+' year, consider referral for bariatric surgery to a centre with pediatric experience '+G.D+'.</li>';
+  }
+  body += '<li><b>Rate of loss:</b> no more than '+n('1 lb')+' per month ages '+n('2')+'&ndash;'+n('11')+'; no more than '+n('2 lb')+' per week in adolescents. Slowing weight gain while growth continues is an acceptable goal.</li>'+
+    '<li>Combining diet with a specific activity intervention beats diet alone on every outcome measured &mdash; weight, BMI, body fat, insulin resistance, blood pressure, lipids, and subclinical vascular measures '+G.A+'.</li></ol>'+
+    '<p class="note">Dropout rates are substantial in all weight-treatment programs. Plan for it: schedule the follow-up before the family leaves.</p>'+
+    '<p class="note"><b>Vintage warning:</b> this staged, six-month-trial structure has been superseded by the 2023 AAP obesity clinical practice guideline, which starts intensive treatment at diagnosis. See &ldquo;what has changed since 2011&rdquo;.</p>';
+  out('o-obes',tag,cls,verdict,body,src);
+});}
+
+/* ============================================================
+   8. TOOL 5 — special risk conditions
+   ============================================================ */
+var CONDS = {
+  dm:{tier:1,label:'Type 1 or type 2 diabetes',
+    plan:'For type 1: intensive glucose management with endocrinology, frequent monitoring and insulin titration to optimal glucose and HbA1c for age. For type 2: intensive weight management plus glucose control with endocrinology. Then assess BMI and fasting lipids and run '+n('6')+' months of intensive lifestyle management. If LDL goals are not met and the patient is '+n('10')+' years or older, consider a statin to reach the Tier I LDL goal. If BP is initially &ge;'+n('90th')+' percentile, add no-added-salt and increased activity for '+n('6')+' months; if BP stays &ge;'+n('95th')+' percentile, start an ACE inhibitor.'},
+  ckd:{tier:1,label:'CKD, ESRD, or post-renal transplant',
+    plan:'Optimize renal failure management, dialysis, or transplant care with nephrology. Assess BMI, BP, lipids, and fasting glucose, then '+n('6')+' months of intensive lifestyle management. If LDL goals are not met at age '+n('10')+' or older, consider a statin. If BP is consistently &ge;'+n('95th')+' percentile, start an ACE inhibitor.'},
+  htx:{tier:1,label:'Post-orthotopic heart transplant',
+    plan:'<b>This condition skips the lifestyle trial.</b> Optimize antirejection therapy and CMV treatment, with routine angiography or perfusion imaging per the transplant physician. Assess BMI, BP, lipids, and fasting glucose, and <b>initiate drug therapy including a statin immediately in all patients over '+n('1')+' year of age</b> to reach Tier I goals. Transplant coronary vasculopathy is why this is the one condition where medication does not wait.'},
+  kda:{tier:1,label:'Kawasaki disease with current coronary aneurysms',
+    plan:'Antithrombotic therapy, activity restriction, and ongoing myocardial perfusion evaluation with cardiology. Assess BMI, BP, lipids, and fasting glucose, then '+n('6')+' months of intensive lifestyle management. If goals are not met at age '+n('10')+' or older, consider drug therapy for LDL and BP.'},
+  kdr:{tier:2,label:'Kawasaki disease with regressed coronary aneurysms',plan:''},
+  infl:{tier:2,label:'Chronic inflammatory disease (SLE, juvenile rheumatoid arthritis)',plan:''},
+  hiv:{tier:2,label:'HIV infection',plan:''},
+  neph:{tier:2,label:'Nephrotic syndrome',plan:''}
+};
+
+document.getElementById('f-risk').addEventListener('submit',function(e){
+  e.preventDefault();
+  var k=document.getElementById('r-cond').value, rfs=parseInt(document.getElementById('r-rfs').value,10);
+  var ge10 = document.getElementById('r-age').value==='ge10';
+  var c = CONDS[k];
+  var moved = (c.tier===2 && rfs>=2);
+  var tier = (c.tier===1||moved)?1:2;
+
+  var targets = tier===1
+    ? '<ul><li>BMI &lt;'+n('85th')+' percentile for age and sex</li><li>BP &lt;'+n('90th')+' percentile for age, sex, and height</li><li>LDL-C &lt;'+n('100')+' &middot; triglycerides &lt;'+n('90')+' &middot; non-HDL-C &lt;'+n('120')+' mg/dL</li><li>Fasting glucose &lt;'+n('100 mg/dL')+' &middot; HbA1c &lt;'+n('7%')+'</li></ul>'
+    : '<ul><li>BMI &le;'+n('90th')+' percentile for age and sex</li><li>BP &le;'+n('95th')+' percentile for age, sex, and height</li><li>LDL-C &le;'+n('130')+' &middot; triglycerides &lt;'+n('130')+' &middot; non-HDL-C &lt;'+n('140')+' mg/dL</li><li>Fasting glucose &lt;'+n('100 mg/dL')+' &middot; HbA1c &lt;'+n('7%')+'</li></ul>';
+
+  var body = '<p><b>'+c.label+'</b> &mdash; '+(c.tier===1
+      ? 'high risk. Clinical coronary disease has been observed in this group before age '+n('30')+'.'
+      : 'moderate risk. Pathologic, physiologic, or subclinical evidence of accelerated atherosclerosis.')+'</p>';
+
+  if(moved){
+    body += '<div class="callout warn" style="margin:12px 0"><b>Moved up to Tier I management.</b> Two or more comorbid cardiovascular risk factors promote a Tier II patient to Tier I goals and intensity.</div>';
+  }
+
+  body += '<p><b>Assess every risk factor first:</b> family history of early CVD across an expanded first-degree pedigree (men &le;'+n('55')+', women &le;'+n('65')+'), fasting lipid profile, smoking history, BP on three separate occasions interpreted for age/sex/height, height, weight, BMI, fasting glucose, and a diet and activity history.</p>'+
+    '<p><b>Treatment goals for this tier:</b></p>'+targets+
+    '<p><b>Then:</b> intensive lifestyle management &mdash; CHILD-1, an activity prescription, and weight loss as needed.</p>';
+
+  if(c.plan){
+    body += '<p><b>Condition-specific management:</b> '+c.plan+'</p>';
+  } else {
+    body += '<p><b>Condition-specific management:</b> optimize treatment of the underlying disease with the relevant subspecialist. After '+n('6')+' months of intensive lifestyle management, if goals are not met, consider medication per the risk-factor-specific recommendations'+(ge10?'':' &mdash; noting that statin therapy generally waits until age '+n('10'))+'.</p>';
+  }
+
+  if(!ge10 && k!=='htx'){
+    body += '<div class="callout" style="margin:12px 0">Under '+n('10')+' years, lipid-lowering medication is reserved for severe primary hyperlipidemia, a high-risk condition with serious medical morbidity, evident CVD, or post-cardiac transplant &mdash; all under a lipid specialist '+G.C+'.</div>';
+  }
+
+  out('o-risk', tier===1?'Tier I &middot; high risk':'Tier II &middot; moderate risk', tier===1?'t-act':'t-watch',
+      tier===1?'Tier I: manage to the tightest targets on this page.':'Tier II: moderate-risk targets.',
+      body, 'Figure 11-1 &middot; Tables 11-2 and 11-3 &middot; adapted from Kavey et al, Circulation 2006;114:2710&ndash;2738.');
+});
+
+/* ============================================================
+   9. CASES
+   ============================================================ */
+var CASES = [
+ {stem:'A healthy <b>9-year-old boy</b> presents for a well-child visit. BMI is at the 60th percentile, BP is normal, and there is no family history of premature cardiovascular disease. His mother asks whether he needs any blood tests.',
+  opts:['No lipid testing &mdash; there are no risk factors','Nonfasting total and HDL cholesterol to calculate non-HDL','Fasting lipid profile only if he becomes overweight','Defer all lipid testing until age 17'],
+  ans:1,
+  why:'Ages 9 to 11 are a universal screening window, so the absence of risk factors is irrelevant. A nonfasting sample allowing non-HDL to be calculated as total cholesterol minus HDL is explicitly acceptable and is why the panel added non-HDL as a screening measure. Selective screening on family history alone misses 30&ndash;60% of children with dyslipidemia, which is the whole argument for universal screening here.',
+  src:'Table 9-5, 9 to 11 years, grade B, strongly recommended.'},
+
+ {stem:'A <b>4-year-old girl</b> is new to your practice. Her father had a myocardial infarction at age 48. She is well, with a BMI at the 50th percentile.',
+  opts:['No screening until age 9','Obtain a lipid profile now; a nonfasting profile is generally sufficient','Order genetic testing without measuring lipids','Refer directly for lipid-lowering medication'],
+  ans:1,
+  why:'A first-degree relative with premature ASCVD supports cascade screening from age 2. The 2026 guideline states that nonfasting lipids are generally sufficient; fasting is reserved for triglycerides at least 400 mg/dL, suspected triglyceride disorders, or a strong family history of hyperlipidemia. Confirm an important abnormality before treatment.',
+  src:'2026 ACC/AHA dyslipidemia guideline, Sections 3.1&ndash;3.2.'},
+
+ {stem:'A <b>14-year-old boy</b> with a BMI at the 92nd percentile comes in for a sports physical. No family history of early heart disease. He has never had lipids checked.',
+  opts:['No screening &mdash; puberty makes every lipid result uninterpretable','Obtain a fasting lipid panel because he is at least 10 years old with overweight','Wait until age 19 regardless of weight status','Order lipoprotein(a) as the only screening test'],
+  ans:1,
+  why:'The 2023 AAP obesity guideline recommends a fasting lipid panel at age 10 or older with overweight or obesity. The narrower 2026 universal-screening schedule does not cancel condition-based evaluation. Puberty affects interpretation but does not make indicated testing useless.',
+  src:'2023 AAP obesity CPG, KAS 3 and KAS 5.'},
+
+ {stem:'A <b>12-year-old girl</b> has completed 6 months of CHILD-1 followed by CHILD-2&ndash;LDL with a dietitian. Averaged fasting LDL-C is <b>205 mg/dL</b>. HDL is 52, triglycerides 90, BMI 55th percentile, BP normal. Family history is negative for premature CVD.',
+  opts:['Continue diet therapy indefinitely','Add a bile acid sequestrant without confirming FH','Recommend statin therapy and evaluate for familial hypercholesterolemia','No treatment &mdash; she has no other risk factors'],
+  ans:2,
+  why:'At age 8 or older, LDL-C at least 160 mg/dL with a presentation consistent with FH after 3&ndash;6 months of lifestyle therapy meets the 2026 recommendation for statin treatment. An LDL-C of 205 mg/dL is itself strongly suggestive of FH; confirm persistence, exclude secondary causes, take a pedigree, and consider genetic and cascade testing.',
+  src:'2026 ACC/AHA dyslipidemia guideline, Sections 4.2.8.1 and 4.2.4.4.'},
+
+ {stem:'An <b>11-year-old boy</b> with BMI at the 96th percentile has an averaged LDL-C of <b>168 mg/dL</b> after 6 months of CHILD-2&ndash;LDL. His father had coronary bypass surgery at age 51. HDL is 44, triglycerides 120, BP at the 80th percentile.',
+  opts:['LDL is below 190 &mdash; continue diet alone','Recommend statin therapy for an FH-consistent presentation','Start a fibrate for the combined pattern','Repeat the panel in 12 months without changing treatment'],
+  ans:1,
+  why:'He is at least 8 years old, has LDL-C at least 160 mg/dL despite 3&ndash;6 months of lifestyle therapy, and has an FH-consistent pedigree (father with premature coronary revascularization). The 2026 guideline recommends statin therapy. A fibrate does not address the primary LDL problem.',
+  src:'2026 ACC/AHA dyslipidemia guideline, Sections 4.2.8.1 and 4.2.4.4.'},
+
+ {stem:'A <b>16-year-old</b> is 14 months post-orthotopic heart transplant. BMI is 70th percentile, BP is at the 85th percentile, and averaged LDL-C is <b>118 mg/dL</b>.',
+  opts:['LDL is below 130 &mdash; no lipid therapy needed','Six months of CHILD-2&ndash;LDL, then reassess','Start a statin now','Refer to lipid clinic before any decision'],
+  ans:2,
+  why:'Post-heart-transplant patients are Tier I high risk, where the LDL goal is below 100 mg/dL, not below 130. This is also the single condition in which the guideline directs immediate drug therapy including a statin for all patients over 1 year of age, without waiting out a lifestyle trial &mdash; the driver is transplant coronary vasculopathy. His BP also exceeds the Tier I goal of below the 90th percentile.',
+  src:'Figure 11-1, step 5 &middot; Tables 11-2 and 11-3.'},
+
+ {stem:'A <b>15-year-old girl</b> with obesity has averaged fasting triglycerides of <b>620 mg/dL</b>, LDL-C 118, HDL 32.',
+  opts:['Intensify CHILD-2&ndash;TG and recheck in 6 months','Start a statin to address the combined dyslipidemia','Consult a lipid specialist and start CHILD-2&ndash;TG now','Recheck a nonfasting panel to confirm'],
+  ans:2,
+  why:'Triglycerides at or above 500 mg/dL carry pancreatitis risk and require care in consultation with a lipid specialist, grade B. Start CHILD-2&ndash;TG immediately and consider fish oil, a fibrate, or niacin to prevent pancreatitis, grade D. Waiting 6 months is unsafe at this level, a statin does not primarily address triglycerides, and a nonfasting panel would be uninterpretable for triglycerides. Also screen for secondary causes, including uncontrolled diabetes.',
+  src:'Figure 9-2 &middot; Table 9-9, triglycerides.'},
+
+ {stem:'A <b>13-year-old boy</b> has a BMI at the 97th percentile, BP at the 93rd percentile, triglycerides of 155 mg/dL, and an HDL of 36 mg/dL. A colleague asks you to document metabolic syndrome and manage it as a distinct diagnosis.',
+  opts:['Agree &mdash; he meets three criteria','Decline to label it, and manage each component while evaluating for diabetes, liver abnormalities, LVH, and sleep apnea','Order an oral glucose tolerance test and defer all management until it returns','Label it, and refer to endocrinology as the primary management step'],
+  ans:1,
+  why:'The panel concluded that metabolic syndrome should <em>not</em> be treated as a separate risk factor in childhood: there is no defined etiology, no consensus definition (prevalence estimates for obese teens range from 12% to 44% depending on which definition is used), and almost no management evidence. The recommendation, grade D, is that obesity coexisting with any other major risk factor should trigger intensive weight reduction, management of each identified risk factor on its own pathway, and prompt evaluation for diabetes, liver-function abnormalities, left ventricular hypertrophy, and sleep apnea.',
+  src:'Section 12 &middot; Table 12-1, all grade D.'}
+];
+
+var answered = 0;
+(function buildQuiz(){
+  var host = document.getElementById('quiz'), html='';
+  CASES.forEach(function(c,i){
+    html += '<div class="case"><span class="caseno">Case '+(i+1)+' of '+CASES.length+'</span><p class="stem">'+c.stem+'</p><fieldset class="q"><legend class="eyebrow" style="color:var(--ink-soft)">Select the best next step</legend>';
+    c.opts.forEach(function(o,j){
+      html += '<label class="opt"><input type="radio" name="q'+i+'" value="'+j+'" data-case="'+i+'"><span>'+o+'</span></label>';
+    });
+    html += '</fieldset><div class="fb" id="fb'+i+'" role="status" aria-live="polite"></div></div>';
+  });
+  host.innerHTML = html;
+
+  host.addEventListener('change', function(ev){
+    var t = ev.target;
+    if(t.type!=='radio') return;
+    var i = parseInt(t.getAttribute('data-case'),10);
+    var c = CASES[i], fb = document.getElementById('fb'+i);
+    if(fb.getAttribute('data-done')!=='1'){ answered++; fb.setAttribute('data-done','1');
+      document.getElementById('score').textContent = 'Answered '+answered+' of '+CASES.length; }
+    var right = (parseInt(t.value,10)===c.ans);
+    fb.className = 'fb show '+(right?'right':'wrong');
+    fb.innerHTML = '<b>'+(right?'Correct.':'Not the best answer. The best answer is: '+c.opts[c.ans]+'.')+'</b>'+c.why+'<span class="src">'+c.src+'</span>';
+  });
+})();
+
+})();
+</script>
+</body>
+</html>
