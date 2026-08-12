@@ -11,6 +11,7 @@ on:
       - 'cooking/**'
       - 'study/**'
       - 'admin/**'
+      - 'genetics-chd/**'
       - 'index.html'
       - 'package.json'
       - 'package-lock.json'
@@ -23,6 +24,7 @@ on:
       - 'cooking/**'
       - 'study/**'
       - 'admin/**'
+      - 'genetics-chd/**'
       - 'index.html'
       - 'package.json'
       - 'package-lock.json'
@@ -60,7 +62,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in phs/v17/*.js tests/*.mjs tests/helpers/*.mjs; do
+          for file in phs/v17/*.js genetics-chd/assets/*.js tests/*.mjs tests/helpers/*.mjs; do
             node --check "$file"
           done
 

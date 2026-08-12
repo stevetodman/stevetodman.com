@@ -99,6 +99,7 @@ export const SITE_PAGES = [
   '/aortopathy/',
   '/myocarditis/',
   '/pals/',
+  '/genetics-chd/',
   '/phs/',
   '/admin/',
   '/admin/clinic-resources/',

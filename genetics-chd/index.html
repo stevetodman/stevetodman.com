@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A current, action-focused resident academy for recognizing genetic congenital heart disease, selecting tests, managing urgent extracardiac risks, interpreting results, and counseling families.">
+  <title>Genetics of Congenital Heart Disease | Resident Academy</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%A7%AC%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header class="hero">
+    <div class="shell">
+      <p class="eyebrow">Pediatric Cardiology Resident Academy</p>
+      <h1>Genetics of Congenital Heart Disease</h1>
+      <p class="lede">Move from “name the syndrome” to the decisions that change care: phenotype, test, protect, interpret, and counsel. Calibrated for pediatric and Med-Peds residents; specialist depth is optional.</p>
+      <div class="hero-actions">
+        <button class="btn primary" type="button" data-open-tab="pretest">Start the 6-question pretest</button>
+        <button class="btn secondary" type="button" data-open-tab="core">Go to the clinical pathway</button>
+        <a class="btn secondary" href="/">Back to stevetodman.com</a>
+      </div>
+      <div class="meta-row">
+        <span class="pill">30–45 minute core</span>
+        <span class="pill">5 branching cases</span>
+        <span class="pill">15-question mastery test</span>
+        <span class="pill">80% to pass · unlimited retries</span>
+        <span class="pill">Clinically reviewed: August 12, 2026</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs-wrap">
+    <nav class="tabs shell" role="tablist" aria-label="Module sections">
+      <button class="tab" id="tab-overview" role="tab" aria-selected="true" aria-controls="panel-overview" data-tab="overview">Overview</button>
+      <button class="tab" id="tab-pretest" role="tab" aria-selected="false" aria-controls="panel-pretest" data-tab="pretest" tabindex="-1">Pretest</button>
+      <button class="tab" id="tab-core" role="tab" aria-selected="false" aria-controls="panel-core" data-tab="core" tabindex="-1">Clinical pathway</button>
+      <button class="tab" id="tab-patterns" role="tab" aria-selected="false" aria-controls="panel-patterns" data-tab="patterns" tabindex="-1">Patterns</button>
+      <button class="tab" id="tab-results" role="tab" aria-selected="false" aria-controls="panel-results" data-tab="results" tabindex="-1">Results &amp; counseling</button>
+      <button class="tab" id="tab-cases" role="tab" aria-selected="false" aria-controls="panel-cases" data-tab="cases" tabindex="-1">Cases</button>
+      <button class="tab" id="tab-posttest" role="tab" aria-selected="false" aria-controls="panel-posttest" data-tab="posttest" tabindex="-1">Mastery test</button>
+      <button class="tab" id="tab-quick" role="tab" aria-selected="false" aria-controls="panel-quick" data-tab="quick" tabindex="-1">Quick reference</button>
+      <button class="tab" id="tab-sources" role="tab" aria-selected="false" aria-controls="panel-sources" data-tab="sources" tabindex="-1">Sources</button>
+    </nav>
+  </div>
+
+  <main id="content" class="shell">
+    <section class="panel" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview">
+      <div class="section-head">
+        <p class="eyebrow">What mastery looks like</p>
+        <h2>Six decisions residents must make reliably</h2>
+        <p>This module deliberately de-emphasizes memorizing long gene lists. A resident should be able to initiate safe evaluation and management, then involve cardiovascular genetics for the parts that require subspecialty judgment.</p>
+      </div>
+      <ol class="objective-list">
+        <li><strong>Phenotype every patient.</strong> Find extracardiac, developmental, and family-history clues that change pretest probability.</li>
+        <li><strong>Recognize trigger lesions.</strong> Know when the anatomy itself warrants targeted evaluation even without obvious dysmorphism.</li>
+        <li><strong>Match test to mechanism.</strong> Choose among karyotype, microarray, targeted testing, panel, and exome/genome sequencing.</li>
+        <li><strong>Protect the child now.</strong> Act on immune, calcium, airway, bleeding, splenic, vascular, and anesthesia risks before the report returns.</li>
+        <li><strong>Interpret without overclaiming.</strong> Distinguish pathogenic/likely pathogenic, VUS, and negative results; know what each does not prove.</li>
+        <li><strong>Counsel precisely.</strong> Separate screening from diagnosis and Mendelian risk from lesion-specific empiric recurrence.</li>
+      </ol>
+      <div class="callout warning"><strong>Core correction:</strong> there is no single universal “genetic test for CHD,” no universal 2–4% recurrence number, and no permission to manage a family from a VUS. The phenotype, suspected variant class, acuity, family structure, and available laboratory determine the pathway.</div>
+      <div class="grid">
+        <article class="card third"><p class="kicker">Required core</p><h3>Action pathway</h3><p>Phenotype → recognize triggers → select testing → manage risk → interpret → counsel.</p></article>
+        <article class="card third"><p class="kicker">Required core</p><h3>Pattern recognition</h3><p>Common lesion–syndrome pairings and the extracardiac action each should trigger.</p></article>
+        <article class="card third"><p class="kicker">Required core</p><h3>Assessment</h3><p>Pretest, five decision cases, and a scored posttest with domain feedback.</p></article>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-pretest" role="tabpanel" aria-labelledby="tab-pretest" hidden>
+      <div class="section-head"><p class="eyebrow">Diagnostic assessment</p><h2>Pretest</h2><p>Answer before opening the pathway. Feedback is immediate; the score is diagnostic and does not count toward completion.</p></div>
+      <div id="pretest-root"></div>
+      <div class="button-row"><button class="btn primary" type="button" data-open-tab="core">Continue to the clinical pathway</button><button class="btn secondary" type="button" id="reset-pretest">Reset pretest</button></div>
+    </section>
+
+    <section class="panel" id="panel-core" role="tabpanel" aria-labelledby="tab-core" hidden>
+      <div class="section-head"><p class="eyebrow">The resident workflow</p><h2>From CHD to a defensible genetics plan</h2><p>Use this sequence for the newborn, inpatient consult, postoperative child, or outpatient referral. It is not a rigid test ladder.</p></div>
+      <div class="decision">
+        <article class="decision-step"><div class="decision-num">1</div><div><h3>Stabilize first; phenotype in parallel</h3><p>Do not delay ductal support, shock treatment, respiratory support, arrhythmia care, or transfer for genetics. At the same time document pregnancy history, three-generation pedigree, growth/head circumference, development, dysmorphology, palate/airway, limbs, skin, neurologic findings, and renal/GI/hepatic anomalies.</p><p class="small"><strong>Ask specifically:</strong> CHD, cardiomyopathy, arrhythmia/pacemaker, aortic disease, sudden death, recurrent pregnancy loss, consanguinity, infertility, and similarly affected relatives.</p></div></article>
+        <article class="decision-step"><div class="decision-num">2</div><div><h3>Identify high-yield triggers</h3><ul><li>CHD plus dysmorphism, multiple congenital anomalies, abnormal growth, developmental delay/intellectual disability, or neurologic findings.</li><li>Familial CHD, cardiomyopathy/conduction disease, laterality defects, consanguinity, or recurrent pregnancy loss.</li><li>Conotruncal/arch disease—especially interrupted aortic arch type B, truncus arteriosus, tetralogy of Fallot, or arch anomaly—should prompt evaluation for 22q11.2 deletion. The 2025 AAP report specifically recommends chromosome microarray for any conotruncal defect or IAA-B. <span class="evidence guideline">AAP 2025</span></li><li>Supravalvar aortic stenosis or diffuse arteriopathy; left-sided disease with Turner features; AVSD with trisomy 21 features; pulmonary stenosis/HCM with a RASopathy phenotype.</li><li>Critically ill infant with complex CHD plus extracardiac anomalies: discuss rapid trio ES/GS early. <span class="evidence evolving">Evolving implementation</span></li></ul></div></article>
+        <article class="decision-step"><div class="decision-num">3</div><div><h3>Choose a test that can see the suspected change</h3><div class="table-wrap"><table><thead><tr><th>Clinical question</th><th>Useful test</th><th>Key limitation</th></tr></thead><tbody><tr><td>Aneuploidy, Turner syndrome, large rearrangement, mosaicism</td><td>Karyotype; rapid aneuploidy testing may be paired with definitive cytogenetics</td><td>Low resolution for submicroscopic CNVs</td></tr><tr><td>Genome-wide deletions/duplications; 22q11.2 or 7q11.23 deletion</td><td>Chromosomal microarray (CMA)</td><td>Usually misses balanced rearrangements, most sequence variants, and low-level mosaicism</td></tr><tr><td>Highly specific phenotype with known mechanism</td><td>Targeted assay or focused panel selected with genetics</td><td>A negative narrow test can miss phenocopies and locus heterogeneity</td></tr><tr><td>Nonspecific syndromic CHD or CHD plus GDD/ID</td><td>CMA and trio exome/genome sequencing, concurrent or sequential based on phenotype, access, and laboratory capabilities</td><td>ES may miss noncoding, repeat, methylation, some CNV/structural and mitochondrial changes; capabilities vary</td></tr><tr><td>Familial apparently isolated CHD</td><td>Cardiovascular genetics evaluation; phenotype-driven panel or ES/GS</td><td>Yield is variable; a negative result does not erase familial risk</td></tr></tbody></table></div><p class="small">ACMG recommends ES/GS as a first- or second-tier test for children with congenital anomalies, DD, or ID. The 2025 AAP GDD/ID report retains CMA and ES in first-tier agnostic evaluation, performed sequentially or concurrently. <span class="evidence guideline">ACMG/AAP</span></p></div></article>
+        <article class="decision-step"><div class="decision-num">4</div><div><h3>Manage syndrome-specific danger before confirmation when suspicion is high</h3><ul><li><strong>Suspected 22q11.2 deletion:</strong> calcium, CBC, lymphocyte subsets/T-cell function, renal/palate/feeding assessment; coordinate blood-product and live-vaccine decisions with immunology/transfusion medicine.</li><li><strong>Suspected Williams syndrome:</strong> four-extremity blood pressure, full arterial/coronary assessment, renal/calcium evaluation, and anesthesia planning at an experienced center.</li><li><strong>Suspected RASopathy:</strong> ECG/echo, bleeding history and hemostatic evaluation before procedures, feeding/growth and developmental assessment.</li><li><strong>Heterotaxy with absent/poor splenic function:</strong> infection prevention plan and urgent fever instructions; evaluate airway/ciliary and GI concerns.</li><li><strong>Turner syndrome:</strong> congenital cardiology evaluation, blood pressure in all limbs, complete arch/aortic imaging; cross-sectional imaging when age/condition permits.</li></ul></div></article>
+        <article class="decision-step"><div class="decision-num">5</div><div><h3>Order with counseling and the right family samples</h3><p>Explain possible positive, negative, uncertain, secondary/incidental, and family-relevant results; document consent/assent as appropriate. Trio testing often improves interpretation. Collect the most informative affected relative first when possible. Involve genetics/genetic counseling rather than treating a commercial panel as the diagnostic strategy.</p></div></article>
+        <article class="decision-step"><div class="decision-num">6</div><div><h3>Close the loop</h3><p>Link a molecular result to phenotype and management, communicate it to the family and care team, arrange indicated targeted testing or clinical screening of relatives, and create a plan for reinterpretation after a negative or uncertain result.</p></div></article>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-patterns" role="tabpanel" aria-labelledby="tab-patterns" hidden>
+      <div class="section-head"><p class="eyebrow">Pattern → test → action</p><h2>High-yield clinical patterns</h2><p>These are recognition prompts, not one-to-one rules. The same lesion occurs in multiple syndromes, and many affected children lack a classic facial gestalt.</p></div>
+      <div class="table-wrap"><table><thead><tr><th>Pattern</th><th>Think about</th><th>Initial genetics move</th><th>Resident action beyond the heart</th></tr></thead><tbody>
+        <tr><td>Conotruncal defect or IAA-B; hypocalcemia, palatal/feeding or immune clues</td><td>22q11.2 deletion syndrome</td><td>CMA; genetics consultation</td><td>Calcium, immune status, palate/feeding, renal assessment; plan blood products and vaccines safely</td></tr>
+        <tr><td>AVSD with hypotonia and characteristic features</td><td>Trisomy 21</td><td>Chromosome analysis; establish translocation status for recurrence counseling</td><td>Follow AAP health-supervision pathway; do not skip postnatal echo because prenatal imaging was reassuring</td></tr>
+        <tr><td>Coarctation/BAV/elongated arch in a girl; edema, short stature, webbed neck</td><td>Turner syndrome</td><td>Karyotype with attention to mosaicism/structural X; genetics/endocrinology</td><td>Complete aortic imaging, BP surveillance, renal/hearing/endocrine care</td></tr>
+        <tr><td>Supravalvar AS, branch PA stenosis, diffuse arteriopathy, characteristic cognitive/behavioral profile</td><td>Williams syndrome / 7q11.23 deletion</td><td>CMA or validated deletion assay</td><td>Assess coronary/arterial disease, hypertension, calcium/renal issues; high-risk anesthesia planning</td></tr>
+        <tr><td>Dysplastic pulmonary valve stenosis or HCM with short stature, pectus, hypertelorism/webbed neck</td><td>Noonan spectrum disorder / RASopathy</td><td>RASopathy multigene testing, usually with genetics</td><td>ECG/echo, bleeding risk, feeding/growth/development; MEK inhibition is expert-directed and not routine resident therapy</td></tr>
+        <tr><td>Peripheral PA stenosis/TOF plus cholestasis, posterior embryotoxon, butterfly vertebrae, characteristic facies</td><td>Alagille syndrome</td><td>JAG1/NOTCH2 testing or broader testing if phenotype uncertain</td><td>Liver, renal, ocular, skeletal and vascular evaluation</td></tr>
+        <tr><td>ASD/VSD plus radial-ray or thumb abnormality; conduction disease</td><td>Holt–Oram syndrome (TBX5)</td><td>Targeted/panel testing with genetics</td><td>ECG/rhythm surveillance and evaluation of first-degree relatives</td></tr>
+        <tr><td>CHD plus coloboma, choanal atresia, cranial nerve/feeding, ear or hearing anomalies</td><td>CHD7 disorder / CHARGE</td><td>CHD7 testing or ES/GS if phenotype is incomplete</td><td>Airway, swallow, hearing, vision and endocrine assessment</td></tr>
+        <tr><td>Laterality defect, complex venous anatomy, asplenia/polysplenia</td><td>Heterotaxy; ZIC3 and multiple ciliary/laterality genes</td><td>Genetics; panel or ES/GS selected by phenotype/family history</td><td>Document splenic function, infection plan, airway/ciliary disease and GI warning signs</td></tr>
+        <tr><td>Familial BAV/coarctation/LVOTO</td><td>Familial left-sided CHD; occasionally monogenic</td><td>Clinical screening of first-degree relatives; genetics if syndromic, severe, or strongly familial</td><td>Do not promise a high-yield gene result; echocardiographic family screening can matter even when testing is negative</td></tr>
+      </tbody></table></div>
+      <div class="callout danger"><strong>Do not teach false exclusivity:</strong> AVSD is strongly associated with trisomy 21 but is not diagnostic of it; TOF is not synonymous with 22q11.2 deletion; and most isolated BAV does not yield a single actionable gene. Anatomy modifies probability—it does not replace phenotype or testing.</div>
+      <div class="section-head"><p class="eyebrow">Optional depth</p><h2>Syndrome deep dives</h2></div>
+      <details><summary>22q11.2 deletion: what changes today?</summary><div class="details-body"><p><strong>Cardiac:</strong> conotruncal and arch anomalies, including TOF, truncus, IAA-B and arch/branch PA abnormalities. <strong>Immediate:</strong> calcium and immune evaluation; feeding/palate, renal and airway assessment. <strong>Safety:</strong> do not use “absent thymic shadow” as an immune test; coordinate live vaccines and cellular blood products from actual immune data and local protocols. The 2025 AAP health-supervision report is the current pediatric anchor.</p></div></details>
+      <details><summary>Williams syndrome: why anesthesia deserves its own warning</summary><div class="details-body"><p>SVAS may coexist with coronary ostial disease, diffuse arterial stenosis, ventricular hypertrophy and hypertension. Sudden cardiovascular collapse under sedation/anesthesia is a recognized risk. Residents should escalate elective procedural planning to cardiology/anesthesia teams familiar with Williams syndrome rather than merely documenting “cleared by cardiology.”</p></div></details>
+      <details><summary>RASopathies: genotype informs risk, but avoid bedside gene trivia</summary><div class="details-body"><p>Pulmonary stenosis, HCM and ASD are the core patterns. RAF1 and RIT1 variants are strongly enriched for HCM; PTPN11 is common and often associated with pulmonary stenosis. That association is useful, but the resident task is ECG/echo, hemodynamic assessment, bleeding/procedure planning and multidisciplinary referral. MEK inhibitors for severe RASopathy HCM remain specialized, off-label, genotype- and center-dependent therapy—not a routine algorithm step.</p></div></details>
+      <details><summary>Familial CHD: what “negative genetics” does not mean</summary><div class="details-body"><p>A negative panel or exome does not make a pedigree sporadic. Incomplete penetrance, variable expression, noncoding/structural variants, mosaicism, polygenic architecture and unrecognized phenotypes remain possible. Family members may need clinical screening even when no molecular diagnosis is found.</p></div></details>
+    </section>
+
+    <section class="panel" id="panel-results" role="tabpanel" aria-labelledby="tab-results" hidden>
+      <div class="section-head"><p class="eyebrow">Interpretation discipline</p><h2>What the report permits you to say</h2><p>Classification is not the whole interpretation. A result must fit the gene–disease relationship, inheritance, phenotype, and assay limitations.</p></div>
+      <div class="grid">
+        <article class="card third"><p class="kicker">Pathogenic / likely pathogenic</p><h3>Potentially diagnostic</h3><ul><li>Confirm phenotype and inheritance.</li><li>Change surveillance/management only when the gene–disease relationship and variant fit.</li><li>Offer targeted familial testing or clinical screening as indicated.</li></ul></article>
+        <article class="card third"><p class="kicker">Variant of uncertain significance</p><h3>Not a diagnosis</h3><ul><li>Do not use alone for surgery, medications, reproductive prediction, or predictive testing of unaffected relatives.</li><li>Segregation studies may help classification when genetics recommends them.</li><li>Track for reinterpretation.</li></ul></article>
+        <article class="card third"><p class="kicker">Negative / nondiagnostic</p><h3>Not “not genetic”</h3><ul><li>Review what the assay could not detect.</li><li>Continue phenotype-driven care and family screening when clinically indicated.</li><li>Revisit after phenotype evolution, new family data, or laboratory reanalysis.</li></ul></article>
+      </div>
+      <div class="section-head"><p class="eyebrow">Counseling without false precision</p><h2>Four distinctions families need</h2></div>
+      <div class="grid">
+        <article class="card"><h3>Screening ≠ diagnosis</h3><p>Cell-free DNA/NIPT estimates risk for selected chromosomal conditions; a positive screen requires diagnostic confirmation with CVS or amniocentesis. A negative screen does not exclude most causes of CHD.</p></article>
+        <article class="card"><h3>Mendelian risk ≠ empiric lesion risk</h3><p>A parent with an autosomal dominant pathogenic variant may have a 50% transmission risk. Without a molecular diagnosis, recurrence depends on lesion, number/relationship/sex of affected relatives, and family structure; use genetics and lesion-specific data rather than a universal percentage.</p></article>
+        <article class="card"><h3>Variant transmission ≠ phenotype prediction</h3><p>Variable expression and reduced penetrance mean an inherited pathogenic variant may produce a different cardiac or extracardiac phenotype—or no recognized phenotype—in another relative.</p></article>
+        <article class="card"><h3>Fetal imaging ≠ genomic testing</h3><p>Detailed fetal cardiac screening is optimally performed at 18–22 weeks; some lesions evolve or remain difficult to detect. Imaging defines anatomy; genetic testing addresses etiology and recurrence. They answer different questions.</p></article>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-cases" role="tabpanel" aria-labelledby="tab-cases" hidden>
+      <div class="section-head"><p class="eyebrow">Deliberate practice</p><h2>Five branching clinical cases</h2><p>Choose the next best action. The case unfolds after each decision, and explanations address why the distractors are unsafe or incomplete.</p></div>
+      <div id="cases-root"></div>
+      <div class="button-row"><button class="btn secondary" type="button" id="reset-cases">Reset all cases</button><button class="btn primary" type="button" data-open-tab="posttest">Go to mastery test</button></div>
+    </section>
+
+    <section class="panel" id="panel-posttest" role="tabpanel" aria-labelledby="tab-posttest" hidden>
+      <div class="section-head"><p class="eyebrow">Summative assessment</p><h2>Mastery posttest</h2><p>Fifteen new questions. Answer all, then submit. Passing requires ≥80% (12/15). Unlimited retries reshuffle question and option order.</p></div>
+      <div id="posttest-root"></div>
+      <div class="button-row"><button class="btn primary" type="button" id="submit-posttest">Submit test</button><button class="btn secondary" type="button" id="retry-posttest">New attempt</button></div>
+    </section>
+
+    <section class="panel" id="panel-quick" role="tabpanel" aria-labelledby="tab-quick" hidden>
+      <div class="section-head"><p class="eyebrow">Print-ready</p><h2>Genetic CHD: resident quick reference</h2><p>Use at the bedside as a prompt. It does not replace genetics consultation or institution-specific laboratory and transfusion protocols.</p></div>
+      <article class="card full quick-ref">
+        <h3>1. Phenotype every child with CHD</h3><p>Pregnancy/exposure history · three-generation pedigree · growth/head circumference · development · face/palate/airway · limbs · skin · neurologic exam · renal/GI/hepatic anomalies · hearing/vision.</p>
+        <h3>2. Escalate when</h3><p>Syndromic or extracardiac features · developmental difference · family history/consanguinity/recurrent loss · cardiomyopathy/conduction/aortic disease · laterality defect · conotruncal/arch trigger · critically ill infant with unexplained complex disease.</p>
+        <h3>3. Match test to suspected mechanism</h3><p><strong>Karyotype:</strong> aneuploidy/Turner/large or balanced rearrangement/mosaicism. <strong>CMA:</strong> deletions/duplications such as 22q11.2 and 7q11.23. <strong>Panel/targeted:</strong> recognizable monogenic phenotype. <strong>Trio ES/GS:</strong> heterogeneous/nonspecific syndromic CHD; rapid testing early in selected critically ill infants.</p>
+        <h3>4. Protect before proof</h3><p>22q11.2: calcium + immune + palate/feeding/renal/blood-product planning. Williams: arterial/coronary + BP + anesthesia risk. RASopathy: ECG/echo + bleeding/procedure planning. Heterotaxy: splenic infection + airway/ciliary + GI plan. Turner: complete arch/aortic imaging + BP.</p>
+        <h3>5. Interpret safely</h3><p>P/LP may be actionable if phenotype and gene–disease relationship fit. VUS is not diagnostic. Negative does not exclude a genetic cause. Plan reanalysis and clinical family screening when indicated.</p>
+        <h3>6. Counsel precisely</h3><p>Screening ≠ diagnosis. Transmission ≠ phenotype. Molecular risk ≠ empiric lesion recurrence. Prenatal imaging ≠ etiologic testing.</p>
+      </article>
+      <div class="button-row no-print"><button class="btn primary" type="button" id="print-quick">Print quick reference</button></div>
+    </section>
+
+    <section class="panel" id="panel-sources" role="tabpanel" aria-labelledby="tab-sources" hidden>
+      <div class="section-head"><p class="eyebrow">Evidence and provenance</p><h2>Primary sources</h2><p>Clinical statements and practice guidance take priority; the 2026 review is included to mark the current sequencing transition. Links are direct and were checked August 12, 2026.</p></div>
+      <ol class="refs">
+        <li><a href="https://doi.org/10.1161/CIR.0000000000000606" target="_blank" rel="noreferrer">Pierpont et al. Genetic Basis for Congenital Heart Disease: Revisited. AHA Scientific Statement. Circulation. 2018.</a></li>
+        <li><a href="https://doi.org/10.1161/HCG.0000000000000086" target="_blank" rel="noreferrer">Landstrom et al. Genetic Testing for Heritable Cardiovascular Diseases in Pediatric Patients. AHA Scientific Statement. 2021.</a></li>
+        <li><a href="https://doi.org/10.1038/s41436-021-01242-6" target="_blank" rel="noreferrer">Manickam et al. Exome and genome sequencing for pediatric patients with congenital anomalies or ID. ACMG evidence-based guideline. 2021.</a></li>
+        <li><a href="https://doi.org/10.1542/peds.2025-072717" target="_blank" rel="noreferrer">Scheuerle et al. Health Supervision for Children With 22q11.2 Deletion Syndrome. AAP Clinical Report. 2025.</a></li>
+        <li><a href="https://doi.org/10.1542/peds.2025-072219" target="_blank" rel="noreferrer">Rodan et al. Genetic Evaluation of the Child With Intellectual Disability or Global Developmental Delay. AAP Clinical Report. 2025.</a></li>
+        <li><a href="https://doi.org/10.1161/CIRCGEN.126.005794" target="_blank" rel="noreferrer">Sandmann &amp; Morton. Genetic Testing in Congenital Heart Disease: From Microarray to Genome Sequencing. Circ Genom Precis Med. 2026.</a></li>
+        <li><a href="https://doi.org/10.1038/gim.2015.30" target="_blank" rel="noreferrer">Richards et al. ACMG/AMP standards for interpretation of sequence variants. 2015.</a></li>
+        <li><a href="https://doi.org/10.1038/s41436-019-0686-8" target="_blank" rel="noreferrer">Riggs et al. ACMG/ClinGen technical standards for constitutional copy-number variant interpretation. 2020.</a></li>
+        <li><a href="https://pubmed.ncbi.nlm.nih.gov/31015575/" target="_blank" rel="noreferrer">Deignan et al. ACMG points to consider in reevaluation and reanalysis of genomic test results. 2019.</a></li>
+        <li><a href="https://doi.org/10.1542/peds.2022-057010" target="_blank" rel="noreferrer">Bull et al. Health Supervision for Children and Adolescents With Down Syndrome. AAP Clinical Report. 2022.</a></li>
+        <li><a href="https://doi.org/10.1542/peds.2019-3761" target="_blank" rel="noreferrer">Morris et al. Health Care Supervision for Children With Williams Syndrome. AAP Clinical Report. 2020.</a></li>
+        <li><a href="https://doi.org/10.1093/ejendo/lvae050" target="_blank" rel="noreferrer">Gravholt et al. Clinical practice guidelines for the care of girls and women with Turner syndrome. 2024.</a></li>
+        <li><a href="https://www.ncbi.nlm.nih.gov/books/NBK1124/" target="_blank" rel="noreferrer">Roberts et al. Noonan Syndrome. GeneReviews. Updated 2025.</a></li>
+        <li><a href="https://doi.org/10.1002/uog.26224" target="_blank" rel="noreferrer">Carvalho et al. ISUOG Practice Guidelines: fetal cardiac screening. 2023.</a></li>
+        <li><a href="https://doi.org/10.1161/CIR.0000000000001385" target="_blank" rel="noreferrer">Landstrom et al. Genetic and Genomic Testing in Cardiovascular Disease. AHA Policy Statement. 2025.</a></li>
+      </ol>
+      <div class="callout"><strong>Evidence labels:</strong> “Guideline” marks a formal guideline/clinical report recommendation; “consensus” marks an expert scientific statement; “evolving” marks implementation supported by newer evidence but not a universal resident-level mandate. Local genetics, laboratory, transfusion, and immunology protocols can legitimately differ.</div>
+      <p class="footer-note">Educational use only. This module supports resident reasoning and does not replace patient-specific consultation with clinical genetics, genetic counseling, cardiology, immunology, maternal–fetal medicine, or an accredited laboratory.</p>
+    </section>
+  </main>
+  <script src="assets/app.js"></script>
+</body>
+</html>
