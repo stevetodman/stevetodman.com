@@ -12,6 +12,7 @@ on:
       - 'study/**'
       - 'admin/**'
       - 'genetics-chd/**'
+      - 'newbornscreen/**'
       - 'index.html'
       - 'package.json'
       - 'package-lock.json'
@@ -25,6 +26,7 @@ on:
       - 'study/**'
       - 'admin/**'
       - 'genetics-chd/**'
+      - 'newbornscreen/**'
       - 'index.html'
       - 'package.json'
       - 'package-lock.json'
@@ -80,6 +82,9 @@ jobs:
 
       - name: BP calculator correctness
         run: npm run test:bp
+
+      - name: Genetics of CHD academy
+        run: npm run test:genetics-chd
 
       - name: Site conventions and smoke
         run: npm run test:smoke
