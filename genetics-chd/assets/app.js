@@ -385,6 +385,27 @@ const posttestBank = [
     options: ["Stop family evaluation", "Use clinical echocardiographic screening of appropriate relatives and continue phenotype-based counseling", "Test unaffected relatives for all VUS", "Quote a universal 19.3% recurrence risk"],
     answer: 1,
     explanation: "Family screening can be actionable independently of a molecular result; a lesion-specific percentage from one study should not be universalized."
+  },
+  {
+    id: "gene-validity", domain: "Genomic tools",
+    stem: "A panel reports a predicted loss-of-function variant as pathogenic, but ClinGen classifies the gene–CHD relationship as disputed. What is the best interpretation?",
+    options: ["The variant proves the cause because it is loss of function", "The molecular consequence may be real, but the disputed gene–disease relationship prevents calling it the child's CHD diagnosis", "ClinGen automatically makes the variant benign", "The result should be used for prenatal prediction immediately"],
+    answer: 1,
+    explanation: "Variant pathogenicity and gene–disease validity are separate propositions. A damaging variant cannot diagnose a disease the gene has not been shown to cause."
+  },
+  {
+    id: "clinvar", domain: "Genomic tools",
+    stem: "ClinVar shows conflicting one-star classifications for a missense variant. Which action is most defensible?",
+    options: ["Count submissions and accept the majority", "Treat every ClinVar entry as equally authoritative", "Review condition, transcript, dates, assertion criteria and evidence with the reporting laboratory/genetics team", "Call it pathogenic if it is absent from one population"],
+    answer: 2,
+    explanation: "ClinVar archives submitted assertions. Review status, condition and transcript specificity, recency, and underlying evidence matter more than a vote count."
+  },
+  {
+    id: "gnomad-gestalt", domain: "Genomic tools",
+    stem: "A VUS is absent from gnomAD and Face2Gene ranks the suspected syndrome first. What does that establish?",
+    options: ["A molecular diagnosis", "Enough evidence to test unaffected siblings", "A useful hypothesis, but neither rarity nor gestalt alone establishes pathogenicity or diagnosis", "That the syndrome is excluded if the face later changes"],
+    answer: 2,
+    explanation: "Population rarity and computational gestalt are evidence inputs, not conclusions. Gene validity, mechanism, phenotype, inheritance, and variant-level evidence must still converge."
   }
 ];
 

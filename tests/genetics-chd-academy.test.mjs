@@ -24,9 +24,9 @@ async function openModule() {
 }
 
 describe('genetics of CHD academy', () => {
-  test('loads nine keyboard-operable sections without runtime errors', async () => {
+  test('loads ten keyboard-operable sections without runtime errors', async () => {
     const { page, errors } = await openModule();
-    assert.equal(await page.locator('[role="tab"]').count(), 9);
+    assert.equal(await page.locator('[role="tab"]').count(), 10);
     await page.locator('#tab-core').focus();
     await page.keyboard.press('Enter');
     assert.equal(await page.locator('#panel-core').isVisible(), true);
@@ -60,16 +60,16 @@ describe('genetics of CHD academy', () => {
   test('mastery test requires every answer and provides domain feedback', async () => {
     const { page } = await openModule();
     await page.click('#tab-posttest');
-    assert.equal(await page.locator('#posttest-root .question').count(), 15);
+    assert.equal(await page.locator('#posttest-root .question').count(), 18);
     await page.click('#submit-posttest');
-    assert.match(await page.locator('#post-results').textContent(), /15 unanswered/);
-    for (let qi = 0; qi < 15; qi += 1) {
+    assert.match(await page.locator('#post-results').textContent(), /18 unanswered/);
+    for (let qi = 0; qi < 18; qi += 1) {
       await page.locator('[data-post-q="' + qi + '"]').first().click();
     }
     await page.click('#submit-posttest');
     assert.match(await page.locator('#post-results').textContent(), /(Mastery achieved|Not yet at mastery)/);
-    assert.equal(await page.locator('.domain').count(), 5);
-    assert.equal(await page.locator('#posttest-root .feedback:not([hidden])').count(), 15);
+    assert.equal(await page.locator('.domain').count(), 6);
+    assert.equal(await page.locator('#posttest-root .feedback:not([hidden])').count(), 18);
     await page.close();
   });
 
@@ -82,6 +82,10 @@ describe('genetics of CHD academy', () => {
     assert.match(all, /screening result that warrants counseling and an offer of diagnostic confirmation/i);
     assert.match(all, /CIRCGEN\.126\.005794/);
     assert.match(all, /peds\.2025-072717/);
+    assert.match(all, /ClinGen gene validity/);
+    assert.match(all, /retrospective analysis compared 30 children/);
+    assert.match(all, /not a randomized trial/);
+    assert.match(all, /Face2Gene.*hypotheses, not diagnoses/);
     assert.doesNotMatch(all, /near-universal association/i);
     assert.doesNotMatch(all, /nearly 100% association/i);
     assert.doesNotMatch(all, /MANDATORY/);

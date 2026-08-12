@@ -90,6 +90,8 @@ p { margin-top: .4rem; }
 .objective-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; padding: 0; list-style: none; counter-reset: objective; }
 .objective-list li { position: relative; min-height: 68px; padding: .85rem .85rem .85rem 3.2rem; border: 1px solid var(--line); border-radius: .8rem; background: var(--panel); }
 .objective-list li::before { counter-increment: objective; content: counter(objective); position: absolute; left: .85rem; top: .85rem; width: 1.65rem; height: 1.65rem; border-radius: 50%; display: grid; place-items: center; color: #041416; background: var(--teal); font-weight: 900; }
+.workbench-list { grid-template-columns: repeat(3, 1fr); }
+.resource-refs { columns: 1; }
 
 .decision { display: grid; gap: .7rem; }
 .decision-step { display: grid; grid-template-columns: 2.1rem 1fr; gap: .75rem; padding: .9rem; border: 1px solid var(--line); border-radius: .85rem; background: var(--panel); }
@@ -141,6 +143,7 @@ summary { min-height: 48px; padding: .8rem 1rem; cursor: pointer; color: var(--i
 @media (max-width: 780px) {
   .card, .card.third { grid-column: 1 / -1; }
   .objective-list { grid-template-columns: 1fr; }
+  .workbench-list { grid-template-columns: 1fr; }
   .domain-grid { grid-template-columns: 1fr; }
   .hero { padding-top: 2.2rem; }
 }
