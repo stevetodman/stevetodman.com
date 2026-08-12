@@ -1,6 +1,6 @@
 ---
 status: active
-next: Obtain pediatric resident and aortopathy/genetics specialist feedback on the new Pediatric Aortopathy Resident Academy
+next: Obtain pediatric resident and specialist feedback on the hypertension/ABPM, cardiovascular prevention, aortopathy, and PALS mastery modules
 ---
 
 # CLAUDE.md
@@ -41,6 +41,8 @@ stevetodman.com/
 ├── aortopathy/                   # Pediatric aortopathy resident academy
 │   ├── index.html                # Layered lesson, pathways, condition atlas, cases, pre/post testing
 │   └── assets/                   # Local styles and interaction logic
+├── pals/                         # 2025 PALS resident mastery lab
+│   └── index.html                # 10 high-acuity cases, 64 questions, explanations, analytics
 ├── clipboard-sanitizer/          # Standalone shell utilities (not deployed)
 ├── .github/workflows/            # phs-v17-integrity.yml, update-cooking-index.yml
 ├── study/                        # Kids' Study Hub (stevetodman.com/study)
@@ -205,6 +207,7 @@ npm run test:phs      # simulator behaviour and score calibration
 npm run test:bp       # BP calculator correctness
 npm run test:cardiovascular-risk # prevention academy interactions and 2026 lipid logic
 npm run test:aortopathy # aortopathy cases, pathways, and mastery scoring
+npm run test:pals      # PALS case navigation, scoring, accessibility, and clinical-content safeguards
 npm run test:smoke    # page conventions, links, mobile, keyboard access
 ```
 
@@ -245,6 +248,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-12: Added the PALS 2025 Resident Mastery Lab at `/pals/` with 10 high-acuity cases, 64 retrieval-based questions, hidden-on-start algorithm references, immediate explanations, accessibility improvements, primary-source citations, performance analytics, homepage discovery, and automated clinical-content safeguards.
 - 2026-08-12: Added the Pediatric Aortopathy Resident Academy at `/aortopathy/`, anchored to the 2024 AHA scientific statement and updated with primary pediatric Marfan, vEDS, sports-participation, and 2026 Loeys-Dietz guidance. Added evidence-strength labels, resident action pathways, syndrome-specific deep dives, 5 branching cases, diagnostic pretest, 15-question 80%-to-pass posttest, printable quick reference, homepage discovery, and browser regression coverage.
 - 2026-08-12: Added the guideline-based Pediatric Hypertension & ABPM Resident Academy at `/hypertension/`, reconciling the 2017 AAP office-BP guideline with the 2022 AHA ABPM update. Added an office timing pathway, threshold-aware ABPM lab, 5 branching cases, 26-question domain-scored quiz, printable quick reference, primary-source provenance, homepage discovery, and automated interaction tests.
 - 2026-08-12: Replaced the hero's misleading static pills with working, keyboard-accessible links to the AAP report, screening technique, failed-screen response, and interactive quiz.

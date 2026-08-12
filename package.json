@@ -10,6 +10,7 @@
     "test:hypertension": "node --test tests/hypertension-academy.test.mjs",
     "test:cardiovascular-risk": "node --test tests/cardiovascular-risk-academy.test.mjs",
     "test:aortopathy": "node --test tests/aortopathy-academy.test.mjs",
+    "test:pals": "node --test tests/pals-academy.test.mjs",
     "test:smoke": "node --test tests/site-smoke.test.mjs",
     "test:integrity": "node phs/v17/tests/integrity.mjs"
   },
