@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A guideline-based pediatric resident academy for office blood pressure, pediatric hypertension, ambulatory blood pressure monitoring, clinical reasoning, and board preparation.">
+  <title>Pediatric Hypertension &amp; ABPM Resident Academy</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%A9%BA%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="hero">
+    <div class="hero-inner">
+      <a class="home-link" href="/">&larr; Steve Todman, MD</a>
+      <p class="eyebrow">Pediatric Resident Learning Academy</p>
+      <h1>Pediatric Hypertension &amp; ABPM</h1>
+      <p class="hero-lead">Measure correctly. Classify by age. Confirm the phenotype. Find the cause that matters. Treat risk—not a single number.</p>
+      <div class="hero-meta" aria-label="Module features">
+        <span>8 clinical lessons</span>
+        <span>5 branching cases</span>
+        <span>ABPM interpretation lab</span>
+        <span>26 board questions</span>
+      </div>
+      <div class="hero-actions">
+        <button class="button button-light" type="button" data-open-tab="core">Start the lesson</button>
+        <button class="button button-ghost" type="button" data-open-tab="quiz">Test first</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="module-nav" aria-label="Academy sections">
+    <div class="nav-inner" role="tablist" aria-label="Learning modes">
+      <button type="button" class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-core" id="tab-core" data-tab="core">Clinical core</button>
+      <button type="button" class="tab" role="tab" aria-selected="false" aria-controls="panel-office" id="tab-office" data-tab="office">Office pathway</button>
+      <button type="button" class="tab" role="tab" aria-selected="false" aria-controls="panel-abpm" id="tab-abpm" data-tab="abpm">ABPM lab</button>
+      <button type="button" class="tab" role="tab" aria-selected="false" aria-controls="panel-cases" id="tab-cases" data-tab="cases">Cases</button>
+      <button type="button" class="tab" role="tab" aria-selected="false" aria-controls="panel-quiz" id="tab-quiz" data-tab="quiz">Board quiz</button>
+      <button type="button" class="tab" role="tab" aria-selected="false" aria-controls="panel-reference" id="tab-reference" data-tab="reference">Quick reference</button>
+      <button type="button" class="tab" role="tab" aria-selected="false" aria-controls="panel-sources" id="tab-sources" data-tab="sources">Sources</button>
+    </div>
+  </nav>
+
+  <main id="main-content" class="shell">
+    <section class="panel is-active" id="panel-core" role="tabpanel" aria-labelledby="tab-core" data-panel="core">
+      <div class="section-heading">
+        <p class="kicker">Clinical core</p>
+        <h2>Build the reasoning chain</h2>
+        <p>The central task is not “Does this child have one high number?” It is “Was the number valid, what category does it occupy, is the pattern persistent, and what phenotype and risk does it represent?”</p>
+      </div>
+
+      <article class="card opening-case">
+        <div>
+          <p class="kicker">Commit before you read</p>
+          <h3>Opening case</h3>
+          <p>A 15-year-old with obesity has a first automated BP of 134/76 mm Hg at a well visit. He feels well. The medical assistant used a cuff that barely encircled the arm.</p>
+        </div>
+        <div class="decision-prompt">
+          <p><strong>What is the best next action?</strong></p>
+          <button class="button" id="opening-reveal" type="button" aria-expanded="false" aria-controls="opening-answer">Reveal the decision</button>
+          <div class="feedback-box" id="opening-answer" hidden>
+            <strong>Do not diagnose hypertension—and do not ignore it.</strong> Rest the patient, select a correctly sized cuff, repeat at least 2 measurements, average the repeat values, and confirm an elevated oscillometric result by auscultation. Only then classify the visit. A small cuff can artifactually raise BP; an isolated first oscillometric value is a screening signal, not a diagnosis.<a class="cite" href="#ref-aap">1</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="card objectives-card">
+        <p class="kicker">Learning objectives</p>
+        <h3>By the end, the resident can</h3>
+        <div class="objective-grid">
+          <div><span>1</span><p>Obtain and classify a defensible pediatric BP by age and technique.</p></div>
+          <div><span>2</span><p>Execute the correct follow-up interval for elevated, stage 1, and stage 2 BP.</p></div>
+          <div><span>3</span><p>Choose a risk-directed evaluation and recognize secondary-cause clues.</p></div>
+          <div><span>4</span><p>Determine ABPM quality, thresholds, phenotype, and dipping using the 2022 scheme.</p></div>
+          <div><span>5</span><p>Select lifestyle and first-line drug therapy and identify hypertensive emergency.</p></div>
+        </div>
+      </article>
+
+      <div class="lesson-grid">
+        <article class="card lesson-card">
+          <div class="lesson-number">01</div>
+          <h3>Measurement is a diagnostic test</h3>
+          <ul class="check-list">
+            <li>Seat quietly for 3–5 minutes; back supported, feet uncrossed and on the floor.</li>
+            <li>Use the right arm, supported at heart level, uncovered; patient and observer do not talk.</li>
+            <li>Cuff bladder width at least 40% of mid-arm circumference; length 80%–100%.</li>
+            <li>An oscillometric device may screen, but suspected elevation requires auscultatory confirmation.</li>
+            <li>At one visit, repeat an initial high oscillometric reading and average subsequent readings.</li>
+          </ul>
+          <div class="pearl"><strong>Why the right arm?</strong> The normative tables are right-arm based, and a left-arm value may be falsely low with coarctation.</div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">02</div>
+          <h3>Classify by age—and by the higher component</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Category</th><th>Age 1 to &lt;13 years</th><th>Age &ge;13 years</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Normal</strong></td><td>&lt;90th percentile</td><td>&lt;120/<span class="nowrap">&lt;80</span></td></tr>
+                <tr><td><strong>Elevated</strong></td><td>&ge;90th to &lt;95th percentile, or 120/80 to &lt;95th percentile—whichever threshold is lower</td><td>120/&lt;80 to 129/&lt;80</td></tr>
+                <tr><td><strong>Stage 1 HTN</strong></td><td>&ge;95th to &lt;95th percentile + 12 mm Hg, or 130/80–139/89—whichever threshold is lower</td><td>130/80–139/89</td></tr>
+                <tr><td><strong>Stage 2 HTN</strong></td><td>&ge;95th percentile + 12 mm Hg, or &ge;140/90—whichever threshold is lower</td><td>&ge;140/90</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="note">Systolic and diastolic BP are classified independently; the more severe category controls. Use the full AAP normative tables or a validated implementation—not the simplified screening table—to diagnose a child under 13.<a class="cite" href="#ref-aap">1</a></p>
+          <a class="text-link" href="/tools/bp-percentile-calculator.html">Open the validated BP percentile calculator &rarr;</a>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">03</div>
+          <h3>Screening frequency is risk-weighted</h3>
+          <div class="two-column">
+            <div class="mini-card"><strong>Age &ge;3, average risk</strong><p>Measure annually at preventive care.</p></div>
+            <div class="mini-card"><strong>Age &ge;3, high risk</strong><p>Measure at every encounter for obesity, renal disease, diabetes, aortic arch obstruction/coarctation, or medications known to raise BP.</p></div>
+            <div class="mini-card"><strong>Age &lt;3</strong><p>Measure at well visits when risk exists: prematurity &lt;32 weeks, VLBW/NICU or umbilical arterial line, congenital heart disease, renal/urologic disease, recurrent UTI/hematuria/proteinuria, transplant, malignancy, BP-raising drugs, selected systemic disease, or raised intracranial pressure.</p></div>
+            <div class="mini-card"><strong>Diagnosis</strong><p>In the routine outpatient setting, diagnose HTN after auscultatory-confirmed readings in the hypertensive range at 3 different visits (&ge;95th percentile if &lt;13; &ge;130/80 if &ge;13). Stage 2 or symptoms accelerate the pathway.</p></div>
+          </div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">04</div>
+          <h3>Confirm the phenotype with ABPM</h3>
+          <p>ABPM separates a clinic signal from the child’s lived BP exposure. It detects white coat hypertension, masked hypertension, isolated nocturnal hypertension, abnormal dipping, and inadequate treatment coverage.</p>
+          <div class="phenotype-grid">
+            <div><span class="clinic-dot high"></span><span class="abpm-dot low"></span><strong>White coat HTN</strong><small>Clinic hypertensive; ambulatory normal</small></div>
+            <div><span class="clinic-dot low"></span><span class="abpm-dot high"></span><strong>Masked HTN</strong><small>Clinic below HTN threshold; ambulatory high</small></div>
+            <div><span class="clinic-dot high"></span><span class="abpm-dot high"></span><strong>Ambulatory HTN</strong><small>Both clinic and ambulatory high</small></div>
+            <div><span class="clinic-dot low"></span><span class="abpm-dot low"></span><strong>Normal BP</strong><small>Both settings below thresholds</small></div>
+          </div>
+          <div class="alert update"><strong>2022 update:</strong> BP load is no longer used to classify ABPM phenotypes. Mean 24-hour, wake, and sleep SBP and DBP control the classification; any elevated period/component can make the study abnormal.<a class="cite" href="#ref-abpm">4</a></div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">05</div>
+          <h3>Look for the cause—but avoid indiscriminate testing</h3>
+          <p>History and examination should cover perinatal and renal history, medications/substances, sleep, nutrition, activity, psychosocial context, and family history. Check pulses and four-extremity BP when indicated; look for growth failure, syndromic features, abdominal bruit/mass, endocrine clues, and target-organ symptoms.</p>
+          <div class="alert"><strong>Streamlined workup rule:</strong> A child &ge;6 years with family history of HTN, overweight/obesity, and no history or examination clue to a secondary cause does not require an extensive secondary evaluation.<a class="cite" href="#ref-aap">1</a></div>
+          <details>
+            <summary>Medication and substance audit</summary>
+            <p>Ask directly about stimulants, decongestants, caffeine/energy products, NSAIDs, hormonal contraception, glucocorticoids, tricyclics, supplements, amphetamines, and cocaine. “No medications” is not a completed exposure history.</p>
+          </details>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">06</div>
+          <h3>Order tests that answer a question</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Who</th><th>Initial testing</th></tr></thead>
+              <tbody>
+                <tr><td><strong>All with confirmed HTN evaluation</strong></td><td>Urinalysis; electrolytes, BUN, creatinine; lipid profile</td></tr>
+                <tr><td><strong>Age &lt;6 or abnormal UA/renal function</strong></td><td>Renal ultrasonography</td></tr>
+                <tr><td><strong>Obesity</strong></td><td>Add hemoglobin A1c, AST/ALT, and fasting lipid panel</td></tr>
+                <tr><td><strong>History/exam directed</strong></td><td>Fasting glucose, TSH, drug screen, polysomnography, CBC, or focused secondary-cause testing</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="do-dont">
+            <div class="do"><strong>Do</strong><span>Obtain echocardiography when pharmacologic treatment is being considered to assess LV mass, geometry, and function.</span></div>
+            <div class="dont"><strong>Do not</strong><span>Use ECG to exclude LVH; it is not recommended for target-organ assessment in pediatric HTN.</span></div>
+          </div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">07</div>
+          <h3>Treat the child’s risk profile</h3>
+          <ul class="check-list">
+            <li>At elevated BP or HTN diagnosis: DASH-style diet, sodium reduction, healthy sleep, weight management where relevant, and moderate-to-vigorous activity 30–60 minutes on 3–5 days/week.</li>
+            <li>Medication is indicated after failed lifestyle therapy, particularly with LVH, symptomatic HTN, or stage 2 HTN without a clearly modifiable factor.</li>
+            <li>First-line classes: ACE inhibitor, ARB, long-acting calcium-channel blocker, or thiazide diuretic.</li>
+            <li>Prefer ACE inhibitor or ARB with CKD, proteinuria, or diabetes; monitor creatinine and potassium and address pregnancy potential.</li>
+            <li>Goal: &lt;90th percentile for children &lt;13; &lt;130/80 mm Hg for adolescents &ge;13. In CKD, use ABPM to target 24-hour MAP &lt;50th percentile.</li>
+          </ul>
+          <details>
+            <summary>Medication sequencing and follow-up</summary>
+            <p>Start one first-line agent at a low dose. Titrate every 2–4 weeks until controlled, the maximal dose is reached, or adverse effects occur; see the patient every 4–6 weeks during titration. Add a second complementary agent if needed. Apparent resistance requires measurement review, adherence confirmation, removal of BP-raising exposures, reassessment for secondary disease, and ABPM confirmation before labeling true resistant HTN.</p>
+          </details>
+        </article>
+
+        <article class="card lesson-card danger-card">
+          <div class="lesson-number">08</div>
+          <h3>Recognize urgency before finishing the workup</h3>
+          <p>Stage 2 HTN requires four-extremity assessment and repeat measurement or subspecialty referral within 1 week. If it persists, proceed with ABPM, diagnostic evaluation, and treatment.</p>
+          <div class="alert danger"><strong>Immediate care:</strong> stage 2 BP plus symptoms, BP &gt;30 mm Hg above the 95th percentile, or an adolescent BP &gt;180/120 mm Hg. Neurologic change, seizure, visual symptoms, heart failure, chest pain, or acute kidney injury make this a hypertensive emergency until proved otherwise.<a class="cite" href="#ref-aap">1</a></div>
+          <p>With acute severe HTN and life-threatening symptoms, use short-acting therapy in a monitored setting and reduce no more than 25% of the planned BP reduction in the first 8 hours. Avoid rapid normalization that can cause cerebral, cardiac, or renal ischemia.</p>
+        </article>
+      </div>
+
+      <div class="bottom-actions">
+        <button class="button" type="button" data-open-tab="office">Continue to the office pathway</button>
+        <button class="button button-secondary" type="button" data-open-tab="quiz">Challenge the quiz</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-office" role="tabpanel" aria-labelledby="tab-office" data-panel="office" hidden>
+      <div class="section-heading">
+        <p class="kicker">Office pathway</p>
+        <h2>What happens after today’s verified BP?</h2>
+        <p>Select the category. The time interval is part of the diagnosis; skipping it either delays care or overdiagnoses transient BP elevation.</p>
+      </div>
+
+      <div class="pathway-selector" role="group" aria-label="Choose office blood pressure category">
+        <button class="path-button is-active" type="button" data-path="normal">Normal</button>
+        <button class="path-button" type="button" data-path="elevated">Elevated BP</button>
+        <button class="path-button" type="button" data-path="stage1">Stage 1 HTN</button>
+        <button class="path-button" type="button" data-path="stage2">Stage 2 HTN</button>
+      </div>
+      <article class="card pathway-stage" id="pathway-stage" aria-live="polite"></article>
+
+      <div class="card algorithm-card">
+        <h3>The non-negotiable sequence</h3>
+        <ol class="flow-list">
+          <li><span>1</span><div><strong>Verify</strong><p>Technique, cuff, rest, repeats, auscultation.</p></div></li>
+          <li><span>2</span><div><strong>Classify</strong><p>Age-specific threshold; higher of SBP or DBP.</p></div></li>
+          <li><span>3</span><div><strong>Time the recheck</strong><p>6 months, 1–2 weeks, 1 week, or immediate care.</p></div></li>
+          <li><span>4</span><div><strong>Confirm</strong><p>Persistence across visits and ABPM phenotype.</p></div></li>
+          <li><span>5</span><div><strong>Evaluate and treat</strong><p>Risk-directed workup, target-organ assessment, lifestyle, medication.</p></div></li>
+        </ol>
+      </div>
+
+      <article class="card trap-card">
+        <h3>Common resident traps</h3>
+        <div class="trap-grid">
+          <div><strong>Anchoring on the first number</strong><p>The first oscillometric reading is often the highest. Repeat and average.</p></div>
+          <div><strong>Using the screening table to diagnose</strong><p>It is intentionally sensitive. Diagnosis requires the full normative table.</p></div>
+          <div><strong>Calling elevated BP “stage 1”</strong><p>For adolescents, 128/78 is elevated—not stage 1.</p></div>
+          <div><strong>Ordering a broad endocrine panel</strong><p>Start with history, examination, basic renal testing, and targeted clues.</p></div>
+          <div><strong>Getting an ECG for LVH</strong><p>Echo is the recommended assessment when medication is being considered.</p></div>
+          <div><strong>Starting medication before ABPM</strong><p>When feasible outside urgent situations, confirm HTN and phenotype first.</p></div>
+          <div><strong>Using home BP to diagnose a phenotype</strong><p>Home BP can support follow-up after diagnosis, but it does not diagnose HTN, masked HTN, or white coat HTN.</p></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel" id="panel-abpm" role="tabpanel" aria-labelledby="tab-abpm" data-panel="abpm" hidden>
+      <div class="section-heading">
+        <p class="kicker">ABPM interpretation lab</p>
+        <h2>Turn 24 hours of readings into a defensible phenotype</h2>
+        <p>Quality first, thresholds second, phenotype third, pattern and clinical meaning last. A colorful report is not an interpretation.</p>
+      </div>
+
+      <div class="card quality-card">
+        <h3>Quality gate</h3>
+        <div class="quality-grid">
+          <div><strong>Duration</strong><span>24 h preferred; 18–20 h can be acceptable if sleep is captured</span></div>
+          <div><strong>Success</strong><span>&ge;70% of attempts; usually 40–50 successful readings</span></div>
+          <div><strong>Density</strong><span>At least 1 valid reading each hour, including sleep</span></div>
+          <div><strong>Programming</strong><span>Every 15–20 min awake; every 20–30 min asleep</span></div>
+          <div><strong>Diary</strong><span>Patient-recorded wake/sleep, medication, activity, and symptoms</span></div>
+          <div><strong>Device check</strong><span>Validated pediatric cuff device; 3 same-arm comparison values within &plusmn;5 mm Hg on average</span></div>
+        </div>
+        <p class="note">A suboptimal study may still be clinically informative, but ideally should be repeated. Exclude test readings, vigorous-exercise readings, and biologically implausible values; use diary-defined rather than fixed clock periods.<a class="cite" href="#ref-abpm">4</a></p>
+      </div>
+
+      <div class="card threshold-card">
+        <h3>2022 mean ABPM thresholds</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Age</th><th>24-hour mean</th><th>Wake mean</th><th>Sleep mean</th></tr></thead>
+            <tbody>
+              <tr><td><strong>&ge;13 years</strong></td><td>Abnormal if SBP &ge;125 or DBP &ge;75</td><td>Abnormal if SBP &ge;130 or DBP &ge;80</td><td>Abnormal if SBP &ge;110 or DBP &ge;65</td></tr>
+              <tr><td><strong>&lt;13 years</strong></td><td colspan="3">For each period and component, use the lower of the sex/height-specific pediatric 95th percentile or the adolescent static cutoff above.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="formula"><strong>Dipping</strong> = (mean awake BP − mean sleep BP) ÷ mean awake BP × 100. Normal is usually 10%–20%; &lt;10% is nondipping; a negative value is reverse dipping.</div>
+      </div>
+
+      <form class="card lab-card" id="abpm-form">
+        <div class="lab-heading">
+          <div><p class="kicker">Practice tool</p><h3>Phenotype interpreter</h3></div>
+          <div class="preset-buttons" role="group" aria-label="Load an ABPM teaching case">
+            <button type="button" class="small-button" data-preset="wch">Teen WCH</button>
+            <button type="button" class="small-button" data-preset="masked">Nocturnal masked HTN</button>
+            <button type="button" class="small-button" data-preset="under13">Under-13 lower-limit case</button>
+          </div>
+        </div>
+        <p class="note">Teaching simulator only—not a substitute for the complete raw tracing, validated report software, or specialist interpretation.</p>
+
+        <div class="form-grid">
+          <label>Age group
+            <select id="abpm-age">
+              <option value="teen">Age &ge;13 years</option>
+              <option value="child">Age &lt;13 years</option>
+            </select>
+          </label>
+          <label>Confirmed clinic BP
+            <select id="clinic-status">
+              <option value="below">Below HTN threshold</option>
+              <option value="high">Hypertensive range</option>
+            </select>
+          </label>
+        </div>
+
+        <fieldset id="child-thresholds" hidden>
+          <legend>Report’s pediatric 95th-percentile values (mm Hg)</legend>
+          <p class="note">The lab will automatically use the lower of each entered pediatric value or the static adolescent cutoff.</p>
+          <div class="bp-grid threshold-inputs">
+            <div><strong>24-hour p95</strong><label>SBP <input id="p95-day-s" type="number" min="60" max="220" value="130"></label><label>DBP <input id="p95-day-d" type="number" min="35" max="120" value="78"></label></div>
+            <div><strong>Wake p95</strong><label>SBP <input id="p95-wake-s" type="number" min="60" max="220" value="135"></label><label>DBP <input id="p95-wake-d" type="number" min="35" max="120" value="82"></label></div>
+            <div><strong>Sleep p95</strong><label>SBP <input id="p95-sleep-s" type="number" min="60" max="220" value="115"></label><label>DBP <input id="p95-sleep-d" type="number" min="35" max="120" value="68"></label></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Mean ambulatory BP (mm Hg)</legend>
+          <div class="bp-grid">
+            <div><strong>24-hour</strong><label>SBP <input id="mean-day-s" type="number" min="60" max="220" required value="122"></label><label>DBP <input id="mean-day-d" type="number" min="35" max="120" required value="72"></label></div>
+            <div><strong>Wake</strong><label>SBP <input id="mean-wake-s" type="number" min="60" max="220" required value="128"></label><label>DBP <input id="mean-wake-d" type="number" min="35" max="120" required value="78"></label></div>
+            <div><strong>Sleep</strong><label>SBP <input id="mean-sleep-s" type="number" min="60" max="220" required value="106"></label><label>DBP <input id="mean-sleep-d" type="number" min="35" max="120" required value="62"></label></div>
+          </div>
+        </fieldset>
+
+        <button class="button" type="submit">Interpret this study</button>
+        <div class="lab-result" id="abpm-result" aria-live="polite"></div>
+      </form>
+
+      <article class="card">
+        <h3>Who most needs ABPM?</h3>
+        <div class="tag-cloud" aria-label="Clinical indications for ambulatory blood pressure monitoring">
+          <span>Clinic hypertension</span><span>Suspected masked HTN</span><span>Secondary HTN</span><span>CKD</span><span>Repaired coarctation</span><span>Type 1 or 2 diabetes</span><span>Obesity</span><span>OSA</span><span>Turner syndrome</span><span>Williams syndrome</span><span>NF1</span><span>Treated HTN</span><span>Apparent resistance</span><span>Hypotensive symptoms</span>
+        </div>
+        <div class="alert"><strong>High-yield distinction:</strong> Isolated sleep hypertension counts as ambulatory hypertension. Isolated nondipping, with all mean BPs below threshold, generally does not by itself create masked hypertension.<a class="cite" href="#ref-abpm">4</a></div>
+      </article>
+    </section>
+
+    <section class="panel" id="panel-cases" role="tabpanel" aria-labelledby="tab-cases" data-panel="cases" hidden>
+      <div class="section-heading">
+        <p class="kicker">Branching cases</p>
+        <h2>Make the next decision</h2>
+        <p>Each case forces a sequence: measurement, timing, phenotype, workup, and treatment. Your reasoning log records both correct moves and attractive errors.</p>
+      </div>
+      <div class="case-picker" role="group" aria-label="Choose a hypertension case">
+        <button type="button" class="case-button is-active" data-case="0">The wrong cuff</button>
+        <button type="button" class="case-button" data-case="1">Three elevated visits</button>
+        <button type="button" class="case-button" data-case="2">Repaired coarctation</button>
+        <button type="button" class="case-button" data-case="3">CKD at night</button>
+        <button type="button" class="case-button" data-case="4">Headache + stage 2</button>
+      </div>
+      <article class="card case-stage" id="case-stage" aria-live="polite"></article>
+      <div class="card reasoning-card">
+        <h3>Reasoning log</h3>
+        <ol id="case-log"><li class="empty-log">Complete a decision to build your log.</li></ol>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz" data-panel="quiz" hidden>
+      <div class="section-heading">
+        <p class="kicker">Board-style assessment</p>
+        <h2>Test transfer, not recall alone</h2>
+        <p>Questions mix thresholds, time-to-recheck, ABPM interpretation, diagnostic restraint, treatment, and emergencies. Your first answer is scored; every response receives a teaching explanation. Mastery target: 23/26 (88%).</p>
+      </div>
+      <article class="card quiz-card">
+        <div class="quiz-topline">
+          <span id="quiz-counter">Question 1 of 26</span>
+          <span id="quiz-score">Score: 0</span>
+        </div>
+        <div class="progress-track" aria-hidden="true"><span id="quiz-progress"></span></div>
+        <div id="quiz-question"></div>
+        <div id="quiz-options" class="quiz-options"></div>
+        <div id="quiz-explanation" class="quiz-explanation" aria-live="polite"></div>
+        <div class="quiz-actions">
+          <button class="button" id="quiz-next" type="button" disabled>Next question</button>
+          <button class="button button-secondary" id="quiz-restart" type="button">Restart</button>
+        </div>
+      </article>
+      <div class="card domain-results" id="domain-results" hidden></div>
+    </section>
+
+    <section class="panel" id="panel-reference" role="tabpanel" aria-labelledby="tab-reference" data-panel="reference" hidden>
+      <div class="section-heading">
+        <p class="kicker">Quick reference</p>
+        <h2>Resident pocket card</h2>
+        <p>Designed for print or a fast pre-clinic review. This is a cognitive aid, not a substitute for the full guideline or local emergency protocols.</p>
+      </div>
+      <div class="reference-grid">
+        <article class="card"><h3>Measure</h3><ol><li>Quiet 3–5 min</li><li>Right arm, heart level</li><li>Correct cuff: width &ge;40%, length 80%–100%</li><li>Repeat and average</li><li>Confirm high oscillometric BP by auscultation</li></ol></article>
+        <article class="card"><h3>Adolescent thresholds (&ge;13)</h3><ul><li>Normal: &lt;120/&lt;80</li><li>Elevated: 120/&lt;80–129/&lt;80</li><li>Stage 1: 130/80–139/89</li><li>Stage 2: &ge;140/90</li></ul></article>
+        <article class="card"><h3>Recheck</h3><ul><li>Elevated: 6 months</li><li>Stage 1, asymptomatic: 1–2 weeks</li><li>Stage 2: within 1 week</li><li>Stage 2 + symptoms or extreme BP: immediate care</li></ul></article>
+        <article class="card"><h3>Initial tests</h3><ul><li>UA</li><li>Electrolytes, BUN, creatinine</li><li>Lipid profile</li><li>Renal US if &lt;6 or abnormal UA/renal function</li><li>Obesity: add A1c, AST/ALT, fasting lipids</li></ul></article>
+        <article class="card"><h3>ABPM static cutoffs (&ge;13)</h3><ul><li>24 h: 125/75</li><li>Wake: 130/80</li><li>Sleep: 110/65</li><li>Any component/period at threshold is abnormal</li><li>BP load is not used</li></ul></article>
+        <article class="card"><h3>Treat</h3><ul><li>DASH-style diet + activity + sleep</li><li>ACEi, ARB, long-acting CCB, or thiazide</li><li>Echo when medication is considered</li><li>Goal &lt;90th percentile if &lt;13; &lt;130/80 if &ge;13</li></ul></article>
+      </div>
+      <div class="print-actions"><button class="button" id="print-module" type="button">Print quick reference</button><a class="button button-secondary" href="/tools/bp-percentile-calculator.html">BP calculator</a><a class="button button-secondary" href="/tools/pediatric-abpm-pathway-preview.html">ABPM report pathway preview</a></div>
+    </section>
+
+    <section class="panel" id="panel-sources" role="tabpanel" aria-labelledby="tab-sources" data-panel="sources" hidden>
+      <div class="section-heading">
+        <p class="kicker">Sources and scope</p>
+        <h2>Primary-source provenance</h2>
+        <p>Content was reconciled at the statement level. When the 2017 AAP guideline and 2022 AHA ABPM statement differ on ambulatory classification, the newer ABPM statement controls.</p>
+      </div>
+      <div class="source-list">
+        <article class="card source" id="ref-aap"><span>1</span><div><h3>AAP pediatric hypertension clinical practice guideline</h3><p>Flynn JT, Kaelber DC, Baker-Smith CM, et al. <em>Clinical Practice Guideline for Screening and Management of High Blood Pressure in Children and Adolescents.</em> Pediatrics. 2017;140(3):e20171904.</p><a href="https://doi.org/10.1542/peds.2017-1904" target="_blank" rel="noopener noreferrer">Open the guideline</a></div></article>
+        <article class="card source" id="ref-erratum"><span>2</span><div><h3>AAP correction</h3><p>The electronic guideline incorporates corrected clonidine and fenoldopam units/doses in Table 19. This module does not reproduce acute-drug dosing.</p><a href="https://doi.org/10.1542/peds.2017-3035" target="_blank" rel="noopener noreferrer">Open the erratum</a></div></article>
+        <article class="card source" id="ref-clarification"><span>3</span><div><h3>AAP clarification</h3><p>Flynn JT, Baker-Smith CM, et al. <em>Diagnosis, Evaluation, and Management of High Blood Pressure in Children and Adolescents.</em> Pediatrics. 2018;142(3):e20182096.</p><a href="https://doi.org/10.1542/peds.2018-2096" target="_blank" rel="noopener noreferrer">Open the clarification</a></div></article>
+        <article class="card source" id="ref-abpm"><span>4</span><div><h3>AHA pediatric ABPM scientific statement</h3><p>Flynn JT, Urbina EM, Brady TM, et al. <em>Ambulatory Blood Pressure Monitoring in Children and Adolescents: 2022 Update.</em> Hypertension. 2022;79:e114–e124.</p><a href="https://doi.org/10.1161/HYP.0000000000000215" target="_blank" rel="noopener noreferrer">Open the statement</a></div></article>
+        <article class="card source" id="ref-current"><span>5</span><div><h3>Current-context check</h3><p>A 2024 AAP Pediatrics perspective continues to identify the 2017 CPG as the AAP’s current pediatric hypertension guidance while emphasizing evidence gaps in long-term outcomes and lifestyle-treatment targets.</p><a href="https://doi.org/10.1542/peds.2024-067082" target="_blank" rel="noopener noreferrer">Open the perspective</a></div></article>
+      </div>
+      <div class="alert update"><strong>Clinical scope:</strong> This module teaches outpatient recognition, evaluation, and ABPM interpretation. Neonatal hypertension, pregnancy, dialysis, transplant-specific protocols, and ICU drug selection require dedicated references and local specialist guidance. Guideline statements support—not replace—clinical judgment.</div>
+      <p class="review-date">Medical content reviewed August 12, 2026.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Educational resource for pediatric residents &middot; Steve Todman, MD</p>
+    <a href="/">Return to stevetodman.com</a>
+  </footer>
+  <noscript><div class="noscript">JavaScript is required for the cases, ABPM lab, and scored quiz. The clinical core and quick-reference content remain readable.</div></noscript>
+  <script src="assets/app.js"></script>
+</body>
+</html>

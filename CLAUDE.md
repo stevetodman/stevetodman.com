@@ -1,6 +1,6 @@
 ---
 status: active
-next: Review learner feedback on the newborn CCHD screening module
+next: Obtain pediatric resident feedback on the hypertension and ABPM academy
 ---
 
 # CLAUDE.md
@@ -33,6 +33,9 @@ stevetodman.com/
 │   └── assets/                   # app.js, styles.css, favicon.svg
 ├── newbornscreen/                # Interactive 2025 AAP CCHD screening module
 │   └── index.html                # Resident teaching, algorithm, and 17-question quiz
+├── hypertension/                 # Pediatric hypertension and ABPM resident academy
+│   ├── index.html                # Layered lesson, office pathway, ABPM lab, cases, quiz
+│   └── assets/                   # Local styles and interaction logic
 ├── clipboard-sanitizer/          # Standalone shell utilities (not deployed)
 ├── .github/workflows/            # phs-v17-integrity.yml, update-cooking-index.yml
 ├── study/                        # Kids' Study Hub (stevetodman.com/study)
@@ -235,6 +238,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-12: Added the guideline-based Pediatric Hypertension & ABPM Resident Academy at `/hypertension/`, reconciling the 2017 AAP office-BP guideline with the 2022 AHA ABPM update. Added an office timing pathway, threshold-aware ABPM lab, 5 branching cases, 26-question domain-scored quiz, printable quick reference, primary-source provenance, homepage discovery, and automated interaction tests.
 - 2026-08-12: Replaced the hero's misleading static pills with working, keyboard-accessible links to the AAP report, screening technique, failed-screen response, and interactive quiz.
 - 2026-08-12: Added a homepage project card linking directly to the newborn CCHD screening module so visitors can discover it from the main site.
 - 2026-08-12: Added the interactive 2025 AAP newborn CCHD pulse-oximetry screening module at `/newbornscreen/`, including the updated algorithm, bedside response guidance, and a 17-question quiz. Added it to site-wide smoke-test coverage.

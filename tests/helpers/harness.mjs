@@ -94,6 +94,7 @@ export const SITE_PAGES = [
   '/study/100-fact-club.html',
   '/math/',
   '/newbornscreen/',
+  '/hypertension/',
   '/phs/',
   '/admin/',
   '/admin/clinic-resources/',
