@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive pediatric resident academy for recognizing, stabilizing, diagnosing, treating, and following children with myocarditis, current through August 2026.">
+  <title>Pediatric Myocarditis Resident Academy</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2786%27%3E%F0%9F%AB%80%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to learning content</a>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <a class="home-link" href="/">&larr; Steve Todman, MD</a>
+      <p class="eyebrow">Pediatric &amp; Med-Peds Resident Academy</p>
+      <h1>Pediatric Myocarditis</h1>
+      <p class="hero-lead">Recognize the child hiding behind “viral illness.” Stabilize physiology before certainty. Escalate before shock becomes arrest.</p>
+      <div class="hero-meta" role="group" aria-label="Module features">
+        <span>30–45 minute core</span>
+        <span>5 branching cases</span>
+        <span>15-question mastery test</span>
+        <span>80% to pass</span>
+        <span>Evidence current through Aug 2026</span>
+      </div>
+      <div class="hero-actions">
+        <button class="button button-light" type="button" data-open-tab="start">Begin with the pretest</button>
+        <button class="button button-ghost" type="button" data-open-tab="quick">Open bedside reference</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="progress-shell no-print" role="group" aria-label="Module progress">
+    <div class="progress-inner">
+      <span>Your progress</span>
+      <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
+      <span id="progress-percent">0% complete</span>
+    </div>
+  </div>
+
+  <nav class="module-nav no-print" aria-label="Module sections">
+    <div class="nav-inner" role="tablist" aria-label="Myocarditis academy sections">
+      <button class="tab is-active" id="tab-start" type="button" role="tab" aria-selected="true" aria-controls="panel-start" data-tab="start">Start</button>
+      <button class="tab" id="tab-recognize" type="button" role="tab" aria-selected="false" aria-controls="panel-recognize" data-tab="recognize">Recognize</button>
+      <button class="tab" id="tab-diagnose" type="button" role="tab" aria-selected="false" aria-controls="panel-diagnose" data-tab="diagnose">Diagnose</button>
+      <button class="tab" id="tab-stabilize" type="button" role="tab" aria-selected="false" aria-controls="panel-stabilize" data-tab="stabilize">Stabilize</button>
+      <button class="tab" id="tab-treat" type="button" role="tab" aria-selected="false" aria-controls="panel-treat" data-tab="treat">Treat &amp; follow</button>
+      <button class="tab" id="tab-cases" type="button" role="tab" aria-selected="false" aria-controls="panel-cases" data-tab="cases">Cases</button>
+      <button class="tab" id="tab-assessment" type="button" role="tab" aria-selected="false" aria-controls="panel-assessment" data-tab="assessment">Posttest</button>
+      <button class="tab" id="tab-quick" type="button" role="tab" aria-selected="false" aria-controls="panel-quick" data-tab="quick">Quick reference</button>
+    </div>
+  </nav>
+
+  <main class="shell" id="main-content">
+    <section class="panel" id="panel-start" role="tabpanel" aria-labelledby="tab-start" data-panel="start">
+      <div class="section-heading">
+        <p class="kicker">The clinical problem</p>
+        <h2>The first dangerous decision often happens before cardiology arrives</h2>
+        <p>Pediatric myocarditis has no single presentation and no single rule-out test. Residents must recognize a cardiac phenotype inside common pediatric symptoms, protect a failing circulation, and communicate uncertainty without delaying escalation.</p>
+      </div>
+
+      <article class="card opening-case">
+        <div>
+          <p class="kicker">Opening case</p>
+          <h3>Bronchiolitis, sepsis—or a failing heart?</h3>
+          <p>A 5-month-old has 4 days of poor feeding and cough. HR 188, RR 62, BP 68/42. The liver is 4 cm below the costal margin, extremities are cool, and crackles are present. A sepsis pathway suggests a 20 mL/kg rapid crystalloid bolus.</p>
+          <p><strong>What is the safest immediate approach?</strong></p>
+        </div>
+        <div class="decision-prompt">
+          <div class="choice-list" data-opening-choices>
+            <button class="choice-button" type="button" data-opening="0">Give 20 mL/kg rapidly before further assessment</button>
+            <button class="choice-button" type="button" data-opening="1">Recognize possible cardiac failure, obtain bedside cardiac assessment, use cautious reassessed fluid only if indicated, and escalate now</button>
+            <button class="choice-button" type="button" data-opening="2">Wait for a troponin result before changing the sepsis pathway</button>
+          </div>
+          <div id="opening-feedback" aria-live="polite"></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <p class="kicker">Competencies</p>
+        <h3>By the end, you should be able to</h3>
+        <div class="objective-grid">
+          <div><span>1</span><p>Recognize age-specific myocarditis presentations and the child at risk of rapid deterioration.</p></div>
+          <div><span>2</span><p>Order and interpret the initial evaluation without treating any normal result as a rule-out test.</p></div>
+          <div><span>3</span><p>Stabilize pediatric acute heart failure, choose the right care setting, and transfer early.</p></div>
+          <div><span>4</span><p>Distinguish supportive standards from center-specific immunotherapy and biopsy-directed treatment.</p></div>
+          <div><span>5</span><p>Plan follow-up, activity progression, immunizations, and family counseling safely.</p></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <p class="kicker">Evidence honesty</p>
+        <h3>Strong physiology, limited pediatric trials</h3>
+        <p>The pediatric anchor is the 2021 AHA scientific statement, supplemented by newer heart-failure, myocarditis, sports, and immunization guidance. Much pediatric treatment practice remains observational or center-specific; this module says so explicitly.<a class="cite" href="#ref-aha-peds">1</a></p>
+        <div class="evidence-grid">
+          <div class="evidence-item"><span class="evidence-badge statement">Statement anchored</span><p>Supported by a major professional scientific statement or consensus document.</p></div>
+          <div class="evidence-item"><span class="evidence-badge observational">Observational</span><p>Supported mainly by registries, retrospective series, or extrapolation rather than pediatric randomized trials.</p></div>
+          <div class="evidence-item"><span class="evidence-badge uncertain">Uncertain</span><p>Reasonable practice varies; the evidence does not justify presenting one universal regimen.</p></div>
+          <div class="evidence-item"><span class="evidence-badge specialist">Specialist directed</span><p>Requires cardiology, heart failure, electrophysiology, critical care, infectious disease, or pathology ownership.</p></div>
+        </div>
+      </article>
+
+      <article class="card quiz-shell" id="pretest-card">
+        <div class="pretest-intro">
+          <div><p class="kicker">Diagnostic pretest</p><h3>Six decisions before the lesson</h3><p class="note">This establishes your baseline. Explanations appear after completion; the score does not affect mastery.</p></div>
+          <button class="button" id="pretest-start" type="button">Start pretest</button>
+        </div>
+        <div id="pretest-stage" aria-live="polite"></div>
+      </article>
+
+      <div class="bottom-actions">
+        <button class="button" type="button" data-open-tab="recognize">Continue: recognize the pattern</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-recognize" role="tabpanel" aria-labelledby="tab-recognize" data-panel="recognize" hidden>
+      <div class="section-heading">
+        <p class="kicker">Recognition</p>
+        <h2>Think in phenotypes, not in one “classic” story</h2>
+        <p>Myocarditis can look like respiratory disease, gastroenteritis, sepsis, acute coronary syndrome, an arrhythmia, or new cardiomyopathy. The resident’s first task is to detect the cardiac signal.</p>
+      </div>
+
+      <div class="lesson-grid">
+        <article class="card lesson-card">
+          <div class="lesson-number">01</div>
+          <h3>Three presentations organize the differential</h3>
+          <div class="phenotype-stack">
+            <div class="mini-card"><strong>Heart failure or shock</strong><p>Tachypnea, feeding intolerance, diaphoresis, hepatomegaly, gallop, pulmonary edema, poor perfusion, hypotension, altered mental status.</p></div>
+            <div class="mini-card"><strong>Chest pain / myopericardial syndrome</strong><p>More common in adolescents: chest pain, troponin elevation, ST-T changes, often preserved or mildly reduced LV function.</p></div>
+            <div class="mini-card"><strong>Electrical disease</strong><p>Palpitations, syncope, ventricular ectopy/tachycardia, supraventricular arrhythmia, bradycardia, or high-grade AV block.</p></div>
+          </div>
+          <div class="pearl"><strong>Non-negotiable:</strong> a recent infection increases suspicion but is neither necessary nor sufficient. “Viral prodrome” is not a diagnostic criterion by itself.</div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">02</div>
+          <h3>Age changes the disguise</h3>
+          <div class="age-grid">
+            <div><strong>Infants</strong><p>Poor feeding, diaphoresis, irritability, vomiting, respiratory distress, cyanosis, or shock. Hepatomegaly and perfusion are often more revealing than auscultation.</p></div>
+            <div><strong>Children</strong><p>Exercise intolerance, abdominal pain, vomiting, tachypnea, fever, chest discomfort, syncope, or a “pneumonia” that does not fit.</p></div>
+            <div><strong>Adolescents</strong><p>Chest pain, dyspnea, palpitations, syncope, exercise intolerance, troponin elevation, or overt heart failure.</p></div>
+          </div>
+          <div class="alert"><strong>Resident trap:</strong> normal oxygen saturation does not reassure against low cardiac output. A child can have normal SpO₂ and dangerous perfusion failure.</div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">03</div>
+          <h3>Find the mismatch</h3>
+          <ul class="check-list">
+            <li>Tachycardia is greater or more persistent than fever, pain, dehydration, or distress explains.</li>
+            <li>Respiratory distress coexists with hepatomegaly, gallop, cool extremities, delayed capillary refill, weak pulses, or oliguria.</li>
+            <li>Chest radiograph suggests cardiomegaly or pulmonary edema rather than focal air-space disease.</li>
+            <li>The child worsens after fluid, cannot tolerate feeds, or has recurrent “sepsis” without a coherent infectious source.</li>
+            <li>New AV block, ventricular arrhythmia, syncope, or diffuse ST-T abnormality accompanies systemic illness.</li>
+          </ul>
+          <div class="resident-action"><strong>Your action:</strong> obtain ECG, troponin, BNP/NT-proBNP, bedside or formal echocardiography, perfusion/end-organ studies, continuous monitoring, and early cardiology/PICU involvement—without waiting for the full panel to return.</div>
+        </article>
+
+        <article class="card lesson-card danger-card">
+          <div class="lesson-number">04</div>
+          <h3>High-risk features determine destination</h3>
+          <ul class="check-list">
+            <li>Hypotension, narrow pulse pressure, rising lactate, oliguria, altered mental status, or liver/kidney injury.</li>
+            <li>Moderate or severe ventricular dysfunction, biventricular failure, significant AV valve regurgitation, or intracardiac thrombus.</li>
+            <li>Ventricular arrhythmia, high-grade AV block, syncope, resuscitated arrest, or rapidly evolving ECG changes.</li>
+            <li>Escalating vasoactive or respiratory support, inability to tolerate transport safely, or a trajectory that could require MCS.</li>
+          </ul>
+          <div class="alert danger"><strong>Do not wait for cardiogenic shock to request transfer.</strong> A child trending toward electrical or hemodynamic instability belongs in a pediatric center capable of mechanical circulatory support and transplantation.<a class="cite" href="#ref-fulminant">8</a></div>
+        </article>
+      </div>
+
+      <article class="card trap-card">
+        <p class="kicker">Failure modes</p>
+        <h3>Six shortcuts that create harm</h3>
+        <div class="trap-grid">
+          <div><strong>“Troponin is normal”</strong><p>Sensitivity is imperfect; normal biomarkers do not close a high-suspicion case.</p></div>
+          <div><strong>“The ECG is only sinus tachycardia”</strong><p>ECG findings are variable and nonspecific; use the whole phenotype.</p></div>
+          <div><strong>“The oxygen saturation is 98%”</strong><p>SpO₂ does not measure systemic blood flow or end-organ perfusion.</p></div>
+          <div><strong>“The child has a virus”</strong><p>Peripheral viral detection does not prove myocardial infection.</p></div>
+          <div><strong>“Give the full sepsis bolus first”</strong><p>Rapid volume loading can worsen pulmonary edema and myocardial wall stress in ADHF.</p></div>
+          <div><strong>“CMR can wait until transfer is complete”</strong><p>Correct—stabilization and safe destination outrank diagnostic elegance.</p></div>
+        </div>
+      </article>
+
+      <div class="bottom-actions">
+        <button class="button" type="button" data-open-tab="diagnose">Continue: establish diagnostic confidence</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-diagnose" role="tabpanel" aria-labelledby="tab-diagnose" data-panel="diagnose" hidden>
+      <div class="section-heading">
+        <p class="kicker">Diagnosis</p>
+        <h2>Build confidence without demanding one perfect test</h2>
+        <p>Myocarditis is a clinicopathologic diagnosis. The practical question is not merely “Does the child have myocarditis?” but “How certain are we, what dangerous alternative remains, and would tissue change treatment?”</p>
+      </div>
+
+      <article class="card">
+        <p class="kicker">AHA pediatric framework</p>
+        <h3>Four strata of diagnostic certainty</h3>
+        <div class="certainty-grid">
+          <div><span class="tier">1</span><strong>Biopsy-confirmed</strong><p>Compatible histology/immunohistochemistry, ideally with pathogen testing when indicated.</p></div>
+          <div><span class="tier">2</span><strong>CMR-confirmed</strong><p>Clinically suspected myocarditis with CMR findings supporting active myocardial inflammation/injury.</p></div>
+          <div><span class="tier">3</span><strong>Clinically suspected</strong><p>Compatible presentation and testing when CMR/EMB cannot confirm or are unavailable/nondiagnostic.</p></div>
+          <div><span class="tier">4</span><strong>Possible</strong><p>Some compatible features, but insufficient evidence for higher certainty.</p></div>
+        </div>
+        <p class="note">These strata describe confidence, not severity. A critically ill child can remain “clinically suspected” while stabilization appropriately outranks CMR or biopsy.<a class="cite" href="#ref-aha-peds">1</a></p>
+      </article>
+
+      <div class="lesson-grid">
+        <article class="card lesson-card">
+          <div class="lesson-number">01</div>
+          <h3>Order a purpose-built initial evaluation</h3>
+          <div class="test-grid">
+            <div><strong>ECG + telemetry</strong><p>Rhythm, conduction, ST-T change, QRS voltage/width, ectopy; repeat if the course changes.</p></div>
+            <div><strong>Troponin + BNP/NT-proBNP</strong><p>Support myocardial injury and hemodynamic stress; trends help, but neither is specific.</p></div>
+            <div><strong>Echocardiography</strong><p>LV/RV function, dimensions, regional motion, valve regurgitation, effusion, coronaries when relevant, and thrombus.</p></div>
+            <div><strong>Perfusion / organ injury</strong><p>Blood gas, lactate, CMP, CBC, glucose, urinalysis; add inflammatory/coagulation testing as phenotype requires.</p></div>
+            <div><strong>Chest radiograph</strong><p>Cardiac silhouette and pulmonary edema; a normal film does not exclude myocarditis.</p></div>
+            <div><strong>Etiology-directed tests</strong><p>Respiratory/pathogen testing, cultures, rheumatologic or toxicologic studies only when they answer a clinical question.</p></div>
+          </div>
+          <div class="alert"><strong>Key limitation:</strong> normal ECG, troponin, or echocardiogram lowers—but does not eliminate—probability when the history and trajectory remain concerning.<a class="cite" href="#ref-acc">3</a></div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">02</div>
+          <h3>Use CMR correctly</h3>
+          <p>CMR assesses function, edema, nonischemic injury, scar, and pericardial involvement. Obtain it when the patient is stable enough, the result will change diagnostic confidence or follow-up, and a pediatric-quality study is feasible.</p>
+          <div class="cmr-rule">
+            <div><span>T2-based</span><strong>Edema</strong><p>Regional/global T2 signal or elevated T2 mapping.</p></div>
+            <div class="plus" aria-hidden="true">+</div>
+            <div><span>T1-based</span><strong>Nonischemic injury</strong><p>Elevated native T1/ECV or nonischemic LGE.</p></div>
+          </div>
+          <div class="pearl"><strong>Corrected Lake Louise rule:</strong> at least one T2-based criterion plus at least one T1-based criterion increases diagnostic specificity. LGE is a T1-based marker; it is not a separate third bucket. Supportive findings include pericarditis and LV dysfunction.<a class="cite" href="#ref-cmr">2</a></div>
+          <p class="note">A negative or technically limited early CMR does not overrule a compelling clinical phenotype. Timing, scanner, protocol, age, sedation, and disease distribution matter.</p>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">03</div>
+          <h3>Reserve EMB for questions tissue can answer</h3>
+          <p>EMB remains the pathologic reference but has procedural risk and sampling limitations. It is not required in every stable, clinically suspected case.</p>
+          <ul class="check-list">
+            <li>Consider when fulminant or refractory disease raises a treatable histologic diagnosis: giant cell, eosinophilic/hypersensitivity, sarcoid, immune-mediated, or unusual infection.</li>
+            <li>Consider with unexplained severe HF, malignant arrhythmia, or high-grade AV block when the result may change therapy.</li>
+            <li>Coordinate histology, immunohistochemistry, and molecular pathogen testing; a random “viral culture” is not an adequate biopsy strategy.</li>
+            <li>Do not delay stabilization, transfer, or MCS to obtain tissue.</li>
+          </ul>
+          <div class="resident-action"><strong>Resident language:</strong> “We are considering EMB because identifying a specific inflammatory subtype would change treatment,” not “We need biopsy to prove every myocarditis case.”</div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">04</div>
+          <h3>Keep mimics active until they are excluded</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Mimic</th><th>Clues</th><th>Resident action</th></tr></thead>
+              <tbody>
+                <tr><td>Sepsis / toxic shock</td><td>Infectious source, distributive physiology; can coexist with myocardial dysfunction</td><td>Culture/treat infection while avoiding unexamined volume loading</td></tr>
+                <tr><td>ALCAPA / coronary anomaly</td><td>Infant irritability with feeds, ischemic ECG, MR, regional dysfunction</td><td>Define coronary origins urgently</td></tr>
+                <tr><td>Tachycardia-induced cardiomyopathy</td><td>Incessant tachyarrhythmia precedes HF; recovery after rhythm control</td><td>Identify mechanism and control rhythm</td></tr>
+                <tr><td>Genetic/metabolic DCM</td><td>Family history, recurrent disease, persistent dilation/dysfunction, extracardiac clues</td><td>Genetics/metabolic evaluation; do not let a virus end the workup</td></tr>
+                <tr><td>MIS-C / Kawasaki shock</td><td>Systemic inflammation and syndrome-specific features</td><td>Apply syndrome criteria and coronary evaluation</td></tr>
+                <tr><td>Pericarditis without myocardial involvement</td><td>Pleuritic positional pain, rub/effusion, no myocardial injury</td><td>Distinguish because therapy/activity guidance differs</td></tr>
+                <tr><td>Poisoning / endocrinopathy</td><td>Exposure, thyroid/adrenal signs, unexplained arrhythmia or shock</td><td>Targeted testing and toxicology/endocrine support</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <div class="bottom-actions">
+        <button class="button" type="button" data-open-tab="stabilize">Continue: stabilize the child</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-stabilize" role="tabpanel" aria-labelledby="tab-stabilize" data-panel="stabilize" hidden>
+      <div class="section-heading">
+        <p class="kicker">Stabilization</p>
+        <h2>Treat physiology before etiology</h2>
+        <p>Acute management is not “milrinone for everyone.” It is repeated assessment of congestion, perfusion, blood pressure, rhythm, ventilation, and trajectory—paired with early access to advanced support.</p>
+      </div>
+
+      <article class="card danger-card">
+        <p class="kicker">The first hour</p>
+        <h3>Resident stabilization sequence</h3>
+        <div class="path-timeline">
+          <div class="path-step"><strong>1. Activate</strong><p>PICU, pediatric cardiology/heart failure, respiratory therapy, pharmacy; contact MCS center early when risk is rising.</p></div>
+          <div class="path-step"><strong>2. Monitor</strong><p>Continuous ECG, frequent BP, SpO₂, temperature, urine output, mental status, serial perfusion and lactate/end-organ trends.</p></div>
+          <div class="path-step"><strong>3. Define physiology</strong><p>Congested or dry? Warm or cold? Adequate BP or hypotensive? Rhythm-driven or pump failure? LV, RV, or biventricular?</p></div>
+          <div class="path-step"><strong>4. Support</strong><p>Oxygen/ventilation, cautious fluid or diuresis, and vasoactive therapy selected for that phenotype.</p></div>
+          <div class="path-step"><strong>5. Reassess</strong><p>Minutes, not hours. Escalate support and transfer while the child still has reserve.</p></div>
+        </div>
+        <p class="note">The 2026 AHA pediatric ADHF statement emphasizes rapid structured assessment and cautions that reflexive sepsis fluid protocols may harm a child with heart failure.<a class="cite" href="#ref-adhf">5</a></p>
+      </article>
+
+      <div class="lesson-grid">
+        <article class="card lesson-card">
+          <div class="lesson-number">01</div>
+          <h3>Fluids and diuresis: do not treat the number alone</h3>
+          <ul class="check-list">
+            <li><strong>Congested:</strong> avoid routine bolus; use IV loop diuretic if blood pressure/perfusion permit and reassess response.</li>
+            <li><strong>Uncertain preload:</strong> bedside echo and repeated examination are more valuable than assumptions.</li>
+            <li><strong>True hypovolemia:</strong> use a small cautious aliquot with immediate reassessment rather than an automatic large rapid bolus.</li>
+            <li>Track urine output, weight, renal function, electrolytes, hepatomegaly, work of breathing, lactate, and perfusion.</li>
+          </ul>
+          <div class="alert danger"><strong>Failure mode:</strong> a child can be hypotensive and volume overloaded. Hypotension is not proof that a large fluid bolus is safe.</div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">02</div>
+          <h3>Vasoactive therapy follows phenotype</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Problem</th><th>Principle</th><th>Examples</th></tr></thead>
+              <tbody>
+                <tr><td>Low output with adequate BP / high SVR</td><td>Inotropy plus afterload reduction may help</td><td>Milrinone or dobutamine, specialist titration</td></tr>
+                <tr><td>Hypotension / vasoplegia</td><td>Support coronary/systemic perfusion; avoid worsening hypotension</td><td>Epinephrine or norepinephrine depending physiology</td></tr>
+                <tr><td>RV failure / pulmonary vascular stress</td><td>Optimize oxygenation, ventilation, acid-base status, preload, and PVR</td><td>Specialist-directed inotropy/pulmonary vasodilation</td></tr>
+                <tr><td>Refractory shock</td><td>Stop stacking escalating catecholamines without an MCS plan</td><td>VA-ECMO or VAD strategy at experienced center</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="note"><span class="evidence-badge specialist">Specialist directed</span> No single inotrope is universally “preferred.” Choice depends on BP, SVR, rhythm, kidney function, and ventricular phenotype.</p>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">03</div>
+          <h3>Ventilation is therapy—and a hemodynamic event</h3>
+          <ul class="check-list">
+            <li>Reduce work of breathing and correct hypoxemia/acidosis; noninvasive support may help selected cooperative patients.</li>
+            <li>Positive pressure can reduce LV afterload but can also impair venous return and precipitate collapse in marginal circulation.</li>
+            <li>If intubation is required, involve cardiac anesthesia/critical care when possible, prepare vasoactive rescue, use hemodynamically appropriate induction, and have an MCS contingency.</li>
+            <li>Do not delay a necessary airway; make the airway plan proportional to cardiovascular risk.</li>
+          </ul>
+          <div class="pearl"><strong>Safe phrasing:</strong> “Intubation is high risk and requires preparation,” not “never intubate.”</div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">04</div>
+          <h3>Electrical instability uses PALS principles plus myocardial context</h3>
+          <ul class="check-list">
+            <li>Unstable tachyarrhythmia with a pulse: synchronized cardioversion; pulseless VT/VF: defibrillation and high-quality CPR.</li>
+            <li>Bradycardia/high-grade AV block with poor perfusion: oxygenation/ventilation, appropriate medications, and pacing; electrophysiology input early.</li>
+            <li>Correct hypoxemia, acidosis, electrolytes, fever, pain, and catecholamine excess.</li>
+            <li>Antiarrhythmic choice is rhythm- and hemodynamic-specific; avoid declaring lidocaine or amiodarone universally superior.</li>
+            <li>Recurrent malignant arrhythmia may be a sign that circulation needs mechanical support, not merely another drug.</li>
+          </ul>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">05</div>
+          <h3>Call MCS before irreversible injury</h3>
+          <p>Myocarditis has meaningful recovery potential when perfusion is supported through the inflammatory insult. Consider advanced support for worsening lactate/acidosis, end-organ injury, refractory hypotension, escalating vasoactives, severe biventricular dysfunction, recurrent arrest, or uncontrollable arrhythmia.</p>
+          <div class="two-column">
+            <div class="mini-card"><strong>VA-ECMO</strong><p>Rapid full cardiopulmonary support for shock/arrest; watch LV distension and discuss unloading.</p></div>
+            <div class="mini-card"><strong>VAD</strong><p>Selected ventricular failure with adequate oxygenation, longer support, or bridge to recovery/transplant.</p></div>
+          </div>
+          <div class="resident-action"><strong>Your role:</strong> recognize the trajectory, communicate trends clearly, preserve access/transport options, and trigger the advanced-HF conversation early.</div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">06</div>
+          <h3>Antithrombotic therapy is individualized</h3>
+          <ul class="check-list">
+            <li>Therapeutic anticoagulation is indicated for documented intracardiac thrombus and is protocolized during ECMO/VAD.</li>
+            <li>Severe LV dysfunction, marked dilation, spontaneous echo contrast, central lines, immobility, and other VTE risks may prompt prophylaxis.</li>
+            <li>No evidence-based universal rule says every child with LVEF below a fixed threshold should receive aspirin until LVEF exceeds 40%.</li>
+            <li>Choose agent and intensity with cardiology/hematology/MCS teams, balancing bleeding, procedures, renal function, and thrombosis risk.</li>
+          </ul>
+          <div class="alert"><strong>Correction from the source module:</strong> aspirin-after-ECMO and an LVEF &gt;40% stopping rule are center practices, not universal standards.</div>
+        </article>
+      </div>
+
+      <div class="bottom-actions">
+        <button class="button" type="button" data-open-tab="treat">Continue: disease-directed care and follow-up</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-treat" role="tabpanel" aria-labelledby="tab-treat" data-panel="treat" hidden>
+      <div class="section-heading">
+        <p class="kicker">Treatment and follow-up</p>
+        <h2>Separate the standard from the uncertain</h2>
+        <p>Supportive cardiovascular care is foundational. Immunomodulation, antiviral therapy, biopsy-directed treatment, chronic HF therapy, and return to activity depend on phenotype, evidence, and specialist judgment.</p>
+      </div>
+
+      <div class="lesson-grid">
+        <article class="card lesson-card">
+          <div class="lesson-number">01</div>
+          <h3>What nearly every child needs</h3>
+          <ul class="check-list">
+            <li>Appropriate monitored setting, serial hemodynamic and rhythm assessment, and cardiology involvement.</li>
+            <li>Cause-appropriate supportive care: decongestion, perfusion support, ventilation, arrhythmia treatment, and nutrition.</li>
+            <li>Evaluation for dangerous mimics and specific treatable etiologies.</li>
+            <li>Early advanced-HF/MCS pathway for high-risk or worsening disease.</li>
+            <li>A discharge plan with medication reconciliation, follow-up testing, activity limits, warning symptoms, and a reachable team.</li>
+          </ul>
+          <div class="pearl"><strong>Do not mistake “supportive” for passive.</strong> Timely physiology-directed support is the intervention most clearly linked to surviving fulminant disease.</div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">02</div>
+          <h3>IVIG and corticosteroids: common does not mean proven</h3>
+          <div class="therapy-grid">
+            <div><span class="evidence-badge uncertain">Uncertain</span><strong>IVIG</strong><p>Widely used in pediatric centers, often 2 g/kg, but available studies are heterogeneous and largely observational. Do not present routine benefit as established. Follow center/cardiology protocol and account for volume, kidney function, hemolysis/thrombosis risk, and vaccine timing.</p></div>
+            <div><span class="evidence-badge uncertain">Uncertain</span><strong>Corticosteroids</strong><p>Not routine universal therapy for presumed viral/idiopathic lymphocytic myocarditis. Consider when a defined immune-mediated process, MIS-C/systemic disease, or biopsy-defined subtype makes immunosuppression rational.</p></div>
+          </div>
+          <div class="alert"><strong>Evidence communication:</strong> say “our center uses IVIG in selected pediatric myocarditis despite uncertain comparative evidence,” not “IVIG is the mainstay recommendation.”<a class="cite" href="#ref-aha-peds">1</a></div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">03</div>
+          <h3>Specific etiologies can change treatment</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Phenotype / etiology</th><th>Why it matters</th><th>Direction</th></tr></thead>
+              <tbody>
+                <tr><td>Giant cell myocarditis</td><td>Fulminant HF, VT, or AV block; tissue diagnosis</td><td>Urgent combined immunosuppression plus advanced HF support</td></tr>
+                <tr><td>Eosinophilic / hypersensitivity</td><td>Drug/exposure, eosinophilia may be absent, biopsy may be needed</td><td>Stop trigger; specialist-directed corticosteroids</td></tr>
+                <tr><td>Immune checkpoint inhibitor</td><td>Rare in pediatrics but high risk; may coexist with myositis/MG</td><td>Stop agent; urgent cardio-oncology immunosuppression pathway</td></tr>
+                <tr><td>MIS-C / systemic autoimmune disease</td><td>Myocardial dysfunction is part of a defined inflammatory syndrome</td><td>Use syndrome-specific immunomodulatory guidance</td></tr>
+                <tr><td>Proven treatable infection</td><td>Influenza, HSV, CMV in selected hosts, others</td><td>Pathogen- and host-specific therapy with infectious disease</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="note">Detection of a respiratory virus alone does not establish causality or justify a myocarditis-specific antiviral regimen.</p>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">04</div>
+          <h3>Transition to chronic HF care only after stabilization</h3>
+          <ul class="check-list">
+            <li>Once perfusion and volume status are stable, introduce age- and phenotype-appropriate chronic HF therapy with pediatric cardiology.</li>
+            <li>ACE inhibitor/ARB/ARNI, beta-blocker, mineralocorticoid antagonist, and other therapies depend on age, renal function, BP, rhythm, and evidence; pediatric data vary.</li>
+            <li>Avoid starting or escalating beta-blockade during active decompensation or shock.</li>
+            <li>Digoxin is not a routine acute-myocarditis treatment; if considered later, risk, rhythm, renal function, and narrow therapeutic index require specialist ownership.</li>
+            <li>Persistent or recurrent disease should prompt reassessment for genetic cardiomyopathy and alternative inflammatory etiologies.</li>
+          </ul>
+          <p class="note">The 2023 AHA pediatric cardiomyopathy statement is the appropriate companion for ongoing ventricular dysfunction.<a class="cite" href="#ref-cardiomyopathy">6</a></p>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">05</div>
+          <h3>Return to activity is no longer one fixed clock</h3>
+          <p>During active myocarditis, avoid vigorous exercise and competitive sport. Reassessment must demonstrate clinical recovery and acceptable arrhythmic risk; the timeline depends on the initial phenotype.</p>
+          <div class="activity-grid">
+            <div><strong>Preserved LV function</strong><p>The 2025 AHA/ACC athlete statement allows consideration of return as early as 4–6 weeks when symptoms have resolved, biomarkers and CMR inflammation have resolved, and clinically relevant arrhythmias are absent.</p></div>
+            <div><strong>Reduced LV function / high-risk course</strong><p>Reassessment is generally later and more comprehensive—often 3–6 months—with normalized function/biomarkers and no relevant arrhythmia on ambulatory monitoring and maximal-effort exercise testing.</p></div>
+          </div>
+          <div class="alert"><strong>Correction from older guidance:</strong> six months is not a universal mandatory minimum for every recovered patient. Return is specialist-led, phenotype- and testing-based, and uses shared decision-making.<a class="cite" href="#ref-sports">4</a></div>
+        </article>
+
+        <article class="card lesson-card">
+          <div class="lesson-number">06</div>
+          <h3>Follow-up closes the hidden-risk gap</h3>
+          <ul class="check-list">
+            <li>Confirm cardiology follow-up before discharge; timing depends on ventricular function, rhythm, biomarkers, CMR, and trajectory.</li>
+            <li>Repeat ECG, echocardiography, biomarkers, ambulatory monitoring, exercise testing, and/or CMR according to phenotype—not a generic calendar.</li>
+            <li>Escalate recurrent chest pain, syncope, palpitations, dyspnea, exercise intolerance, edema, poor feeding, or fever with cardiovascular signs.</li>
+            <li>Address school/activity documentation, medication adherence, CPR/AED planning when relevant, and the psychological burden of sudden restriction/critical illness.</li>
+            <li>Do not call normalized LVEF synonymous with complete risk resolution; residual scar or arrhythmia may alter surveillance.</li>
+          </ul>
+        </article>
+      </div>
+
+      <article class="card vaccine-card">
+        <p class="kicker">Vaccination after IVIG</p>
+        <h3>Use the product and dose—not the word “live”</h3>
+        <div class="vaccine-grid">
+          <div><strong>Delay after 2 g/kg IVIG</strong><p>Measles- and varicella-containing injectable vaccines (MMR, varicella, MMRV): generally 11 months after the dose, unless public-health risk warrants a different plan and later revaccination.</p></div>
+          <div><strong>Not delayed by antibody interference</strong><p>Non-live vaccines and the CDC-exempt live vaccines—LAIV, rotavirus, oral Ty21a, and yellow fever—may be given at any interval relative to IVIG, subject to ordinary age/clinical contraindications.</p></div>
+        </div>
+        <div class="pearl"><strong>Correction from the source module:</strong> LAIV is specifically exempt from the antibody-product delay. Acute illness or immunosuppression may still change whether vaccination is clinically appropriate that day.<a class="cite" href="#ref-cdc">7</a></div>
+      </article>
+
+      <div class="bottom-actions">
+        <button class="button" type="button" data-open-tab="cases">Apply the framework in cases</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-cases" role="tabpanel" aria-labelledby="tab-cases" data-panel="cases" hidden>
+      <div class="section-heading">
+        <p class="kicker">Branching clinical cases</p>
+        <h2>Five patients. Decisions compound.</h2>
+        <p>Select a case and commit to each decision. Unsafe choices produce an explanation and require correction before the case advances.</p>
+      </div>
+      <div class="case-picker" id="case-picker" role="group" aria-label="Case selection"></div>
+      <article class="card case-stage" id="case-stage" aria-live="polite"></article>
+      <div class="bottom-actions">
+        <button class="button" type="button" data-open-tab="assessment">Take the mastery posttest</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-assessment" role="tabpanel" aria-labelledby="tab-assessment" data-panel="assessment" hidden>
+      <div class="section-heading">
+        <p class="kicker">Mastery assessment</p>
+        <h2>Can you make the safe next decision?</h2>
+        <p>Fifteen single-best-answer questions sample recognition, diagnosis, stabilization, treatment, and follow-up. Score at least 80% (12/15). Unlimited retries; each attempt reshuffles questions and choices.</p>
+      </div>
+      <article class="card quiz-shell" id="posttest-card">
+        <div class="quiz-start" id="posttest-intro">
+          <div>
+            <h3>Closed-book first attempt recommended</h3>
+            <p>After submission, review every rationale and your domain profile. The best score is saved only in this browser.</p>
+            <p id="best-score" class="note">No attempt recorded.</p>
+          </div>
+          <button class="button" id="posttest-start" type="button">Start posttest</button>
+        </div>
+        <form id="posttest-form" hidden><button type="submit" hidden>Submit assessment</button></form>
+        <div id="posttest-results" aria-live="polite"></div>
+      </article>
+    </section>
+
+    <section class="panel" id="panel-quick" role="tabpanel" aria-labelledby="tab-quick" data-panel="quick" hidden>
+      <div class="section-heading">
+        <p class="kicker">Bedside and print reference</p>
+        <h2>What the resident must do</h2>
+        <p>This is a cognitive aid, not a substitute for institutional protocols or pediatric cardiology/critical-care judgment.</p>
+      </div>
+
+      <div class="print-actions no-print">
+        <button class="button" id="print-reference" type="button">Print quick reference</button>
+        <button class="button button-secondary" id="reset-progress" type="button">Reset module progress</button>
+      </div>
+
+      <article class="card quick-card">
+        <h3>Suspect myocarditis when</h3>
+        <ul class="check-list compact">
+          <li>Persistent/disproportionate tachycardia plus feeding intolerance, dyspnea, chest pain, syncope, palpitations, or exercise intolerance.</li>
+          <li>Respiratory/GI/sepsis phenotype plus hepatomegaly, gallop, poor perfusion, edema, cardiomegaly, or pulmonary edema.</li>
+          <li>New ventricular arrhythmia, high-grade AV block, diffuse ST-T abnormality, or unexplained LV/RV dysfunction.</li>
+        </ul>
+      </article>
+
+      <article class="card quick-card">
+        <h3>First-hour bundle</h3>
+        <ol class="check-list compact">
+          <li>Continuous ECG, frequent BP/perfusion assessment, strict urine output; PICU/cardiology early.</li>
+          <li>ECG, troponin, BNP/NT-proBNP, CBC/CMP/glucose, blood gas/lactate; etiology-directed studies.</li>
+          <li>Urgent echo: biventricular function, dimensions, valves, effusion, thrombus, and coronaries when relevant.</li>
+          <li>Do not reflexively give a large sepsis bolus when congestion or cardiac failure is possible.</li>
+          <li>Transfer early for shock, significant dysfunction, malignant arrhythmia/AV block, rising lactate, end-organ injury, or escalating support.</li>
+        </ol>
+      </article>
+
+      <article class="card quick-card">
+        <h3>Diagnostic guardrails</h3>
+        <div class="two-column">
+          <div><strong>CMR</strong><p>At least one T2-based edema marker + one T1-based nonischemic injury marker. Stable patient; negative/limited study does not erase a compelling phenotype.</p></div>
+          <div><strong>EMB</strong><p>Use when tissue could identify a treatable subtype or resolve a high-stakes mimic. Do not delay stabilization/MCS.</p></div>
+        </div>
+      </article>
+
+      <article class="card quick-card">
+        <h3>Treatment truth table</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Action</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Physiology-directed HF/shock, rhythm, respiratory, and MCS care</td><td><span class="evidence-badge statement">Foundation</span></td></tr>
+              <tr><td>Routine IVIG for every child</td><td><span class="evidence-badge uncertain">Not established</span></td></tr>
+              <tr><td>Routine corticosteroids for presumed viral lymphocytic disease</td><td><span class="evidence-badge uncertain">Not established</span></td></tr>
+              <tr><td>Biopsy-/syndrome-directed immunosuppression</td><td><span class="evidence-badge specialist">Specialist directed</span></td></tr>
+              <tr><td>Antiviral treatment from a positive respiratory panel alone</td><td><span class="evidence-badge uncertain">Not justified</span></td></tr>
+              <tr><td>Therapeutic anticoagulation for thrombus or MCS</td><td><span class="evidence-badge statement">Indicated/protocolized</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="card quick-card">
+        <h3>Discharge checklist</h3>
+        <ul class="check-list compact">
+          <li>Cardiology follow-up and exact testing plan scheduled.</li>
+          <li>Medication doses, monitoring, and stop/hold parameters reconciled.</li>
+          <li>Activity restriction and return-to-play pathway documented; no universal six-month rule.</li>
+          <li>Emergency symptoms reviewed: chest pain, syncope, palpitations, dyspnea, edema, exercise intolerance, poor feeding.</li>
+          <li>If IVIG 2 g/kg was given, flag MMR/varicella/MMRV timing—generally 11 months; do not incorrectly delay LAIV because of IVIG.</li>
+        </ul>
+      </article>
+
+      <article class="card references">
+        <p class="kicker">Primary sources and provenance</p>
+        <h3>What this module is built on</h3>
+        <ol>
+          <li id="ref-aha-peds">Law YM, et al. <a href="https://doi.org/10.1161/CIR.0000000000001001">Diagnosis and Management of Myocarditis in Children: A Scientific Statement From the American Heart Association</a>. <em>Circulation</em>. 2021;144:e123–e135. Pediatric anchor; correction reviewed.</li>
+          <li id="ref-cmr">Ferreira VM, et al. <a href="https://doi.org/10.1016/j.jacc.2018.09.072">Cardiovascular Magnetic Resonance in Nonischemic Myocardial Inflammation: Expert Recommendations</a>. <em>J Am Coll Cardiol</em>. 2018;72:3158–3176. Updated Lake Louise criteria.</li>
+          <li id="ref-acc">Drazner MH, et al. <a href="https://doi.org/10.1016/j.jacc.2024.10.080">2024 ACC Expert Consensus Decision Pathway on Strategies and Criteria for the Diagnosis and Management of Myocarditis</a>. <em>J Am Coll Cardiol</em>. 2025;85:391–431. Adult document used only as a contemporary overlay, not substituted for pediatric guidance.</li>
+          <li id="ref-sports">Kim JH, et al. <a href="https://doi.org/10.1161/CIR.0000000000001297">Clinical Considerations for Competitive Sports Participation for Athletes With Cardiovascular Abnormalities</a>. <em>Circulation</em>. 2025;151:e716–e761. Contemporary return-to-sport framework; published correction reviewed.</li>
+          <li id="ref-adhf">Cabrera AG, et al. <a href="https://doi.org/10.1161/CIR.0000000000001428">Evaluation and Management of the Child With Acute Decompensated Heart Failure</a>. <em>Circulation</em>. 2026;153:e1323–e1335. Pediatric acute-HF stabilization overlay.</li>
+          <li id="ref-cardiomyopathy">Bogle C, et al. <a href="https://doi.org/10.1161/CIR.0000000000001151">Treatment Strategies for Cardiomyopathy in Children</a>. <em>Circulation</em>. 2023;148:174–194. Ongoing ventricular dysfunction/HF framework.</li>
+          <li id="ref-cdc">CDC. <a href="https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html">Timing and Spacing of Immunobiologics</a>. General Best Practice Guidelines for Immunization; accessed August 12, 2026.</li>
+          <li id="ref-fulminant">Kociol RD, et al. <a href="https://doi.org/10.1161/CIR.0000000000000745">Recognition and Initial Management of Fulminant Myocarditis</a>. <em>Circulation</em>. 2020;141:e69–e92. Advanced-center transfer and support principles.</li>
+        </ol>
+        <div class="source-note"><strong>Scope note:</strong> This educational module is designed for supervised resident learning. It does not establish an Ochsner LSU Health protocol, replace local pathways, or prescribe patient-specific care. Last evidence review: August 12, 2026.</div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><strong>Pediatric Myocarditis Resident Academy</strong></p>
+    <p>Steve Todman, MD · Pediatric Cardiology · Educational use only</p>
+  </footer>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

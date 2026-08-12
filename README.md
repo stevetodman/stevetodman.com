@@ -9,6 +9,7 @@ Personal website and tools. Deployed via Cloudflare Pages.
 - **Pediatric Hypertension & ABPM Academy** (`/hypertension/`) - Layered resident curriculum, office algorithms, ABPM interpretation lab, branching cases, and board-style assessment
 - **Cardiovascular Prevention & Dyslipidemia Academy** (`/cardiovascular-risk/`) - Age-driven preventive schedule, current lipid screening and FH treatment logic, legacy-guideline context, decision tools, and eight applied cases
 - **PALS 2025 Resident Mastery Lab** (`/pals/`) - Ten high-acuity cases and 64 retrieval-based questions with immediate guideline-cited explanations and performance analytics
+- **Pediatric Myocarditis Resident Academy** (`/myocarditis/`) - Recognition, diagnostic confidence, pediatric acute-HF stabilization, evidence-calibrated therapy, branching cases, and mastery assessment
 - **Kawasaki Disease Resident Academy** (`/kawasaki/`) - Diagnosis, treatment, coronary risk, branching cases, and board-style assessment
 - **Newborn CCHD Screening** (`/newbornscreen/`) - Updated AAP screening algorithm, bedside response guidance, and interactive quiz
 - **Study Hub** (`/study/`) - Vocabulary quizzes, fraction practice, and timed multiplication drills

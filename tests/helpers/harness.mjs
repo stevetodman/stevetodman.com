@@ -97,6 +97,7 @@ export const SITE_PAGES = [
   '/hypertension/',
   '/cardiovascular-risk/',
   '/aortopathy/',
+  '/myocarditis/',
   '/pals/',
   '/phs/',
   '/admin/',
