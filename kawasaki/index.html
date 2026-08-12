@@ -1,0 +1,1761 @@
+<!doctype html>
+<html lang="en" data-visualize-standalone>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Kawasaki Disease Resident Academy</title>
+<style>:root {
+  color-scheme: light dark;
+  background-color: transparent !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --main-surface-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: light-dark(rgb(26 28 31), rgb(255 255 255));
+  --card: color-mix(in oklab, var(--foreground) 5%, transparent);
+  --card-foreground: var(--foreground);
+  --popover: light-dark(rgb(255 255 255), rgb(45 45 45));
+  --popover-foreground: var(--foreground);
+  --primary: light-dark(rgb(51 156 255), rgb(131 195 255));
+  --primary-foreground: light-dark(rgb(255 255 255), rgb(13 13 13));
+  --secondary: light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%));
+  --secondary-foreground: var(--foreground);
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: light-dark(
+    rgb(26 28 31 / 49.4%),
+    rgb(255 255 255 / 49.8%)
+  );
+  --accent: light-dark(rgb(229 242 255), rgb(13 39 63));
+  --accent-foreground: var(--primary);
+  --destructive: light-dark(rgb(226 85 7), rgb(255 133 73));
+  --border: light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%));
+  --input: light-dark(
+    rgb(26 28 31 / 11.8%),
+    color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+  );
+  --ring: light-dark(rgb(51 156 255), rgb(131 195 255 / 76%));
+  --font-size-base: 14px;
+  --red: light-dark(rgb(186 38 35), rgb(250 66 62));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --radius: 10px;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 17'%3E%3Cpath d='M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z'/%3E%3C/svg%3E");
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+  --color-background-primary: var(--background);
+  --color-text-primary: var(--foreground);
+  --color-border-secondary: var(--border);
+}
+
+:root[data-visualize-standalone] {
+  background-color: var(--background) !important;
+}
+
+/* Generic mobile code-block hosts provide light/dark mode but no series palette.
+   AppBlock hosts set all six variables themselves. */
+:root:not([data-app-block-surface]) {
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(#f3883b, #f59a56);
+  --viz-series-3: light-dark(#5dc977, #74d58b);
+  --viz-series-4: light-dark(#eb77b1, #f08fc0);
+  --viz-series-5: light-dark(#9b79ec, #aa91ef);
+  --viz-series-6: light-dark(#3ab9b1, #5acbc2);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html > body {
+  margin: 0;
+  padding: 5px;
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+:root:not([data-app-block-surface]) > body {
+  padding: 12px;
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive > .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align="right"]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align="center"]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget > :not(.card) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The bundled tooltip runtime owns [data-tooltip]. AppBlock's CSS-only
+   pseudo-tooltip can widen dense grids even while hidden. */
+main [data-tooltip]::after {
+  content: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls > .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls > .form-label > :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--interactive-label-primary-default, var(--primary-foreground));
+  background: var(--interactive-bg-primary-default, var(--foreground));
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(
+    in srgb,
+    var(--interactive-label-primary-default, var(--primary-foreground)) 50%,
+    transparent
+  );
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type="file"] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type="file"]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type="file"]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type="color"] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type="checkbox"]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: "";
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type="radio"]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: "";
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+    [aria-pressed="true"],
+    [aria-selected="true"],
+    .is-selected
+  ) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed="true"], [aria-selected="true"], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget > svg {
+  width: 100%;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+</style>
+</head>
+<body>
+<div id="kd-resident-academy" class="kd-app">
+  <style>
+    #kd-resident-academy { color: var(--foreground); background: var(--background); }
+    #kd-resident-academy * { box-sizing: border-box; }
+    #kd-resident-academy .kd-shell { max-width: 1120px; margin: 0 auto; padding: 1rem; }
+    #kd-resident-academy .kd-hero { padding: 1.2rem 0 1rem; border-bottom: 1px solid var(--border); }
+    #kd-resident-academy .kd-eyebrow { color: var(--muted-foreground); letter-spacing: .08em; text-transform: uppercase; }
+    #kd-resident-academy .kd-subtitle { max-width: 78ch; color: var(--muted-foreground); }
+    #kd-resident-academy .kd-meta, #kd-resident-academy .kd-nav, #kd-resident-academy .kd-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+    #kd-resident-academy .kd-meta { margin-top: .75rem; }
+    #kd-resident-academy .kd-nav { padding: .8rem 0; border-bottom: 1px solid var(--border); }
+    #kd-resident-academy .kd-nav .btn[aria-selected="true"] { background: var(--primary); color: var(--primary-foreground); }
+    #kd-resident-academy .kd-section { display: none; padding: 1rem 0 2rem; }
+    #kd-resident-academy .kd-section.is-active { display: block; }
+    #kd-resident-academy .kd-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    #kd-resident-academy .kd-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    #kd-resident-academy .kd-flow { display: grid; gap: .7rem; margin: 1rem 0; }
+    #kd-resident-academy .kd-flow-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; align-items: stretch; }
+    #kd-resident-academy .kd-node { padding: .8rem; background: color-mix(in srgb, var(--viz-series-1) 10%, transparent); border-left: 4px solid var(--viz-series-1); }
+    #kd-resident-academy .kd-node strong { display: block; margin-bottom: .25rem; }
+    #kd-resident-academy .kd-node.warning { background: color-mix(in srgb, var(--viz-series-3) 10%, transparent); border-left-color: var(--viz-series-3); }
+    #kd-resident-academy .kd-node.danger { background: color-mix(in srgb, var(--destructive) 9%, transparent); border-left-color: var(--destructive); }
+    #kd-resident-academy .kd-arrow { text-align: center; color: var(--muted-foreground); }
+    #kd-resident-academy .kd-callout { padding: .8rem 1rem; border-left: 4px solid var(--viz-series-2); background: color-mix(in srgb, var(--viz-series-2) 9%, transparent); margin: .8rem 0; }
+    #kd-resident-academy .kd-callout.danger { border-left-color: var(--destructive); background: color-mix(in srgb, var(--destructive) 8%, transparent); }
+    #kd-resident-academy .kd-callout strong { display: block; margin-bottom: .2rem; }
+    #kd-resident-academy details { border-bottom: 1px solid var(--border); padding: .65rem 0; }
+    #kd-resident-academy summary { cursor: pointer; font-weight: 500; }
+    #kd-resident-academy .kd-checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem .8rem; margin: .6rem 0; }
+    #kd-resident-academy .kd-output { margin-top: 1rem; padding: 1rem; background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); }
+    #kd-resident-academy .kd-output[data-level="urgent"] { border-left: 5px solid var(--destructive); }
+    #kd-resident-academy .kd-output[data-level="act"] { border-left: 5px solid var(--viz-series-3); }
+    #kd-resident-academy .kd-output[data-level="review"] { border-left: 5px solid var(--viz-series-1); }
+    #kd-resident-academy .kd-table-wrap { overflow-x: auto; }
+    #kd-resident-academy .kd-compare td:first-child { font-weight: 500; }
+    #kd-resident-academy .kd-kicker { color: var(--muted-foreground); margin-bottom: .2rem; }
+    #kd-resident-academy .kd-answer { display: none; margin-top: .75rem; padding-top: .75rem; border-top: 1px solid var(--border); }
+    #kd-resident-academy .kd-answer.is-visible { display: block; }
+    #kd-resident-academy .kd-choice { width: 100%; text-align: left; margin: .28rem 0; }
+    #kd-resident-academy .kd-choice.is-correct { outline: 3px solid var(--green); }
+    #kd-resident-academy .kd-choice.is-wrong { outline: 3px solid var(--destructive); }
+    #kd-resident-academy .kd-progress { height: .55rem; background: var(--muted); margin: .7rem 0 1rem; overflow: hidden; }
+    #kd-resident-academy .kd-progress > span { display: block; height: 100%; background: var(--viz-series-1); transition: width .25s ease; }
+    #kd-resident-academy .kd-case-stage { min-height: 8rem; }
+    #kd-resident-academy .kd-case-log { margin-top: .8rem; color: var(--muted-foreground); }
+    #kd-resident-academy .kd-case-log li { margin-bottom: .3rem; }
+    #kd-resident-academy .kd-pill { display: inline-block; padding: .15rem .45rem; background: var(--secondary); color: var(--secondary-foreground); margin: .1rem .15rem .1rem 0; }
+    #kd-resident-academy .kd-source { padding: .6rem 0; border-bottom: 1px solid var(--border); }
+    #kd-resident-academy .kd-source p { margin: .2rem 0; }
+    #kd-resident-academy .kd-print-only { display: none; }
+    #kd-resident-academy .kd-form-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; }
+    #kd-resident-academy .kd-score { font-variant-numeric: tabular-nums; }
+    #kd-resident-academy .kd-cite { font-size: .82em; vertical-align: super; }
+    #kd-resident-academy .kd-note { color: var(--muted-foreground); }
+    @media (max-width: 760px) {
+      #kd-resident-academy .kd-grid-2, #kd-resident-academy .kd-grid-3, #kd-resident-academy .kd-flow-row, #kd-resident-academy .kd-form-row { grid-template-columns: 1fr; }
+      #kd-resident-academy .kd-checks { grid-template-columns: 1fr; }
+    }
+    @media print {
+      #kd-resident-academy .kd-nav, #kd-resident-academy .kd-no-print, #kd-resident-academy button { display: none !important; }
+      #kd-resident-academy .kd-section { display: block !important; break-before: page; }
+      #kd-resident-academy .kd-section[data-section="core"], #kd-resident-academy .kd-section[data-section="quick"] { break-before: auto; }
+      #kd-resident-academy .kd-print-only { display: block; }
+      #kd-resident-academy .card, #kd-resident-academy .kd-output { break-inside: avoid; }
+      #kd-resident-academy a { color: inherit; text-decoration: none; }
+      #kd-resident-academy.kd-print-quick .kd-section { display: none !important; }
+      #kd-resident-academy.kd-print-quick .kd-section[data-section="quick"] { display: block !important; }
+    }
+  </style>
+
+  <main class="kd-shell">
+    <header class="kd-hero">
+      <div class="kd-eyebrow text-small">Pediatric Resident Academy · Evidence current through August 12, 2026</div>
+      <h1>Kawasaki Disease: Recognize Early, Treat Decisively, Protect the Coronaries</h1>
+      <p class="kd-subtitle">A layered clinical curriculum for pediatric residents: bedside recognition, incomplete-disease reasoning, acute and rescue therapy, coronary risk, KD shock and MAS, MIS-C discrimination, long-term management, branching cases, and board-level assessment.</p>
+      <div class="kd-meta">
+        <span class="viz-badge">Core: 20–25 min</span>
+        <span class="viz-badge">Deep study: 60–90 min</span>
+        <span class="viz-badge">18 board questions</span>
+        <span class="viz-badge">5 branching cases</span>
+        <button type="button" class="btn kd-no-print" id="kd-print-quick"><i data-lucide="printer" aria-hidden="true"></i> Print quick sheets</button>
+        <button type="button" class="btn kd-no-print" id="kd-print-full">Print full module</button>
+      </div>
+      <p class="kd-note text-small">Educational use only. Apply local pathways, formulary constraints, and pediatric cardiology/rheumatology consultation to patient care. Drug doses require independent verification.</p>
+    </header>
+
+    <nav class="kd-nav kd-no-print" aria-label="Curriculum sections">
+      <button type="button" class="btn" data-tab="core" aria-selected="true">Clinical core</button>
+      <button type="button" class="btn" data-tab="diagnose" aria-selected="false">Diagnostic lab</button>
+      <button type="button" class="btn" data-tab="treat" aria-selected="false">Treatment</button>
+      <button type="button" class="btn" data-tab="coronary" aria-selected="false">Coronaries</button>
+      <button type="button" class="btn" data-tab="cases" aria-selected="false">Cases</button>
+      <button type="button" class="btn" data-tab="quiz" aria-selected="false">Board quiz</button>
+      <button type="button" class="btn" data-tab="quick" aria-selected="false">Quick sheets</button>
+      <button type="button" class="btn" data-tab="sources" aria-selected="false">Evidence</button>
+    </nav>
+
+    <section class="kd-section is-active" data-section="core">
+      <h2>The resident’s clinical core</h2>
+      <div class="kd-callout danger"><strong>The harm is delay.</strong>KD has no pathognomonic test. A normal early echocardiogram does not exclude it, and echocardiography must not delay IVIG when the clinical diagnosis is established.<a class="kd-cite" href="#kd-ref-1">1</a></div>
+      <div class="kd-grid-3">
+        <div>
+          <h3>Recognize</h3>
+          <p>Fever plus evolving mucocutaneous inflammation. Ask whether features occurred earlier; they need not coexist. Infants may show only prolonged fever and irritability.</p>
+        </div>
+        <div>
+          <h3>Risk-stratify</h3>
+          <p>Age &lt;6 months and baseline LAD or RCA Z score ≥2.5 are the clearest multiethnic high-risk features. Japanese IVIG-resistance scores do not transport reliably to North American populations.<a class="kd-cite" href="#kd-ref-1">1</a></p>
+        </div>
+        <div>
+          <h3>Act</h3>
+          <p>Give IVIG 2 g/kg promptly, pair it with aspirin per institutional protocol, and consider up-front intensification when high-risk features or coronary aneurysm are present.</p>
+        </div>
+      </div>
+
+      <h3>Complete KD: fever plus the five principal features</h3>
+      <p>With ≥4 principal features, diagnosis can be made at 4 days of fever; an experienced clinician may diagnose at 3 days. Count historical findings.<a class="kd-cite" href="#kd-ref-1">1</a></p>
+      <div class="kd-table-wrap">
+        <table class="table table-sm">
+          <thead><tr><th>Feature</th><th>Typical KD finding</th><th>Finding that argues against KD</th></tr></thead>
+          <tbody>
+            <tr><td>Eyes</td><td>Bilateral bulbar, nonexudative conjunctival injection</td><td>Exudate, unilateral disease</td></tr>
+            <tr><td>Mouth</td><td>Red/cracked lips, strawberry tongue, diffuse oral-pharyngeal erythema</td><td>Oral ulcers, exudative pharyngitis</td></tr>
+            <tr><td>Rash</td><td>Polymorphous; often trunk/perineum/extremities</td><td>Vesicular or bullous eruption</td></tr>
+            <tr><td>Extremities</td><td>Acute palmar/plantar erythema or edema; later periungual peeling</td><td>None is uniquely exclusionary; timing matters</td></tr>
+            <tr><td>Nodes</td><td>Cervical, usually unilateral, ≥1.5 cm</td><td>Diffuse generalized adenopathy suggests another process</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Incomplete KD: a pathway, not a weaker disease</h3>
+      <div class="kd-flow" role="img" aria-label="Incomplete Kawasaki disease reasoning pathway">
+        <div class="kd-node"><strong>Enter the pathway</strong>Fever ≥5 days with 2–3 principal features, or an infant &lt;6 months with unexplained fever ≥7 days.</div>
+        <div class="kd-arrow" aria-hidden="true">↓</div>
+        <div class="kd-node"><strong>Inflammation gate</strong>CRP ≥3 mg/dL and/or ESR ≥40 mm/h. If lower, reassess clinically and repeat evaluation when fever persists; low markers do not erase bedside concern in a young infant.</div>
+        <div class="kd-arrow" aria-hidden="true">↓</div>
+        <div class="kd-flow-row">
+          <div class="kd-node"><strong>Supportive labs: ≥3 of 6</strong>Anemia for age; platelets ≥450,000/µL after day 7; albumin ≤3.0 g/dL; elevated ALT; WBC ≥15,000/µL; sterile pyuria ≥10 WBC/hpf.</div>
+          <div class="kd-node"><strong>Positive echocardiogram</strong>LAD/RCA Z ≥2.5 or aneurysm, or ≥3 suggestive findings: LV dysfunction, mitral regurgitation, pericardial effusion, LAD/RCA Z 2.0–2.49.</div>
+          <div class="kd-node warning"><strong>Clinical escalation</strong>Shock, myocarditis, MAS, evolving features, or no better explanation warrants expert review even when a checkbox pathway is incomplete.</div>
+        </div>
+        <div class="kd-arrow" aria-hidden="true">↓</div>
+        <div class="kd-node danger"><strong>Treat when criteria support KD</strong>IVIG should not wait for every classic feature or for a repeat echo. Incomplete KD has the same coronary stakes.</div>
+      </div>
+
+      <h3>Six errors residents must prevent</h3>
+      <ol>
+        <li>Waiting for day 5 when ≥4 features are already present on day 4.</li>
+        <li>Using a normal first-week echocardiogram to rule out KD.</li>
+        <li>Letting a positive viral test end the evaluation; concurrent infection does not exclude KD.</li>
+        <li>Calling fever at 12–24 hours after IVIG “resistance”; the AHA definition is ≥36 hours after infusion completion.</li>
+        <li>Changing coronary Z-score equations between studies and mistaking a formula change for biological change.</li>
+        <li>Stopping risk-based surveillance because a prior giant aneurysm remodeled to a smaller lumen.</li>
+      </ol>
+
+      <details>
+        <summary>Deep dive: physiology and why coronary size can mislead</summary>
+        <p>Acute arteritis can injure the coronary wall, producing dilation and aneurysm. Later luminal “regression” may reflect true remodeling, layered thrombosis, or myointimal proliferation. Thus, a smaller lumen does not necessarily mean a normal vessel. Long-term risk is anchored to both maximal-ever and current coronary status, not the latest diameter alone.<a class="kd-cite" href="#kd-ref-1">1</a></p>
+      </details>
+      <details>
+        <summary>Deep dive: North American high-risk score</summary>
+        <p>The Son model assigns 1 point each for age &lt;6 months, Asian race, and CRP &gt;13 mg/dL, plus 2 points for initial coronary Z score &gt;2; a score ≥3 predicts greater 8-week CAA risk. It can inform discussion, but the 2024 AHA statement emphasizes age &lt;6 months and baseline LAD/RCA Z ≥2.5 as the most reproducible high-risk signals.<a class="kd-cite" href="#kd-ref-1">1</a><a class="kd-cite" href="#kd-ref-7">7</a></p>
+      </details>
+    </section>
+
+    <section class="kd-section" data-section="diagnose">
+      <h2>Diagnostic reasoning lab</h2>
+      <p>Use this structured aid to expose your reasoning. It cannot establish or exclude KD and should never delay consultation or treatment.</p>
+      <div class="card">
+        <h3>Patient inputs</h3>
+        <div class="kd-form-row">
+          <label class="form-label">Fever days<input id="kd-fever-days" class="form-control" type="number" min="0" max="30" value="5"></label>
+          <label class="form-label">CRP (mg/dL)<input id="kd-crp" class="form-control" type="number" min="0" step="0.1" value="4"></label>
+          <label class="form-label">ESR (mm/h)<input id="kd-esr" class="form-control" type="number" min="0" value="45"></label>
+        </div>
+        <div class="form-check"><input class="form-check-input" type="checkbox" id="kd-young-infant"><label class="form-check-label" for="kd-young-infant">Age &lt;6 months</label></div>
+        <h3>Principal clinical features</h3>
+        <div class="kd-checks" id="kd-principal-checks">
+          <label class="form-check"><input class="form-check-input" type="checkbox" value="conjunctiva"> Bilateral nonexudative conjunctivitis</label>
+          <label class="form-check"><input class="form-check-input" type="checkbox" value="oral"> Oral mucosal changes</label>
+          <label class="form-check"><input class="form-check-input" type="checkbox" value="rash"> Polymorphous rash</label>
+          <label class="form-check"><input class="form-check-input" type="checkbox" value="extremity"> Extremity changes</label>
+          <label class="form-check"><input class="form-check-input" type="checkbox" value="node"> Cervical node ≥1.5 cm</label>
+        </div>
+        <h3>Supportive laboratory findings</h3>
+        <div class="kd-checks" id="kd-lab-checks">
+          <label class="form-check"><input class="form-check-input" type="checkbox"> Anemia for age</label>
+          <label class="form-check"><input class="form-check-input" type="checkbox"> Platelets ≥450,000 after day 7</label>
+          <label class="form-check"><input class="form-check-input" type="checkbox"> Albumin ≤3.0 g/dL</label>
+          <label class="form-check"><input class="form-check-input" type="checkbox"> Elevated ALT</label>
+          <label class="form-check"><input class="form-check-input" type="checkbox"> WBC ≥15,000/µL</label>
+          <label class="form-check"><input class="form-check-input" type="checkbox"> Sterile pyuria ≥10 WBC/hpf</label>
+        </div>
+        <div class="form-check"><input class="form-check-input" type="checkbox" id="kd-positive-echo"><label class="form-check-label" for="kd-positive-echo">Echocardiogram meets incomplete-KD positivity criteria</label></div>
+        <div class="kd-actions"><button type="button" class="btn btn-primary" id="kd-assess">Assess pathway</button><button type="button" class="btn" id="kd-reset-assess">Reset</button></div>
+        <div class="kd-output" id="kd-assessment-output" data-level="review" aria-live="polite"><strong>Ready.</strong> Enter the findings, then assess the pathway.</div>
+      </div>
+
+      <h3>KD versus common mimics</h3>
+      <div class="kd-table-wrap">
+        <table class="table table-sm kd-compare">
+          <thead><tr><th>Alternative</th><th>Clues favoring it</th><th>Reason not to stop thinking about KD</th></tr></thead>
+          <tbody>
+            <tr><td>Adenovirus</td><td>Exudative pharyngitis/conjunctivitis, prominent respiratory disease</td><td>Viral PCR positivity is compatible with coincident KD; use phenotype and course.</td></tr>
+            <tr><td>Scarlet fever/GAS</td><td>Sandpaper rash, exudative pharyngitis, microbiologic confirmation, antibiotic response</td><td>Persistent inflammation or evolving extremity/conjunctival findings require reassessment.</td></tr>
+            <tr><td>Toxic shock/sepsis</td><td>Rapid shock, focal infection, multiorgan failure, positive cultures</td><td>KD shock syndrome exists; treat possible sepsis while evaluating KD and cardiac function.</td></tr>
+            <tr><td>Systemic JIA/MAS</td><td>Quotidian fever, evanescent salmon rash, arthritis; MAS with cytopenias/high ferritin/low fibrinogen</td><td>MAS can complicate KD; falling ESR with rising CRP is a warning pattern.</td></tr>
+            <tr><td>Measles</td><td>Cough, coryza, exudative conjunctivitis, Koplik spots, cephalocaudal rash</td><td>Use exposure and immunization history; isolate while testing.</td></tr>
+            <tr><td>SJS/drug reaction</td><td>Painful erosions, ulcers, targetoid/bullous lesions, drug timing</td><td>Ulcerative mucositis and vesicles are not characteristic of KD.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>KD versus MIS-C</h3>
+      <p>MIS-C is now uncommon but remains an important high-acuity mimic. The CDC surveillance definition is not a bedside diagnostic rule; it explicitly requires no more likely alternative diagnosis.<a class="kd-cite" href="#kd-ref-4">4</a></p>
+      <div class="kd-table-wrap">
+        <table class="table table-sm">
+          <thead><tr><th>Domain</th><th>More typical of KD</th><th>More typical of MIS-C</th></tr></thead>
+          <tbody>
+            <tr><td>Age</td><td>Usually &lt;5 years</td><td>Often older child/adolescent</td></tr>
+            <tr><td>Clinical emphasis</td><td>Mucocutaneous features; coronary abnormalities</td><td>Prominent abdominal pain/vomiting/diarrhea, headache, shock</td></tr>
+            <tr><td>CBC</td><td>Thrombocytosis often emerges after day 7</td><td>Thrombocytopenia and lymphopenia are more prominent</td></tr>
+            <tr><td>Cardiac phenotype</td><td>Coronary dilation/aneurysm</td><td>LV systolic dysfunction, troponin/BNP elevation, effusion, shock</td></tr>
+            <tr><td>SARS-CoV-2</td><td>May be incidental</td><td>Recent infection/exposure supports the syndrome, but seropositivity alone is weak in a highly exposed population</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="kd-section" data-section="treat">
+      <h2>Treatment: standard, intensified, resistant, refractory</h2>
+      <div class="kd-flow" role="img" aria-label="Kawasaki disease treatment ladder">
+        <div class="kd-node"><strong>All diagnosed acute KD</strong>IVIG 2 g/kg IV over 8–12 hours + aspirin. Treat within 10 days, ideally as soon as diagnosis is made. Treat after day 10 when fever, inflammation, or coronary abnormalities persist.</div>
+        <div class="kd-arrow" aria-hidden="true">↓</div>
+        <div class="kd-node warning"><strong>High risk at diagnosis</strong>Age &lt;6 months, baseline LAD/RCA Z ≥2.5, or compelling high-risk phenotype: discuss up-front IVIG plus corticosteroid or infliximab with KD experts.</div>
+        <div class="kd-arrow" aria-hidden="true">↓</div>
+        <div class="kd-node danger"><strong>Fever ≥36 hours after IVIG completion</strong>Reassess diagnosis and infection, repeat echocardiography, then treat IVIG resistance: second IVIG, infliximab, or corticosteroid are common choices; individualize for hemolysis risk and prior therapy.</div>
+        <div class="kd-arrow" aria-hidden="true">↓</div>
+        <div class="kd-node danger"><strong>Refractory or progressive CAA</strong>Multidisciplinary rescue options include anakinra, cyclosporine, and rarely cyclophosphamide; evidence is limited and expert-led care is mandatory.</div>
+      </div>
+
+      <h3>Medication reference</h3>
+      <div class="kd-table-wrap">
+        <table class="table table-sm">
+          <thead><tr><th>Agent</th><th>AHA 2024 regimen</th><th>Resident-level safety point</th><th>Evidence posture</th></tr></thead>
+          <tbody>
+            <tr><td>IVIG</td><td>2 g/kg IV over 8–12 h; slower in shock/myocardial dysfunction</td><td>Hemolysis risk rises with cumulative dose, non-O blood type, and obesity; ESR is unreliable after IVIG; defer MMR and varicella vaccines 11 months.</td><td>Standard of care</td></tr>
+            <tr><td>Aspirin</td><td>30–50 mg/kg/day divided q6h until afebrile 48–72 h, then 3–5 mg/kg once daily</td><td>Do not combine with ibuprofen/NSAIDs that interfere with antiplatelet effect. Acute high/medium dose has not shown better coronary outcomes; follow local protocol.</td><td>Standard antiplatelet; dose uncertainty in acute phase</td></tr>
+            <tr><td>Prednisolone</td><td>2 mg/kg/day divided q8h (max 60 mg/day) then oral course/taper after CRP normalizes</td><td>RAISE benefit was in Japanese high-risk patients; transportability is limited.</td><td>Reasonable intensification</td></tr>
+            <tr><td>Methylprednisolone</td><td>2 mg/kg/day divided q12h (max 60 mg/day), transition to prednisone and taper over 2–4 wk once CRP &lt;1 mg/dL</td><td>Pulse 30 mg/kg (max 1 g) is a specialist regimen used in severe shock/MAS, not routine uncomplicated KD.</td><td>Reasonable intensification/rescue</td></tr>
+            <tr><td>Infliximab</td><td>10 mg/kg IV over 2 h</td><td>KIDCARE: faster defervescence, less retreatment, less anemia, shorter stay than second IVIG; trial was underpowered for coronary outcomes.</td><td>Supported option for IVIG resistance</td></tr>
+            <tr><td>Anakinra</td><td>10 mg/kg/day IV or SC; inpatient IV often divided q12h; short discharge wean</td><td>Safety/pharmacokinetic data exceed efficacy data for coronary outcomes.</td><td>Refractory/MAS specialist option</td></tr>
+            <tr><td>Cyclosporine</td><td>5 mg/kg/day PO divided q12h; monitor 2-h level (goal 300–600 ng/mL) and magnesium</td><td>Use formulation with reliable absorption; major interaction burden.</td><td>Refractory specialist option</td></tr>
+            <tr><td>Cyclophosphamide</td><td>10 mg/kg/day IV in 1–2 doses</td><td>Rare rescue for progressive giant aneurysm despite other therapy; hydration and rheumatology consultation.</td><td>Exceptional rescue</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="kd-grid-2">
+        <div>
+          <h3>KD shock syndrome</h3>
+          <ul>
+            <li>Hypotension, poor perfusion, or myocardial dysfunction; consider ≥20% systolic BP decline from expected baseline.</li>
+            <li>Evaluate and empirically cover sepsis until excluded.</li>
+            <li>Obtain ECG, troponin/BNP, urgent echo, lactate, and organ-function studies.</li>
+            <li>Use fluids judiciously; myocarditis/capillary leak may make indiscriminate boluses harmful.</li>
+            <li>Use slower IVIG infusion, PICU monitoring, vasoactive/respiratory support, and up-front anti-inflammatory intensification.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Macrophage activation syndrome</h3>
+          <ul>
+            <li>Suspect with instability, IVIG nonresponse, cytopenias, hepatosplenomegaly, encephalopathy, or multiorgan failure.</li>
+            <li>Send ferritin, triglycerides, fibrinogen, CBC, LFTs, LDH, coagulation studies.</li>
+            <li>High ferritin, low fibrinogen, transaminitis, coagulopathy, and a falling ESR despite rising CRP are key warnings.</li>
+            <li>Escalate immediately to rheumatology/hematology/PICU; corticosteroids and/or anakinra are commonly used.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Discharge safety</h3>
+      <ul>
+        <li>Afebrile ≥36 hours after treatment, clinically stable, with a clear plan for recurrent fever.</li>
+        <li>If CAA is present, demonstrate stable dimensions on serial studies or improvement before discharge; follow-up within 1 week.</li>
+        <li>Continue antiplatelet therapy exactly as prescribed; provide bleeding and influenza/varicella counseling.</li>
+        <li>Defer measles-mumps-rubella and varicella vaccination for 11 months after IVIG unless an outbreak/exposure changes the risk calculation.</li>
+        <li>For giant aneurysm, teach myocardial ischemia symptoms and CPR; schedule frequent early echocardiography.</li>
+      </ul>
+    </section>
+
+    <section class="kd-section" data-section="coronary">
+      <h2>Coronary imaging, Z scores, thromboprophylaxis, and follow-up</h2>
+      <div class="kd-callout"><strong>Measurement discipline is treatment.</strong>Use accurate height/weight, measure inner edge to inner edge without branching points, and use the same Z-score equation over time. A small diameter error can change category in a small child.<a class="kd-cite" href="#kd-ref-1">1</a></div>
+
+      <h3>AHA coronary classification</h3>
+      <div class="kd-table-wrap">
+        <table class="table table-sm">
+          <thead><tr><th>Category</th><th>Z score / absolute size</th><th>Core implication</th></tr></thead>
+          <tbody>
+            <tr><td>No involvement</td><td>Always &lt;2</td><td>Short-term aspirin and follow-up; may discharge from cardiology if serial studies remain normal.</td></tr>
+            <tr><td>Dilation only</td><td>2 to &lt;2.5</td><td>Repeat imaging; aspirin until normalization.</td></tr>
+            <tr><td>Small aneurysm</td><td>≥2.5 to &lt;5</td><td>Longer aspirin and surveillance; adverse-event risk is low when small and regressed.</td></tr>
+            <tr><td>Medium aneurysm</td><td>≥5 to &lt;10 and absolute diameter &lt;8 mm</td><td>Consider dual antiplatelet therapy while persistent; periodic ischemia/anatomic assessment.</td></tr>
+            <tr><td>Large/giant aneurysm</td><td>≥10 or absolute diameter ≥8 mm</td><td>Aspirin plus systemic anticoagulation; intensive lifelong surveillance.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Risk-level lookup</h3>
+        <p>Select the maximal-ever coronary category and current status. The output summarizes the AHA 2024 table; cardiology owns the individualized plan.</p>
+        <label class="form-label" for="kd-risk-select">Coronary course</label>
+        <select class="form-select" id="kd-risk-select">
+          <option value="1">Never involved (Z always &lt;2)</option>
+          <option value="2">Dilation only (Z 2–&lt;2.5)</option>
+          <option value="3.1">Small aneurysm, current/persistent</option>
+          <option value="3.2">Small aneurysm, regressed to dilation/normal</option>
+          <option value="4.1">Medium aneurysm, current/persistent</option>
+          <option value="4.2">Medium aneurysm, regressed to small</option>
+          <option value="4.3">Medium aneurysm, regressed to dilation/normal</option>
+          <option value="5.1">Large/giant aneurysm, current/persistent</option>
+          <option value="5.2">Large/giant, regressed to medium</option>
+          <option value="5.3">Large/giant, regressed to small</option>
+          <option value="5.4">Large/giant, regressed to dilation/normal</option>
+        </select>
+        <div class="kd-output" id="kd-risk-output" data-level="review" aria-live="polite"></div>
+      </div>
+
+      <h3>Acute imaging cadence</h3>
+      <ul>
+        <li><strong>Baseline:</strong> echo at diagnosis, but never delay IVIG to obtain it.</li>
+        <li><strong>High risk, IVIG resistance, or CAA:</strong> repeat during hospitalization; with Z ≥2.5, at least twice weekly until dimensions stabilize.</li>
+        <li><strong>No coronary involvement:</strong> repeat at 1–2 weeks after discharge. If diagnosis and 1–2-week studies are normal and inflammation resolves, later new clinically important CAA is very unlikely; 4–6-week imaging may be omitted in selected patients under the 2024 approach.</li>
+        <li><strong>Recurrent fever after discharge:</strong> urgent reassessment and echocardiogram unless a clear alternative diagnosis exists.</li>
+      </ul>
+
+      <h3>Thromboprophylaxis logic</h3>
+      <div class="kd-flow-row">
+        <div class="kd-node"><strong>Z 2.5–&lt;5</strong>Single antiplatelet: low-dose aspirin.</div>
+        <div class="kd-node warning"><strong>Z 5–&lt;10</strong>Dual antiplatelet while persistent: low-dose aspirin + clopidogrel is reasonable.</div>
+        <div class="kd-node danger"><strong>Z ≥10 or ≥8 mm</strong>Low-dose aspirin plus warfarin, LMWH, or a DOAC; DAPT may also be considered. Balance thrombosis against bleeding with a KD expert.</div>
+      </div>
+      <p>The major 2024 change: anticoagulation may still be considered when a formerly giant aneurysm has regressed to medium (risk 5.2), especially when lumen reduction could represent thrombosis.<a class="kd-cite" href="#kd-ref-1">1</a><a class="kd-cite" href="#kd-ref-8">8</a></p>
+      <p class="kd-note">For AHA risk levels 4 and 5, β-blocker and statin therapy may be considered case by case; these are not automatic resident-level prescriptions.</p>
+
+      <details>
+        <summary>Deep dive: advanced imaging and inducible ischemia</summary>
+        <p>Coronary CTA offers high-resolution anatomy and can establish a baseline in aneurysm patients; CMR adds ventricular function and stress perfusion without ionizing radiation. Exercise stress echocardiography is preferable for routine surveillance when feasible. Invasive angiography is reserved for ischemia, intervention planning, or inadequate noninvasive definition. Surveillance frequency scales with maximal and current CAA severity.</p>
+      </details>
+      <details>
+        <summary>Deep dive: the acute myocardial infarction problem</summary>
+        <p>Children with giant CAA may present with chest/abdominal pain, dyspnea, pallor, vomiting, unexplained distress, arrhythmia, or arrest. Obtain immediate ECG and troponin and activate pediatric cardiology/interventional expertise. Reperfusion strategy depends on STEMI versus non-ST-elevation ACS, coronary anatomy, thrombus burden, timing, and local PCI/CABG capacity; do not apply an adult protocol mechanically.</p>
+      </details>
+    </section>
+
+    <section class="kd-section" data-section="cases">
+      <h2>Branching clinical cases</h2>
+      <p>Choose one case. Each decision changes the next clinical state; feedback explains both the best move and the attractive error.</p>
+      <div class="viz-controls kd-no-print" id="kd-case-picker">
+        <button type="button" class="btn btn-primary" data-case="0">Silent infant</button>
+        <button type="button" class="btn" data-case="1">Classic day 4</button>
+        <button type="button" class="btn" data-case="2">Shock phenotype</button>
+        <button type="button" class="btn" data-case="3">Post-IVIG fever</button>
+        <button type="button" class="btn" data-case="4">Regressed giant CAA</button>
+      </div>
+      <div class="card kd-case-stage" id="kd-case-stage" aria-live="polite"></div>
+      <ol class="kd-case-log" id="kd-case-log" aria-label="Case reasoning log"></ol>
+    </section>
+
+    <section class="kd-section" data-section="quiz">
+      <h2>ABP-style assessment</h2>
+      <p>Choose the single best answer. Explanations distinguish the correct action from the most plausible distractor.</p>
+      <div class="card" id="kd-quiz-card">
+        <div class="viz-row"><span id="kd-quiz-counter">Question 1 of 18</span><span class="kd-score" id="kd-live-score">Score: 0</span></div>
+        <div class="kd-progress" aria-hidden="true"><span id="kd-quiz-progress" style="width:5.56%"></span></div>
+        <div id="kd-quiz-question"></div>
+        <div id="kd-quiz-options"></div>
+        <div class="kd-answer" id="kd-quiz-explanation" aria-live="polite"></div>
+        <div class="kd-actions"><button type="button" class="btn btn-primary" id="kd-quiz-next" disabled>Next question</button><button type="button" class="btn" id="kd-quiz-restart">Restart</button></div>
+      </div>
+    </section>
+
+    <section class="kd-section" data-section="quick">
+      <h2>Print-ready quick sheets</h2>
+      <div class="kd-grid-2">
+        <div>
+          <h3>At the bedside</h3>
+          <ol>
+            <li>Count current + historical principal features.</li>
+            <li>Check fever day; diagnose complete KD at day 4 with ≥4 features.</li>
+            <li>For incomplete phenotype, obtain CBC/diff, CRP, ESR, CMP/ALT, albumin, UA microscopy, ECG, echo.</li>
+            <li>Do not let a normal early echo or positive viral test close the case.</li>
+            <li>Call cardiology early for infant &lt;6 months, shock/MAS, Z ≥2.5, or diagnostic uncertainty.</li>
+            <li>Treat established KD immediately with IVIG 2 g/kg + aspirin.</li>
+          </ol>
+        </div>
+        <div>
+          <h3>Incomplete KD thresholds</h3>
+          <ul>
+            <li>CRP ≥3 mg/dL and/or ESR ≥40 mm/h</li>
+            <li>Support: ≥3/6 — anemia, platelets ≥450k after day 7, albumin ≤3.0, elevated ALT, WBC ≥15k, sterile pyuria ≥10/hpf</li>
+            <li>Echo positive: LAD/RCA Z ≥2.5, aneurysm, or ≥3 suggestive cardiac findings</li>
+            <li>Infant &lt;6 months + unexplained fever ≥7 days enters pathway even without principal features</li>
+          </ul>
+        </div>
+        <div>
+          <h3>After IVIG</h3>
+          <ul>
+            <li>Start the resistance clock when infusion ends.</li>
+            <li>Persistent/recrudescent fever ≥36 h = IVIG resistance.</li>
+            <li>Repeat clinical/infectious assessment and echo.</li>
+            <li>Second IVIG, infliximab, or corticosteroid are common next options.</li>
+            <li>Check hemoglobin before repeat IVIG; significant hemolysis shifts the choice.</li>
+            <li>ESR rises after IVIG and is not a response marker.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Emergency flags</h3>
+          <ul>
+            <li>Shock, persistent tachycardia, ventricular dysfunction</li>
+            <li>Cytopenias, ferritin elevation, falling fibrinogen</li>
+            <li>Rapidly enlarging coronary Z score</li>
+            <li>Chest/abdominal pain, pallor, vomiting, dyspnea, arrhythmia in giant CAA</li>
+            <li>Recurrent fever within 1 week of discharge</li>
+          </ul>
+        </div>
+      </div>
+      <div class="kd-callout"><strong>One-sentence handoff</strong>“This is illness day __ with __ current or historical principal KD features; CRP/ESR are __; supportive labs are __/6; echo shows maximal LAD/RCA Z __ with ventricular function __; IVIG ended at __; fever status and high-risk features are __.”</div>
+    </section>
+
+    <section class="kd-section" data-section="sources">
+      <h2>Evidence map and update status</h2>
+      <p>The 2024 AHA scientific statement is the clinical backbone. No later U.S. KD management guideline was identified through August 12, 2026. The May 2026 AHA advisory addresses global collaboration and access, not replacement treatment recommendations. The February 2026 Canadian practice point and current pediatric hospital guidance operationalize the AHA update; where they differ, this curriculum labels local-practice variation rather than silently merging recommendations.</p>
+      <div id="kd-ref-1" class="kd-source"><strong>1. AHA 2024 scientific statement — primary source of truth.</strong><p>Jone PN, et al. <a href="https://www.ahajournals.org/doi/10.1161/CIR.0000000000001295">Update on Diagnosis and Management of Kawasaki Disease</a>. Circulation. 2024;150:e481–e500. DOI: 10.1161/CIR.0000000000001295.</p></div>
+      <div id="kd-ref-2" class="kd-source"><strong>2. ACR/VF treatment guideline.</strong><p>Gorelik M, et al. <a href="https://pubmed.ncbi.nlm.nih.gov/35257507/">2021 ACR/VF Guideline for the Management of Kawasaki Disease</a>. Arthritis Care Res. 2022;74:538–548. Used for strength/conditionality of complex treatment recommendations.</p></div>
+      <div id="kd-ref-3" class="kd-source"><strong>3. Canadian Paediatric Society 2026 practice point.</strong><p>Chen A, et al. <a href="https://cps.ca/en/documents/position/kawasaki-disease">Kawasaki disease: Practical guidance on diagnosis and management</a>. Posted February 2, 2026. Used for acute-care operational details and severe phenotypes.</p></div>
+      <div id="kd-ref-4" class="kd-source"><strong>4. Current CDC MIS-C surveillance definition.</strong><p><a href="https://www.cdc.gov/mis/hcp/case-definition-reporting/index.html">Case Definitions and Reporting</a>. Used to prevent misuse of a surveillance construct as a bedside KD exclusion rule.</p></div>
+      <div id="kd-ref-5" class="kd-source"><strong>5. Current CDC MIS-C care overview.</strong><p><a href="https://www.cdc.gov/mis/hcp/clinical-care-treatment/index.html">Clinical Treatment of MIS-C</a>. Updated February 19, 2026.</p></div>
+      <div id="kd-ref-6" class="kd-source"><strong>6. AHA 2026 science advisory.</strong><p>Harahsheh AS, et al. <a href="https://www.ahajournals.org/doi/10.1161/JAHA.126.050184">Importance of Fostering International Collaboration for Optimal Outcomes of Kawasaki Disease Worldwide</a>. JAHA. 2026;15:e050184. Contextual update; not a replacement management guideline.</p></div>
+      <div id="kd-ref-7" class="kd-source"><strong>7. North American CAA risk model.</strong><p>Son MBF, et al. <a href="https://www.ahajournals.org/doi/10.1161/JAHA.118.011319">Risk Model Development and Validation for Prediction of Coronary Artery Aneurysms in Kawasaki Disease</a>. JAHA. 2019;8:e011319.</p></div>
+      <div id="kd-ref-8" class="kd-source"><strong>8. 2024-versus-2017 management synthesis.</strong><p>American College of Cardiology. <a href="https://www.acc.org/latest-in-cardiology/articles/2025/04/28/16/36/aha-scientific-statement-update-on-kawasaki-disease">AHA Scientific Statement Update on Kawasaki Disease</a>. April 28, 2025. Used to cross-check major long-term management changes.</p></div>
+      <div class="kd-callout"><strong>Evidence language used here</strong>“Standard” indicates established care; “reasonable/consider” reflects guideline-supported individualized action; “specialist option” indicates limited comparative efficacy data; and “exceptional rescue” indicates rare expert-led use.</div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+      var root = document.getElementById("kd-resident-academy");
+      if (!root) return;
+
+      var tabs = Array.from(root.querySelectorAll("[data-tab]"));
+      var sections = Array.from(root.querySelectorAll(".kd-section"));
+      function showSection(name) {
+        tabs.forEach(function (button) {
+          var selected = button.getAttribute("data-tab") === name;
+          button.setAttribute("aria-selected", selected ? "true" : "false");
+        });
+        sections.forEach(function (section) {
+          section.classList.toggle("is-active", section.getAttribute("data-section") === name);
+        });
+      }
+      tabs.forEach(function (button) {
+        button.addEventListener("click", function () { showSection(button.getAttribute("data-tab")); });
+      });
+      root.querySelector("#kd-print-quick").addEventListener("click", function () {
+        root.classList.add("kd-print-quick");
+        window.print();
+      });
+      root.querySelector("#kd-print-full").addEventListener("click", function () {
+        root.classList.remove("kd-print-quick");
+        window.print();
+      });
+      window.addEventListener("afterprint", function () { root.classList.remove("kd-print-quick"); });
+
+      function checkedCount(selector) {
+        return root.querySelectorAll(selector + " input:checked").length;
+      }
+      root.querySelector("#kd-assess").addEventListener("click", function () {
+        var fever = Number(root.querySelector("#kd-fever-days").value || 0);
+        var crp = Number(root.querySelector("#kd-crp").value || 0);
+        var esr = Number(root.querySelector("#kd-esr").value || 0);
+        var infant = root.querySelector("#kd-young-infant").checked;
+        var principal = checkedCount("#kd-principal-checks");
+        var labs = checkedCount("#kd-lab-checks");
+        var echo = root.querySelector("#kd-positive-echo").checked;
+        var inflammation = crp >= 3 || esr >= 40;
+        var output = root.querySelector("#kd-assessment-output");
+        var text = "";
+        var level = "review";
+        if (principal >= 4 && fever >= 4) {
+          level = "urgent";
+          text = "<strong>Meets clinical criteria for complete KD.</strong> Treat promptly after excluding a clearly better diagnosis; do not wait for echocardiography. Assess baseline coronary status and high-risk features.";
+        } else if (principal >= 4 && fever === 3) {
+          level = "act";
+          text = "<strong>Possible early complete KD.</strong> The AHA allows diagnosis at day 3 by an experienced clinician. Obtain urgent expert review; do not impose an automatic day-5 delay.";
+        } else if (((fever >= 5 && principal >= 2 && principal <= 3) || (infant && fever >= 7))) {
+          if (inflammation && (labs >= 3 || echo)) {
+            level = "urgent";
+            text = "<strong>Incomplete-KD pathway supports treatment.</strong> Inflammation is elevated and " + (echo ? "the echocardiogram is positive" : labs + " of 6 supportive laboratory criteria are present") + ". Treat and involve pediatric cardiology.";
+          } else if (inflammation) {
+            level = "act";
+            text = "<strong>Incomplete KD remains active in the differential.</strong> The inflammation gate is met, but current supportive data are insufficient. Complete/verify echocardiography, trend evolving features and labs, and obtain expert review rather than declaring KD excluded.";
+          } else {
+            level = infant ? "act" : "review";
+            text = "<strong>Criteria are not currently fulfilled.</strong> Reassess for an alternative diagnosis and repeat examination/laboratory evaluation if fever persists. In a young infant, maintain a lower threshold for echocardiography and consultation.";
+          }
+        } else {
+          text = "<strong>Current checkbox criteria do not establish KD.</strong> This is not a rule-out result. Reconstruct the timeline, examine for resolved/evolving features, pursue the differential, and escalate if the child is ill or the fever persists.";
+        }
+        output.setAttribute("data-level", level);
+        output.innerHTML = text + "<p class='kd-note text-small'>Inputs: fever day " + fever + "; principal features " + principal + "/5; supportive labs " + labs + "/6; CRP " + crp + " mg/dL; ESR " + esr + " mm/h.</p>";
+      });
+      root.querySelector("#kd-reset-assess").addEventListener("click", function () {
+        root.querySelector("#kd-fever-days").value = 5;
+        root.querySelector("#kd-crp").value = 4;
+        root.querySelector("#kd-esr").value = 45;
+        root.querySelectorAll("#kd-principal-checks input, #kd-lab-checks input, #kd-young-infant, #kd-positive-echo").forEach(function (input) { input.checked = false; });
+        var output = root.querySelector("#kd-assessment-output");
+        output.setAttribute("data-level", "review");
+        output.innerHTML = "<strong>Ready.</strong> Enter the findings, then assess the pathway.";
+      });
+
+      var riskData = {
+        "1": {follow:"1–2 wk; consider 4–6 wk if imaging/labs remain abnormal; may discharge 4 wk–1 y", stress:"None", imaging:"None", plate:"Low-dose aspirin through 6 wk, then stop", anticoag:"Not indicated"},
+        "2": {follow:"1–2 wk; 1 y; if persistent, every 2–5 y", stress:"None", imaging:"None", plate:"Low-dose aspirin through 6 wk; stop if normal", anticoag:"Not indicated"},
+        "3.1": {follow:"Within 1 wk; 6 wk; 6 mo; 12 mo; yearly", stress:"Every 3–5 y", imaging:"Consider CTA at 1 y, then every 3–5 y", plate:"Low-dose aspirin", anticoag:"Not indicated"},
+        "3.2": {follow:"Within 1 wk; 6 wk; 1 y; 5 y; may discharge if stress test/CTA normal", stress:"Every 5 y", imaging:"Consider baseline CTA at 1 y", plate:"Continue aspirin until normal dimensions", anticoag:"Not indicated"},
+        "4.1": {follow:"Within 1 wk; 6 wk; 3, 6, 12 mo; yearly", stress:"Every 2–5 y", imaging:"CTA at 1 y; consider every 2–5 y", plate:"Low-dose aspirin + clopidogrel", anticoag:"Not indicated", activity:"Consider contact restriction; self-limit"},
+        "4.2": {follow:"Within 1 wk; 6 wk; 6, 12 mo; yearly", stress:"Every 3–5 y", imaging:"CTA at 1 y; consider every 3–5 y", plate:"Low-dose aspirin", anticoag:"Not indicated"},
+        "4.3": {follow:"Within 1 wk; 6 wk; 6, 12 mo; every 2 y", stress:"Every 4–5 y", imaging:"CTA at 1 y; later if ischemia", plate:"Low-dose aspirin", anticoag:"Not indicated"},
+        "5.1": {follow:"Within 1 wk; 6 wk; 3, 6, 9, 12 mo; then every 6–12 mo", stress:"Every 6–12 mo", imaging:"Baseline CTA 2–6 mo; every 1–5 y or invasive angiography", plate:"Low-dose aspirin; consider clopidogrel", anticoag:"Warfarin, LMWH, or DOAC", activity:"Restrict contact; self-limit"},
+        "5.2": {follow:"Within 1 wk; 6 wk; 3, 6, 9, 12 mo; then every 6–12 mo", stress:"Every 2–5 y", imaging:"CTA at 1 y; consider every 2–5 y", plate:"Low-dose aspirin; consider clopidogrel", anticoag:"Warfarin/LMWH/DOAC may be considered, especially if lumen reduction may be thrombotic", activity:"Restrict contact; self-limit"},
+        "5.3": {follow:"Within 1 wk; 6 wk; 3, 6, 9, 12 mo; then yearly", stress:"Every 3–5 y", imaging:"CTA at 1 y; consider every 3–5 y", plate:"Low-dose aspirin; consider clopidogrel", anticoag:"Not routinely indicated", activity:"Restrict contact; self-limit"},
+        "5.4": {follow:"Within 1 wk; 6 wk; 3, 6, 9, 12 mo; then every 1–2 y", stress:"Every 3–5 y", imaging:"CTA at 1 y; consider every 3–5 y", plate:"Low-dose aspirin", anticoag:"Not routinely indicated", activity:"Restrict contact; self-limit"}
+      };
+      function renderRisk() {
+        var key = root.querySelector("#kd-risk-select").value;
+        var item = riskData[key];
+        root.querySelector("#kd-risk-output").innerHTML = "<strong>Risk level " + key + "</strong><ul><li><b>Visits/echo:</b> " + item.follow + "</li><li><b>Inducible ischemia:</b> " + item.stress + "</li><li><b>Advanced anatomy:</b> " + item.imaging + "</li><li><b>Antiplatelet:</b> " + item.plate + "</li><li><b>Anticoagulation:</b> " + item.anticoag + "</li>" + (item.activity ? "<li><b>Activity:</b> " + item.activity + "</li>" : "") + "</ul><p class='kd-note text-small'>Symptoms, progressive dilation, thrombosis, stenosis, or suboptimal imaging override routine intervals.</p>";
+      }
+      root.querySelector("#kd-risk-select").addEventListener("change", renderRisk);
+      renderRisk();
+
+      var cases = [
+        {title:"Case 1 · The silent infant", intro:"A 3-month-old has 7 days of fever and marked irritability. No rash today. The parent recalls red eyes on day 3. CRP 5.2 mg/dL, ESR 58 mm/h, albumin 2.8 g/dL, hemoglobin low for age, WBC 16,200/µL.", steps:[
+          {q:"Best next action?", options:["Discharge because only one principal feature is present","Enter the incomplete-KD pathway and obtain urgent echocardiography while involving cardiology","Wait for periungual peeling"], correct:1, explain:"Infant <6 months + unexplained fever ≥7 days enters the pathway even with few features. This child also has inflammation and 3 supportive labs."},
+          {q:"Echo is normal. What now?", options:["Normal echo excludes KD","Treat incomplete KD because clinical/laboratory criteria support it","Repeat echo in 6 weeks before deciding"], correct:1, explain:"A normal first-week echo does not exclude KD and must not delay IVIG when the incomplete pathway supports treatment."}
+        ]},
+        {title:"Case 2 · Classic on day 4", intro:"A 4-year-old on fever day 4 has bilateral nonexudative conjunctivitis, cracked lips, polymorphous rash, swollen hands, and a 2-cm unilateral cervical node.", steps:[
+          {q:"Best action?", options:["Wait until day 5","Diagnose complete KD and treat now","Order respiratory PCR and treat only if negative"], correct:1, explain:"Four or more principal features permit diagnosis at day 4. Infection testing may be appropriate, but treatment should not be delayed."},
+          {q:"Baseline echo is normal. What does that change?", options:["Nothing about the need for IVIG","It converts the diagnosis to probable KD","It allows outpatient aspirin alone"], correct:0, explain:"Echo is for coronary/cardiac assessment, not a required positive diagnostic test in complete KD."}
+        ]},
+        {title:"Case 3 · Shock phenotype", intro:"A 10-year-old has fever, severe abdominal pain, conjunctival injection, rash, hypotension, platelets 105,000/µL, lymphopenia, high troponin and BNP, and LVEF 42%. SARS-CoV-2 infection occurred 4 weeks ago.", steps:[
+          {q:"Most likely syndrome?", options:["Uncomplicated classic KD","MIS-C, while simultaneously excluding sepsis and considering overlap","Scarlet fever"], correct:1, explain:"Older age, GI prominence, shock, thrombocytopenia/lymphopenia, LV dysfunction, and recent SARS-CoV-2 strongly favor MIS-C."},
+          {q:"Immediate management frame?", options:["Outpatient aspirin","PICU-level multidisciplinary care, cultures/antibiotics while excluding sepsis, echo and immunomodulation","Wait for coronary Z scores before stabilizing shock"], correct:1, explain:"Stabilization and sepsis coverage proceed in parallel with cardiac evaluation and immunomodulatory treatment."}
+        ]},
+        {title:"Case 4 · Fever after IVIG", intro:"A 2-year-old with KD completed IVIG 40 hours ago. Fever has returned to 39.1°C. Repeat echo shows LAD Z 3.2, increased from 2.4. Hemoglobin fell 2.5 g/dL after IVIG.", steps:[
+          {q:"How should this be labeled?", options:["Expected post-infusion fever","IVIG-resistant KD with progressive small CAA","Recurrent KD"], correct:1, explain:"Fever ≥36 hours after infusion completion meets IVIG resistance. The coronary trajectory raises urgency."},
+          {q:"Most defensible next treatment discussion?", options:["Automatically repeat IVIG","Consider infliximab or corticosteroid rather than reflexive repeat IVIG, given hemolysis and CAA progression","Stop anti-inflammatory therapy and give aspirin only"], correct:1, explain:"Repeat IVIG is an option, but a substantial hemoglobin fall and dose-dependent hemolysis risk favor a non-IVIG agent. Infliximab has comparative operational benefits in KIDCARE."}
+        ]},
+        {title:"Case 5 · The misleading regression", intro:"An 11-year-old had a giant RCA aneurysm (Z 12) at age 3. The current lumen is Z 7.2. The patient takes aspirin and warfarin and wants collision sports.", steps:[
+          {q:"Current risk classification?", options:["Risk 4.1 because the current Z is medium","Risk 5.2 because maximal-ever giant CAA regressed to medium","Risk 2 because the aneurysm improved"], correct:1, explain:"Maximal-ever status remains central. This is a formerly giant aneurysm regressed to medium, AHA risk 5.2."},
+          {q:"Best counseling?", options:["Stop anticoagulation because Z is now <10","Continue specialist thrombosis/bleeding assessment; anticoagulation may remain appropriate and contact sports are restricted","No exercise is permitted"], correct:1, explain:"Lumen reduction can represent thrombosis or myointimal change. Risk 5.2 may still warrant anticoagulation; promote safe activity but restrict collision/contact risk."}
+        ]}
+      ];
+      var activeCase = 0;
+      var caseStep = 0;
+      var caseLocked = false;
+      function renderCase() {
+        var c = cases[activeCase];
+        var stage = root.querySelector("#kd-case-stage");
+        caseLocked = false;
+        if (caseStep >= c.steps.length) {
+          stage.innerHTML = "<p class='kd-kicker'>" + c.title + "</p><h3>Case complete</h3><p>You reached the safe endpoint. Review the reasoning log, then choose another case.</p>";
+          return;
+        }
+        var step = c.steps[caseStep];
+        var intro = caseStep === 0 ? "<p>" + c.intro + "</p>" : "";
+        stage.innerHTML = "<p class='kd-kicker'>" + c.title + " · Decision " + (caseStep + 1) + " of " + c.steps.length + "</p>" + intro + "<h3>" + step.q + "</h3><div id='kd-case-options'></div><div class='kd-answer' id='kd-case-feedback'></div>";
+        var holder = stage.querySelector("#kd-case-options");
+        step.options.forEach(function (label, idx) {
+          var button = document.createElement("button");
+          button.type = "button";
+          button.className = "btn kd-choice";
+          button.textContent = label;
+          button.addEventListener("click", function () {
+            if (caseLocked) return;
+            caseLocked = true;
+            var correct = idx === step.correct;
+            button.classList.add(correct ? "is-correct" : "is-wrong");
+            var feedback = stage.querySelector("#kd-case-feedback");
+            feedback.classList.add("is-visible");
+            feedback.innerHTML = "<strong>" + (correct ? "Best answer." : "Not the best next step.") + "</strong> " + step.explain + " <button type='button' class='btn btn-primary' id='kd-case-continue'>Continue</button>";
+            var li = document.createElement("li");
+            li.textContent = c.title + ", decision " + (caseStep + 1) + ": " + (correct ? "correct — " : "review — ") + step.explain;
+            root.querySelector("#kd-case-log").appendChild(li);
+            feedback.querySelector("#kd-case-continue").addEventListener("click", function () { caseStep += 1; renderCase(); });
+          });
+          holder.appendChild(button);
+        });
+      }
+      root.querySelectorAll("[data-case]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          activeCase = Number(button.getAttribute("data-case"));
+          caseStep = 0;
+          root.querySelector("#kd-case-log").innerHTML = "";
+          root.querySelectorAll("[data-case]").forEach(function (b) { b.classList.remove("btn-primary"); });
+          button.classList.add("btn-primary");
+          renderCase();
+        });
+      });
+      renderCase();
+
+      var quiz = [
+        {q:"A child has 4 principal KD features on fever day 4. What is the best next step?", a:["Wait until day 5","Treat complete KD now","Require a positive echocardiogram","Require thrombocytosis"], c:1, e:"AHA 2024 permits complete KD diagnosis at 4 days with ≥4 principal features; experienced clinicians may diagnose at day 3."},
+        {q:"Which finding is least characteristic of KD?", a:["Bilateral nonexudative conjunctivitis","Strawberry tongue","Vesicular rash","Unilateral cervical lymphadenopathy"], c:2, e:"Vesicular/bullous rash, oral ulcers, and exudative pharyngitis/conjunctivitis argue against KD."},
+        {q:"A 4-month-old has unexplained fever for 7 days and no principal features. Best action?", a:["Exclude KD","Enter the incomplete-KD pathway","Wait for peeling","Give aspirin without evaluation"], c:1, e:"Infants <6 months with ≥7 days unexplained fever should be evaluated for incomplete KD even without principal criteria."},
+        {q:"Which inflammatory threshold opens the incomplete-KD supportive pathway?", a:["CRP ≥1 mg/dL only","ESR ≥20 only","CRP ≥3 mg/dL and/or ESR ≥40 mm/h","Ferritin ≥500 only"], c:2, e:"CRP ≥3 mg/dL and/or ESR ≥40 mm/h is the classic AHA inflammation gate."},
+        {q:"Which is NOT one of the 6 supportive laboratory criteria?", a:["Albumin ≤3.0 g/dL","Platelets ≥450,000 after day 7","Elevated BNP","Sterile pyuria ≥10 WBC/hpf"], c:2, e:"BNP may support myocardial involvement or MIS-C discrimination but is not one of the six incomplete-KD supportive criteria."},
+        {q:"A normal echocardiogram on illness day 5 means:", a:["KD is excluded","IVIG should be withheld","Later CAA remains possible","Only MIS-C remains"], c:2, e:"Normal early coronary dimensions do not exclude KD or later aneurysm development."},
+        {q:"Which patient is clearly high risk by the 2024 AHA multiethnic features?", a:["Age 4 years, CRP 4","Age 5 months","Age 8 years with rash","Age 3 years with ESR 60"], c:1, e:"Age <6 months and baseline LAD/RCA Z ≥2.5 are the most robust high-risk features."},
+        {q:"Standard initial anti-inflammatory therapy is:", a:["IVIG 2 g/kg over 8–12 hours","Infliximab alone","Aspirin alone","Prednisone alone"], c:0, e:"IVIG 2 g/kg is standard. Aspirin is co-administered, but IVIG drives coronary risk reduction."},
+        {q:"Which statement about acute aspirin dosing is most accurate?", a:["High dose clearly reduces CAA","Medium/high dose has not shown better coronary outcomes than lower dosing","Aspirin is contraindicated in KD","Ibuprofen enhances aspirin effect"], c:1, e:"No clear coronary advantage has been shown for medium/high acute doses. Avoid NSAIDs that inhibit aspirin's antiplatelet effect."},
+        {q:"IVIG resistance is defined as fever:", a:["Any time during infusion","12 hours after infusion begins","≥36 hours after infusion completion","7 days after discharge only"], c:2, e:"The clock starts at completion of the initial IVIG infusion."},
+        {q:"A child has IVIG-resistant KD and a major hemoglobin drop after IVIG. Best reasoning?", a:["A second IVIG dose is mandatory","Consider a non-IVIG option such as infliximab or corticosteroid","Stop all therapy","Use ibuprofen"], c:1, e:"Hemolytic anemia is cumulative-dose related; this shifts the tradeoff toward an alternative agent."},
+        {q:"Which pattern favors MIS-C over KD?", a:["Toddler, thrombocytosis, coronary aneurysm","Older child, GI symptoms, lymphopenia, shock, LV dysfunction","Periungual peeling only","Unilateral cervical node only"], c:1, e:"The combined phenotype—not a single SARS-CoV-2 test—does the discriminating work."},
+        {q:"KD shock syndrome requires which fluid strategy?", a:["Automatic repeated 20 mL/kg boluses","Judicious fluid with early assessment of myocardial function and vasoactive need","No IVIG","Outpatient monitoring"], c:1, e:"Myocarditis and capillary leak can make indiscriminate fluid loading harmful."},
+        {q:"Which pattern should trigger concern for MAS complicating KD?", a:["Thrombocytosis and improving CRP","Cytopenias, high ferritin, low fibrinogen, transaminitis","Isolated peeling","Normal CBC and albumin"], c:1, e:"MAS is a hyperinflammatory emergency requiring rapid multidisciplinary immunomodulation."},
+        {q:"A coronary Z score of 6.5 with diameter 6 mm is classified as:", a:["Small","Medium","Giant","Normal"], c:1, e:"Medium CAA is Z ≥5 to <10 with absolute diameter <8 mm."},
+        {q:"A coronary diameter of 8.2 mm with Z score 8.5 is classified as:", a:["Medium because Z <10","Giant because absolute diameter ≥8 mm","Small","Dilation only"], c:1, e:"Either Z ≥10 or absolute diameter ≥8 mm meets large/giant criteria."},
+        {q:"A former giant aneurysm has regressed to medium. Which is correct?", a:["The patient becomes risk level 4 and history is irrelevant","AHA risk 5.2 applies; anticoagulation may still be considered","All antithrombotic therapy stops","No ischemia surveillance is needed"], c:1, e:"Maximal-ever giant status persists in risk classification; lumen reduction may not mean vessel normalization."},
+        {q:"After IVIG, which test is unreliable for tracking inflammation?", a:["CRP","ESR","CBC","ALT"], c:1, e:"IVIG itself elevates ESR; use clinical course and other markers such as CRP."}
+      ];
+      var quizIndex = 0;
+      var quizScore = 0;
+      var quizAnswered = false;
+      function renderQuiz() {
+        var q = quiz[quizIndex];
+        quizAnswered = false;
+        root.querySelector("#kd-quiz-counter").textContent = "Question " + (quizIndex + 1) + " of " + quiz.length;
+        root.querySelector("#kd-live-score").textContent = "Score: " + quizScore;
+        root.querySelector("#kd-quiz-progress").style.width = (((quizIndex + 1) / quiz.length) * 100).toFixed(2) + "%";
+        root.querySelector("#kd-quiz-question").innerHTML = "<h3>" + q.q + "</h3>";
+        var options = root.querySelector("#kd-quiz-options");
+        options.innerHTML = "";
+        q.a.forEach(function (label, idx) {
+          var button = document.createElement("button");
+          button.type = "button";
+          button.className = "btn kd-choice";
+          button.textContent = String.fromCharCode(65 + idx) + ". " + label;
+          button.addEventListener("click", function () {
+            if (quizAnswered) return;
+            quizAnswered = true;
+            var correct = idx === q.c;
+            if (correct) quizScore += 1;
+            Array.from(options.children).forEach(function (child, childIdx) {
+              if (childIdx === q.c) child.classList.add("is-correct");
+              else if (childIdx === idx) child.classList.add("is-wrong");
+            });
+            var explanation = root.querySelector("#kd-quiz-explanation");
+            explanation.classList.add("is-visible");
+            explanation.innerHTML = "<strong>" + (correct ? "Correct." : "Incorrect.") + "</strong> " + q.e;
+            root.querySelector("#kd-live-score").textContent = "Score: " + quizScore;
+            root.querySelector("#kd-quiz-next").disabled = false;
+          });
+          options.appendChild(button);
+        });
+        root.querySelector("#kd-quiz-explanation").classList.remove("is-visible");
+        root.querySelector("#kd-quiz-explanation").innerHTML = "";
+        root.querySelector("#kd-quiz-next").disabled = true;
+        root.querySelector("#kd-quiz-next").textContent = quizIndex === quiz.length - 1 ? "See results" : "Next question";
+      }
+      root.querySelector("#kd-quiz-next").addEventListener("click", function () {
+        if (!quizAnswered) return;
+        if (quizIndex < quiz.length - 1) {
+          quizIndex += 1;
+          renderQuiz();
+        } else {
+          var percent = Math.round((quizScore / quiz.length) * 100);
+          root.querySelector("#kd-quiz-counter").textContent = "Assessment complete";
+          root.querySelector("#kd-live-score").textContent = "Score: " + quizScore + "/" + quiz.length;
+          root.querySelector("#kd-quiz-progress").style.width = "100%";
+          root.querySelector("#kd-quiz-question").innerHTML = "<h3>" + percent + "%</h3><p>" + (percent >= 85 ? "Strong command. Revisit only the explanations you missed." : percent >= 70 ? "Clinically useful foundation. Review incomplete KD and coronary-risk management before retesting." : "Repeat the clinical core and treatment/coronary quick sheets, then retest.") + "</p>";
+          root.querySelector("#kd-quiz-options").innerHTML = "";
+          root.querySelector("#kd-quiz-explanation").classList.remove("is-visible");
+          root.querySelector("#kd-quiz-next").disabled = true;
+        }
+      });
+      root.querySelector("#kd-quiz-restart").addEventListener("click", function () { quizIndex = 0; quizScore = 0; renderQuiz(); });
+      renderQuiz();
+
+      if (window.lucide && typeof window.lucide.createIcons === "function") {
+        window.lucide.createIcons({attrs:{width:16,height:16}});
+      }
+    }());
+  </script>
+</div>
+
+<script id="codex-visualization-floating-ui-core" src="https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js"></script>
+<script id="codex-visualization-floating-ui-dom" src="https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js"></script>
+<script id="codex-visualization-lucide" async src="https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js"></script>
+<script id="codex-visualization-tooltip">/* oxlint-disable typescript/no-unsafe-argument, typescript/no-unsafe-call, typescript/no-unsafe-return */
+// Runs inside the visualization sandbox, not the host webview.
+(() => {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set(["top", "right", "bottom", "left"]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+
+  const getTrigger = (target) =>
+    target?.nodeType === Node.ELEMENT_NODE
+      ? target.closest("[data-tooltip]")
+      : null;
+  const containsTarget = (trigger, target) =>
+    target?.nodeType != null && trigger.contains(target);
+  const getContent = (trigger) =>
+    trigger.getAttribute("data-tooltip")?.trim() ?? "";
+  const getPlacement = (trigger) => {
+    const placement = trigger.getAttribute("data-tooltip-placement");
+    return tooltipPlacements.has(placement) ? placement : "top";
+  };
+  const getTooltip = () => {
+    if (tooltip == null) {
+      tooltip = document.createElement("div");
+      tooltip.id = tooltipId;
+      tooltip.className = "tooltip";
+      tooltip.setAttribute("role", "tooltip");
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) => {
+    const ids = new Set(
+      (trigger.getAttribute("aria-describedby") ?? "")
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute("aria-describedby");
+    } else {
+      trigger.setAttribute("aria-describedby", [...ids].join(" "));
+    }
+  };
+  const clearOpenTimeout = () => {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) => {
+    clearOpenTimeout();
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) => {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              "--tooltip-available-width",
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              "--tooltip-available-height",
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: "fixed",
+    })
+      .then(({ x, y }) => {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = "visible";
+      })
+      .catch(() => {
+        if (activeTrigger === trigger && request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) => {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = "hidden";
+    floating.style.transform = "translate(0, 0)";
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () => {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) => {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() < skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() => {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) => {
+    if (event.pointerType === "touch") {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handleLeave = (event) => {
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) => {
+    const trigger = getTrigger(event.target);
+    if (trigger?.matches(":focus-visible")) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) => {
+    if (event.key === "Escape") {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) => {
+    const trigger = getTrigger(event.target);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const destroy = () => {
+    closeTooltip(false);
+    document.removeEventListener("pointerover", handlePointerOpen);
+    document.removeEventListener("pointerout", handleLeave);
+    document.removeEventListener("focusin", handleFocusIn);
+    document.removeEventListener("focusout", handleLeave);
+    document.removeEventListener("keydown", handleKeyDown);
+    document.removeEventListener("contextmenu", handleContextMenu);
+    tooltip = null;
+  };
+
+  document.addEventListener("pointerover", handlePointerOpen);
+  document.addEventListener("pointerout", handleLeave);
+  document.addEventListener("focusin", handleFocusIn);
+  document.addEventListener("focusout", handleLeave);
+  document.addEventListener("keydown", handleKeyDown);
+  document.addEventListener("contextmenu", handleContextMenu);
+  window.addEventListener("pagehide", destroy, { once: true });
+})();
+</script>
+<script id="codex-visualization-lucide-initialization">(() => {
+  const initialize = () => {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById("codex-visualization-lucide")
+    ?.addEventListener("load", initialize, { once: true });
+})();
+</script>
+</body>
+</html>
