@@ -93,6 +93,7 @@ export const SITE_PAGES = [
   '/study/math-facts.html',
   '/study/100-fact-club.html',
   '/math/',
+  '/newbornscreen/',
   '/phs/',
   '/admin/',
   '/admin/clinic-resources/',
