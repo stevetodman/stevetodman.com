@@ -96,6 +96,7 @@ export const SITE_PAGES = [
   '/newbornscreen/',
   '/hypertension/',
   '/cardiovascular-risk/',
+  '/aortopathy/',
   '/phs/',
   '/admin/',
   '/admin/clinic-resources/',
