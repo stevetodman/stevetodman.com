@@ -36,9 +36,9 @@ describe('PedCardSurg congenital surgery academy', () => {
 
   test('visualizer changes the before/after operative transformation', async () => {
     const { page } = await openModule();
-    assert.match(await page.locator('#vizContent h3').textContent(), /VSD Closure/);
+    assert.match(await page.locator('#vizContent .viz-title h3').textContent(), /VSD Closure/);
     await page.getByRole('button', { name: /Arterial Switch Operation/ }).click();
-    assert.match(await page.locator('#vizContent h3').textContent(), /Arterial Switch Operation/);
+    assert.match(await page.locator('#vizContent .viz-title h3').textContent(), /Arterial Switch Operation/);
     assert.match(await page.locator('#vizContent').textContent(), /CORONARY|coronary/i);
     assert.equal(await page.locator('#vizContent svg').count(), 2);
     await page.close();
