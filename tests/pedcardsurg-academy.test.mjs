@@ -46,7 +46,7 @@ describe('PedCardSurg congenital surgery academy', () => {
     assert.match(await image.evaluate(el => el.currentSrc), /norwood-stage-1-reconstruction\.webp$/);
 
     await page.getByRole('button', { name: /Complete atrioventricular canal repair/ }).click();
-    assert.match(await image.evaluate(el => el.currentSrc), /complete-av-canal-repair\.webp$/);
+    assert.match(await image.evaluate(el => el.currentSrc), /complete-av-canal-repair\.webp\?v=2$/);
     assert.match(await page.locator('#atlasViewer').textContent(), /not an isolated ASD closure/i);
 
     await page.getByRole('button', { name: /Classic Blalock–Taussig shunt/ }).click();
@@ -98,8 +98,8 @@ describe('PedCardSurg congenital surgery academy', () => {
     assert.match(all, /Yasui/i);
     assert.match(all, /Damus.Kaye.Stansel/i);
     assert.doesNotMatch(html, /Visual Surgery Lab|Key lesions by operative problem|Read STAT categories correctly/i);
-    assert.match(html, /assets\/content\.js\?v=20260813-2/);
-    assert.match(html, /assets\/app\.js\?v=20260813-2/);
+    assert.match(html, /assets\/content\.js\?v=20260813-3/);
+    assert.match(html, /assets\/app\.js\?v=20260813-3/);
     assert.match(all, /80%/);
     assert.match(all, /August 12, 2026/);
   });
