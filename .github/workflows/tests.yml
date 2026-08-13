@@ -12,6 +12,7 @@ on:
       - 'study/**'
       - 'admin/**'
       - 'genetics-chd/**'
+      - 'pedcardsurg/**'
       - 'newbornscreen/**'
       - 'index.html'
       - 'package.json'
@@ -26,6 +27,7 @@ on:
       - 'study/**'
       - 'admin/**'
       - 'genetics-chd/**'
+      - 'pedcardsurg/**'
       - 'newbornscreen/**'
       - 'index.html'
       - 'package.json'
@@ -64,7 +66,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in phs/v17/*.js genetics-chd/assets/*.js tests/*.mjs tests/helpers/*.mjs; do
+          for file in phs/v17/*.js genetics-chd/assets/*.js pedcardsurg/assets/*.js tests/*.mjs tests/helpers/*.mjs; do
             node --check "$file"
           done
 
@@ -85,6 +87,9 @@ jobs:
 
       - name: Genetics of CHD academy
         run: npm run test:genetics-chd
+
+      - name: PedCardSurg academy
+        run: npm run test:pedcardsurg
 
       - name: Site conventions and smoke
         run: npm run test:smoke
