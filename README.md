@@ -8,7 +8,7 @@ Personal website and tools. Deployed via Cloudflare Pages.
 - **Clinical Tools** (`/tools/`) - BP percentile calculator (AAP 2017 guidelines), pediatric ABPM pathway preview
 - **Pediatric Hypertension & ABPM Academy** (`/hypertension/`) - Layered resident curriculum, office algorithms, ABPM interpretation lab, branching cases, and board-style assessment
 - **Cardiovascular Prevention & Dyslipidemia Academy** (`/cardiovascular-risk/`) - Age-driven preventive schedule, current lipid screening and FH treatment logic, legacy-guideline context, decision tools, and eight applied cases
-- **PedCardSurg Congenital Heart Surgery Visual Lab** (`/pedcardsurg/`) - Twelve before/after surgical visualizers, 55 PTED visual topics with a legacy-source guardrail, 26 decoded eponyms, current STAT context, and a 44-question mastery assessment
+- **PedCardSurg CHD Surgical Atlas & Visual Lab** (`/pedcardsurg/`) - Ten high-resolution primary surgical diagrams, twelve before/after flow visualizers, 55 PTED visual topics with a legacy-source guardrail, 26 decoded eponyms, current STAT context, and a 44-question mastery assessment
 - **PALS 2025 Resident Mastery Lab** (`/pals/`) - Ten high-acuity cases and 64 retrieval-based questions with immediate guideline-cited explanations and performance analytics
 - **Pediatric Myocarditis Resident Academy** (`/myocarditis/`) - Recognition, diagnostic confidence, pediatric acute-HF stabilization, evidence-calibrated therapy, branching cases, and mastery assessment
 - **Kawasaki Disease Resident Academy** (`/kawasaki/`) - Diagnosis, treatment, coronary risk, branching cases, and board-style assessment

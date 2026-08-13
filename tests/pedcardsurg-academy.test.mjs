@@ -24,12 +24,31 @@ async function openModule(viewport = { width: 1180, height: 900 }) {
 }
 
 describe('PedCardSurg congenital surgery academy', () => {
-  test('loads the complete 12/55/26/44 curriculum without runtime errors', async () => {
+  test('loads the complete 10/12/55/26/44 atlas and curriculum without runtime errors', async () => {
     const { page, errors } = await openModule();
+    assert.equal(await page.locator('#atlasButtons button').count(), 10);
     assert.equal(await page.locator('#procedureButtons button').count(), 12);
     assert.equal(await page.locator('#ptedLibrary .libitem').count(), 55);
     assert.equal(await page.locator('#eponymsGrid .eponym').count(), 26);
     assert.match(await page.locator('#quizApp').textContent(), /44-question mastery assessment/);
+    assert.deepEqual(errors, []);
+    await page.close();
+  });
+
+  test('CHD Atlas uses the supplied primary images with semantic mapping and WebP delivery', async () => {
+    const { page, errors } = await openModule();
+    const image = page.locator('#atlasViewer img');
+    assert.match(await image.getAttribute('alt'), /patent ductus arteriosus/i);
+    assert.match(await image.evaluate(el => el.currentSrc), /pda-ligation-division\.webp$/);
+
+    await page.getByRole('button', { name: /Yasui biventricular LVOT bypass/ }).click();
+    assert.match(await page.locator('#atlasViewer h3').textContent(), /Yasui/);
+    assert.match(await image.evaluate(el => el.currentSrc), /yasui-biventricular-lvot-bypass\.webp$/);
+    assert.match(await page.locator('#atlasViewer').textContent(), /LV output is routed through the VSD/i);
+
+    const atlasDir = path.join(repoRoot, 'pedcardsurg', 'assets', 'chd-atlas');
+    assert.equal(fs.readdirSync(atlasDir).filter(name => name.endsWith('.png')).length, 10);
+    assert.equal(fs.readdirSync(atlasDir).filter(name => name.endsWith('.webp')).length, 10);
     assert.deepEqual(errors, []);
     await page.close();
   });

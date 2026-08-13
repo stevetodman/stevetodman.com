@@ -49,6 +49,9 @@ stevetodman.com/
 │   └── assets/                   # Local styles and interaction logic
 ├── pals/                         # 2025 PALS resident mastery lab
 │   └── index.html                # 10 high-acuity cases, 64 questions, explanations, analytics
+├── pedcardsurg/                  # CHD surgical atlas and resident visual education module
+│   ├── index.html                # Primary atlas, flow visualizers, PTED library, eponyms, assessment
+│   └── assets/chd-atlas/         # Ten supplied full-resolution PNGs plus web-optimized WebP versions
 ├── clipboard-sanitizer/          # Standalone shell utilities (not deployed)
 ├── .github/workflows/            # phs-v17-integrity.yml, update-cooking-index.yml
 ├── study/                        # Kids' Study Hub (stevetodman.com/study)
@@ -256,6 +259,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-13: Added ten supplied high-resolution congenital-heart surgical illustrations to `/pedcardsurg/` as the primary CHD Surgical Atlas, with clinically reviewed titles, flow transformations, interpretation checkpoints, full-resolution PNG access, WebP delivery, responsive/mobile behavior, homepage discovery, and automated atlas interaction/asset checks. Preserved the existing simplified before/after schematics as secondary flow-teaching tools.
 - 2026-08-12: Expanded `/genetics-chd/` with an optional point-of-care genomic workbench covering GeneReviews, OMIM, ClinGen validity/dosage, ClinVar, gnomAD, HPO, DECIPHER, Orphanet, and Face2Gene; added a six-question report-interrogation workflow, worked examples, rapid-genome and emerging-omics boundaries, and three new assessment items. Updated the RASopathy-HCM section to reflect the selected retrospective 2025 MEK-inhibitor cohort while preserving its off-label, nonrandomized, expert-center status; posttest is now 18 questions.
 - 2026-08-12: Rebuilt the uploaded genetics-of-congenital-heart-disease resource at /genetics-chd/, replacing inaccurate universal testing ladders, fixed recurrence percentages, inflated 22q11.2 associations, cfDNA diagnostic language, VUS overinterpretation, and experimental-therapy emphasis. Added a resident action pathway, high-yield pattern table, immediate extracardiac safety bundles, results/counseling guardrails, 5 branching cases, diagnostic pretest, 15-question 80%-to-pass posttest, printable reference, primary-source provenance through 2026, homepage discovery, and browser regression coverage.
 - 2026-08-12: Rebuilt the uploaded pediatric myocarditis resource as `/myocarditis/`, correcting the Lake Louise criteria, return-to-sport timing, post-IVIG vaccine guidance, antithrombotic overclaims, and treatment certainty. Added action-focused recognition/diagnosis/stabilization lessons, 5 branching cases, a diagnostic pretest, 15-question 80%-to-pass posttest, printable reference, primary-source provenance, homepage discovery, and browser regression coverage.
