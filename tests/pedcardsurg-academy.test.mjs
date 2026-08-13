@@ -98,6 +98,8 @@ describe('PedCardSurg congenital surgery academy', () => {
     assert.match(all, /Yasui/i);
     assert.match(all, /Damus.Kaye.Stansel/i);
     assert.doesNotMatch(html, /Visual Surgery Lab|Key lesions by operative problem|Read STAT categories correctly/i);
+    assert.match(html, /assets\/content\.js\?v=20260813-2/);
+    assert.match(html, /assets\/app\.js\?v=20260813-2/);
     assert.match(all, /80%/);
     assert.match(all, /August 12, 2026/);
   });
