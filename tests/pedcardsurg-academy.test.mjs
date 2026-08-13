@@ -24,13 +24,13 @@ async function openModule(viewport = { width: 1180, height: 900 }) {
 }
 
 describe('PedCardSurg congenital surgery academy', () => {
-  test('loads the complete 10/12/55/26/44 atlas and curriculum without runtime errors', async () => {
+  test('loads the complete 9/55/26/44 atlas and curriculum without runtime errors', async () => {
     const { page, errors } = await openModule();
-    assert.equal(await page.locator('#atlasButtons button').count(), 10);
-    assert.equal(await page.locator('#procedureButtons button').count(), 12);
+    assert.equal(await page.locator('#atlasButtons button').count(), 9);
     assert.equal(await page.locator('#ptedLibrary .libitem').count(), 55);
     assert.equal(await page.locator('#eponymsGrid .eponym').count(), 26);
     assert.match(await page.locator('#quizApp').textContent(), /44-question mastery assessment/);
+    assert.equal(await page.locator('#visual-lab, #lesions, #outcomes').count(), 0);
     assert.deepEqual(errors, []);
     await page.close();
   });
@@ -41,25 +41,22 @@ describe('PedCardSurg congenital surgery academy', () => {
     assert.match(await image.getAttribute('alt'), /patent ductus arteriosus/i);
     assert.match(await image.evaluate(el => el.currentSrc), /pda-ligation-division\.webp$/);
 
-    await page.getByRole('button', { name: /Yasui biventricular LVOT bypass/ }).click();
-    assert.match(await page.locator('#atlasViewer h3').textContent(), /Yasui/);
-    assert.match(await image.evaluate(el => el.currentSrc), /yasui-biventricular-lvot-bypass\.webp$/);
-    assert.match(await page.locator('#atlasViewer').textContent(), /LV output is routed through the VSD/i);
+    await page.getByRole('button', { name: /Norwood stage I reconstruction/ }).click();
+    assert.match(await page.locator('#atlasViewer h3').textContent(), /Norwood stage I reconstruction/);
+    assert.match(await image.evaluate(el => el.currentSrc), /norwood-stage-1-reconstruction\.webp$/);
+
+    await page.getByRole('button', { name: /Complete atrioventricular canal repair/ }).click();
+    assert.match(await image.evaluate(el => el.currentSrc), /complete-av-canal-repair\.webp$/);
+    assert.match(await page.locator('#atlasViewer').textContent(), /not an isolated ASD closure/i);
+
+    await page.getByRole('button', { name: /Classic Blalock–Taussig shunt/ }).click();
+    assert.match(await image.evaluate(el => el.currentSrc), /classic-blalock-taussig-shunt\.webp$/);
+    assert.match(await page.locator('#atlasViewer').textContent(), /subclavian artery/i);
 
     const atlasDir = path.join(repoRoot, 'pedcardsurg', 'assets', 'chd-atlas');
-    assert.equal(fs.readdirSync(atlasDir).filter(name => name.endsWith('.png')).length, 10);
-    assert.equal(fs.readdirSync(atlasDir).filter(name => name.endsWith('.webp')).length, 10);
+    assert.equal(fs.readdirSync(atlasDir).filter(name => name.endsWith('.png')).length, 9);
+    assert.equal(fs.readdirSync(atlasDir).filter(name => name.endsWith('.webp')).length, 9);
     assert.deepEqual(errors, []);
-    await page.close();
-  });
-
-  test('visualizer changes the before/after operative transformation', async () => {
-    const { page } = await openModule();
-    assert.match(await page.locator('#vizContent .viz-title h3').textContent(), /VSD Closure/);
-    await page.getByRole('button', { name: /Arterial Switch Operation/ }).click();
-    assert.match(await page.locator('#vizContent .viz-title h3').textContent(), /Arterial Switch Operation/);
-    assert.match(await page.locator('#vizContent').textContent(), /CORONARY|coronary/i);
-    assert.equal(await page.locator('#vizContent svg').count(), 2);
     await page.close();
   });
 
@@ -100,7 +97,7 @@ describe('PedCardSurg congenital surgery academy', () => {
     assert.match(all, /Warden/i);
     assert.match(all, /Yasui/i);
     assert.match(all, /Damus.Kaye.Stansel/i);
-    assert.match(all, /procedure category is not identical to an individual patient's predicted risk/i);
+    assert.doesNotMatch(html, /Visual Surgery Lab|Key lesions by operative problem|Read STAT categories correctly/i);
     assert.match(all, /80%/);
     assert.match(all, /August 12, 2026/);
   });
