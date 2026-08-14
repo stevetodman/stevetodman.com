@@ -8,10 +8,13 @@ the account-bound installations.
 
 > Open this repository as the active project. Read `AGENTS.md`, `README.md`, and
 > `LOCAL_HANDOFF.md` completely. Run `Scripts/Check-Workstation.ps1`, then
-> `Scripts/Run-Validation.ps1`, generate Unreal project files, and build the
-> CardioHospitalEditor target. Fix any compile or data-schema errors. Do not add
-> rooms or characters until the baseline build and automation test pass. Commit
-> the validated baseline to GitHub.
+> `Scripts/Run-Validation.ps1`, `Scripts/Generate-ProjectFiles.ps1`,
+> `Scripts/Build-Editor.ps1`, `Scripts/Run-Automation.ps1`, and
+> `Scripts/Package-Windows.ps1`. Fix any compile, automation, packaging, or
+> data-schema errors. Do not add rooms or characters until the baseline build
+> and automation test pass. Commit the validated baseline to GitHub. Do not mark
+> the package manifest walkthrough flag true; walkthrough status is recorded
+> only after the packaged executable is run.
 
 ## Installation-bound actions
 
@@ -33,4 +36,3 @@ Do not enter institutional credentials into project files or terminal prompts.
 4. Implement dialogue selection from `case-hcm` in the clinical data subsystem.
 5. Add voice, listening pose, gaze, blink, and facial performance.
 6. Package and run the vertical slice before creating additional characters.
-

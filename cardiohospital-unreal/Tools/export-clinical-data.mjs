@@ -1,7 +1,8 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { createHash } from "node:crypto";
+import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+
+import { computeSourceHashes } from "./clinical-data-contract.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(here, "..");
@@ -12,12 +13,6 @@ async function load(moduleName) {
   return import(pathToFileURL(resolve(legacyRoot, moduleName)).href);
 }
 
-async function sha256(path) {
-  const source = await readFile(path, "utf8");
-  const normalizedSource = source.replace(/\r\n/g, "\n");
-  return createHash("sha256").update(normalizedSource, "utf8").digest("hex");
-}
-
 const casesModule = await load("cases-data.ts");
 const metadataModule = await load("case-metadata.ts");
 const capstoneModule = await load("capstone.ts");
@@ -26,19 +21,7 @@ const nicuModule = await load("nicu-case.ts");
 const orModule = await load("or-case.ts");
 const mriModule = await load("mri-case.ts");
 
-const sourceFiles = [
-  "cases-data.ts",
-  "case-metadata.ts",
-  "capstone.ts",
-  "cath-case.ts",
-  "nicu-case.ts",
-  "or-case.ts",
-  "mri-case.ts",
-];
-
-const sourceHashes = Object.fromEntries(
-  await Promise.all(sourceFiles.map(async (name) => [name, await sha256(resolve(legacyRoot, name))])),
-);
+const sourceHashes = await computeSourceHashes(legacyRoot);
 
 const document = {
   schemaVersion: 1,

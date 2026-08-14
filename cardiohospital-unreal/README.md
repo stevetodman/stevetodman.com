@@ -26,6 +26,28 @@ Run `Scripts/Check-Workstation.ps1` first. Then right-click
 `CardioHospital.uproject`, generate Visual Studio project files, and build the
 `CardioHospitalEditor` target for Win64 Development.
 
+The equivalent repeatable PowerShell sequence is:
+
+```powershell
+./Scripts/Run-Validation.ps1
+./Scripts/Generate-ProjectFiles.ps1
+./Scripts/Build-Editor.ps1
+./Scripts/Run-Automation.ps1
+./Scripts/Package-Windows.ps1 -Configuration Development
+```
+
+Pass `-EngineRoot` to any Unreal-dependent script when UE 5.8 is installed in a
+non-standard directory, or set `UE_5_8_ROOT` for the current shell. Automation
+reports are written under `Saved/AutomationReports`; packaged builds and their
+SHA-256 manifests are written under `PackagedBuilds`. Both directories are
+ignored by Git. A package manifest always begins with `walkthroughPassed=false`;
+only a real packaged walkthrough can satisfy that quality gate.
+
+GitHub Actions repeats the portable export, contract validation, determinism
+tests, and generated-file check on both Windows and Linux. This gate does not
+claim that Unreal Header Tool, C++ compilation, cooking, or the walkthrough has
+passed; those remain local UE 5.8 gates.
+
 ## Clinical source of truth
 
 `Content/Data/clinical-content.json` is generated from the preserved TypeScript
@@ -44,4 +66,3 @@ Rules:
 Unreal-generated directories are ignored. Large source assets belong in Git LFS
 or a release asset store, not ordinary Git history. Packaged builds should be
 published as GitHub Releases.
-

@@ -1,19 +1,23 @@
 [CmdletBinding()]
 param(
-    [string]$EngineRoot = "C:\Program Files\Epic Games\UE_5.8"
+    [string]$EngineRoot
 )
 
 $ErrorActionPreference = "Stop"
-$projectRoot = Split-Path -Parent $PSScriptRoot
-$projectFile = Join-Path $projectRoot "CardioHospital.uproject"
-$buildBat = Join-Path $EngineRoot "Engine\Build\BatchFiles\Build.bat"
+. (Join-Path $PSScriptRoot "Unreal-Common.ps1")
 
-if (-not (Test-Path $buildBat)) {
-    throw "Unreal build script not found at $buildBat. Pass -EngineRoot with the UE 5.8 install directory."
-}
+$resolvedEngineRoot = Resolve-CardioEngineRoot -EngineRoot $EngineRoot
+$projectFile = Get-CardioProjectFile
+$buildBat = Join-Path $resolvedEngineRoot "Engine\Build\BatchFiles\Build.bat"
 
-& $buildBat CardioHospitalEditor Win64 Development $projectFile -WaitMutex -FromMsBuild
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+Invoke-CardioCommand -FilePath $buildBat -ArgumentList @(
+    "CardioHospitalEditor",
+    "Win64",
+    "Development",
+    $projectFile,
+    "-WaitMutex",
+    "-FromMsBuild"
+)
 
 Write-Host "CardioHospitalEditor build completed." -ForegroundColor Green
 
