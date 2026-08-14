@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="description" content="Cardio Hospital — immersive pediatric cardiology simulation development preview.">
   <title>Cardio Hospital — 3D Development Preview</title>
-  <link rel="stylesheet" href="style.css?v=20260814-3">
+  <link rel="stylesheet" href="base.css?v=20260814-4">
+  <link rel="stylesheet" href="style.css?v=20260814-4">
+  <link rel="stylesheet" href="ecg.css?v=20260814-4">
   <script type="importmap">
     {
       "imports": {
@@ -111,7 +113,7 @@
       <div id="testsPanel" class="clinical-panel hidden">
         <p class="panel-prompt">Order only what you need. Unnecessary testing lowers efficiency.</p>
         <div class="action-grid test-grid">
-          <button class="clinical-action critical-action" data-test="ecg">Order ECG</button>
+          <button class="clinical-action critical-action" data-test="ecg">Acquire + interpret ECG</button>
           <button class="clinical-action critical-action" data-test="echo">Order echocardiogram</button>
           <button class="clinical-action" data-test="troponin">Order troponin + BNP</button>
           <button class="clinical-action" data-test="mri">Order cardiac MRI</button>
@@ -151,8 +153,52 @@
       </div>
     </section>
 
-    <aside class="build-label">VERTICAL SLICE · SPATIAL AUSCULTATION 0.3</aside>
+    <div id="ecgBackdrop" class="ecg-backdrop hidden">
+      <section class="ecg-reader" role="dialog" aria-modal="true" aria-labelledby="ecgTitle">
+        <header class="ecg-reader__header">
+          <div><p class="eyebrow">Diagnostic room · 12-lead ECG</p><h2 id="ecgTitle">Marcus Chen <small>14 years · HR 66 bpm</small></h2></div>
+          <button id="closeEcg" class="icon-button" aria-label="Close ECG reader">×</button>
+        </header>
+        <div class="ecg-toolbar">
+          <div><span>Speed</span><button class="ecg-control selected" data-speed="25">25 mm/s</button><button class="ecg-control" data-speed="50">50 mm/s</button></div>
+          <div><span>Gain</span><button class="ecg-control" data-gain="5">5 mm/mV</button><button class="ecg-control selected" data-gain="10">10 mm/mV</button><button class="ecg-control" data-gain="20">20 mm/mV</button></div>
+          <strong id="ecgCalibration">25 mm/s · 10 mm/mV</strong>
+        </div>
+        <div class="ecg-paper">
+          <svg id="ecgSvg" viewBox="0 0 1200 690" role="img" aria-label="Synthetic twelve-lead electrocardiogram for interpretation">
+            <defs>
+              <pattern id="smallGrid" width="5" height="5" patternUnits="userSpaceOnUse"><path d="M 5 0 L 0 0 0 5" fill="none" stroke="#f5b7bd" stroke-width="0.45"/></pattern>
+              <pattern id="largeGrid" width="25" height="25" patternUnits="userSpaceOnUse"><rect width="25" height="25" fill="url(#smallGrid)"/><path d="M 25 0 L 0 0 0 25" fill="none" stroke="#df7f8b" stroke-width="0.9"/></pattern>
+            </defs>
+            <rect width="1200" height="690" fill="#fff9f5"/>
+            <rect width="1200" height="690" fill="url(#largeGrid)"/>
+            <g id="ecgTraces"></g>
+          </svg>
+        </div>
+        <div class="ecg-interpretation">
+          <div>
+            <p class="field-label">Commit your interpretation before revealing the report</p>
+            <div class="finding-grid">
+              <label><input type="checkbox" value="sinus"> Sinus rhythm</label>
+              <label><input type="checkbox" value="lvh"> LVH by voltage</label>
+              <label><input type="checkbox" value="lateral_q"> Deep narrow lateral Q waves</label>
+              <label><input type="checkbox" value="lateral_t"> Lateral T-wave inversion</label>
+              <label><input type="checkbox" value="wpw"> Ventricular pre-excitation</label>
+              <label><input type="checkbox" value="longqt"> Prolonged QTc</label>
+              <label><input type="checkbox" value="st_elevation"> Diffuse ST elevation</label>
+            </div>
+          </div>
+          <div class="ecg-commit">
+            <div id="ecgFeedback" class="ecg-feedback">The machine interpretation is intentionally hidden.</div>
+            <button id="submitEcg" class="primary">Commit ECG interpretation</button>
+          </div>
+        </div>
+        <small class="simulation-disclaimer">Synthetic teaching tracing—not a validated diagnostic ECG or substitute for source recordings.</small>
+      </section>
+    </div>
+
+    <aside class="build-label">VERTICAL SLICE · ECG INTERPRETATION 0.4</aside>
   </main>
-  <script type="module" src="app.js?v=20260814-3"></script>
+  <script type="module" src="app.js?v=20260814-4"></script>
 </body>
 </html>
