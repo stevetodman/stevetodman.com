@@ -1,0 +1,1448 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "source-hash-derived",
+  "sourceHashes": {
+    "cases-data.ts": "f758aba2c8e84ad95e24921b7a34b5e572181e62af9dab23675a57f9dc87a331",
+    "case-metadata.ts": "4ee38020d7afddd1293bfeced41144adab769525a11e2468981ce604e462ffe7",
+    "capstone.ts": "f41ef28c8f3f65f880f6463eecc078a33a26c5bef2c5633ede9d3b556fc443f1",
+    "cath-case.ts": "6cfae2d628c6c8fcae29925f8928b69fa08d9d9fd915bb2f53be12bcc8f817b9",
+    "nicu-case.ts": "64dd08870b3466774b23982897af52101204b5b32539551adba46e103ed502ab",
+    "or-case.ts": "525615e3f6f817c7535eec6754f30a43106b79bd8c0a7463f5c3de4ffc3c8fd9",
+    "mri-case.ts": "ddfc94ff2c693f2861eedb204bae3c6b48329731263340e8cce5dcb364c7963b"
+  },
+  "cases": [
+    {
+      "id": "case-hcm",
+      "patientName": "Marcus Chen",
+      "age": 14,
+      "sex": "M",
+      "chiefComplaint": "Passed out at basketball practice",
+      "room": "Room 3",
+      "vibe": "A tall, athletic 14-year-old sits on the exam table in a basketball jersey. His mother sits beside him, arms crossed anxiously. He glances up briefly as you enter.",
+      "parentPresent": true,
+      "allowConfidentialInterview": true,
+      "correctDiagnosis": "Hypertrophic Cardiomyopathy",
+      "differentials": [
+        "Hypertrophic Cardiomyopathy",
+        "Vasovagal syncope",
+        "Long QT syndrome",
+        "Seizure",
+        "Dehydration"
+      ],
+      "history": [
+        {
+          "key": "generic",
+          "question": "What brought you in today?",
+          "answer": "He collapsed at basketball practice yesterday. Coach said he just went down."
+        },
+        {
+          "key": "exertional_timing",
+          "question": "Did the fainting happen during or after exercise?",
+          "answer": "It was right in the middle of a sprint drill. He didn't even slow down first.",
+          "redFlag": true
+        },
+        {
+          "key": "prodrome",
+          "question": "Did you feel any warning — lightheaded, nauseous, hot?",
+          "answer": "No. One second I was running, then I woke up on the floor.",
+          "redFlag": true
+        },
+        {
+          "key": "palpitations",
+          "question": "Have you had racing heartbeats or chest pain with exercise?",
+          "answer": "Sometimes my chest feels tight when I really push. I didn't say anything."
+        },
+        {
+          "key": "family_sudden_death",
+          "question": "Has anyone in the family died suddenly or young?",
+          "answer": "...actually, my brother died at 29. They never really figured out why. He was healthy.",
+          "redFlag": true
+        },
+        {
+          "key": "triggers",
+          "question": "Anything unusual that day — sick, dehydrated, new meds?",
+          "answer": "No, he was totally normal that morning."
+        },
+        {
+          "key": "activity_level",
+          "question": "How competitive is his sport participation?",
+          "answer": "He's on varsity basketball. Practice five days a week, games on weekends."
+        },
+        {
+          "key": "stimulant_use",
+          "question": "Any stimulant medications or ADHD treatment?",
+          "answer": "He tried a friend's Adderall a couple times before big games. I never told my mom.",
+          "confidential": true,
+          "redFlag": true
+        }
+      ],
+      "exam": {
+        "general": "Well-appearing, tall, muscular adolescent. NAD.",
+        "vitals": {
+          "HR": 68,
+          "BP": "118/72",
+          "RR": 14,
+          "SpO2": 99
+        },
+        "auscultation": [
+          {
+            "site": "RUSB",
+            "description": "Normal S1, S2. No murmur."
+          },
+          {
+            "site": "LUSB",
+            "description": "Soft systolic murmur, grade 2/6."
+          },
+          {
+            "site": "LLSB",
+            "description": "Harsh crescendo-decrescendo systolic murmur, grade 3/6. Louder with Valsalva."
+          },
+          {
+            "site": "Apex",
+            "description": "S1 normal. Faint holosystolic murmur."
+          }
+        ],
+        "femoralPulses": "2+ bilaterally, symmetric.",
+        "extras": [
+          "No dysmorphic features.",
+          "No edema.",
+          "Prominent PMI."
+        ]
+      },
+      "ecg": {
+        "rhythm": "Sinus rhythm",
+        "rate": 66,
+        "intervals": {
+          "PR": "148 ms",
+          "QRS": "94 ms",
+          "QTc": "432 ms"
+        },
+        "axis": "Left axis deviation",
+        "keyFindings": [
+          "Prominent LVH by voltage criteria",
+          "Deep, narrow Q waves in lateral leads (I, aVL, V5-V6)",
+          "T-wave inversion in lateral leads"
+        ],
+        "pattern": "lvh"
+      },
+      "echo": {
+        "summary": "Asymmetric septal hypertrophy consistent with HCM.",
+        "keyFindings": [
+          "Septal wall thickness 22 mm (severe)",
+          "LVOT gradient 45 mmHg at rest, 78 mmHg with Valsalva",
+          "Systolic anterior motion of the mitral valve",
+          "Preserved LV systolic function"
+        ],
+        "anomaly": "hcm"
+      },
+      "appropriateTests": [
+        "ECG",
+        "Echocardiogram",
+        "Genetics referral"
+      ],
+      "unnecessaryTests": [
+        "Cardiac MRI",
+        "CT angiography",
+        "Troponin",
+        "BNP"
+      ],
+      "correctManagement": [
+        "Restrict from competitive sports immediately",
+        "Refer for electrophysiology / ICD evaluation",
+        "Family screening (first-degree relatives)",
+        "Genetics consultation"
+      ],
+      "redFlagKeys": [
+        "exertional_timing",
+        "family_sudden_death",
+        "prodrome"
+      ],
+      "teachingPoint": "Syncope DURING exertion + family history of sudden death is HCM until proven otherwise. Exercise restriction should occur BEFORE diagnostic completion.",
+      "missedOpportunityTemplate": {
+        "exertional_timing": "You never asked whether the syncope occurred during or after exercise. Mid-exertional syncope is a red flag for structural heart disease.",
+        "family_sudden_death": "You did not ask about premature sudden death in relatives. This history dramatically changes pretest probability for HCM and channelopathies.",
+        "prodrome": "You did not clarify prodromal symptoms. Absence of prodrome argues against vasovagal etiology."
+      },
+      "attendingSocratic": [
+        "What makes you comfortable with that diagnosis?",
+        "What specifically about the timing of the syncope concerns you?",
+        "Before we finish testing, what does he need to stop doing today?"
+      ]
+    },
+    {
+      "id": "case-vasovagal",
+      "patientName": "Ava Rodriguez",
+      "age": 15,
+      "sex": "F",
+      "chiefComplaint": "Fainted after cross-country race",
+      "room": "Room 1",
+      "vibe": "A slender 15-year-old sits with her father. She's on her phone but looks up politely. She seems relaxed.",
+      "parentPresent": true,
+      "allowConfidentialInterview": true,
+      "correctDiagnosis": "Post-exertional vasovagal syncope",
+      "differentials": [
+        "Post-exertional vasovagal syncope",
+        "Hypertrophic Cardiomyopathy",
+        "Dehydration",
+        "Long QT syndrome"
+      ],
+      "history": [
+        {
+          "key": "generic",
+          "question": "What brought you in today?",
+          "answer": "I passed out at a cross-country meet last week. My coach freaked out."
+        },
+        {
+          "key": "exertional_timing",
+          "question": "Did it happen during the race or after you finished?",
+          "answer": "After. I finished, walked to the water table, and about a minute later I felt weird and went down."
+        },
+        {
+          "key": "prodrome",
+          "question": "Did you feel warning symptoms before?",
+          "answer": "Yeah — I got really hot, tunnel vision, kind of nauseous. Then I remember waking up."
+        },
+        {
+          "key": "triggers",
+          "question": "Had you eaten or drunk enough that day?",
+          "answer": "Honestly not really. I was nervous, skipped breakfast, and it was hot."
+        },
+        {
+          "key": "family_sudden_death",
+          "question": "Any family history of sudden death or heart problems young?",
+          "answer": "No, everyone's healthy."
+        },
+        {
+          "key": "palpitations",
+          "question": "Any chest pain or racing heart with exercise normally?",
+          "answer": "No, I feel fine when I run."
+        },
+        {
+          "key": "substance_use",
+          "question": "Any vaping, energy drinks, or other substances?",
+          "answer": "I vape sometimes. And I had two big energy drinks before the meet. Please don't tell my dad.",
+          "confidential": true,
+          "redFlag": true
+        }
+      ],
+      "exam": {
+        "general": "Well-appearing, athletic build.",
+        "vitals": {
+          "HR": 58,
+          "BP": "108/64",
+          "RR": 12,
+          "SpO2": 100
+        },
+        "auscultation": [
+          {
+            "site": "RUSB",
+            "description": "Normal S1, S2."
+          },
+          {
+            "site": "LUSB",
+            "description": "Normal S1, S2. No murmur."
+          },
+          {
+            "site": "LLSB",
+            "description": "Normal S1, S2. No murmur."
+          },
+          {
+            "site": "Apex",
+            "description": "Normal S1, S2. No murmur."
+          }
+        ],
+        "femoralPulses": "2+ bilaterally, symmetric.",
+        "extras": [
+          "No dysmorphic features.",
+          "No edema."
+        ]
+      },
+      "ecg": {
+        "rhythm": "Sinus bradycardia (athletic)",
+        "rate": 54,
+        "intervals": {
+          "PR": "156 ms",
+          "QRS": "88 ms",
+          "QTc": "418 ms"
+        },
+        "axis": "Normal",
+        "keyFindings": [
+          "Sinus bradycardia consistent with athletic training",
+          "No LVH criteria",
+          "Normal repolarization"
+        ],
+        "pattern": "normal"
+      },
+      "echo": {
+        "summary": "Structurally normal heart.",
+        "keyFindings": [
+          "Normal chamber sizes",
+          "Preserved biventricular function",
+          "No valvular abnormality"
+        ],
+        "anomaly": "normal"
+      },
+      "appropriateTests": [
+        "ECG"
+      ],
+      "unnecessaryTests": [
+        "Echocardiogram",
+        "Cardiac MRI",
+        "Holter",
+        "Troponin",
+        "BNP"
+      ],
+      "correctManagement": [
+        "Reassurance",
+        "Hydration and nutrition counseling",
+        "Continue competitive sports",
+        "Return precautions"
+      ],
+      "redFlagKeys": [
+        "exertional_timing",
+        "prodrome",
+        "triggers"
+      ],
+      "teachingPoint": "POST-exertional syncope with a prodrome and dehydration risk factors is classic vasovagal. Extensive workup is unnecessary and can lead to inappropriate activity restriction.",
+      "missedOpportunityTemplate": {
+        "exertional_timing": "You did not clarify the timing relative to exercise. During vs. after exercise is the single most important discriminating feature.",
+        "prodrome": "You did not ask about prodromal symptoms. A clear prodrome strongly supports a vasovagal mechanism.",
+        "triggers": "You did not screen for dehydration, fasting, or heat exposure — all reversible contributors."
+      },
+      "attendingSocratic": [
+        "What features here point away from a structural cardiac cause?",
+        "How would your workup change if the episode had been mid-run?",
+        "What are you telling the family about future activity?"
+      ]
+    },
+    {
+      "id": "case-innocent-murmur",
+      "patientName": "Liam Foster",
+      "age": 5,
+      "sex": "M",
+      "chiefComplaint": "Murmur heard at well-child visit",
+      "room": "Room 2",
+      "vibe": "A 5-year-old sits on the floor with a toy dinosaur. His mother is patient and unhurried. He looks up and grins at you.",
+      "parentPresent": true,
+      "correctDiagnosis": "Still's murmur (innocent)",
+      "differentials": [
+        "Still's murmur (innocent)",
+        "Small VSD",
+        "Pulmonary flow murmur",
+        "Mild aortic stenosis"
+      ],
+      "history": [
+        {
+          "key": "generic",
+          "question": "What brings you in today?",
+          "answer": "His pediatrician heard a murmur at his 5-year check-up."
+        },
+        {
+          "key": "activity_level",
+          "question": "How's his activity level and growth?",
+          "answer": "He runs around like a maniac. Grows just fine."
+        },
+        {
+          "key": "palpitations",
+          "question": "Any chest pain, shortness of breath with play, or fainting?",
+          "answer": "Nothing like that. He's a totally normal kid."
+        },
+        {
+          "key": "family_sudden_death",
+          "question": "Family history of congenital heart disease or sudden death?",
+          "answer": "No, no one."
+        },
+        {
+          "key": "viral_illness",
+          "question": "Any recent illnesses?",
+          "answer": "He had a cold two weeks ago, otherwise well."
+        }
+      ],
+      "exam": {
+        "general": "Well-appearing, active preschooler.",
+        "vitals": {
+          "HR": 92,
+          "BP": "98/60",
+          "RR": 20,
+          "SpO2": 100
+        },
+        "auscultation": [
+          {
+            "site": "RUSB",
+            "description": "Normal S1, S2."
+          },
+          {
+            "site": "LUSB",
+            "description": "Soft I/VI systolic murmur."
+          },
+          {
+            "site": "LLSB",
+            "description": "Grade II/VI musical, vibratory systolic ejection murmur. Softer when standing."
+          },
+          {
+            "site": "Apex",
+            "description": "Normal S1, S2."
+          }
+        ],
+        "femoralPulses": "2+ bilaterally, symmetric.",
+        "extras": [
+          "No cyanosis.",
+          "No hepatomegaly.",
+          "Normal growth curve."
+        ]
+      },
+      "ecg": {
+        "rhythm": "Sinus rhythm",
+        "rate": 90,
+        "intervals": {
+          "PR": "128 ms",
+          "QRS": "78 ms",
+          "QTc": "402 ms"
+        },
+        "axis": "Normal",
+        "keyFindings": [
+          "Normal pediatric ECG"
+        ],
+        "pattern": "normal"
+      },
+      "echo": {
+        "summary": "Not indicated based on classic innocent murmur features.",
+        "keyFindings": [
+          "N/A"
+        ],
+        "anomaly": "none"
+      },
+      "appropriateTests": [],
+      "unnecessaryTests": [
+        "ECG",
+        "Echocardiogram",
+        "CXR",
+        "BNP"
+      ],
+      "correctManagement": [
+        "Reassure family — classic innocent murmur",
+        "No activity restriction",
+        "Routine pediatric follow-up"
+      ],
+      "redFlagKeys": [
+        "activity_level",
+        "palpitations"
+      ],
+      "teachingPoint": "Still's murmur is classic: musical, vibratory, position-dependent, in an asymptomatic thriving child. No workup needed. Ordering an echo teaches the family the murmur is scary — it isn't.",
+      "missedOpportunityTemplate": {
+        "activity_level": "You did not confirm normal activity and growth — the strongest bedside evidence against pathology.",
+        "palpitations": "You did not screen for symptoms. An asymptomatic murmur in a thriving child rarely requires imaging."
+      },
+      "attendingSocratic": [
+        "What features of this murmur point to innocence?",
+        "If you order an echo here, what have you taught the family?",
+        "How do you counsel them today?"
+      ]
+    },
+    {
+      "id": "case-wpw",
+      "patientName": "Sofia Patel",
+      "age": 12,
+      "sex": "F",
+      "chiefComplaint": "Recurrent palpitations with sudden onset",
+      "room": "Room 4",
+      "vibe": "A poised 12-year-old sits with her father. She looks well but describes her episodes matter-of-factly.",
+      "parentPresent": true,
+      "correctDiagnosis": "Wolff-Parkinson-White syndrome",
+      "differentials": [
+        "Wolff-Parkinson-White syndrome",
+        "Sinus tachycardia",
+        "Anxiety",
+        "POTS"
+      ],
+      "history": [
+        {
+          "key": "generic",
+          "question": "Tell me about the episodes.",
+          "answer": "My heart just suddenly starts racing. Like a switch flipped. It's happened four times now."
+        },
+        {
+          "key": "triggers",
+          "question": "Anything triggers them?",
+          "answer": "Not really — once during math class, once while running, once just sitting on the couch."
+        },
+        {
+          "key": "palpitations",
+          "question": "How long do they last, and how do they stop?",
+          "answer": "About 10 to 20 minutes. They just suddenly stop — same way they start.",
+          "redFlag": true
+        },
+        {
+          "key": "prodrome",
+          "question": "Any chest pain, fainting, or dizziness?",
+          "answer": "I get dizzy sometimes but I haven't passed out."
+        },
+        {
+          "key": "family_sudden_death",
+          "question": "Family history of arrhythmia or sudden death?",
+          "answer": "No."
+        }
+      ],
+      "exam": {
+        "general": "Well-appearing, in NSR currently.",
+        "vitals": {
+          "HR": 82,
+          "BP": "110/68",
+          "RR": 14,
+          "SpO2": 100
+        },
+        "auscultation": [
+          {
+            "site": "RUSB",
+            "description": "Normal S1, S2."
+          },
+          {
+            "site": "LUSB",
+            "description": "Normal S1, S2."
+          },
+          {
+            "site": "LLSB",
+            "description": "Normal S1, S2."
+          },
+          {
+            "site": "Apex",
+            "description": "Normal S1, S2."
+          }
+        ],
+        "femoralPulses": "2+ bilaterally.",
+        "extras": [
+          "No dysmorphic features."
+        ]
+      },
+      "ecg": {
+        "rhythm": "Sinus rhythm with pre-excitation",
+        "rate": 78,
+        "intervals": {
+          "PR": "98 ms (short)",
+          "QRS": "128 ms (wide)",
+          "QTc": "420 ms"
+        },
+        "axis": "Normal",
+        "keyFindings": [
+          "Short PR interval (< 120 ms)",
+          "Delta wave slurring the upstroke of the QRS",
+          "Widened QRS",
+          "Consistent with WPW pattern"
+        ],
+        "pattern": "wpw"
+      },
+      "echo": {
+        "summary": "Structurally normal heart.",
+        "keyFindings": [
+          "Normal chambers and function"
+        ],
+        "anomaly": "normal"
+      },
+      "appropriateTests": [
+        "ECG",
+        "Echocardiogram",
+        "Holter"
+      ],
+      "unnecessaryTests": [
+        "Cardiac MRI",
+        "CT angiography",
+        "BNP"
+      ],
+      "correctManagement": [
+        "Refer to electrophysiology",
+        "Counsel on vagal maneuvers",
+        "Discuss risk stratification and ablation"
+      ],
+      "redFlagKeys": [
+        "palpitations",
+        "prodrome"
+      ],
+      "teachingPoint": "Sudden-onset, sudden-offset palpitations = paroxysmal SVT. On the ECG, short PR + delta wave = WPW. EP referral is required; ablation is often curative.",
+      "missedOpportunityTemplate": {
+        "palpitations": "You did not clarify onset and offset. Abrupt on/off is the hallmark of paroxysmal SVT.",
+        "prodrome": "You did not ask about associated syncope. Syncope with WPW markedly changes urgency."
+      },
+      "attendingSocratic": [
+        "What on the ECG makes this WPW rather than plain SVT?",
+        "Why does the on/off pattern matter?",
+        "What's the disposition and follow-up plan?"
+      ]
+    },
+    {
+      "id": "case-myocarditis",
+      "patientName": "Ethan Kim",
+      "age": 16,
+      "sex": "M",
+      "chiefComplaint": "Chest pain and fatigue after viral illness",
+      "room": "Room 2",
+      "vibe": "A 16-year-old sits slightly hunched, looking tired. His mother watches him with concern. He winces when he shifts position.",
+      "parentPresent": true,
+      "allowConfidentialInterview": true,
+      "correctDiagnosis": "Postviral myocarditis",
+      "differentials": [
+        "Postviral myocarditis",
+        "Musculoskeletal chest pain",
+        "Pericarditis",
+        "Anxiety"
+      ],
+      "history": [
+        {
+          "key": "generic",
+          "question": "What's been going on?",
+          "answer": "I had a bad cold two weeks ago, and since then I've felt exhausted. My chest has been aching for four days."
+        },
+        {
+          "key": "viral_illness",
+          "question": "Tell me about the illness — fever, aches?",
+          "answer": "High fever for three days, body aches, sore throat. It was rough.",
+          "redFlag": true
+        },
+        {
+          "key": "activity_level",
+          "question": "Any exercise intolerance now?",
+          "answer": "I got winded walking upstairs yesterday. I'm normally a swimmer. That's not right.",
+          "redFlag": true
+        },
+        {
+          "key": "palpitations",
+          "question": "Any palpitations, dizziness, or syncope?",
+          "answer": "My heart feels weird sometimes — like it skips. No fainting."
+        },
+        {
+          "key": "prodrome",
+          "question": "Any chest pain characteristics — sharp, positional, radiating?",
+          "answer": "Dull, in the middle. Worse when I lie flat. Not really positional otherwise."
+        },
+        {
+          "key": "substance_use",
+          "question": "Any substance use I should know about — vaping, THC, cocaine, other?",
+          "answer": "I vape. I tried a cousin's cocaine once at a party three months ago. Just once.",
+          "confidential": true
+        }
+      ],
+      "exam": {
+        "general": "Ill-appearing, fatigued adolescent.",
+        "vitals": {
+          "HR": 118,
+          "BP": "98/62",
+          "RR": 20,
+          "SpO2": 96
+        },
+        "auscultation": [
+          {
+            "site": "RUSB",
+            "description": "Normal S1, S2."
+          },
+          {
+            "site": "LUSB",
+            "description": "S1, S2 present. Possible S3 gallop."
+          },
+          {
+            "site": "LLSB",
+            "description": "Faint holosystolic murmur (functional MR)."
+          },
+          {
+            "site": "Apex",
+            "description": "Displaced PMI. S3 gallop."
+          }
+        ],
+        "femoralPulses": "2+ bilaterally, symmetric but thready.",
+        "extras": [
+          "Mild JVD.",
+          "No peripheral edema.",
+          "Warm and well-perfused."
+        ]
+      },
+      "ecg": {
+        "rhythm": "Sinus tachycardia",
+        "rate": 118,
+        "intervals": {
+          "PR": "162 ms",
+          "QRS": "96 ms",
+          "QTc": "448 ms"
+        },
+        "axis": "Normal",
+        "keyFindings": [
+          "Sinus tachycardia",
+          "Diffuse low-voltage QRS",
+          "Non-specific ST-T wave changes",
+          "Occasional PVCs"
+        ],
+        "pattern": "myocarditis"
+      },
+      "echo": {
+        "summary": "Mildly dilated LV with reduced systolic function.",
+        "keyFindings": [
+          "LVEF 42%",
+          "Mild LV dilation",
+          "Trivial pericardial effusion",
+          "Functional MR"
+        ],
+        "anomaly": "myocarditis"
+      },
+      "appropriateTests": [
+        "ECG",
+        "Echocardiogram",
+        "Troponin",
+        "BNP",
+        "CBC",
+        "CMP",
+        "Cardiac MRI"
+      ],
+      "unnecessaryTests": [
+        "CT angiography",
+        "Holter",
+        "TSH"
+      ],
+      "correctManagement": [
+        "Admit to cardiology / CICU",
+        "Exercise restriction",
+        "Serial troponin and BNP",
+        "Consider cardiac MRI",
+        "Supportive heart failure care as needed"
+      ],
+      "redFlagKeys": [
+        "viral_illness",
+        "activity_level",
+        "palpitations"
+      ],
+      "teachingPoint": "Postviral chest pain + new exercise intolerance + tachycardia + low-voltage ECG = suspect myocarditis. This is a can't-miss admission, not a reassurance visit.",
+      "missedOpportunityTemplate": {
+        "viral_illness": "You did not connect the recent viral illness to the current presentation — the strongest historical clue.",
+        "activity_level": "You did not ask about new exercise intolerance — a red flag for cardiac involvement.",
+        "palpitations": "You did not screen for arrhythmic symptoms."
+      },
+      "attendingSocratic": [
+        "What is the constellation here pointing toward?",
+        "Is this a reassurance visit or an admission?",
+        "What are you monitoring and why?"
+      ]
+    },
+    {
+      "id": "case-longqt",
+      "patientName": "Maya Johnson",
+      "age": 13,
+      "sex": "F",
+      "chiefComplaint": "Fainted diving into a swimming pool",
+      "room": "Room 1",
+      "vibe": "A 13-year-old sits with her mother. She looks embarrassed. Her mother is quiet, holding a folder of medical records.",
+      "parentPresent": true,
+      "correctDiagnosis": "Long QT syndrome",
+      "differentials": [
+        "Long QT syndrome",
+        "Vasovagal syncope",
+        "Hypertrophic Cardiomyopathy",
+        "Breath-holding spell",
+        "Seizure"
+      ],
+      "history": [
+        {
+          "key": "generic",
+          "question": "Tell me what happened.",
+          "answer": "She dove into the pool at swim practice and never came up. Her coach pulled her out. She was blue for a few seconds and then came around."
+        },
+        {
+          "key": "triggers",
+          "question": "Anything special about the moment? A loud noise, being startled, water?",
+          "answer": "She dove in headfirst on the starter's whistle. That was the exact moment.",
+          "redFlag": true
+        },
+        {
+          "key": "prodrome",
+          "question": "Did she have any warning symptoms before?",
+          "answer": "No warning. It was just the whistle, the dive, and then she wasn't moving.",
+          "redFlag": true
+        },
+        {
+          "key": "palpitations",
+          "question": "Any prior palpitations, chest pain, or near-fainting?",
+          "answer": "She has had a couple of 'weird spells' when she got surprised. We just brushed it off."
+        },
+        {
+          "key": "family_sudden_death",
+          "question": "Any family history of sudden death, drowning, or unexplained death young?",
+          "answer": "My sister drowned when she was 19 — they said she 'just went under.' Nobody could explain it.",
+          "redFlag": true
+        },
+        {
+          "key": "meds",
+          "question": "Any medications she's on — including azithromycin, ondansetron, ADHD meds?",
+          "answer": "She was on azithromycin for strep last week.",
+          "redFlag": true
+        },
+        {
+          "key": "activity_level",
+          "question": "Baseline activity?",
+          "answer": "Competitive swimmer. She's fine at practice normally."
+        }
+      ],
+      "exam": {
+        "general": "Well-appearing, wet hair, wrapped in a hospital blanket.",
+        "vitals": {
+          "HR": 72,
+          "BP": "104/64",
+          "RR": 14,
+          "SpO2": 100
+        },
+        "auscultation": [
+          {
+            "site": "RUSB",
+            "description": "Normal S1, S2."
+          },
+          {
+            "site": "LUSB",
+            "description": "Normal S1, S2. No murmur."
+          },
+          {
+            "site": "LLSB",
+            "description": "Normal S1, S2. No murmur."
+          },
+          {
+            "site": "Apex",
+            "description": "Normal S1, S2."
+          }
+        ],
+        "femoralPulses": "2+ bilaterally, symmetric.",
+        "extras": [
+          "No dysmorphic features.",
+          "No sensorineural hearing loss reported."
+        ]
+      },
+      "ecg": {
+        "rhythm": "Sinus rhythm",
+        "rate": 72,
+        "intervals": {
+          "PR": "152 ms",
+          "QRS": "90 ms",
+          "QTc": "512 ms"
+        },
+        "axis": "Normal",
+        "keyFindings": [
+          "Prolonged QTc (512 ms)",
+          "Notched T waves in the lateral leads",
+          "No arrhythmia captured"
+        ],
+        "pattern": "longqt"
+      },
+      "echo": {
+        "summary": "Structurally normal heart.",
+        "keyFindings": [
+          "Normal biventricular size and function",
+          "No structural abnormality"
+        ],
+        "anomaly": "normal"
+      },
+      "appropriateTests": [
+        "ECG",
+        "Echocardiogram",
+        "Holter",
+        "Genetics referral"
+      ],
+      "unnecessaryTests": [
+        "Cardiac MRI",
+        "CT angiography",
+        "BNP",
+        "TSH"
+      ],
+      "correctManagement": [
+        "Restrict from competitive swimming and startle-trigger activities",
+        "Refer to electrophysiology",
+        "Stop QT-prolonging medication (azithromycin)",
+        "Family screening (first-degree relatives)",
+        "Genetics consultation"
+      ],
+      "redFlagKeys": [
+        "triggers",
+        "family_sudden_death",
+        "meds"
+      ],
+      "teachingPoint": "Startle-triggered or swimming-triggered syncope + family history of unexplained drowning + a QT-prolonging medication = long QT syndrome (often LQT1/LQT2). Stop offending drug, restrict swimming and adrenergic triggers, EP referral, family screening.",
+      "missedOpportunityTemplate": {
+        "triggers": "You did not clarify the trigger (auditory startle, diving into water). LQT2 loves auditory triggers; LQT1 loves swimming.",
+        "family_sudden_death": "You did not ask about unexplained drowning or premature sudden death — the highest-yield question in this presentation.",
+        "meds": "You did not review medications. Azithromycin (and dozens of others) prolongs QT."
+      },
+      "attendingSocratic": [
+        "What single feature of this history should have made you calculate a QTc immediately?",
+        "How is 'swimming' relevant to long QT?",
+        "What activity restrictions and meds do you counsel today?"
+      ]
+    },
+    {
+      "id": "case-coarctation",
+      "patientName": "Diego Alvarez",
+      "age": 11,
+      "sex": "M",
+      "chiefComplaint": "Elevated blood pressure at sports physical",
+      "room": "Room 3",
+      "vibe": "An 11-year-old sits patiently on the exam table. His father, a nurse, is present and asks smart questions.",
+      "parentPresent": true,
+      "correctDiagnosis": "Coarctation of the aorta",
+      "differentials": [
+        "Coarctation of the aorta",
+        "Primary hypertension",
+        "Renovascular hypertension",
+        "White-coat hypertension"
+      ],
+      "history": [
+        {
+          "key": "generic",
+          "question": "What brings you in?",
+          "answer": "His BP was 148/82 at his sports physical. The pediatrician was worried."
+        },
+        {
+          "key": "activity_level",
+          "question": "How's his energy? Any leg cramps with running?",
+          "answer": "He gets tired legs when he runs long. He thought it was just being out of shape.",
+          "redFlag": true
+        },
+        {
+          "key": "palpitations",
+          "question": "Any headaches, nosebleeds, chest pain, or shortness of breath?",
+          "answer": "He gets headaches after PE class. Frequent for the last year."
+        },
+        {
+          "key": "family_sudden_death",
+          "question": "Family history of congenital heart disease, bicuspid aortic valve, or hypertension?",
+          "answer": "His paternal uncle had 'a bicuspid valve' and needed heart surgery.",
+          "redFlag": true
+        },
+        {
+          "key": "pmh",
+          "question": "Any past medical history — murmur as an infant, growth issues?",
+          "answer": "He was told he had a 'soft murmur' as a baby but it 'went away.'"
+        },
+        {
+          "key": "viral_illness",
+          "question": "Any recent illnesses?",
+          "answer": "No, well."
+        }
+      ],
+      "exam": {
+        "general": "Well-appearing pre-teen. Athletic build.",
+        "vitals": {
+          "HR": 78,
+          "BP": "148/82",
+          "RR": 14,
+          "SpO2": 100,
+          "fourLimbBP": {
+            "RA": "152/86",
+            "LA": "148/82",
+            "RL": "94/58",
+            "LL": "92/56"
+          }
+        },
+        "auscultation": [
+          {
+            "site": "RUSB",
+            "description": "Normal S1, S2."
+          },
+          {
+            "site": "LUSB",
+            "description": "Grade 2/6 systolic ejection murmur."
+          },
+          {
+            "site": "LLSB",
+            "description": "Grade 2/6 systolic murmur radiating to the back."
+          },
+          {
+            "site": "Apex",
+            "description": "Normal S1, S2."
+          }
+        ],
+        "femoralPulses": "Diminished and delayed compared to brachials (radial-femoral delay).",
+        "extras": [
+          "Prominent brachial pulses.",
+          "Delayed femoral pulses on palpation.",
+          "Systolic murmur audible over the mid-back."
+        ]
+      },
+      "ecg": {
+        "rhythm": "Sinus rhythm",
+        "rate": 76,
+        "intervals": {
+          "PR": "144 ms",
+          "QRS": "88 ms",
+          "QTc": "408 ms"
+        },
+        "axis": "Left axis deviation",
+        "keyFindings": [
+          "LVH by voltage criteria",
+          "No repolarization abnormality"
+        ],
+        "pattern": "lvh"
+      },
+      "echo": {
+        "summary": "Discrete narrowing of the descending aorta just distal to the left subclavian artery, with a peak gradient of 42 mmHg. Bicuspid aortic valve.",
+        "keyFindings": [
+          "Discrete juxtaductal coarctation",
+          "Peak gradient 42 mmHg",
+          "Bicuspid aortic valve",
+          "Mild LVH"
+        ],
+        "anomaly": "coarctation"
+      },
+      "appropriateTests": [
+        "ECG",
+        "Echocardiogram",
+        "Cardiac MRI"
+      ],
+      "unnecessaryTests": [
+        "Holter",
+        "Troponin",
+        "BNP",
+        "TSH"
+      ],
+      "correctManagement": [
+        "Refer for cardiac catheterization / surgical evaluation",
+        "Antihypertensive therapy while awaiting definitive repair",
+        "Restrict from isometric / high-static-load activities",
+        "Family screening (first-degree relatives) for bicuspid aortic valve"
+      ],
+      "redFlagKeys": [
+        "activity_level",
+        "family_sudden_death"
+      ],
+      "teachingPoint": "Any adolescent hypertension deserves FOUR-LIMB blood pressures and femoral pulses. Coarctation is missed for years when clinicians settle for an upper-extremity BP. Radial-femoral delay + LVH on ECG + a systolic murmur radiating to the back is the classic triad.",
+      "missedOpportunityTemplate": {
+        "activity_level": "You did not ask about leg claudication or fatigue with exertion — a coarctation-specific complaint.",
+        "family_sudden_death": "You did not ask about bicuspid aortic valve in the family (associated with coarctation)."
+      },
+      "attendingSocratic": [
+        "What single physical exam maneuver should you never omit in a hypertensive adolescent?",
+        "How does that finding change your differential?",
+        "What imaging is definitive here, and what are the next steps?"
+      ]
+    }
+  ],
+  "metadata": {
+    "case-hcm": {
+      "author": "S. Todman, MD",
+      "medicalReviewer": "R. Patel, MD (Peds Cardiology)",
+      "version": "1.4",
+      "lastReviewed": "2026-08",
+      "teachingObjectives": [
+        "Recognize exertional syncope as a red flag for structural heart disease",
+        "Elicit family history of premature sudden death",
+        "Restrict competitive sports BEFORE completing diagnostic workup",
+        "Understand indications for family screening and genetics referral"
+      ],
+      "sources": [
+        {
+          "label": "AHA/ACC Guideline on HCM",
+          "citation": "Ommen SR et al. 2020 AHA/ACC HCM Guideline."
+        },
+        {
+          "label": "Eligibility & Disqualification (Task Force 3)",
+          "citation": "Maron BJ et al. Circulation. 2015;132(22)."
+        }
+      ]
+    },
+    "case-vasovagal": {
+      "author": "S. Todman, MD",
+      "medicalReviewer": "R. Patel, MD (Peds Cardiology)",
+      "version": "1.2",
+      "lastReviewed": "2026-08",
+      "teachingObjectives": [
+        "Distinguish post-exertional from mid-exertional syncope",
+        "Recognize prodrome as a discriminating feature",
+        "Practice test-selection restraint",
+        "Counsel families appropriately after benign syncope"
+      ],
+      "sources": [
+        {
+          "label": "Pediatric Syncope Evaluation",
+          "citation": "Anderson JB, Willis M, et al. Pediatrics. 2012;130(4)."
+        }
+      ]
+    },
+    "case-innocent-murmur": {
+      "author": "S. Todman, MD",
+      "medicalReviewer": "R. Patel, MD (Peds Cardiology)",
+      "version": "1.1",
+      "lastReviewed": "2026-08",
+      "teachingObjectives": [
+        "Identify features of an innocent Still's murmur",
+        "Avoid unnecessary imaging in an asymptomatic thriving child",
+        "Communicate reassurance effectively"
+      ],
+      "sources": [
+        {
+          "label": "Pediatric Heart Murmurs",
+          "citation": "Frank JE, Jacobe KM. Am Fam Physician. 2011;84(7)."
+        }
+      ]
+    },
+    "case-wpw": {
+      "author": "S. Todman, MD",
+      "medicalReviewer": "R. Patel, MD (Peds Cardiology)",
+      "version": "1.0",
+      "lastReviewed": "2026-08",
+      "teachingObjectives": [
+        "Recognize abrupt-on/abrupt-off palpitations as paroxysmal SVT",
+        "Identify short PR + delta wave as pre-excitation / WPW",
+        "Understand indications for EP referral and ablation"
+      ],
+      "sources": [
+        {
+          "label": "PACES/HRS Expert Consensus on WPW",
+          "citation": "Cohen MI et al. Heart Rhythm. 2012;9(6)."
+        }
+      ]
+    },
+    "case-myocarditis": {
+      "author": "S. Todman, MD",
+      "medicalReviewer": "M. Mhanna, MD (Peds Cardiology)",
+      "version": "1.3",
+      "lastReviewed": "2026-08",
+      "teachingObjectives": [
+        "Connect recent viral illness to new cardiac symptoms",
+        "Recognize low-voltage ECG and sinus tachycardia as red flags",
+        "Escalate to admission rather than reassurance",
+        "Order troponin, BNP, echo appropriately"
+      ],
+      "sources": [
+        {
+          "label": "AHA Scientific Statement on Pediatric Myocarditis",
+          "citation": "Law YM et al. Circulation. 2021;144(6):e123–e135."
+        }
+      ]
+    },
+    "case-longqt": {
+      "author": "S. Todman, MD",
+      "medicalReviewer": "R. Patel, MD (Peds Cardiology)",
+      "version": "1.0",
+      "lastReviewed": "2026-08",
+      "teachingObjectives": [
+        "Recognize swimming/startle-triggered syncope as classic for LQT1/LQT2",
+        "Elicit family history of unexplained drowning or premature sudden death",
+        "Review medication list for QT-prolonging agents",
+        "Restrict startle-trigger activities pending EP evaluation"
+      ],
+      "sources": [
+        {
+          "label": "HRS/EHRA/APHRS Expert Consensus on Inherited Arrhythmia Syndromes",
+          "citation": "Priori SG et al. Heart Rhythm. 2013;10(12)."
+        },
+        {
+          "label": "CredibleMeds — QT drug list",
+          "citation": "CredibleMeds.org (last accessed 2026-08)."
+        }
+      ]
+    },
+    "case-coarctation": {
+      "author": "S. Todman, MD",
+      "medicalReviewer": "R. Patel, MD (Peds Cardiology)",
+      "version": "1.0",
+      "lastReviewed": "2026-08",
+      "teachingObjectives": [
+        "Obtain four-limb blood pressures in every hypertensive adolescent",
+        "Perform femoral pulse examination and recognize radial-femoral delay",
+        "Recognize coarctation triad: LVH + upper/lower BP discrepancy + murmur radiating to back",
+        "Understand association with bicuspid aortic valve and family screening implications"
+      ],
+      "sources": [
+        {
+          "label": "AHA Guideline: Congenital Heart Disease in Adults",
+          "citation": "Stout KK et al. Circulation. 2019;139(14)."
+        },
+        {
+          "label": "AAP Hypertension Guideline",
+          "citation": "Flynn JT et al. Pediatrics. 2017;140(3):e20171904."
+        }
+      ]
+    }
+  },
+  "capstone": {
+    "patients": [
+      {
+        "id": "cap-picu",
+        "location": "PICU Room 4B",
+        "label": "PICU — postop tachyarrhythmia",
+        "summary": "Recent Tetralogy repair, HR 220s, hypotensive despite bolus. Nurse just paged.",
+        "urgency": "critical",
+        "correctFirst": true,
+        "correctOrder": 1,
+        "debrief": "Hemodynamic compromise with tachyarrhythmia in a postop congenital patient is the correct first stop. Any delay risks cardiac arrest."
+      },
+      {
+        "id": "cap-nicu",
+        "location": "NICU Bed 12",
+        "label": "NICU — desaturating newborn",
+        "summary": "Term baby, SpO₂ falling from 82 to 68% overnight, PGE1 running. Fellow at bedside.",
+        "urgency": "urgent",
+        "correctOrder": 2,
+        "debrief": "Second stop. Fellow is already at the bedside; you should be there quickly, but the PICU patient is more unstable in the moment."
+      },
+      {
+        "id": "cap-clinic",
+        "location": "Clinic Room 3",
+        "label": "Clinic — exertional syncope teen",
+        "summary": "14 y/o waiting to be seen with mid-exertional syncope. Family is here.",
+        "urgency": "urgent",
+        "correctOrder": 3,
+        "debrief": "Important, but he is stable, in a room, and not deteriorating. See him after the two unstable patients."
+      },
+      {
+        "id": "cap-followup",
+        "location": "Workroom message",
+        "label": "Follow-up visit — Sofia (WPW post-ablation)",
+        "summary": "Post-ablation follow-up in 20 minutes. Doing well by report.",
+        "urgency": "routine",
+        "correctOrder": 4,
+        "debrief": "Routine, wait. Reschedule if needed — clinical acuity takes precedence."
+      }
+    ],
+    "teaching": "The point of the capstone is prioritization. Every hospital day looks like this: multiple patients competing for your attention, with different levels of instability. The correct sequence is: critically unstable first (PICU tachyarrhythmia), then desaturating newborn (fellow already there), then the stable clinic patient with a red flag, then the routine follow-up."
+  },
+  "specialtyCases": {
+    "cath": {
+      "id": "case-cath-asd",
+      "patient": "Priya Nair",
+      "age": 6,
+      "diagnosis": "Secundum atrial septal defect (ASD) with significant left-to-right shunt",
+      "scenario": "6-year-old with a fixed split S2 and RV heave. Echo showed a large secundum ASD. You are observing (and later participating in) the diagnostic catheterization.",
+      "goals": [
+        "Confirm the anatomy and shunt magnitude",
+        "Measure pulmonary vascular resistance",
+        "Determine candidacy for device closure vs surgical closure"
+      ],
+      "pressures": [
+        {
+          "site": "SVC",
+          "o2Sat": 71,
+          "pressure": "a5 v3 mean 3"
+        },
+        {
+          "site": "IVC",
+          "o2Sat": 74,
+          "pressure": "a5 v3 mean 3"
+        },
+        {
+          "site": "RA",
+          "o2Sat": 87,
+          "pressure": "a5 v3 mean 4",
+          "highlight": true
+        },
+        {
+          "site": "RV",
+          "o2Sat": 87,
+          "pressure": "38 / 4 (edp 4)"
+        },
+        {
+          "site": "PA",
+          "o2Sat": 87,
+          "pressure": "36 / 14 mean 22",
+          "highlight": true
+        },
+        {
+          "site": "PCW",
+          "o2Sat": 98,
+          "pressure": "mean 8"
+        },
+        {
+          "site": "LV",
+          "o2Sat": 98,
+          "pressure": "104 / 8"
+        },
+        {
+          "site": "Ao",
+          "o2Sat": 98,
+          "pressure": "104 / 62 mean 76"
+        }
+      ],
+      "truth": {
+        "qpQs": 2.4,
+        "pvrWoodUnitsM2": 1.8,
+        "recommendation": "Percutaneous device closure is appropriate: shunt is significant, PVR is low, and anatomy is favorable."
+      },
+      "teaching": "Step-up in oxygen saturation from mixed venous (~72%) to RA (87%) localizes a left-to-right shunt at the atrial level. Qp:Qs > 1.5 with low PVR supports closure. Device closure is chosen when the rim of tissue around the ASD is adequate; surgical closure otherwise."
+    },
+    "nicu": {
+      "steps": [
+        {
+          "id": "arrival",
+          "label": "Arrival at bedside",
+          "detail": "Term newborn, day of life 1, cyanotic despite good respiratory effort. Pre-ductal SpO₂ 68%, post-ductal 66%. Otherwise vigorous.",
+          "ductus": "closing",
+          "spo2Pre": 68,
+          "spo2Post": 66,
+          "narration": "The baby looks blue. Respiratory effort is unlabored. That mismatch — profound cyanosis without respiratory distress — is the tell."
+        },
+        {
+          "id": "pre-post",
+          "label": "Check pre- and post-ductal saturations",
+          "detail": "Right-hand SpO₂ 68%. Right-foot SpO₂ 66%. Nearly equal (no reversed differential). Consistent with TGA rather than a critical LSOL lesion.",
+          "ductus": "closing",
+          "spo2Pre": 68,
+          "spo2Post": 66,
+          "narration": "In TGA, mixing depends on shunts. Without a large PDA or ASD, the parallel circulations don’t exchange oxygen."
+        },
+        {
+          "id": "echo",
+          "label": "Bedside echocardiogram",
+          "detail": "Parallel great arteries: aorta arises from the RV, PA from the LV. Small PFO, closing PDA. Diagnosis: D-TGA.",
+          "ductus": "closing",
+          "spo2Pre": 62,
+          "spo2Post": 60,
+          "narration": "You can see the two great arteries running in parallel rather than crossing. That’s D-transposition."
+        },
+        {
+          "id": "pge",
+          "label": "Start Prostaglandin E1 infusion",
+          "detail": "PGE1 0.05 mcg/kg/min IV. Purpose: reopen and maintain the ductus arteriosus to permit mixing.",
+          "ductus": "reopening",
+          "spo2Pre": 78,
+          "spo2Post": 82,
+          "narration": "PGE1 relaxes the ductal smooth muscle. Watch the saturations climb as mixing improves."
+        },
+        {
+          "id": "septostomy",
+          "label": "Balloon atrial septostomy in cath lab",
+          "detail": "A catheter is advanced across the PFO, balloon inflated, and pulled back to enlarge the atrial-level communication. Mixing improves dramatically.",
+          "ductus": "open",
+          "spo2Pre": 88,
+          "spo2Post": 88,
+          "narration": "Atrial-level mixing is the stable long-term mixing site until surgery. Pre/post saturations are now essentially equal and high 80s."
+        },
+        {
+          "id": "switch",
+          "label": "Arterial switch operation (days later)",
+          "detail": "The great arteries are transected above the valves, switched, and coronaries reimplanted. Post-op the anatomy is corrected.",
+          "ductus": "open",
+          "spo2Pre": 98,
+          "spo2Post": 98,
+          "narration": "The child returns to the CICU with normal-in-series circulation. You’ll follow him longitudinally in later cases."
+        }
+      ],
+      "teaching": "Cyanosis without respiratory distress in a newborn = suspect ductal-dependent congenital heart disease. TGA specifically depends on MIXING (PDA and PFO/ASD) rather than on the direction of ductal flow. PGE1 first, echo confirmation, urgent cardiology, and often balloon atrial septostomy before the arterial switch."
+    },
+    "operatingRoom": {
+      "id": "case-or-tof",
+      "patient": "Noah Williams",
+      "age": 0.75,
+      "diagnosis": "Tetralogy of Fallot (TOF) — complete surgical repair",
+      "scenario": "9-month-old with TOF is on cardiopulmonary bypass. Dr. Bello is opening the RVOT. You are observing as consultant.",
+      "steps": [
+        {
+          "label": "1. On cardiopulmonary bypass, atriotomy",
+          "detail": "Right atrial approach exposes the tricuspid valve and VSD from the RA.",
+          "anatomyNote": "Large peri-membranous VSD visualized. Overriding aorta above the septal defect.",
+          "circulationChange": "Systemic and pulmonary circuits supported by CPB."
+        },
+        {
+          "label": "2. VSD patch closure",
+          "detail": "Bovine pericardial patch sutured to close the peri-membranous VSD, avoiding the conduction system.",
+          "anatomyNote": "Overriding aorta now committed to the LV — aortic root no longer straddles the septum.",
+          "circulationChange": "Systemic and pulmonary circulations separated. No more mixing at ventricular level."
+        },
+        {
+          "label": "3. RVOT muscle resection",
+          "detail": "Hypertrophied infundibular muscle is resected to relieve subvalvular obstruction.",
+          "anatomyNote": "Subvalvular RVOT diameter increases.",
+          "circulationChange": "Reduced dynamic RVOT gradient; forward flow improves."
+        },
+        {
+          "label": "4. Pulmonary valve / annulus enlargement",
+          "detail": "If annulus is small, transannular patch used; if adequate, valve-sparing approach.",
+          "anatomyNote": "Pulmonary valve preserved when possible — impacts long-term PR burden.",
+          "circulationChange": "Relieves fixed obstruction. Trade-off: transannular patch → chronic PR."
+        },
+        {
+          "label": "5. Weaning from bypass",
+          "detail": "Rewarm, de-air, wean from CPB. Assess RV function and residual shunt with TEE.",
+          "anatomyNote": "Confirm no residual VSD; RV function; PR grade.",
+          "circulationChange": "RV pressure now approaches normal; systemic circulation independent."
+        }
+      ],
+      "teaching": "TOF repair does two things: closes the VSD (separating circulations) and relieves RVOT obstruction. Residual PR from a transannular patch is the dominant long-term issue and drives the need for future pulmonary valve replacement."
+    },
+    "mri": {
+      "history": {
+        "patient": "Ellie Vaughn",
+        "age": 2,
+        "sex": "F",
+        "chief": "Noisy breathing since infancy, recurrent 'croup,' and choking with solid foods.",
+        "referral": "Referred by pulmonology after two episodes of stridor requiring ED visits. Barium swallow suggested a posterior indentation on the esophagus."
+      },
+      "slices": [
+        {
+          "z": 0,
+          "label": "Thoracic inlet",
+          "vessels": {
+            "rightArch": true,
+            "leftArch": true,
+            "tracheaCompressed": false
+          }
+        },
+        {
+          "z": 1,
+          "label": "Upper mediastinum",
+          "keyFinding": "Two arches identified encircling the airway",
+          "vessels": {
+            "rightArch": true,
+            "leftArch": true,
+            "tracheaCompressed": true
+          }
+        },
+        {
+          "z": 2,
+          "label": "Aortic arch level",
+          "keyFinding": "Complete vascular ring: dominant right + smaller left arch",
+          "vessels": {
+            "rightArch": true,
+            "leftArch": true,
+            "tracheaCompressed": true
+          }
+        },
+        {
+          "z": 3,
+          "label": "Carina",
+          "keyFinding": "Persistent tracheal narrowing distal to the ring",
+          "vessels": {
+            "rightArch": false,
+            "leftArch": false,
+            "tracheaCompressed": true
+          }
+        },
+        {
+          "z": 4,
+          "label": "Descending aorta",
+          "vessels": {
+            "rightArch": false,
+            "leftArch": false,
+            "tracheaCompressed": false
+          }
+        }
+      ],
+      "anatomyLabels": [
+        {
+          "id": "trachea",
+          "label": "Trachea",
+          "detail": "The airway sits centrally within the ring. Note the anterior indentation from the right arch and posterior from the descending aorta."
+        },
+        {
+          "id": "esophagus",
+          "label": "Esophagus",
+          "detail": "Immediately posterior to the trachea. Compression here explains the choking on solids and the barium swallow indentation."
+        },
+        {
+          "id": "right-arch",
+          "label": "Right (dominant) aortic arch",
+          "detail": "Passes anterior and to the right of the trachea. In a double aortic arch, this is typically the larger of the two."
+        },
+        {
+          "id": "left-arch",
+          "label": "Left (smaller) aortic arch",
+          "detail": "Passes anterior and to the left, then joins the right arch posteriorly to form a complete ring around the trachea and esophagus."
+        },
+        {
+          "id": "descending-aorta",
+          "label": "Descending aorta",
+          "detail": "Continues inferiorly on the left. The junction posteriorly closes the ring."
+        }
+      ],
+      "teaching": "A complete vascular ring — most commonly a double aortic arch — encircles both the trachea AND esophagus. The clinical clue is stridor + dysphagia (\"choking on solids\") in a young child, often misdiagnosed as recurrent croup or reflux. Cross-sectional imaging is diagnostic; surgical division of the smaller arch is curative."
+    }
+  }
+}

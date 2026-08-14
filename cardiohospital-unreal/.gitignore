@@ -1,0 +1,28 @@
+# Unreal generated output
+Binaries/
+Build/
+DerivedDataCache/
+Intermediate/
+Saved/
+.vs/
+*.VC.db
+*.opensdf
+*.sdf
+*.sln
+*.suo
+*.xcodeproj
+*.xcworkspace
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Local packages and captures
+LocalAssets/
+Captures/
+PackagedBuilds/
+*.tmp
+*.log
+
