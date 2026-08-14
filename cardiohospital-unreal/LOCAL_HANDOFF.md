@@ -26,6 +26,10 @@ The local operator must accept licenses and UAC prompts for:
 - ChatGPT desktop app for Windows
 - NVIDIA Studio Driver
 
+The target build workstation must run Windows 11 with at least 48 GB RAM and
+an RTX 4080-class or better NVIDIA GPU. Passing the hardware check does not
+replace the packaged 2560×1440 performance walkthrough.
+
 Do not enter institutional credentials into project files or terminal prompts.
 
 ## After the baseline builds

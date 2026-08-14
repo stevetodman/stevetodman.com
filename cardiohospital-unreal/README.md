@@ -21,6 +21,7 @@ spatial audio, and native interaction.
 - Visual Studio 2022 with **Game development with C++** and Windows 11 SDK
 - Git for Windows
 - Node.js 24, or the Node.js runtime bundled with the Codex Windows app
+- RTX 4080-class or better NVIDIA GPU
 - NVIDIA Studio Driver current enough for UE 5.8
 
 Run `Scripts/Check-Workstation.ps1` first. Then right-click

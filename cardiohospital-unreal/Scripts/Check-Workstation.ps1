@@ -52,8 +52,9 @@ $failures = @()
 if (-not $unreal) { $failures += "Unreal Engine 5.8 was not found." }
 if (-not $git) { $failures += "Git for Windows was not found." }
 if (-not $node) { $failures += "Node.js 24 was not found." }
+if ($os.Caption -notmatch "Windows 11") { $failures += "Windows 11 is required." }
 if ($computer.TotalPhysicalMemory -lt 48GB) { $failures += "Less than 48 GB RAM is available." }
-if ($gpu.Name -notmatch "RTX 4090") { $failures += "The RTX 4090 was not selected as the primary adapter." }
+if ($gpu.Name -notmatch "RTX (4080|4090)") { $failures += "An RTX 4080 or RTX 4090 was not selected as the primary adapter." }
 
 if ($failures.Count -gt 0) {
     Write-Error ($failures -join " ")

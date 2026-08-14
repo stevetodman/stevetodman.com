@@ -1,5 +1,7 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { computeSourceHashes } from "./clinical-data-contract.mjs";
@@ -11,6 +13,19 @@ const outputPath = resolve(projectRoot, "Content", "Data", "clinical-content.jso
 
 async function load(moduleName) {
   return import(pathToFileURL(resolve(legacyRoot, moduleName)).href);
+}
+
+async function replaceFile(sourcePath, destinationPath) {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      await rename(sourcePath, destinationPath);
+      return;
+    } catch (error) {
+      const retryable = ["EACCES", "EBUSY", "EPERM"].includes(error?.code);
+      if (!retryable || attempt >= 39) throw error;
+      await delay(25);
+    }
+  }
 }
 
 const casesModule = await load("cases-data.ts");
@@ -56,5 +71,11 @@ const document = {
 };
 
 await mkdir(dirname(outputPath), { recursive: true });
-await writeFile(outputPath, `${JSON.stringify(document, null, 2)}\n`, "utf8");
+const temporaryPath = `${outputPath}.${process.pid}.${randomUUID()}.tmp`;
+try {
+  await writeFile(temporaryPath, `${JSON.stringify(document, null, 2)}\n`, "utf8");
+  await replaceFile(temporaryPath, outputPath);
+} finally {
+  await rm(temporaryPath, { force: true });
+}
 console.log(`Exported ${document.cases.length} cases to ${outputPath}`);

@@ -18,7 +18,7 @@ Clinical correctness and a complete learner loop outrank environment breadth.
 - No primitive placeholder NPC may appear in a production build.
 - Dialogue requires voice, gaze behavior, listening behavior, and facial motion.
 - Interactions must remain usable with keyboard and mouse without VR hardware.
-- Target stable 60 FPS at 2560×1440 on the RTX 4090 development workstation.
+- Target stable 60 FPS at 2560×1440 on an RTX 4080-class or better development workstation.
 - Do not claim a walkthrough passed unless the packaged build was actually run.
 
 ## Privacy
@@ -31,4 +31,3 @@ Clinical correctness and a complete learner loop outrank environment breadth.
 - Do not commit `Binaries`, `DerivedDataCache`, `Intermediate`, or `Saved`.
 - Use Git LFS selectively for approved binary source assets.
 - Commit at coherent, reversible milestones.
-
