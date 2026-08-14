@@ -44,6 +44,10 @@ bool FCardioClinicalContentTest::RunTest(const FString& Parameters)
         TestTrue(TEXT("HCM graph has a complete terminal"), HcmGraph->TerminalNodeIds.Contains(TEXT("complete")));
     }
 
+    const FCardioCaseGraphDefinition* VasovagalGraph = Document.CaseGraphs.FindByPredicate(
+        [](const FCardioCaseGraphDefinition& Graph) { return Graph.CaseId == TEXT("case-vasovagal"); });
+    TestNotNull(TEXT("Vasovagal contrast graph exists"), VasovagalGraph);
+
     return true;
 }
 

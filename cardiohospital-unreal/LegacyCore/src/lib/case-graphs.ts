@@ -282,4 +282,105 @@ export const HCM_CASE_GRAPH: CaseGraphDefinition = {
   ],
 };
 
-export const CASE_GRAPHS: CaseGraphDefinition[] = [HCM_CASE_GRAPH];
+const vasovagalRemovedActions = new Set([
+  "history.activity-level",
+  "history.stimulant-use",
+  "management.ep-referral",
+  "management.family-screening",
+  "management.genetics",
+  "management.clear-sports",
+]);
+
+const vasovagalActions = HCM_CASE_GRAPH.actions
+  .filter((entry) => !vasovagalRemovedActions.has(entry.id))
+  .map((entry) => {
+    if (entry.id === "assignment.accept") return { ...entry, target: "case-vasovagal" };
+    if (entry.id === "navigate.exam-room") return { ...entry, target: "room-1" };
+    if (entry.id === "encounter.introduce") return { ...entry, target: "ava-and-parent" };
+    if (entry.id === "management.restrict-sports") return { ...entry, target: "Restrict from sports" };
+    if (entry.id === "management.reassure") return { ...entry, target: "Reassurance" };
+    return entry;
+  });
+
+vasovagalActions.push(
+  action("history.substance-use", "history", "substance_use", "history_question"),
+  action("management.hydration", "management", "Hydration and nutrition counseling", "management_action"),
+  action("management.continue-sports", "management", "Continue competitive sports", "management_action"),
+  action("management.return-precautions", "management", "Return precautions", "management_action"),
+);
+
+export const VASOVAGAL_CASE_GRAPH: CaseGraphDefinition = {
+  caseId: "case-vasovagal",
+  version: "1.0",
+  startNodeId: HCM_CASE_GRAPH.startNodeId,
+  terminalNodeIds: [...HCM_CASE_GRAPH.terminalNodeIds],
+  actions: vasovagalActions,
+  nodes: HCM_CASE_GRAPH.nodes.map((node) => {
+    if (node.id === "history") {
+      return {
+        ...node,
+        availableActions: [
+          "history.generic",
+          "history.exertional-timing",
+          "history.prodrome",
+          "history.triggers",
+          "history.family-sudden-death",
+          "history.palpitations",
+          "history.substance-use",
+          "history.finish",
+        ],
+        acceptanceActions: ["history.generic", "history.exertional-timing", "history.prodrome", "history.triggers"],
+      };
+    }
+    if (node.id === "testing") {
+      return {
+        ...node,
+        acceptanceActions: ["order.ecg", "review.ecg"],
+      };
+    }
+    if (node.id === "management") {
+      return {
+        ...node,
+        availableActions: [
+          "management.reassure",
+          "management.hydration",
+          "management.continue-sports",
+          "management.return-precautions",
+          "management.restrict-sports",
+          "management.finish",
+        ],
+        acceptanceActions: [
+          "management.reassure",
+          "management.hydration",
+          "management.continue-sports",
+          "management.return-precautions",
+        ],
+      };
+    }
+    return {
+      ...node,
+      availableActions: node.availableActions.filter((actionId) => !vasovagalRemovedActions.has(actionId)),
+      acceptanceActions: node.acceptanceActions.filter((actionId) => !vasovagalRemovedActions.has(actionId)),
+    };
+  }),
+  safetyRules: [
+    {
+      id: "vasovagal-unnecessary-restriction",
+      severity: "major",
+      requiredActions: [],
+      prohibitedActions: ["management.restrict-sports"],
+      message: "A benign post-exertional vasovagal presentation was given unnecessary sports restriction.",
+      intervention: "The attending corrects the plan and counsels the family that continued activity is appropriate.",
+    },
+  ],
+  counterfactuals: [
+    {
+      id: "after-versus-during-exercise",
+      prompt: "What if the episode had occurred during a sprint without warning and the family reported premature sudden death?",
+      alternateCaseId: "case-hcm",
+      triggerMissingActions: ["history.exertional-timing", "history.prodrome"],
+    },
+  ],
+};
+
+export const CASE_GRAPHS: CaseGraphDefinition[] = [HCM_CASE_GRAPH, VASOVAGAL_CASE_GRAPH];

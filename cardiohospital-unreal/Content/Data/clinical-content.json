@@ -3,7 +3,7 @@
   "generatedAt": "source-hash-derived",
   "sourceHashes": {
     "cases-data.ts": "5bafbec473265290cd6a1016e4be51eb73c6802912070ebe6163f01c3a84947b",
-    "case-graphs.ts": "f4cf68cee76bf098c64c9679259979aa588027f3542cb2a6c1ff2d6d4ba8ba97",
+    "case-graphs.ts": "315f8b1c56905bfab3e3ddfd049d5f31b8ce9d02a766646790d447c2a7729d52",
     "case-concepts.ts": "cbc9786e2b323a66fe7c060882b393989adb24dde2ec4b9b32dca9ecac763d16",
     "case-metadata.ts": "4ee38020d7afddd1293bfeced41144adab769525a11e2468981ce604e462ffe7",
     "capstone.ts": "f41ef28c8f3f65f880f6463eecc078a33a26c5bef2c5633ede9d3b556fc443f1",
@@ -1746,6 +1746,718 @@
           "id": "during-versus-after-exercise",
           "prompt": "What if the episode had occurred after exercise with warmth, nausea, and tunnel vision instead of during a sprint without prodrome?",
           "alternateCaseId": "case-vasovagal",
+          "triggerMissingActions": [
+            "history.exertional-timing",
+            "history.prodrome"
+          ]
+        }
+      ]
+    },
+    {
+      "caseId": "case-vasovagal",
+      "version": "1.0",
+      "startNodeId": "launch",
+      "terminalNodeIds": [
+        "complete"
+      ],
+      "actions": [
+        {
+          "id": "system.load",
+          "type": "system",
+          "target": "application",
+          "eventType": "application_loaded",
+          "requiresAll": [],
+          "effects": [
+            "completed:system.load"
+          ]
+        },
+        {
+          "id": "world.enter",
+          "type": "navigation",
+          "target": "cardiology-unit",
+          "eventType": "world_entered",
+          "requiresAll": [],
+          "effects": [
+            "completed:world.enter"
+          ]
+        },
+        {
+          "id": "navigate.workroom",
+          "type": "navigation",
+          "target": "cardiology-workroom",
+          "eventType": "location_entered",
+          "requiresAll": [],
+          "effects": [
+            "completed:navigate.workroom"
+          ]
+        },
+        {
+          "id": "attending.open-assignment",
+          "type": "conversation",
+          "target": "dr-patel",
+          "eventType": "attending_consulted",
+          "requiresAll": [],
+          "effects": [
+            "completed:attending.open-assignment"
+          ]
+        },
+        {
+          "id": "assignment.accept",
+          "type": "conversation",
+          "target": "case-vasovagal",
+          "eventType": "assignment_received",
+          "requiresAll": [
+            "completed:attending.open-assignment"
+          ],
+          "effects": [
+            "completed:assignment.accept"
+          ]
+        },
+        {
+          "id": "navigate.exam-room",
+          "type": "navigation",
+          "target": "room-1",
+          "eventType": "location_entered",
+          "requiresAll": [],
+          "effects": [
+            "completed:navigate.exam-room"
+          ]
+        },
+        {
+          "id": "encounter.introduce",
+          "type": "conversation",
+          "target": "ava-and-parent",
+          "eventType": "patient_encounter_started",
+          "requiresAll": [
+            "completed:navigate.exam-room"
+          ],
+          "effects": [
+            "completed:encounter.introduce"
+          ]
+        },
+        {
+          "id": "history.generic",
+          "type": "history",
+          "target": "generic",
+          "eventType": "history_question",
+          "requiresAll": [],
+          "effects": [
+            "completed:history.generic"
+          ]
+        },
+        {
+          "id": "history.exertional-timing",
+          "type": "history",
+          "target": "exertional_timing",
+          "eventType": "history_question",
+          "requiresAll": [],
+          "effects": [
+            "completed:history.exertional-timing"
+          ]
+        },
+        {
+          "id": "history.family-sudden-death",
+          "type": "history",
+          "target": "family_sudden_death",
+          "eventType": "history_question",
+          "requiresAll": [],
+          "effects": [
+            "completed:history.family-sudden-death"
+          ]
+        },
+        {
+          "id": "history.prodrome",
+          "type": "history",
+          "target": "prodrome",
+          "eventType": "history_question",
+          "requiresAll": [],
+          "effects": [
+            "completed:history.prodrome"
+          ]
+        },
+        {
+          "id": "history.palpitations",
+          "type": "history",
+          "target": "palpitations",
+          "eventType": "history_question",
+          "requiresAll": [],
+          "effects": [
+            "completed:history.palpitations"
+          ]
+        },
+        {
+          "id": "history.triggers",
+          "type": "history",
+          "target": "triggers",
+          "eventType": "history_question",
+          "requiresAll": [],
+          "effects": [
+            "completed:history.triggers"
+          ]
+        },
+        {
+          "id": "history.finish",
+          "type": "system",
+          "target": "history",
+          "eventType": "case_progressed",
+          "requiresAll": [],
+          "effects": [
+            "completed:history.finish"
+          ]
+        },
+        {
+          "id": "exam.general",
+          "type": "exam",
+          "target": "general",
+          "eventType": "exam_performed",
+          "requiresAll": [],
+          "effects": [
+            "completed:exam.general"
+          ]
+        },
+        {
+          "id": "exam.vitals",
+          "type": "exam",
+          "target": "vitals",
+          "eventType": "exam_performed",
+          "requiresAll": [],
+          "effects": [
+            "completed:exam.vitals"
+          ]
+        },
+        {
+          "id": "exam.auscultation",
+          "type": "exam",
+          "target": "auscultation",
+          "eventType": "exam_performed",
+          "requiresAll": [],
+          "effects": [
+            "completed:exam.auscultation"
+          ]
+        },
+        {
+          "id": "exam.femoral-pulses",
+          "type": "exam",
+          "target": "femoralPulses",
+          "eventType": "exam_performed",
+          "requiresAll": [],
+          "effects": [
+            "completed:exam.femoral-pulses"
+          ]
+        },
+        {
+          "id": "exam.finish",
+          "type": "system",
+          "target": "exam",
+          "eventType": "case_progressed",
+          "requiresAll": [],
+          "effects": [
+            "completed:exam.finish"
+          ]
+        },
+        {
+          "id": "order.ecg",
+          "type": "order",
+          "target": "ECG",
+          "eventType": "test_ordered",
+          "requiresAll": [],
+          "effects": [
+            "completed:order.ecg"
+          ]
+        },
+        {
+          "id": "review.ecg",
+          "type": "review",
+          "target": "ECG",
+          "eventType": "test_interpreted",
+          "requiresAll": [
+            "completed:order.ecg"
+          ],
+          "effects": [
+            "completed:review.ecg"
+          ]
+        },
+        {
+          "id": "order.echo",
+          "type": "order",
+          "target": "Echocardiogram",
+          "eventType": "test_ordered",
+          "requiresAll": [],
+          "effects": [
+            "completed:order.echo"
+          ]
+        },
+        {
+          "id": "review.echo",
+          "type": "review",
+          "target": "Echocardiogram",
+          "eventType": "test_interpreted",
+          "requiresAll": [
+            "completed:order.echo"
+          ],
+          "effects": [
+            "completed:review.echo"
+          ]
+        },
+        {
+          "id": "order.ct-angiography",
+          "type": "order",
+          "target": "CT angiography",
+          "eventType": "test_ordered",
+          "requiresAll": [],
+          "effects": [
+            "completed:order.ct-angiography"
+          ]
+        },
+        {
+          "id": "order.troponin",
+          "type": "order",
+          "target": "Troponin",
+          "eventType": "test_ordered",
+          "requiresAll": [],
+          "effects": [
+            "completed:order.troponin"
+          ]
+        },
+        {
+          "id": "testing.finish",
+          "type": "system",
+          "target": "testing",
+          "eventType": "case_progressed",
+          "requiresAll": [],
+          "effects": [
+            "completed:testing.finish"
+          ]
+        },
+        {
+          "id": "navigate.return-workroom",
+          "type": "navigation",
+          "target": "cardiology-workroom",
+          "eventType": "location_entered",
+          "requiresAll": [],
+          "effects": [
+            "completed:navigate.return-workroom"
+          ]
+        },
+        {
+          "id": "reasoning.submit",
+          "type": "reasoning",
+          "target": "attending",
+          "eventType": "diagnosis_submitted",
+          "requiresAll": [],
+          "effects": [
+            "completed:reasoning.submit"
+          ]
+        },
+        {
+          "id": "reasoning.finish",
+          "type": "system",
+          "target": "reasoning",
+          "eventType": "case_progressed",
+          "requiresAll": [],
+          "effects": [
+            "completed:reasoning.finish"
+          ]
+        },
+        {
+          "id": "management.restrict-sports",
+          "type": "management",
+          "target": "Restrict from sports",
+          "eventType": "management_action",
+          "requiresAll": [],
+          "effects": [
+            "completed:management.restrict-sports"
+          ]
+        },
+        {
+          "id": "management.reassure",
+          "type": "management",
+          "target": "Reassurance",
+          "eventType": "management_action",
+          "requiresAll": [],
+          "effects": [
+            "completed:management.reassure"
+          ]
+        },
+        {
+          "id": "management.finish",
+          "type": "system",
+          "target": "management",
+          "eventType": "case_progressed",
+          "requiresAll": [],
+          "effects": [
+            "completed:management.finish"
+          ]
+        },
+        {
+          "id": "debrief.review",
+          "type": "debrief",
+          "target": "case-specific-feedback",
+          "eventType": "debrief_viewed",
+          "requiresAll": [],
+          "effects": [
+            "completed:debrief.review"
+          ]
+        },
+        {
+          "id": "performance.record",
+          "type": "debrief",
+          "target": "learner-attempt",
+          "eventType": "performance_recorded",
+          "requiresAll": [
+            "completed:debrief.review"
+          ],
+          "effects": [
+            "completed:performance.record"
+          ]
+        },
+        {
+          "id": "next-case.begin",
+          "type": "continuation",
+          "target": "contrastive-case",
+          "eventType": "next_case_started",
+          "requiresAll": [
+            "completed:performance.record"
+          ],
+          "effects": [
+            "completed:next-case.begin"
+          ]
+        },
+        {
+          "id": "history.substance-use",
+          "type": "history",
+          "target": "substance_use",
+          "eventType": "history_question",
+          "requiresAll": [],
+          "effects": [
+            "completed:history.substance-use"
+          ]
+        },
+        {
+          "id": "management.hydration",
+          "type": "management",
+          "target": "Hydration and nutrition counseling",
+          "eventType": "management_action",
+          "requiresAll": [],
+          "effects": [
+            "completed:management.hydration"
+          ]
+        },
+        {
+          "id": "management.continue-sports",
+          "type": "management",
+          "target": "Continue competitive sports",
+          "eventType": "management_action",
+          "requiresAll": [],
+          "effects": [
+            "completed:management.continue-sports"
+          ]
+        },
+        {
+          "id": "management.return-precautions",
+          "type": "management",
+          "target": "Return precautions",
+          "eventType": "management_action",
+          "requiresAll": [],
+          "effects": [
+            "completed:management.return-precautions"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "id": "launch",
+          "phase": "load",
+          "availableActions": [
+            "system.load"
+          ],
+          "acceptanceActions": [
+            "system.load"
+          ],
+          "transitions": [
+            {
+              "to": "hospital-entry",
+              "allOf": [
+                "completed:system.load"
+              ],
+              "anyOf": []
+            }
+          ]
+        },
+        {
+          "id": "hospital-entry",
+          "phase": "world",
+          "availableActions": [
+            "world.enter"
+          ],
+          "acceptanceActions": [
+            "world.enter"
+          ],
+          "transitions": [
+            {
+              "to": "find-workroom",
+              "allOf": [
+                "completed:world.enter"
+              ],
+              "anyOf": []
+            }
+          ]
+        },
+        {
+          "id": "find-workroom",
+          "phase": "navigation",
+          "availableActions": [
+            "navigate.workroom"
+          ],
+          "acceptanceActions": [
+            "navigate.workroom"
+          ],
+          "transitions": [
+            {
+              "to": "assignment",
+              "allOf": [
+                "completed:navigate.workroom"
+              ],
+              "anyOf": []
+            }
+          ]
+        },
+        {
+          "id": "assignment",
+          "phase": "attending",
+          "availableActions": [
+            "attending.open-assignment",
+            "assignment.accept"
+          ],
+          "acceptanceActions": [
+            "attending.open-assignment",
+            "assignment.accept"
+          ],
+          "transitions": [
+            {
+              "to": "exam-room",
+              "allOf": [
+                "completed:assignment.accept"
+              ],
+              "anyOf": []
+            }
+          ]
+        },
+        {
+          "id": "exam-room",
+          "phase": "navigation",
+          "availableActions": [
+            "navigate.exam-room",
+            "encounter.introduce"
+          ],
+          "acceptanceActions": [
+            "navigate.exam-room",
+            "encounter.introduce"
+          ],
+          "transitions": [
+            {
+              "to": "history",
+              "allOf": [
+                "completed:encounter.introduce"
+              ],
+              "anyOf": []
+            }
+          ]
+        },
+        {
+          "id": "history",
+          "phase": "history",
+          "availableActions": [
+            "history.generic",
+            "history.exertional-timing",
+            "history.prodrome",
+            "history.triggers",
+            "history.family-sudden-death",
+            "history.palpitations",
+            "history.substance-use",
+            "history.finish"
+          ],
+          "acceptanceActions": [
+            "history.generic",
+            "history.exertional-timing",
+            "history.prodrome",
+            "history.triggers"
+          ],
+          "transitions": [
+            {
+              "to": "examination",
+              "allOf": [
+                "completed:history.finish"
+              ],
+              "anyOf": []
+            }
+          ]
+        },
+        {
+          "id": "examination",
+          "phase": "exam",
+          "availableActions": [
+            "exam.general",
+            "exam.vitals",
+            "exam.auscultation",
+            "exam.femoral-pulses",
+            "exam.finish"
+          ],
+          "acceptanceActions": [
+            "exam.general",
+            "exam.vitals",
+            "exam.auscultation"
+          ],
+          "transitions": [
+            {
+              "to": "testing",
+              "allOf": [
+                "completed:exam.finish"
+              ],
+              "anyOf": []
+            }
+          ]
+        },
+        {
+          "id": "testing",
+          "phase": "testing",
+          "availableActions": [
+            "order.ecg",
+            "review.ecg",
+            "order.echo",
+            "review.echo",
+            "order.ct-angiography",
+            "order.troponin",
+            "testing.finish"
+          ],
+          "acceptanceActions": [
+            "order.ecg",
+            "review.ecg"
+          ],
+          "transitions": [
+            {
+              "to": "attending-return",
+              "allOf": [
+                "completed:testing.finish"
+              ],
+              "anyOf": []
+            }
+          ]
+        },
+        {
+          "id": "attending-return",
+          "phase": "reasoning",
+          "availableActions": [
+            "navigate.return-workroom",
+            "reasoning.submit",
+            "reasoning.finish"
+          ],
+          "acceptanceActions": [
+            "navigate.return-workroom",
+            "reasoning.submit"
+          ],
+          "transitions": [
+            {
+              "to": "management",
+              "allOf": [
+                "completed:reasoning.finish"
+              ],
+              "anyOf": []
+            }
+          ]
+        },
+        {
+          "id": "management",
+          "phase": "management",
+          "availableActions": [
+            "management.reassure",
+            "management.hydration",
+            "management.continue-sports",
+            "management.return-precautions",
+            "management.restrict-sports",
+            "management.finish"
+          ],
+          "acceptanceActions": [
+            "management.reassure",
+            "management.hydration",
+            "management.continue-sports",
+            "management.return-precautions"
+          ],
+          "transitions": [
+            {
+              "to": "debrief",
+              "allOf": [
+                "completed:management.finish"
+              ],
+              "anyOf": []
+            }
+          ]
+        },
+        {
+          "id": "debrief",
+          "phase": "debrief",
+          "availableActions": [
+            "debrief.review",
+            "performance.record"
+          ],
+          "acceptanceActions": [
+            "debrief.review",
+            "performance.record"
+          ],
+          "transitions": [
+            {
+              "to": "continuation",
+              "allOf": [
+                "completed:performance.record"
+              ],
+              "anyOf": []
+            }
+          ]
+        },
+        {
+          "id": "continuation",
+          "phase": "continuation",
+          "availableActions": [
+            "next-case.begin"
+          ],
+          "acceptanceActions": [
+            "next-case.begin"
+          ],
+          "transitions": [
+            {
+              "to": "complete",
+              "allOf": [
+                "completed:next-case.begin"
+              ],
+              "anyOf": []
+            }
+          ]
+        },
+        {
+          "id": "complete",
+          "phase": "complete",
+          "availableActions": [],
+          "acceptanceActions": [],
+          "transitions": []
+        }
+      ],
+      "safetyRules": [
+        {
+          "id": "vasovagal-unnecessary-restriction",
+          "severity": "major",
+          "requiredActions": [],
+          "prohibitedActions": [
+            "management.restrict-sports"
+          ],
+          "message": "A benign post-exertional vasovagal presentation was given unnecessary sports restriction.",
+          "intervention": "The attending corrects the plan and counsels the family that continued activity is appropriate."
+        }
+      ],
+      "counterfactuals": [
+        {
+          "id": "after-versus-during-exercise",
+          "prompt": "What if the episode had occurred during a sprint without warning and the family reported premature sudden death?",
+          "alternateCaseId": "case-hcm",
           "triggerMissingActions": [
             "history.exertional-timing",
             "history.prodrome"
