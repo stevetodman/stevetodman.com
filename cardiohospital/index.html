@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="description" content="Cardio Hospital — immersive pediatric cardiology simulation development preview.">
+  <title>Cardio Hospital — 3D Development Preview</title>
+  <link rel="stylesheet" href="style.css?v=20260814-1">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <main id="app">
+    <canvas id="world" aria-label="Walkable three-dimensional pediatric cardiology clinic"></canvas>
+
+    <section id="entry" class="entry">
+      <div class="entry__content">
+        <p class="eyebrow">LSU Health Shreveport · Pediatric Cardiology</p>
+        <h1>Cardio<br>Hospital</h1>
+        <p class="lead">Your first clinic patient is waiting.</p>
+        <div class="shift"><span>Monday</span><strong>7:42 AM</strong><span>Rotation · Day 1</span></div>
+        <button id="enterButton" class="primary">Enter the hospital</button>
+        <p class="fineprint">Development preview · desktop Chrome · headphones recommended</p>
+      </div>
+    </section>
+
+    <section id="hud" class="hud hidden" aria-live="polite">
+      <div class="status"><span>7:42 AM</span><strong>Pediatric Cardiology</strong><small id="objective">Meet Dr. Patel in the team room</small></div>
+      <div class="controls"><span>WASD move</span><span>Mouse look</span><span>E interact</span><span>Shift faster</span></div>
+      <div class="crosshair" aria-hidden="true"></div>
+      <div id="prompt" class="prompt hidden"></div>
+      <div id="lockHint" class="lock-hint">Click inside the hospital to look around</div>
+    </section>
+
+    <div id="briefingBackdrop" class="dialog-backdrop hidden">
+      <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="briefingTitle">
+        <header class="speaker"><div class="avatar">RP</div><div><p class="eyebrow">Attending physician</p><h2 id="briefingTitle">Dr. Patel</h2></div></header>
+        <div class="dialogue"><p>Morning. We have a fourteen-year-old in Room 3 who fainted during basketball practice.</p><p>Decide whether this is benign syncope or whether he needs immediate restriction and further evaluation.</p></div>
+        <div class="assignment"><span>Room 3</span><strong>Marcus Chen · 14 years</strong><small>Referral: exertional syncope</small></div>
+        <footer><button id="acceptButton" class="primary">Accept patient</button><button id="closeBriefing" class="secondary">Close</button></footer>
+      </section>
+    </div>
+
+    <section id="encounter" class="encounter hidden">
+      <p class="eyebrow">Clinic Room 3</p>
+      <h2>Marcus Chen</h2>
+      <p>14-year-old boy · exertional syncope</p>
+      <div class="chips"><span>Patient + parent present</span><span>Clinical core connected</span></div>
+      <p class="note">Environment milestone: the complete natural-language interview, examination, ECG, echo, and debrief loop is the next playable increment.</p>
+      <button id="closeEncounter" class="secondary">Continue exploring</button>
+    </section>
+
+    <aside class="build-label">VERTICAL SLICE · ENVIRONMENT BLOCKOUT 0.1</aside>
+  </main>
+  <script type="module" src="app.js?v=20260814-1"></script>
+</body>
+</html>
