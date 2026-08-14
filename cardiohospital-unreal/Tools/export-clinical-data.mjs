@@ -13,8 +13,9 @@ async function load(moduleName) {
 }
 
 async function sha256(path) {
-  const bytes = await readFile(path);
-  return createHash("sha256").update(bytes).digest("hex");
+  const source = await readFile(path, "utf8");
+  const normalizedSource = source.replace(/\r\n/g, "\n");
+  return createHash("sha256").update(normalizedSource, "utf8").digest("hex");
 }
 
 const casesModule = await load("cases-data.ts");
