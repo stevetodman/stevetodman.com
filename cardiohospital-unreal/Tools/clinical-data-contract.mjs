@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 
 export const SOURCE_FILES = Object.freeze([
   "cases-data.ts",
+  "case-graphs.ts",
   "case-metadata.ts",
   "capstone.ts",
   "cath-case.ts",
@@ -217,6 +218,105 @@ function validateMetadata(failures, metadata, caseIds) {
   }
 }
 
+function validateCaseGraphs(failures, graphs, caseIds) {
+  addFailure(failures, Array.isArray(graphs) && graphs.length > 0, "caseGraphs must contain at least one graph");
+  if (!Array.isArray(graphs)) return;
+
+  const graphCaseIds = new Set();
+  graphs.forEach((graph, graphIndex) => {
+    const path = `caseGraphs[${graphIndex}]`;
+    requireKeys(
+      failures,
+      graph,
+      ["caseId", "version", "startNodeId", "terminalNodeIds", "actions", "nodes"],
+      ["caseId", "version", "startNodeId", "terminalNodeIds", "actions", "nodes"],
+      path,
+    );
+    if (!isObject(graph)) return;
+    requireText(failures, graph.caseId, `${path}.caseId`);
+    requireText(failures, graph.version, `${path}.version`);
+    requireText(failures, graph.startNodeId, `${path}.startNodeId`);
+    addFailure(failures, caseIds.has(graph.caseId), `${path}.caseId references an unknown clinical case`);
+    addFailure(failures, !graphCaseIds.has(graph.caseId), `${path}.caseId duplicates ${graph.caseId}`);
+    graphCaseIds.add(graph.caseId);
+    requireStringArray(failures, graph.terminalNodeIds, `${path}.terminalNodeIds`);
+
+    addFailure(failures, Array.isArray(graph.actions) && graph.actions.length > 0, `${path}.actions must not be empty`);
+    const actionIds = new Set();
+    const knownEffects = new Set();
+    graph.actions?.forEach((entry, actionIndex) => {
+      const actionPath = `${path}.actions[${actionIndex}]`;
+      requireKeys(failures, entry, ["id", "type", "target", "eventType", "effects"], ["id", "type", "target", "eventType", "effects"], actionPath);
+      if (!isObject(entry)) return;
+      for (const key of ["id", "type", "target", "eventType"]) requireText(failures, entry[key], `${actionPath}.${key}`);
+      requireStringArray(failures, entry.effects, `${actionPath}.effects`);
+      addFailure(failures, !actionIds.has(entry.id), `${path}.actions contains duplicate id ${entry.id}`);
+      actionIds.add(entry.id);
+      entry.effects?.forEach((effect) => knownEffects.add(effect));
+    });
+
+    addFailure(failures, Array.isArray(graph.nodes) && graph.nodes.length > 0, `${path}.nodes must not be empty`);
+    const nodeIds = new Set();
+    graph.nodes?.forEach((node, nodeIndex) => {
+      const nodePath = `${path}.nodes[${nodeIndex}]`;
+      requireKeys(failures, node, ["id", "phase", "availableActions", "acceptanceActions", "transitions"], ["id", "phase", "availableActions", "acceptanceActions", "transitions"], nodePath);
+      if (!isObject(node)) return;
+      requireText(failures, node.id, `${nodePath}.id`);
+      requireText(failures, node.phase, `${nodePath}.phase`);
+      requireStringArray(failures, node.availableActions, `${nodePath}.availableActions`, { allowEmpty: true });
+      requireStringArray(failures, node.acceptanceActions, `${nodePath}.acceptanceActions`, { allowEmpty: true });
+      addFailure(failures, Array.isArray(node.transitions), `${nodePath}.transitions must be an array`);
+      addFailure(failures, !nodeIds.has(node.id), `${path}.nodes contains duplicate id ${node.id}`);
+      nodeIds.add(node.id);
+      for (const actionId of [...(node.availableActions ?? []), ...(node.acceptanceActions ?? [])]) {
+        addFailure(failures, actionIds.has(actionId), `${nodePath} references unknown action ${actionId}`);
+      }
+      node.transitions?.forEach((entry, transitionIndex) => {
+        const transitionPath = `${nodePath}.transitions[${transitionIndex}]`;
+        requireKeys(failures, entry, ["to", "allOf", "anyOf"], ["to", "allOf", "anyOf"], transitionPath);
+        if (!isObject(entry)) return;
+        requireText(failures, entry.to, `${transitionPath}.to`);
+        requireStringArray(failures, entry.allOf, `${transitionPath}.allOf`, { allowEmpty: true });
+        requireStringArray(failures, entry.anyOf, `${transitionPath}.anyOf`, { allowEmpty: true });
+        for (const effect of [...(entry.allOf ?? []), ...(entry.anyOf ?? [])]) {
+          addFailure(failures, knownEffects.has(effect), `${transitionPath} references unknown effect ${effect}`);
+        }
+      });
+    });
+
+    addFailure(failures, nodeIds.has(graph.startNodeId), `${path}.startNodeId references a missing node`);
+    for (const terminalId of graph.terminalNodeIds ?? []) {
+      addFailure(failures, nodeIds.has(terminalId), `${path}.terminalNodeIds references missing node ${terminalId}`);
+    }
+    for (const [nodeIndex, node] of (graph.nodes ?? []).entries()) {
+      for (const transitionEntry of node.transitions ?? []) {
+        addFailure(failures, nodeIds.has(transitionEntry.to), `${path}.nodes[${nodeIndex}] transition references missing node ${transitionEntry.to}`);
+      }
+      const terminal = graph.terminalNodeIds?.includes(node.id);
+      addFailure(failures, terminal || node.transitions?.length > 0, `${path}.nodes[${nodeIndex}] is a non-terminal dead end`);
+      addFailure(failures, !terminal || node.transitions?.length === 0, `${path}.nodes[${nodeIndex}] terminal node must not transition`);
+    }
+
+    const reachable = new Set();
+    const pending = [graph.startNodeId];
+    while (pending.length > 0) {
+      const nodeId = pending.pop();
+      if (reachable.has(nodeId)) continue;
+      reachable.add(nodeId);
+      const node = graph.nodes?.find((candidate) => candidate.id === nodeId);
+      node?.transitions?.forEach((entry) => pending.push(entry.to));
+    }
+    for (const nodeId of nodeIds) addFailure(failures, reachable.has(nodeId), `${path}.nodes contains unreachable node ${nodeId}`);
+    addFailure(
+      failures,
+      graph.terminalNodeIds?.some((terminalId) => reachable.has(terminalId)),
+      `${path} cannot reach a terminal node from its start node`,
+    );
+  });
+
+  addFailure(failures, graphCaseIds.has("case-hcm"), "caseGraphs must include the HCM vertical-slice case");
+}
+
 function validateSupplementalContent(failures, document) {
   requireKeys(failures, document.capstone, ["patients", "teaching"], ["patients", "teaching"], "capstone");
   if (isObject(document.capstone)) {
@@ -271,10 +371,10 @@ export async function computeSourceHashes(legacyRoot) {
 
 export function validateClinicalDocument(document, { expectedSourceHashes } = {}) {
   const failures = [];
-  requireKeys(failures, document, ["schemaVersion", "generatedAt", "sourceHashes", "cases", "metadata", "capstone", "specialtyCases"], ["schemaVersion", "generatedAt", "sourceHashes", "cases", "metadata", "capstone", "specialtyCases"], "document");
+  requireKeys(failures, document, ["schemaVersion", "generatedAt", "sourceHashes", "cases", "caseGraphs", "metadata", "capstone", "specialtyCases"], ["schemaVersion", "generatedAt", "sourceHashes", "cases", "caseGraphs", "metadata", "capstone", "specialtyCases"], "document");
   if (!isObject(document)) return failures;
 
-  addFailure(failures, document.schemaVersion === 1, "schemaVersion must be 1");
+  addFailure(failures, document.schemaVersion === 2, "schemaVersion must be 2");
   addFailure(failures, document.generatedAt === "source-hash-derived", "generatedAt must remain reproducible");
   addFailure(failures, Array.isArray(document.cases) && document.cases.length === 7, "expected exactly seven outpatient cases");
 
@@ -286,6 +386,8 @@ export function validateClinicalDocument(document, { expectedSourceHashes } = {}
       ids.add(clinicalCase.id);
     }
   });
+
+  validateCaseGraphs(failures, document.caseGraphs, ids);
 
   validateMetadata(failures, document.metadata, ids);
   validateSupplementalContent(failures, document);

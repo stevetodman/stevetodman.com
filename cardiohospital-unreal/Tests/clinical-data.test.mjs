@@ -61,3 +61,23 @@ test("validator rejects fields missing from the Unreal USTRUCT contract", async 
   const failures = validateClinicalDocument(document);
   assert.ok(failures.some((failure) => failure.includes("fields not represented by the Unreal contract")));
 });
+
+test("validator rejects unreachable case graph nodes", async () => {
+  const document = structuredClone(await loadDocument());
+  document.caseGraphs[0].nodes.push({
+    id: "orphan",
+    phase: "invalid",
+    availableActions: [],
+    acceptanceActions: [],
+    transitions: [{ to: "complete", allOf: [], anyOf: [] }],
+  });
+  const failures = validateClinicalDocument(document);
+  assert.ok(failures.includes("caseGraphs[0].nodes contains unreachable node orphan"));
+});
+
+test("validator rejects graph references to unknown actions", async () => {
+  const document = structuredClone(await loadDocument());
+  document.caseGraphs[0].nodes[0].availableActions.push("invented.action");
+  const failures = validateClinicalDocument(document);
+  assert.ok(failures.some((failure) => failure.includes("references unknown action invented.action")));
+});

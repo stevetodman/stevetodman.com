@@ -21,8 +21,9 @@ bool FCardioClinicalContentTest::RunTest(const FString& Parameters)
     TestTrue(
         TEXT("Clinical JSON matches the Unreal schema"),
         FJsonObjectConverter::JsonObjectStringToUStruct(Json, &Document, 0, 0));
-    TestEqual(TEXT("Schema version"), Document.SchemaVersion, 1);
+    TestEqual(TEXT("Schema version"), Document.SchemaVersion, 2);
     TestEqual(TEXT("Outpatient case count"), Document.Cases.Num(), 7);
+    TestTrue(TEXT("At least one deterministic case graph exists"), Document.CaseGraphs.Num() > 0);
 
     const FCardioClinicalCase* Hcm = Document.Cases.FindByPredicate(
         [](const FCardioClinicalCase& Case) { return Case.Id == TEXT("case-hcm"); });
@@ -31,6 +32,15 @@ bool FCardioClinicalContentTest::RunTest(const FString& Parameters)
     {
         TestEqual(TEXT("HCM immutable diagnosis"), Hcm->CorrectDiagnosis, FString(TEXT("Hypertrophic Cardiomyopathy")));
         TestTrue(TEXT("HCM has red flags"), Hcm->RedFlagKeys.Num() >= 3);
+    }
+
+    const FCardioCaseGraphDefinition* HcmGraph = Document.CaseGraphs.FindByPredicate(
+        [](const FCardioCaseGraphDefinition& Graph) { return Graph.CaseId == TEXT("case-hcm"); });
+    TestNotNull(TEXT("HCM case graph exists"), HcmGraph);
+    if (HcmGraph)
+    {
+        TestEqual(TEXT("HCM graph starts at launch"), HcmGraph->StartNodeId, FString(TEXT("launch")));
+        TestTrue(TEXT("HCM graph has a complete terminal"), HcmGraph->TerminalNodeIds.Contains(TEXT("complete")));
     }
 
     return true;

@@ -121,6 +121,53 @@ struct FCardioClinicalCase
     UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> AttendingSocratic;
 };
 
+USTRUCT(BlueprintType)
+struct FCardioCaseActionDefinition
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Id;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Type;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Target;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString EventType;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> Effects;
+};
+
+USTRUCT(BlueprintType)
+struct FCardioCaseTransitionDefinition
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString To;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> AllOf;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> AnyOf;
+};
+
+USTRUCT(BlueprintType)
+struct FCardioCaseNodeDefinition
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Id;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Phase;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> AvailableActions;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> AcceptanceActions;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FCardioCaseTransitionDefinition> Transitions;
+};
+
+USTRUCT(BlueprintType)
+struct FCardioCaseGraphDefinition
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString CaseId;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Version;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString StartNodeId;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> TerminalNodeIds;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FCardioCaseActionDefinition> Actions;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FCardioCaseNodeDefinition> Nodes;
+};
+
 USTRUCT()
 struct FCardioClinicalContentDocument
 {
@@ -129,5 +176,6 @@ struct FCardioClinicalContentDocument
     UPROPERTY() int32 SchemaVersion = 0;
     UPROPERTY() FString GeneratedAt;
     UPROPERTY() TArray<FCardioClinicalCase> Cases;
+    UPROPERTY() TArray<FCardioCaseGraphDefinition> CaseGraphs;
 };
 

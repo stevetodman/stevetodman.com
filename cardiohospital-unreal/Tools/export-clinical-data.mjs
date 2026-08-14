@@ -14,6 +14,7 @@ async function load(moduleName) {
 }
 
 const casesModule = await load("cases-data.ts");
+const caseGraphsModule = await load("case-graphs.ts");
 const metadataModule = await load("case-metadata.ts");
 const capstoneModule = await load("capstone.ts");
 const cathModule = await load("cath-case.ts");
@@ -24,12 +25,13 @@ const mriModule = await load("mri-case.ts");
 const sourceHashes = await computeSourceHashes(legacyRoot);
 
 const document = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   // Keep generated output reproducible. Source hashes, not wall-clock time,
   // identify the exact clinical input set used for this document.
   generatedAt: "source-hash-derived",
   sourceHashes,
   cases: casesModule.CASES,
+  caseGraphs: caseGraphsModule.CASE_GRAPHS,
   metadata: metadataModule.CASE_METADATA,
   capstone: {
     patients: capstoneModule.CAPSTONE_PATIENTS,
