@@ -479,7 +479,7 @@ document.querySelector("#submitEcg").addEventListener("click", () => {
   renderTestResults();
   clinicalSignal.textContent = `ECG interpretation ${encounterState.ecgScore}%`;
   document.querySelector("#submitEcg").textContent = "Update interpretation";
-}));
+});
 
 document.querySelectorAll("[data-test]").forEach(button => button.addEventListener("click", () => {
   const key = button.dataset.test;
