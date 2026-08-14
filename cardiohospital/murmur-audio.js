@@ -1,4 +1,5 @@
-const SITE_INTENSITY = { RUSB: 0.15, LUSB: 0.45, LLSB: 1, Apex: 0.55 };
+// Keep headroom at the maximal site so the Valsalva multiplier remains audible.
+const SITE_INTENSITY = { RUSB: 0.1, LUSB: 0.28, LLSB: 0.62, Apex: 0.36 };
 
 let session = null;
 
@@ -53,7 +54,7 @@ function scheduleBeat(active, at) {
   const beatSeconds = 60 / active.heartRate;
   const systoleEnd = at + beatSeconds * 0.4;
   const siteIntensity = SITE_INTENSITY[active.site] ?? 0;
-  const maneuverMultiplier = active.valsalva ? 1.5 : 1;
+  const maneuverMultiplier = active.valsalva ? 1.55 : 1;
   const intensity = Math.min(1, siteIntensity * maneuverMultiplier);
   thump(active.ctx, active.master, at, 60, 0.3 + intensity * 0.12);
   thump(active.ctx, active.master, systoleEnd, 80, 0.24 + intensity * 0.08);
