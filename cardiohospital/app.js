@@ -146,6 +146,8 @@ const lockHint = document.querySelector("#lockHint");
 const objective = document.querySelector("#objective");
 const briefingBackdrop = document.querySelector("#briefingBackdrop");
 const encounter = document.querySelector("#encounter");
+const encounterStep = document.querySelector("#encounterStep");
+const clinicalSignal = document.querySelector("#clinicalSignal");
 let phase = "arrival";
 let activeInteraction = null;
 let doorTarget = 0;
@@ -157,12 +159,152 @@ controls.addEventListener("unlock",()=>{if(briefingBackdrop.classList.contains("
 function openBriefing(){briefingBackdrop.classList.remove("hidden");controls.unlock()}
 document.querySelector("#closeBriefing").addEventListener("click",()=>briefingBackdrop.classList.add("hidden"));
 document.querySelector("#acceptButton").addEventListener("click",()=>{phase="assigned";doorTarget=-Math.PI/2;objective.textContent="Walk to Clinic Room 3";briefingBackdrop.classList.add("hidden")});
-document.querySelector("#closeEncounter").addEventListener("click",()=>encounter.classList.add("hidden"));
+
+const historyAnswers = {
+  generic: "He collapsed at basketball practice yesterday. Coach said he just went down.",
+  exertional_timing: "It was right in the middle of a sprint drill. He didn't even slow down first.",
+  prodrome: "No warning. One second I was running, then I woke up on the floor.",
+  palpitations: "Sometimes my chest feels tight when I really push. I didn't say anything.",
+  family_sudden_death: "His mother's brother died suddenly at 29. He was healthy and no cause was found.",
+  activity_level: "Varsity basketball: practice five days a week and games on weekends."
+};
+const examAnswers = {
+  pulses: "Femoral pulses are 2+ and symmetric.",
+  llsb: "Harsh grade 3/6 crescendo-decrescendo systolic murmur at the LLSB.",
+  valsalva: "The murmur becomes distinctly louder with Valsalva.",
+  pmi: "The PMI is prominent. There is no edema."
+};
+const testAnswers = {
+  ecg: "ECG — Sinus rhythm, LVH by voltage, deep narrow Q waves and lateral T-wave inversion.",
+  echo: "Echo — Septum 22 mm; LVOT gradient 45 mmHg at rest and 78 mmHg with Valsalva; systolic anterior motion of the mitral valve.",
+  troponin: "Troponin and BNP add no useful discrimination in this stable presentation.",
+  mri: "Cardiac MRI may help later with phenotype and scar burden, but is not required before the immediate safety decision."
+};
+const criticalHistory = new Set(["exertional_timing", "prodrome", "family_sudden_death"]);
+const encounterState = {
+  history: new Set(), exam: new Set(), tests: new Set(), diagnosis: null, startedAt: null
+};
+
+function showPanel(id, label) {
+  document.querySelectorAll(".clinical-panel").forEach(panel => panel.classList.toggle("hidden", panel.id !== id));
+  encounterStep.textContent = label;
+  encounter.scrollTop = 0;
+}
+function openEncounter() {
+  if (!encounterState.startedAt) encounterState.startedAt = Date.now();
+  encounter.classList.remove("hidden");
+  controls.unlock();
+}
+function closeEncounter() {
+  encounter.classList.add("hidden");
+  lockHint.classList.remove("hidden");
+}
+function updateHistorySignal() {
+  const redFlags = [...criticalHistory].filter(key => encounterState.history.has(key)).length;
+  clinicalSignal.textContent = redFlags === 3 ? "High-risk cardiac syncope" : redFlags ? `${redFlags} of 3 red flags recognized` : "Clinical picture incomplete";
+  document.querySelector("#toExam").disabled = encounterState.history.size < 3;
+}
+
+document.querySelectorAll("[data-history]").forEach(button => button.addEventListener("click", () => {
+  const key = button.dataset.history;
+  encounterState.history.add(key);
+  button.classList.add("used");
+  document.querySelector("#historyResponse").textContent = historyAnswers[key];
+  updateHistorySignal();
+}));
+document.querySelector("#toExam").addEventListener("click", () => {
+  showPanel("examPanel", "Examination");
+  clinicalSignal.textContent = "Focused cardiac examination";
+});
+
+document.querySelectorAll("[data-exam]").forEach(button => button.addEventListener("click", () => {
+  const key = button.dataset.exam;
+  encounterState.exam.add(key);
+  button.classList.add("used");
+  document.querySelector("#examResponse").textContent = examAnswers[key];
+  document.querySelector("#toTests").disabled = encounterState.exam.size < 2;
+  if (encounterState.exam.has("llsb") && encounterState.exam.has("valsalva")) clinicalSignal.textContent = "Dynamic outflow murmur identified";
+}));
+document.querySelector("#toTests").addEventListener("click", () => {
+  showPanel("testsPanel", "Diagnostic testing");
+  clinicalSignal.textContent = "Select high-yield studies";
+});
+
+document.querySelectorAll("[data-test]").forEach(button => button.addEventListener("click", () => {
+  const key = button.dataset.test;
+  encounterState.tests.add(key);
+  button.classList.add("used");
+  if (key === "troponin" || key === "mri") button.classList.add("unnecessary");
+  const result = [...encounterState.tests].map(test => testAnswers[test]).join("\n\n");
+  document.querySelector("#testResponse").textContent = result;
+  document.querySelector("#toAssessment").disabled = encounterState.tests.size < 1;
+  if (encounterState.tests.has("ecg") && encounterState.tests.has("echo")) clinicalSignal.textContent = "HCM phenotype confirmed";
+}));
+document.querySelector("#toAssessment").addEventListener("click", () => {
+  showPanel("assessmentPanel", "Assessment + plan");
+  clinicalSignal.textContent = "Commit your clinical judgment";
+});
+
+function updateFinishState() {
+  const planSelected = document.querySelectorAll("#assessmentPanel input:checked").length > 0;
+  document.querySelector("#finishEncounter").disabled = !encounterState.diagnosis || !planSelected;
+}
+document.querySelectorAll("[data-diagnosis]").forEach(button => button.addEventListener("click", () => {
+  encounterState.diagnosis = button.dataset.diagnosis;
+  document.querySelectorAll("[data-diagnosis]").forEach(choice => choice.classList.toggle("selected", choice === button));
+  updateFinishState();
+}));
+document.querySelectorAll("#assessmentPanel input").forEach(input => input.addEventListener("change", updateFinishState));
+
+function scoreEncounter() {
+  const plan = new Set([...document.querySelectorAll("#assessmentPanel input:checked")].map(input => input.value));
+  const redFlags = [...criticalHistory].filter(key => encounterState.history.has(key)).length;
+  const history = Math.round(40 + redFlags * 20);
+  const exam = Math.min(100, 40 + (encounterState.exam.has("llsb") ? 30 : 0) + (encounterState.exam.has("valsalva") ? 30 : 0));
+  const appropriateTests = ["ecg", "echo"].filter(test => encounterState.tests.has(test)).length;
+  const unnecessaryTests = ["troponin", "mri"].filter(test => encounterState.tests.has(test)).length;
+  const testSelection = Math.max(20, 40 + appropriateTests * 30 - unnecessaryTests * 15);
+  const reasoning = encounterState.diagnosis === "hcm" ? 100 : 30;
+  const safety = Math.max(10, (plan.has("restrict") ? 100 : 25) - (plan.has("reassure") ? 35 : 0));
+  const efficiency = Math.max(40, 100 - unnecessaryTests * 25);
+  const communication = Math.min(100, 60 + (plan.has("family") ? 20 : 0) + (plan.has("genetics") ? 20 : 0));
+  const dimensions = { History: history, Examination: exam, "Test selection": testSelection, Reasoning: reasoning, Safety: safety, Efficiency: efficiency, Communication: communication };
+  const overall = Math.round(Object.values(dimensions).reduce((sum, value) => sum + value, 0) / Object.keys(dimensions).length);
+  return { dimensions, overall, plan: [...plan], elapsedSeconds: Math.round((Date.now() - encounterState.startedAt) / 1000) };
+}
+document.querySelector("#finishEncounter").addEventListener("click", () => {
+  const result = scoreEncounter();
+  showPanel("debriefPanel", "Debrief");
+  clinicalSignal.textContent = `Overall ${result.overall}%`;
+  document.querySelector("#debriefHeadline").textContent = result.overall >= 85 ? "Strong clinical judgment" : result.overall >= 70 ? "Safe, with missed opportunities" : "Revisit the red flags";
+  document.querySelector("#debriefSummary").textContent = encounterState.diagnosis === "hcm" ? "You identified hypertrophic cardiomyopathy and reached the attending debrief." : "Your diagnosis did not fully account for the mid-exertional collapse and family history.";
+  document.querySelector("#scoreGrid").innerHTML = Object.entries(result.dimensions).map(([label, value]) => `<div><span>${label}</span><strong>${value}%</strong></div>`).join("");
+  objective.textContent = "Review your debrief with Dr. Patel";
+  const attempts = JSON.parse(localStorage.getItem("cardio_hospital:v1:preview_attempts") || "[]");
+  attempts.push({ caseId: "case-hcm", completedAt: new Date().toISOString(), ...result });
+  localStorage.setItem("cardio_hospital:v1:preview_attempts", JSON.stringify(attempts.slice(-20)));
+});
+
+function resetEncounter() {
+  encounterState.history.clear(); encounterState.exam.clear(); encounterState.tests.clear(); encounterState.diagnosis = null; encounterState.startedAt = Date.now();
+  document.querySelectorAll(".clinical-action").forEach(button => button.classList.remove("used", "unnecessary"));
+  document.querySelectorAll(".choice").forEach(button => button.classList.remove("selected"));
+  document.querySelectorAll("#assessmentPanel input").forEach(input => { input.checked = false; });
+  document.querySelector("#historyResponse").textContent = "Marcus and his mother wait for your first question.";
+  document.querySelector("#examResponse").textContent = "Well-appearing, tall, muscular adolescent. No acute distress.";
+  document.querySelector("#testResponse").textContent = "No studies ordered.";
+  ["#toExam", "#toTests", "#toAssessment", "#finishEncounter"].forEach(id => { document.querySelector(id).disabled = true; });
+  clinicalSignal.textContent = "Clinical picture incomplete";
+  showPanel("historyPanel", "History");
+}
+document.querySelector("#resetEncounter").addEventListener("click", resetEncounter);
+document.querySelector("#closeEncounter").addEventListener("click", closeEncounter);
+document.querySelector("#resumeWorld").addEventListener("click", closeEncounter);
 
 const keys = new Set();
 addEventListener("keydown",event=>{
   keys.add(event.code);
-  if(event.code==="KeyE"&&!event.repeat){if(activeInteraction==="attending")openBriefing();if(activeInteraction==="exam"){phase="encounter";objective.textContent="Begin the patient encounter";encounter.classList.remove("hidden");controls.unlock()}}
+  if(event.code==="KeyE"&&!event.repeat){if(activeInteraction==="attending")openBriefing();if(activeInteraction==="exam"){phase="encounter";objective.textContent="Complete Marcus Chen's evaluation";openEncounter()}}
 });
 addEventListener("keyup",event=>keys.delete(event.code));
 
