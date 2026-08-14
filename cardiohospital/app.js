@@ -183,7 +183,7 @@ const testAnswers = {
 };
 const criticalHistory = new Set(["exertional_timing", "prodrome", "family_sudden_death"]);
 const encounterState = {
-  history: new Set(), exam: new Set(), tests: new Set(), diagnosis: null, startedAt: null
+  history: new Set(), exam: new Set(), tests: new Set(), diagnosis: null, ecgScore: null, startedAt: null
 };
 
 function showPanel(id, label) {
@@ -198,6 +198,7 @@ function openEncounter() {
 }
 function closeEncounter() {
   stopHcmMurmur();
+  document.querySelector("#ecgBackdrop").classList.add("hidden");
   document.querySelector("#stethoscopeLab").classList.remove("listening");
   document.querySelector("#listenButton").textContent = "Begin listening";
   encounter.classList.add("hidden");
@@ -300,15 +301,138 @@ document.querySelector("#toTests").addEventListener("click", () => {
   clinicalSignal.textContent = "Select high-yield studies";
 });
 
+const ecgBackdrop = document.querySelector("#ecgBackdrop");
+const ecgSvgGroup = document.querySelector("#ecgTraces");
+let ecgSpeed = 25;
+let ecgGain = 10;
+const leadProfiles = {
+  I:   { q: -.34, r: 1.25, s: -.18, t: -.34 },
+  aVR: { q: .06, r: -.72, s: .16, t: .22, p: -.08 },
+  V1:  { q: -.04, r: .28, s: -.9, t: -.18 },
+  V4:  { q: -.2, r: 1.75, s: -.15, t: -.28 },
+  II:  { q: -.1, r: 1.05, s: -.2, t: .3 },
+  aVL: { q: -.38, r: 1.15, s: -.12, t: -.4 },
+  V2:  { q: -.08, r: .62, s: -.78, t: -.16 },
+  V5:  { q: -.42, r: 1.95, s: -.12, t: -.48 },
+  III: { q: -.08, r: .62, s: -.25, t: .2 },
+  aVF: { q: -.09, r: .78, s: -.22, t: .2 },
+  V3:  { q: -.13, r: 1.2, s: -.42, t: -.1 },
+  V6:  { q: -.36, r: 1.62, s: -.08, t: -.42 }
+};
+const leadLayout = [
+  ["I", "aVR", "V1", "V4"],
+  ["II", "aVL", "V2", "V5"],
+  ["III", "aVF", "V3", "V6"]
+];
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+function gaussian(phase, center, width) {
+  const distance = phase - center;
+  return Math.exp(-(distance * distance) / (2 * width * width));
+}
+function waveform(phase, profile) {
+  const p = profile.p ?? .12;
+  return p * gaussian(phase, .12, .028)
+    + profile.q * gaussian(phase, .235, .011)
+    + profile.r * gaussian(phase, .258, .008)
+    + profile.s * gaussian(phase, .285, .012)
+    + profile.t * gaussian(phase, .53, .072);
+}
+function tracePath(x, baseline, width, profile, cycles) {
+  const points = Math.max(420, Math.round(width * 1.7));
+  const amplitudeScale = ecgGain * 5;
+  let path = "";
+  for (let i = 0; i <= points; i += 1) {
+    const fraction = i / points;
+    const phasePosition = fraction * cycles;
+    const phase = phasePosition - Math.floor(phasePosition);
+    const value = waveform(phase, profile) + Math.sin(fraction * Math.PI * 2) * .008;
+    const px = x + fraction * width;
+    const py = baseline - value * amplitudeScale;
+    path += `${i ? "L" : "M"}${px.toFixed(1)} ${py.toFixed(1)} `;
+  }
+  return path;
+}
+function svgElement(name, attributes = {}) {
+  const element = document.createElementNS(SVG_NS, name);
+  Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+  return element;
+}
+function renderEcg() {
+  ecgSvgGroup.replaceChildren();
+  const segmentCycles = ecgSpeed === 25 ? 2.75 : 1.375;
+  const xPositions = [22, 316, 610, 904];
+  const baselines = [112, 268, 424];
+  leadLayout.forEach((row, rowIndex) => row.forEach((lead, columnIndex) => {
+    const x = xPositions[columnIndex];
+    const baseline = baselines[rowIndex];
+    const label = svgElement("text", { x: x + 4, y: baseline - 60, fill: "#51272c", "font-size": "16", "font-family": "ui-monospace, monospace", "font-weight": "700" });
+    label.textContent = lead;
+    const trace = svgElement("path", { d: tracePath(x + 4, baseline, 270, leadProfiles[lead], segmentCycles), fill: "none", stroke: "#171717", "stroke-width": "2", "stroke-linejoin": "round" });
+    ecgSvgGroup.append(label, trace);
+  }));
+  const rhythmLabel = svgElement("text", { x: "26", y: "520", fill: "#51272c", "font-size": "16", "font-family": "ui-monospace, monospace", "font-weight": "700" });
+  rhythmLabel.textContent = "II  rhythm";
+  const rhythmCycles = ecgSpeed === 25 ? 11 : 5.5;
+  const rhythmTrace = svgElement("path", { d: tracePath(26, 585, 1145, leadProfiles.II, rhythmCycles), fill: "none", stroke: "#171717", "stroke-width": "2", "stroke-linejoin": "round" });
+  const calibrationHeight = ecgGain * 5;
+  const calibration = svgElement("path", { d: `M26 665 L38 665 L38 ${665-calibrationHeight} L88 ${665-calibrationHeight} L88 665 L102 665`, fill: "none", stroke: "#171717", "stroke-width": "2" });
+  const calibrationLabel = svgElement("text", { x: "112", y: "668", fill: "#51272c", "font-size": "13", "font-family": "ui-monospace, monospace" });
+  calibrationLabel.textContent = "1 mV";
+  ecgSvgGroup.append(rhythmLabel, rhythmTrace, calibration, calibrationLabel);
+  document.querySelector("#ecgCalibration").textContent = `${ecgSpeed} mm/s · ${ecgGain} mm/mV`;
+}
+function openEcgReader() {
+  renderEcg();
+  ecgBackdrop.classList.remove("hidden");
+}
+function closeEcgReader() {
+  ecgBackdrop.classList.add("hidden");
+}
+function renderTestResults() {
+  document.querySelector("#testResponse").textContent = [...encounterState.tests].map(test => testAnswers[test]).join("\n\n") || "No studies ordered.";
+  document.querySelector("#toAssessment").disabled = encounterState.tests.size < 1;
+  if (encounterState.tests.has("ecg") && encounterState.tests.has("echo")) clinicalSignal.textContent = "HCM phenotype confirmed";
+}
+document.querySelectorAll("[data-speed]").forEach(button => button.addEventListener("click", () => {
+  ecgSpeed = Number(button.dataset.speed);
+  document.querySelectorAll("[data-speed]").forEach(control => control.classList.toggle("selected", control === button));
+  renderEcg();
+}));
+document.querySelectorAll("[data-gain]").forEach(button => button.addEventListener("click", () => {
+  ecgGain = Number(button.dataset.gain);
+  document.querySelectorAll("[data-gain]").forEach(control => control.classList.toggle("selected", control === button));
+  renderEcg();
+}));
+document.querySelector("#closeEcg").addEventListener("click", closeEcgReader);
+document.querySelector("#submitEcg").addEventListener("click", () => {
+  const selected = new Set([...document.querySelectorAll(".finding-grid input:checked")].map(input => input.value));
+  const correct = new Set(["sinus", "lvh", "lateral_q", "lateral_t"]);
+  const missed = [...correct].filter(finding => !selected.has(finding));
+  const falsePositives = [...selected].filter(finding => !correct.has(finding));
+  encounterState.ecgScore = Math.round(((7 - missed.length - falsePositives.length) / 7) * 100);
+  encounterState.tests.add("ecg");
+  document.querySelector('[data-test="ecg"]').classList.add("used");
+  const feedback = document.querySelector("#ecgFeedback");
+  feedback.classList.toggle("correct", missed.length === 0 && falsePositives.length === 0);
+  feedback.textContent = missed.length === 0 && falsePositives.length === 0
+    ? "Complete interpretation: sinus rhythm with LVH, deep narrow lateral Q waves, and lateral repolarization abnormality. QTc 432 ms."
+    : `Interpretation score ${encounterState.ecgScore}%. ${missed.length ? `${missed.length} key finding(s) missed.` : "No key findings missed."} ${falsePositives.length ? `${falsePositives.length} unsupported finding(s) selected.` : "No unsupported findings selected."}`;
+  renderTestResults();
+  clinicalSignal.textContent = `ECG interpretation ${encounterState.ecgScore}%`;
+  document.querySelector("#submitEcg").textContent = "Update interpretation";
+}));
+
 document.querySelectorAll("[data-test]").forEach(button => button.addEventListener("click", () => {
   const key = button.dataset.test;
+  if (key === "ecg") {
+    openEcgReader();
+    return;
+  }
   encounterState.tests.add(key);
   button.classList.add("used");
   if (key === "troponin" || key === "mri") button.classList.add("unnecessary");
-  const result = [...encounterState.tests].map(test => testAnswers[test]).join("\n\n");
-  document.querySelector("#testResponse").textContent = result;
-  document.querySelector("#toAssessment").disabled = encounterState.tests.size < 1;
-  if (encounterState.tests.has("ecg") && encounterState.tests.has("echo")) clinicalSignal.textContent = "HCM phenotype confirmed";
+  renderTestResults();
 }));
 document.querySelector("#toAssessment").addEventListener("click", () => {
   showPanel("assessmentPanel", "Assessment + plan");
@@ -334,13 +458,14 @@ function scoreEncounter() {
   const appropriateTests = ["ecg", "echo"].filter(test => encounterState.tests.has(test)).length;
   const unnecessaryTests = ["troponin", "mri"].filter(test => encounterState.tests.has(test)).length;
   const testSelection = Math.max(20, 40 + appropriateTests * 30 - unnecessaryTests * 15);
-  const reasoning = encounterState.diagnosis === "hcm" ? 100 : 30;
+  const ecgInterpretation = encounterState.ecgScore ?? 0;
+  const reasoning = encounterState.diagnosis === "hcm" ? Math.round(70 + ecgInterpretation * .3) : Math.round(20 + ecgInterpretation * .1);
   const safety = Math.max(10, (plan.has("restrict") ? 100 : 25) - (plan.has("reassure") ? 35 : 0));
   const efficiency = Math.max(40, 100 - unnecessaryTests * 25);
   const communication = Math.min(100, 60 + (plan.has("family") ? 20 : 0) + (plan.has("genetics") ? 20 : 0));
   const dimensions = { History: history, Examination: exam, "Test selection": testSelection, Reasoning: reasoning, Safety: safety, Efficiency: efficiency, Communication: communication };
   const overall = Math.round(Object.values(dimensions).reduce((sum, value) => sum + value, 0) / Object.keys(dimensions).length);
-  return { dimensions, overall, plan: [...plan], elapsedSeconds: Math.round((Date.now() - encounterState.startedAt) / 1000) };
+  return { dimensions, overall, ecgInterpretation, plan: [...plan], elapsedSeconds: Math.round((Date.now() - encounterState.startedAt) / 1000) };
 }
 document.querySelector("#finishEncounter").addEventListener("click", () => {
   const result = scoreEncounter();
@@ -357,13 +482,18 @@ document.querySelector("#finishEncounter").addEventListener("click", () => {
 
 function resetEncounter() {
   stopHcmMurmur(); stethoscopeListening = false; selectedSite = "RUSB";
-  encounterState.history.clear(); encounterState.exam.clear(); encounterState.tests.clear(); encounterState.diagnosis = null; encounterState.startedAt = Date.now();
+  encounterState.history.clear(); encounterState.exam.clear(); encounterState.tests.clear(); encounterState.diagnosis = null; encounterState.ecgScore = null; encounterState.startedAt = Date.now();
   document.querySelectorAll(".clinical-action").forEach(button => button.classList.remove("used", "unnecessary"));
   document.querySelectorAll(".choice").forEach(button => button.classList.remove("selected"));
   document.querySelectorAll("#assessmentPanel input").forEach(input => { input.checked = false; });
   document.querySelector("#historyResponse").textContent = "Marcus and his mother wait for your first question.";
   document.querySelector("#examResponse").textContent = "Well-appearing, tall, muscular adolescent. No acute distress.";
   document.querySelector("#testResponse").textContent = "No studies ordered.";
+  ecgBackdrop.classList.add("hidden");
+  document.querySelectorAll(".finding-grid input").forEach(input => { input.checked = false; });
+  document.querySelector("#ecgFeedback").classList.remove("correct");
+  document.querySelector("#ecgFeedback").textContent = "The machine interpretation is intentionally hidden.";
+  document.querySelector("#submitEcg").textContent = "Commit ECG interpretation";
   stethoscopeLab.classList.add("hidden"); stethoscopeLab.classList.remove("listening");
   listenButton.textContent = "Begin listening"; valsalvaToggle.checked = false;
   ["#toExam", "#toTests", "#toAssessment", "#finishEncounter"].forEach(id => { document.querySelector(id).disabled = true; });
