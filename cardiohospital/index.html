@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="description" content="Cardio Hospital — immersive pediatric cardiology simulation development preview.">
   <title>Cardio Hospital — 3D Development Preview</title>
-  <link rel="stylesheet" href="style.css?v=20260814-2">
+  <link rel="stylesheet" href="style.css?v=20260814-3">
   <script type="importmap">
     {
       "imports": {
@@ -80,10 +80,30 @@
         <div class="vital-strip"><span>HR <strong>68</strong></span><span>BP <strong>118/72</strong></span><span>RR <strong>14</strong></span><span>SpO₂ <strong>99%</strong></span></div>
         <div class="action-grid">
           <button class="clinical-action" data-exam="pulses">Check femoral pulses</button>
-          <button class="clinical-action critical-action" data-exam="llsb">Auscultate LLSB</button>
-          <button class="clinical-action critical-action" data-exam="valsalva">Repeat with Valsalva</button>
+          <button id="openStethoscope" class="clinical-action critical-action">Use stethoscope</button>
           <button class="clinical-action" data-exam="pmi">Palpate the PMI</button>
         </div>
+        <section id="stethoscopeLab" class="stethoscope-lab hidden" aria-label="Interactive cardiac auscultation">
+          <div class="stethoscope-lab__visual">
+            <div class="chest" aria-label="Anterior chest auscultation map">
+              <span class="chest__sternum"></span>
+              <button class="site site--rusb" data-site="RUSB"><b>RUSB</b><small>Aortic</small></button>
+              <button class="site site--lusb" data-site="LUSB"><b>LUSB</b><small>Pulmonic</small></button>
+              <button class="site site--llsb" data-site="LLSB"><b>LLSB</b><small>Tricuspid</small></button>
+              <button class="site site--apex" data-site="Apex"><b>Apex</b><small>Mitral</small></button>
+              <div id="chestpiece" class="chestpiece" aria-hidden="true"><i></i></div>
+            </div>
+          </div>
+          <div class="stethoscope-lab__controls">
+            <p class="eyebrow">Digital stethoscope</p>
+            <h3 id="siteName">LLSB · Tricuspid area</h3>
+            <p id="siteFinding">Position the chestpiece, then begin listening.</p>
+            <button id="listenButton" class="primary">Begin listening</button>
+            <label class="maneuver"><input id="valsalvaToggle" type="checkbox"> Ask Marcus to perform Valsalva</label>
+            <div class="audio-meter" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <small>Educational synthesis · headphones recommended</small>
+          </div>
+        </section>
         <div id="examResponse" class="clinical-response" aria-live="polite">Well-appearing, tall, muscular adolescent. No acute distress.</div>
         <button id="toTests" class="primary stage-next" disabled>Choose diagnostic tests</button>
       </div>
@@ -131,8 +151,8 @@
       </div>
     </section>
 
-    <aside class="build-label">VERTICAL SLICE · PLAYABLE HCM ENCOUNTER 0.2</aside>
+    <aside class="build-label">VERTICAL SLICE · SPATIAL AUSCULTATION 0.3</aside>
   </main>
-  <script type="module" src="app.js?v=20260814-2"></script>
+  <script type="module" src="app.js?v=20260814-3"></script>
 </body>
 </html>
