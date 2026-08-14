@@ -3,7 +3,31 @@ import { PointerLockControls } from "three/addons/controls/PointerLockControls.j
 import { audioSupported, startHcmMurmur, stopHcmMurmur, updateHcmSite, updateHcmValsalva } from "./murmur-audio.js?v=20260814-3";
 
 const canvas = document.querySelector("#world");
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
+const qaMode = new URLSearchParams(window.location.search).has("qa");
+function createNoopRenderer() {
+  return {
+    shadowMap: { enabled: false, type: null },
+    userData: { webgl: false },
+    outputColorSpace: null,
+    toneMapping: null,
+    toneMappingExposure: 1,
+    setPixelRatio() {},
+    setSize() {},
+    render() {}
+  };
+}
+let renderer;
+if (qaMode) {
+  renderer = createNoopRenderer();
+} else {
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
+    renderer.userData = { webgl: true };
+  } catch (error) {
+    console.warn("Cardio Hospital could not initialize WebGL.", error);
+    renderer = createNoopRenderer();
+  }
+}
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.7));
 renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
@@ -18,6 +42,15 @@ scene.fog = new THREE.Fog("#dbe2e0", 19, 39);
 const camera = new THREE.PerspectiveCamera(67, innerWidth / innerHeight, 0.05, 80);
 camera.position.set(0, 1.65, 8.55);
 const controls = new PointerLockControls(camera, canvas);
+
+if (!renderer.userData.webgl && !qaMode) {
+  const warning = document.createElement("p");
+  warning.className = "fineprint";
+  warning.textContent = "This browser could not initialize WebGL. Use current desktop Chrome with hardware acceleration enabled.";
+  warning.style.color = "#f1b862";
+  document.querySelector(".entry__content").append(warning);
+  document.querySelector("#enterButton").disabled = true;
+}
 
 const materialCache = new Map();
 function material(color, roughness = .72, metalness = 0) {
@@ -203,6 +236,31 @@ function closeEncounter() {
   document.querySelector("#listenButton").textContent = "Begin listening";
   encounter.classList.add("hidden");
   lockHint.classList.remove("hidden");
+}
+if (qaMode) {
+  document.body.dataset.qaMode = "true";
+  const qaToolbar = document.createElement("nav");
+  qaToolbar.setAttribute("aria-label", "QA room positioning");
+  qaToolbar.style.cssText = "position:fixed;left:12px;bottom:44px;z-index:80;display:flex;gap:6px;padding:7px;border:1px solid rgba(100,216,211,.35);border-radius:7px;background:#071215;color:white";
+  const qaTeam = document.createElement("button");
+  qaTeam.id = "qaTeam";
+  qaTeam.className = "secondary";
+  qaTeam.textContent = "QA: Team room";
+  qaTeam.addEventListener("click", () => {
+    phase = "arrival";
+    camera.position.set(0, 1.65, 10.3);
+  });
+  const qaExam = document.createElement("button");
+  qaExam.id = "qaExam";
+  qaExam.className = "secondary";
+  qaExam.textContent = "QA: Exam door";
+  qaExam.addEventListener("click", () => {
+    phase = "assigned";
+    doorTarget = -Math.PI / 2;
+    camera.position.set(2.1, 1.65, -3);
+  });
+  qaToolbar.append(qaTeam, qaExam);
+  document.querySelector("#app").append(qaToolbar);
 }
 function updateHistorySignal() {
   const redFlags = [...criticalHistory].filter(key => encounterState.history.has(key)).length;
