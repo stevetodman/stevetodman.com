@@ -27,7 +27,14 @@ $computer = Get-CimInstance Win32_ComputerSystem
 $os = Get-CimInstance Win32_OperatingSystem
 $unreal = Find-UnrealEditor
 $git = Get-Command git -ErrorAction SilentlyContinue
-$node = Get-Command node -ErrorAction SilentlyContinue
+$nodeCommand = Get-Command node -ErrorAction SilentlyContinue
+$node = if ($nodeCommand) {
+    $nodeCommand.Source
+}
+else {
+    $candidate = Join-Path ([Environment]::GetFolderPath("UserProfile")) ".cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"
+    if (Test-Path -LiteralPath $candidate) { $candidate } else { $null }
+}
 
 $report = [ordered]@{
     Windows = $os.Caption
@@ -36,7 +43,7 @@ $report = [ordered]@{
     GPUDriver = $gpu.DriverVersion
     UnrealEditor = $unreal
     Git = if ($git) { $git.Source } else { $null }
-    Node = if ($node) { $node.Source } else { $null }
+    Node = $node
 }
 
 $report | ConvertTo-Json
@@ -44,6 +51,7 @@ $report | ConvertTo-Json
 $failures = @()
 if (-not $unreal) { $failures += "Unreal Engine 5.8 was not found." }
 if (-not $git) { $failures += "Git for Windows was not found." }
+if (-not $node) { $failures += "Node.js 24 was not found." }
 if ($computer.TotalPhysicalMemory -lt 48GB) { $failures += "Less than 48 GB RAM is available." }
 if ($gpu.Name -notmatch "RTX 4090") { $failures += "The RTX 4090 was not selected as the primary adapter." }
 

@@ -7,7 +7,7 @@
 
 namespace
 {
-    constexpr int32 SupportedClinicalSchemaVersion = 1;
+    constexpr int32 SupportedClinicalSchemaVersion = 3;
 }
 
 void UCardioClinicalDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -55,6 +55,12 @@ bool UCardioClinicalDataSubsystem::ReloadClinicalContent(FString& OutError)
         return false;
     }
 
+    if (Content.CaseGraphs.IsEmpty())
+    {
+        OutError = TEXT("Clinical content contains no deterministic case graphs");
+        return false;
+    }
+
     TSet<FString> SeenIds;
     for (const FCardioClinicalCase& Case : Content.Cases)
     {
@@ -90,6 +96,23 @@ bool UCardioClinicalDataSubsystem::FindCaseById(const FString& CaseId, FCardioCl
     }
 
     OutCase = *Match;
+    return true;
+}
+
+bool UCardioClinicalDataSubsystem::FindCaseGraphById(const FString& CaseId, FCardioCaseGraphDefinition& OutGraph) const
+{
+    const FCardioCaseGraphDefinition* Match = Content.CaseGraphs.FindByPredicate(
+        [&CaseId](const FCardioCaseGraphDefinition& Candidate)
+        {
+            return Candidate.CaseId.Equals(CaseId, ESearchCase::CaseSensitive);
+        });
+
+    if (!Match)
+    {
+        return false;
+    }
+
+    OutGraph = *Match;
     return true;
 }
 

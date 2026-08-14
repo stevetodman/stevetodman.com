@@ -36,3 +36,14 @@ Do not enter institutional credentials into project files or terminal prompts.
 4. Implement dialogue selection from `case-hcm` in the clinical data subsystem.
 5. Add voice, listening pose, gaze, blink, and facial performance.
 6. Package and run the vertical slice before creating additional characters.
+
+## Runtime integration already prepared
+
+- `UCardioClinicalDataSubsystem` loads schema-v3 clinical truth, case graphs,
+  safety rules, counterfactuals, and educational concepts.
+- `UCardioCaseRuntimeSubsystem` exposes deterministic case actions to Blueprint.
+- Portable tests simulate complete and unsafe HCM paths plus the vasovagal
+  contrast case. Keep these tests green while connecting world interactions.
+- The first local compile must confirm Unreal Header Tool accepts the new
+  reflected structs and subsystem signatures; this has not been claimed from
+  the non-admin workstation.

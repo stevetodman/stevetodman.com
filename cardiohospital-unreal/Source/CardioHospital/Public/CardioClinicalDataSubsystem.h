@@ -22,6 +22,9 @@ public:
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Clinical Data")
     bool FindCaseById(const FString& CaseId, FCardioClinicalCase& OutCase) const;
 
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Clinical Data")
+    bool FindCaseGraphById(const FString& CaseId, FCardioCaseGraphDefinition& OutGraph) const;
+
     bool ReloadClinicalContent(FString& OutError);
 
 private:

@@ -13,6 +13,7 @@ const projectRoot = resolve(here, "..");
 const dataPath = resolve(projectRoot, "Content", "Data", "clinical-content.json");
 const legacyRoot = resolve(projectRoot, "LegacyCore", "src", "lib");
 const exportPath = resolve(projectRoot, "Tools", "export-clinical-data.mjs");
+const clinicalSubsystemPath = resolve(projectRoot, "Source", "CardioHospital", "Private", "CardioClinicalDataSubsystem.cpp");
 
 async function loadDocument() {
   return JSON.parse(await readFile(dataPath, "utf8"));
@@ -80,4 +81,12 @@ test("validator rejects graph references to unknown actions", async () => {
   document.caseGraphs[0].nodes[0].availableActions.push("invented.action");
   const failures = validateClinicalDocument(document);
   assert.ok(failures.some((failure) => failure.includes("references unknown action invented.action")));
+});
+
+test("Unreal loader schema version stays synchronized with generated content", async () => {
+  const document = await loadDocument();
+  const source = await readFile(clinicalSubsystemPath, "utf8");
+  const match = source.match(/SupportedClinicalSchemaVersion\s*=\s*(\d+)/);
+  assert.ok(match, "C++ supported schema constant was not found");
+  assert.equal(Number(match[1]), document.schemaVersion);
 });

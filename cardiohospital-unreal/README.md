@@ -20,6 +20,7 @@ spatial audio, and native interaction.
 - Unreal Engine 5.8
 - Visual Studio 2022 with **Game development with C++** and Windows 11 SDK
 - Git for Windows
+- Node.js 24, or the Node.js runtime bundled with the Codex Windows app
 - NVIDIA Studio Driver current enough for UE 5.8
 
 Run `Scripts/Check-Workstation.ps1` first. Then right-click
@@ -44,7 +45,8 @@ ignored by Git. A package manifest always begins with `walkthroughPassed=false`;
 only a real packaged walkthrough can satisfy that quality gate.
 
 GitHub Actions repeats the portable export, contract validation, determinism
-tests, and generated-file check on both Windows and Linux. This gate does not
+tests, headless case simulation, scoring, persistence, adaptive selection, and
+generated-file check on both Windows and Linux. This gate does not
 claim that Unreal Header Tool, C++ compilation, cooking, or the walkthrough has
 passed; those remain local UE 5.8 gates.
 
@@ -53,6 +55,17 @@ passed; those remain local UE 5.8 gates.
 `Content/Data/clinical-content.json` is generated from the preserved TypeScript
 clinical core. Runtime code loads and validates it through
 `UCardioClinicalDataSubsystem`; visual actors never own clinical truth.
+
+`UCardioCaseRuntimeSubsystem` is the Blueprint-facing adapter for deterministic
+case progression. World actors should call `StartCase`, query
+`GetAvailableActions`, and report player choices through `PerformAction`; they
+must not implement separate clinical branching in Blueprint.
+
+The portable test suite currently exercises complete and deliberately flawed
+paths through the HCM and vasovagal contrast cases. It verifies action ordering,
+clinical omissions, unnecessary testing, safety intervention, debrief scoring,
+learner persistence, mastery, and adaptive selection without claiming Unreal
+compilation or presentation quality.
 
 Rules:
 
