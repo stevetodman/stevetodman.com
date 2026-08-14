@@ -130,6 +130,7 @@ struct FCardioCaseActionDefinition
     UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Type;
     UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Target;
     UPROPERTY(EditAnywhere, BlueprintReadOnly) FString EventType;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> RequiresAll;
     UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> Effects;
 };
 

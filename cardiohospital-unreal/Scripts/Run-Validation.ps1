@@ -10,7 +10,7 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     node Tools/validate-clinical-data.mjs
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    node --test Tests/clinical-data.test.mjs
+    node --test Tests/*.test.mjs
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 finally {

@@ -246,13 +246,19 @@ function validateCaseGraphs(failures, graphs, caseIds) {
     const knownEffects = new Set();
     graph.actions?.forEach((entry, actionIndex) => {
       const actionPath = `${path}.actions[${actionIndex}]`;
-      requireKeys(failures, entry, ["id", "type", "target", "eventType", "effects"], ["id", "type", "target", "eventType", "effects"], actionPath);
+      requireKeys(failures, entry, ["id", "type", "target", "eventType", "requiresAll", "effects"], ["id", "type", "target", "eventType", "requiresAll", "effects"], actionPath);
       if (!isObject(entry)) return;
       for (const key of ["id", "type", "target", "eventType"]) requireText(failures, entry[key], `${actionPath}.${key}`);
+      requireStringArray(failures, entry.requiresAll, `${actionPath}.requiresAll`, { allowEmpty: true });
       requireStringArray(failures, entry.effects, `${actionPath}.effects`);
       addFailure(failures, !actionIds.has(entry.id), `${path}.actions contains duplicate id ${entry.id}`);
       actionIds.add(entry.id);
       entry.effects?.forEach((effect) => knownEffects.add(effect));
+    });
+    graph.actions?.forEach((entry, actionIndex) => {
+      for (const effect of entry.requiresAll ?? []) {
+        addFailure(failures, knownEffects.has(effect), `${path}.actions[${actionIndex}] references unknown prerequisite effect ${effect}`);
+      }
     });
 
     addFailure(failures, Array.isArray(graph.nodes) && graph.nodes.length > 0, `${path}.nodes must not be empty`);

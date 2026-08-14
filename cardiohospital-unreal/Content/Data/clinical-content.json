@@ -3,7 +3,7 @@
   "generatedAt": "source-hash-derived",
   "sourceHashes": {
     "cases-data.ts": "5bafbec473265290cd6a1016e4be51eb73c6802912070ebe6163f01c3a84947b",
-    "case-graphs.ts": "bd2e5969c6410cf1b92e1883db7fe7f171d4612a42c5162bae196dea78a173b7",
+    "case-graphs.ts": "b223aaeaf2fd9fc1ed342553e4c16108b5bb3d6c28de036bcb9a6f07d8e1c988",
     "case-metadata.ts": "4ee38020d7afddd1293bfeced41144adab769525a11e2468981ce604e462ffe7",
     "capstone.ts": "f41ef28c8f3f65f880f6463eecc078a33a26c5bef2c5633ede9d3b556fc443f1",
     "cath-case.ts": "6cfae2d628c6c8fcae29925f8928b69fa08d9d9fd915bb2f53be12bcc8f817b9",
@@ -1030,6 +1030,7 @@
           "type": "system",
           "target": "application",
           "eventType": "application_loaded",
+          "requiresAll": [],
           "effects": [
             "completed:system.load"
           ]
@@ -1039,6 +1040,7 @@
           "type": "navigation",
           "target": "cardiology-unit",
           "eventType": "world_entered",
+          "requiresAll": [],
           "effects": [
             "completed:world.enter"
           ]
@@ -1048,6 +1050,7 @@
           "type": "navigation",
           "target": "cardiology-workroom",
           "eventType": "location_entered",
+          "requiresAll": [],
           "effects": [
             "completed:navigate.workroom"
           ]
@@ -1057,6 +1060,7 @@
           "type": "conversation",
           "target": "dr-patel",
           "eventType": "attending_consulted",
+          "requiresAll": [],
           "effects": [
             "completed:attending.open-assignment"
           ]
@@ -1066,6 +1070,9 @@
           "type": "conversation",
           "target": "case-hcm",
           "eventType": "assignment_received",
+          "requiresAll": [
+            "completed:attending.open-assignment"
+          ],
           "effects": [
             "completed:assignment.accept"
           ]
@@ -1075,6 +1082,7 @@
           "type": "navigation",
           "target": "room-3",
           "eventType": "location_entered",
+          "requiresAll": [],
           "effects": [
             "completed:navigate.exam-room"
           ]
@@ -1084,6 +1092,9 @@
           "type": "conversation",
           "target": "marcus-and-parent",
           "eventType": "patient_encounter_started",
+          "requiresAll": [
+            "completed:navigate.exam-room"
+          ],
           "effects": [
             "completed:encounter.introduce"
           ]
@@ -1093,6 +1104,7 @@
           "type": "history",
           "target": "generic",
           "eventType": "history_question",
+          "requiresAll": [],
           "effects": [
             "completed:history.generic"
           ]
@@ -1102,6 +1114,7 @@
           "type": "history",
           "target": "exertional_timing",
           "eventType": "history_question",
+          "requiresAll": [],
           "effects": [
             "completed:history.exertional-timing"
           ]
@@ -1111,6 +1124,7 @@
           "type": "history",
           "target": "family_sudden_death",
           "eventType": "history_question",
+          "requiresAll": [],
           "effects": [
             "completed:history.family-sudden-death"
           ]
@@ -1120,8 +1134,49 @@
           "type": "history",
           "target": "prodrome",
           "eventType": "history_question",
+          "requiresAll": [],
           "effects": [
             "completed:history.prodrome"
+          ]
+        },
+        {
+          "id": "history.palpitations",
+          "type": "history",
+          "target": "palpitations",
+          "eventType": "history_question",
+          "requiresAll": [],
+          "effects": [
+            "completed:history.palpitations"
+          ]
+        },
+        {
+          "id": "history.triggers",
+          "type": "history",
+          "target": "triggers",
+          "eventType": "history_question",
+          "requiresAll": [],
+          "effects": [
+            "completed:history.triggers"
+          ]
+        },
+        {
+          "id": "history.activity-level",
+          "type": "history",
+          "target": "activity_level",
+          "eventType": "history_question",
+          "requiresAll": [],
+          "effects": [
+            "completed:history.activity-level"
+          ]
+        },
+        {
+          "id": "history.stimulant-use",
+          "type": "history",
+          "target": "stimulant_use",
+          "eventType": "history_question",
+          "requiresAll": [],
+          "effects": [
+            "completed:history.stimulant-use"
           ]
         },
         {
@@ -1129,6 +1184,7 @@
           "type": "system",
           "target": "history",
           "eventType": "case_progressed",
+          "requiresAll": [],
           "effects": [
             "completed:history.finish"
           ]
@@ -1138,6 +1194,7 @@
           "type": "exam",
           "target": "general",
           "eventType": "exam_performed",
+          "requiresAll": [],
           "effects": [
             "completed:exam.general"
           ]
@@ -1147,6 +1204,7 @@
           "type": "exam",
           "target": "vitals",
           "eventType": "exam_performed",
+          "requiresAll": [],
           "effects": [
             "completed:exam.vitals"
           ]
@@ -1156,6 +1214,7 @@
           "type": "exam",
           "target": "auscultation",
           "eventType": "exam_performed",
+          "requiresAll": [],
           "effects": [
             "completed:exam.auscultation"
           ]
@@ -1165,6 +1224,7 @@
           "type": "exam",
           "target": "femoralPulses",
           "eventType": "exam_performed",
+          "requiresAll": [],
           "effects": [
             "completed:exam.femoral-pulses"
           ]
@@ -1174,6 +1234,7 @@
           "type": "system",
           "target": "exam",
           "eventType": "case_progressed",
+          "requiresAll": [],
           "effects": [
             "completed:exam.finish"
           ]
@@ -1183,6 +1244,7 @@
           "type": "order",
           "target": "ECG",
           "eventType": "test_ordered",
+          "requiresAll": [],
           "effects": [
             "completed:order.ecg"
           ]
@@ -1192,6 +1254,9 @@
           "type": "review",
           "target": "ECG",
           "eventType": "test_interpreted",
+          "requiresAll": [
+            "completed:order.ecg"
+          ],
           "effects": [
             "completed:review.ecg"
           ]
@@ -1201,6 +1266,7 @@
           "type": "order",
           "target": "Echocardiogram",
           "eventType": "test_ordered",
+          "requiresAll": [],
           "effects": [
             "completed:order.echo"
           ]
@@ -1210,8 +1276,31 @@
           "type": "review",
           "target": "Echocardiogram",
           "eventType": "test_interpreted",
+          "requiresAll": [
+            "completed:order.echo"
+          ],
           "effects": [
             "completed:review.echo"
+          ]
+        },
+        {
+          "id": "order.ct-angiography",
+          "type": "order",
+          "target": "CT angiography",
+          "eventType": "test_ordered",
+          "requiresAll": [],
+          "effects": [
+            "completed:order.ct-angiography"
+          ]
+        },
+        {
+          "id": "order.troponin",
+          "type": "order",
+          "target": "Troponin",
+          "eventType": "test_ordered",
+          "requiresAll": [],
+          "effects": [
+            "completed:order.troponin"
           ]
         },
         {
@@ -1219,6 +1308,7 @@
           "type": "system",
           "target": "testing",
           "eventType": "case_progressed",
+          "requiresAll": [],
           "effects": [
             "completed:testing.finish"
           ]
@@ -1228,6 +1318,7 @@
           "type": "navigation",
           "target": "cardiology-workroom",
           "eventType": "location_entered",
+          "requiresAll": [],
           "effects": [
             "completed:navigate.return-workroom"
           ]
@@ -1237,6 +1328,7 @@
           "type": "reasoning",
           "target": "attending",
           "eventType": "diagnosis_submitted",
+          "requiresAll": [],
           "effects": [
             "completed:reasoning.submit"
           ]
@@ -1246,6 +1338,7 @@
           "type": "system",
           "target": "reasoning",
           "eventType": "case_progressed",
+          "requiresAll": [],
           "effects": [
             "completed:reasoning.finish"
           ]
@@ -1255,6 +1348,7 @@
           "type": "management",
           "target": "Restrict from competitive sports immediately",
           "eventType": "management_action",
+          "requiresAll": [],
           "effects": [
             "completed:management.restrict-sports"
           ]
@@ -1264,6 +1358,7 @@
           "type": "management",
           "target": "Refer for electrophysiology / ICD evaluation",
           "eventType": "management_action",
+          "requiresAll": [],
           "effects": [
             "completed:management.ep-referral"
           ]
@@ -1273,6 +1368,7 @@
           "type": "management",
           "target": "Family screening (first-degree relatives)",
           "eventType": "management_action",
+          "requiresAll": [],
           "effects": [
             "completed:management.family-screening"
           ]
@@ -1282,8 +1378,29 @@
           "type": "management",
           "target": "Genetics consultation",
           "eventType": "management_action",
+          "requiresAll": [],
           "effects": [
             "completed:management.genetics"
+          ]
+        },
+        {
+          "id": "management.clear-sports",
+          "type": "management",
+          "target": "Clear for competitive sports",
+          "eventType": "management_action",
+          "requiresAll": [],
+          "effects": [
+            "completed:management.clear-sports"
+          ]
+        },
+        {
+          "id": "management.reassure",
+          "type": "management",
+          "target": "Reassurance only",
+          "eventType": "management_action",
+          "requiresAll": [],
+          "effects": [
+            "completed:management.reassure"
           ]
         },
         {
@@ -1291,6 +1408,7 @@
           "type": "system",
           "target": "management",
           "eventType": "case_progressed",
+          "requiresAll": [],
           "effects": [
             "completed:management.finish"
           ]
@@ -1300,6 +1418,7 @@
           "type": "debrief",
           "target": "case-specific-feedback",
           "eventType": "debrief_viewed",
+          "requiresAll": [],
           "effects": [
             "completed:debrief.review"
           ]
@@ -1309,6 +1428,9 @@
           "type": "debrief",
           "target": "learner-attempt",
           "eventType": "performance_recorded",
+          "requiresAll": [
+            "completed:debrief.review"
+          ],
           "effects": [
             "completed:performance.record"
           ]
@@ -1318,6 +1440,9 @@
           "type": "continuation",
           "target": "contrastive-case",
           "eventType": "next_case_started",
+          "requiresAll": [
+            "completed:performance.record"
+          ],
           "effects": [
             "completed:next-case.begin"
           ]
@@ -1431,6 +1556,10 @@
             "history.exertional-timing",
             "history.family-sudden-death",
             "history.prodrome",
+            "history.palpitations",
+            "history.triggers",
+            "history.activity-level",
+            "history.stimulant-use",
             "history.finish"
           ],
           "acceptanceActions": [
@@ -1482,6 +1611,8 @@
             "review.ecg",
             "order.echo",
             "review.echo",
+            "order.ct-angiography",
+            "order.troponin",
             "testing.finish"
           ],
           "acceptanceActions": [
@@ -1530,6 +1661,8 @@
             "management.ep-referral",
             "management.family-screening",
             "management.genetics",
+            "management.clear-sports",
+            "management.reassure",
             "management.finish"
           ],
           "acceptanceActions": [

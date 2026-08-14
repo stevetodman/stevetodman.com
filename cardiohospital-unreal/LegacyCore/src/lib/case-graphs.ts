@@ -22,6 +22,7 @@ export interface CaseActionDefinition {
   type: CaseActionType;
   target: string;
   eventType: string;
+  requiresAll: string[];
   effects: string[];
 }
 
@@ -53,7 +54,8 @@ const action = (
   type: CaseActionType,
   target: string,
   eventType: string,
-): CaseActionDefinition => ({ id, type, target, eventType, effects: [`completed:${id}`] });
+  requiresAll: string[] = [],
+): CaseActionDefinition => ({ id, type, target, eventType, requiresAll, effects: [`completed:${id}`] });
 
 const advance = (id: string, target: string): CaseActionDefinition =>
   action(id, "system", target, "case_progressed");
@@ -74,13 +76,17 @@ export const HCM_CASE_GRAPH: CaseGraphDefinition = {
     action("world.enter", "navigation", "cardiology-unit", "world_entered"),
     action("navigate.workroom", "navigation", "cardiology-workroom", "location_entered"),
     action("attending.open-assignment", "conversation", "dr-patel", "attending_consulted"),
-    action("assignment.accept", "conversation", "case-hcm", "assignment_received"),
+    action("assignment.accept", "conversation", "case-hcm", "assignment_received", ["completed:attending.open-assignment"]),
     action("navigate.exam-room", "navigation", "room-3", "location_entered"),
-    action("encounter.introduce", "conversation", "marcus-and-parent", "patient_encounter_started"),
+    action("encounter.introduce", "conversation", "marcus-and-parent", "patient_encounter_started", ["completed:navigate.exam-room"]),
     action("history.generic", "history", "generic", "history_question"),
     action("history.exertional-timing", "history", "exertional_timing", "history_question"),
     action("history.family-sudden-death", "history", "family_sudden_death", "history_question"),
     action("history.prodrome", "history", "prodrome", "history_question"),
+    action("history.palpitations", "history", "palpitations", "history_question"),
+    action("history.triggers", "history", "triggers", "history_question"),
+    action("history.activity-level", "history", "activity_level", "history_question"),
+    action("history.stimulant-use", "history", "stimulant_use", "history_question"),
     advance("history.finish", "history"),
     action("exam.general", "exam", "general", "exam_performed"),
     action("exam.vitals", "exam", "vitals", "exam_performed"),
@@ -88,9 +94,11 @@ export const HCM_CASE_GRAPH: CaseGraphDefinition = {
     action("exam.femoral-pulses", "exam", "femoralPulses", "exam_performed"),
     advance("exam.finish", "exam"),
     action("order.ecg", "order", "ECG", "test_ordered"),
-    action("review.ecg", "review", "ECG", "test_interpreted"),
+    action("review.ecg", "review", "ECG", "test_interpreted", ["completed:order.ecg"]),
     action("order.echo", "order", "Echocardiogram", "test_ordered"),
-    action("review.echo", "review", "Echocardiogram", "test_interpreted"),
+    action("review.echo", "review", "Echocardiogram", "test_interpreted", ["completed:order.echo"]),
+    action("order.ct-angiography", "order", "CT angiography", "test_ordered"),
+    action("order.troponin", "order", "Troponin", "test_ordered"),
     advance("testing.finish", "testing"),
     action("navigate.return-workroom", "navigation", "cardiology-workroom", "location_entered"),
     action("reasoning.submit", "reasoning", "attending", "diagnosis_submitted"),
@@ -99,10 +107,12 @@ export const HCM_CASE_GRAPH: CaseGraphDefinition = {
     action("management.ep-referral", "management", "Refer for electrophysiology / ICD evaluation", "management_action"),
     action("management.family-screening", "management", "Family screening (first-degree relatives)", "management_action"),
     action("management.genetics", "management", "Genetics consultation", "management_action"),
+    action("management.clear-sports", "management", "Clear for competitive sports", "management_action"),
+    action("management.reassure", "management", "Reassurance only", "management_action"),
     advance("management.finish", "management"),
     action("debrief.review", "debrief", "case-specific-feedback", "debrief_viewed"),
-    action("performance.record", "debrief", "learner-attempt", "performance_recorded"),
-    action("next-case.begin", "continuation", "contrastive-case", "next_case_started"),
+    action("performance.record", "debrief", "learner-attempt", "performance_recorded", ["completed:debrief.review"]),
+    action("next-case.begin", "continuation", "contrastive-case", "next_case_started", ["completed:performance.record"]),
   ],
   nodes: [
     {
@@ -148,6 +158,10 @@ export const HCM_CASE_GRAPH: CaseGraphDefinition = {
         "history.exertional-timing",
         "history.family-sudden-death",
         "history.prodrome",
+        "history.palpitations",
+        "history.triggers",
+        "history.activity-level",
+        "history.stimulant-use",
         "history.finish",
       ],
       acceptanceActions: [
@@ -174,7 +188,15 @@ export const HCM_CASE_GRAPH: CaseGraphDefinition = {
     {
       id: "testing",
       phase: "testing",
-      availableActions: ["order.ecg", "review.ecg", "order.echo", "review.echo", "testing.finish"],
+      availableActions: [
+        "order.ecg",
+        "review.ecg",
+        "order.echo",
+        "review.echo",
+        "order.ct-angiography",
+        "order.troponin",
+        "testing.finish",
+      ],
       acceptanceActions: ["order.ecg", "review.ecg", "order.echo", "review.echo"],
       transitions: [transition("attending-return", "testing.finish")],
     },
@@ -193,6 +215,8 @@ export const HCM_CASE_GRAPH: CaseGraphDefinition = {
         "management.ep-referral",
         "management.family-screening",
         "management.genetics",
+        "management.clear-sports",
+        "management.reassure",
         "management.finish",
       ],
       acceptanceActions: ["management.restrict-sports"],

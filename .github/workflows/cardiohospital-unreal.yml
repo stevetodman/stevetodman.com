@@ -46,8 +46,8 @@ jobs:
       - name: Validate clinical contract
         run: node cardiohospital-unreal/Tools/validate-clinical-data.mjs
 
-      - name: Test deterministic export and safeguards
-        run: node --test cardiohospital-unreal/Tests/clinical-data.test.mjs
+      - name: Test deterministic engine, export, and safeguards
+        run: node --test cardiohospital-unreal/Tests/*.test.mjs
 
       - name: Require committed generated content to be current
         run: git diff --exit-code -- cardiohospital-unreal/Content/Data/clinical-content.json
