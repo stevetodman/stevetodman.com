@@ -1,9 +1,10 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "generatedAt": "source-hash-derived",
   "sourceHashes": {
     "cases-data.ts": "5bafbec473265290cd6a1016e4be51eb73c6802912070ebe6163f01c3a84947b",
     "case-graphs.ts": "f4cf68cee76bf098c64c9679259979aa588027f3542cb2a6c1ff2d6d4ba8ba97",
+    "case-concepts.ts": "cbc9786e2b323a66fe7c060882b393989adb24dde2ec4b9b32dca9ecac763d16",
     "case-metadata.ts": "4ee38020d7afddd1293bfeced41144adab769525a11e2468981ce604e462ffe7",
     "capstone.ts": "f41ef28c8f3f65f880f6463eecc078a33a26c5bef2c5633ede9d3b556fc443f1",
     "cath-case.ts": "6cfae2d628c6c8fcae29925f8928b69fa08d9d9fd915bb2f53be12bcc8f817b9",
@@ -1750,6 +1751,115 @@
             "history.prodrome"
           ]
         }
+      ]
+    }
+  ],
+  "concepts": [
+    {
+      "id": "exertional-syncope-red-flags",
+      "label": "Exertional syncope red flags",
+      "caseIds": [
+        "case-hcm",
+        "case-vasovagal"
+      ],
+      "dimensionIds": [
+        "history",
+        "redFlagRecognition",
+        "clinicalReasoning",
+        "safety"
+      ]
+    },
+    {
+      "id": "family-sudden-death",
+      "label": "Family sudden death history",
+      "caseIds": [
+        "case-hcm",
+        "case-longqt"
+      ],
+      "dimensionIds": [
+        "history",
+        "redFlagRecognition",
+        "clinicalReasoning"
+      ]
+    },
+    {
+      "id": "murmur-differentiation",
+      "label": "Murmur differentiation",
+      "caseIds": [
+        "case-innocent-murmur",
+        "case-coarctation"
+      ],
+      "dimensionIds": [
+        "physicalExamination",
+        "clinicalReasoning",
+        "testSelection"
+      ]
+    },
+    {
+      "id": "ecg-interpretation",
+      "label": "ECG interpretation",
+      "caseIds": [
+        "case-wpw",
+        "case-hcm",
+        "case-myocarditis",
+        "case-longqt",
+        "case-coarctation"
+      ],
+      "dimensionIds": [
+        "testSelection",
+        "interpretation",
+        "clinicalReasoning"
+      ]
+    },
+    {
+      "id": "postviral-cardiac-red-flags",
+      "label": "Postviral cardiac red flags",
+      "caseIds": [
+        "case-myocarditis"
+      ],
+      "dimensionIds": [
+        "history",
+        "redFlagRecognition",
+        "clinicalReasoning",
+        "safety"
+      ]
+    },
+    {
+      "id": "test-selection-restraint",
+      "label": "Test selection restraint",
+      "caseIds": [
+        "case-innocent-murmur",
+        "case-vasovagal"
+      ],
+      "dimensionIds": [
+        "testSelection",
+        "efficiency",
+        "communication"
+      ]
+    },
+    {
+      "id": "long-qt-triggers",
+      "label": "Long QT triggers and medications",
+      "caseIds": [
+        "case-longqt"
+      ],
+      "dimensionIds": [
+        "history",
+        "redFlagRecognition",
+        "interpretation",
+        "safety"
+      ]
+    },
+    {
+      "id": "pediatric-hypertension",
+      "label": "Pediatric hypertension workup",
+      "caseIds": [
+        "case-coarctation"
+      ],
+      "dimensionIds": [
+        "physicalExamination",
+        "testSelection",
+        "clinicalReasoning"
       ]
     }
   ],

@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 export const SOURCE_FILES = Object.freeze([
   "cases-data.ts",
   "case-graphs.ts",
+  "case-concepts.ts",
   "case-metadata.ts",
   "capstone.ts",
   "cath-case.ts",
@@ -383,6 +384,37 @@ function validateSupplementalContent(failures, document) {
   addFailure(failures, Array.isArray(document.specialtyCases.mri?.anatomyLabels) && document.specialtyCases.mri.anatomyLabels.length > 0, "specialtyCases.mri.anatomyLabels must not be empty");
 }
 
+function validateConcepts(failures, concepts, caseIds) {
+  addFailure(failures, Array.isArray(concepts) && concepts.length > 0, "concepts must not be empty");
+  if (!Array.isArray(concepts)) return;
+  const ids = new Set();
+  const validDimensions = new Set([
+    "history",
+    "physicalExamination",
+    "redFlagRecognition",
+    "testSelection",
+    "interpretation",
+    "clinicalReasoning",
+    "management",
+    "communication",
+    "efficiency",
+    "safety",
+  ]);
+  concepts.forEach((concept, index) => {
+    const path = `concepts[${index}]`;
+    requireKeys(failures, concept, ["id", "label", "caseIds", "dimensionIds"], ["id", "label", "caseIds", "dimensionIds"], path);
+    if (!isObject(concept)) return;
+    requireText(failures, concept.id, `${path}.id`);
+    requireText(failures, concept.label, `${path}.label`);
+    requireStringArray(failures, concept.caseIds, `${path}.caseIds`);
+    requireStringArray(failures, concept.dimensionIds, `${path}.dimensionIds`);
+    addFailure(failures, !ids.has(concept.id), `${path}.id duplicates ${concept.id}`);
+    ids.add(concept.id);
+    for (const caseId of concept.caseIds ?? []) addFailure(failures, caseIds.has(caseId), `${path}.caseIds references unknown case ${caseId}`);
+    for (const dimensionId of concept.dimensionIds ?? []) addFailure(failures, validDimensions.has(dimensionId), `${path}.dimensionIds references unknown dimension ${dimensionId}`);
+  });
+}
+
 export function normalizeSourceText(source) {
   return source.replace(/\r\n?/g, "\n");
 }
@@ -404,10 +436,10 @@ export async function computeSourceHashes(legacyRoot) {
 
 export function validateClinicalDocument(document, { expectedSourceHashes } = {}) {
   const failures = [];
-  requireKeys(failures, document, ["schemaVersion", "generatedAt", "sourceHashes", "cases", "caseGraphs", "metadata", "capstone", "specialtyCases"], ["schemaVersion", "generatedAt", "sourceHashes", "cases", "caseGraphs", "metadata", "capstone", "specialtyCases"], "document");
+  requireKeys(failures, document, ["schemaVersion", "generatedAt", "sourceHashes", "cases", "caseGraphs", "concepts", "metadata", "capstone", "specialtyCases"], ["schemaVersion", "generatedAt", "sourceHashes", "cases", "caseGraphs", "concepts", "metadata", "capstone", "specialtyCases"], "document");
   if (!isObject(document)) return failures;
 
-  addFailure(failures, document.schemaVersion === 2, "schemaVersion must be 2");
+  addFailure(failures, document.schemaVersion === 3, "schemaVersion must be 3");
   addFailure(failures, document.generatedAt === "source-hash-derived", "generatedAt must remain reproducible");
   addFailure(failures, Array.isArray(document.cases) && document.cases.length === 7, "expected exactly seven outpatient cases");
 
@@ -421,6 +453,7 @@ export function validateClinicalDocument(document, { expectedSourceHashes } = {}
   });
 
   validateCaseGraphs(failures, document.caseGraphs, ids);
+  validateConcepts(failures, document.concepts, ids);
 
   validateMetadata(failures, document.metadata, ids);
   validateSupplementalContent(failures, document);

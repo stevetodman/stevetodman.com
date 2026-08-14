@@ -21,9 +21,10 @@ bool FCardioClinicalContentTest::RunTest(const FString& Parameters)
     TestTrue(
         TEXT("Clinical JSON matches the Unreal schema"),
         FJsonObjectConverter::JsonObjectStringToUStruct(Json, &Document, 0, 0));
-    TestEqual(TEXT("Schema version"), Document.SchemaVersion, 2);
+    TestEqual(TEXT("Schema version"), Document.SchemaVersion, 3);
     TestEqual(TEXT("Outpatient case count"), Document.Cases.Num(), 7);
     TestTrue(TEXT("At least one deterministic case graph exists"), Document.CaseGraphs.Num() > 0);
+    TestTrue(TEXT("Educational concept map exists"), Document.Concepts.Num() > 0);
 
     const FCardioClinicalCase* Hcm = Document.Cases.FindByPredicate(
         [](const FCardioClinicalCase& Case) { return Case.Id == TEXT("case-hcm"); });

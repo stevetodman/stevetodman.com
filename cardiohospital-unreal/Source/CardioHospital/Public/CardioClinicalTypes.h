@@ -195,6 +195,17 @@ struct FCardioCaseGraphDefinition
     UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FCardioCounterfactualDefinition> Counterfactuals;
 };
 
+USTRUCT(BlueprintType)
+struct FCardioCaseConceptDefinition
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Id;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Label;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> CaseIds;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> DimensionIds;
+};
+
 USTRUCT()
 struct FCardioClinicalContentDocument
 {
@@ -204,5 +215,6 @@ struct FCardioClinicalContentDocument
     UPROPERTY() FString GeneratedAt;
     UPROPERTY() TArray<FCardioClinicalCase> Cases;
     UPROPERTY() TArray<FCardioCaseGraphDefinition> CaseGraphs;
+    UPROPERTY() TArray<FCardioCaseConceptDefinition> Concepts;
 };
 
