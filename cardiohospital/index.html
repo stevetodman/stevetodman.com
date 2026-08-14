@@ -47,17 +47,92 @@
       </section>
     </div>
 
-    <section id="encounter" class="encounter hidden">
-      <p class="eyebrow">Clinic Room 3</p>
-      <h2>Marcus Chen</h2>
-      <p>14-year-old boy · exertional syncope</p>
-      <div class="chips"><span>Patient + parent present</span><span>Clinical core connected</span></div>
-      <p class="note">Environment milestone: the complete natural-language interview, examination, ECG, echo, and debrief loop is the next playable increment.</p>
-      <button id="closeEncounter" class="secondary">Continue exploring</button>
+    <section id="encounter" class="encounter hidden" aria-label="Marcus Chen clinical encounter">
+      <header class="encounter__header">
+        <div>
+          <p class="eyebrow">Clinic Room 3 · New consultation</p>
+          <h2>Marcus Chen <small>14 years · M</small></h2>
+          <p>Passed out at basketball practice</p>
+        </div>
+        <button id="closeEncounter" class="icon-button" aria-label="Return to the 3D room">×</button>
+      </header>
+      <div class="encounter__status">
+        <span id="encounterStep">History</span>
+        <strong id="clinicalSignal">Clinical picture incomplete</strong>
+      </div>
+
+      <div id="historyPanel" class="clinical-panel">
+        <p class="panel-prompt">Choose the questions that will change your pretest probability.</p>
+        <div class="action-grid">
+          <button class="clinical-action" data-history="generic">What happened?</button>
+          <button class="clinical-action critical-action" data-history="exertional_timing">During or after exercise?</button>
+          <button class="clinical-action critical-action" data-history="prodrome">Any warning symptoms?</button>
+          <button class="clinical-action" data-history="palpitations">Chest pain or palpitations?</button>
+          <button class="clinical-action critical-action" data-history="family_sudden_death">Sudden death in the family?</button>
+          <button class="clinical-action" data-history="activity_level">Level of competition?</button>
+        </div>
+        <div id="historyResponse" class="clinical-response" aria-live="polite">Marcus and his mother wait for your first question.</div>
+        <button id="toExam" class="primary stage-next" disabled>Continue to examination</button>
+      </div>
+
+      <div id="examPanel" class="clinical-panel hidden">
+        <p class="panel-prompt">The general survey is reassuring. Select focused examination actions.</p>
+        <div class="vital-strip"><span>HR <strong>68</strong></span><span>BP <strong>118/72</strong></span><span>RR <strong>14</strong></span><span>SpO₂ <strong>99%</strong></span></div>
+        <div class="action-grid">
+          <button class="clinical-action" data-exam="pulses">Check femoral pulses</button>
+          <button class="clinical-action critical-action" data-exam="llsb">Auscultate LLSB</button>
+          <button class="clinical-action critical-action" data-exam="valsalva">Repeat with Valsalva</button>
+          <button class="clinical-action" data-exam="pmi">Palpate the PMI</button>
+        </div>
+        <div id="examResponse" class="clinical-response" aria-live="polite">Well-appearing, tall, muscular adolescent. No acute distress.</div>
+        <button id="toTests" class="primary stage-next" disabled>Choose diagnostic tests</button>
+      </div>
+
+      <div id="testsPanel" class="clinical-panel hidden">
+        <p class="panel-prompt">Order only what you need. Unnecessary testing lowers efficiency.</p>
+        <div class="action-grid test-grid">
+          <button class="clinical-action critical-action" data-test="ecg">Order ECG</button>
+          <button class="clinical-action critical-action" data-test="echo">Order echocardiogram</button>
+          <button class="clinical-action" data-test="troponin">Order troponin + BNP</button>
+          <button class="clinical-action" data-test="mri">Order cardiac MRI</button>
+        </div>
+        <div id="testResponse" class="clinical-response result-response" aria-live="polite">No studies ordered.</div>
+        <button id="toAssessment" class="primary stage-next" disabled>Commit assessment and plan</button>
+      </div>
+
+      <div id="assessmentPanel" class="clinical-panel hidden">
+        <p class="panel-prompt">Commit to one diagnosis and the immediate safety action.</p>
+        <div class="assessment-block">
+          <span class="field-label">Most likely diagnosis</span>
+          <div class="choice-row">
+            <button class="choice" data-diagnosis="hcm">Hypertrophic cardiomyopathy</button>
+            <button class="choice" data-diagnosis="vasovagal">Vasovagal syncope</button>
+            <button class="choice" data-diagnosis="longqt">Long QT syndrome</button>
+          </div>
+        </div>
+        <div class="assessment-block">
+          <span class="field-label">What happens today?</span>
+          <label><input type="checkbox" value="restrict"> Restrict competitive sports immediately</label>
+          <label><input type="checkbox" value="family"> Screen first-degree relatives</label>
+          <label><input type="checkbox" value="genetics"> Genetics consultation</label>
+          <label><input type="checkbox" value="reassure"> Reassure and return to play</label>
+        </div>
+        <button id="finishEncounter" class="primary stage-next" disabled>Present to Dr. Patel</button>
+      </div>
+
+      <div id="debriefPanel" class="clinical-panel hidden">
+        <p class="eyebrow">Attending debrief</p>
+        <h3 id="debriefHeadline">Case complete</h3>
+        <p id="debriefSummary" class="debrief-summary"></p>
+        <div id="scoreGrid" class="score-grid"></div>
+        <blockquote>Syncope <strong>during</strong> exertion plus premature sudden death in the family is HCM until proven otherwise. Exercise restriction occurs before the workup is complete.</blockquote>
+        <button id="resetEncounter" class="secondary">Replay this case</button>
+        <button id="resumeWorld" class="primary">Return to the hospital</button>
+      </div>
     </section>
 
     <aside class="build-label">VERTICAL SLICE · ENVIRONMENT BLOCKOUT 0.1</aside>
   </main>
-  <script type="module" src="app.js?v=20260814-1"></script>
+  <script type="module" src="app.js?v=20260814-2"></script>
 </body>
 </html>
