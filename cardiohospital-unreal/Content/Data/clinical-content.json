@@ -3,7 +3,7 @@
   "generatedAt": "source-hash-derived",
   "sourceHashes": {
     "cases-data.ts": "5bafbec473265290cd6a1016e4be51eb73c6802912070ebe6163f01c3a84947b",
-    "case-graphs.ts": "b223aaeaf2fd9fc1ed342553e4c16108b5bb3d6c28de036bcb9a6f07d8e1c988",
+    "case-graphs.ts": "f4cf68cee76bf098c64c9679259979aa588027f3542cb2a6c1ff2d6d4ba8ba97",
     "case-metadata.ts": "4ee38020d7afddd1293bfeced41144adab769525a11e2468981ce604e462ffe7",
     "capstone.ts": "f41ef28c8f3f65f880f6463eecc078a33a26c5bef2c5633ede9d3b556fc443f1",
     "cath-case.ts": "6cfae2d628c6c8fcae29925f8928b69fa08d9d9fd915bb2f53be12bcc8f817b9",
@@ -1724,6 +1724,31 @@
           "availableActions": [],
           "acceptanceActions": [],
           "transitions": []
+        }
+      ],
+      "safetyRules": [
+        {
+          "id": "hcm-exercise-restriction",
+          "severity": "critical",
+          "requiredActions": [
+            "management.restrict-sports"
+          ],
+          "prohibitedActions": [
+            "management.clear-sports"
+          ],
+          "message": "Exercise restriction was not established for a patient with exertional syncope and abnormal cardiac testing.",
+          "intervention": "The attending stops discharge and restricts competitive sports before the patient leaves."
+        }
+      ],
+      "counterfactuals": [
+        {
+          "id": "during-versus-after-exercise",
+          "prompt": "What if the episode had occurred after exercise with warmth, nausea, and tunnel vision instead of during a sprint without prodrome?",
+          "alternateCaseId": "case-vasovagal",
+          "triggerMissingActions": [
+            "history.exertional-timing",
+            "history.prodrome"
+          ]
         }
       ]
     }

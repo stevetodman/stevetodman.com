@@ -157,6 +157,30 @@ struct FCardioCaseNodeDefinition
 };
 
 USTRUCT(BlueprintType)
+struct FCardioSafetyRuleDefinition
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Id;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Severity;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> RequiredActions;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> ProhibitedActions;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Message;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Intervention;
+};
+
+USTRUCT(BlueprintType)
+struct FCardioCounterfactualDefinition
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Id;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Prompt;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString AlternateCaseId;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> TriggerMissingActions;
+};
+
+USTRUCT(BlueprintType)
 struct FCardioCaseGraphDefinition
 {
     GENERATED_BODY()
@@ -167,6 +191,8 @@ struct FCardioCaseGraphDefinition
     UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> TerminalNodeIds;
     UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FCardioCaseActionDefinition> Actions;
     UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FCardioCaseNodeDefinition> Nodes;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FCardioSafetyRuleDefinition> SafetyRules;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FCardioCounterfactualDefinition> Counterfactuals;
 };
 
 USTRUCT()

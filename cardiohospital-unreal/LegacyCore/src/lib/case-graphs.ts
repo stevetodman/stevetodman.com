@@ -40,6 +40,22 @@ export interface CaseNodeDefinition {
   transitions: CaseTransitionDefinition[];
 }
 
+export interface SafetyRuleDefinition {
+  id: string;
+  severity: "critical" | "major";
+  requiredActions: string[];
+  prohibitedActions: string[];
+  message: string;
+  intervention: string;
+}
+
+export interface CounterfactualDefinition {
+  id: string;
+  prompt: string;
+  alternateCaseId: string;
+  triggerMissingActions: string[];
+}
+
 export interface CaseGraphDefinition {
   caseId: string;
   version: string;
@@ -47,6 +63,8 @@ export interface CaseGraphDefinition {
   terminalNodeIds: string[];
   actions: CaseActionDefinition[];
   nodes: CaseNodeDefinition[];
+  safetyRules: SafetyRuleDefinition[];
+  counterfactuals: CounterfactualDefinition[];
 }
 
 const action = (
@@ -242,6 +260,24 @@ export const HCM_CASE_GRAPH: CaseGraphDefinition = {
       availableActions: [],
       acceptanceActions: [],
       transitions: [],
+    },
+  ],
+  safetyRules: [
+    {
+      id: "hcm-exercise-restriction",
+      severity: "critical",
+      requiredActions: ["management.restrict-sports"],
+      prohibitedActions: ["management.clear-sports"],
+      message: "Exercise restriction was not established for a patient with exertional syncope and abnormal cardiac testing.",
+      intervention: "The attending stops discharge and restricts competitive sports before the patient leaves.",
+    },
+  ],
+  counterfactuals: [
+    {
+      id: "during-versus-after-exercise",
+      prompt: "What if the episode had occurred after exercise with warmth, nausea, and tunnel vision instead of during a sprint without prodrome?",
+      alternateCaseId: "case-vasovagal",
+      triggerMissingActions: ["history.exertional-timing", "history.prodrome"],
     },
   ],
 };

@@ -228,8 +228,8 @@ function validateCaseGraphs(failures, graphs, caseIds) {
     requireKeys(
       failures,
       graph,
-      ["caseId", "version", "startNodeId", "terminalNodeIds", "actions", "nodes"],
-      ["caseId", "version", "startNodeId", "terminalNodeIds", "actions", "nodes"],
+      ["caseId", "version", "startNodeId", "terminalNodeIds", "actions", "nodes", "safetyRules", "counterfactuals"],
+      ["caseId", "version", "startNodeId", "terminalNodeIds", "actions", "nodes", "safetyRules", "counterfactuals"],
       path,
     );
     if (!isObject(graph)) return;
@@ -318,6 +318,33 @@ function validateCaseGraphs(failures, graphs, caseIds) {
       graph.terminalNodeIds?.some((terminalId) => reachable.has(terminalId)),
       `${path} cannot reach a terminal node from its start node`,
     );
+
+    addFailure(failures, Array.isArray(graph.safetyRules), `${path}.safetyRules must be an array`);
+    graph.safetyRules?.forEach((rule, ruleIndex) => {
+      const rulePath = `${path}.safetyRules[${ruleIndex}]`;
+      requireKeys(failures, rule, ["id", "severity", "requiredActions", "prohibitedActions", "message", "intervention"], ["id", "severity", "requiredActions", "prohibitedActions", "message", "intervention"], rulePath);
+      if (!isObject(rule)) return;
+      for (const key of ["id", "severity", "message", "intervention"]) requireText(failures, rule[key], `${rulePath}.${key}`);
+      requireStringArray(failures, rule.requiredActions, `${rulePath}.requiredActions`, { allowEmpty: true });
+      requireStringArray(failures, rule.prohibitedActions, `${rulePath}.prohibitedActions`, { allowEmpty: true });
+      addFailure(failures, rule.requiredActions.length + rule.prohibitedActions.length > 0, `${rulePath} must define at least one action condition`);
+      for (const actionId of [...(rule.requiredActions ?? []), ...(rule.prohibitedActions ?? [])]) {
+        addFailure(failures, actionIds.has(actionId), `${rulePath} references unknown action ${actionId}`);
+      }
+    });
+
+    addFailure(failures, Array.isArray(graph.counterfactuals), `${path}.counterfactuals must be an array`);
+    graph.counterfactuals?.forEach((entry, entryIndex) => {
+      const entryPath = `${path}.counterfactuals[${entryIndex}]`;
+      requireKeys(failures, entry, ["id", "prompt", "alternateCaseId", "triggerMissingActions"], ["id", "prompt", "alternateCaseId", "triggerMissingActions"], entryPath);
+      if (!isObject(entry)) return;
+      for (const key of ["id", "prompt", "alternateCaseId"]) requireText(failures, entry[key], `${entryPath}.${key}`);
+      requireStringArray(failures, entry.triggerMissingActions, `${entryPath}.triggerMissingActions`);
+      addFailure(failures, caseIds.has(entry.alternateCaseId), `${entryPath}.alternateCaseId references an unknown clinical case`);
+      for (const actionId of entry.triggerMissingActions ?? []) {
+        addFailure(failures, actionIds.has(actionId), `${entryPath} references unknown action ${actionId}`);
+      }
+    });
   });
 
   addFailure(failures, graphCaseIds.has("case-hcm"), "caseGraphs must include the HCM vertical-slice case");
