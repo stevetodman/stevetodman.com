@@ -23,7 +23,7 @@ bool FCardioClinicalContentTest::RunTest(const FString& Parameters)
         FJsonObjectConverter::JsonObjectStringToUStruct(Json, &Document, 0, 0));
     TestEqual(TEXT("Schema version"), Document.SchemaVersion, 3);
     TestEqual(TEXT("Outpatient case count"), Document.Cases.Num(), 7);
-    TestTrue(TEXT("At least one deterministic case graph exists"), Document.CaseGraphs.Num() > 0);
+    TestEqual(TEXT("First-release playable graph count"), Document.CaseGraphs.Num(), 5);
     TestTrue(TEXT("Educational concept map exists"), Document.Concepts.Num() > 0);
 
     const FCardioClinicalCase* Hcm = Document.Cases.FindByPredicate(
@@ -47,6 +47,20 @@ bool FCardioClinicalContentTest::RunTest(const FString& Parameters)
     const FCardioCaseGraphDefinition* VasovagalGraph = Document.CaseGraphs.FindByPredicate(
         [](const FCardioCaseGraphDefinition& Graph) { return Graph.CaseId == TEXT("case-vasovagal"); });
     TestNotNull(TEXT("Vasovagal contrast graph exists"), VasovagalGraph);
+
+    for (const FString& RequiredCaseId : {
+        FString(TEXT("case-innocent-murmur")),
+        FString(TEXT("case-wpw")),
+        FString(TEXT("case-myocarditis")) })
+    {
+        TestTrue(
+            *FString::Printf(TEXT("First-release graph exists: %s"), *RequiredCaseId),
+            Document.CaseGraphs.ContainsByPredicate(
+                [&RequiredCaseId](const FCardioCaseGraphDefinition& Graph)
+                {
+                    return Graph.CaseId == RequiredCaseId;
+                }));
+    }
 
     return true;
 }

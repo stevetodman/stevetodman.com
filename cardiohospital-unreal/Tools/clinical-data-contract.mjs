@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 export const SOURCE_FILES = Object.freeze([
   "cases-data.ts",
   "case-graphs.ts",
+  "case-graph-authoring.ts",
   "case-concepts.ts",
   "case-metadata.ts",
   "capstone.ts",

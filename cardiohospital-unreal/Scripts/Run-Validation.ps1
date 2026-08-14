@@ -22,6 +22,8 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     & $nodePath Tools/validate-clinical-data.mjs
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    & $nodePath Tools/case-authoring-report.mjs
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     & $nodePath --test Tests/*.test.mjs
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }

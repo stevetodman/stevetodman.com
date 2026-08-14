@@ -1,266 +1,42 @@
-// Deterministic encounter structure for the Unreal migration.
-//
-// Graphs describe progression and action availability only. Clinical findings,
-// diagnoses, and results remain in cases-data.ts so presentation code and AI
-// cannot silently invent or override patient truth.
+// Compiled deterministic encounter graphs for the Unreal migration.
+// Clinical truth remains in cases-data.ts; these authoring records define only
+// progression, available actions, safety rules, and contrastive teaching.
 
-export type CaseActionType =
-  | "system"
-  | "navigation"
-  | "conversation"
-  | "history"
-  | "exam"
-  | "order"
-  | "review"
-  | "reasoning"
-  | "management"
-  | "debrief"
-  | "continuation";
+import {
+  compileOutpatientCaseGraph,
+  type CaseGraphDefinition,
+  type OutpatientCaseAuthoring,
+} from "./case-graph-authoring.ts";
 
-export interface CaseActionDefinition {
-  id: string;
-  type: CaseActionType;
-  target: string;
-  eventType: string;
-  requiresAll: string[];
-  effects: string[];
-}
-
-export interface CaseTransitionDefinition {
-  to: string;
-  allOf: string[];
-  anyOf: string[];
-}
-
-export interface CaseNodeDefinition {
-  id: string;
-  phase: string;
-  availableActions: string[];
-  acceptanceActions: string[];
-  transitions: CaseTransitionDefinition[];
-}
-
-export interface SafetyRuleDefinition {
-  id: string;
-  severity: "critical" | "major";
-  requiredActions: string[];
-  prohibitedActions: string[];
-  message: string;
-  intervention: string;
-}
-
-export interface CounterfactualDefinition {
-  id: string;
-  prompt: string;
-  alternateCaseId: string;
-  triggerMissingActions: string[];
-}
-
-export interface CaseGraphDefinition {
-  caseId: string;
-  version: string;
-  startNodeId: string;
-  terminalNodeIds: string[];
-  actions: CaseActionDefinition[];
-  nodes: CaseNodeDefinition[];
-  safetyRules: SafetyRuleDefinition[];
-  counterfactuals: CounterfactualDefinition[];
-}
-
-const action = (
-  id: string,
-  type: CaseActionType,
-  target: string,
-  eventType: string,
-  requiresAll: string[] = [],
-): CaseActionDefinition => ({ id, type, target, eventType, requiresAll, effects: [`completed:${id}`] });
-
-const advance = (id: string, target: string): CaseActionDefinition =>
-  action(id, "system", target, "case_progressed");
-
-const transition = (to: string, actionId: string): CaseTransitionDefinition => ({
-  to,
-  allOf: [`completed:${actionId}`],
-  anyOf: [],
-});
-
-export const HCM_CASE_GRAPH: CaseGraphDefinition = {
+const HCM_AUTHORING: OutpatientCaseAuthoring = {
   caseId: "case-hcm",
   version: "1.0",
-  startNodeId: "launch",
-  terminalNodeIds: ["complete"],
-  actions: [
-    action("system.load", "system", "application", "application_loaded"),
-    action("world.enter", "navigation", "cardiology-unit", "world_entered"),
-    action("navigate.workroom", "navigation", "cardiology-workroom", "location_entered"),
-    action("attending.open-assignment", "conversation", "dr-patel", "attending_consulted"),
-    action("assignment.accept", "conversation", "case-hcm", "assignment_received", ["completed:attending.open-assignment"]),
-    action("navigate.exam-room", "navigation", "room-3", "location_entered"),
-    action("encounter.introduce", "conversation", "marcus-and-parent", "patient_encounter_started", ["completed:navigate.exam-room"]),
-    action("history.generic", "history", "generic", "history_question"),
-    action("history.exertional-timing", "history", "exertional_timing", "history_question"),
-    action("history.family-sudden-death", "history", "family_sudden_death", "history_question"),
-    action("history.prodrome", "history", "prodrome", "history_question"),
-    action("history.palpitations", "history", "palpitations", "history_question"),
-    action("history.triggers", "history", "triggers", "history_question"),
-    action("history.activity-level", "history", "activity_level", "history_question"),
-    action("history.stimulant-use", "history", "stimulant_use", "history_question"),
-    advance("history.finish", "history"),
-    action("exam.general", "exam", "general", "exam_performed"),
-    action("exam.vitals", "exam", "vitals", "exam_performed"),
-    action("exam.auscultation", "exam", "auscultation", "exam_performed"),
-    action("exam.femoral-pulses", "exam", "femoralPulses", "exam_performed"),
-    advance("exam.finish", "exam"),
-    action("order.ecg", "order", "ECG", "test_ordered"),
-    action("review.ecg", "review", "ECG", "test_interpreted", ["completed:order.ecg"]),
-    action("order.echo", "order", "Echocardiogram", "test_ordered"),
-    action("review.echo", "review", "Echocardiogram", "test_interpreted", ["completed:order.echo"]),
-    action("order.ct-angiography", "order", "CT angiography", "test_ordered"),
-    action("order.troponin", "order", "Troponin", "test_ordered"),
-    advance("testing.finish", "testing"),
-    action("navigate.return-workroom", "navigation", "cardiology-workroom", "location_entered"),
-    action("reasoning.submit", "reasoning", "attending", "diagnosis_submitted"),
-    advance("reasoning.finish", "reasoning"),
-    action("management.restrict-sports", "management", "Restrict from competitive sports immediately", "management_action"),
-    action("management.ep-referral", "management", "Refer for electrophysiology / ICD evaluation", "management_action"),
-    action("management.family-screening", "management", "Family screening (first-degree relatives)", "management_action"),
-    action("management.genetics", "management", "Genetics consultation", "management_action"),
-    action("management.clear-sports", "management", "Clear for competitive sports", "management_action"),
-    action("management.reassure", "management", "Reassurance only", "management_action"),
-    advance("management.finish", "management"),
-    action("debrief.review", "debrief", "case-specific-feedback", "debrief_viewed"),
-    action("performance.record", "debrief", "learner-attempt", "performance_recorded", ["completed:debrief.review"]),
-    action("next-case.begin", "continuation", "contrastive-case", "next_case_started", ["completed:performance.record"]),
+  roomTarget: "room-3",
+  encounterTarget: "marcus-and-parent",
+  history: [
+    { key: "generic", acceptance: true },
+    { key: "exertional_timing", acceptance: true },
+    { key: "family_sudden_death", acceptance: true },
+    { key: "prodrome", acceptance: true },
+    { key: "palpitations" },
+    { key: "triggers" },
+    { key: "activity_level" },
+    { key: "stimulant_use" },
   ],
-  nodes: [
-    {
-      id: "launch",
-      phase: "load",
-      availableActions: ["system.load"],
-      acceptanceActions: ["system.load"],
-      transitions: [transition("hospital-entry", "system.load")],
-    },
-    {
-      id: "hospital-entry",
-      phase: "world",
-      availableActions: ["world.enter"],
-      acceptanceActions: ["world.enter"],
-      transitions: [transition("find-workroom", "world.enter")],
-    },
-    {
-      id: "find-workroom",
-      phase: "navigation",
-      availableActions: ["navigate.workroom"],
-      acceptanceActions: ["navigate.workroom"],
-      transitions: [transition("assignment", "navigate.workroom")],
-    },
-    {
-      id: "assignment",
-      phase: "attending",
-      availableActions: ["attending.open-assignment", "assignment.accept"],
-      acceptanceActions: ["attending.open-assignment", "assignment.accept"],
-      transitions: [transition("exam-room", "assignment.accept")],
-    },
-    {
-      id: "exam-room",
-      phase: "navigation",
-      availableActions: ["navigate.exam-room", "encounter.introduce"],
-      acceptanceActions: ["navigate.exam-room", "encounter.introduce"],
-      transitions: [transition("history", "encounter.introduce")],
-    },
-    {
-      id: "history",
-      phase: "history",
-      availableActions: [
-        "history.generic",
-        "history.exertional-timing",
-        "history.family-sudden-death",
-        "history.prodrome",
-        "history.palpitations",
-        "history.triggers",
-        "history.activity-level",
-        "history.stimulant-use",
-        "history.finish",
-      ],
-      acceptanceActions: [
-        "history.generic",
-        "history.exertional-timing",
-        "history.family-sudden-death",
-        "history.prodrome",
-      ],
-      transitions: [transition("examination", "history.finish")],
-    },
-    {
-      id: "examination",
-      phase: "exam",
-      availableActions: [
-        "exam.general",
-        "exam.vitals",
-        "exam.auscultation",
-        "exam.femoral-pulses",
-        "exam.finish",
-      ],
-      acceptanceActions: ["exam.general", "exam.vitals", "exam.auscultation"],
-      transitions: [transition("testing", "exam.finish")],
-    },
-    {
-      id: "testing",
-      phase: "testing",
-      availableActions: [
-        "order.ecg",
-        "review.ecg",
-        "order.echo",
-        "review.echo",
-        "order.ct-angiography",
-        "order.troponin",
-        "testing.finish",
-      ],
-      acceptanceActions: ["order.ecg", "review.ecg", "order.echo", "review.echo"],
-      transitions: [transition("attending-return", "testing.finish")],
-    },
-    {
-      id: "attending-return",
-      phase: "reasoning",
-      availableActions: ["navigate.return-workroom", "reasoning.submit", "reasoning.finish"],
-      acceptanceActions: ["navigate.return-workroom", "reasoning.submit"],
-      transitions: [transition("management", "reasoning.finish")],
-    },
-    {
-      id: "management",
-      phase: "management",
-      availableActions: [
-        "management.restrict-sports",
-        "management.ep-referral",
-        "management.family-screening",
-        "management.genetics",
-        "management.clear-sports",
-        "management.reassure",
-        "management.finish",
-      ],
-      acceptanceActions: ["management.restrict-sports"],
-      transitions: [transition("debrief", "management.finish")],
-    },
-    {
-      id: "debrief",
-      phase: "debrief",
-      availableActions: ["debrief.review", "performance.record"],
-      acceptanceActions: ["debrief.review", "performance.record"],
-      transitions: [transition("continuation", "performance.record")],
-    },
-    {
-      id: "continuation",
-      phase: "continuation",
-      availableActions: ["next-case.begin"],
-      acceptanceActions: ["next-case.begin"],
-      transitions: [transition("complete", "next-case.begin")],
-    },
-    {
-      id: "complete",
-      phase: "complete",
-      availableActions: [],
-      acceptanceActions: [],
-      transitions: [],
-    },
+  examAcceptanceTargets: ["general", "vitals", "auscultation"],
+  orders: [
+    { id: "ecg", target: "ECG", reviewable: true, acceptance: true },
+    { id: "echo", target: "Echocardiogram", reviewable: true, acceptance: true },
+    { id: "ct-angiography", target: "CT angiography" },
+    { id: "troponin", target: "Troponin" },
+  ],
+  management: [
+    { id: "restrict-sports", target: "Restrict from competitive sports immediately", acceptance: true },
+    { id: "ep-referral", target: "Refer for electrophysiology / ICD evaluation" },
+    { id: "family-screening", target: "Family screening (first-degree relatives)" },
+    { id: "genetics", target: "Genetics consultation" },
+    { id: "clear-sports", target: "Clear for competitive sports" },
+    { id: "reassure", target: "Reassurance only" },
   ],
   safetyRules: [
     {
@@ -282,87 +58,36 @@ export const HCM_CASE_GRAPH: CaseGraphDefinition = {
   ],
 };
 
-const vasovagalRemovedActions = new Set([
-  "history.activity-level",
-  "history.stimulant-use",
-  "management.ep-referral",
-  "management.family-screening",
-  "management.genetics",
-  "management.clear-sports",
-]);
-
-const vasovagalActions = HCM_CASE_GRAPH.actions
-  .filter((entry) => !vasovagalRemovedActions.has(entry.id))
-  .map((entry) => {
-    if (entry.id === "assignment.accept") return { ...entry, target: "case-vasovagal" };
-    if (entry.id === "navigate.exam-room") return { ...entry, target: "room-1" };
-    if (entry.id === "encounter.introduce") return { ...entry, target: "ava-and-parent" };
-    if (entry.id === "management.restrict-sports") return { ...entry, target: "Restrict from sports" };
-    if (entry.id === "management.reassure") return { ...entry, target: "Reassurance" };
-    return entry;
-  });
-
-vasovagalActions.push(
-  action("history.substance-use", "history", "substance_use", "history_question"),
-  action("management.hydration", "management", "Hydration and nutrition counseling", "management_action"),
-  action("management.continue-sports", "management", "Continue competitive sports", "management_action"),
-  action("management.return-precautions", "management", "Return precautions", "management_action"),
-);
-
-export const VASOVAGAL_CASE_GRAPH: CaseGraphDefinition = {
+const VASOVAGAL_AUTHORING: OutpatientCaseAuthoring = {
   caseId: "case-vasovagal",
   version: "1.0",
-  startNodeId: HCM_CASE_GRAPH.startNodeId,
-  terminalNodeIds: [...HCM_CASE_GRAPH.terminalNodeIds],
-  actions: vasovagalActions,
-  nodes: HCM_CASE_GRAPH.nodes.map((node) => {
-    if (node.id === "history") {
-      return {
-        ...node,
-        availableActions: [
-          "history.generic",
-          "history.exertional-timing",
-          "history.prodrome",
-          "history.triggers",
-          "history.family-sudden-death",
-          "history.palpitations",
-          "history.substance-use",
-          "history.finish",
-        ],
-        acceptanceActions: ["history.generic", "history.exertional-timing", "history.prodrome", "history.triggers"],
-      };
-    }
-    if (node.id === "testing") {
-      return {
-        ...node,
-        acceptanceActions: ["order.ecg", "review.ecg"],
-      };
-    }
-    if (node.id === "management") {
-      return {
-        ...node,
-        availableActions: [
-          "management.reassure",
-          "management.hydration",
-          "management.continue-sports",
-          "management.return-precautions",
-          "management.restrict-sports",
-          "management.finish",
-        ],
-        acceptanceActions: [
-          "management.reassure",
-          "management.hydration",
-          "management.continue-sports",
-          "management.return-precautions",
-        ],
-      };
-    }
-    return {
-      ...node,
-      availableActions: node.availableActions.filter((actionId) => !vasovagalRemovedActions.has(actionId)),
-      acceptanceActions: node.acceptanceActions.filter((actionId) => !vasovagalRemovedActions.has(actionId)),
-    };
-  }),
+  roomTarget: "room-1",
+  encounterTarget: "ava-and-parent",
+  history: [
+    { key: "generic", acceptance: true },
+    { key: "exertional_timing", acceptance: true },
+    { key: "prodrome", acceptance: true },
+    { key: "triggers", acceptance: true },
+    { key: "family_sudden_death" },
+    { key: "palpitations" },
+    { key: "substance_use" },
+  ],
+  examAcceptanceTargets: ["general", "vitals", "auscultation"],
+  orders: [
+    { id: "ecg", target: "ECG", reviewable: true, acceptance: true },
+    { id: "echo", target: "Echocardiogram", reviewable: true },
+    { id: "cardiac-mri", target: "Cardiac MRI" },
+    { id: "holter", target: "Holter" },
+    { id: "troponin", target: "Troponin" },
+    { id: "bnp", target: "BNP" },
+  ],
+  management: [
+    { id: "reassure", target: "Reassurance", acceptance: true },
+    { id: "hydration", target: "Hydration and nutrition counseling", acceptance: true },
+    { id: "continue-sports", target: "Continue competitive sports", acceptance: true },
+    { id: "return-precautions", target: "Return precautions", acceptance: true },
+    { id: "restrict-sports", target: "Restrict from sports" },
+  ],
   safetyRules: [
     {
       id: "vasovagal-unnecessary-restriction",
@@ -383,4 +108,141 @@ export const VASOVAGAL_CASE_GRAPH: CaseGraphDefinition = {
   ],
 };
 
-export const CASE_GRAPHS: CaseGraphDefinition[] = [HCM_CASE_GRAPH, VASOVAGAL_CASE_GRAPH];
+const INNOCENT_MURMUR_AUTHORING: OutpatientCaseAuthoring = {
+  caseId: "case-innocent-murmur",
+  version: "1.0",
+  roomTarget: "room-2",
+  encounterTarget: "liam-and-parent",
+  history: [
+    { key: "generic", acceptance: true },
+    { key: "activity_level", acceptance: true },
+    { key: "palpitations", acceptance: true },
+    { key: "family_sudden_death" },
+    { key: "viral_illness" },
+  ],
+  examAcceptanceTargets: ["general", "vitals", "auscultation", "femoralPulses"],
+  orders: [
+    { id: "ecg", target: "ECG", reviewable: true },
+    { id: "echo", target: "Echocardiogram", reviewable: true },
+    { id: "cxr", target: "CXR" },
+    { id: "bnp", target: "BNP" },
+  ],
+  management: [
+    { id: "reassure-family", target: "Reassure family — classic innocent murmur", acceptance: true },
+    { id: "no-activity-restriction", target: "No activity restriction", acceptance: true },
+    { id: "routine-follow-up", target: "Routine pediatric follow-up", acceptance: true },
+    { id: "restrict-sports", target: "Restrict from sports" },
+  ],
+  safetyRules: [
+    {
+      id: "innocent-murmur-unnecessary-restriction",
+      severity: "major",
+      requiredActions: ["management.no-activity-restriction"],
+      prohibitedActions: ["management.restrict-sports"],
+      message: "A classic innocent murmur was treated as heart disease with unnecessary activity restriction.",
+      intervention: "The attending corrects the plan and reassures the family that normal activity is appropriate.",
+    },
+  ],
+  counterfactuals: [],
+};
+
+const WPW_AUTHORING: OutpatientCaseAuthoring = {
+  caseId: "case-wpw",
+  version: "1.0",
+  roomTarget: "room-4",
+  encounterTarget: "sofia-and-parent",
+  history: [
+    { key: "generic", acceptance: true },
+    { key: "triggers" },
+    { key: "palpitations", acceptance: true },
+    { key: "prodrome", acceptance: true },
+    { key: "family_sudden_death" },
+  ],
+  examAcceptanceTargets: ["general", "vitals", "auscultation"],
+  orders: [
+    { id: "ecg", target: "ECG", reviewable: true, acceptance: true },
+    { id: "echo", target: "Echocardiogram", reviewable: true, acceptance: true },
+    { id: "holter", target: "Holter", acceptance: true },
+    { id: "cardiac-mri", target: "Cardiac MRI" },
+    { id: "ct-angiography", target: "CT angiography" },
+    { id: "bnp", target: "BNP" },
+  ],
+  management: [
+    { id: "ep-referral", target: "Refer to electrophysiology", acceptance: true },
+    { id: "vagal-maneuvers", target: "Counsel on vagal maneuvers", acceptance: true },
+    { id: "risk-stratification-ablation", target: "Discuss risk stratification and ablation", acceptance: true },
+    { id: "reassure", target: "Reassurance only" },
+  ],
+  safetyRules: [
+    {
+      id: "wpw-electrophysiology-referral",
+      severity: "major",
+      requiredActions: ["management.ep-referral"],
+      prohibitedActions: ["management.reassure"],
+      message: "Symptomatic WPW was not referred for electrophysiology risk stratification.",
+      intervention: "The attending corrects the disposition and places the electrophysiology referral.",
+    },
+  ],
+  counterfactuals: [],
+};
+
+const MYOCARDITIS_AUTHORING: OutpatientCaseAuthoring = {
+  caseId: "case-myocarditis",
+  version: "1.0",
+  roomTarget: "room-2",
+  encounterTarget: "ethan-and-parent",
+  history: [
+    { key: "generic", acceptance: true },
+    { key: "viral_illness", acceptance: true },
+    { key: "activity_level", acceptance: true },
+    { key: "palpitations", acceptance: true },
+    { key: "prodrome" },
+    { key: "substance_use" },
+  ],
+  examAcceptanceTargets: ["general", "vitals", "auscultation", "femoralPulses"],
+  orders: [
+    { id: "ecg", target: "ECG", reviewable: true, acceptance: true },
+    { id: "echo", target: "Echocardiogram", reviewable: true, acceptance: true },
+    { id: "troponin", target: "Troponin", acceptance: true },
+    { id: "bnp", target: "BNP", acceptance: true },
+    { id: "cbc", target: "CBC", acceptance: true },
+    { id: "cmp", target: "CMP", acceptance: true },
+    { id: "cardiac-mri", target: "Cardiac MRI", acceptance: true },
+    { id: "ct-angiography", target: "CT angiography" },
+    { id: "holter", target: "Holter" },
+    { id: "tsh", target: "TSH" },
+  ],
+  management: [
+    { id: "admit", target: "Admit to cardiology / CICU", acceptance: true },
+    { id: "exercise-restriction", target: "Exercise restriction", acceptance: true },
+    { id: "serial-biomarkers", target: "Serial troponin and BNP", acceptance: true },
+    { id: "cardiac-mri", target: "Consider cardiac MRI", acceptance: true },
+    { id: "supportive-hf-care", target: "Supportive heart failure care as needed", acceptance: true },
+    { id: "reassure", target: "Reassurance only" },
+    { id: "discharge", target: "Discharge from clinic" },
+  ],
+  safetyRules: [
+    {
+      id: "myocarditis-admission",
+      severity: "critical",
+      requiredActions: ["management.admit", "management.exercise-restriction"],
+      prohibitedActions: ["management.reassure", "management.discharge"],
+      message: "A patient with suspected myocarditis and ventricular dysfunction was not admitted and restricted from exercise.",
+      intervention: "The attending stops discharge and arranges monitored cardiology admission.",
+    },
+  ],
+  counterfactuals: [],
+};
+
+export const HCM_CASE_GRAPH = compileOutpatientCaseGraph(HCM_AUTHORING);
+export const VASOVAGAL_CASE_GRAPH = compileOutpatientCaseGraph(VASOVAGAL_AUTHORING);
+export const INNOCENT_MURMUR_CASE_GRAPH = compileOutpatientCaseGraph(INNOCENT_MURMUR_AUTHORING);
+export const WPW_CASE_GRAPH = compileOutpatientCaseGraph(WPW_AUTHORING);
+export const MYOCARDITIS_CASE_GRAPH = compileOutpatientCaseGraph(MYOCARDITIS_AUTHORING);
+export const CASE_GRAPHS: CaseGraphDefinition[] = [
+  HCM_CASE_GRAPH,
+  VASOVAGAL_CASE_GRAPH,
+  INNOCENT_MURMUR_CASE_GRAPH,
+  WPW_CASE_GRAPH,
+  MYOCARDITIS_CASE_GRAPH,
+];

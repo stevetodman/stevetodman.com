@@ -62,10 +62,25 @@ case progression. World actors should call `StartCase`, query
 must not implement separate clinical branching in Blueprint.
 
 The portable test suite currently exercises complete and deliberately flawed
-paths through the HCM and vasovagal contrast cases. It verifies action ordering,
-clinical omissions, unnecessary testing, safety intervention, debrief scoring,
-learner persistence, mastery, and adaptive selection without claiming Unreal
-compilation or presentation quality.
+paths through all five first-release cases: innocent murmur, HCM, vasovagal
+syncope, WPW, and myocarditis. It verifies action ordering, clinical omissions,
+unnecessary testing, safety intervention, debrief scoring, learner persistence,
+mastery, and adaptive selection without claiming Unreal compilation or
+presentation quality.
+
+## Case authoring
+
+`LegacyCore/src/lib/case-graph-authoring.ts` compiles a concise outpatient case
+configuration into the shared 13-node clinic loop. Add or change case-specific
+history, order, management, safety, and counterfactual rules in
+`LegacyCore/src/lib/case-graphs.ts`; do not copy the generated node structure.
+
+`Tools/case-authoring-report.mjs` emits a machine-readable coverage report and
+fails validation on unknown history keys, unclassified orders, unavailable red
+flags, missing correct management, or broken counterfactual references.
+Warnings identify non-blocking authoring debt. In particular, a
+`structured-result-missing` warning must be resolved with medically reviewed
+content—not an invented placeholder—before that result is shown in gameplay.
 
 Rules:
 

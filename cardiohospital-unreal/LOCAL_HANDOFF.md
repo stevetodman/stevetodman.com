@@ -42,8 +42,12 @@ Do not enter institutional credentials into project files or terminal prompts.
 - `UCardioClinicalDataSubsystem` loads schema-v3 clinical truth, case graphs,
   safety rules, counterfactuals, and educational concepts.
 - `UCardioCaseRuntimeSubsystem` exposes deterministic case actions to Blueprint.
-- Portable tests simulate complete and unsafe HCM paths plus the vasovagal
-  contrast case. Keep these tests green while connecting world interactions.
+- Portable tests simulate complete and unsafe paths across all five
+  first-release cases. Keep these tests green while connecting world
+  interactions.
+- Run `Tools/case-authoring-report.mjs` before exposing a new order in the UI.
+  Its remaining structured-result warnings require medically reviewed result
+  content; do not invent placeholder clinical results during scene work.
 - The first local compile must confirm Unreal Header Tool accepts the new
   reflected structs and subsystem signatures; this has not been claimed from
   the non-admin workstation.

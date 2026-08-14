@@ -46,6 +46,9 @@ jobs:
       - name: Validate clinical contract
         run: node cardiohospital-unreal/Tools/validate-clinical-data.mjs
 
+      - name: Validate case authoring coverage
+        run: node cardiohospital-unreal/Tools/case-authoring-report.mjs
+
       - name: Test deterministic engine, export, and safeguards
         run: node --test cardiohospital-unreal/Tests/*.test.mjs
 
