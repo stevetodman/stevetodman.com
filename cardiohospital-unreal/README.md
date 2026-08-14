@@ -18,44 +18,72 @@ spatial audio, and native interaction.
 
 - Windows 11
 - Unreal Engine 5.8
-- Visual Studio 2022 with **Game development with C++** and Windows 11 SDK
+- Visual Studio 2022 17.14 or newer, or Visual Studio 2026, with **Game
+  development with C++**
+- MSVC 14.38 or newer and Windows SDK 10.0.22621.0 or newer
 - Git for Windows
 - Node.js 24, or the Node.js runtime bundled with the Codex Windows app
-- RTX 4080-class or better NVIDIA GPU
-- NVIDIA Studio Driver current enough for UE 5.8
+- At least 48 GB installed RAM and 100 GB free on the project drive
+- Desktop NVIDIA RTX 4080/4090 or RTX 5080/5090
+- Current stable NVIDIA Studio Driver
 
-Run `Scripts/Check-Workstation.ps1` first. Then right-click
-`CardioHospital.uproject`, generate Visual Studio project files, and build the
-`CardioHospitalEditor` target for Win64 Development.
+All repository scripts are designed to run as a standard user. They never
+install software, alter policy, or request elevation. On a managed PC, send
+[`IT_PREREQUISITES.md`](IT_PREREQUISITES.md) to IT for anything the read-only
+preflight reports as administrator-required.
 
-The equivalent repeatable PowerShell sequence is:
+Run this repeatable PowerShell sequence from `cardiohospital-unreal`:
 
 ```powershell
-./Scripts/Run-Validation.ps1
+./Scripts/Run-Monday-Preflight.ps1
 ./Scripts/Generate-ProjectFiles.ps1
 ./Scripts/Build-Editor.ps1
 ./Scripts/Run-Automation.ps1
 ./Scripts/Package-Windows.ps1 -Configuration Development
 ```
 
+The preflight writes an ignored, IT-ready JSON report under
+`Saved/WorkstationReports` and includes portable clinical validation. Pass
+`-ReportPath` to choose another new `.json` destination; existing files are
+never overwritten. If source fixes are needed,
+commit them and rerun from a clean worktree before packaging; the packaging
+script refuses unverifiable or dirty source.
+
 Pass `-EngineRoot` to any Unreal-dependent script when UE 5.8 is installed in a
 non-standard directory, or set `UE_5_8_ROOT` for the current shell. Automation
 reports are written under `Saved/AutomationReports`; packaged builds and their
 SHA-256 manifests are written under `PackagedBuilds`. Both directories are
 ignored by Git. A package manifest always begins with `walkthroughPassed=false`;
-only a real packaged walkthrough can satisfy that quality gate.
+only a real packaged walkthrough tied to that package ID can satisfy that
+quality gate.
 
-GitHub Actions repeats the portable export, contract validation, determinism
-tests, headless case simulation, scoring, persistence, adaptive selection, and
-generated-file check on both Windows and Linux. This gate does not
+After packaging, follow [`WALKTHROUGH_CHECKLIST.md`](WALKTHROUGH_CHECKLIST.md).
+`Scripts/Record-WalkthroughEvidence.ps1` verifies the untouched archive and can
+record a failed run without changing the gate. It changes `walkthroughPassed`
+to true only when a fresh passing preflight, the exact packaged executable, all
+19 acceptance steps, the 2560×1440 performance metrics, and a preserved capture
+artifact are explicitly supplied. The trace from the original 168-section
+specification to current evidence is recorded in
+[`REQUIREMENT_COVERAGE.md`](REQUIREMENT_COVERAGE.md).
+
+GitHub Actions parses the PowerShell wrappers, runs their isolated workstation
+and package-evidence fixtures on Windows, and repeats the
+portable export, contract validation, determinism tests, headless case
+simulation, scoring, persistence, adaptive selection, and generated-file check
+on both Windows and Linux. This gate does not
 claim that Unreal Header Tool, C++ compilation, cooking, or the walkthrough has
 passed; those remain local UE 5.8 gates.
 
 ## Clinical source of truth
 
-`Content/Data/clinical-content.json` is generated from the preserved TypeScript
-clinical core. Runtime code loads and validates it through
-`UCardioClinicalDataSubsystem`; visual actors never own clinical truth.
+The clinical authoring source lives under `LegacyCore/src/lib`.
+`Content/Data/clinical-content.json` is its deterministic generated runtime
+artifact and must never be edited by hand. Runtime code loads and validates it
+through `UCardioClinicalDataSubsystem`; visual actors never own clinical truth.
+
+All current review-attribution fields explicitly say formal review is pending.
+Do not describe this curriculum as medically reviewed until the named content
+and sources have actually completed that gate with the reviewers' consent.
 
 `UCardioCaseRuntimeSubsystem` is the Blueprint-facing adapter for deterministic
 case progression. World actors should call `StartCase`, query
@@ -82,6 +110,10 @@ flags, missing correct management, or broken counterfactual references.
 Warnings identify non-blocking authoring debt. In particular, a
 `structured-result-missing` warning must be resolved with medically reviewed
 content—not an invented placeholder—before that result is shown in gameplay.
+The current expected report is zero errors and 23 warnings: 20 missing
+structured results, two deliberately deferred non-release graphs, and one HCM
+`Genetics referral` test/management classification that requires clinical
+review. Do not silently reclassify that item merely to remove the warning.
 
 Rules:
 

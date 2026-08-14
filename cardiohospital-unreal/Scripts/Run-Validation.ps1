@@ -2,34 +2,34 @@
 param()
 
 $ErrorActionPreference = "Stop"
-$projectRoot = Split-Path -Parent $PSScriptRoot
-$nodeCommand = Get-Command node -ErrorAction SilentlyContinue
-$nodePath = if ($nodeCommand) {
-    $nodeCommand.Source
-}
-else {
-    $candidate = Join-Path ([Environment]::GetFolderPath("UserProfile")) ".cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"
-    if (Test-Path -LiteralPath $candidate) { $candidate } else { $null }
-}
+. (Join-Path $PSScriptRoot "Unreal-Common.ps1")
 
-if (-not $nodePath) {
-    throw "Node.js 24 was not found on PATH or in the Codex bundled runtime."
-}
+$projectRoot = Get-CardioProjectRoot
+$nodePath = Resolve-CardioNode -RequiredMajorVersion 24
 
 Push-Location $projectRoot
 try {
-    & $nodePath --experimental-strip-types Tools/export-clinical-data.mjs
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    & $nodePath Tools/validate-clinical-data.mjs
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    & $nodePath Tools/case-authoring-report.mjs
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    & $nodePath --test Tests/*.test.mjs
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    Invoke-CardioCommand -FilePath $nodePath -Description "Export generated clinical data" -ArgumentList @(
+        "--experimental-strip-types",
+        "Tools/export-clinical-data.mjs"
+    )
+    Invoke-CardioCommand -FilePath $nodePath -Description "Validate the Unreal clinical-data contract" -ArgumentList @(
+        "Tools/validate-clinical-data.mjs"
+    )
+    Invoke-CardioCommand -FilePath $nodePath -Description "Generate the case-authoring report" -ArgumentList @(
+        "Tools/case-authoring-report.mjs"
+    )
+    Invoke-CardioCommand -FilePath $nodePath -Description "Run portable clinical tests" -ArgumentList @(
+        "--test",
+        "Tests/*.test.mjs"
+    )
 }
 finally {
     Pop-Location
 }
+
+Write-Host "==> Run workstation/build-script fixtures" -ForegroundColor Cyan
+& (Join-Path $projectRoot "Tests\Workstation-Scripts.Tests.ps1")
 
 Write-Host "Portable clinical content validation passed." -ForegroundColor Green
 

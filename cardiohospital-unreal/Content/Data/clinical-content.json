@@ -6,7 +6,7 @@
     "case-graphs.ts": "c828500092fbf7609b5bc04ecd381b4831c8a30fa7e18ae7c433a795b7fac67f",
     "case-graph-authoring.ts": "211e783949571d710b9b1810018d6069624103c2f5f9790b2a2ac442ebbd3aab",
     "case-concepts.ts": "cbc9786e2b323a66fe7c060882b393989adb24dde2ec4b9b32dca9ecac763d16",
-    "case-metadata.ts": "4ee38020d7afddd1293bfeced41144adab769525a11e2468981ce604e462ffe7",
+    "case-metadata.ts": "86fa1b545c7048b1ab8442241ad8bcc4328b77ab1cd9383f8ba39f6a669c2f58",
     "capstone.ts": "f41ef28c8f3f65f880f6463eecc078a33a26c5bef2c5633ede9d3b556fc443f1",
     "cath-case.ts": "6cfae2d628c6c8fcae29925f8928b69fa08d9d9fd915bb2f53be12bcc8f817b9",
     "nicu-case.ts": "64dd08870b3466774b23982897af52101204b5b32539551adba46e103ed502ab",
@@ -4754,9 +4754,9 @@
   "metadata": {
     "case-hcm": {
       "author": "S. Todman, MD",
-      "medicalReviewer": "R. Patel, MD (Peds Cardiology)",
+      "medicalReviewer": "Formal review pending",
       "version": "1.4",
-      "lastReviewed": "2026-08",
+      "lastReviewed": "Not yet formally reviewed",
       "teachingObjectives": [
         "Recognize exertional syncope as a red flag for structural heart disease",
         "Elicit family history of premature sudden death",
@@ -4776,9 +4776,9 @@
     },
     "case-vasovagal": {
       "author": "S. Todman, MD",
-      "medicalReviewer": "R. Patel, MD (Peds Cardiology)",
+      "medicalReviewer": "Formal review pending",
       "version": "1.2",
-      "lastReviewed": "2026-08",
+      "lastReviewed": "Not yet formally reviewed",
       "teachingObjectives": [
         "Distinguish post-exertional from mid-exertional syncope",
         "Recognize prodrome as a discriminating feature",
@@ -4794,9 +4794,9 @@
     },
     "case-innocent-murmur": {
       "author": "S. Todman, MD",
-      "medicalReviewer": "R. Patel, MD (Peds Cardiology)",
+      "medicalReviewer": "Formal review pending",
       "version": "1.1",
-      "lastReviewed": "2026-08",
+      "lastReviewed": "Not yet formally reviewed",
       "teachingObjectives": [
         "Identify features of an innocent Still's murmur",
         "Avoid unnecessary imaging in an asymptomatic thriving child",
@@ -4811,9 +4811,9 @@
     },
     "case-wpw": {
       "author": "S. Todman, MD",
-      "medicalReviewer": "R. Patel, MD (Peds Cardiology)",
+      "medicalReviewer": "Formal review pending",
       "version": "1.0",
-      "lastReviewed": "2026-08",
+      "lastReviewed": "Not yet formally reviewed",
       "teachingObjectives": [
         "Recognize abrupt-on/abrupt-off palpitations as paroxysmal SVT",
         "Identify short PR + delta wave as pre-excitation / WPW",
@@ -4828,9 +4828,9 @@
     },
     "case-myocarditis": {
       "author": "S. Todman, MD",
-      "medicalReviewer": "M. Mhanna, MD (Peds Cardiology)",
+      "medicalReviewer": "Formal review pending",
       "version": "1.3",
-      "lastReviewed": "2026-08",
+      "lastReviewed": "Not yet formally reviewed",
       "teachingObjectives": [
         "Connect recent viral illness to new cardiac symptoms",
         "Recognize low-voltage ECG and sinus tachycardia as red flags",
@@ -4846,9 +4846,9 @@
     },
     "case-longqt": {
       "author": "S. Todman, MD",
-      "medicalReviewer": "R. Patel, MD (Peds Cardiology)",
+      "medicalReviewer": "Formal review pending",
       "version": "1.0",
-      "lastReviewed": "2026-08",
+      "lastReviewed": "Not yet formally reviewed",
       "teachingObjectives": [
         "Recognize swimming/startle-triggered syncope as classic for LQT1/LQT2",
         "Elicit family history of unexplained drowning or premature sudden death",
@@ -4868,9 +4868,9 @@
     },
     "case-coarctation": {
       "author": "S. Todman, MD",
-      "medicalReviewer": "R. Patel, MD (Peds Cardiology)",
+      "medicalReviewer": "Formal review pending",
       "version": "1.0",
-      "lastReviewed": "2026-08",
+      "lastReviewed": "Not yet formally reviewed",
       "teachingObjectives": [
         "Obtain four-limb blood pressures in every hypertensive adolescent",
         "Perform femoral pulse examination and recognize radial-femoral delay",

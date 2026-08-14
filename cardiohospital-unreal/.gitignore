@@ -1,6 +1,5 @@
 # Unreal generated output
 Binaries/
-Build/
 DerivedDataCache/
 Intermediate/
 Saved/
@@ -18,6 +17,9 @@ Saved/
 .vscode/
 .DS_Store
 Thumbs.db
+.env
+.env.*
+!.env.example
 
 # Local packages and captures
 LocalAssets/

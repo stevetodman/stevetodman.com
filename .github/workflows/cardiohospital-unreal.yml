@@ -40,6 +40,31 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Parse Windows PowerShell wrappers
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $allErrors = @()
+          Get-ChildItem cardiohospital-unreal/Scripts -Filter *.ps1 -File | ForEach-Object {
+            $tokens = $null
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              $_.FullName,
+              [ref]$tokens,
+              [ref]$parseErrors
+            ) | Out-Null
+            $allErrors += $parseErrors
+          }
+          if ($allErrors.Count -gt 0) {
+            $allErrors | Format-List
+            throw "PowerShell parser found $($allErrors.Count) error(s)."
+          }
+
+      - name: Exercise portable PowerShell wrapper
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./cardiohospital-unreal/Scripts/Run-Validation.ps1
+
       - name: Export clinical content
         run: node --experimental-strip-types cardiohospital-unreal/Tools/export-clinical-data.mjs
 

@@ -15,9 +15,9 @@ export interface CaseMetadata {
 export const CASE_METADATA: Record<string, CaseMetadata> = {
   "case-hcm": {
     author: "S. Todman, MD",
-    medicalReviewer: "R. Patel, MD (Peds Cardiology)",
+    medicalReviewer: "Formal review pending",
     version: "1.4",
-    lastReviewed: "2026-08",
+    lastReviewed: "Not yet formally reviewed",
     teachingObjectives: [
       "Recognize exertional syncope as a red flag for structural heart disease",
       "Elicit family history of premature sudden death",
@@ -31,9 +31,9 @@ export const CASE_METADATA: Record<string, CaseMetadata> = {
   },
   "case-vasovagal": {
     author: "S. Todman, MD",
-    medicalReviewer: "R. Patel, MD (Peds Cardiology)",
+    medicalReviewer: "Formal review pending",
     version: "1.2",
-    lastReviewed: "2026-08",
+    lastReviewed: "Not yet formally reviewed",
     teachingObjectives: [
       "Distinguish post-exertional from mid-exertional syncope",
       "Recognize prodrome as a discriminating feature",
@@ -46,9 +46,9 @@ export const CASE_METADATA: Record<string, CaseMetadata> = {
   },
   "case-innocent-murmur": {
     author: "S. Todman, MD",
-    medicalReviewer: "R. Patel, MD (Peds Cardiology)",
+    medicalReviewer: "Formal review pending",
     version: "1.1",
-    lastReviewed: "2026-08",
+    lastReviewed: "Not yet formally reviewed",
     teachingObjectives: [
       "Identify features of an innocent Still's murmur",
       "Avoid unnecessary imaging in an asymptomatic thriving child",
@@ -60,9 +60,9 @@ export const CASE_METADATA: Record<string, CaseMetadata> = {
   },
   "case-wpw": {
     author: "S. Todman, MD",
-    medicalReviewer: "R. Patel, MD (Peds Cardiology)",
+    medicalReviewer: "Formal review pending",
     version: "1.0",
-    lastReviewed: "2026-08",
+    lastReviewed: "Not yet formally reviewed",
     teachingObjectives: [
       "Recognize abrupt-on/abrupt-off palpitations as paroxysmal SVT",
       "Identify short PR + delta wave as pre-excitation / WPW",
@@ -74,9 +74,9 @@ export const CASE_METADATA: Record<string, CaseMetadata> = {
   },
   "case-myocarditis": {
     author: "S. Todman, MD",
-    medicalReviewer: "M. Mhanna, MD (Peds Cardiology)",
+    medicalReviewer: "Formal review pending",
     version: "1.3",
-    lastReviewed: "2026-08",
+    lastReviewed: "Not yet formally reviewed",
     teachingObjectives: [
       "Connect recent viral illness to new cardiac symptoms",
       "Recognize low-voltage ECG and sinus tachycardia as red flags",
@@ -89,9 +89,9 @@ export const CASE_METADATA: Record<string, CaseMetadata> = {
   },
   "case-longqt": {
     author: "S. Todman, MD",
-    medicalReviewer: "R. Patel, MD (Peds Cardiology)",
+    medicalReviewer: "Formal review pending",
     version: "1.0",
-    lastReviewed: "2026-08",
+    lastReviewed: "Not yet formally reviewed",
     teachingObjectives: [
       "Recognize swimming/startle-triggered syncope as classic for LQT1/LQT2",
       "Elicit family history of unexplained drowning or premature sudden death",
@@ -105,9 +105,9 @@ export const CASE_METADATA: Record<string, CaseMetadata> = {
   },
   "case-coarctation": {
     author: "S. Todman, MD",
-    medicalReviewer: "R. Patel, MD (Peds Cardiology)",
+    medicalReviewer: "Formal review pending",
     version: "1.0",
-    lastReviewed: "2026-08",
+    lastReviewed: "Not yet formally reviewed",
     teachingObjectives: [
       "Obtain four-limb blood pressures in every hypertensive adolescent",
       "Perform femoral pulse examination and recognize radial-femoral delay",

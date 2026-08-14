@@ -7,8 +7,10 @@ Clinical correctness and a complete learner loop outrank environment breadth.
 
 ## Architecture
 
-- Keep immutable clinical truth in `Content/Data/clinical-content.json`.
-- Load it through `UCardioClinicalDataSubsystem`.
+- Author clinical content only in the modules under
+  `LegacyCore/src/lib`, then regenerate `Content/Data/clinical-content.json`.
+- Treat that generated JSON as the immutable runtime artifact and load it only
+  through `UCardioClinicalDataSubsystem`; never edit it by hand.
 - Keep scoring deterministic and independent of animation timing.
 - Treat MetaHuman actors as presentation adapters, never data stores.
 - Prefer C++, JSON, Unreal Python, and commandlets over fragile manual editor work.

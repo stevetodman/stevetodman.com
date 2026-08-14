@@ -17,7 +17,7 @@ Invoke-CardioCommand -FilePath $buildBat -ArgumentList @(
     $projectFile,
     "-WaitMutex",
     "-FromMsBuild"
-)
+) -Description "Build CardioHospitalEditor (Win64 Development)"
 
 Write-Host "CardioHospitalEditor build completed." -ForegroundColor Green
 

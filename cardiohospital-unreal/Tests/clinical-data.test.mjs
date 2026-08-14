@@ -56,6 +56,13 @@ test("validator rejects stale generated hashes", async () => {
   assert.ok(failures.includes("sourceHashes.cases-data.ts does not match normalized source content"));
 });
 
+test("provisional clinical metadata cannot imply a completed review date", async () => {
+  const document = structuredClone(await loadDocument());
+  document.metadata["case-hcm"].lastReviewed = "2026-08";
+  const failures = validateClinicalDocument(document);
+  assert.ok(failures.includes("metadata.case-hcm must mark both reviewer and review date pending, or neither"));
+});
+
 test("validator rejects fields missing from the Unreal USTRUCT contract", async () => {
   const document = structuredClone(await loadDocument());
   document.cases[0].runtimeOnlyTruth = "must not bypass UCardioClinicalDataSubsystem";

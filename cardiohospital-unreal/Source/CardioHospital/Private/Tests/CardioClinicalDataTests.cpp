@@ -25,6 +25,8 @@ bool FCardioClinicalContentTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Outpatient case count"), Document.Cases.Num(), 7);
     TestEqual(TEXT("First-release playable graph count"), Document.CaseGraphs.Num(), 5);
     TestTrue(TEXT("Educational concept map exists"), Document.Concepts.Num() > 0);
+    TestEqual(TEXT("Every case has provenance metadata"), Document.Metadata.Num(), Document.Cases.Num());
+    TestTrue(TEXT("Clinical source hashes are retained"), Document.SourceHashes.Num() > 0);
 
     const FCardioClinicalCase* Hcm = Document.Cases.FindByPredicate(
         [](const FCardioClinicalCase& Case) { return Case.Id == TEXT("case-hcm"); });
@@ -33,6 +35,17 @@ bool FCardioClinicalContentTest::RunTest(const FString& Parameters)
     {
         TestEqual(TEXT("HCM immutable diagnosis"), Hcm->CorrectDiagnosis, FString(TEXT("Hypertrophic Cardiomyopathy")));
         TestTrue(TEXT("HCM has red flags"), Hcm->RedFlagKeys.Num() >= 3);
+    }
+
+    const FCardioCaseMetadataDefinition* HcmMetadata = Document.Metadata.Find(TEXT("case-hcm"));
+    TestNotNull(TEXT("HCM provenance metadata exists"), HcmMetadata);
+    if (HcmMetadata)
+    {
+        TestFalse(TEXT("HCM author is recorded"), HcmMetadata->Author.IsEmpty());
+        TestFalse(TEXT("HCM medical-review status is recorded"), HcmMetadata->MedicalReviewer.IsEmpty());
+        TestFalse(TEXT("HCM version is recorded"), HcmMetadata->Version.IsEmpty());
+        TestFalse(TEXT("HCM review date or status is recorded"), HcmMetadata->LastReviewed.IsEmpty());
+        TestTrue(TEXT("HCM guideline sources are retained"), HcmMetadata->Sources.Num() > 0);
     }
 
     const FCardioCaseGraphDefinition* HcmGraph = Document.CaseGraphs.FindByPredicate(

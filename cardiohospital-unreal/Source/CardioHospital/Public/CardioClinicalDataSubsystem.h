@@ -17,13 +17,16 @@ public:
     bool IsClinicalContentLoaded() const { return bLoaded; }
 
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Clinical Data")
-    const TArray<FCardioClinicalCase>& GetCases() const { return Content.Cases; }
+    TArray<FCardioClinicalCase> GetCases() const { return Content.Cases; }
 
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Clinical Data")
     bool FindCaseById(const FString& CaseId, FCardioClinicalCase& OutCase) const;
 
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Clinical Data")
     bool FindCaseGraphById(const FString& CaseId, FCardioCaseGraphDefinition& OutGraph) const;
+
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Clinical Data")
+    bool FindCaseMetadataById(const FString& CaseId, FCardioCaseMetadataDefinition& OutMetadata) const;
 
     bool ReloadClinicalContent(FString& OutError);
 

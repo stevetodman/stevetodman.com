@@ -41,6 +41,8 @@ const CASE_KEYS = Object.freeze([
 ]);
 
 const REQUIRED_CASE_KEYS = CASE_KEYS.filter((key) => key !== "allowConfidentialInterview");
+const PENDING_REVIEWER = "Formal review pending";
+const PENDING_REVIEW_DATE = "Not yet formally reviewed";
 
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -207,6 +209,16 @@ function validateMetadata(failures, metadata, caseIds) {
     requireKeys(failures, entry, ["author", "medicalReviewer", "version", "lastReviewed", "teachingObjectives", "sources"], ["author", "medicalReviewer", "version", "lastReviewed", "teachingObjectives", "sources"], path);
     if (!isObject(entry)) continue;
     for (const key of ["author", "medicalReviewer", "version", "lastReviewed"]) requireText(failures, entry[key], `${path}.${key}`);
+    const reviewIsPending = entry.medicalReviewer === PENDING_REVIEWER;
+    const reviewDateIsPending = entry.lastReviewed === PENDING_REVIEW_DATE;
+    addFailure(
+      failures,
+      reviewIsPending === reviewDateIsPending,
+      `${path} must mark both reviewer and review date pending, or neither`,
+    );
+    if (!reviewIsPending && hasText(entry.lastReviewed)) {
+      addFailure(failures, /^\d{4}-(0[1-9]|1[0-2])$/.test(entry.lastReviewed), `${path}.lastReviewed must use YYYY-MM`);
+    }
     requireStringArray(failures, entry.teachingObjectives, `${path}.teachingObjectives`);
     addFailure(failures, Array.isArray(entry.sources) && entry.sources.length > 0, `${path}.sources must not be empty`);
     entry.sources?.forEach((source, index) => {

@@ -15,6 +15,6 @@ Invoke-CardioCommand -FilePath $generateBat -ArgumentList @(
     "-game",
     "-engine",
     "-progress"
-)
+) -Description "Generate Visual Studio project files"
 
 Write-Host "Unreal project files generated." -ForegroundColor Green

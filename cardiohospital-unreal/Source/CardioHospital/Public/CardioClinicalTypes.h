@@ -206,6 +206,28 @@ struct FCardioCaseConceptDefinition
     UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> DimensionIds;
 };
 
+USTRUCT(BlueprintType)
+struct FCardioClinicalSourceDefinition
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Label;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Citation;
+};
+
+USTRUCT(BlueprintType)
+struct FCardioCaseMetadataDefinition
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Author;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString MedicalReviewer;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString Version;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) FString LastReviewed;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> TeachingObjectives;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FCardioClinicalSourceDefinition> Sources;
+};
+
 USTRUCT()
 struct FCardioClinicalContentDocument
 {
@@ -216,5 +238,7 @@ struct FCardioClinicalContentDocument
     UPROPERTY() TArray<FCardioClinicalCase> Cases;
     UPROPERTY() TArray<FCardioCaseGraphDefinition> CaseGraphs;
     UPROPERTY() TArray<FCardioCaseConceptDefinition> Concepts;
+    UPROPERTY() TMap<FString, FCardioCaseMetadataDefinition> Metadata;
+    UPROPERTY() TMap<FString, FString> SourceHashes;
 };
 

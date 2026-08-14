@@ -1,7 +1,12 @@
 #include "CardioCaseRuntimeSubsystem.h"
 
 #include "CardioClinicalDataSubsystem.h"
+#include "CardioEducationEvaluator.h"
 #include "CardioHospital.h"
+#include "Dom/JsonObject.h"
+#include "Engine/GameInstance.h"
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
 #include "Subsystems/SubsystemCollection.h"
 
 void UCardioCaseRuntimeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -84,6 +89,21 @@ bool UCardioCaseRuntimeSubsystem::PerformAction(
         return false;
     }
 
+    FString NormalizedPayloadJson = PayloadJson;
+    NormalizedPayloadJson.TrimStartAndEndInline();
+    if (NormalizedPayloadJson.IsEmpty())
+    {
+        NormalizedPayloadJson = TEXT("{}");
+    }
+
+    TSharedPtr<FJsonObject> PayloadObject;
+    const TSharedRef<TJsonReader<>> PayloadReader = TJsonReaderFactory<>::Create(NormalizedPayloadJson);
+    if (!FJsonSerializer::Deserialize(PayloadReader, PayloadObject) || !PayloadObject.IsValid())
+    {
+        OutResult.Error = FString::Printf(TEXT("Action %s payload must be a JSON object"), *ActionId);
+        return false;
+    }
+
     for (const FString& Effect : Action->Effects)
     {
         State.Effects.AddUnique(Effect);
@@ -96,7 +116,7 @@ bool UCardioCaseRuntimeSubsystem::PerformAction(
     Event.ActionId = Action->Id;
     Event.EventType = Action->EventType;
     Event.Target = Action->Target;
-    Event.PayloadJson = PayloadJson;
+    Event.PayloadJson = NormalizedPayloadJson;
 
     for (const FCardioCaseTransitionDefinition& Transition : Node->Transitions)
     {
@@ -162,6 +182,44 @@ TArray<FString> UCardioCaseRuntimeSubsystem::GetMissingAcceptanceActions() const
         }
     }
     return Missing;
+}
+
+TArray<FCardioCaseActionDefinition> UCardioCaseRuntimeSubsystem::GetAvailableActionDefinitions() const
+{
+    TArray<FCardioCaseActionDefinition> Available;
+    for (const FString& ActionId : GetAvailableActions())
+    {
+        if (const FCardioCaseActionDefinition* Action = FindAction(ActionId))
+        {
+            Available.Add(*Action);
+        }
+    }
+    return Available;
+}
+
+bool UCardioCaseRuntimeSubsystem::HasPassedAcceptance() const
+{
+    return IsCaseComplete() && GetMissingAcceptanceActions().IsEmpty();
+}
+
+bool UCardioCaseRuntimeSubsystem::EvaluateCurrentAttempt(
+    FCardioCaseDebrief& OutDebrief,
+    FString& OutError) const
+{
+    OutDebrief = FCardioCaseDebrief{};
+    OutError.Reset();
+    if (!bHasActiveCase)
+    {
+        OutError = TEXT("No active case");
+        return false;
+    }
+
+    return FCardioEducationEvaluator::EvaluateAttempt(
+        State,
+        ActiveGraph,
+        ActiveCase,
+        OutDebrief,
+        OutError);
 }
 
 const FCardioCaseNodeDefinition* UCardioCaseRuntimeSubsystem::FindCurrentNode() const

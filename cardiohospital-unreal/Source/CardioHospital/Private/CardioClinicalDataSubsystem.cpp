@@ -23,6 +23,7 @@ void UCardioClinicalDataSubsystem::Initialize(FSubsystemCollectionBase& Collecti
 
 bool UCardioClinicalDataSubsystem::ReloadClinicalContent(FString& OutError)
 {
+    OutError.Reset();
     bLoaded = false;
     Content = FCardioClinicalContentDocument{};
 
@@ -75,6 +76,20 @@ bool UCardioClinicalDataSubsystem::ReloadClinicalContent(FString& OutError)
             return false;
         }
         SeenIds.Add(Case.Id);
+
+        const FCardioCaseMetadataDefinition* Metadata = Content.Metadata.Find(Case.Id);
+        if (!Metadata
+            || Metadata->Author.IsEmpty()
+            || Metadata->MedicalReviewer.IsEmpty()
+            || Metadata->Version.IsEmpty()
+            || Metadata->LastReviewed.IsEmpty()
+            || Metadata->Sources.IsEmpty())
+        {
+            OutError = FString::Printf(
+                TEXT("Case %s requires author, reviewer, version, review date, and sources"),
+                *Case.Id);
+            return false;
+        }
     }
 
     bLoaded = true;
@@ -84,6 +99,8 @@ bool UCardioClinicalDataSubsystem::ReloadClinicalContent(FString& OutError)
 
 bool UCardioClinicalDataSubsystem::FindCaseById(const FString& CaseId, FCardioClinicalCase& OutCase) const
 {
+    OutCase = FCardioClinicalCase{};
+
     const FCardioClinicalCase* Match = Content.Cases.FindByPredicate(
         [&CaseId](const FCardioClinicalCase& Candidate)
         {
@@ -101,6 +118,8 @@ bool UCardioClinicalDataSubsystem::FindCaseById(const FString& CaseId, FCardioCl
 
 bool UCardioClinicalDataSubsystem::FindCaseGraphById(const FString& CaseId, FCardioCaseGraphDefinition& OutGraph) const
 {
+    OutGraph = FCardioCaseGraphDefinition{};
+
     const FCardioCaseGraphDefinition* Match = Content.CaseGraphs.FindByPredicate(
         [&CaseId](const FCardioCaseGraphDefinition& Candidate)
         {
@@ -113,6 +132,21 @@ bool UCardioClinicalDataSubsystem::FindCaseGraphById(const FString& CaseId, FCar
     }
 
     OutGraph = *Match;
+    return true;
+}
+
+bool UCardioClinicalDataSubsystem::FindCaseMetadataById(
+    const FString& CaseId,
+    FCardioCaseMetadataDefinition& OutMetadata) const
+{
+    OutMetadata = FCardioCaseMetadataDefinition{};
+    const FCardioCaseMetadataDefinition* Match = Content.Metadata.Find(CaseId);
+    if (!Match)
+    {
+        return false;
+    }
+
+    OutMetadata = *Match;
     return true;
 }
 

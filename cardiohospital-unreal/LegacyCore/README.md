@@ -1,7 +1,9 @@
-# Cardio Hospital Portable Core
+# Cardio Hospital Historical Portable Core
 
-Reconstructed deterministic clinical/educational core for the standalone
-Three.js/React Three Fiber migration.
+Historical deterministic clinical/educational core preserved from the earlier
+standalone Three.js/React Three Fiber migration. Selected modules now serve as
+the authoring input for the Unreal runtime export; this directory is not a
+runnable browser application.
 
 ## Preserved modules
 
@@ -20,6 +22,7 @@ The TypeScript source files pass Node 24 syntax validation. This archive is a
 portable source checkpoint, not a runnable application: UI dependencies and the
 new Three.js/R3F world shell are intentionally not included yet.
 
-Clinical statements, citations, named reviewer fields, management pathways,
-and deterministic longitudinal outcomes remain provisional until formally
-reviewed and updated against current primary guidance.
+Clinical statements, citations, management pathways, and deterministic
+longitudinal outcomes remain provisional until formally reviewed and updated
+against current primary guidance. Review-attribution fields must remain marked
+pending until review and permission to publish the attribution are confirmed.

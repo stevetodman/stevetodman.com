@@ -4,6 +4,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "CardioCaseRuntimeTypes.h"
 #include "CardioClinicalTypes.h"
+#include "CardioEducationTypes.h"
 #include "CardioCaseRuntimeSubsystem.generated.h"
 
 UCLASS()
@@ -30,7 +31,16 @@ public:
     TArray<FString> GetAvailableActions() const;
 
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
+    TArray<FCardioCaseActionDefinition> GetAvailableActionDefinitions() const;
+
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
     TArray<FString> GetMissingAcceptanceActions() const;
+
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
+    bool HasPassedAcceptance() const;
+
+    UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Cardio Hospital|Education")
+    bool EvaluateCurrentAttempt(FCardioCaseDebrief& OutDebrief, FString& OutError) const;
 
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
     FCardioCaseRuntimeState GetRuntimeState() const { return State; }
