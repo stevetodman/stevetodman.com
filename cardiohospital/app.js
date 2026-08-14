@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
+import { audioSupported, startHcmMurmur, stopHcmMurmur, updateHcmSite, updateHcmValsalva } from "./murmur-audio.js?v=20260814-3";
 
 const canvas = document.querySelector("#world");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
@@ -196,6 +197,9 @@ function openEncounter() {
   controls.unlock();
 }
 function closeEncounter() {
+  stopHcmMurmur();
+  document.querySelector("#stethoscopeLab").classList.remove("listening");
+  document.querySelector("#listenButton").textContent = "Begin listening";
   encounter.classList.add("hidden");
   lockHint.classList.remove("hidden");
 }
@@ -225,7 +229,73 @@ document.querySelectorAll("[data-exam]").forEach(button => button.addEventListen
   document.querySelector("#toTests").disabled = encounterState.exam.size < 2;
   if (encounterState.exam.has("llsb") && encounterState.exam.has("valsalva")) clinicalSignal.textContent = "Dynamic outflow murmur identified";
 }));
+
+const siteDetails = {
+  RUSB: { name: "RUSB · Aortic area", finding: "Normal S1 and S2. The systolic murmur is faint here.", left: 46, top: 65 },
+  LUSB: { name: "LUSB · Pulmonic area", finding: "Soft systolic murmur, grade 2/6.", left: 139, top: 65 },
+  LLSB: { name: "LLSB · Tricuspid area", finding: "Harsh crescendo-decrescendo systolic murmur, grade 3/6.", left: 132, top: 132 },
+  Apex: { name: "Apex · Mitral area", finding: "S1 is normal with a faint holosystolic component.", left: 167, top: 194 }
+};
+let selectedSite = "RUSB";
+let stethoscopeListening = false;
+const stethoscopeLab = document.querySelector("#stethoscopeLab");
+const chestpiece = document.querySelector("#chestpiece");
+const listenButton = document.querySelector("#listenButton");
+const valsalvaToggle = document.querySelector("#valsalvaToggle");
+
+function renderStethoscopeSite() {
+  const detail = siteDetails[selectedSite];
+  document.querySelector("#siteName").textContent = detail.name;
+  document.querySelector("#siteFinding").textContent = valsalvaToggle.checked && selectedSite === "LLSB" ? `${detail.finding} It becomes distinctly louder with Valsalva.` : detail.finding;
+  chestpiece.style.left = `${detail.left}px`;
+  chestpiece.style.top = `${detail.top}px`;
+  document.querySelectorAll("[data-site]").forEach(button => button.classList.toggle("selected", button.dataset.site === selectedSite));
+  updateHcmSite(selectedSite);
+  if (selectedSite === "LLSB") encounterState.exam.add("llsb");
+  document.querySelector("#toTests").disabled = encounterState.exam.size < 2;
+}
+document.querySelector("#openStethoscope").addEventListener("click", () => {
+  stethoscopeLab.classList.remove("hidden");
+  document.querySelector("#openStethoscope").classList.add("used");
+  clinicalSignal.textContent = "Map the murmur across the precordium";
+  renderStethoscopeSite();
+});
+document.querySelectorAll("[data-site]").forEach(button => button.addEventListener("click", () => {
+  selectedSite = button.dataset.site;
+  renderStethoscopeSite();
+}));
+listenButton.addEventListener("click", async () => {
+  if (stethoscopeListening) {
+    stopHcmMurmur();
+    stethoscopeListening = false;
+    stethoscopeLab.classList.remove("listening");
+    listenButton.textContent = "Begin listening";
+    return;
+  }
+  if (!audioSupported()) {
+    document.querySelector("#siteFinding").textContent = "Web Audio is unavailable in this browser. The visual findings remain active.";
+    return;
+  }
+  const started = await startHcmMurmur(selectedSite, valsalvaToggle.checked);
+  if (started) {
+    stethoscopeListening = true;
+    stethoscopeLab.classList.add("listening");
+    listenButton.textContent = "Stop listening";
+    renderStethoscopeSite();
+  }
+});
+valsalvaToggle.addEventListener("change", () => {
+  updateHcmValsalva(valsalvaToggle.checked);
+  if (valsalvaToggle.checked) encounterState.exam.add("valsalva");
+  else encounterState.exam.delete("valsalva");
+  if (encounterState.exam.has("llsb") && encounterState.exam.has("valsalva")) clinicalSignal.textContent = "Murmur increases with reduced preload";
+  renderStethoscopeSite();
+});
 document.querySelector("#toTests").addEventListener("click", () => {
+  stopHcmMurmur();
+  stethoscopeListening = false;
+  stethoscopeLab.classList.remove("listening");
+  listenButton.textContent = "Begin listening";
   showPanel("testsPanel", "Diagnostic testing");
   clinicalSignal.textContent = "Select high-yield studies";
 });
@@ -286,6 +356,7 @@ document.querySelector("#finishEncounter").addEventListener("click", () => {
 });
 
 function resetEncounter() {
+  stopHcmMurmur(); stethoscopeListening = false; selectedSite = "RUSB";
   encounterState.history.clear(); encounterState.exam.clear(); encounterState.tests.clear(); encounterState.diagnosis = null; encounterState.startedAt = Date.now();
   document.querySelectorAll(".clinical-action").forEach(button => button.classList.remove("used", "unnecessary"));
   document.querySelectorAll(".choice").forEach(button => button.classList.remove("selected"));
@@ -293,6 +364,8 @@ function resetEncounter() {
   document.querySelector("#historyResponse").textContent = "Marcus and his mother wait for your first question.";
   document.querySelector("#examResponse").textContent = "Well-appearing, tall, muscular adolescent. No acute distress.";
   document.querySelector("#testResponse").textContent = "No studies ordered.";
+  stethoscopeLab.classList.add("hidden"); stethoscopeLab.classList.remove("listening");
+  listenButton.textContent = "Begin listening"; valsalvaToggle.checked = false;
   ["#toExam", "#toTests", "#toAssessment", "#finishEncounter"].forEach(id => { document.querySelector(id).disabled = true; });
   clinicalSignal.textContent = "Clinical picture incomplete";
   showPanel("historyPanel", "History");
