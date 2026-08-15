@@ -218,9 +218,9 @@ void ACardioBlockoutNPC::TryAttachAssembledMetaHuman()
     }
     if (AttendingCoat)
     {
-        AttendingCoat->SetHiddenInGame(false);
-        AttendingCoat->SetRelativeLocation(FVector::ZeroVector);
-        AttendingCoat->SetRelativeScale3D(FVector::OneVector);
+        // Live look: the Sketchfab coat sat as a sheet on his front.
+        // Keep the CC-BY mesh in the project; do not plaster it on.
+        AttendingCoat->SetHiddenInGame(true);
     }
     if (AttendingTrousers)
     {

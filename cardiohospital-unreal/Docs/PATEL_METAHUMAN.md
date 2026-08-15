@@ -22,12 +22,11 @@ workstation can and cannot do.
 
 ## What is still not the walkthrough pass
 
-- Core Data ships only the default casual garment. The assembled High
-  Patel now wears the CC-BY Sketchfab "Male Lab Coat and Pants" by
-  zeryshahid, scaled onto the exported body and frozen in A-pose so the
-  real garment can sit on him. That is still a static overlay, not a
-  skinned `WI_` wardrobe item. Credit: CC BY 4.0,
-  https://sketchfab.com/3d-models/male-lab-coat-and-pants-77b6039abd6a4d7c8f1ebfea537510b5
+- Core Data ships only the default casual garment. The CC-BY Sketchfab
+  "Male Lab Coat and Pants" by zeryshahid is in
+  `Content/Environment/Source/Sketchfab/lab-coat/` (CREDIT.txt). A live
+  look showed that mesh plastered to his front, so the static overlay
+  stays hidden. Next coat has to be a skinned `WI_` wardrobe item.
 - Voice, gaze (yaw), and listen still need a packaged human look before
   walkthrough step 5 can pass. Facial viseme/lip-sync is not wired yet.
 - Do not substitute the Ada test mesh or a crowd template for Dr. Patel.
