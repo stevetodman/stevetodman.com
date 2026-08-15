@@ -59,4 +59,46 @@ test("every axis the character binds is mapped, and every mapping is bound", asy
   for (const key of ["Key=W", "Key=A", "Key=S", "Key=D", "Key=MouseX", "Key=MouseY"]) {
     assert.match(input, new RegExp(`\\+AxisMappings=\\([^)]*${key}\\)`), `missing mapping for ${key}`);
   }
+
+  // The same contract holds for actions: every BindAction name needs a
+  // mapping, and every mapping needs a binding.
+  const boundActions = new Set([...character.matchAll(/BindAction\(TEXT\("(\w+)"\)/g)].map((m) => m[1]));
+  const mappedActions = new Set([...input.matchAll(/\+ActionMappings=\(ActionName="(\w+)"/g)].map((m) => m[1]));
+  assert.ok(boundActions.has("Interact"), "the character must bind Interact");
+  assert.deepEqual([...boundActions].sort(), [...mappedActions].sort(),
+    "action names bound in C++ and mapped in DefaultInput.ini must match exactly");
+});
+
+test("the ward names its rooms to match the case flow", async () => {
+  const source = await read("Source/CardioHospital/Private/CardioBlockoutGameMode.cpp");
+
+  for (const room of ["Exam Room 3", "Cardiology Team Room", "Reception", "Education Room"]) {
+    assert.match(source, new RegExp(`SpawnSign\\(World, TEXT\\("${room}"\\)`), `missing door sign for ${room}`);
+  }
+});
+
+test("the team room assignment starts a case that ships in clinical content", async () => {
+  const source = await read("Source/CardioHospital/Private/CardioBlockoutGameMode.cpp");
+
+  // The assigned case id must be a real id in the shipped content document,
+  // or the packaged interaction fails at runtime with no compile-time signal.
+  const idMatch = source.match(/GAssignedCaseId = TEXT\("([\w-]+)"\)/);
+  assert.ok(idMatch, "the game mode must declare GAssignedCaseId");
+  const content = JSON.parse(await read("Content/Data/clinical-content.json"));
+  const caseIds = content.cases.map((c) => c.id);
+  assert.ok(caseIds.includes(idMatch[1]),
+    `assigned case "${idMatch[1]}" is not in clinical-content.json (has: ${caseIds.join(", ")})`);
+  const graphIds = content.caseGraphs.map((g) => g.caseId);
+  assert.ok(graphIds.includes(idMatch[1]),
+    `assigned case "${idMatch[1]}" has no case graph, so StartCase would fail`);
+
+  // Clinical truth lives in the content document. The game mode may name the
+  // attending and the rooms, but never the patient or the diagnosis.
+  assert.doesNotMatch(source, /Marcus|Chen|Hypertrophic|basketball/i,
+    "clinical facts must come from the content document, not the game mode");
+
+  // The runtime and HUD wiring the assignment depends on.
+  assert.match(source, /Runtime->StartCase\(GAssignedCaseId, StartError\)/);
+  assert.match(source, /GetActiveClinicalCase\(\)/);
+  assert.match(source, /HUDClass = ACardioBlockoutHUD::StaticClass\(\)/);
 });
