@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human look at Mac-Development-20260815T224805Z (commit c3a4041) for the coat fitted to Patel's exported body. walkthroughPassed stays false.
+next: Human look at Mac-Development-20260815T225327Z (commit 663cde1). Live shot: foam-column coat is gone; Patel is the High MetaHuman in the default t-shirt; a thin scope sits behind the neck. A static overlay is not a professional coat. walkthroughPassed stays false.
 ---
 
 # CLAUDE.md
@@ -271,6 +271,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-15: Looked at the live 224805Z package: the "coat" was a white foam column standing in front of Patel's t-shirt. Slimmed/flattened the overlay and pulled it back. 225327Z live shot: column is gone; he reads as the High MetaHuman in the default casual garment; scope is a thin loop behind the neck. Static mesh overlay is not a professional attending coat. walkthroughPassed stays false.
 - 2026-08-15: Exported SKM_Patel_Body and shifted the attending coat/scope onto his actual frame (chest +Y, clavicle 141 cm) so the overlay no longer floats in front of him. Shirt/tie/button materials pinned in C++. Packaged as Mac-Development-20260815T224805Z from c3a4041. walkthroughPassed stays false.
 - 2026-08-15: Replaced the T-pose box coat with a tailored open-front attending coat (notched lapels, hanging sleeves, shirt and tie, metal buttons) and a neck-draped stethoscope. Sketchfab's CC-BY coat needs a login; this kit is original and sized for the 175 cm High Patel. Packaged as Mac-Development-20260815T223632Z from 8051b23. walkthroughPassed stays false.
 - 2026-08-15: Replaced the box coat with an open-front subdivided lab coat and brightened wall/wainscot/trim to clean hospital white. Lamps 19000, exposure +1.40. Packaged as Mac-Development-20260815T221516Z from 34523ed. walkthroughPassed stays false.
