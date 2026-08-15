@@ -36,6 +36,11 @@ test("the blockout hard-references its engine primitives and spawns a start", as
   assert.match(source, /ConstructorHelpers::FObjectFinder<UMaterialInterface> \w+\(TEXT\("\/Engine\/BasicShapes\/BasicShapeMaterial\.BasicShapeMaterial"\)\)/);
   assert.match(source, /DefaultPawnClass = ACardioBlockoutCharacter::StaticClass\(\)/);
   assert.match(source, /SpawnActor<APlayerStart>/);
+  assert.match(
+    source,
+    /SpawnActor<APlayerStart>\(FVector\(-1200\.0, -600\.0, 110\.0\), FRotator\(0\.0, 90\.0, 0\.0\), Params\)/,
+    "the reception start must face north toward the corridor, not east into the divider",
+  );
 
   // Movable before the mesh is assigned, or runtime spawning rejects it.
   assert.ok(

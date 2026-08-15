@@ -123,7 +123,9 @@ void ACardioBlockoutGameMode::InitGame(const FString& MapName, const FString& Op
     // learner starts in the reception lobby facing the corridor.
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    World->SpawnActor<APlayerStart>(FVector(-1200.0, -600.0, 110.0), FRotator::ZeroRotator, Params);
+    // Reception is south of the corridor, so +90 degrees faces north (+Y)
+    // through its doorway instead of east into the room divider.
+    World->SpawnActor<APlayerStart>(FVector(-1200.0, -600.0, 110.0), FRotator(0.0, 90.0, 0.0), Params);
 }
 
 void ACardioBlockoutGameMode::HandleInteract(ACardioBlockoutCharacter& Character, ACardioBlockoutNPC* Npc)
