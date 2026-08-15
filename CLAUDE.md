@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human WASD walk of the latest packaged build through the full authored loop (assignment, Exam Room 3, return to Patel, diagnosis, management, debrief, persist, next case). Patel still needs voice/listening/face before step 5 can pass.
+next: Human WASD walk of package Mac-Development-20260815T180329Z (commit abff6c4) through assignment, Exam Room 3, return to Patel, diagnosis, management, debrief, persist, and next case. Patel still needs voice/listening/face before step 5 can pass.
 ---
 
 # CLAUDE.md
