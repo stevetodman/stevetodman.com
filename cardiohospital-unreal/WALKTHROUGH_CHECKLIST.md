@@ -7,15 +7,17 @@ or a package produced from dirty or unknown source.
 
 ## Before the run
 
-1. Run `Scripts/Run-Monday-Preflight.ps1` as the normal, non-elevated user and
-   keep its fresh JSON report under `Saved/WorkstationReports`.
+1. Run `Scripts/check-workstation.sh` as the normal user and keep its fresh
+   JSON report under `Saved/WorkstationReports`.
 2. Run portable validation, project generation, Editor compilation, and Unreal
    automation successfully.
 3. Commit and push the validated source, confirm the worktree is clean, and run
-   `Scripts/Package-Windows.ps1`.
+   `Scripts/package-macos.sh`.
 4. Do not edit, replace, or add files in the package directory. Launch the
-   `CardioHospital.exe` listed in that package's `build-manifest.json`.
-5. Use 2560×1440 and the current NVIDIA Studio Driver. Capture a performance
+   `.app` bundle listed in that package's `build-manifest.json`. Launch it the
+   way a learner would; clearing the quarantine attribute to make an unsigned
+   bundle open invalidates the run.
+5. Use 2560×1440. Capture a performance
    artifact such as an Unreal Insights trace or exported CSV. `stat fps`,
    `stat unit`, `stat RHI`, `stat memory`, and `stat streaming` can provide the
    measurements, but a visible overlay by itself is not a preserved artifact.
@@ -49,8 +51,11 @@ not pass. Record a failed run rather than weakening the checklist.
 
 ## Performance evidence
 
-The Unreal quality gate is stable 60 FPS at 2560×1440 on a supported desktop
-RTX workstation. The evidence recorder requires:
+The Unreal quality gate is stable 60 FPS at 2560×1440 on the Apple silicon
+reference workstation defined by ADR-0002. The learner-facing bar is unchanged
+from ADR-0001; only the hardware class and renderer changed, and the quality
+settings that reach it must be established by measurement on this hardware
+rather than inherited from the Windows profile. The evidence recorder requires:
 
 - average FPS of at least 60;
 - 95th-percentile frame time no greater than 16.7 ms;
@@ -68,36 +73,35 @@ numeric threshold, record it as failed.
 
 For a failed or incomplete run:
 
-```powershell
-./Scripts/Record-WalkthroughEvidence.ps1 `
-  -PackageDirectory "./PackagedBuilds/Win64-Development-..." `
-  -WorkstationReportPath "./Saved/WorkstationReports/monday-preflight-....json" `
-  -Outcome Failed `
-  -ConfirmExactPackageRun `
-  -PassedAcceptanceStep (1..7) `
-  -Notes "Step 8 failed: parent interaction did not become available."
+```sh
+./Scripts/record-walkthrough-evidence.sh \
+  --package-directory "./PackagedBuilds/Mac-Development-..." \
+  --workstation-report "./Saved/WorkstationReports/workstation-....json" \
+  --outcome Failed \
+  --confirm-exact-package-run \
+  --passed-steps "1,2,3,4,5,6,7" \
+  --notes "Step 8 failed: parent interaction did not become available."
 ```
 
-For a passing run, explicitly provide all steps and measured values:
+For a passing run, explicitly provide all nineteen steps and every measured
+value. Omitting any of them downgrades the record to failed:
 
-```powershell
-./Scripts/Record-WalkthroughEvidence.ps1 `
-  -PackageDirectory "./PackagedBuilds/Win64-Development-..." `
-  -WorkstationReportPath "./Saved/WorkstationReports/monday-preflight-....json" `
-  -Outcome Passed `
-  -ConfirmExactPackageRun `
-  -ConfirmStudioDriver `
-  -PassedAcceptanceStep (1..19) `
-  -AverageFps 60.8 `
-  -MinimumFps 54.2 `
-  -FrameTimeP95Ms 16.5 `
-  -DrawCalls 1350 `
-  -Triangles 2800000 `
-  -GpuMemoryMB 9100 `
-  -TextureMemoryMB 3400 `
-  -NpcCount 3 `
-  -StartupSeconds 8.4 `
-  -EvidenceArtifactPath "./Saved/Profiling/cardio-walkthrough.csv"
+```sh
+./Scripts/record-walkthrough-evidence.sh \
+  --package-directory "./PackagedBuilds/Mac-Development-..." \
+  --workstation-report "./Saved/WorkstationReports/workstation-....json" \
+  --outcome Passed \
+  --confirm-exact-package-run \
+  --passed-steps "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19" \
+  --average-fps 60.8 \
+  --minimum-fps 54.2 \
+  --frame-time-p95-ms 16.5 \
+  --draw-calls 1350 \
+  --triangles 2800000 \
+  --gpu-memory-mb 9100 \
+  --texture-memory-mb 3400 \
+  --npc-count 3 \
+  --startup-seconds 8.4
 ```
 
 The recorder verifies every existing package hash, rejects unlisted or modified

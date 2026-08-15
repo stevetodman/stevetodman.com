@@ -10,6 +10,8 @@ const projectRoot = resolve(here, "..");
 const planPath = resolve(projectRoot, "LegacyCore", "plan.md");
 const tracePath = resolve(projectRoot, "SPEC_TRACEABILITY.md");
 const adrPath = resolve(projectRoot, "Docs", "ADR-0001-unreal-5-8-product-rebaseline.md");
+const rebaselineAdrPath = resolve(projectRoot, "Docs", "ADR-0002-macos-release-target.md");
+const checklistPath = resolve(projectRoot, "WALKTHROUGH_CHECKLIST.md");
 
 const SOURCE_BLOB = "e89351733c467c694677100b4f82157f6917ba02";
 const ASSESSMENT_BASE = "2b9b0ffe13417e436d16985ae318eceab652ecda";
@@ -145,6 +147,10 @@ test("rebaseline ADR covers every approved platform conflict and evidence bounda
   assert.match(trace, /`PREVIEW-ONLY` never\s+counts as native coverage/);
   assert.match(trace, /A checklist or script is evidence of a gate, not\s+evidence that the gate passed/);
 
+  // ADR-0001 is retained unaltered as history and annotated, not rewritten.
+  assert.match(adr, /superseded by/i);
+  assert.match(adr, /ADR-0002-macos-release-target\.md/);
+
   await Promise.all([
     access(resolve(projectRoot, "AGENTS.md")),
     access(resolve(projectRoot, "WALKTHROUGH_CHECKLIST.md")),
@@ -154,4 +160,43 @@ test("rebaseline ADR covers every approved platform conflict and evidence bounda
     access(resolve(projectRoot, "..", "cardiohospital", "app.js")),
     access(resolve(projectRoot, "..", "cardio-hospital-3d", "src", "components", "world")),
   ]);
+});
+
+test("macOS rebaseline ADR moves the platform without loosening any gate", async () => {
+  const [rebaseline, checklist, trace] = await Promise.all([
+    readFile(rebaselineAdrPath, "utf8"),
+    readFile(checklistPath, "utf8"),
+    readFile(tracePath, "utf8"),
+  ]);
+
+  // What changed.
+  assert.match(rebaseline, /Apple silicon macOS is the production platform/);
+  assert.match(rebaseline, /packaged macOS application replaces the packaged Windows executable/);
+  assert.match(rebaseline, /Apple M4 Max/);
+  assert.match(rebaseline, new RegExp(ASSESSMENT_BASE));
+
+  // What deliberately did not change. The learner-facing bar and the 19-step
+  // semantics survive the platform move.
+  assert.match(rebaseline, /stable 60 FPS at 2560x1440/);
+  assert.match(rebaseline, /16\.7 ms/);
+  assert.match(rebaseline, /remaining 18\s+semantic steps stay in force/);
+  assert.match(rebaseline, /ADR-0001 section 4 stands in full/);
+
+  // Measurements may not be inherited across a renderer change.
+  assert.match(rebaseline, /No previously recorded Windows figure may be carried\s+forward/);
+  assert.match(trace, /No\s+Windows figure may be carried forward/);
+
+  // Gatekeeper bypass must not become the launch path.
+  assert.match(rebaseline, /invalidates the\s+walkthrough/);
+  assert.match(checklist, /quarantine attribute/);
+
+  // The checklist points at the shell workflow and keeps all nineteen steps.
+  assert.match(checklist, /Scripts\/check-workstation\.sh/);
+  assert.match(checklist, /Scripts\/package-macos\.sh/);
+  assert.match(checklist, /Scripts\/record-walkthrough-evidence\.sh/);
+  assert.doesNotMatch(checklist, /CardioHospital\.exe/);
+  const steps = [...checklist.matchAll(/^(\d+)\. /gm)].map((match) => Number(match[1]));
+  assert.ok(steps.filter((step) => step === 19).length >= 1, "the nineteenth acceptance step must survive");
+
+  await access(resolve(projectRoot, "Scripts", "run-first-build.sh"));
 });
