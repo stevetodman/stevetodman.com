@@ -92,7 +92,7 @@ test("every axis the character binds is mapped, and every mapping is bound", asy
 test("the ward names its rooms to match the case flow", async () => {
   const source = await read("Source/CardioHospital/Private/CardioBlockoutGameMode.cpp");
 
-  for (const room of ["Exam Room 3", "Cardiology Team Room", "Reception", "Education Room"]) {
+  for (const room of ["Exam Room 3", "Cardiology Team Room", "Reception", "Education Room", "ECG / Echo"]) {
     assert.match(source, new RegExp(`SpawnSign\\(World, TEXT\\("${room}"\\)`), `missing door sign for ${room}`);
   }
 });
@@ -131,6 +131,11 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
 
   assert.match(header, /static bool IsExamRoom3Location/);
   assert.match(header, /static bool IsTeamRoomLocation/);
+  assert.match(header, /static bool IsEducationRoomLocation/);
+  assert.match(source, /ShowEcgReview/);
+  assert.match(source, /ShowEchoReview/);
+  assert.match(source, /ShowDiagnosticsMenu/);
+  assert.match(hud, /Review ECG and echo/);
   assert.match(source, /TEXT\("navigate.exam-room"\)/);
   assert.match(source, /TEXT\("encounter.introduce"\)/);
   assert.match(source, /TEXT\("navigate.return-workroom"\)/);

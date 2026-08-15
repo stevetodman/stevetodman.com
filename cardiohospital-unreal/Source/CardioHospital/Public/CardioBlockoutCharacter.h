@@ -24,6 +24,7 @@ public:
 
     ACardioBlockoutNPC* GetFocusedNpc() const { return FocusedNpc.Get(); }
     bool IsInExamRoom3() const;
+    bool IsInEducationRoom() const;
 
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;

@@ -48,10 +48,15 @@ public:
 
     static bool IsExamRoom3Location(const FVector& Location);
     static bool IsTeamRoomLocation(const FVector& Location);
+    static bool IsEducationRoomLocation(const FVector& Location);
 
 private:
     void HandleAttending(ACardioBlockoutNPC& Npc);
     void HandleExamRoom();
+    void HandleDiagnostics();
+    void ShowDiagnosticsMenu();
+    void ShowEcgReview();
+    void ShowEchoReview();
     void AdvanceImpliedActions(const TArray<FString>& ActionIds);
     bool TryPerformAction(const FString& ActionId, const FString& PayloadJson = TEXT("{}"));
     bool HasAttendingFollowUp() const;

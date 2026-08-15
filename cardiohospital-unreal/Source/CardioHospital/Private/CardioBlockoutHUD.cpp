@@ -58,6 +58,10 @@ void ACardioBlockoutHUD::DrawHUD()
     {
         Prompt = TEXT("[E]  Evaluate the patient");
     }
+    else if (Character && Character->IsInEducationRoom())
+    {
+        Prompt = TEXT("[E]  Review ECG and echo");
+    }
     if (!Prompt.IsEmpty())
     {
         float TextWidth = 0.f;

@@ -1,6 +1,6 @@
 ---
 status: active
-next: Install UE 5.8 MetaHuman Optional Content and sign into Epic in the editor, then re-run Scripts/create-patel-metahuman.py so Patel can assemble. The character source asset exists; textures/build need that login.
+next: Human walk of the latest package including the Education Room ECG/echo station. MetaHuman Patel still needs Optional Content + Epic login before assembly.
 ---
 
 # CLAUDE.md
@@ -271,6 +271,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-15: Optional Content is still missing, so Patel cannot assemble. Added an Education Room ECG/echo station: walk in, E, order/review from the case graph, and structured ECG/echo panels drawn only from authored findings. No invented waveforms. Portable tests 76/76.
 - 2026-08-15: Started the approved MetaHuman Patel gate. Enabled MetaHumanCharacter/SDK, added `Scripts/create-patel-metahuman.py`, and created `Content/Characters/MetaHumans/Patel.uasset` at 175 cm. Auto-rig ran. Assembly did not: Optional Content is missing and unattended EOS login failed, so high-res textures did not download. Cube Patel remains the packaged visual. See `cardiohospital-unreal/Docs/PATEL_METAHUMAN.md`.
 - 2026-08-15: Exam Room 3 auscultation now plays a procedural murmur aligned with `LegacyCore/src/lib/murmur-audio.ts`. Sites and descriptions come from clinical content; Valsalva boosts HCM and softens Still's. No MetaHuman Patel was imported — engine plugins exist, but there is no Patel identity asset, so step 5 stays failed. Portable tests 76/76.
 - 2026-08-15: Patel presentation adapter: Mac TextToSpeech speaks only authored assignment and Socratic lines; listening lean while the learner menu is open; blink and a speaking cue on the blockout figure. Diagnosis follow-up uses `AttendingSocratic` and missed-opportunity templates from clinical content (section 29/30). No MetaHuman asset yet, so step 5 is still failed. Portable tests 74/74.

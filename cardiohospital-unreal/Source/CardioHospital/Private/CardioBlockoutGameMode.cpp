@@ -163,6 +163,12 @@ bool ACardioBlockoutGameMode::IsTeamRoomLocation(const FVector& Location)
         && Location.Y >= RoomMinY && Location.Y <= RoomMaxY;
 }
 
+bool ACardioBlockoutGameMode::IsEducationRoomLocation(const FVector& Location)
+{
+    return Location.X > RoomMidX && Location.X <= RoomMaxX
+        && Location.Y >= -RoomMaxY && Location.Y <= -RoomMinY;
+}
+
 void ACardioBlockoutGameMode::NotifyLearnerLocation(const FVector& Location)
 {
     UGameInstance* GameInstance = GetGameInstance();
@@ -217,6 +223,12 @@ void ACardioBlockoutGameMode::HandleInteract(ACardioBlockoutCharacter& Character
     if (IsExamRoom3Location(Character.GetActorLocation()))
     {
         HandleExamRoom();
+        return;
+    }
+
+    if (IsEducationRoomLocation(Character.GetActorLocation()))
+    {
+        HandleDiagnostics();
     }
 }
 
@@ -419,6 +431,30 @@ void ACardioBlockoutGameMode::HandleExamRoom()
     ShowEncounterMenu();
 }
 
+void ACardioBlockoutGameMode::HandleDiagnostics()
+{
+    UGameInstance* GameInstance = GetGameInstance();
+    UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+    if (!Hud)
+    {
+        return;
+    }
+    if (!Runtime || !Runtime->HasActiveCase())
+    {
+        Hud->ShowPanel({
+            TEXT("ECG / Echo"),
+            FString(),
+            TEXT("See Dr. Patel in the Cardiology Team Room first."),
+            FString(),
+            TEXT("[E] Close"),
+        });
+        return;
+    }
+    ShowDiagnosticsMenu();
+}
+
 void ACardioBlockoutGameMode::AdvanceImpliedActions(const TArray<FString>& ActionIds)
 {
     for (const FString& ActionId : ActionIds)
@@ -524,6 +560,108 @@ void ACardioBlockoutGameMode::ShowEncounterMenu()
         {
             Lines.Add(TEXT("No further actions are available in this room."));
         }
+    }
+    Lines.Add(FString());
+    Lines.Add(TEXT("[E] Close"));
+    Hud->ShowPanel(Lines);
+}
+
+void ACardioBlockoutGameMode::ShowDiagnosticsMenu()
+{
+    APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+    UGameInstance* GameInstance = GetGameInstance();
+    UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Hud || !Runtime)
+    {
+        return;
+    }
+
+    CurrentMenuActions.Reset();
+    bChoosingDiagnosis = false;
+    bChoosingAuscultation = false;
+    TArray<FString> Lines;
+    Lines.Add(TEXT("ECG / Echo"));
+    Lines.Add(FString());
+
+    int32 Choice = 1;
+    for (const FCardioCaseActionDefinition& Action : Runtime->GetAvailableActionDefinitions())
+    {
+        const bool bDiagnostic =
+            Action.Type == TEXT("order")
+            || Action.Type == TEXT("review")
+            || Action.Id == TEXT("testing.finish");
+        if (!bDiagnostic || Choice > 9)
+        {
+            continue;
+        }
+        CurrentMenuActions.Add(Action.Id);
+        Lines.Add(FString::Printf(TEXT("[%d]  %s"), Choice, *LabelForAction(Action)));
+        ++Choice;
+    }
+    if (CurrentMenuActions.Num() == 0)
+    {
+        Lines.Add(TEXT("No studies are available yet. Finish the exam in Exam Room 3, or return to Dr. Patel."));
+    }
+    Lines.Add(FString());
+    Lines.Add(TEXT("[E] Close"));
+    Hud->ShowPanel(Lines);
+}
+
+void ACardioBlockoutGameMode::ShowEcgReview()
+{
+    APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+    UGameInstance* GameInstance = GetGameInstance();
+    UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Hud || !Runtime)
+    {
+        return;
+    }
+
+    const FCardioEcgFindings Ecg = Runtime->GetActiveClinicalCase().Ecg;
+    TArray<FString> Lines;
+    Lines.Add(TEXT("ECG"));
+    Lines.Add(FString());
+    Lines.Add(FString::Printf(TEXT("Rhythm  %s"), *Ecg.Rhythm));
+    Lines.Add(FString::Printf(TEXT("Rate    %d"), Ecg.Rate));
+    Lines.Add(FString::Printf(TEXT("PR %s   QRS %s   QTc %s"), *Ecg.Intervals.PR, *Ecg.Intervals.QRS, *Ecg.Intervals.QTc));
+    Lines.Add(FString::Printf(TEXT("Axis    %s"), *Ecg.Axis));
+    if (!Ecg.Pattern.IsEmpty())
+    {
+        Lines.Add(FString::Printf(TEXT("Pattern %s"), *Ecg.Pattern));
+    }
+    for (const FString& Finding : Ecg.KeyFindings)
+    {
+        Lines.Add(Finding);
+    }
+    Lines.Add(FString());
+    Lines.Add(TEXT("[E] Close"));
+    Hud->ShowPanel(Lines);
+}
+
+void ACardioBlockoutGameMode::ShowEchoReview()
+{
+    APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+    UGameInstance* GameInstance = GetGameInstance();
+    UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Hud || !Runtime)
+    {
+        return;
+    }
+
+    const FCardioEchoFindings Echo = Runtime->GetActiveClinicalCase().Echo;
+    TArray<FString> Lines;
+    Lines.Add(TEXT("Echocardiogram"));
+    Lines.Add(FString());
+    if (!Echo.Summary.IsEmpty())
+    {
+        Lines.Add(Echo.Summary);
+    }
+    for (const FString& Finding : Echo.KeyFindings)
+    {
+        Lines.Add(Finding);
     }
     Lines.Add(FString());
     Lines.Add(TEXT("[E] Close"));
@@ -679,6 +817,24 @@ bool ACardioBlockoutGameMode::HandleSpecialAction(const FCardioCaseActionDefinit
             return false;
         }
         ShowAuscultationMenu();
+        return true;
+    }
+    if (Action.Id == TEXT("review.ecg"))
+    {
+        if (!TryPerformAction(Action.Id))
+        {
+            return false;
+        }
+        ShowEcgReview();
+        return true;
+    }
+    if (Action.Id == TEXT("review.echo"))
+    {
+        if (!TryPerformAction(Action.Id))
+        {
+            return false;
+        }
+        ShowEchoReview();
         return true;
     }
     if (Action.Id == TEXT("reasoning.submit"))
@@ -1203,6 +1359,7 @@ void ACardioBlockoutGameMode::SpawnSigns(UWorld& World) const
     SpawnSign(World, TEXT("Cardiology Team Room"), FVector(750.0, 184.0, 285.0), -90.f);
     SpawnSign(World, TEXT("Reception"), FVector(-750.0, -184.0, 285.0), 90.f);
     SpawnSign(World, TEXT("Education Room"), FVector(750.0, -184.0, 285.0), 90.f);
+    SpawnSign(World, TEXT("ECG / Echo"), FVector(980.0, -184.0, 250.0), 90.f);
 }
 
 void ACardioBlockoutGameMode::SpawnSign(UWorld& World, const FString& Text, const FVector& Location, const float YawDegrees) const
