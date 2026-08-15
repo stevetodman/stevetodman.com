@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human walk of the latest package including the Education Room ECG/echo station. MetaHuman Patel still needs Optional Content + Epic login before assembly.
+next: Human walk of package Mac-Development-20260815T185335Z (commit e3baee5). MetaHuman Patel still needs Optional Content + Epic login.
 ---
 
 # CLAUDE.md
