@@ -14,6 +14,10 @@ The browser project remains the curriculum preview. This project owns the
 high-fidelity experience: MetaHumans, facial performance, locomotion, lighting,
 spatial audio, and native interaction.
 
+The platform, launch-surface, performance, and bounded MetaHuman decisions are
+recorded in
+[`Docs/ADR-0001-unreal-5-8-product-rebaseline.md`](Docs/ADR-0001-unreal-5-8-product-rebaseline.md).
+
 ## Local prerequisites
 
 - Windows 11
@@ -32,22 +36,31 @@ install software, alter policy, or request elevation. On a managed PC, send
 [`IT_PREREQUISITES.md`](IT_PREREQUISITES.md) to IT for anything the read-only
 preflight reports as administrator-required.
 
-Run this repeatable PowerShell sequence from `cardiohospital-unreal`:
+From `cardiohospital-unreal`, run the resumable standard-user baseline:
 
 ```powershell
-./Scripts/Run-Monday-Preflight.ps1
-./Scripts/Generate-ProjectFiles.ps1
-./Scripts/Build-Editor.ps1
-./Scripts/Run-Automation.ps1
-./Scripts/Package-Windows.ps1 -Configuration Development
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Scripts\Run-FirstBuild.ps1
 ```
 
-The preflight writes an ignored, IT-ready JSON report under
-`Saved/WorkstationReports` and includes portable clinical validation. Pass
-`-ReportPath` to choose another new `.json` destination; existing files are
-never overwritten. If source fixes are needed,
-commit them and rerun from a clean worktree before packaging; the packaging
-script refuses unverifiable or dirty source.
+That one command runs preflight, portable validation, project generation,
+Editor compilation, and Unreal automation in order. It writes a unique ignored
+stage report under `Saved/FirstBuildReports`. If a stage fails, fix the reported
+problem and paste the report's `resumeCommand`; preflight always reruns, and a
+completed stage is reused only when its source, workstation/toolchain, and
+artifact hashes still match. Pass `-RerunAll` to deliberately rerun every
+stage. The individual scripts remain available for focused troubleshooting.
+
+After the baseline passes, commit and push any source fixes and confirm the
+worktree is clean. Then paste the report's `packageResumeCommand`, which adds
+`-IncludePackage`, or start a fresh packaged run:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Scripts\Run-FirstBuild.ps1 -IncludePackage -Configuration Development
+```
+
+The package stage refuses unverifiable or dirty source. The preflight and
+first-build workflows never overwrite an earlier report. Pass `-ReportPath` to
+choose another new `.json` destination.
 
 Pass `-EngineRoot` to any Unreal-dependent script when UE 5.8 is installed in a
 non-standard directory, or set `UE_5_8_ROOT` for the current shell. Automation
@@ -62,9 +75,10 @@ After packaging, follow [`WALKTHROUGH_CHECKLIST.md`](WALKTHROUGH_CHECKLIST.md).
 record a failed run without changing the gate. It changes `walkthroughPassed`
 to true only when a fresh passing preflight, the exact packaged executable, all
 19 acceptance steps, the 2560×1440 performance metrics, and a preserved capture
-artifact are explicitly supplied. The trace from the original 168-section
-specification to current evidence is recorded in
-[`REQUIREMENT_COVERAGE.md`](REQUIREMENT_COVERAGE.md).
+artifact are explicitly supplied. The full one-row-per-section trace from the
+authoritative 168-section specification to current evidence is recorded in
+[`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md). A shorter engineering summary
+remains in [`REQUIREMENT_COVERAGE.md`](REQUIREMENT_COVERAGE.md).
 
 GitHub Actions parses the PowerShell wrappers, runs their isolated workstation
 and package-evidence fixtures on Windows, and repeats the
@@ -91,11 +105,17 @@ case progression. World actors should call `StartCase`, query
 must not implement separate clinical branching in Blueprint.
 
 The portable test suite currently exercises complete and deliberately flawed
-paths through all five first-release cases: innocent murmur, HCM, vasovagal
-syncope, WPW, and myocarditis. It verifies action ordering, clinical omissions,
-unnecessary testing, safety intervention, debrief scoring, learner persistence,
-mastery, and adaptive selection without claiming Unreal compilation or
-presentation quality.
+paths through all seven deterministic clinic cases: innocent murmur, HCM,
+vasovagal syncope, WPW, myocarditis, Long-QT syndrome, and coarctation. It
+verifies action ordering, clinical omissions, unnecessary testing, safety
+intervention, debrief scoring, learner persistence, mastery, and adaptive
+selection without claiming Unreal compilation or presentation quality.
+
+A separate Playwright regression completes the safe 100% HCM browser-preview
+path and the unsafe/replay persistence path. Both pass locally against Chrome;
+GitHub CI for the integration checkpoint remains pending. These are
+browser-preview results, not Unreal compilation or packaged-walkthrough
+evidence.
 
 ## Case authoring
 
@@ -110,10 +130,10 @@ flags, missing correct management, or broken counterfactual references.
 Warnings identify non-blocking authoring debt. In particular, a
 `structured-result-missing` warning must be resolved with medically reviewed
 content—not an invented placeholder—before that result is shown in gameplay.
-The current expected report is zero errors and 23 warnings: 20 missing
-structured results, two deliberately deferred non-release graphs, and one HCM
-`Genetics referral` test/management classification that requires clinical
-review. Do not silently reclassify that item merely to remove the warning.
+The current expected report is zero errors and 32 warnings: 31 missing
+structured results and one HCM `Genetics referral` test/management
+classification that requires clinical review. Do not invent results or
+silently reclassify that item merely to remove a warning.
 
 Rules:
 

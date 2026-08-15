@@ -20,6 +20,9 @@ public:
     TArray<FCardioClinicalCase> GetCases() const { return Content.Cases; }
 
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Clinical Data")
+    TArray<FCardioCaseConceptDefinition> GetConcepts() const { return Content.Concepts; }
+
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Clinical Data")
     bool FindCaseById(const FString& CaseId, FCardioClinicalCase& OutCase) const;
 
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Clinical Data")

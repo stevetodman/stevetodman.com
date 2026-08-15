@@ -8,17 +8,19 @@ rights.
 ## First local prompt
 
 > Open this repository as the active project. Read `AGENTS.md`, `README.md`, and
-> `LOCAL_HANDOFF.md` completely. Run `Scripts/Run-Monday-Preflight.ps1`. If it
-> fails, read its `UserAction` and `ITOrAdminRequired` sections and do not bypass
-> a prerequisite. If it passes, run `Scripts/Generate-ProjectFiles.ps1`,
-> `Scripts/Build-Editor.ps1`, and `Scripts/Run-Automation.ps1`. Fix and rerun any
-> compile, automation, or data-schema failures. Do not add rooms or characters
-> until that baseline passes. Commit and push the validated source, confirm the
-> worktree is clean, then run `Scripts/Package-Windows.ps1`. Do not mark the
-> package walkthrough true by hand. Follow `WALKTHROUGH_CHECKLIST.md` and use
-> `Scripts/Record-WalkthroughEvidence.ps1` only after running that exact
-> packaged executable at the required quality gate. Record an incomplete run
-> as failed instead of weakening or skipping a gate.
+> `LOCAL_HANDOFF.md` completely. As the normal non-elevated user, run
+> `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Scripts\Run-FirstBuild.ps1`.
+> If preflight fails, read the workstation report's
+> `UserAction` and `ITOrAdminRequired` sections and do not bypass a prerequisite.
+> If a later stage fails, fix the reported compile, automation, or data-schema
+> problem and paste the stage report's `resumeCommand`; do not add rooms or
+> characters until the baseline passes. Commit and push the validated source,
+> confirm the worktree is clean, then paste `packageResumeCommand` to create the
+> package. Do not mark the walkthrough true by hand. Follow
+> `WALKTHROUGH_CHECKLIST.md` and use
+> `Scripts/Record-WalkthroughEvidence.ps1` only after running that exact packaged
+> executable at the required quality gate. Record an incomplete run as failed
+> instead of weakening or skipping a gate.
 
 ## Managed-PC prerequisites
 
@@ -63,13 +65,13 @@ capture evidence and attach a truthful pass or failure to the package manifest.
 - `UCardioClinicalDataSubsystem` loads the schema-v3 generated runtime artifact,
   including clinical cases, graphs, safety rules, counterfactuals, and concepts.
 - `UCardioCaseRuntimeSubsystem` exposes deterministic case actions to Blueprint.
-- Portable tests simulate complete and unsafe paths across all five
-  first-release cases. Keep these tests green while connecting world
+- Portable tests simulate complete and unsafe paths across all seven current
+  deterministic clinic cases. Keep these tests green while connecting world
   interactions.
 - Run `Tools/case-authoring-report.mjs` before exposing a new order in the UI.
-  The current expected result is zero errors and 23 warnings: 20 missing
-  structured results, two deferred graphs, and one HCM genetics classification
-  awaiting clinical review. Do not invent results or reclassify clinical
-  content merely to silence those warnings.
+  The current expected result is zero errors and 32 warnings: 31 missing
+  structured results and one HCM genetics classification awaiting clinical
+  review. Do not invent results or reclassify clinical content merely to silence
+  those warnings.
 - The first local compile must confirm Unreal Header Tool accepts the new
   reflected structs and subsystem signatures; that gate is not yet confirmed.

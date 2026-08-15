@@ -19,7 +19,7 @@ namespace
 
     int32 ClampScore(const double Value)
     {
-        return FMath::Clamp(FMath::RoundToInt(Value), 0, 100);
+        return FMath::Clamp(FMath::RoundToInt32(Value), 0, 100);
     }
 
     int32 Percentage(const TArray<FString>& Completed, const TArray<FString>& Expected)

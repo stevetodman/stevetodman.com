@@ -31,5 +31,8 @@ finally {
 Write-Host "==> Run workstation/build-script fixtures" -ForegroundColor Cyan
 & (Join-Path $projectRoot "Tests\Workstation-Scripts.Tests.ps1")
 
+Write-Host "==> Run resumable first-build orchestration fixtures" -ForegroundColor Cyan
+& (Join-Path $projectRoot "Tests\FirstBuild-Orchestration.Tests.ps1")
+
 Write-Host "Portable clinical content validation passed." -ForegroundColor Green
 

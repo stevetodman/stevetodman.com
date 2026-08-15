@@ -1,11 +1,18 @@
 # Engineering requirement coverage
 
-`LegacyCore/plan.md` is the preserved 168-section product specification. It was
+`LegacyCore/plan.md` is the authoritative 168-section product specification;
+the product owner confirmed that authority on 2026-08-14. The complete
+one-row-per-section ledger is
+[`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md); this file is the engineering
+summary. The plan was
 written for a browser-first Three.js implementation; this directory is the
 approved Unreal Engine 5.8 high-fidelity adaptation. Browser-specific stack and
 deployment details are therefore historical constraints, while the clinical,
 educational, privacy, scope, testing, performance, and acceptance intent still
 applies.
+
+The exact platform rebaseline is recorded in
+[`Docs/ADR-0001-unreal-5-8-product-rebaseline.md`](Docs/ADR-0001-unreal-5-8-product-rebaseline.md).
 
 Statuses below describe evidence in this repository, not aspirational claims.
 
@@ -14,11 +21,11 @@ Statuses below describe evidence in this repository, not aspirational claims.
 | 83, 109–110, 160, 165 | Clinical truth, case progression, scoring, and education remain independent of rendering and generative dialogue. | Generated schema-v3 truth, `UCardioClinicalDataSubsystem`, `UCardioCaseRuntimeSubsystem`, portable engines, and architecture rules enforce the boundary. | Covered in source; first UE compile still pending. |
 | 106, 147, 152 | Measure performance and maintain a conservative scene budget. | The Unreal target is stable 60 FPS at 2560×1440. `WALKTHROUGH_CHECKLIST.md` requires preserved FPS, frame-time, draw-call, triangle, GPU/texture-memory, NPC-count, and startup evidence. | Workflow covered; real package evidence pending. |
 | 108 | Recommended browser software stack. | Superseded for this high-fidelity client by Unreal Engine 5.8. The deterministic clinical core remains renderer-independent. | Intentionally adapted. |
-| 123–124, 148, 151, 158 | Versioned cases, sources/review metadata, result completeness, reachability, consistency, and medical review. | Export/contract validation, case-authoring diagnostics, reachability and deterministic-path tests run on Windows and Linux. Review fields remain explicitly pending. | Partial: zero blocking errors; 23 disclosed warnings require clinical review. |
+| 123–124, 148, 151, 158 | Versioned cases, sources/review metadata, result completeness, reachability, consistency, and medical review. | Export/contract validation, case-authoring diagnostics, reachability and deterministic-path tests run on Windows and Linux. Review fields remain explicitly pending. | Partial: seven ready graphs and zero blocking errors; 32 disclosed warnings require clinical review. |
 | 128 | No real patient information or PHI. | Synthetic data rule in `AGENTS.md`, clinical metadata checks, identity-free learner tests, ignored local reports, and evidence privacy warnings. | Covered for current artifacts. |
-| 131–145, 167 | Build the narrow outpatient vertical slice before expanding the hospital. | README, handoff, and engineering rules constrain work to the team-room/corridor/exam-room learner loop and five contrastive cases. | Scope covered; world/presentation implementation pending. |
+| 131–145, 167 | Build the narrow outpatient vertical slice before expanding the hospital. | README, handoff, and engineering rules constrain work to the team-room/corridor/exam-room learner loop; seven deterministic clinic cases now exist. | Curriculum core expanded; world/presentation implementation pending. |
 | 149 | Teleport, state triggers, case-variable display, navigation and performance debug tools. | No production-ready Unreal debug interface exists yet. | Pending after the baseline UE compile gate. |
-| 150 | Unit, integration, and end-to-end tests. | Portable unit/integration suite, Unreal automation wrapper/report validation, PowerShell fixture suite, and CI matrix exist. | Portable gates covered; packaged end-to-end run pending. |
+| 150 | Unit, integration, and end-to-end tests. | Portable unit/integration suite, two locally passing browser HCM Playwright paths, Unreal automation wrapper/report validation, PowerShell fixture suite, and CI matrices exist. | Portable and local browser gates pass; GitHub browser result and packaged Unreal end-to-end run remain pending. |
 | 151 | Every exposed order has a result; no dead ends, contradictions, or false full scores. | Deterministic paths, unsafe paths, reachability, result prerequisites, and scoring safeguards are tested. Structured-result warnings are explicitly blocked from gameplay exposure. | Partial pending medically reviewed result content. |
 | 153 | Versioned deployment and independently verifiable packages. | Packaging requires clean committed Git source and records source, engine/toolchain versions, per-file SHA-256, package ID, and walkthrough state. Release publication remains a deliberate external step. | Package workflow covered; no release claimed. |
 | 154 | Load only the first world/case initially and stream later content. | The repository is scoped to the first slice, but packaged streaming behavior has not been implemented or measured. | Pending. |
@@ -38,9 +45,10 @@ browser-first source specification:
 - a truthful separation between portable CI, UE compilation/automation,
   packaging, and the physical packaged walkthrough.
 
-`Run-Monday-Preflight.ps1`, `IT_PREREQUISITES.md`, `LOCAL_HANDOFF.md`, and the
-package/evidence manifests cover those requirements. Passing one gate never
-implies that a later gate passed.
+`Run-Monday-Preflight.ps1`, the resumable `Run-FirstBuild.ps1`,
+`IT_PREREQUISITES.md`, `LOCAL_HANDOFF.md`, and the package/evidence manifests
+cover those requirements. Passing one gate never implies that a later gate
+passed.
 
 ## Current evidence boundary
 

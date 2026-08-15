@@ -234,15 +234,116 @@ const MYOCARDITIS_AUTHORING: OutpatientCaseAuthoring = {
   counterfactuals: [],
 };
 
+const LONG_QT_AUTHORING: OutpatientCaseAuthoring = {
+  caseId: "case-longqt",
+  version: "1.0",
+  roomTarget: "room-1",
+  encounterTarget: "maya-and-parent",
+  history: [
+    { key: "generic", acceptance: true },
+    { key: "triggers", acceptance: true },
+    { key: "prodrome", acceptance: true },
+    { key: "palpitations" },
+    { key: "family_sudden_death", acceptance: true },
+    { key: "meds", acceptance: true },
+    { key: "activity_level" },
+  ],
+  examAcceptanceTargets: ["general", "vitals", "auscultation"],
+  orders: [
+    { id: "ecg", target: "ECG", reviewable: true, acceptance: true },
+    { id: "echo", target: "Echocardiogram", reviewable: true, acceptance: true },
+    { id: "holter", target: "Holter", acceptance: true },
+    { id: "genetics-referral", target: "Genetics referral", acceptance: true },
+    { id: "cardiac-mri", target: "Cardiac MRI" },
+    { id: "ct-angiography", target: "CT angiography" },
+    { id: "bnp", target: "BNP" },
+    { id: "tsh", target: "TSH" },
+  ],
+  management: [
+    { id: "restrict-swimming", target: "Restrict from competitive swimming and startle-trigger activities", acceptance: true },
+    { id: "ep-referral", target: "Refer to electrophysiology", acceptance: true },
+    { id: "stop-azithromycin", target: "Stop QT-prolonging medication (azithromycin)", acceptance: true },
+    { id: "family-screening", target: "Family screening (first-degree relatives)", acceptance: true },
+    { id: "genetics", target: "Genetics consultation", acceptance: true },
+    { id: "reassure", target: "Reassurance only" },
+  ],
+  safetyRules: [
+    {
+      id: "longqt-protection-and-referral",
+      severity: "critical",
+      requiredActions: [
+        "management.restrict-swimming",
+        "management.ep-referral",
+        "management.stop-azithromycin",
+      ],
+      prohibitedActions: ["management.reassure"],
+      message: "Swimming/startle-triggered syncope with a prolonged QTc was not protected from recurrent arrhythmic risk.",
+      intervention: "The attending stops discharge, removes the QT-prolonging medication, restricts triggering activity, and arranges electrophysiology evaluation.",
+    },
+  ],
+  counterfactuals: [],
+};
+
+const COARCTATION_AUTHORING: OutpatientCaseAuthoring = {
+  caseId: "case-coarctation",
+  version: "1.0",
+  roomTarget: "room-3",
+  encounterTarget: "diego-and-parent",
+  history: [
+    { key: "generic", acceptance: true },
+    { key: "activity_level", acceptance: true },
+    { key: "palpitations" },
+    { key: "family_sudden_death", acceptance: true },
+    { key: "pmh" },
+    { key: "viral_illness" },
+  ],
+  examAcceptanceTargets: ["vitals", "auscultation", "femoralPulses"],
+  orders: [
+    { id: "ecg", target: "ECG", reviewable: true, acceptance: true },
+    { id: "echo", target: "Echocardiogram", reviewable: true, acceptance: true },
+    { id: "cardiac-mri", target: "Cardiac MRI", acceptance: true },
+    { id: "holter", target: "Holter" },
+    { id: "troponin", target: "Troponin" },
+    { id: "bnp", target: "BNP" },
+    { id: "tsh", target: "TSH" },
+  ],
+  management: [
+    { id: "repair-evaluation", target: "Refer for cardiac catheterization / surgical evaluation", acceptance: true },
+    { id: "antihypertensive", target: "Antihypertensive therapy while awaiting definitive repair", acceptance: true },
+    { id: "restrict-static-load", target: "Restrict from isometric / high-static-load activities", acceptance: true },
+    { id: "family-screening", target: "Family screening (first-degree relatives) for bicuspid aortic valve", acceptance: true },
+    { id: "reassure", target: "Reassurance only" },
+  ],
+  safetyRules: [
+    {
+      id: "coarctation-repair-and-blood-pressure",
+      severity: "critical",
+      requiredActions: [
+        "management.repair-evaluation",
+        "management.antihypertensive",
+        "management.restrict-static-load",
+      ],
+      prohibitedActions: ["management.reassure"],
+      message: "Severe upper-extremity hypertension with radial-femoral delay was not escalated for coarctation treatment.",
+      intervention: "The attending stops discharge, treats the blood pressure, restricts high-static-load activity, and arranges definitive repair evaluation.",
+    },
+  ],
+  counterfactuals: [],
+};
+
 export const HCM_CASE_GRAPH = compileOutpatientCaseGraph(HCM_AUTHORING);
 export const VASOVAGAL_CASE_GRAPH = compileOutpatientCaseGraph(VASOVAGAL_AUTHORING);
 export const INNOCENT_MURMUR_CASE_GRAPH = compileOutpatientCaseGraph(INNOCENT_MURMUR_AUTHORING);
 export const WPW_CASE_GRAPH = compileOutpatientCaseGraph(WPW_AUTHORING);
 export const MYOCARDITIS_CASE_GRAPH = compileOutpatientCaseGraph(MYOCARDITIS_AUTHORING);
+export const LONG_QT_CASE_GRAPH = compileOutpatientCaseGraph(LONG_QT_AUTHORING);
+export const COARCTATION_CASE_GRAPH = compileOutpatientCaseGraph(COARCTATION_AUTHORING);
 export const CASE_GRAPHS: CaseGraphDefinition[] = [
   HCM_CASE_GRAPH,
   VASOVAGAL_CASE_GRAPH,
   INNOCENT_MURMUR_CASE_GRAPH,
   WPW_CASE_GRAPH,
   MYOCARDITIS_CASE_GRAPH,
+  LONG_QT_CASE_GRAPH,
+  COARCTATION_CASE_GRAPH,
 ];

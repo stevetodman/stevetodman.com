@@ -39,19 +39,19 @@ describe('PedCardSurg congenital surgery academy', () => {
     const { page, errors } = await openModule();
     const image = page.locator('#atlasViewer img');
     assert.match(await image.getAttribute('alt'), /patent ductus arteriosus/i);
-    assert.match(await image.evaluate(el => el.currentSrc), /pda-ligation-division\.webp$/);
+    await page.waitForFunction(() => document.querySelector('#atlasViewer img')?.currentSrc.endsWith('pda-ligation-division.webp'));
 
     await page.getByRole('button', { name: /Norwood stage I reconstruction/ }).click();
     assert.match(await page.locator('#atlasViewer h3').textContent(), /Norwood stage I reconstruction/);
-    assert.match(await image.evaluate(el => el.currentSrc), /norwood-stage-1-reconstruction\.webp$/);
+    await page.waitForFunction(() => document.querySelector('#atlasViewer img')?.currentSrc.endsWith('norwood-stage-1-reconstruction.webp'));
 
     await page.getByRole('button', { name: /Complete atrioventricular canal repair/ }).click();
-    assert.match(await image.evaluate(el => el.currentSrc), /complete-av-canal-repair-clean\.webp$/);
+    await page.waitForFunction(() => document.querySelector('#atlasViewer img')?.currentSrc.endsWith('complete-av-canal-repair-clean.webp'));
     assert.doesNotMatch(await image.getAttribute('alt'), /postoperative echocardiogram/i);
     assert.match(await page.locator('#atlasViewer').textContent(), /not an isolated ASD closure/i);
 
     await page.getByRole('button', { name: /Classic Blalock–Taussig shunt/ }).click();
-    assert.match(await image.evaluate(el => el.currentSrc), /classic-blalock-taussig-shunt\.webp$/);
+    await page.waitForFunction(() => document.querySelector('#atlasViewer img')?.currentSrc.endsWith('classic-blalock-taussig-shunt.webp'));
     assert.match(await page.locator('#atlasViewer').textContent(), /subclavian artery/i);
 
     const atlasDir = path.join(repoRoot, 'pedcardsurg', 'assets', 'chd-atlas');

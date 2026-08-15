@@ -15,8 +15,8 @@ async function loadDocument() {
 
 test("authoring report finds no blocking errors in compiled graphs", async () => {
   const report = buildCaseAuthoringReport(await loadDocument());
-  assert.equal(report.summary.graphCount, 5);
-  assert.equal(report.summary.readyGraphCount, 5);
+  assert.equal(report.summary.graphCount, 7);
+  assert.equal(report.summary.readyGraphCount, 7);
   assert.equal(report.summary.errorCount, 0);
   assert.equal(report.cases.find((entry) => entry.caseId === "case-hcm").status, "ready");
   assert.ok(report.summary.warningCount > 0, "known structured-result gaps should remain visible");
