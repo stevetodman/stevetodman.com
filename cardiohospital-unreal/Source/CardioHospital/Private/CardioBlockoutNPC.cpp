@@ -201,14 +201,12 @@ void ACardioBlockoutNPC::TryAttachAssembledMetaHuman()
 
     AssembledVisual->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
     HidePrimitiveStandIn();
-    // Pull the static coat onto the body. Unreal forward is +X; the previous
-    // overlay sat as a foam column in front of the assembled MetaHuman.
-    const FVector CoatOnBody(-10.f, 0.f, 0.f);
+    // A static mesh is not a coat. The live 224805Z shot was a foam column
+    // in front of the High MetaHuman. Keep overlays off until a skinned
+    // wardrobe item is on BP_Patel.
     if (AttendingCoat)
     {
-        AttendingCoat->SetHiddenInGame(false);
-        AttendingCoat->SetRelativeLocation(CoatOnBody);
-        AttendingCoat->SetRelativeScale3D(FVector(0.92f, 0.78f, 0.96f));
+        AttendingCoat->SetHiddenInGame(true);
     }
     if (AttendingTrousers)
     {
@@ -216,9 +214,7 @@ void ACardioBlockoutNPC::TryAttachAssembledMetaHuman()
     }
     if (AttendingScope)
     {
-        AttendingScope->SetHiddenInGame(false);
-        AttendingScope->SetRelativeLocation(CoatOnBody);
-        AttendingScope->SetRelativeScale3D(FVector(0.92f, 0.78f, 0.96f));
+        AttendingScope->SetHiddenInGame(true);
     }
 }
 
