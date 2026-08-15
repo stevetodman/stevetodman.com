@@ -341,14 +341,30 @@ bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
         Follower->SetHiddenInGame(false);
         Follower->SetVisibility(true, true);
         Follower->bCastDynamicShadow = true;
+        Follower->SetCastShadow(true);
+        Follower->bNeverDistanceCull = true;
+        Follower->SetBoundsScale(2.f);
+        if (UMaterialInterface* Visible = LoadObject<UMaterialInterface>(
+                nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")))
+        {
+            Follower->SetMaterial(0, Visible);
+        }
+        Follower->UpdateBounds();
+        Follower->MarkRenderStateDirty();
+        const FBoxSphereBounds Bounds = Follower->Bounds;
         UE_LOG(
             LogCardioAttending,
             Display,
-            TEXT("leader-posed %s (%s) onto %s/%s"),
+            TEXT("leader-posed %s (%s) onto %s/%s loc=%s origin=%s box=%s hidden=%d vis=%d"),
             Label,
             *Mesh->GetName(),
             *Body->GetName(),
-            Body->GetSkeletalMeshAsset() ? *Body->GetSkeletalMeshAsset()->GetName() : TEXT("none"));
+            Body->GetSkeletalMeshAsset() ? *Body->GetSkeletalMeshAsset()->GetName() : TEXT("none"),
+            *Follower->GetComponentLocation().ToCompactString(),
+            *Bounds.Origin.ToCompactString(),
+            *Bounds.BoxExtent.ToCompactString(),
+            Follower->bHiddenInGame ? 1 : 0,
+            Follower->IsVisible() ? 1 : 0);
         return true;
     };
 
