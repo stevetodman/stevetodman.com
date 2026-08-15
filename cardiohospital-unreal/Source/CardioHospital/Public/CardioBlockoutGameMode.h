@@ -60,7 +60,15 @@ private:
     void AdvanceImpliedActions(const TArray<FString>& ActionIds);
     bool TryPerformAction(const FString& ActionId, const FString& PayloadJson = TEXT("{}"));
     bool HasAttendingFollowUp() const;
+    bool HasExamRoomWork() const;
+    bool HasPendingConfidentialHistory() const;
+    bool ShouldOfferHistoryAction(const FCardioCaseActionDefinition& Action) const;
+    void ShowEncounterIntroduction();
+    void ShowExamRoomMenu();
+    void ShowHistoryMenu(const FString& LastQuestion = FString(), const FString& LastAnswer = FString());
+    void ShowExamMenu(const FString& LastLabel = FString(), const FString& LastResult = FString());
     void ShowEncounterMenu();
+    void RefreshStationMenu();
     void ShowDiagnosisMenu();
     void ShowDebrief();
     void ShowActionResult(const FCardioCaseActionDefinition& Action);
@@ -81,6 +89,7 @@ private:
     TArray<FString> CurrentMenuActions;
     bool bChoosingDiagnosis = false;
     bool bChoosingAuscultation = false;
+    bool bParentSteppedOut = false;
     FCardioMurmurSynthesizer Murmur;
 
     UPROPERTY()

@@ -276,6 +276,23 @@ void ACardioBlockoutGameMode::HandleChooseAction(const int32 ZeroBasedIndex)
     }
 
     const FString ActionId = CurrentMenuActions[ZeroBasedIndex];
+    if (ActionId == TEXT("__talk"))
+    {
+        ShowHistoryMenu();
+        return;
+    }
+    if (ActionId == TEXT("__examine"))
+    {
+        ShowExamMenu();
+        return;
+    }
+    if (ActionId == TEXT("__parent_step_out"))
+    {
+        bParentSteppedOut = true;
+        ShowHistoryMenu();
+        return;
+    }
+
     UGameInstance* GameInstance = GetGameInstance();
     UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
     if (!Runtime)
@@ -298,7 +315,7 @@ void ACardioBlockoutGameMode::HandleChooseAction(const int32 ZeroBasedIndex)
     CurrentMenuActions.Reset();
     if (!bFound)
     {
-        ShowEncounterMenu();
+        RefreshStationMenu();
         return;
     }
     if (HandleSpecialAction(Chosen))
@@ -307,7 +324,23 @@ void ACardioBlockoutGameMode::HandleChooseAction(const int32 ZeroBasedIndex)
     }
     if (!TryPerformAction(ActionId))
     {
-        ShowEncounterMenu();
+        RefreshStationMenu();
+        return;
+    }
+    if ((Chosen.Type == TEXT("history") || Chosen.Id.StartsWith(TEXT("history.")))
+        && !Chosen.Id.EndsWith(TEXT(".finish")))
+    {
+        ShowHistoryMenu(LabelForAction(Chosen), ResultForAction(Chosen));
+        return;
+    }
+    if (Chosen.Type == TEXT("exam") && !Chosen.Id.EndsWith(TEXT(".finish")))
+    {
+        ShowExamMenu(LabelForAction(Chosen), ResultForAction(Chosen));
+        return;
+    }
+    if (Chosen.Id.EndsWith(TEXT(".finish")) && HasExamRoomWork())
+    {
+        ShowExamRoomMenu();
         return;
     }
     ShowActionResult(Chosen);
@@ -375,6 +408,7 @@ void ACardioBlockoutGameMode::HandleAttending(ACardioBlockoutNPC& Npc)
     }
 
     FString StartError;
+    bParentSteppedOut = false;
     if (!Runtime->StartCase(GAssignedCaseId, StartError))
     {
         UE_LOG(LogCardioHospital, Error, TEXT("StartCase(%s) failed: %s"), *GAssignedCaseId, *StartError);
@@ -426,9 +460,13 @@ void ACardioBlockoutGameMode::HandleExamRoom()
 
     AdvanceImpliedActions({
         TEXT("navigate.exam-room"),
-        TEXT("encounter.introduce"),
     });
-    ShowEncounterMenu();
+    if (Runtime->GetAvailableActions().Contains(TEXT("encounter.introduce")))
+    {
+        ShowEncounterIntroduction();
+        return;
+    }
+    ShowExamRoomMenu();
 }
 
 void ACardioBlockoutGameMode::HandleDiagnostics()
@@ -507,6 +545,396 @@ bool ACardioBlockoutGameMode::HasAttendingFollowUp() const
     return false;
 }
 
+bool ACardioBlockoutGameMode::HasExamRoomWork() const
+{
+    const UGameInstance* GameInstance = GetGameInstance();
+    const UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Runtime || !Runtime->HasActiveCase())
+    {
+        return false;
+    }
+    for (const FCardioCaseActionDefinition& Action : Runtime->GetAvailableActionDefinitions())
+    {
+        if (Action.Type == TEXT("exam")
+            || Action.Id.StartsWith(TEXT("exam."))
+            || Action.Type == TEXT("history")
+            || Action.Id.StartsWith(TEXT("history.")))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool ACardioBlockoutGameMode::HasPendingConfidentialHistory() const
+{
+    if (bParentSteppedOut)
+    {
+        return false;
+    }
+    const UGameInstance* GameInstance = GetGameInstance();
+    const UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Runtime || !Runtime->HasActiveCase())
+    {
+        return false;
+    }
+    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
+    if (!ClinicalCase.AllowConfidentialInterview || !ClinicalCase.ParentPresent)
+    {
+        return false;
+    }
+    for (const FCardioCaseActionDefinition& Action : Runtime->GetAvailableActionDefinitions())
+    {
+        if (Action.Type != TEXT("history") && !Action.Id.StartsWith(TEXT("history.")))
+        {
+            continue;
+        }
+        for (const FCardioHistoryFact& Fact : ClinicalCase.History)
+        {
+            if (Fact.Confidential && (Fact.Key == Action.Target || HistoryActionIdFromKey(Fact.Key) == Action.Id))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool ACardioBlockoutGameMode::ShouldOfferHistoryAction(const FCardioCaseActionDefinition& Action) const
+{
+    if (Action.Type != TEXT("history") && !Action.Id.StartsWith(TEXT("history.")))
+    {
+        return false;
+    }
+    if (Action.Id.EndsWith(TEXT(".finish")))
+    {
+        return true;
+    }
+
+    const UGameInstance* GameInstance = GetGameInstance();
+    const UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Runtime || !Runtime->HasActiveCase())
+    {
+        return false;
+    }
+
+    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
+    for (const FCardioHistoryFact& Fact : ClinicalCase.History)
+    {
+        if (Fact.Key != Action.Target && HistoryActionIdFromKey(Fact.Key) != Action.Id)
+        {
+            continue;
+        }
+        if (!Fact.Confidential)
+        {
+            return true;
+        }
+        return !ClinicalCase.ParentPresent || bParentSteppedOut;
+    }
+    return true;
+}
+
+void ACardioBlockoutGameMode::ShowEncounterIntroduction()
+{
+    APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+    UGameInstance* GameInstance = GetGameInstance();
+    UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Hud || !Runtime)
+    {
+        return;
+    }
+
+    TryPerformAction(TEXT("encounter.introduce"));
+    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
+    TArray<FString> Lines;
+    Lines.Add(ClinicalCase.Room.IsEmpty() ? TEXT("Encounter") : ClinicalCase.Room);
+    Lines.Add(FString());
+    Lines.Add(FString::Printf(TEXT("%s, %.0f-year-old %s"), *ClinicalCase.PatientName, ClinicalCase.Age, *ClinicalCase.Sex));
+    if (!ClinicalCase.ChiefComplaint.IsEmpty())
+    {
+        Lines.Add(ClinicalCase.ChiefComplaint);
+    }
+    Lines.Add(FString());
+    if (!ClinicalCase.Vibe.IsEmpty())
+    {
+        TArray<FString> Sentences;
+        ClinicalCase.Vibe.ParseIntoArray(Sentences, TEXT(". "), true);
+        for (FString& Sentence : Sentences)
+        {
+            Sentence.TrimStartAndEndInline();
+            if (Sentence.IsEmpty())
+            {
+                continue;
+            }
+            if (!Sentence.EndsWith(TEXT(".")))
+            {
+                Sentence += TEXT(".");
+            }
+            Lines.Add(Sentence);
+        }
+    }
+    if (ClinicalCase.ParentPresent)
+    {
+        Lines.Add(FString());
+        Lines.Add(TEXT("A parent is present."));
+    }
+    Lines.Add(FString());
+    Lines.Add(TEXT("[E] Close"));
+    Hud->ShowPanel(Lines);
+}
+
+void ACardioBlockoutGameMode::ShowExamRoomMenu()
+{
+    APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+    UGameInstance* GameInstance = GetGameInstance();
+    UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Hud || !Runtime)
+    {
+        return;
+    }
+
+    CurrentMenuActions.Reset();
+    bChoosingDiagnosis = false;
+    bChoosingAuscultation = false;
+    TArray<FString> Lines;
+    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
+    Lines.Add(ClinicalCase.Room.IsEmpty() ? TEXT("Encounter") : ClinicalCase.Room);
+    Lines.Add(FString());
+    Lines.Add(FString::Printf(TEXT("%s, %.0f-year-old %s"), *ClinicalCase.PatientName, ClinicalCase.Age, *ClinicalCase.Sex));
+    if (ClinicalCase.ParentPresent)
+    {
+        Lines.Add(bParentSteppedOut
+            ? TEXT("The parent has stepped outside.")
+            : TEXT("A parent is present."));
+    }
+    Lines.Add(FString());
+
+    bool bHasTalk = false;
+    bool bHasExam = false;
+    TArray<FCardioCaseActionDefinition> FinishActions;
+    for (const FCardioCaseActionDefinition& Action : Runtime->GetAvailableActionDefinitions())
+    {
+        if (ShouldOfferHistoryAction(Action) && !Action.Id.EndsWith(TEXT(".finish")))
+        {
+            bHasTalk = true;
+        }
+        else if ((Action.Type == TEXT("exam") || Action.Id.StartsWith(TEXT("exam.")))
+            && !Action.Id.EndsWith(TEXT(".finish")))
+        {
+            bHasExam = true;
+        }
+        else if ((Action.Id == TEXT("history.finish") || Action.Id == TEXT("exam.finish"))
+            && FinishActions.Num() < 4)
+        {
+            FinishActions.Add(Action);
+        }
+    }
+    if (HasPendingConfidentialHistory())
+    {
+        bHasTalk = true;
+    }
+
+    int32 Choice = 1;
+    if (bHasTalk && Choice <= 9)
+    {
+        CurrentMenuActions.Add(TEXT("__talk"));
+        Lines.Add(FString::Printf(
+            TEXT("[%d]  %s"),
+            Choice,
+            (ClinicalCase.ParentPresent && !bParentSteppedOut)
+                ? TEXT("Talk with the patient and parent")
+                : TEXT("Talk with the patient")));
+        ++Choice;
+    }
+    if (bHasExam && Choice <= 9)
+    {
+        CurrentMenuActions.Add(TEXT("__examine"));
+        Lines.Add(FString::Printf(TEXT("[%d]  Examine"), Choice));
+        ++Choice;
+    }
+    for (const FCardioCaseActionDefinition& Action : FinishActions)
+    {
+        if (Choice > 9)
+        {
+            break;
+        }
+        CurrentMenuActions.Add(Action.Id);
+        Lines.Add(FString::Printf(TEXT("[%d]  %s"), Choice, *LabelForAction(Action)));
+        ++Choice;
+    }
+
+    if (CurrentMenuActions.Num() == 0)
+    {
+        if (HasAttendingFollowUp())
+        {
+            Lines.Add(TEXT("Order and review studies in the Education Room, or return to Dr. Patel."));
+        }
+        else
+        {
+            Lines.Add(TEXT("Order and review studies in the Education Room."));
+        }
+    }
+    Lines.Add(FString());
+    Lines.Add(TEXT("[E] Close"));
+    Hud->ShowPanel(Lines);
+}
+
+void ACardioBlockoutGameMode::ShowHistoryMenu(const FString& LastQuestion, const FString& LastAnswer)
+{
+    APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+    UGameInstance* GameInstance = GetGameInstance();
+    UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Hud || !Runtime)
+    {
+        return;
+    }
+
+    CurrentMenuActions.Reset();
+    bChoosingDiagnosis = false;
+    bChoosingAuscultation = false;
+    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
+    TArray<FString> Lines;
+    Lines.Add(ClinicalCase.PatientName.IsEmpty() ? TEXT("History") : ClinicalCase.PatientName);
+    Lines.Add(FString());
+    if (ClinicalCase.ParentPresent)
+    {
+        Lines.Add(bParentSteppedOut
+            ? TEXT("The parent has stepped outside.")
+            : TEXT("A parent is present."));
+        Lines.Add(FString());
+    }
+    if (!LastQuestion.IsEmpty() || !LastAnswer.IsEmpty())
+    {
+        if (!LastQuestion.IsEmpty())
+        {
+            Lines.Add(LastQuestion);
+        }
+        TArray<FString> AnswerLines;
+        LastAnswer.ParseIntoArrayLines(AnswerLines);
+        if (AnswerLines.Num() == 0 && !LastAnswer.IsEmpty())
+        {
+            Lines.Add(LastAnswer);
+        }
+        else
+        {
+            Lines.Append(AnswerLines);
+        }
+        Lines.Add(FString());
+    }
+
+    int32 Choice = 1;
+    FCardioCaseActionDefinition FinishAction;
+    bool bHasFinish = false;
+    for (const FCardioCaseActionDefinition& Action : Runtime->GetAvailableActionDefinitions())
+    {
+        if (!ShouldOfferHistoryAction(Action))
+        {
+            continue;
+        }
+        if (Action.Id.EndsWith(TEXT(".finish")))
+        {
+            FinishAction = Action;
+            bHasFinish = true;
+            continue;
+        }
+        if (Choice > 8)
+        {
+            continue;
+        }
+        CurrentMenuActions.Add(Action.Id);
+        Lines.Add(FString::Printf(TEXT("[%d]  %s"), Choice, *LabelForAction(Action)));
+        ++Choice;
+    }
+    if (ClinicalCase.AllowConfidentialInterview && ClinicalCase.ParentPresent && !bParentSteppedOut && Choice <= 9)
+    {
+        CurrentMenuActions.Add(TEXT("__parent_step_out"));
+        Lines.Add(FString::Printf(TEXT("[%d]  Ask the parent to step outside"), Choice));
+        ++Choice;
+    }
+    if (bHasFinish && Choice <= 9)
+    {
+        CurrentMenuActions.Add(FinishAction.Id);
+        Lines.Add(FString::Printf(TEXT("[%d]  %s"), Choice, *LabelForAction(FinishAction)));
+    }
+    if (CurrentMenuActions.Num() == 0)
+    {
+        Lines.Add(TEXT("No further history is available."));
+    }
+    Lines.Add(FString());
+    Lines.Add(TEXT("[E] Close"));
+    Hud->ShowPanel(Lines);
+}
+
+void ACardioBlockoutGameMode::ShowExamMenu(const FString& LastLabel, const FString& LastResult)
+{
+    APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+    UGameInstance* GameInstance = GetGameInstance();
+    UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Hud || !Runtime)
+    {
+        return;
+    }
+
+    CurrentMenuActions.Reset();
+    bChoosingDiagnosis = false;
+    bChoosingAuscultation = false;
+    TArray<FString> Lines;
+    Lines.Add(TEXT("Examination"));
+    Lines.Add(FString());
+    if (!LastLabel.IsEmpty() || !LastResult.IsEmpty())
+    {
+        if (!LastLabel.IsEmpty())
+        {
+            Lines.Add(LastLabel);
+        }
+        TArray<FString> ResultLines;
+        LastResult.ParseIntoArrayLines(ResultLines);
+        if (ResultLines.Num() == 0 && !LastResult.IsEmpty())
+        {
+            Lines.Add(LastResult);
+        }
+        else
+        {
+            Lines.Append(ResultLines);
+        }
+        Lines.Add(FString());
+    }
+
+    int32 Choice = 1;
+    for (const FCardioCaseActionDefinition& Action : Runtime->GetAvailableActionDefinitions())
+    {
+        const bool bExamAction = Action.Type == TEXT("exam") || Action.Id.StartsWith(TEXT("exam."));
+        if (!bExamAction || Choice > 9)
+        {
+            continue;
+        }
+        CurrentMenuActions.Add(Action.Id);
+        Lines.Add(FString::Printf(TEXT("[%d]  %s"), Choice, *LabelForAction(Action)));
+        ++Choice;
+    }
+    if (CurrentMenuActions.Num() == 0)
+    {
+        Lines.Add(TEXT("No further exam actions are available."));
+    }
+    Lines.Add(FString());
+    Lines.Add(TEXT("[E] Close"));
+    Hud->ShowPanel(Lines);
+}
+
+void ACardioBlockoutGameMode::RefreshStationMenu()
+{
+    if (HasExamRoomWork())
+    {
+        ShowExamRoomMenu();
+        return;
+    }
+    ShowEncounterMenu();
+}
+
 void ACardioBlockoutGameMode::ShowEncounterMenu()
 {
     APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
@@ -523,25 +951,20 @@ void ACardioBlockoutGameMode::ShowEncounterMenu()
     bChoosingAuscultation = false;
     SetAttendingListening(true);
     TArray<FString> Lines;
-    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
-    Lines.Add(ClinicalCase.Room.IsEmpty() ? TEXT("Encounter") : ClinicalCase.Room);
+    Lines.Add(TEXT("Dr. Patel - Cardiology Attending"));
     Lines.Add(FString());
 
     int32 Choice = 1;
     for (const FCardioCaseActionDefinition& Action : Runtime->GetAvailableActionDefinitions())
     {
-        const bool bEncounterAction =
-            Action.Type == TEXT("history")
-            || Action.Type == TEXT("exam")
-            || Action.Type == TEXT("order")
-            || Action.Type == TEXT("review")
-            || Action.Type == TEXT("reasoning")
+        const bool bFollowUpAction =
+            Action.Type == TEXT("reasoning")
             || Action.Type == TEXT("management")
             || Action.Type == TEXT("debrief")
             || Action.Type == TEXT("continuation")
-            || Action.Id == TEXT("encounter.introduce")
-            || Action.Id.EndsWith(TEXT(".finish"));
-        if (!bEncounterAction || Choice > 9)
+            || Action.Id == TEXT("performance.record")
+            || Action.Id == TEXT("next-case.begin");
+        if (!bFollowUpAction || Choice > 9)
         {
             continue;
         }
@@ -552,14 +975,7 @@ void ACardioBlockoutGameMode::ShowEncounterMenu()
 
     if (CurrentMenuActions.Num() == 0)
     {
-        if (HasAttendingFollowUp())
-        {
-            Lines.Add(TEXT("Return to Dr. Patel in the Cardiology Team Room."));
-        }
-        else
-        {
-            Lines.Add(TEXT("No further actions are available in this room."));
-        }
+        Lines.Add(TEXT("Return to Exam Room 3 or the Education Room, or wait for follow-up."));
     }
     Lines.Add(FString());
     Lines.Add(TEXT("[E] Close"));
@@ -921,6 +1337,7 @@ bool ACardioBlockoutGameMode::HandleSpecialAction(const FCardioCaseActionDefinit
         }
 
         FString StartError;
+        bParentSteppedOut = false;
         if (!Runtime->StartCase(Next.CaseId, StartError))
         {
             Hud->ShowPanel({ TEXT("Next case"), FString(), StartError, FString(), TEXT("[E] Close") });

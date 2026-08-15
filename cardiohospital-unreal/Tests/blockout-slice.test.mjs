@@ -138,6 +138,17 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(hud, /Review ECG and echo/);
   assert.match(source, /TEXT\("navigate.exam-room"\)/);
   assert.match(source, /TEXT\("encounter.introduce"\)/);
+  assert.match(source, /ShowEncounterIntroduction/);
+  assert.match(source, /ShowExamRoomMenu/);
+  assert.match(source, /ShowHistoryMenu/);
+  assert.match(source, /__talk/);
+  assert.match(source, /__examine/);
+  assert.match(source, /__parent_step_out/);
+  assert.match(source, /AllowConfidentialInterview/);
+  assert.match(source, /ParentPresent/);
+  assert.match(source, /ClinicalCase.Vibe/);
+  assert.match(source, /Ask the parent to step outside/);
+  assert.match(source, /Talk with the patient and parent/);
   assert.match(source, /TEXT\("navigate.return-workroom"\)/);
   assert.match(source, /attending.open-assignment/);
   assert.match(source, /assignment.accept/);
