@@ -8,10 +8,10 @@ class UStaticMeshComponent;
 class UTextRenderComponent;
 
 /**
- * Placeholder staff figure for the ward blockout: a coat-colored block with a
- * head and a floating name. It exists so the interaction and encounter flow
- * can be proven before any MetaHuman work; behavioral fidelity (voice, gaze,
- * facial response) is explicitly not claimed at this stage.
+ * Presentation adapter for the first attending. Clinical truth never lives
+ * here. Gaze, listening lean, blink, and a speaking cue are blockout
+ * stand-ins until a MetaHuman Patel exists; they do not satisfy the
+ * packaged character-quality gate by themselves.
  */
 UCLASS()
 class CARDIOHOSPITAL_API ACardioBlockoutNPC : public AActor
@@ -29,6 +29,9 @@ public:
     const FString& GetNpcId() const { return NpcId; }
     const FString& GetDisplayName() const { return DisplayName; }
     FString GetInteractionPrompt() const;
+
+    void SetListening(bool bInListening);
+    void NotifySpeaking(bool bInSpeaking);
 
 private:
     UPROPERTY(VisibleAnywhere)
@@ -48,4 +51,11 @@ private:
 
     UPROPERTY()
     FString DisplayName;
+
+    FVector BodyBaseScale = FVector(0.42f, 0.6f, 1.7f);
+    FVector HeadBaseScale = FVector(0.34f);
+    float BlinkTimer = 3.2f;
+    float BlinkRemaining = 0.f;
+    bool bListening = false;
+    bool bSpeaking = false;
 };

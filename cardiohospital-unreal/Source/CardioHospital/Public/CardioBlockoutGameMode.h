@@ -58,10 +58,18 @@ private:
     bool HandleSpecialAction(const FCardioCaseActionDefinition& Action);
     FString LabelForAction(const FCardioCaseActionDefinition& Action) const;
     FString ResultForAction(const FCardioCaseActionDefinition& Action) const;
+    void SpeakAttending(const FString& AuthoredLine);
+    void SetAttendingListening(bool bListening);
+    void ShowSocraticResponse();
+    TArray<FString> CollectSocraticLines() const;
     static FString DiagnosisPayloadJson(const FString& Diagnosis);
+    static FString HistoryActionIdFromKey(const FString& Key);
 
     TArray<FString> CurrentMenuActions;
     bool bChoosingDiagnosis = false;
+
+    UPROPERTY()
+    TObjectPtr<ACardioBlockoutNPC> AttendingNpc;
     AStaticMeshActor* SpawnBlock(UWorld& World, const FVector& Center, const FVector& Size, const FLinearColor& Color) const;
     void SpawnLighting(UWorld& World) const;
     void SpawnSigns(UWorld& World) const;

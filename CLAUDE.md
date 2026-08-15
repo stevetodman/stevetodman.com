@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human WASD walk of package Mac-Development-20260815T180329Z (commit abff6c4) through assignment, Exam Room 3, return to Patel, diagnosis, management, debrief, persist, and next case. Patel still needs voice/listening/face before step 5 can pass.
+next: Human walk of the latest package. Patel now speaks authored lines via Mac TTS and has gaze, listening lean, and blink — still not a MetaHuman, so walkthrough step 5 remains failed until facial performance exists.
 ---
 
 # CLAUDE.md
@@ -271,6 +271,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-15: Patel presentation adapter: Mac TextToSpeech speaks only authored assignment and Socratic lines; listening lean while the learner menu is open; blink and a speaking cue on the blockout figure. Diagnosis follow-up uses `AttendingSocratic` and missed-opportunity templates from clinical content (section 29/30). No MetaHuman asset yet, so step 5 is still failed. Portable tests 74/74.
 - 2026-08-15: Closed the remaining authored clinic loop in the blockout without adding a patient NPC. Returning to Patel after testing now offers diagnosis (authored differentials only), management, deterministic debrief from `EvaluateCurrentAttempt`, identity-free `RecordAttempt`, and `SelectNextCase` so HCM can start the vasovagal contrast without leaving the world. Portable tests 74/74.
 - 2026-08-15: Continued on the authoritative 168-section plan (`LegacyCore/plan.md`, blob `e8935173`) and the `facfa6d` doorway branch. Linked that spec at the top of the Unreal README. Wired Exam Room 3 into the real case graph: Patel E now advances `system.load` through `assignment.accept`; entering the team/exam rooms records `navigate.workroom` / `navigate.exam-room`; E in Exam Room 3 introduces the encounter and offers numbered history/exam/order actions whose questions and findings come from `clinical-content.json`. No cube patient was added. Patel yaws toward the learner in range (gaze only — not voice or face). Portable Unreal tests 74/74.
 - 2026-08-15: Human-gate run on exact package `Mac-Development-20260815T171530Z` (source `facfa6d`). The packaged app launched and the runtime blockout ward rendered (acceptance steps 1 and 2). Doorway spawn aim was not confirmed: the first captured view already faced a wall/floor after mouse capture. No observed WASD path through the doorway, team room, Patel assignment, or Exam Room 3. Step 5 and steps 8-19 remain unimplemented. The window did not land at 2560x1440 and no performance numbers were observed. `record-walkthrough-evidence.sh` wrote a Failed record; `walkthroughPassed` and `performanceCaptured` stay false. Local evidence is `Saved/WalkthroughEvidence/walkthrough-20260815T174612Z.json`; committed summary is `cardiohospital-unreal/Docs/walkthrough-20260815T174612Z-failed.md`.

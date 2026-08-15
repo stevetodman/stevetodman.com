@@ -1,5 +1,6 @@
 #include "CardioBlockoutNPC.h"
 
+#include "Math/UnrealMathUtility.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
 #include "Components/StaticMeshComponent.h"
@@ -62,9 +63,57 @@ void ACardioBlockoutNPC::Configure(const FString& InNpcId, const FString& InDisp
     }
 }
 
+void ACardioBlockoutNPC::SetListening(const bool bInListening)
+{
+    bListening = bInListening;
+}
+
+void ACardioBlockoutNPC::NotifySpeaking(const bool bInSpeaking)
+{
+    bSpeaking = bInSpeaking;
+    if (bSpeaking)
+    {
+        bListening = false;
+    }
+}
+
 void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+
+    BlinkTimer -= DeltaSeconds;
+    if (BlinkTimer <= 0.f)
+    {
+        BlinkRemaining = 0.12f;
+        BlinkTimer = 2.8f + FMath::FRandRange(0.f, 2.4f);
+    }
+    if (BlinkRemaining > 0.f)
+    {
+        BlinkRemaining = FMath::Max(0.f, BlinkRemaining - DeltaSeconds);
+    }
+
+    FVector HeadScale = HeadBaseScale;
+    if (BlinkRemaining > 0.f)
+    {
+        HeadScale.Z = HeadBaseScale.Z * 0.22f;
+    }
+    else if (bSpeaking)
+    {
+        HeadScale *= 1.f + 0.04f * FMath::Sin(GetWorld()->GetTimeSeconds() * 18.f);
+    }
+    Head->SetRelativeScale3D(HeadScale);
+
+    FVector BodyScale = BodyBaseScale;
+    if (bListening)
+    {
+        BodyScale.X *= 0.96f;
+        Body->SetRelativeRotation(FRotator(-6.f, 0.f, 0.f));
+    }
+    else
+    {
+        Body->SetRelativeRotation(FRotator::ZeroRotator);
+    }
+    Body->SetRelativeScale3D(BodyScale);
 
     const APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
     const APawn* Learner = Controller ? Controller->GetPawn() : nullptr;

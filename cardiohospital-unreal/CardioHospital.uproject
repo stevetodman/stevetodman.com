@@ -19,6 +19,10 @@
     {
       "Name": "AndroidFileServer",
       "Enabled": false
+    },
+    {
+      "Name": "TextToSpeech",
+      "Enabled": true
     }
   ]
 }

@@ -114,7 +114,7 @@ test("the team room assignment starts a case that ships in clinical content", as
 
   // Clinical truth lives in the content document. The game mode may name the
   // attending and the rooms, but never the patient or the diagnosis.
-  assert.doesNotMatch(source, /Marcus|Chen|Hypertrophic|basketball/i,
+  assert.doesNotMatch(source, /\bMarcus\b|\bChen\b|\bHypertrophic\b|\bbasketball\b/i,
     "clinical facts must come from the content document, not the game mode");
 
   // The runtime and HUD wiring the assignment depends on.
@@ -144,6 +144,13 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(source, /RecordAttempt/);
   assert.match(source, /SelectNextCase/);
   assert.match(source, /EvaluateCurrentAttempt/);
+  assert.match(source, /AttendingSocratic/);
+  assert.match(source, /MissedOpportunityTemplate/);
+  assert.match(source, /SpeakOnChannel/);
+  assert.match(source, /SetListening/);
+  assert.match(await read("CardioHospital.uproject"), /"Name": "TextToSpeech"/);
+  assert.match(await read("Source/CardioHospital/CardioHospital.Build.cs"), /TextToSpeech/);
+  assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /BlinkRemaining/);
   assert.match(source, /Fact.Key == Action.Target/);
   assert.match(source, /Fact.Answer/);
   assert.doesNotMatch(source, /SpawnActor<ACardioBlockoutNPC>.*marcus|GPatientNpcId/i);

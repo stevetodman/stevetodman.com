@@ -10,7 +10,9 @@
 #include "CardioEducationTypes.h"
 #include "CardioLearnerProfileSubsystem.h"
 #include "CardioLearnerProfileTypes.h"
+#include "Engine/Engine.h"
 #include "Misc/Guid.h"
+#include "TextToSpeechEngineSubsystem.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/SkyAtmosphereComponent.h"
 #include "Components/SkyLightComponent.h"
@@ -191,6 +193,11 @@ void ACardioBlockoutGameMode::HandleInteract(ACardioBlockoutCharacter& Character
     {
         CurrentMenuActions.Reset();
         bChoosingDiagnosis = false;
+        SetAttendingListening(false);
+        if (AttendingNpc)
+        {
+            AttendingNpc->NotifySpeaking(false);
+        }
         Hud->ClosePanel();
         return;
     }
@@ -229,7 +236,7 @@ void ACardioBlockoutGameMode::HandleChooseAction(const int32 ZeroBasedIndex)
             ShowEncounterMenu();
             return;
         }
-        ShowActionResult(Submitted);
+        ShowSocraticResponse();
         return;
     }
 
@@ -356,6 +363,7 @@ void ACardioBlockoutGameMode::HandleAttending(ACardioBlockoutNPC& Npc)
 
     UE_LOG(LogCardioHospital, Log, TEXT("Case %s started from the team room assignment."), *GAssignedCaseId);
     Hud->ShowPanel(BuildAssignmentLines(Runtime->GetActiveClinicalCase()));
+    SpeakAttending(TEXT("I have a patient I'd like you to see."));
 }
 
 void ACardioBlockoutGameMode::HandleExamRoom()
@@ -453,6 +461,7 @@ void ACardioBlockoutGameMode::ShowEncounterMenu()
 
     CurrentMenuActions.Reset();
     bChoosingDiagnosis = false;
+    SetAttendingListening(true);
     TArray<FString> Lines;
     const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
     Lines.Add(ClinicalCase.Room.IsEmpty() ? TEXT("Encounter") : ClinicalCase.Room);
@@ -748,6 +757,7 @@ bool ACardioBlockoutGameMode::HandleSpecialAction(const FCardioCaseActionDefinit
             TEXT("Find your patient and begin the evaluation."),
             TEXT("[E] Close"),
         });
+        SpeakAttending(TEXT("I have another patient I'd like you to see."));
         return true;
     }
     return false;
@@ -766,6 +776,7 @@ void ACardioBlockoutGameMode::ShowDiagnosisMenu()
 
     CurrentMenuActions.Reset();
     bChoosingDiagnosis = true;
+    SetAttendingListening(true);
     TArray<FString> Lines;
     Lines.Add(TEXT("Diagnosis"));
     Lines.Add(FString());
@@ -851,6 +862,120 @@ FString ACardioBlockoutGameMode::DiagnosisPayloadJson(const FString& Diagnosis)
     Escaped.ReplaceInline(TEXT("\\"), TEXT("\\\\"));
     Escaped.ReplaceInline(TEXT("\""), TEXT("\\\""));
     return FString::Printf(TEXT("{\"diagnosis\":\"%s\"}"), *Escaped);
+}
+
+FString ACardioBlockoutGameMode::HistoryActionIdFromKey(const FString& Key)
+{
+    return FString::Printf(TEXT("history.%s"), *Key.Replace(TEXT("_"), TEXT("-")));
+}
+
+void ACardioBlockoutGameMode::SetAttendingListening(const bool bListening)
+{
+    if (AttendingNpc)
+    {
+        AttendingNpc->SetListening(bListening);
+        if (bListening)
+        {
+            AttendingNpc->NotifySpeaking(false);
+        }
+    }
+}
+
+void ACardioBlockoutGameMode::SpeakAttending(const FString& AuthoredLine)
+{
+    if (AuthoredLine.IsEmpty())
+    {
+        return;
+    }
+
+    SetAttendingListening(false);
+    if (AttendingNpc)
+    {
+        AttendingNpc->NotifySpeaking(true);
+    }
+
+    if (!GEngine)
+    {
+        return;
+    }
+    UTextToSpeechEngineSubsystem* Speech = GEngine->GetEngineSubsystem<UTextToSpeechEngineSubsystem>();
+    if (!Speech)
+    {
+        return;
+    }
+
+    static const FName Channel(TEXT("CardioPatel"));
+    if (!Speech->DoesChannelExist(Channel))
+    {
+        Speech->AddDefaultChannel(Channel);
+        Speech->ActivateChannel(Channel);
+        Speech->SetVolumeOnChannel(Channel, 0.85f);
+        Speech->SetRateOnChannel(Channel, 0.45f);
+    }
+    FString Spoken = AuthoredLine;
+    Speech->SpeakOnChannel(Channel, Spoken);
+}
+
+TArray<FString> ACardioBlockoutGameMode::CollectSocraticLines() const
+{
+    TArray<FString> Lines;
+    const UGameInstance* GameInstance = GetGameInstance();
+    const UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Runtime || !Runtime->HasActiveCase())
+    {
+        return Lines;
+    }
+
+    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
+    const TArray<FString>& Completed = Runtime->GetRuntimeState().CompletedActions;
+    for (const FString& Key : ClinicalCase.RedFlagKeys)
+    {
+        if (Completed.Contains(HistoryActionIdFromKey(Key)))
+        {
+            continue;
+        }
+        if (const FString* Missed = ClinicalCase.MissedOpportunityTemplate.Find(Key))
+        {
+            if (!Missed->IsEmpty())
+            {
+                Lines.Add(*Missed);
+            }
+        }
+    }
+    for (const FString& Question : ClinicalCase.AttendingSocratic)
+    {
+        if (!Question.IsEmpty())
+        {
+            Lines.Add(Question);
+        }
+    }
+    return Lines;
+}
+
+void ACardioBlockoutGameMode::ShowSocraticResponse()
+{
+    APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+    if (!Hud)
+    {
+        return;
+    }
+
+    const TArray<FString> Socratic = CollectSocraticLines();
+    TArray<FString> Lines;
+    Lines.Add(TEXT("Dr. Patel - Cardiology Attending"));
+    Lines.Add(FString());
+    for (const FString& Line : Socratic)
+    {
+        Lines.Add(Line);
+    }
+    Lines.Add(FString());
+    Lines.Add(TEXT("[E] Close"));
+    Hud->ShowPanel(Lines);
+    if (Socratic.Num() > 0)
+    {
+        SpeakAttending(Socratic[0]);
+    }
 }
 
 AStaticMeshActor* ACardioBlockoutGameMode::SpawnBlock(UWorld& World, const FVector& Center, const FVector& Size, const FLinearColor& Color) const
@@ -947,5 +1072,6 @@ void ACardioBlockoutGameMode::SpawnAttending(UWorld& World)
     if (Attending)
     {
         Attending->Configure(GAttendingNpcId, TEXT("Dr. Patel"), FLinearColor(0.93f, 0.93f, 0.95f));
+        AttendingNpc = Attending;
     }
 }
