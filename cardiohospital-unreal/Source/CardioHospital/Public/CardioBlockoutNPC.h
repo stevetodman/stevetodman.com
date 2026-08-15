@@ -21,6 +21,8 @@ class CARDIOHOSPITAL_API ACardioBlockoutNPC : public AActor
 public:
     ACardioBlockoutNPC();
 
+    virtual void Tick(float DeltaSeconds) override;
+
     /** Apply identity and appearance. Call once, right after spawning. */
     void Configure(const FString& InNpcId, const FString& InDisplayName, const FLinearColor& CoatColor);
 

@@ -41,6 +41,11 @@ void ACardioBlockoutCharacter::Tick(const float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
+    if (ACardioBlockoutGameMode* Mode = GetWorld()->GetAuthGameMode<ACardioBlockoutGameMode>())
+    {
+        Mode->NotifyLearnerLocation(GetActorLocation());
+    }
+
     FocusedNpc = nullptr;
     const FVector Start = Camera->GetComponentLocation();
     const FVector End = Start + Camera->GetForwardVector() * InteractionRangeCm;
@@ -64,6 +69,20 @@ void ACardioBlockoutCharacter::SetupPlayerInputComponent(UInputComponent* Player
     PlayerInputComponent->BindAxis(TEXT("Turn"), this, &APawn::AddControllerYawInput);
     PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &APawn::AddControllerPitchInput);
     PlayerInputComponent->BindAction(TEXT("Interact"), IE_Pressed, this, &ACardioBlockoutCharacter::Interact);
+    PlayerInputComponent->BindAction(TEXT("ChooseAction1"), IE_Pressed, this, &ACardioBlockoutCharacter::ChooseAction1);
+    PlayerInputComponent->BindAction(TEXT("ChooseAction2"), IE_Pressed, this, &ACardioBlockoutCharacter::ChooseAction2);
+    PlayerInputComponent->BindAction(TEXT("ChooseAction3"), IE_Pressed, this, &ACardioBlockoutCharacter::ChooseAction3);
+    PlayerInputComponent->BindAction(TEXT("ChooseAction4"), IE_Pressed, this, &ACardioBlockoutCharacter::ChooseAction4);
+    PlayerInputComponent->BindAction(TEXT("ChooseAction5"), IE_Pressed, this, &ACardioBlockoutCharacter::ChooseAction5);
+    PlayerInputComponent->BindAction(TEXT("ChooseAction6"), IE_Pressed, this, &ACardioBlockoutCharacter::ChooseAction6);
+    PlayerInputComponent->BindAction(TEXT("ChooseAction7"), IE_Pressed, this, &ACardioBlockoutCharacter::ChooseAction7);
+    PlayerInputComponent->BindAction(TEXT("ChooseAction8"), IE_Pressed, this, &ACardioBlockoutCharacter::ChooseAction8);
+    PlayerInputComponent->BindAction(TEXT("ChooseAction9"), IE_Pressed, this, &ACardioBlockoutCharacter::ChooseAction9);
+}
+
+bool ACardioBlockoutCharacter::IsInExamRoom3() const
+{
+    return ACardioBlockoutGameMode::IsExamRoom3Location(GetActorLocation());
 }
 
 void ACardioBlockoutCharacter::MoveForward(const float Value)
@@ -89,3 +108,21 @@ void ACardioBlockoutCharacter::Interact()
         Mode->HandleInteract(*this, FocusedNpc.Get());
     }
 }
+
+void ACardioBlockoutCharacter::ChooseActionIndex(const int32 ZeroBasedIndex)
+{
+    if (ACardioBlockoutGameMode* Mode = GetWorld()->GetAuthGameMode<ACardioBlockoutGameMode>())
+    {
+        Mode->HandleChooseAction(ZeroBasedIndex);
+    }
+}
+
+void ACardioBlockoutCharacter::ChooseAction1() { ChooseActionIndex(0); }
+void ACardioBlockoutCharacter::ChooseAction2() { ChooseActionIndex(1); }
+void ACardioBlockoutCharacter::ChooseAction3() { ChooseActionIndex(2); }
+void ACardioBlockoutCharacter::ChooseAction4() { ChooseActionIndex(3); }
+void ACardioBlockoutCharacter::ChooseAction5() { ChooseActionIndex(4); }
+void ACardioBlockoutCharacter::ChooseAction6() { ChooseActionIndex(5); }
+void ACardioBlockoutCharacter::ChooseAction7() { ChooseActionIndex(6); }
+void ACardioBlockoutCharacter::ChooseAction8() { ChooseActionIndex(7); }
+void ACardioBlockoutCharacter::ChooseAction9() { ChooseActionIndex(8); }

@@ -122,3 +122,33 @@ test("the team room assignment starts a case that ships in clinical content", as
   assert.match(source, /GetActiveClinicalCase\(\)/);
   assert.match(source, /HUDClass = ACardioBlockoutHUD::StaticClass\(\)/);
 });
+
+test("exam room 3 advances the case graph without a placeholder patient NPC", async () => {
+  const source = await read("Source/CardioHospital/Private/CardioBlockoutGameMode.cpp");
+  const header = await read("Source/CardioHospital/Public/CardioBlockoutGameMode.h");
+  const character = await read("Source/CardioHospital/Private/CardioBlockoutCharacter.cpp");
+  const hud = await read("Source/CardioHospital/Private/CardioBlockoutHUD.cpp");
+
+  assert.match(header, /static bool IsExamRoom3Location/);
+  assert.match(header, /static bool IsTeamRoomLocation/);
+  assert.match(source, /TEXT\("navigate.exam-room"\)/);
+  assert.match(source, /TEXT\("encounter.introduce"\)/);
+  assert.match(source, /attending.open-assignment/);
+  assert.match(source, /assignment.accept/);
+  assert.match(source, /Fact.Key == Action.Target/);
+  assert.match(source, /Fact.Answer/);
+  assert.doesNotMatch(source, /SpawnActor<ACardioBlockoutNPC>.*marcus|GPatientNpcId/i);
+  assert.match(character, /NotifyLearnerLocation/);
+  assert.match(hud, /Evaluate the patient/);
+});
+
+test("numbered encounter choices are bound and mapped", async () => {
+  const character = await read("Source/CardioHospital/Private/CardioBlockoutCharacter.cpp");
+  const input = await read("Config/DefaultInput.ini");
+
+  for (let index = 1; index <= 9; index += 1) {
+    const name = `ChooseAction${index}`;
+    assert.match(character, new RegExp(`BindAction\\(TEXT\\("${name}"\\)`));
+    assert.match(input, new RegExp(`\\+ActionMappings=\\(ActionName="${name}"`));
+  }
+});

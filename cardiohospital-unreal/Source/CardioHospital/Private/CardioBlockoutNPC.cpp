@@ -1,5 +1,7 @@
 #include "CardioBlockoutNPC.h"
 
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/Pawn.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/StaticMesh.h"
@@ -8,7 +10,8 @@
 
 ACardioBlockoutNPC::ACardioBlockoutNPC()
 {
-    PrimaryActorTick.bCanEverTick = false;
+    // Ticks only to yaw toward the learner when they are in conversation range.
+    PrimaryActorTick.bCanEverTick = true;
 
     static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeFinder(TEXT("/Engine/BasicShapes/Cube.Cube"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereFinder(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
@@ -57,6 +60,26 @@ void ACardioBlockoutNPC::Configure(const FString& InNpcId, const FString& InDisp
     {
         HeadTint->SetVectorParameterValue(TEXT("Color"), FLinearColor(0.85f, 0.66f, 0.50f));
     }
+}
+
+void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+
+    const APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    const APawn* Learner = Controller ? Controller->GetPawn() : nullptr;
+    if (!Learner)
+    {
+        return;
+    }
+
+    const FVector ToLearner = Learner->GetActorLocation() - GetActorLocation();
+    if (ToLearner.Size2D() > 600.f)
+    {
+        return;
+    }
+
+    SetActorRotation(FRotator(0.f, ToLearner.Rotation().Yaw, 0.f));
 }
 
 FString ACardioBlockoutNPC::GetInteractionPrompt() const

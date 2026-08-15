@@ -49,9 +49,17 @@ void ACardioBlockoutHUD::DrawHUD()
 
     const ACardioBlockoutCharacter* Character = Cast<ACardioBlockoutCharacter>(GetOwningPawn());
     const ACardioBlockoutNPC* Focused = Character ? Character->GetFocusedNpc() : nullptr;
+    FString Prompt;
     if (Focused)
     {
-        const FString Prompt = Focused->GetInteractionPrompt();
+        Prompt = Focused->GetInteractionPrompt();
+    }
+    else if (Character && Character->IsInExamRoom3())
+    {
+        Prompt = TEXT("[E]  Evaluate the patient");
+    }
+    if (!Prompt.IsEmpty())
+    {
         float TextWidth = 0.f;
         float TextHeight = 0.f;
         GetTextSize(Prompt, TextWidth, TextHeight, UEngine::GetLargeFont());

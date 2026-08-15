@@ -23,6 +23,7 @@ public:
     virtual void Tick(float DeltaSeconds) override;
 
     ACardioBlockoutNPC* GetFocusedNpc() const { return FocusedNpc.Get(); }
+    bool IsInExamRoom3() const;
 
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
@@ -31,6 +32,16 @@ private:
     void MoveForward(float Value);
     void MoveRight(float Value);
     void Interact();
+    void ChooseAction1();
+    void ChooseAction2();
+    void ChooseAction3();
+    void ChooseAction4();
+    void ChooseAction5();
+    void ChooseAction6();
+    void ChooseAction7();
+    void ChooseAction8();
+    void ChooseAction9();
+    void ChooseActionIndex(int32 ZeroBasedIndex);
 
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<UCameraComponent> Camera;
