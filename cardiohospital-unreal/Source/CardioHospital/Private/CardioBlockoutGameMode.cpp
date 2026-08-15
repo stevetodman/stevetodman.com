@@ -24,10 +24,12 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/GameInstance.h"
+#include "Engine/PostProcessVolume.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/TextRenderActor.h"
 #include "Engine/World.h"
+#include "Components/ExponentialHeightFogComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "UObject/ConstructorHelpers.h"
@@ -49,6 +51,10 @@ namespace
     const FLinearColor BedLinen(0.93f, 0.93f, 0.95f);
     const FLinearColor BedFrame(0.35f, 0.38f, 0.42f);
     const FLinearColor DoorFrame(0.22f, 0.28f, 0.32f);
+    const FLinearColor WindowGlow(0.72f, 0.84f, 0.95f);
+    const FLinearColor RailSteel(0.55f, 0.58f, 0.60f);
+    const FLinearColor FixtureWhite(0.94f, 0.94f, 0.90f);
+    const FLinearColor Grout(0.42f, 0.40f, 0.36f);
 
     const FVector CorridorPlayerStart(-1000.0, 0.0, 110.0);
     const FVector TeamRoomDoorwayCenter(750.0, 200.0, 110.0);
@@ -111,6 +117,33 @@ namespace
         { FVector(750.0, 600.0, 45.0), FVector(200.0, 90.0, 90.0), WoodDesk },
         { FVector(750.0, -600.0, 50.0), FVector(240.0, 140.0, 100.0), WoodDesk },
         { FVector(0.0, 0.0, 1.0), FVector(2800.0, 80.0, 2.0), AccentTeal },
+
+        // Corridor crash rails and ceiling fixtures.
+        { FVector(0.0, 188.0, 82.0), FVector(1360.0, 8.0, 10.0), RailSteel },
+        { FVector(0.0, -188.0, 82.0), FVector(1360.0, 8.0, 10.0), RailSteel },
+        { FVector(-750.0, 0.0, 348.0), FVector(180.0, 40.0, 8.0), FixtureWhite },
+        { FVector(750.0, 0.0, 348.0), FVector(180.0, 40.0, 8.0), FixtureWhite },
+        { FVector(-750.0, 600.0, 348.0), FVector(160.0, 40.0, 8.0), FixtureWhite },
+        { FVector(750.0, 600.0, 348.0), FVector(160.0, 40.0, 8.0), FixtureWhite },
+        { FVector(-750.0, -600.0, 348.0), FVector(160.0, 40.0, 8.0), FixtureWhite },
+        { FVector(750.0, -600.0, 348.0), FVector(160.0, 40.0, 8.0), FixtureWhite },
+
+        // Daylight windows on the long exterior walls.
+        { FVector(-400.0, 1004.0, 210.0), FVector(280.0, 8.0, 140.0), WindowGlow },
+        { FVector(400.0, 1004.0, 210.0), FVector(280.0, 8.0, 140.0), WindowGlow },
+        { FVector(-400.0, -1004.0, 210.0), FVector(280.0, 8.0, 140.0), WindowGlow },
+        { FVector(400.0, -1004.0, 210.0), FVector(280.0, 8.0, 140.0), WindowGlow },
+
+        // Floor grout lines so the linoleum reads as tile, not a warehouse slab.
+        { FVector(-750.0, 0.0, 0.5), FVector(4.0, 1960.0, 1.0), Grout },
+        { FVector(750.0, 0.0, 0.5), FVector(4.0, 1960.0, 1.0), Grout },
+        { FVector(0.0, 600.0, 0.5), FVector(2960.0, 4.0, 1.0), Grout },
+        { FVector(0.0, -600.0, 0.5), FVector(2960.0, 4.0, 1.0), Grout },
+
+        // Reception monitor and team-room chairs.
+        { FVector(-1280.0, 90.0, 128.0), FVector(8.0, 46.0, 32.0), AccentTeal },
+        { FVector(690.0, 520.0, 42.0), FVector(42.0, 42.0, 84.0), DoorFrame },
+        { FVector(810.0, 520.0, 42.0), FVector(42.0, 42.0, 84.0), DoorFrame },
     };
 }
 
@@ -1877,7 +1910,42 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
         Lamp->SetIntensity(3500.f);
         Lamp->SetAttenuationRadius(1400.f);
         Lamp->SetLightColor(FLinearColor(1.f, 0.96f, 0.88f));
+        Lamp->SetSpecularScale(0.4f);
         Lamp->RegisterComponent();
+    }
+
+    UExponentialHeightFogComponent* Fog = NewObject<UExponentialHeightFogComponent>(Rig, TEXT("ClinicFog"));
+    Fog->SetupAttachment(Root);
+    Fog->SetFogDensity(0.012f);
+    Fog->SetFogHeightFalloff(0.12f);
+    Fog->SetFogInscatteringColor(FLinearColor(0.72f, 0.78f, 0.82f));
+    Fog->SetFogMaxOpacity(0.35f);
+    Fog->RegisterComponent();
+
+    APostProcessVolume* Grade = World.SpawnActor<APostProcessVolume>(FVector::ZeroVector, FRotator::ZeroRotator, Params);
+    if (Grade)
+    {
+        Grade->bUnbound = true;
+        Grade->Priority = 10.f;
+        Grade->BlendWeight = 1.f;
+        Grade->Settings.bOverride_AutoExposureMethod = true;
+        Grade->Settings.AutoExposureMethod = AEM_Histogram;
+        Grade->Settings.bOverride_AutoExposureBias = true;
+        Grade->Settings.AutoExposureBias = 0.35f;
+        Grade->Settings.bOverride_BloomIntensity = true;
+        Grade->Settings.BloomIntensity = 0.35f;
+        Grade->Settings.bOverride_AmbientOcclusionIntensity = true;
+        Grade->Settings.AmbientOcclusionIntensity = 0.55f;
+        Grade->Settings.bOverride_AmbientOcclusionRadius = true;
+        Grade->Settings.AmbientOcclusionRadius = 48.f;
+        Grade->Settings.bOverride_VignetteIntensity = true;
+        Grade->Settings.VignetteIntensity = 0.28f;
+        Grade->Settings.bOverride_ColorSaturation = true;
+        Grade->Settings.ColorSaturation = FVector4(1.04f, 1.02f, 0.98f, 1.f);
+        Grade->Settings.bOverride_ColorContrast = true;
+        Grade->Settings.ColorContrast = FVector4(1.08f, 1.06f, 1.04f, 1.f);
+        Grade->Settings.bOverride_FilmGrainIntensity = true;
+        Grade->Settings.FilmGrainIntensity = 0.02f;
     }
 }
 

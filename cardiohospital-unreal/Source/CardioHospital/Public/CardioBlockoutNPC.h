@@ -9,9 +9,9 @@ class UTextRenderComponent;
 
 /**
  * Presentation adapter for the first attending. Clinical truth never lives
- * here. Gaze, listening lean, blink, and a speaking cue are blockout
- * stand-ins until a MetaHuman Patel exists; they do not satisfy the
- * packaged character-quality gate by themselves.
+ * here. The assembled MetaHuman is used when BP_Patel exists; otherwise a
+ * proportioned clinic stand-in carries gaze, listen, blink, and speech cues.
+ * That stand-in does not satisfy walkthrough step 5 by itself.
  */
 UCLASS()
 class CARDIOHOSPITAL_API ACardioBlockoutNPC : public AActor
@@ -23,7 +23,6 @@ public:
 
     virtual void Tick(float DeltaSeconds) override;
 
-    /** Apply identity and appearance. Call once, right after spawning. */
     void Configure(const FString& InNpcId, const FString& InDisplayName, const FLinearColor& CoatColor);
 
     const FString& GetNpcId() const { return NpcId; }
@@ -35,14 +34,49 @@ public:
     bool HasAssembledMetaHuman() const { return AssembledVisual != nullptr; }
 
 private:
+    UStaticMeshComponent* MakePart(
+        FName Name,
+        UStaticMesh* Mesh,
+        UMaterialInterface* Material,
+        const FVector& Location,
+        const FVector& Scale);
+
+    void ApplyTint(UStaticMeshComponent* Mesh, const FLinearColor& Color);
+    void HidePrimitiveStandIn();
+    void TryAttachAssembledMetaHuman();
+
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<USceneComponent> Root;
 
     UPROPERTY(VisibleAnywhere)
-    TObjectPtr<UStaticMeshComponent> Body;
+    TObjectPtr<UStaticMeshComponent> Torso;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UStaticMeshComponent> Coat;
 
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<UStaticMeshComponent> Head;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UStaticMeshComponent> Hair;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UStaticMeshComponent> LeftEye;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UStaticMeshComponent> RightEye;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UStaticMeshComponent> LeftArm;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UStaticMeshComponent> RightArm;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UStaticMeshComponent> LeftLeg;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UStaticMeshComponent> RightLeg;
 
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<UTextRenderComponent> NameText;
@@ -53,8 +87,9 @@ private:
     UPROPERTY()
     FString DisplayName;
 
-    FVector BodyBaseScale = FVector(0.42f, 0.6f, 1.7f);
-    FVector HeadBaseScale = FVector(0.34f);
+    FVector TorsoBaseScale = FVector(0.38f, 0.28f, 0.78f);
+    FVector HeadBaseScale = FVector(0.28f);
+    FVector EyeBaseScale = FVector(0.055f);
     float BlinkTimer = 3.2f;
     float BlinkRemaining = 0.f;
     bool bListening = false;
@@ -62,6 +97,4 @@ private:
 
     UPROPERTY()
     TObjectPtr<AActor> AssembledVisual;
-
-    void TryAttachAssembledMetaHuman();
 };

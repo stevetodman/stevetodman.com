@@ -185,8 +185,14 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(await read("CardioHospital.uproject"), /"Name": "MetaHumanCharacter"/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /TryAttachAssembledMetaHuman/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /BP_Patel/);
+  assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /LeftEye/);
+  assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /BasicShapes\/Cylinder/);
   assert.match(await read("Source/CardioHospital/CardioHospital.Build.cs"), /TextToSpeech/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /BlinkRemaining/);
+  assert.match(source, /APostProcessVolume/);
+  assert.match(source, /WindowGlow/);
+  assert.match(await read("Config/DefaultGameUserSettings.ini"), /ResolutionSizeX=2560/);
+  assert.match(await read("Config/DefaultEngine.ini"), /r\.AntiAliasingMethod=4/);
   assert.match(source, /Fact.Key == Action.Target/);
   assert.match(source, /Fact.Answer/);
   assert.doesNotMatch(source, /SpawnActor<ACardioBlockoutNPC>.*marcus|GPatientNpcId/i);
