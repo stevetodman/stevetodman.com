@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human walk of the latest package. Auscultation now plays site-specific murmur + Valsalva from authored patterns. Still no MetaHuman Patel, so step 5 remains failed.
+next: Human walk of package Mac-Development-20260815T182240Z (commit 7d640d7). Auscultation is audible. Step 5 still needs a MetaHuman Patel; none exists on this machine.
 ---
 
 # CLAUDE.md
