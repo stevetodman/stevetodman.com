@@ -191,6 +191,8 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /BlinkRemaining/);
   assert.match(source, /APostProcessVolume/);
   assert.match(source, /WindowGlow/);
+  assert.match(source, /SetIntensity\(12000/);
+  assert.match(source, /AutoExposureBias = 1\.15f/);
   assert.match(await read("Config/DefaultGameUserSettings.ini"), /ResolutionSizeX=2560/);
   assert.match(await read("Config/DefaultEngine.ini"), /r\.AntiAliasingMethod=4/);
   assert.match(source, /Fact.Key == Action.Target/);

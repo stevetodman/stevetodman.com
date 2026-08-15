@@ -1879,7 +1879,7 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
     Sun->SetupAttachment(Root);
     Sun->SetMobility(EComponentMobility::Movable);
     Sun->SetRelativeRotation(FRotator(-50.f, 30.f, 0.f));
-    Sun->SetIntensity(2.2f);
+    Sun->SetIntensity(6.5f);
     Sun->RegisterComponent();
 
     USkyAtmosphereComponent* Atmosphere = NewObject<USkyAtmosphereComponent>(Rig, TEXT("Atmosphere"));
@@ -1907,8 +1907,8 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
         Lamp->SetupAttachment(Root);
         Lamp->SetMobility(EComponentMobility::Movable);
         Lamp->SetWorldLocation(LightPoints[Index]);
-        Lamp->SetIntensity(3500.f);
-        Lamp->SetAttenuationRadius(1400.f);
+        Lamp->SetIntensity(12000.f);
+        Lamp->SetAttenuationRadius(1800.f);
         Lamp->SetLightColor(FLinearColor(1.f, 0.96f, 0.88f));
         Lamp->SetSpecularScale(0.4f);
         Lamp->RegisterComponent();
@@ -1916,10 +1916,10 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
 
     UExponentialHeightFogComponent* Fog = NewObject<UExponentialHeightFogComponent>(Rig, TEXT("ClinicFog"));
     Fog->SetupAttachment(Root);
-    Fog->SetFogDensity(0.012f);
-    Fog->SetFogHeightFalloff(0.12f);
-    Fog->SetFogInscatteringColor(FLinearColor(0.72f, 0.78f, 0.82f));
-    Fog->SetFogMaxOpacity(0.35f);
+    Fog->SetFogDensity(0.004f);
+    Fog->SetFogHeightFalloff(0.08f);
+    Fog->SetFogInscatteringColor(FLinearColor(0.82f, 0.86f, 0.88f));
+    Fog->SetFogMaxOpacity(0.12f);
     Fog->RegisterComponent();
 
     APostProcessVolume* Grade = World.SpawnActor<APostProcessVolume>(FVector::ZeroVector, FRotator::ZeroRotator, Params);
@@ -1931,15 +1931,15 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
         Grade->Settings.bOverride_AutoExposureMethod = true;
         Grade->Settings.AutoExposureMethod = AEM_Histogram;
         Grade->Settings.bOverride_AutoExposureBias = true;
-        Grade->Settings.AutoExposureBias = 0.35f;
+        Grade->Settings.AutoExposureBias = 1.15f;
         Grade->Settings.bOverride_BloomIntensity = true;
-        Grade->Settings.BloomIntensity = 0.35f;
+        Grade->Settings.BloomIntensity = 0.22f;
         Grade->Settings.bOverride_AmbientOcclusionIntensity = true;
-        Grade->Settings.AmbientOcclusionIntensity = 0.55f;
+        Grade->Settings.AmbientOcclusionIntensity = 0.35f;
         Grade->Settings.bOverride_AmbientOcclusionRadius = true;
         Grade->Settings.AmbientOcclusionRadius = 48.f;
         Grade->Settings.bOverride_VignetteIntensity = true;
-        Grade->Settings.VignetteIntensity = 0.28f;
+        Grade->Settings.VignetteIntensity = 0.08f;
         Grade->Settings.bOverride_ColorSaturation = true;
         Grade->Settings.ColorSaturation = FVector4(1.04f, 1.02f, 0.98f, 1.f);
         Grade->Settings.bOverride_ColorContrast = true;
