@@ -34,6 +34,7 @@ def load_or_create_character():
     if character is None:
         fail("MetaHumanCharacterFactoryNew did not create Patel")
     log(f"Created {CHARACTER_OBJECT}")
+    unreal.EditorAssetLibrary.save_loaded_asset(character)
     return character
 
 
@@ -65,14 +66,11 @@ def try_add_default_garment(character):
 
 
 def write_report(payload):
-    asset_tools = unreal.AssetToolsHelpers.get_asset_tools()
-    existing = unreal.load_asset(f"{REPORT_PATH}.{REPORT_NAME}" if False else None)
-    report_dir = unreal.Paths.project_content_dir() + "Characters/MetaHumans/"
-    unreal.SystemLibrary.make_directory(report_dir)
-    path = report_dir + "patel-assembly.json"
-    with open(path, "w", encoding="utf-8") as handle:
-        json.dump(payload, handle, indent=2)
-        handle.write("\n")
+    from pathlib import Path
+
+    path = Path(unreal.Paths.project_content_dir()) / "Characters" / "MetaHumans" / "patel-assembly.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     log(f"Wrote {path}")
 
 
@@ -102,7 +100,11 @@ def main():
         auto_rig = unreal.MetaHumanCharacterAutoRiggingRequestParams()
         auto_rig.blocking = True
         auto_rig.report_progress = False
-        auto_rig.rig_type = unreal.MetaHumanRigType.JOINTS_AND_BLENDSHAPES
+        auto_rig.rig_type = getattr(
+            unreal.MetaHumanRigType,
+            "JOINTS_AND_BLEND_SHAPES",
+            unreal.MetaHumanRigType.JOINTS_ONLY,
+        )
         log("Requesting auto-rig (joints + blendshapes)")
         subsystem.request_auto_rigging(character, auto_rig)
         report["autoRig"] = True
