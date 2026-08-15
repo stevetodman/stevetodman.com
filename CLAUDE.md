@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human look at Mac-Development-20260815T220858Z (commit dd3ec62) for paneled walls, tiled floor, drop ceiling, and window frames. walkthroughPassed stays false.
+next: Human look at Mac-Development-20260815T221516Z (commit 34523ed) for the shaped lab coat and brighter walls. walkthroughPassed stays false.
 ---
 
 # CLAUDE.md
@@ -271,6 +271,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-15: Replaced the box coat with an open-front subdivided lab coat and brightened wall/wainscot/trim to clean hospital white. Lamps 19000, exposure +1.40. Packaged as Mac-Development-20260815T221516Z from 34523ed. walkthroughPassed stays false.
 - 2026-08-15: Clad the existing four-room ward with Blender wall panels (wainscot/chair rail/crown), linoleum tiles, a drop ceiling, and window frames. Cube shell kept for collision. Packaged as Mac-Development-20260815T220858Z from dd3ec62. walkthroughPassed stays false.
 - 2026-08-15: Blender clinic kit: lab coat and trousers overlay the assembled Patel; beds, desks, chairs, door jambs, and lights replace cube furniture. Same C++ layout. Packaged as Mac-Development-20260815T215024Z from 1db15f7. walkthroughPassed stays false.
 - 2026-08-15: Installed MetaHuman Creator Core Data and assembled Dr. Patel as an optimized High MetaHuman (`BP_Patel`, high-res textures, joints+blendshapes, attending skin, short hair). Portrait key/rim lights in the team room. Packaged as Mac-Development-20260815T212229Z from c9f6be2. Not Ada. No extra cast. Default garment is still a casual shirt. walkthroughPassed stays false. 
