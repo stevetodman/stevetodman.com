@@ -18,6 +18,11 @@ The platform, launch-surface, performance, and bounded MetaHuman decisions are
 recorded in
 [`Docs/ADR-0001-unreal-5-8-product-rebaseline.md`](Docs/ADR-0001-unreal-5-8-product-rebaseline.md).
 
+These prerequisites describe the release workstation. Clinical authoring and
+portable validation run on any platform with Node.js 24, and an optional
+non-evidence macOS development tier is described in
+[`Docs/MACOS_DEVELOPMENT.md`](Docs/MACOS_DEVELOPMENT.md).
+
 ## Local prerequisites
 
 - Windows 11
