@@ -36,6 +36,9 @@ namespace
     const FLinearColor ExamBlue(0.55f, 0.70f, 0.90f);
     const FLinearColor TableWarm(0.60f, 0.50f, 0.40f);
 
+    const FVector ReceptionPlayerStart(-1200.0, -600.0, 110.0);
+    const FVector ReceptionDoorwayCenter(-750.0, -200.0, 110.0);
+
     // The attending who assigns the first case, and the case they assign: the
     // exertional-syncope presentation. The id must exist in
     // Content/Data/clinical-content.json; a portable test enforces that, and
@@ -123,9 +126,10 @@ void ACardioBlockoutGameMode::InitGame(const FString& MapName, const FString& Op
     // learner starts in the reception lobby facing the corridor.
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    // Reception is south of the corridor, so +90 degrees faces north (+Y)
-    // through its doorway instead of east into the room divider.
-    World->SpawnActor<APlayerStart>(FVector(-1200.0, -600.0, 110.0), FRotator(0.0, 90.0, 0.0), Params);
+    // Aim at the actual doorway center. Due north from the off-center start
+    // still faces a solid section of the corridor wall.
+    const FRotator StartRotation = (ReceptionDoorwayCenter - ReceptionPlayerStart).Rotation();
+    World->SpawnActor<APlayerStart>(ReceptionPlayerStart, StartRotation, Params);
 }
 
 void ACardioBlockoutGameMode::HandleInteract(ACardioBlockoutCharacter& Character, ACardioBlockoutNPC* Npc)

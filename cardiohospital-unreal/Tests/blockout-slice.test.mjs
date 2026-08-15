@@ -38,8 +38,23 @@ test("the blockout hard-references its engine primitives and spawns a start", as
   assert.match(source, /SpawnActor<APlayerStart>/);
   assert.match(
     source,
-    /SpawnActor<APlayerStart>\(FVector\(-1200\.0, -600\.0, 110\.0\), FRotator\(0\.0, 90\.0, 0\.0\), Params\)/,
-    "the reception start must face north toward the corridor, not east into the divider",
+    /const FVector ReceptionPlayerStart\(-1200\.0, -600\.0, 110\.0\)/,
+    "the reception start must stay clear of its landmark desk",
+  );
+  assert.match(
+    source,
+    /const FVector ReceptionDoorwayCenter\(-750\.0, -200\.0, 110\.0\)/,
+    "the intended doorway center must remain explicit",
+  );
+  assert.match(
+    source,
+    /StartRotation = \(ReceptionDoorwayCenter - ReceptionPlayerStart\)\.Rotation\(\)/,
+    "the reception start must look through the doorway rather than at either adjoining wall",
+  );
+  assert.match(
+    source,
+    /SpawnActor<APlayerStart>\(ReceptionPlayerStart, StartRotation, Params\)/,
+    "the calculated doorway-facing rotation must be used to spawn the player start",
   );
 
   // Movable before the mesh is assigned, or runtime spawning rejects it.
