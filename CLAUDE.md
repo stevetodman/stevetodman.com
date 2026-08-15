@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human look at the skinned Sketchfab coat package (SK_LabCoat leader-posed to Patel). walkthroughPassed stays false.
+next: Human look at Mac-Development-20260815T235109Z (caf4ed8). Skinned white CC-BY coat is on Patel and follows idle. Default outfit is hidden (bare legs under the hem). walkthroughPassed stays false.
 ---
 
 # CLAUDE.md
@@ -271,6 +271,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-15: Skinned zeryshahid CC-BY coat is worn: leader-posed to SKM_Patel_BodyMesh, default Patel_Outfits hidden so the coat isn't under the t-shirt. Packaged Mac-Development-20260815T235109Z from caf4ed8. Live look: white open coat, idle arms, not plastered. Bare legs under the hem. walkthroughPassed stays false.
 - 2026-08-15: Skinned zeryshahid's CC-BY coat and the CC-BY stethoscope to Patel's MetaHuman skeleton (weight transfer, SK_LabCoat / SK_Stethoscope, SetLeaderPoseComponent). Static overlay stays hidden. walkthroughPassed stays false.
 - 2026-08-15: Live look of the Sketchfab coat: plastered to Patel's front, not worn. Hid the overlay again. CC-BY source stays in Content/Environment/Source/Sketchfab/lab-coat/. Packaged as Mac-Development-20260815T232118Z from b384d1f. walkthroughPassed stays false.
 - 2026-08-15: Downloaded zeryshahid's CC-BY Male Lab Coat and Pants after the Sketchfab account existed, scaled the fabric coat onto Patel, froze him in A-pose, and hid the invented foam overlay. Packaged as Mac-Development-20260815T231742Z from 3fda3eb. Still not a skinned WI_ wardrobe. walkthroughPassed stays false.

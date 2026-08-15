@@ -23,11 +23,12 @@ workstation can and cannot do.
 ## What is still not the walkthrough pass
 
 - Core Data still ships only the default casual garment. The CC-BY
-  Sketchfab "Male Lab Coat and Pants" by zeryshahid is now a skinned
+  Sketchfab "Male Lab Coat and Pants" by zeryshahid is a skinned
   `SK_LabCoat` on `metahuman_base_skel`, leader-posed to Patel's body.
+  `Patel_Outfits` is hidden so the coat is not buried under the t-shirt.
   The CC-BY stethoscope is `SK_Stethoscope` on the same skeleton. Static
-  `SM_LabCoat` overlays stay hidden. This is still not a MetaHuman `WI_`
-  wardrobe item.
+  overlays stay hidden. This is still not a MetaHuman `WI_` wardrobe
+  item. Legs under the hem are currently bare.
 - Voice, gaze (yaw), and listen still need a packaged human look before
   walkthrough step 5 can pass. Facial viseme/lip-sync is not wired yet.
 - Do not substitute the Ada test mesh or a crowd template for Dr. Patel.
