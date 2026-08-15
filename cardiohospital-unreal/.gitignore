@@ -21,6 +21,10 @@ Thumbs.db
 .env.*
 !.env.example
 
+# Unreal rewrites this counter on every package. Build/ is otherwise tracked
+# because Build/<Platform>/Resources defines the bundle.
+Build/*/*.PackageVersionCounter
+
 # Local packages and captures
 LocalAssets/
 Captures/
