@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human walk of package Mac-Development-20260815T190259Z (commit 2de09f7). MetaHuman Patel still needs Optional Content + Epic login.
+next: Human walk of package Mac-Development-20260815T190914Z (commit d481716). MetaHuman Patel still needs Optional Content + Epic login.
 ---
 
 # CLAUDE.md
@@ -271,6 +271,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-15: Opened Room 1 for the authored vasovagal contrast case. Spawn is now the west corridor aimed at the team-room doorway (same look-at rule as facfa6d). Exam E and navigate.exam-room follow ClinicalCase.Room, so HCM stays in Exam Room 3 and the next case goes to Room 1. Wrong room shows the assigned location only. Packaged as Mac-Development-20260815T190914Z from d481716. Portable tests 76/76. walkthroughPassed stays false.
 - 2026-08-15: Optional Content is still missing, so Patel cannot assemble. Exam Room 3 now shows the authored vibe and parent presence on first E, then a talk/examine hub. Confidential history stays hidden until the learner asks the parent to step outside. No cube patient NPC. Packaged as Mac-Development-20260815T190259Z from 2de09f7. Portable tests 76/76. walkthroughPassed stays false.
 - 2026-08-15: Optional Content is still missing, so Patel cannot assemble. Added an Education Room ECG/echo station: walk in, E, order/review from the case graph, and structured ECG/echo panels drawn only from authored findings. No invented waveforms. Portable tests 76/76.
 - 2026-08-15: Started the approved MetaHuman Patel gate. Enabled MetaHumanCharacter/SDK, added `Scripts/create-patel-metahuman.py`, and created `Content/Characters/MetaHumans/Patel.uasset` at 175 cm. Auto-rig ran. Assembly did not: Optional Content is missing and unattended EOS login failed, so high-res textures did not download. Cube Patel remains the packaged visual. See `cardiohospital-unreal/Docs/PATEL_METAHUMAN.md`.
