@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human walk of the latest package. Patel now speaks authored lines via Mac TTS and has gaze, listening lean, and blink — still not a MetaHuman, so walkthrough step 5 remains failed until facial performance exists.
+next: Human walk of package Mac-Development-20260815T181228Z (commit 116f6f1). Import a MetaHuman Patel before claiming walkthrough step 5; TTS plus blink/listen on the blockout figure is not facial performance.
 ---
 
 # CLAUDE.md
