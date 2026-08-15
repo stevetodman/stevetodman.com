@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "CardioBlockoutNPC.generated.h"
 
+class USkeletalMeshComponent;
 class UStaticMeshComponent;
 class UTextRenderComponent;
 
@@ -44,6 +45,8 @@ private:
     void ApplyTint(UStaticMeshComponent* Mesh, const FLinearColor& Color);
     void HidePrimitiveStandIn();
     void TryAttachAssembledMetaHuman();
+    USkeletalMeshComponent* FindAssembledBody() const;
+    void AttachSkinnedAttendingKit(USkeletalMeshComponent* Body);
 
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<USceneComponent> Root;
@@ -86,6 +89,12 @@ private:
 
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<UStaticMeshComponent> AttendingScope;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<USkeletalMeshComponent> AttendingCoatSkel;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<USkeletalMeshComponent> AttendingScopeSkel;
 
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<UTextRenderComponent> NameText;

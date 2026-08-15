@@ -8,6 +8,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "UObject/ConstructorHelpers.h"
@@ -42,6 +43,8 @@ ACardioBlockoutNPC::ACardioBlockoutNPC()
     static ConstructorHelpers::FObjectFinder<UStaticMesh> CoatFinder(TEXT("/Game/Environment/Clinic/SM_LabCoat.SM_LabCoat"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> TrouserFinder(TEXT("/Game/Environment/Clinic/SM_Trousers.SM_Trousers"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> ScopeFinder(TEXT("/Game/Environment/Clinic/SM_Stethoscope.SM_Stethoscope"));
+    static ConstructorHelpers::FObjectFinder<USkeletalMesh> CoatSkelFinder(TEXT("/Game/Environment/Clinic/SK_LabCoat.SK_LabCoat"));
+    static ConstructorHelpers::FObjectFinder<USkeletalMesh> ScopeSkelFinder(TEXT("/Game/Environment/Clinic/SK_Stethoscope.SK_Stethoscope"));
 
     AttendingCoat = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttendingCoat"));
     AttendingCoat->SetupAttachment(Root);
@@ -86,6 +89,28 @@ ACardioBlockoutNPC::ACardioBlockoutNPC()
     if (ScopeFinder.Succeeded())
     {
         AttendingScope->SetStaticMesh(ScopeFinder.Object);
+    }
+
+    AttendingCoatSkel = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("AttendingCoatSkel"));
+    AttendingCoatSkel->SetupAttachment(Root);
+    AttendingCoatSkel->SetMobility(EComponentMobility::Movable);
+    AttendingCoatSkel->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    AttendingCoatSkel->SetHiddenInGame(true);
+    AttendingCoatSkel->SetAnimationMode(EAnimationMode::AnimationCustomMode);
+    if (CoatSkelFinder.Succeeded())
+    {
+        AttendingCoatSkel->SetSkeletalMesh(CoatSkelFinder.Object);
+    }
+
+    AttendingScopeSkel = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("AttendingScopeSkel"));
+    AttendingScopeSkel->SetupAttachment(Root);
+    AttendingScopeSkel->SetMobility(EComponentMobility::Movable);
+    AttendingScopeSkel->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    AttendingScopeSkel->SetHiddenInGame(true);
+    AttendingScopeSkel->SetAnimationMode(EAnimationMode::AnimationCustomMode);
+    if (ScopeSkelFinder.Succeeded())
+    {
+        AttendingScopeSkel->SetSkeletalMesh(ScopeSkelFinder.Object);
     }
 
     NameText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("NameText"));
@@ -202,24 +227,8 @@ void ACardioBlockoutNPC::TryAttachAssembledMetaHuman()
 
     AssembledVisual->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
     HidePrimitiveStandIn();
-    // The Sketchfab coat is authored in A-pose. Freeze the assembled
-    // MetaHuman on its bind pose so the real garment can sit on him
-    // instead of a foam column in front of an idle.
-    TArray<USkeletalMeshComponent*> Skels;
-    AssembledVisual->GetComponents<USkeletalMeshComponent>(Skels);
-    for (USkeletalMeshComponent* Skel : Skels)
-    {
-        if (!Skel)
-        {
-            continue;
-        }
-        Skel->SetAnimationMode(EAnimationMode::AnimationCustomMode);
-        Skel->Stop();
-    }
     if (AttendingCoat)
     {
-        // Live look: the Sketchfab coat sat as a sheet on his front.
-        // Keep the CC-BY mesh in the project; do not plaster it on.
         AttendingCoat->SetHiddenInGame(true);
     }
     if (AttendingTrousers)
@@ -230,6 +239,68 @@ void ACardioBlockoutNPC::TryAttachAssembledMetaHuman()
     {
         AttendingScope->SetHiddenInGame(true);
     }
+    AttachSkinnedAttendingKit(FindAssembledBody());
+}
+
+USkeletalMeshComponent* ACardioBlockoutNPC::FindAssembledBody() const
+{
+    if (!AssembledVisual)
+    {
+        return nullptr;
+    }
+
+    TArray<USkeletalMeshComponent*> Skels;
+    AssembledVisual->GetComponents<USkeletalMeshComponent>(Skels);
+    for (USkeletalMeshComponent* Skel : Skels)
+    {
+        if (!Skel)
+        {
+            continue;
+        }
+        const USkeletalMesh* Mesh = Skel->GetSkeletalMeshAsset();
+        const FString MeshName = Mesh ? Mesh->GetName() : FString();
+        if (Skel->GetName().Contains(TEXT("Body")) || MeshName.Contains(TEXT("Body")))
+        {
+            return Skel;
+        }
+    }
+    for (USkeletalMeshComponent* Skel : Skels)
+    {
+        if (!Skel)
+        {
+            continue;
+        }
+        const FString Name = Skel->GetName();
+        if (!Name.Contains(TEXT("Face")) && !Name.Contains(TEXT("Hair")))
+        {
+            return Skel;
+        }
+    }
+    return Skels.Num() > 0 ? Skels[0] : nullptr;
+}
+
+void ACardioBlockoutNPC::AttachSkinnedAttendingKit(USkeletalMeshComponent* Body)
+{
+    if (!Body)
+    {
+        return;
+    }
+
+    auto AttachFollower = [Body](USkeletalMeshComponent* Follower)
+    {
+        if (!Follower || !Follower->GetSkeletalMeshAsset())
+        {
+            return;
+        }
+        Follower->AttachToComponent(Body, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+        Follower->SetRelativeLocationAndRotation(FVector::ZeroVector, FRotator::ZeroRotator);
+        Follower->SetLeaderPoseComponent(Body, true);
+        Follower->SetHiddenInGame(false);
+        Follower->SetVisibility(true, true);
+    };
+
+    AttachFollower(AttendingCoatSkel);
+    AttachFollower(AttendingScopeSkel);
 }
 
 void ACardioBlockoutNPC::SetListening(const bool bInListening)
