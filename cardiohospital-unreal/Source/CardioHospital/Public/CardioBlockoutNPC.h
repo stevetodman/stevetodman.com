@@ -32,6 +32,7 @@ public:
 
     void SetListening(bool bInListening);
     void NotifySpeaking(bool bInSpeaking);
+    bool HasAssembledMetaHuman() const { return AssembledVisual != nullptr; }
 
 private:
     UPROPERTY(VisibleAnywhere)
@@ -58,4 +59,9 @@ private:
     float BlinkRemaining = 0.f;
     bool bListening = false;
     bool bSpeaking = false;
+
+    UPROPERTY()
+    TObjectPtr<AActor> AssembledVisual;
+
+    void TryAttachAssembledMetaHuman();
 };

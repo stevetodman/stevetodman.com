@@ -1,7 +1,9 @@
 #include "CardioBlockoutNPC.h"
 
+#include "Engine/World.h"
 #include "Math/UnrealMathUtility.h"
 #include "GameFramework/PlayerController.h"
+#include "UObject/SoftObjectPath.h"
 #include "GameFramework/Pawn.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -61,6 +63,46 @@ void ACardioBlockoutNPC::Configure(const FString& InNpcId, const FString& InDisp
     {
         HeadTint->SetVectorParameterValue(TEXT("Color"), FLinearColor(0.85f, 0.66f, 0.50f));
     }
+
+    TryAttachAssembledMetaHuman();
+}
+
+void ACardioBlockoutNPC::TryAttachAssembledMetaHuman()
+{
+    static const TCHAR* CandidatePaths[] = {
+        TEXT("/Game/MetaHumans/Patel/BP_Patel.BP_Patel_C"),
+        TEXT("/Game/MetaHumans/Patel.BP_Patel_C"),
+        TEXT("/Game/MetaHumans/BP_Patel.BP_Patel_C"),
+    };
+
+    UClass* VisualClass = nullptr;
+    for (const TCHAR* Path : CandidatePaths)
+    {
+        VisualClass = LoadClass<AActor>(nullptr, Path);
+        if (VisualClass)
+        {
+            break;
+        }
+    }
+    if (!VisualClass || !GetWorld())
+    {
+        return;
+    }
+
+    FActorSpawnParameters Params;
+    Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    Params.Owner = this;
+    AssembledVisual = GetWorld()->SpawnActor<AActor>(VisualClass, GetActorTransform(), Params);
+    if (!AssembledVisual)
+    {
+        return;
+    }
+
+    AssembledVisual->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+    Body->SetHiddenInGame(true);
+    Head->SetHiddenInGame(true);
+    Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    Head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ACardioBlockoutNPC::SetListening(const bool bInListening)

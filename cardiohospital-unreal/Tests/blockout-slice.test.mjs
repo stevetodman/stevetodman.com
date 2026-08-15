@@ -153,6 +153,9 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(source, /PatternForCaseId/);
   assert.match(source, /__valsalva/);
   assert.match(await read("CardioHospital.uproject"), /"Name": "TextToSpeech"/);
+  assert.match(await read("CardioHospital.uproject"), /"Name": "MetaHumanCharacter"/);
+  assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /TryAttachAssembledMetaHuman/);
+  assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /BP_Patel/);
   assert.match(await read("Source/CardioHospital/CardioHospital.Build.cs"), /TextToSpeech/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /BlinkRemaining/);
   assert.match(source, /Fact.Key == Action.Target/);
