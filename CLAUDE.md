@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human look at Mac-Development-20260815T212229Z (commit c9f6be2) for assembled HIGH BP_Patel. Click to the team room. walkthroughPassed stays false until voice+gaze+listen+face are seen.
+next: Human look at the next package for attending coat + Blender clinic furniture. walkthroughPassed stays false.
 ---
 
 # CLAUDE.md

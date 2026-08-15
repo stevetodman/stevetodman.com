@@ -79,6 +79,12 @@ private:
     TObjectPtr<UStaticMeshComponent> RightLeg;
 
     UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UStaticMeshComponent> AttendingCoat;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UStaticMeshComponent> AttendingTrousers;
+
+    UPROPERTY(VisibleAnywhere)
     TObjectPtr<UTextRenderComponent> NameText;
 
     UPROPERTY()

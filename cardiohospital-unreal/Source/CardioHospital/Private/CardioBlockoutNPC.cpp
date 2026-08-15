@@ -38,6 +38,29 @@ ACardioBlockoutNPC::ACardioBlockoutNPC()
     LeftEye = MakePart(TEXT("LeftEye"), Sphere, Material, FVector(-7.f, 12.f, 178.f), EyeBaseScale);
     RightEye = MakePart(TEXT("RightEye"), Sphere, Material, FVector(7.f, 12.f, 178.f), EyeBaseScale);
 
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> CoatFinder(TEXT("/Game/Environment/Clinic/SM_LabCoat.SM_LabCoat"));
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> TrouserFinder(TEXT("/Game/Environment/Clinic/SM_Trousers.SM_Trousers"));
+
+    AttendingCoat = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttendingCoat"));
+    AttendingCoat->SetupAttachment(Root);
+    AttendingCoat->SetMobility(EComponentMobility::Movable);
+    AttendingCoat->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    AttendingCoat->SetHiddenInGame(true);
+    if (CoatFinder.Succeeded())
+    {
+        AttendingCoat->SetStaticMesh(CoatFinder.Object);
+    }
+
+    AttendingTrousers = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttendingTrousers"));
+    AttendingTrousers->SetupAttachment(Root);
+    AttendingTrousers->SetMobility(EComponentMobility::Movable);
+    AttendingTrousers->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    AttendingTrousers->SetHiddenInGame(true);
+    if (TrouserFinder.Succeeded())
+    {
+        AttendingTrousers->SetStaticMesh(TrouserFinder.Object);
+    }
+
     NameText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("NameText"));
     NameText->SetupAttachment(Root);
     NameText->SetMobility(EComponentMobility::Movable);
@@ -152,6 +175,16 @@ void ACardioBlockoutNPC::TryAttachAssembledMetaHuman()
 
     AssembledVisual->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
     HidePrimitiveStandIn();
+    if (AttendingCoat)
+    {
+        AttendingCoat->SetHiddenInGame(false);
+        AttendingCoat->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+    }
+    if (AttendingTrousers)
+    {
+        AttendingTrousers->SetHiddenInGame(false);
+        AttendingTrousers->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+    }
 }
 
 void ACardioBlockoutNPC::SetListening(const bool bInListening)

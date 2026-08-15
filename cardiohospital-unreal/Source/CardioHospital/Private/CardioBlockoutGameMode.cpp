@@ -48,13 +48,8 @@ namespace
     const FLinearColor WallHospital(0.91f, 0.90f, 0.86f);
     const FLinearColor CeilingWhite(0.96f, 0.95f, 0.92f);
     const FLinearColor AccentTeal(0.0f, 0.55f, 0.54f);
-    const FLinearColor WoodDesk(0.42f, 0.30f, 0.20f);
-    const FLinearColor BedLinen(0.93f, 0.93f, 0.95f);
-    const FLinearColor BedFrame(0.35f, 0.38f, 0.42f);
-    const FLinearColor DoorFrame(0.22f, 0.28f, 0.32f);
     const FLinearColor WindowGlow(0.72f, 0.84f, 0.95f);
     const FLinearColor RailSteel(0.55f, 0.58f, 0.60f);
-    const FLinearColor FixtureWhite(0.94f, 0.94f, 0.90f);
     const FLinearColor Grout(0.42f, 0.40f, 0.36f);
 
     const FVector CorridorPlayerStart(-1000.0, 0.0, 110.0);
@@ -100,34 +95,12 @@ namespace
         { FVector(0.0, 600.0, 175.0), FVector(20.0, 800.0, 350.0), WallHospital },
         { FVector(0.0, -600.0, 175.0), FVector(20.0, 800.0, 350.0), WallHospital },
 
-        // Door frames at the four corridor gaps.
-        { FVector(-810.0, 200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
-        { FVector(-690.0, 200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
-        { FVector(690.0, 200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
-        { FVector(810.0, 200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
-        { FVector(-810.0, -200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
-        { FVector(-690.0, -200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
-        { FVector(690.0, -200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
-        { FVector(810.0, -200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
-
-        { FVector(-1350.0, 90.0, 55.0), FVector(180.0, 80.0, 110.0), WoodDesk },
-        { FVector(-750.0, -600.0, 18.0), FVector(230.0, 110.0, 36.0), BedFrame },
-        { FVector(-750.0, -600.0, 48.0), FVector(210.0, 95.0, 24.0), BedLinen },
-        { FVector(-750.0, 600.0, 18.0), FVector(230.0, 110.0, 36.0), BedFrame },
-        { FVector(-750.0, 600.0, 48.0), FVector(210.0, 95.0, 24.0), BedLinen },
-        { FVector(750.0, 600.0, 45.0), FVector(200.0, 90.0, 90.0), WoodDesk },
-        { FVector(750.0, -600.0, 50.0), FVector(240.0, 140.0, 100.0), WoodDesk },
         { FVector(0.0, 0.0, 1.0), FVector(2800.0, 80.0, 2.0), AccentTeal },
 
-        // Corridor crash rails and ceiling fixtures.
+        // Corridor crash rails. Furniture, door jambs, and fixtures are
+        // spawned from the Blender clinic kit in SpawnClinicDressing.
         { FVector(0.0, 188.0, 82.0), FVector(1360.0, 8.0, 10.0), RailSteel },
         { FVector(0.0, -188.0, 82.0), FVector(1360.0, 8.0, 10.0), RailSteel },
-        { FVector(-750.0, 0.0, 348.0), FVector(180.0, 40.0, 8.0), FixtureWhite },
-        { FVector(750.0, 0.0, 348.0), FVector(180.0, 40.0, 8.0), FixtureWhite },
-        { FVector(-750.0, 600.0, 348.0), FVector(160.0, 40.0, 8.0), FixtureWhite },
-        { FVector(750.0, 600.0, 348.0), FVector(160.0, 40.0, 8.0), FixtureWhite },
-        { FVector(-750.0, -600.0, 348.0), FVector(160.0, 40.0, 8.0), FixtureWhite },
-        { FVector(750.0, -600.0, 348.0), FVector(160.0, 40.0, 8.0), FixtureWhite },
 
         // Daylight windows on the long exterior walls.
         { FVector(-400.0, 1004.0, 210.0), FVector(280.0, 8.0, 140.0), WindowGlow },
@@ -140,11 +113,6 @@ namespace
         { FVector(750.0, 0.0, 0.5), FVector(4.0, 1960.0, 1.0), Grout },
         { FVector(0.0, 600.0, 0.5), FVector(2960.0, 4.0, 1.0), Grout },
         { FVector(0.0, -600.0, 0.5), FVector(2960.0, 4.0, 1.0), Grout },
-
-        // Reception monitor and team-room chairs.
-        { FVector(-1280.0, 90.0, 128.0), FVector(8.0, 46.0, 32.0), AccentTeal },
-        { FVector(690.0, 520.0, 42.0), FVector(42.0, 42.0, 84.0), DoorFrame },
-        { FVector(810.0, 520.0, 42.0), FVector(42.0, 42.0, 84.0), DoorFrame },
     };
 }
 
@@ -158,6 +126,23 @@ ACardioBlockoutGameMode::ACardioBlockoutGameMode()
 
     static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialFinder(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
     BlockMaterial = MaterialFinder.Object;
+
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> ExamTableFinder(TEXT("/Game/Environment/Clinic/SM_ExamTable.SM_ExamTable"));
+    ExamTableMesh = ExamTableFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> BedFinder(TEXT("/Game/Environment/Clinic/SM_HospitalBed.SM_HospitalBed"));
+    HospitalBedMesh = BedFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> DeskFinder(TEXT("/Game/Environment/Clinic/SM_ClinicDesk.SM_ClinicDesk"));
+    ClinicDeskMesh = DeskFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> ChairFinder(TEXT("/Game/Environment/Clinic/SM_ClinicChair.SM_ClinicChair"));
+    ClinicChairMesh = ChairFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> JambFinder(TEXT("/Game/Environment/Clinic/SM_DoorJamb.SM_DoorJamb"));
+    DoorJambMesh = JambFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseboardFinder(TEXT("/Game/Environment/Clinic/SM_Baseboard.SM_Baseboard"));
+    BaseboardMesh = BaseboardFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> LightFinder(TEXT("/Game/Environment/Clinic/SM_CeilingLight.SM_CeilingLight"));
+    CeilingLightMesh = LightFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> MonitorFinder(TEXT("/Game/Environment/Clinic/SM_WallMonitor.SM_WallMonitor"));
+    WallMonitorMesh = MonitorFinder.Object;
 }
 
 void ACardioBlockoutGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
@@ -182,6 +167,7 @@ void ACardioBlockoutGameMode::InitGame(const FString& MapName, const FString& Op
         SpawnBlock(*World, Spec.Center, Spec.Size, Spec.Color);
     }
 
+    SpawnClinicDressing(*World);
     SpawnLighting(*World);
     SpawnSigns(*World);
     SpawnAttending(*World);
@@ -1860,6 +1846,69 @@ AStaticMeshActor* ACardioBlockoutGameMode::SpawnBlock(UWorld& World, const FVect
     Tint->SetVectorParameterValue(TEXT("Color"), Color);
     Mesh->SetMaterial(0, Tint);
     return Block;
+}
+
+AStaticMeshActor* ACardioBlockoutGameMode::SpawnMesh(
+    UWorld& World,
+    UStaticMesh* MeshAsset,
+    const FVector& Location,
+    const FRotator& Rotation,
+    const FVector& Scale) const
+{
+    if (!MeshAsset)
+    {
+        return nullptr;
+    }
+
+    FActorSpawnParameters Params;
+    Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    AStaticMeshActor* Actor = World.SpawnActor<AStaticMeshActor>(Location, Rotation, Params);
+    if (!Actor)
+    {
+        return nullptr;
+    }
+
+    UStaticMeshComponent* Mesh = Actor->GetStaticMeshComponent();
+    Mesh->SetMobility(EComponentMobility::Movable);
+    Mesh->SetStaticMesh(MeshAsset);
+    Actor->SetActorScale3D(Scale);
+    Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    return Actor;
+}
+
+void ACardioBlockoutGameMode::SpawnClinicDressing(UWorld& World) const
+{
+    SpawnMesh(World, HospitalBedMesh, FVector(-750.0, 600.0, 0.0), FRotator(0.f, 90.f, 0.f));
+    SpawnMesh(World, HospitalBedMesh, FVector(-750.0, -600.0, 0.0), FRotator(0.f, -90.f, 0.f));
+    SpawnMesh(World, ClinicDeskMesh, FVector(750.0, 620.0, 0.0), FRotator(0.f, 180.f, 0.f));
+    SpawnMesh(World, ClinicDeskMesh, FVector(-1350.0, 90.0, 0.0), FRotator(0.f, 90.f, 0.f));
+    SpawnMesh(World, ExamTableMesh, FVector(750.0, -600.0, 0.0), FRotator(0.f, 0.f, 0.f));
+    SpawnMesh(World, ClinicChairMesh, FVector(690.0, 520.0, 0.0), FRotator(0.f, 180.f, 0.f));
+    SpawnMesh(World, ClinicChairMesh, FVector(810.0, 520.0, 0.0), FRotator(0.f, 180.f, 0.f));
+    SpawnMesh(World, WallMonitorMesh, FVector(-1280.0, 90.0, 112.0), FRotator(0.f, 90.f, 0.f));
+
+    SpawnMesh(World, DoorJambMesh, FVector(-750.0, 200.0, 0.0), FRotator(0.f, 0.f, 0.f));
+    SpawnMesh(World, DoorJambMesh, FVector(750.0, 200.0, 0.0), FRotator(0.f, 0.f, 0.f));
+    SpawnMesh(World, DoorJambMesh, FVector(-750.0, -200.0, 0.0), FRotator(0.f, 180.f, 0.f));
+    SpawnMesh(World, DoorJambMesh, FVector(750.0, -200.0, 0.0), FRotator(0.f, 180.f, 0.f));
+
+    const FVector Lights[] = {
+        FVector(-750.0, 0.0, 348.0),
+        FVector(750.0, 0.0, 348.0),
+        FVector(-750.0, 600.0, 348.0),
+        FVector(750.0, 600.0, 348.0),
+        FVector(-750.0, -600.0, 348.0),
+        FVector(750.0, -600.0, 348.0),
+    };
+    for (const FVector& Light : Lights)
+    {
+        SpawnMesh(World, CeilingLightMesh, Light);
+    }
+
+    // Corridor baseboards. The source strip is 100 cm long on X.
+    const FVector BoardScaleLong(13.6f, 1.f, 1.f);
+    SpawnMesh(World, BaseboardMesh, FVector(0.0, 186.0, 0.0), FRotator::ZeroRotator, BoardScaleLong);
+    SpawnMesh(World, BaseboardMesh, FVector(0.0, -186.0, 0.0), FRotator::ZeroRotator, BoardScaleLong);
 }
 
 void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const

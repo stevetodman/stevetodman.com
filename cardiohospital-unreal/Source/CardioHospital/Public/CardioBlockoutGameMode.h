@@ -109,9 +109,16 @@ private:
     UPROPERTY()
     TObjectPtr<ACardioBlockoutNPC> AttendingNpc;
     AStaticMeshActor* SpawnBlock(UWorld& World, const FVector& Center, const FVector& Size, const FLinearColor& Color) const;
+    AStaticMeshActor* SpawnMesh(
+        UWorld& World,
+        UStaticMesh* Mesh,
+        const FVector& Location,
+        const FRotator& Rotation = FRotator::ZeroRotator,
+        const FVector& Scale = FVector(1.f)) const;
     void SpawnLighting(UWorld& World) const;
     void SpawnSigns(UWorld& World) const;
     void SpawnSign(UWorld& World, const FString& Text, const FVector& Location, float YawDegrees) const;
+    void SpawnClinicDressing(UWorld& World) const;
     void SpawnAttending(UWorld& World);
 
     // Hard references so the cook always carries the engine primitives the
@@ -122,4 +129,28 @@ private:
 
     UPROPERTY()
     TObjectPtr<UMaterialInterface> BlockMaterial;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ExamTableMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> HospitalBedMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ClinicDeskMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ClinicChairMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> DoorJambMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> BaseboardMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> CeilingLightMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> WallMonitorMesh;
 };
