@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human walk of package Mac-Development-20260815T190914Z (commit d481716). MetaHuman Patel still needs Optional Content + Epic login.
+next: Human walk of package Mac-Development-20260815T194333Z (commit d9e66d0) using click-to-walk. MetaHuman Core Data is still Initializing in the Epic launcher.
 ---
 
 # CLAUDE.md
@@ -271,6 +271,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-15: Default navigation is now click-to-walk / keys 1-4 (plan section 6). Mouse look is hold-right only. The ward is indoor: ceiling, door frames, clinic lamps, linoleum/wood tints. WASD still works. Packaged as Mac-Development-20260815T194333Z from d9e66d0. Portable tests 76/76. walkthroughPassed stays false.
 - 2026-08-15: Opened Room 1 for the authored vasovagal contrast case. Spawn is now the west corridor aimed at the team-room doorway (same look-at rule as facfa6d). Exam E and navigate.exam-room follow ClinicalCase.Room, so HCM stays in Exam Room 3 and the next case goes to Room 1. Wrong room shows the assigned location only. Packaged as Mac-Development-20260815T190914Z from d481716. Portable tests 76/76. walkthroughPassed stays false.
 - 2026-08-15: Optional Content is still missing, so Patel cannot assemble. Exam Room 3 now shows the authored vibe and parent presence on first E, then a talk/examine hub. Confidential history stays hidden until the learner asks the parent to step outside. No cube patient NPC. Packaged as Mac-Development-20260815T190259Z from 2de09f7. Portable tests 76/76. walkthroughPassed stays false.
 - 2026-08-15: Optional Content is still missing, so Patel cannot assemble. Added an Education Room ECG/echo station: walk in, E, order/review from the case graph, and structured ECG/echo panels drawn only from authored findings. No invented waveforms. Portable tests 76/76.
