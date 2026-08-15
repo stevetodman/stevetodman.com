@@ -213,7 +213,9 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(source, /SM_WallPanel/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /SM_LabCoat/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /SM_Stethoscope/);
+  assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /M_AttendingTie/);
   assert.match(await read("Scripts/blender_attending_kit.py"), /SM_Stethoscope/);
+  assert.match(await read("Scripts/blender_attending_kit.py"), /fit_to_patel/);
   assert.match(hud, /Evaluate the patient/);
   assert.match(hud, /IsInExamRoom\(\)/);
   assert.match(hud, /Click a place to walk there/);

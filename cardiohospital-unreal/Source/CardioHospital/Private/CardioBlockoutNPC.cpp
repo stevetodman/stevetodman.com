@@ -51,6 +51,21 @@ ACardioBlockoutNPC::ACardioBlockoutNPC()
     {
         AttendingCoat->SetStaticMesh(CoatFinder.Object);
     }
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> ShirtFinder(TEXT("/Game/Environment/Clinic/M_DressShirt.M_DressShirt"));
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> TieFinder(TEXT("/Game/Environment/Clinic/M_AttendingTie.M_AttendingTie"));
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> ButtonFinder(TEXT("/Game/Environment/Clinic/M_CoatButton.M_CoatButton"));
+    if (ShirtFinder.Succeeded())
+    {
+        AttendingCoat->SetMaterial(1, ShirtFinder.Object);
+    }
+    if (TieFinder.Succeeded())
+    {
+        AttendingCoat->SetMaterial(2, TieFinder.Object);
+    }
+    if (ButtonFinder.Succeeded())
+    {
+        AttendingCoat->SetMaterial(3, ButtonFinder.Object);
+    }
 
     AttendingTrousers = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttendingTrousers"));
     AttendingTrousers->SetupAttachment(Root);

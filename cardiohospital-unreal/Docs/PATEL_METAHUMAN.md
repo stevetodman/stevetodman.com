@@ -26,9 +26,11 @@ workstation can and cannot do.
   attending coat, charcoal trousers, and a neck-draped stethoscope
   (`SM_LabCoat`, `SM_Trousers`, `SM_Stethoscope`) overlay the assembled Patel.
   They are static meshes, not a skinned MetaHuman wardrobe item. Sketchfab's
-  CC-BY "Male Lab Coat and Pants" is downloadable only when logged in; this
-  kit is an original mid-thigh notched-lapel coat sized for the 175 cm High
-  Patel instead of another box overlay.
+  CC-BY "Male Lab Coat and Pants" is downloadable only when logged in. The
+  kit is an original mid-thigh notched-lapel coat shifted onto the exported
+  Patel body (chest at +Y, clavicle ~141 cm) so it no longer floats in front
+  of him. `Scripts/export-patel-body.py` writes the body FBX used to measure
+  that fit.
 - Voice, gaze (yaw), and listen still need a packaged human look before
   walkthrough step 5 can pass. Facial viseme/lip-sync is not wired yet.
 - Do not substitute the Ada test mesh or a crowd template for Dr. Patel.

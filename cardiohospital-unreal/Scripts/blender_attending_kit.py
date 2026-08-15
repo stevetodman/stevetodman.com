@@ -102,7 +102,19 @@ def origin_to_world_zero(obj):
     bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
 
 
-def export_fbx(obj, filename):
+def fit_to_patel(obj, y=-10.0, z=-8.0):
+    """Patel's assembled body is not centered: chest ~+8 Y, back ~-28 Y,
+    clavicle ~141 Z. Shift the standing coat onto that frame."""
+    bpy.ops.object.select_all(action="DESELECT")
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    obj.location = (0.0, y, z)
+    bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
+    return obj
+
+
+def export_fbx(obj, filename, y=-10.0, z=-8.0):
+    fit_to_patel(obj, y=y, z=z)
     origin_to_world_zero(obj)
     bpy.ops.object.select_all(action="DESELECT")
     obj.select_set(True)
@@ -606,13 +618,13 @@ def build_stethoscope():
 
 def main():
     builders = [
-        (build_lab_coat, "SM_LabCoat.fbx"),
-        (build_trousers, "SM_Trousers.fbx"),
-        (build_stethoscope, "SM_Stethoscope.fbx"),
+        (build_lab_coat, "SM_LabCoat.fbx", -10.0, -8.0),
+        (build_trousers, "SM_Trousers.fbx", -10.0, 0.0),
+        (build_stethoscope, "SM_Stethoscope.fbx", -10.0, -8.0),
     ]
-    for build, filename in builders:
+    for build, filename, y, z in builders:
         reset_scene()
-        export_fbx(build(), filename)
+        export_fbx(build(), filename, y=y, z=z)
 
 
 if __name__ == "__main__":
