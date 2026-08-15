@@ -42,6 +42,20 @@ def main():
         exists = unreal.EditorAssetLibrary.does_asset_exist(path)
         unreal.log(f"[AttendingKit] {path} exists={exists}")
 
+    shirt = "/Game/Environment/Clinic/M_DressShirt.M_DressShirt"
+    tie = "/Game/Environment/Clinic/M_AttendingTie.M_AttendingTie"
+    button = "/Game/Environment/Clinic/M_CoatButton.M_CoatButton"
+    coat = unreal.EditorAssetLibrary.load_asset(f"{dest}/SM_LabCoat")
+    if coat and isinstance(coat, unreal.StaticMesh):
+        if unreal.EditorAssetLibrary.does_asset_exist(shirt):
+            coat.set_material(1, unreal.EditorAssetLibrary.load_asset(shirt))
+        if unreal.EditorAssetLibrary.does_asset_exist(tie):
+            coat.set_material(2, unreal.EditorAssetLibrary.load_asset(tie))
+        if unreal.EditorAssetLibrary.does_asset_exist(button):
+            coat.set_material(3, unreal.EditorAssetLibrary.load_asset(button))
+        unreal.EditorAssetLibrary.save_asset(f"{dest}/SM_LabCoat")
+        unreal.log("[AttendingKit] pinned shirt/tie/button slots")
+
 
 if __name__ == "__main__":
     main()

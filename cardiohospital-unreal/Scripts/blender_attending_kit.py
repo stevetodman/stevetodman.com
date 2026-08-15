@@ -147,7 +147,8 @@ def smoothstep(t):
 
 
 def coat_radius(t):
-    hem, mid, waist, chest, yoke = 22.4, 19.6, 16.8, 18.6, 19.8
+    # Tight to a 175 cm torso. The previous 22 cm hem read as a foam column.
+    hem, mid, waist, chest, yoke = 18.4, 16.8, 15.2, 16.4, 17.0
     if t < 0.16:
         return lerp(hem, mid, smoothstep(t / 0.16))
     if t < 0.40:
@@ -160,14 +161,14 @@ def coat_radius(t):
 def body_point(t, u):
     z = lerp(60.0, 154.0, t)
     radius = coat_radius(t)
-    depth = 0.84 + 0.08 * math.sin(min(1.0, t / 0.85) * math.pi)
+    depth = 0.62 + 0.04 * math.sin(min(1.0, t / 0.85) * math.pi)
     # Narrower opening at the chest, a little more ease at the hem.
     open_deg = lerp(18.0, 13.0, smoothstep(t))
     start = math.radians(-open_deg)
     sweep = math.radians(-(360.0 - 2.0 * open_deg))
     theta = start + u * sweep
     x = radius * math.sin(theta)
-    y = radius * depth * math.cos(theta)
+    y = radius * depth * math.cos(theta) - 2.0
     if t > 0.90:
         neck = (t - 0.90) / 0.10
         x *= 1.0 - 0.22 * neck
@@ -200,19 +201,19 @@ def grid_surface(name, rings, segs, point_fn, material, thickness=1.05, levels=2
 
 def sleeve_point(side, t, u):
     """Sleeve grows out of the shoulder, then hangs beside a standing arm."""
-    root = Vector((side * 17.2, 1.0, 146.5))
-    deltoid = Vector((side * 21.8, 1.6, 142.0))
-    elbow = Vector((side * 22.6, 3.2, 114.0))
-    wrist = Vector((side * 23.2, 5.2, 84.5))
+    root = Vector((side * 15.4, -1.2, 142.0))
+    deltoid = Vector((side * 17.6, -0.4, 138.0))
+    elbow = Vector((side * 18.2, 1.0, 112.0))
+    wrist = Vector((side * 18.6, 2.2, 84.0))
     if t < 0.16:
         center = root.lerp(deltoid, t / 0.16)
-        radius = lerp(8.6, 7.6, t / 0.16)
+        radius = lerp(6.4, 5.8, t / 0.16)
     elif t < 0.58:
         center = deltoid.lerp(elbow, (t - 0.16) / 0.42)
-        radius = lerp(7.6, 6.4, (t - 0.16) / 0.42)
+        radius = lerp(5.8, 5.0, (t - 0.16) / 0.42)
     else:
         center = elbow.lerp(wrist, (t - 0.58) / 0.42)
-        radius = lerp(6.4, 5.5, (t - 0.58) / 0.42)
+        radius = lerp(5.0, 4.4, (t - 0.58) / 0.42)
     angle = u * math.tau
     return center + Vector((
         math.cos(angle) * radius * 0.94,
@@ -256,9 +257,9 @@ def make_cuff(side, cloth):
         rings=4,
         segs=16,
         point_fn=lambda t, u: Vector((
-            side * 23.2 + math.cos(u * math.tau) * lerp(5.8, 6.1, t),
-            5.2 + math.sin(u * math.tau) * lerp(5.8, 6.1, t),
-            lerp(83.2, 88.4, t),
+            side * 18.6 + math.cos(u * math.tau) * lerp(4.6, 4.9, t),
+            2.2 + math.sin(u * math.tau) * lerp(4.6, 4.9, t),
+            lerp(82.5, 87.0, t),
         )),
         material=cloth,
         thickness=1.2,
@@ -419,26 +420,22 @@ def build_lab_coat():
     metal = mat("M_CoatButton", (0.80, 0.81, 0.83), roughness=0.20, metallic=0.9, specular=0.75)
 
     parts = [
-        grid_surface("CoatBody", 16, 24, body_point, cloth, thickness=1.15, levels=2),
+        grid_surface("CoatBody", 16, 24, body_point, cloth, thickness=0.55, levels=2),
         make_sleeve(-1.0, cloth),
         make_sleeve(1.0, cloth),
-        make_shoulder_cap(-1.0, cloth),
-        make_shoulder_cap(1.0, cloth),
         make_cuff(-1.0, cloth),
         make_cuff(1.0, cloth),
         make_lapel(-1.0, cloth),
         make_lapel(1.0, cloth),
         make_collar(cloth),
-        make_pocket("PocketL", (-11.4, 16.2, 90.5), (11.0, 1.8, 13.6), cloth),
-        make_pocket("PocketR", (11.4, 16.2, 90.5), (11.0, 1.8, 13.6), cloth),
-        make_pocket("Breast", (9.4, 16.4, 131.0), (8.0, 1.4, 9.4), cloth),
+        make_pocket("PocketL", (-10.2, 9.4, 88.0), (9.2, 1.2, 11.5), cloth),
+        make_pocket("PocketR", (10.2, 9.4, 88.0), (9.2, 1.2, 11.5), cloth),
+        make_pocket("Breast", (8.4, 9.6, 126.0), (6.6, 1.1, 8.0), cloth),
     ]
     parts.extend(make_shirt_and_tie(shirt_mat, tie_mat))
-    for index, z in enumerate((145.5, 134.0, 122.5)):
-        parts.append(make_button(f"BtnL{index}", (-6.6, 16.9, z), metal))
-        parts.append(make_button(f"BtnR{index}", (6.6, 16.9, z), metal))
-    parts.append(make_button("CuffBtnL", (-28.6, 6.4, 85.6), metal, 0.68))
-    parts.append(make_button("CuffBtnR", (28.6, 6.4, 85.6), metal, 0.68))
+    for index, z in enumerate((140.0, 129.0, 118.0)):
+        parts.append(make_button(f"BtnL{index}", (-5.8, 10.2, z), metal, 0.85))
+        parts.append(make_button(f"BtnR{index}", (5.8, 10.2, z), metal, 0.85))
     return join_keep_materials("SM_LabCoat", parts)
 
 
@@ -618,9 +615,9 @@ def build_stethoscope():
 
 def main():
     builders = [
-        (build_lab_coat, "SM_LabCoat.fbx", -10.0, -8.0),
-        (build_trousers, "SM_Trousers.fbx", -10.0, 0.0),
-        (build_stethoscope, "SM_Stethoscope.fbx", -10.0, -8.0),
+        (build_lab_coat, "SM_LabCoat.fbx", 0.0, 0.0),
+        (build_trousers, "SM_Trousers.fbx", 0.0, 0.0),
+        (build_stethoscope, "SM_Stethoscope.fbx", 0.0, 0.0),
     ]
     for build, filename, y, z in builders:
         reset_scene()

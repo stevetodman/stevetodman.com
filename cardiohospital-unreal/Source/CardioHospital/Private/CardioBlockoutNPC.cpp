@@ -201,20 +201,24 @@ void ACardioBlockoutNPC::TryAttachAssembledMetaHuman()
 
     AssembledVisual->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
     HidePrimitiveStandIn();
+    // Pull the static coat onto the body. Unreal forward is +X; the previous
+    // overlay sat as a foam column in front of the assembled MetaHuman.
+    const FVector CoatOnBody(-10.f, 0.f, 0.f);
     if (AttendingCoat)
     {
         AttendingCoat->SetHiddenInGame(false);
-        AttendingCoat->SetRelativeLocation(FVector::ZeroVector);
+        AttendingCoat->SetRelativeLocation(CoatOnBody);
+        AttendingCoat->SetRelativeScale3D(FVector(0.92f, 0.78f, 0.96f));
     }
     if (AttendingTrousers)
     {
-        AttendingTrousers->SetHiddenInGame(false);
-        AttendingTrousers->SetRelativeLocation(FVector::ZeroVector);
+        AttendingTrousers->SetHiddenInGame(true);
     }
     if (AttendingScope)
     {
         AttendingScope->SetHiddenInGame(false);
-        AttendingScope->SetRelativeLocation(FVector::ZeroVector);
+        AttendingScope->SetRelativeLocation(CoatOnBody);
+        AttendingScope->SetRelativeScale3D(FVector(0.92f, 0.78f, 0.96f));
     }
 }
 
