@@ -44,9 +44,9 @@ namespace
         FLinearColor Color;
     };
 
-    const FLinearColor FloorLinoleum(0.62f, 0.58f, 0.50f);
-    const FLinearColor WallHospital(0.91f, 0.90f, 0.86f);
-    const FLinearColor CeilingWhite(0.96f, 0.95f, 0.92f);
+    const FLinearColor FloorLinoleum(0.78f, 0.77f, 0.73f);
+    const FLinearColor WallHospital(0.97f, 0.97f, 0.96f);
+    const FLinearColor CeilingWhite(0.98f, 0.98f, 0.97f);
     const FLinearColor AccentTeal(0.0f, 0.55f, 0.54f);
     const FLinearColor WindowGlow(0.72f, 0.84f, 0.95f);
     const FLinearColor RailSteel(0.55f, 0.58f, 0.60f);
@@ -2068,7 +2068,7 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
         Lamp->SetupAttachment(Root);
         Lamp->SetMobility(EComponentMobility::Movable);
         Lamp->SetWorldLocation(LightPoints[Index]);
-        Lamp->SetIntensity(16000.f);
+        Lamp->SetIntensity(19000.f);
         Lamp->SetAttenuationRadius(2000.f);
         Lamp->SetLightColor(FLinearColor(1.f, 0.96f, 0.9f));
         Lamp->SetSpecularScale(0.55f);
@@ -2123,7 +2123,7 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
         Grade->Settings.bOverride_AutoExposureMethod = true;
         Grade->Settings.AutoExposureMethod = AEM_Histogram;
         Grade->Settings.bOverride_AutoExposureBias = true;
-        Grade->Settings.AutoExposureBias = 1.25f;
+        Grade->Settings.AutoExposureBias = 1.40f;
         Grade->Settings.bOverride_BloomIntensity = true;
         Grade->Settings.BloomIntensity = 0.18f;
         Grade->Settings.bOverride_AmbientOcclusionIntensity = true;

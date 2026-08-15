@@ -97,33 +97,104 @@ def export_fbx(obj, filename):
     print(f"exported {path}")
 
 
+def _open_front_and_solidify(obj, front_y=7.0, thickness=1.15):
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="DESELECT")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    for vertex in obj.data.vertices:
+        vertex.select = vertex.co.y > front_y and abs(vertex.co.x) < 8.0
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.delete(type="VERT")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    solid = obj.modifiers.new("Solidify", "SOLIDIFY")
+    solid.thickness = thickness
+    solid.offset = 1.0
+    bpy.ops.object.modifier_apply(modifier=solid.name)
+    sub = obj.modifiers.new("Subdiv", "SUBSURF")
+    sub.levels = 2
+    sub.render_levels = 2
+    bpy.ops.object.modifier_apply(modifier=sub.name)
+    return obj
+
+
 def build_lab_coat():
-    cloth = mat("M_LabCoat", (0.93, 0.93, 0.94), roughness=0.62)
-    lining = mat("M_CoatLining", (0.82, 0.84, 0.88), roughness=0.7)
-    parts = [
-        cube("CoatTorso", (38, 22, 78), (0, 3, 128), cloth, 1.4),
-        cube("CoatSkirt", (40, 24, 42), (0, 4, 78), cloth, 1.2),
-        cube("CoatCollar", (28, 10, 8), (0, 10, 168), cloth, 0.6),
-        cube("LeftLapel", (7, 6, 36), (-10, 13, 146), cloth, 0.5),
-        cube("RightLapel", (7, 6, 36), (10, 13, 146), cloth, 0.5),
-        cube("LeftSleeve", (11, 11, 56), (-26, 2, 132), cloth, 1.0),
-        cube("RightSleeve", (11, 11, 56), (26, 2, 132), cloth, 1.0),
-        cube("PocketL", (10, 2, 12), (-12, 14, 110), cloth, 0.3),
-        cube("PocketR", (10, 2, 12), (12, 14, 110), cloth, 0.3),
-        cube("BreastPocket", (8, 2, 9), (12, 14, 146), cloth, 0.3),
-        cube("InnerPlacket", (6, 1.5, 70), (0, 14.2, 128), lining, 0.2),
+    cloth = mat("M_LabCoat", (0.97, 0.97, 0.96), roughness=0.48)
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=28, radius=17.5, depth=96, location=(0.0, 1.5, 118.0)
+    )
+    body = bpy.context.active_object
+    body.name = "CoatBody"
+    body.scale = (1.05, 0.92, 1.0)
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+    # A-line: widen the hem.
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="DESELECT")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    for vertex in body.data.vertices:
+        vertex.select = vertex.co.z < -30.0
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.transform.resize(value=(1.18, 1.12, 1.0))
+    bpy.ops.object.mode_set(mode="OBJECT")
+    _open_front_and_solidify(body, front_y=8.5, thickness=1.2)
+
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=16, radius=7.2, depth=54, location=(-23.0, 1.0, 138.0),
+        rotation=(1.15, 0.0, 0.35),
+    )
+    left = bpy.context.active_object
+    left.name = "LeftSleeve"
+    _open_front_and_solidify(left, front_y=20.0, thickness=0.9)
+
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=16, radius=7.2, depth=54, location=(23.0, 1.0, 138.0),
+        rotation=(1.15, 0.0, -0.35),
+    )
+    right = bpy.context.active_object
+    right.name = "RightSleeve"
+    _open_front_and_solidify(right, front_y=20.0, thickness=0.9)
+
+    bpy.ops.mesh.primitive_torus_add(
+        major_radius=10.5, minor_radius=2.4, major_segments=20, minor_segments=8,
+        location=(0.0, 3.5, 168.0), rotation=(0.55, 0.0, 0.0),
+    )
+    collar = bpy.context.active_object
+    collar.name = "Collar"
+    sub = collar.modifiers.new("Subdiv", "SUBSURF")
+    sub.levels = 1
+    bpy.ops.object.modifier_apply(modifier=sub.name)
+
+    pockets = [
+        cube("PocketL", (9, 1.4, 11), (-11, 14.5, 102), cloth, 0.35),
+        cube("PocketR", (9, 1.4, 11), (11, 14.5, 102), cloth, 0.35),
+        cube("Breast", (7, 1.3, 8), (10, 14.2, 142), cloth, 0.25),
     ]
-    return join("SM_LabCoat", parts, cloth)
+    return join("SM_LabCoat", [body, left, right, collar, *pockets], cloth)
 
 
 def build_trousers():
-    wool = mat("M_Trouser", (0.12, 0.14, 0.18), roughness=0.68)
-    parts = [
-        cube("Seat", (32, 20, 22), (0, 1, 88), wool, 1.0),
-        cube("LeftLeg", (13, 13, 78), (-8, 1, 42), wool, 0.8),
-        cube("RightLeg", (13, 13, 78), (8, 1, 42), wool, 0.8),
-    ]
-    return join("SM_Trousers", parts, wool)
+    wool = mat("M_Trouser", (0.10, 0.11, 0.14), roughness=0.58)
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=16, radius=8.2, depth=78, location=(-7.5, 1.0, 44.0)
+    )
+    left = bpy.context.active_object
+    left.scale = (1.0, 0.92, 1.0)
+    bpy.ops.object.transform_apply(scale=True)
+    sub = left.modifiers.new("Subdiv", "SUBSURF")
+    sub.levels = 1
+    bpy.ops.object.modifier_apply(modifier=sub.name)
+
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=16, radius=8.2, depth=78, location=(7.5, 1.0, 44.0)
+    )
+    right = bpy.context.active_object
+    right.scale = (1.0, 0.92, 1.0)
+    bpy.ops.object.transform_apply(scale=True)
+    sub = right.modifiers.new("Subdiv", "SUBSURF")
+    sub.levels = 1
+    bpy.ops.object.modifier_apply(modifier=sub.name)
+
+    seat = cube("Seat", (28, 18, 18), (0, 1.5, 86), wool, 1.4)
+    return join("SM_Trousers", [seat, left, right], wool)
 
 
 def build_exam_table():
