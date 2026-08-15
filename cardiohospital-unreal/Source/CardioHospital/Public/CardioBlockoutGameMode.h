@@ -47,8 +47,11 @@ public:
     void NotifyLearnerLocation(const FVector& Location);
 
     static bool IsExamRoom3Location(const FVector& Location);
+    static bool IsRoom1Location(const FVector& Location);
     static bool IsTeamRoomLocation(const FVector& Location);
     static bool IsEducationRoomLocation(const FVector& Location);
+    static bool MatchesExamRoom(const FVector& Location, const FString& AuthoredRoom);
+    bool IsAssignedExamRoomLocation(const FVector& Location) const;
 
 private:
     void HandleAttending(ACardioBlockoutNPC& Npc);

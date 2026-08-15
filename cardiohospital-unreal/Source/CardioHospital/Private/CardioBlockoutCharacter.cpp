@@ -85,6 +85,12 @@ bool ACardioBlockoutCharacter::IsInExamRoom3() const
     return ACardioBlockoutGameMode::IsExamRoom3Location(GetActorLocation());
 }
 
+bool ACardioBlockoutCharacter::IsInExamRoom() const
+{
+    return ACardioBlockoutGameMode::IsExamRoom3Location(GetActorLocation())
+        || ACardioBlockoutGameMode::IsRoom1Location(GetActorLocation());
+}
+
 bool ACardioBlockoutCharacter::IsInEducationRoom() const
 {
     return ACardioBlockoutGameMode::IsEducationRoomLocation(GetActorLocation());

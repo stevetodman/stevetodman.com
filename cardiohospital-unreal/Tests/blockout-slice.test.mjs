@@ -38,22 +38,22 @@ test("the blockout hard-references its engine primitives and spawns a start", as
   assert.match(source, /SpawnActor<APlayerStart>/);
   assert.match(
     source,
-    /const FVector ReceptionPlayerStart\(-1200\.0, -600\.0, 110\.0\)/,
-    "the reception start must stay clear of its landmark desk",
+    /const FVector CorridorPlayerStart\(-1000\.0, 0\.0, 110\.0\)/,
+    "the corridor start must stay in the west hallway, not inside Room 1",
   );
   assert.match(
     source,
-    /const FVector ReceptionDoorwayCenter\(-750\.0, -200\.0, 110\.0\)/,
-    "the intended doorway center must remain explicit",
+    /const FVector TeamRoomDoorwayCenter\(750\.0, 200\.0, 110\.0\)/,
+    "the intended team-room doorway center must remain explicit",
   );
   assert.match(
     source,
-    /StartRotation = \(ReceptionDoorwayCenter - ReceptionPlayerStart\)\.Rotation\(\)/,
-    "the reception start must look through the doorway rather than at either adjoining wall",
+    /StartRotation = \(TeamRoomDoorwayCenter - CorridorPlayerStart\)\.Rotation\(\)/,
+    "the corridor start must look through the team-room doorway rather than at either adjoining wall",
   );
   assert.match(
     source,
-    /SpawnActor<APlayerStart>\(ReceptionPlayerStart, StartRotation, Params\)/,
+    /SpawnActor<APlayerStart>\(CorridorPlayerStart, StartRotation, Params\)/,
     "the calculated doorway-facing rotation must be used to spawn the player start",
   );
 
@@ -92,7 +92,7 @@ test("every axis the character binds is mapped, and every mapping is bound", asy
 test("the ward names its rooms to match the case flow", async () => {
   const source = await read("Source/CardioHospital/Private/CardioBlockoutGameMode.cpp");
 
-  for (const room of ["Exam Room 3", "Cardiology Team Room", "Reception", "Education Room", "ECG / Echo"]) {
+  for (const room of ["Exam Room 3", "Room 1", "Cardiology Team Room", "Reception", "Education Room", "ECG / Echo"]) {
     assert.match(source, new RegExp(`SpawnSign\\(World, TEXT\\("${room}"\\)`), `missing door sign for ${room}`);
   }
 });
@@ -130,8 +130,13 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   const hud = await read("Source/CardioHospital/Private/CardioBlockoutHUD.cpp");
 
   assert.match(header, /static bool IsExamRoom3Location/);
+  assert.match(header, /static bool IsRoom1Location/);
+  assert.match(header, /static bool MatchesExamRoom/);
+  assert.match(header, /IsAssignedExamRoomLocation/);
   assert.match(header, /static bool IsTeamRoomLocation/);
   assert.match(header, /static bool IsEducationRoomLocation/);
+  assert.match(source, /GetActiveClinicalCase\(\)\.Room/);
+  assert.match(source, /This is not the assigned room/);
   assert.match(source, /ShowEcgReview/);
   assert.match(source, /ShowEchoReview/);
   assert.match(source, /ShowDiagnosticsMenu/);
@@ -159,6 +164,10 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(source, /Differentials/);
   assert.match(source, /RecordAttempt/);
   assert.match(source, /SelectNextCase/);
+  const content = JSON.parse(await read("Content/Data/clinical-content.json"));
+  const contrast = content.cases.find((entry) => entry.id === "case-vasovagal");
+  assert.ok(contrast, "the contrast case must ship");
+  assert.equal(contrast.room, "Room 1", "the contrast case must keep its authored Room 1 location");
   assert.match(source, /EvaluateCurrentAttempt/);
   assert.match(source, /AttendingSocratic/);
   assert.match(source, /MissedOpportunityTemplate/);
@@ -179,7 +188,9 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.doesNotMatch(source, /SpawnActor<ACardioBlockoutNPC>.*marcus|GPatientNpcId/i);
   assert.doesNotMatch(source, /Hypertrophic Cardiomyopathy/);
   assert.match(character, /NotifyLearnerLocation/);
+  assert.match(character, /IsRoom1Location/);
   assert.match(hud, /Evaluate the patient/);
+  assert.match(hud, /IsInExamRoom\(\)/);
 });
 
 test("numbered encounter choices are bound and mapped", async () => {

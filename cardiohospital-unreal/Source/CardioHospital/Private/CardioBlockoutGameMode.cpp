@@ -47,11 +47,12 @@ namespace
     const FLinearColor ExamBlue(0.55f, 0.70f, 0.90f);
     const FLinearColor TableWarm(0.60f, 0.50f, 0.40f);
 
-    const FVector ReceptionPlayerStart(-1200.0, -600.0, 110.0);
-    const FVector ReceptionDoorwayCenter(-750.0, -200.0, 110.0);
+    const FVector CorridorPlayerStart(-1000.0, 0.0, 110.0);
+    const FVector TeamRoomDoorwayCenter(750.0, 200.0, 110.0);
 
-    // Northwest room is Exam Room 3; northeast is the Cardiology Team Room.
-    // Bounds stay inside the door gaps so corridor travel does not count.
+    // Northwest is Exam Room 3; southwest is Room 1; northeast is the
+    // Cardiology Team Room; southeast is ECG/echo. Bounds stay inside the
+    // door gaps so corridor travel does not count.
     const float RoomMinX = -1480.0f;
     const float RoomMidX = 0.0f;
     const float RoomMaxX = 1480.0f;
@@ -94,9 +95,10 @@ namespace
         { FVector(0.0, 600.0, 175.0), FVector(20.0, 800.0, 350.0), WallWhite },
         { FVector(0.0, -600.0, 175.0), FVector(20.0, 800.0, 350.0), WallWhite },
 
-        // Landmarks: reception desk (SW), patient bed (NW), team room table
-        // (NE), education table (SE). Enough to orient by, nothing more.
-        { FVector(-750.0, -600.0, 55.0), FVector(300.0, 120.0, 110.0), AccentTeal },
+        // Landmarks: reception desk (west corridor), Room 1 bed (SW), Room 3
+        // bed (NW), team room table (NE), education table (SE).
+        { FVector(-1350.0, 90.0, 55.0), FVector(180.0, 80.0, 110.0), AccentTeal },
+        { FVector(-750.0, -600.0, 40.0), FVector(220.0, 100.0, 80.0), BedWhite },
         { FVector(-750.0, 600.0, 40.0), FVector(220.0, 100.0, 80.0), BedWhite },
         { FVector(750.0, 600.0, 45.0), FVector(200.0, 90.0, 90.0), ExamBlue },
         { FVector(750.0, -600.0, 50.0), FVector(240.0, 140.0, 100.0), TableWarm },
@@ -142,19 +144,25 @@ void ACardioBlockoutGameMode::InitGame(const FString& MapName, const FString& Op
     SpawnAttending(*World);
 
     // Spawned before login so the default ChoosePlayerStart finds it. The
-    // learner starts in the reception lobby facing the corridor.
+    // learner starts in the west corridor looking at the team-room doorway.
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    // Aim at the actual doorway center. Due north from the off-center start
-    // still faces a solid section of the corridor wall.
-    const FRotator StartRotation = (ReceptionDoorwayCenter - ReceptionPlayerStart).Rotation();
-    World->SpawnActor<APlayerStart>(ReceptionPlayerStart, StartRotation, Params);
+    // Aim at the actual doorway center. A cardinal yaw from this start still
+    // faces a wall segment rather than the team-room opening.
+    const FRotator StartRotation = (TeamRoomDoorwayCenter - CorridorPlayerStart).Rotation();
+    World->SpawnActor<APlayerStart>(CorridorPlayerStart, StartRotation, Params);
 }
 
 bool ACardioBlockoutGameMode::IsExamRoom3Location(const FVector& Location)
 {
     return Location.X >= RoomMinX && Location.X < RoomMidX
         && Location.Y >= RoomMinY && Location.Y <= RoomMaxY;
+}
+
+bool ACardioBlockoutGameMode::IsRoom1Location(const FVector& Location)
+{
+    return Location.X >= RoomMinX && Location.X < RoomMidX
+        && Location.Y >= -RoomMaxY && Location.Y <= -RoomMinY;
 }
 
 bool ACardioBlockoutGameMode::IsTeamRoomLocation(const FVector& Location)
@@ -167,6 +175,34 @@ bool ACardioBlockoutGameMode::IsEducationRoomLocation(const FVector& Location)
 {
     return Location.X > RoomMidX && Location.X <= RoomMaxX
         && Location.Y >= -RoomMaxY && Location.Y <= -RoomMinY;
+}
+
+bool ACardioBlockoutGameMode::MatchesExamRoom(const FVector& Location, const FString& AuthoredRoom)
+{
+    FString Room = AuthoredRoom;
+    Room.TrimStartAndEndInline();
+    if (Room.Equals(TEXT("Room 3"), ESearchCase::IgnoreCase)
+        || Room.Equals(TEXT("Exam Room 3"), ESearchCase::IgnoreCase))
+    {
+        return IsExamRoom3Location(Location);
+    }
+    if (Room.Equals(TEXT("Room 1"), ESearchCase::IgnoreCase)
+        || Room.Equals(TEXT("Exam Room 1"), ESearchCase::IgnoreCase))
+    {
+        return IsRoom1Location(Location);
+    }
+    return false;
+}
+
+bool ACardioBlockoutGameMode::IsAssignedExamRoomLocation(const FVector& Location) const
+{
+    const UGameInstance* GameInstance = GetGameInstance();
+    const UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Runtime || !Runtime->HasActiveCase())
+    {
+        return false;
+    }
+    return MatchesExamRoom(Location, Runtime->GetActiveClinicalCase().Room);
 }
 
 void ACardioBlockoutGameMode::NotifyLearnerLocation(const FVector& Location)
@@ -183,7 +219,7 @@ void ACardioBlockoutGameMode::NotifyLearnerLocation(const FVector& Location)
         TryPerformAction(TEXT("navigate.workroom"));
         TryPerformAction(TEXT("navigate.return-workroom"));
     }
-    if (IsExamRoom3Location(Location))
+    if (IsAssignedExamRoomLocation(Location))
     {
         TryPerformAction(TEXT("navigate.exam-room"));
     }
@@ -220,7 +256,7 @@ void ACardioBlockoutGameMode::HandleInteract(ACardioBlockoutCharacter& Character
         return;
     }
 
-    if (IsExamRoom3Location(Character.GetActorLocation()))
+    if (IsExamRoom3Location(Character.GetActorLocation()) || IsRoom1Location(Character.GetActorLocation()))
     {
         HandleExamRoom();
         return;
@@ -449,9 +485,25 @@ void ACardioBlockoutGameMode::HandleExamRoom()
     if (!Runtime || !Runtime->HasActiveCase())
     {
         Hud->ShowPanel({
-            TEXT("Exam Room 3"),
+            TEXT("Exam room"),
             FString(),
             TEXT("See Dr. Patel in the Cardiology Team Room first."),
+            FString(),
+            TEXT("[E] Close"),
+        });
+        return;
+    }
+
+    const APawn* Pawn = Controller ? Controller->GetPawn() : nullptr;
+    const FVector Location = Pawn ? Pawn->GetActorLocation() : FVector::ZeroVector;
+    if (!IsAssignedExamRoomLocation(Location))
+    {
+        const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
+        Hud->ShowPanel({
+            ClinicalCase.Room.IsEmpty() ? TEXT("Exam room") : ClinicalCase.Room,
+            FString(),
+            TEXT("This is not the assigned room."),
+            FString::Printf(TEXT("The assignment is %s."), *ClinicalCase.Room),
             FString(),
             TEXT("[E] Close"),
         });
@@ -1774,7 +1826,8 @@ void ACardioBlockoutGameMode::SpawnSigns(UWorld& World) const
     // clinical location string shown in the assignment comes from content.
     SpawnSign(World, TEXT("Exam Room 3"), FVector(-750.0, 184.0, 285.0), -90.f);
     SpawnSign(World, TEXT("Cardiology Team Room"), FVector(750.0, 184.0, 285.0), -90.f);
-    SpawnSign(World, TEXT("Reception"), FVector(-750.0, -184.0, 285.0), 90.f);
+    SpawnSign(World, TEXT("Room 1"), FVector(-750.0, -184.0, 285.0), 90.f);
+    SpawnSign(World, TEXT("Reception"), FVector(-1400.0, 0.0, 285.0), 0.f);
     SpawnSign(World, TEXT("Education Room"), FVector(750.0, -184.0, 285.0), 90.f);
     SpawnSign(World, TEXT("ECG / Echo"), FVector(980.0, -184.0, 250.0), 90.f);
 }

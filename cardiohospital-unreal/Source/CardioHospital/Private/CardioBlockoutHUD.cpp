@@ -54,7 +54,7 @@ void ACardioBlockoutHUD::DrawHUD()
     {
         Prompt = Focused->GetInteractionPrompt();
     }
-    else if (Character && Character->IsInExamRoom3())
+    else if (Character && Character->IsInExamRoom())
     {
         Prompt = TEXT("[E]  Evaluate the patient");
     }
