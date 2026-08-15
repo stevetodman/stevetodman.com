@@ -1,6 +1,9 @@
 # ADR-0001: Rebaseline the production client on Unreal Engine 5.8
 
-- Status: Accepted
+- Status: Accepted; platform, launch-surface, and performance-hardware clauses
+  superseded by [`ADR-0002-macos-release-target.md`](ADR-0002-macos-release-target.md)
+  on 2026-08-15. Sections 1, 2, and 3 below record the decision as taken on
+  2026-08-14 and are retained unaltered as history. Section 4 remains in force.
 - Decision date: 2026-08-14
 - Authority: Product owner confirmation that `LegacyCore/plan.md` is the
   authoritative 168-section plan
