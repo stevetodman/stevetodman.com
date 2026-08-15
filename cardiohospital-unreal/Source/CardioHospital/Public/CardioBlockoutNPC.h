@@ -46,7 +46,8 @@ private:
     void HidePrimitiveStandIn();
     void TryAttachAssembledMetaHuman();
     USkeletalMeshComponent* FindAssembledBody() const;
-    void AttachSkinnedAttendingKit(USkeletalMeshComponent* Body);
+    void EnsureSkinnedMeshesLoaded();
+    bool AttachSkinnedAttendingKit();
 
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<USceneComponent> Root;
@@ -115,4 +116,6 @@ private:
 
     UPROPERTY()
     TObjectPtr<AActor> AssembledVisual;
+
+    bool bAttendingKitAttached = false;
 };

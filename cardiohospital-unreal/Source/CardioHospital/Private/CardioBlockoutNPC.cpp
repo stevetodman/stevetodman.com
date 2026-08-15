@@ -13,6 +13,8 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "UObject/ConstructorHelpers.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogCardioAttending, Log, All);
+
 ACardioBlockoutNPC::ACardioBlockoutNPC()
 {
     PrimaryActorTick.bCanEverTick = true;
@@ -239,7 +241,8 @@ void ACardioBlockoutNPC::TryAttachAssembledMetaHuman()
     {
         AttendingScope->SetHiddenInGame(true);
     }
-    AttachSkinnedAttendingKit(FindAssembledBody());
+    EnsureSkinnedMeshesLoaded();
+    AttachSkinnedAttendingKit();
 }
 
 USkeletalMeshComponent* ACardioBlockoutNPC::FindAssembledBody() const
@@ -250,7 +253,7 @@ USkeletalMeshComponent* ACardioBlockoutNPC::FindAssembledBody() const
     }
 
     TArray<USkeletalMeshComponent*> Skels;
-    AssembledVisual->GetComponents<USkeletalMeshComponent>(Skels);
+    AssembledVisual->GetComponents<USkeletalMeshComponent>(Skels, true);
     for (USkeletalMeshComponent* Skel : Skels)
     {
         if (!Skel)
@@ -259,6 +262,7 @@ USkeletalMeshComponent* ACardioBlockoutNPC::FindAssembledBody() const
         }
         const USkeletalMesh* Mesh = Skel->GetSkeletalMeshAsset();
         const FString MeshName = Mesh ? Mesh->GetName() : FString();
+        UE_LOG(LogCardioAttending, Verbose, TEXT("assembled skel %s mesh=%s"), *Skel->GetName(), *MeshName);
         if (Skel->GetName().Contains(TEXT("Body")) || MeshName.Contains(TEXT("Body")))
         {
             return Skel;
@@ -271,7 +275,7 @@ USkeletalMeshComponent* ACardioBlockoutNPC::FindAssembledBody() const
             continue;
         }
         const FString Name = Skel->GetName();
-        if (!Name.Contains(TEXT("Face")) && !Name.Contains(TEXT("Hair")))
+        if (!Name.Contains(TEXT("Face")) && !Name.Contains(TEXT("Hair")) && !Name.Contains(TEXT("Groom")))
         {
             return Skel;
         }
@@ -279,28 +283,79 @@ USkeletalMeshComponent* ACardioBlockoutNPC::FindAssembledBody() const
     return Skels.Num() > 0 ? Skels[0] : nullptr;
 }
 
-void ACardioBlockoutNPC::AttachSkinnedAttendingKit(USkeletalMeshComponent* Body)
+void ACardioBlockoutNPC::EnsureSkinnedMeshesLoaded()
 {
-    if (!Body)
+    auto LoadInto = [](USkeletalMeshComponent* Comp, const TCHAR* Path)
     {
-        return;
-    }
-
-    auto AttachFollower = [Body](USkeletalMeshComponent* Follower)
-    {
-        if (!Follower || !Follower->GetSkeletalMeshAsset())
+        if (!Comp || Comp->GetSkeletalMeshAsset())
         {
             return;
         }
+        if (USkeletalMesh* Mesh = LoadObject<USkeletalMesh>(nullptr, Path))
+        {
+            Comp->SetSkeletalMesh(Mesh);
+            UE_LOG(LogCardioAttending, Display, TEXT("runtime loaded %s"), Path);
+        }
+        else
+        {
+            UE_LOG(LogCardioAttending, Warning, TEXT("missing skeletal mesh %s"), Path);
+        }
+    };
+    LoadInto(AttendingCoatSkel, TEXT("/Game/Environment/Clinic/SK_LabCoat.SK_LabCoat"));
+    LoadInto(AttendingScopeSkel, TEXT("/Game/Environment/Clinic/SK_Stethoscope.SK_Stethoscope"));
+}
+
+bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
+{
+    if (bAttendingKitAttached)
+    {
+        return true;
+    }
+
+    EnsureSkinnedMeshesLoaded();
+    USkeletalMeshComponent* Body = FindAssembledBody();
+    if (!Body)
+    {
+        UE_LOG(LogCardioAttending, Warning, TEXT("no assembled body yet for %s"), *DisplayName);
+        return false;
+    }
+
+    auto AttachFollower = [Body](USkeletalMeshComponent* Follower, const TCHAR* Label) -> bool
+    {
+        if (!Follower)
+        {
+            UE_LOG(LogCardioAttending, Warning, TEXT("%s component missing"), Label);
+            return false;
+        }
+        USkeletalMesh* Mesh = Follower->GetSkeletalMeshAsset();
+        if (!Mesh)
+        {
+            UE_LOG(LogCardioAttending, Warning, TEXT("%s has no mesh"), Label);
+            return false;
+        }
+        Follower->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
         Follower->AttachToComponent(Body, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
         Follower->SetRelativeLocationAndRotation(FVector::ZeroVector, FRotator::ZeroRotator);
+        Follower->SetRelativeScale3D(FVector::OneVector);
         Follower->SetLeaderPoseComponent(Body, true);
         Follower->SetHiddenInGame(false);
         Follower->SetVisibility(true, true);
+        Follower->bCastDynamicShadow = true;
+        UE_LOG(
+            LogCardioAttending,
+            Display,
+            TEXT("leader-posed %s (%s) onto %s/%s"),
+            Label,
+            *Mesh->GetName(),
+            *Body->GetName(),
+            Body->GetSkeletalMeshAsset() ? *Body->GetSkeletalMeshAsset()->GetName() : TEXT("none"));
+        return true;
     };
 
-    AttachFollower(AttendingCoatSkel);
-    AttachFollower(AttendingScopeSkel);
+    const bool bCoat = AttachFollower(AttendingCoatSkel, TEXT("SK_LabCoat"));
+    AttachFollower(AttendingScopeSkel, TEXT("SK_Stethoscope"));
+    bAttendingKitAttached = bCoat;
+    return bAttendingKitAttached;
 }
 
 void ACardioBlockoutNPC::SetListening(const bool bInListening)
@@ -325,6 +380,10 @@ void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
     const APawn* Learner = Controller ? Controller->GetPawn() : nullptr;
     if (AssembledVisual)
     {
+        if (!bAttendingKitAttached)
+        {
+            AttachSkinnedAttendingKit();
+        }
         if (!Learner)
         {
             return;
