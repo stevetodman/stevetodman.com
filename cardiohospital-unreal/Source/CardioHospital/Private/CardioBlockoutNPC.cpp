@@ -40,6 +40,7 @@ ACardioBlockoutNPC::ACardioBlockoutNPC()
 
     static ConstructorHelpers::FObjectFinder<UStaticMesh> CoatFinder(TEXT("/Game/Environment/Clinic/SM_LabCoat.SM_LabCoat"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> TrouserFinder(TEXT("/Game/Environment/Clinic/SM_Trousers.SM_Trousers"));
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> ScopeFinder(TEXT("/Game/Environment/Clinic/SM_Stethoscope.SM_Stethoscope"));
 
     AttendingCoat = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttendingCoat"));
     AttendingCoat->SetupAttachment(Root);
@@ -59,6 +60,16 @@ ACardioBlockoutNPC::ACardioBlockoutNPC()
     if (TrouserFinder.Succeeded())
     {
         AttendingTrousers->SetStaticMesh(TrouserFinder.Object);
+    }
+
+    AttendingScope = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttendingScope"));
+    AttendingScope->SetupAttachment(Root);
+    AttendingScope->SetMobility(EComponentMobility::Movable);
+    AttendingScope->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    AttendingScope->SetHiddenInGame(true);
+    if (ScopeFinder.Succeeded())
+    {
+        AttendingScope->SetStaticMesh(ScopeFinder.Object);
     }
 
     NameText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("NameText"));
@@ -178,12 +189,17 @@ void ACardioBlockoutNPC::TryAttachAssembledMetaHuman()
     if (AttendingCoat)
     {
         AttendingCoat->SetHiddenInGame(false);
-        AttendingCoat->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+        AttendingCoat->SetRelativeLocation(FVector::ZeroVector);
     }
     if (AttendingTrousers)
     {
         AttendingTrousers->SetHiddenInGame(false);
-        AttendingTrousers->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+        AttendingTrousers->SetRelativeLocation(FVector::ZeroVector);
+    }
+    if (AttendingScope)
+    {
+        AttendingScope->SetHiddenInGame(false);
+        AttendingScope->SetRelativeLocation(FVector::ZeroVector);
     }
 }
 

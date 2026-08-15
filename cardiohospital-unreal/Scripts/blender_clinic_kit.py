@@ -293,8 +293,6 @@ def build_monitor():
 def main():
     reset_scene()
     builders = [
-        (build_lab_coat, "SM_LabCoat.fbx"),
-        (build_trousers, "SM_Trousers.fbx"),
         (build_exam_table, "SM_ExamTable.fbx"),
         (build_hospital_bed, "SM_HospitalBed.fbx"),
         (build_desk, "SM_ClinicDesk.fbx"),

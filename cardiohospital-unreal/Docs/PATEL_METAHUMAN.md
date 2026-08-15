@@ -22,9 +22,13 @@ workstation can and cannot do.
 
 ## What is still not the walkthrough pass
 
-- Core Data ships only the default casual garment. A Blender lab coat and
-  trousers (`SM_LabCoat`, `SM_Trousers`) overlay the assembled Patel so he
-  reads as an attending. They are not a skinned MetaHuman wardrobe item.
+- Core Data ships only the default casual garment. A tailored open-front
+  attending coat, charcoal trousers, and a neck-draped stethoscope
+  (`SM_LabCoat`, `SM_Trousers`, `SM_Stethoscope`) overlay the assembled Patel.
+  They are static meshes, not a skinned MetaHuman wardrobe item. Sketchfab's
+  CC-BY "Male Lab Coat and Pants" is downloadable only when logged in; this
+  kit is an original mid-thigh notched-lapel coat sized for the 175 cm High
+  Patel instead of another box overlay.
 - Voice, gaze (yaw), and listen still need a packaged human look before
   walkthrough step 5 can pass. Facial viseme/lip-sync is not wired yet.
 - Do not substitute the Ada test mesh or a crowd template for Dr. Patel.

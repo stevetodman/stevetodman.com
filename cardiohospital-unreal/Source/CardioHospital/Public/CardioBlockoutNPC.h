@@ -85,6 +85,9 @@ private:
     TObjectPtr<UStaticMeshComponent> AttendingTrousers;
 
     UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UStaticMeshComponent> AttendingScope;
+
+    UPROPERTY(VisibleAnywhere)
     TObjectPtr<UTextRenderComponent> NameText;
 
     UPROPERTY()
