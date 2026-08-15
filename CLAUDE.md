@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human look at the next package for attending coat + Blender clinic furniture. walkthroughPassed stays false.
+next: Human look at Mac-Development-20260815T215024Z (commit 1db15f7) for attending coat and clinic meshes. walkthroughPassed stays false.
 ---
 
 # CLAUDE.md
@@ -271,6 +271,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-15: Blender clinic kit: lab coat and trousers overlay the assembled Patel; beds, desks, chairs, door jambs, and lights replace cube furniture. Same C++ layout. Packaged as Mac-Development-20260815T215024Z from 1db15f7. walkthroughPassed stays false.
 - 2026-08-15: Installed MetaHuman Creator Core Data and assembled Dr. Patel as an optimized High MetaHuman (`BP_Patel`, high-res textures, joints+blendshapes, attending skin, short hair). Portrait key/rim lights in the team room. Packaged as Mac-Development-20260815T212229Z from c9f6be2. Not Ada. No extra cast. Default garment is still a casual shirt. walkthroughPassed stays false. 
 - 2026-08-15: Brightened clinic (sun 6.5, lamps 12000, exposure +1.15, thinner fog). Patel still cannot assemble — MetaHuman Optional/Core Data folder is missing. Packaged as Mac-Development-20260815T200727Z from 77c371a.
 - 2026-08-15: Visual pass: unbound post-process, clinic fog, windows/rails/fixtures, Epic 2560x1440 defaults. Patel is a proportioned coat-and-gaze stand-in (not MetaHuman — Optional Content still missing). No patient/parent cast. Packaged as Mac-Development-20260815T195228Z from 105c51a. Portable tests 76/76.
