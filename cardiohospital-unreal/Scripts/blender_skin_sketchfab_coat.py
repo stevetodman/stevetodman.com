@@ -136,16 +136,24 @@ def assign_material(obj, material):
     obj.data.materials.append(material)
 
 
-def delete_below(obj, z_cut):
+def delete_verts(obj, predicate):
     select_only(obj)
     bpy.ops.object.mode_set(mode="EDIT")
     bpy.ops.mesh.select_all(action="DESELECT")
     bpy.ops.object.mode_set(mode="OBJECT")
     for vert in obj.data.vertices:
-        vert.select = (obj.matrix_world @ vert.co).z < z_cut
+        vert.select = predicate(obj.matrix_world @ vert.co)
     bpy.ops.object.mode_set(mode="EDIT")
     bpy.ops.mesh.delete(type="VERT")
     bpy.ops.object.mode_set(mode="OBJECT")
+
+
+def delete_below(obj, z_cut):
+    delete_verts(obj, lambda point: point.z < z_cut)
+
+
+def delete_above(obj, z_cut):
+    delete_verts(obj, lambda point: point.z > z_cut)
 
 
 def transfer_weights(source, dest, armature):
@@ -272,15 +280,29 @@ def prepare_coat(imported, body):
         raise RuntimeError("no coat fabric meshes in Sketchfab file")
     scale_coat_to_neck(meshes)
     white = make_material("M_LabCoat", (0.96, 0.96, 0.94), roughness=0.38)
+    navy = make_material("M_Trousers", (0.10, 0.12, 0.16), roughness=0.55)
+    pant_meshes = []
     for obj in meshes:
+        pants = obj.copy()
+        pants.data = obj.data.copy()
+        bpy.context.collection.objects.link(pants)
+        pant_meshes.append(pants)
         assign_material(obj, white)
         delete_below(obj, HEM_CUT_Z)
+        assign_material(pants, navy)
+        delete_above(pants, HEM_CUT_Z + 6.0)
     coat = join_meshes("SK_LabCoat", meshes)
+    trousers = join_meshes("SK_Trousers", pant_meshes)
+    if trousers is None or len(trousers.data.vertices) < 80:
+        raise RuntimeError(
+            f"trousers join failed verts={0 if trousers is None else len(trousers.data.vertices)}"
+        )
+    print(f"trousers verts={len(trousers.data.vertices)} bounds={tuple(round(v, 2) for v in world_bounds(trousers))}")
     if coat is None or len(coat.data.vertices) < 200:
         raise RuntimeError(f"coat join failed verts={0 if coat is None else len(coat.data.vertices)}")
     center_on_body(coat, body)
     print(f"coat verts={len(coat.data.vertices)} bounds={tuple(round(v, 2) for v in world_bounds(coat))}")
-    return coat
+    return coat, trousers
 
 
 def delete_foreign_armatures(keep):
@@ -345,10 +367,11 @@ def main():
         f"bounds={tuple(round(v, 2) for v in world_bounds(body))}"
     )
 
-    coat = prepare_coat(import_any(coat_path), body)
+    coat, trousers = prepare_coat(import_any(coat_path), body)
     transfer_weights(body, coat, armature)
+    transfer_weights(body, trousers, armature)
     weighted = sum(1 for group in coat.vertex_groups)
-    print(f"coat vertex groups={weighted}")
+    print(f"coat vertex groups={weighted} trousers groups={len(trousers.vertex_groups)}")
     if weighted < 8:
         raise RuntimeError(f"weight transfer produced only {weighted} groups")
 
@@ -364,6 +387,7 @@ def main():
     body.hide_render = False
     body.hide_set(False)
     export_skeletal([coat], "SK_LabCoat.fbx")
+    export_skeletal([trousers], "SK_Trousers.fbx")
     if scope:
         export_skeletal([scope], "SK_Stethoscope.fbx")
 

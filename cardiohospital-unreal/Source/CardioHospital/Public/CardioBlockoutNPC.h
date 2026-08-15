@@ -46,6 +46,7 @@ private:
     void HidePrimitiveStandIn();
     void TryAttachAssembledMetaHuman();
     USkeletalMeshComponent* FindAssembledBody() const;
+    void HideDefaultGarment() const;
     void EnsureSkinnedMeshesLoaded();
     bool AttachSkinnedAttendingKit();
 
@@ -93,6 +94,9 @@ private:
 
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<USkeletalMeshComponent> AttendingCoatSkel;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<USkeletalMeshComponent> AttendingTrousersSkel;
 
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<USkeletalMeshComponent> AttendingScopeSkel;

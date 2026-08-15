@@ -46,6 +46,7 @@ ACardioBlockoutNPC::ACardioBlockoutNPC()
     static ConstructorHelpers::FObjectFinder<UStaticMesh> TrouserFinder(TEXT("/Game/Environment/Clinic/SM_Trousers.SM_Trousers"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> ScopeFinder(TEXT("/Game/Environment/Clinic/SM_Stethoscope.SM_Stethoscope"));
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> CoatSkelFinder(TEXT("/Game/Environment/Clinic/SK_LabCoat.SK_LabCoat"));
+    static ConstructorHelpers::FObjectFinder<USkeletalMesh> TrouserSkelFinder(TEXT("/Game/Environment/Clinic/SK_Trousers.SK_Trousers"));
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> ScopeSkelFinder(TEXT("/Game/Environment/Clinic/SK_Stethoscope.SK_Stethoscope"));
 
     AttendingCoat = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttendingCoat"));
@@ -102,6 +103,17 @@ ACardioBlockoutNPC::ACardioBlockoutNPC()
     if (CoatSkelFinder.Succeeded())
     {
         AttendingCoatSkel->SetSkeletalMesh(CoatSkelFinder.Object);
+    }
+
+    AttendingTrousersSkel = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("AttendingTrousersSkel"));
+    AttendingTrousersSkel->SetupAttachment(Root);
+    AttendingTrousersSkel->SetMobility(EComponentMobility::Movable);
+    AttendingTrousersSkel->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    AttendingTrousersSkel->SetHiddenInGame(true);
+    AttendingTrousersSkel->SetAnimationMode(EAnimationMode::AnimationCustomMode);
+    if (TrouserSkelFinder.Succeeded())
+    {
+        AttendingTrousersSkel->SetSkeletalMesh(TrouserSkelFinder.Object);
     }
 
     AttendingScopeSkel = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("AttendingScopeSkel"));
@@ -263,20 +275,12 @@ USkeletalMeshComponent* ACardioBlockoutNPC::FindAssembledBody() const
         const USkeletalMesh* Mesh = Skel->GetSkeletalMeshAsset();
         const FString MeshName = Mesh ? Mesh->GetName() : FString();
         UE_LOG(LogCardioAttending, Display, TEXT("assembled skel %s mesh=%s"), *Skel->GetName(), *MeshName);
-        const FString Combined = Skel->GetName() + TEXT(" ") + MeshName;
-        if (Combined.Contains(TEXT("Garment")) || Combined.Contains(TEXT("Shirt"))
-            || Combined.Contains(TEXT("Short")) || Combined.Contains(TEXT("Outfit"))
-            || Combined.Contains(TEXT("Cloth")))
-        {
-            Skel->SetHiddenInGame(true);
-            Skel->SetVisibility(false);
-            UE_LOG(LogCardioAttending, Display, TEXT("hid default garment %s"), *Combined);
-        }
         if (Skel->GetName().Contains(TEXT("Body")) || MeshName.Contains(TEXT("Body")))
         {
             continue;
         }
     }
+    HideDefaultGarment();
     for (USkeletalMeshComponent* Skel : Skels)
     {
         if (!Skel)
@@ -305,6 +309,33 @@ USkeletalMeshComponent* ACardioBlockoutNPC::FindAssembledBody() const
     return Skels.Num() > 0 ? Skels[0] : nullptr;
 }
 
+void ACardioBlockoutNPC::HideDefaultGarment() const
+{
+    if (!AssembledVisual)
+    {
+        return;
+    }
+
+    TArray<USkeletalMeshComponent*> Skels;
+    AssembledVisual->GetComponents<USkeletalMeshComponent>(Skels, true);
+    for (USkeletalMeshComponent* Skel : Skels)
+    {
+        if (!Skel)
+        {
+            continue;
+        }
+        const USkeletalMesh* Mesh = Skel->GetSkeletalMeshAsset();
+        const FString Combined = Skel->GetName() + TEXT(" ") + (Mesh ? Mesh->GetName() : FString());
+        if (Combined.Contains(TEXT("Garment")) || Combined.Contains(TEXT("Shirt"))
+            || Combined.Contains(TEXT("Short")) || Combined.Contains(TEXT("Outfit"))
+            || Combined.Contains(TEXT("Cloth")))
+        {
+            Skel->SetHiddenInGame(true);
+            Skel->SetVisibility(false);
+        }
+    }
+}
+
 void ACardioBlockoutNPC::EnsureSkinnedMeshesLoaded()
 {
     auto LoadInto = [](USkeletalMeshComponent* Comp, const TCHAR* Path)
@@ -324,6 +355,7 @@ void ACardioBlockoutNPC::EnsureSkinnedMeshesLoaded()
         }
     };
     LoadInto(AttendingCoatSkel, TEXT("/Game/Environment/Clinic/SK_LabCoat.SK_LabCoat"));
+    LoadInto(AttendingTrousersSkel, TEXT("/Game/Environment/Clinic/SK_Trousers.SK_Trousers"));
     LoadInto(AttendingScopeSkel, TEXT("/Game/Environment/Clinic/SK_Stethoscope.SK_Stethoscope"));
 }
 
@@ -374,6 +406,14 @@ bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
                 Follower->SetMaterial(0, CoatMat);
             }
         }
+        else if (FCString::Strstr(Label, TEXT("Trousers")))
+        {
+            if (UMaterialInterface* TrouserMat = LoadObject<UMaterialInterface>(
+                    nullptr, TEXT("/Game/Environment/Clinic/M_Trousers.M_Trousers")))
+            {
+                Follower->SetMaterial(0, TrouserMat);
+            }
+        }
         Follower->UpdateBounds();
         Follower->MarkRenderStateDirty();
         const FBoxSphereBounds Bounds = Follower->Bounds;
@@ -394,6 +434,7 @@ bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
     };
 
     const bool bCoat = AttachFollower(AttendingCoatSkel, TEXT("SK_LabCoat"));
+    AttachFollower(AttendingTrousersSkel, TEXT("SK_Trousers"));
     AttachFollower(AttendingScopeSkel, TEXT("SK_Stethoscope"));
     bAttendingKitAttached = bCoat;
     return bAttendingKitAttached;
@@ -421,6 +462,7 @@ void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
     const APawn* Learner = Controller ? Controller->GetPawn() : nullptr;
     if (AssembledVisual)
     {
+        HideDefaultGarment();
         if (!bAttendingKitAttached)
         {
             AttachSkinnedAttendingKit();

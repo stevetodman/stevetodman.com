@@ -7,7 +7,7 @@ from pathlib import Path
 BODY_PATH = "/Game/MetaHumans/Patel/Body/SKM_Patel_BodyMesh"
 DEST = "/Game/Environment/Clinic"
 SOURCE_DIR = Path(unreal.Paths.project_content_dir()) / "Environment" / "Source"
-MESHES = ("SK_LabCoat.fbx", "SK_Stethoscope.fbx")
+MESHES = ("SK_LabCoat.fbx", "SK_Trousers.fbx", "SK_Stethoscope.fbx")
 
 
 def log(message):
