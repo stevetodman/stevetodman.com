@@ -18,6 +18,7 @@
 #include "Misc/Guid.h"
 #include "TextToSpeechEngineSubsystem.h"
 #include "Components/DirectionalLightComponent.h"
+#include "Components/PointLightComponent.h"
 #include "Components/SkyAtmosphereComponent.h"
 #include "Components/SkyLightComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -40,12 +41,14 @@ namespace
         FLinearColor Color;
     };
 
-    const FLinearColor FloorGray(0.45f, 0.45f, 0.47f);
-    const FLinearColor WallWhite(0.85f, 0.84f, 0.80f);
-    const FLinearColor AccentTeal(0.0f, 0.808f, 0.788f); // site accent #00cec9
-    const FLinearColor BedWhite(0.92f, 0.92f, 0.94f);
-    const FLinearColor ExamBlue(0.55f, 0.70f, 0.90f);
-    const FLinearColor TableWarm(0.60f, 0.50f, 0.40f);
+    const FLinearColor FloorLinoleum(0.62f, 0.58f, 0.50f);
+    const FLinearColor WallHospital(0.91f, 0.90f, 0.86f);
+    const FLinearColor CeilingWhite(0.96f, 0.95f, 0.92f);
+    const FLinearColor AccentTeal(0.0f, 0.55f, 0.54f);
+    const FLinearColor WoodDesk(0.42f, 0.30f, 0.20f);
+    const FLinearColor BedLinen(0.93f, 0.93f, 0.95f);
+    const FLinearColor BedFrame(0.35f, 0.38f, 0.42f);
+    const FLinearColor DoorFrame(0.22f, 0.28f, 0.32f);
 
     const FVector CorridorPlayerStart(-1000.0, 0.0, 110.0);
     const FVector TeamRoomDoorwayCenter(750.0, 200.0, 110.0);
@@ -66,42 +69,48 @@ namespace
     const FString GAttendingNpcId = TEXT("dr-patel");
     const FString GAssignedCaseId = TEXT("case-hcm");
 
-    // A 30 m x 20 m ward slice: a central east-west corridor with two rooms on
-    // each side. Interior walls leave door gaps into the corridor. There is no
-    // ceiling on purpose - daylight is the cheapest way to keep every room
-    // legible until real materials and interior lighting are authored.
+    // A 30 m x 20 m clinic floor: corridor, four rooms, a ceiling, and door
+    // frames. Geometry stays in C++ so the packaged ward cannot drift from
+    // review. Materials are still engine primitives tinted as clinic surfaces.
     const FBlockSpec GBlockout[] =
     {
-        // Floor. Top surface sits at z=0.
-        { FVector(0.0, 0.0, -10.0), FVector(3000.0, 2000.0, 20.0), FloorGray },
+        { FVector(0.0, 0.0, -10.0), FVector(3000.0, 2000.0, 20.0), FloorLinoleum },
+        { FVector(0.0, 0.0, 360.0), FVector(3000.0, 2000.0, 16.0), CeilingWhite },
 
-        // Perimeter walls.
-        { FVector(0.0, 1010.0, 175.0), FVector(3040.0, 20.0, 350.0), WallWhite },
-        { FVector(0.0, -1010.0, 175.0), FVector(3040.0, 20.0, 350.0), WallWhite },
-        { FVector(1510.0, 0.0, 175.0), FVector(20.0, 2040.0, 350.0), WallWhite },
-        { FVector(-1510.0, 0.0, 175.0), FVector(20.0, 2040.0, 350.0), WallWhite },
+        { FVector(0.0, 1010.0, 175.0), FVector(3040.0, 20.0, 350.0), WallHospital },
+        { FVector(0.0, -1010.0, 175.0), FVector(3040.0, 20.0, 350.0), WallHospital },
+        { FVector(1510.0, 0.0, 175.0), FVector(20.0, 2040.0, 350.0), WallHospital },
+        { FVector(-1510.0, 0.0, 175.0), FVector(20.0, 2040.0, 350.0), WallHospital },
 
-        // North corridor wall, with door gaps at x=-750 and x=+750.
-        { FVector(-1155.0, 200.0, 175.0), FVector(690.0, 20.0, 350.0), WallWhite },
-        { FVector(0.0, 200.0, 175.0), FVector(1380.0, 20.0, 350.0), WallWhite },
-        { FVector(1155.0, 200.0, 175.0), FVector(690.0, 20.0, 350.0), WallWhite },
+        { FVector(-1155.0, 200.0, 175.0), FVector(690.0, 20.0, 350.0), WallHospital },
+        { FVector(0.0, 200.0, 175.0), FVector(1380.0, 20.0, 350.0), WallHospital },
+        { FVector(1155.0, 200.0, 175.0), FVector(690.0, 20.0, 350.0), WallHospital },
 
-        // South corridor wall, mirrored gaps.
-        { FVector(-1155.0, -200.0, 175.0), FVector(690.0, 20.0, 350.0), WallWhite },
-        { FVector(0.0, -200.0, 175.0), FVector(1380.0, 20.0, 350.0), WallWhite },
-        { FVector(1155.0, -200.0, 175.0), FVector(690.0, 20.0, 350.0), WallWhite },
+        { FVector(-1155.0, -200.0, 175.0), FVector(690.0, 20.0, 350.0), WallHospital },
+        { FVector(0.0, -200.0, 175.0), FVector(1380.0, 20.0, 350.0), WallHospital },
+        { FVector(1155.0, -200.0, 175.0), FVector(690.0, 20.0, 350.0), WallHospital },
 
-        // Cross walls splitting each side into two rooms.
-        { FVector(0.0, 600.0, 175.0), FVector(20.0, 800.0, 350.0), WallWhite },
-        { FVector(0.0, -600.0, 175.0), FVector(20.0, 800.0, 350.0), WallWhite },
+        { FVector(0.0, 600.0, 175.0), FVector(20.0, 800.0, 350.0), WallHospital },
+        { FVector(0.0, -600.0, 175.0), FVector(20.0, 800.0, 350.0), WallHospital },
 
-        // Landmarks: reception desk (west corridor), Room 1 bed (SW), Room 3
-        // bed (NW), team room table (NE), education table (SE).
-        { FVector(-1350.0, 90.0, 55.0), FVector(180.0, 80.0, 110.0), AccentTeal },
-        { FVector(-750.0, -600.0, 40.0), FVector(220.0, 100.0, 80.0), BedWhite },
-        { FVector(-750.0, 600.0, 40.0), FVector(220.0, 100.0, 80.0), BedWhite },
-        { FVector(750.0, 600.0, 45.0), FVector(200.0, 90.0, 90.0), ExamBlue },
-        { FVector(750.0, -600.0, 50.0), FVector(240.0, 140.0, 100.0), TableWarm },
+        // Door frames at the four corridor gaps.
+        { FVector(-810.0, 200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
+        { FVector(-690.0, 200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
+        { FVector(690.0, 200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
+        { FVector(810.0, 200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
+        { FVector(-810.0, -200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
+        { FVector(-690.0, -200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
+        { FVector(690.0, -200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
+        { FVector(810.0, -200.0, 175.0), FVector(16.0, 28.0, 350.0), DoorFrame },
+
+        { FVector(-1350.0, 90.0, 55.0), FVector(180.0, 80.0, 110.0), WoodDesk },
+        { FVector(-750.0, -600.0, 18.0), FVector(230.0, 110.0, 36.0), BedFrame },
+        { FVector(-750.0, -600.0, 48.0), FVector(210.0, 95.0, 24.0), BedLinen },
+        { FVector(-750.0, 600.0, 18.0), FVector(230.0, 110.0, 36.0), BedFrame },
+        { FVector(-750.0, 600.0, 48.0), FVector(210.0, 95.0, 24.0), BedLinen },
+        { FVector(750.0, 600.0, 45.0), FVector(200.0, 90.0, 90.0), WoodDesk },
+        { FVector(750.0, -600.0, 50.0), FVector(240.0, 140.0, 100.0), WoodDesk },
+        { FVector(0.0, 0.0, 1.0), FVector(2800.0, 80.0, 2.0), AccentTeal },
     };
 }
 
@@ -268,10 +277,43 @@ void ACardioBlockoutGameMode::HandleInteract(ACardioBlockoutCharacter& Character
     }
 }
 
+void ACardioBlockoutGameMode::GoToStation(ACardioBlockoutCharacter& Character, const int32 StationIndex)
+{
+    struct FStation
+    {
+        FVector Location;
+        bool bInteract;
+    };
+    static const FStation Stations[] = {
+        { FVector(750.0, 400.0, 110.0), true },
+        { FVector(-750.0, 520.0, 110.0), true },
+        { FVector(-750.0, -520.0, 110.0), true },
+        { FVector(750.0, -520.0, 110.0), true },
+    };
+    if (StationIndex < 0 || StationIndex >= UE_ARRAY_COUNT(Stations))
+    {
+        return;
+    }
+    Character.WalkTo(Stations[StationIndex].Location, Stations[StationIndex].bInteract);
+}
+
 void ACardioBlockoutGameMode::HandleChooseAction(const int32 ZeroBasedIndex)
 {
     if (!CurrentMenuActions.IsValidIndex(ZeroBasedIndex))
     {
+        if (APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr)
+        {
+            if (ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr)
+            {
+                if (!Hud->IsPanelOpen())
+                {
+                    if (ACardioBlockoutCharacter* Character = Cast<ACardioBlockoutCharacter>(Controller->GetPawn()))
+                    {
+                        GoToStation(*Character, ZeroBasedIndex);
+                    }
+                }
+            }
+        }
         return;
     }
 
@@ -1800,12 +1842,11 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
     Rig->SetRootComponent(Root);
     Root->RegisterComponent();
 
-    // Sun, atmosphere, and a real-time sky light. With the ward open to the
-    // sky, this trio lights every room without any authored interior lights.
     UDirectionalLightComponent* Sun = NewObject<UDirectionalLightComponent>(Rig, TEXT("Sun"));
     Sun->SetupAttachment(Root);
     Sun->SetMobility(EComponentMobility::Movable);
     Sun->SetRelativeRotation(FRotator(-50.f, 30.f, 0.f));
+    Sun->SetIntensity(2.2f);
     Sun->RegisterComponent();
 
     USkyAtmosphereComponent* Atmosphere = NewObject<USkyAtmosphereComponent>(Rig, TEXT("Atmosphere"));
@@ -1817,6 +1858,27 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
     SkyAmbient->SetMobility(EComponentMobility::Movable);
     SkyAmbient->bRealTimeCapture = true;
     SkyAmbient->RegisterComponent();
+
+    const FVector LightPoints[] = {
+        FVector(750.0, 600.0, 300.0),
+        FVector(-750.0, 600.0, 300.0),
+        FVector(-750.0, -600.0, 300.0),
+        FVector(750.0, -600.0, 300.0),
+        FVector(0.0, 0.0, 300.0),
+        FVector(-1000.0, 0.0, 300.0),
+    };
+    for (int32 Index = 0; Index < UE_ARRAY_COUNT(LightPoints); ++Index)
+    {
+        UPointLightComponent* Lamp = NewObject<UPointLightComponent>(
+            Rig, *FString::Printf(TEXT("ClinicLamp%d"), Index));
+        Lamp->SetupAttachment(Root);
+        Lamp->SetMobility(EComponentMobility::Movable);
+        Lamp->SetWorldLocation(LightPoints[Index]);
+        Lamp->SetIntensity(3500.f);
+        Lamp->SetAttenuationRadius(1400.f);
+        Lamp->SetLightColor(FLinearColor(1.f, 0.96f, 0.88f));
+        Lamp->RegisterComponent();
+    }
 }
 
 void ACardioBlockoutGameMode::SpawnSigns(UWorld& World) const

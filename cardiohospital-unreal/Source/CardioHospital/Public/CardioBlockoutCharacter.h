@@ -8,9 +8,9 @@ class ACardioBlockoutNPC;
 class UCameraComponent;
 
 /**
- * First-person learner pawn for the walkable ward blockout. Walking pace,
- * mouse look, no weapons, no jump: the learner is on rounds. A short camera
- * trace tracks which staff member is in focus for interaction.
+ * First-person learner pawn. Default movement is click-to-walk between
+ * clinic stations (plan section 6 accessibility navigation). WASD remains
+ * available; mouse look is hold-to-look so the cursor stays visible.
  */
 UCLASS()
 class CARDIOHOSPITAL_API ACardioBlockoutCharacter : public ACharacter
@@ -20,12 +20,15 @@ class CARDIOHOSPITAL_API ACardioBlockoutCharacter : public ACharacter
 public:
     ACardioBlockoutCharacter();
 
+    virtual void BeginPlay() override;
+    virtual void PossessedBy(AController* NewController) override;
     virtual void Tick(float DeltaSeconds) override;
 
     ACardioBlockoutNPC* GetFocusedNpc() const { return FocusedNpc.Get(); }
     bool IsInExamRoom3() const;
     bool IsInExamRoom() const;
     bool IsInEducationRoom() const;
+    void WalkTo(const FVector& Destination, bool bInteractOnArrival);
 
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
@@ -33,7 +36,18 @@ protected:
 private:
     void MoveForward(float Value);
     void MoveRight(float Value);
+    void Turn(float Value);
+    void LookUp(float Value);
     void Interact();
+    void ClickGo();
+    void LookHoldPressed();
+    void LookHoldReleased();
+    void ApplyClinicInputMode();
+    void CancelGuidedWalk();
+    void AdvanceGuidedWalk();
+    void BuildWalkPath(const FVector& Destination);
+    static float DoorXFor(const FVector& Location);
+    static bool IsIndoorsRoom(const FVector& Location);
     void ChooseAction1();
     void ChooseAction2();
     void ChooseAction3();
@@ -49,4 +63,7 @@ private:
     TObjectPtr<UCameraComponent> Camera;
 
     TWeakObjectPtr<ACardioBlockoutNPC> FocusedNpc;
+    TArray<FVector> GuidedPath;
+    bool bInteractOnArrival = false;
+    bool bLookHeld = false;
 };

@@ -40,8 +40,11 @@ public:
     /** Routes an E-press: closes an open panel, or engages Patel / Exam Room 3. */
     void HandleInteract(ACardioBlockoutCharacter& Character, ACardioBlockoutNPC* Npc);
 
-    /** Numbered menu choice 0-8 while an encounter panel is open. */
+    /** Numbered menu choice 0-8 while an encounter panel is open; otherwise walk to a station. */
     void HandleChooseAction(int32 ZeroBasedIndex);
+
+    /** Accessibility navigation: walk the learner to a named clinic station. */
+    void GoToStation(ACardioBlockoutCharacter& Character, int32 StationIndex);
 
     /** Location-driven graph progress: workroom and exam-room navigation actions. */
     void NotifyLearnerLocation(const FVector& Location);

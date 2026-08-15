@@ -85,8 +85,12 @@ test("every axis the character binds is mapped, and every mapping is bound", asy
   const boundActions = new Set([...character.matchAll(/BindAction\(TEXT\("(\w+)"\)/g)].map((m) => m[1]));
   const mappedActions = new Set([...input.matchAll(/\+ActionMappings=\(ActionName="(\w+)"/g)].map((m) => m[1]));
   assert.ok(boundActions.has("Interact"), "the character must bind Interact");
+  assert.ok(boundActions.has("ClickGo"), "click-to-walk must be bound");
+  assert.ok(boundActions.has("LookHold"), "hold-to-look must be bound");
   assert.deepEqual([...boundActions].sort(), [...mappedActions].sort(),
     "action names bound in C++ and mapped in DefaultInput.ini must match exactly");
+  assert.match(input, /bCaptureMouseOnLaunch=False/);
+  assert.match(input, /DefaultViewportMouseCaptureMode=NoCapture/);
 });
 
 test("the ward names its rooms to match the case flow", async () => {
@@ -189,8 +193,14 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.doesNotMatch(source, /Hypertrophic Cardiomyopathy/);
   assert.match(character, /NotifyLearnerLocation/);
   assert.match(character, /IsRoom1Location/);
+  assert.match(character, /WalkTo/);
+  assert.match(character, /ClickGo/);
+  assert.match(source, /GoToStation/);
+  assert.match(source, /CeilingWhite/);
+  assert.match(source, /ClinicLamp/);
   assert.match(hud, /Evaluate the patient/);
   assert.match(hud, /IsInExamRoom\(\)/);
+  assert.match(hud, /Click a place to walk there/);
 });
 
 test("numbered encounter choices are bound and mapped", async () => {
