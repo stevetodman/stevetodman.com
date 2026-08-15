@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human look at Mac-Development-20260815T223632Z (commit 8051b23) for the tailored attending coat and neck-draped stethoscope. walkthroughPassed stays false.
+next: Human look at Mac-Development-20260815T224805Z (commit c3a4041) for the coat fitted to Patel's exported body. walkthroughPassed stays false.
 ---
 
 # CLAUDE.md
@@ -271,6 +271,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-15: Exported SKM_Patel_Body and shifted the attending coat/scope onto his actual frame (chest +Y, clavicle 141 cm) so the overlay no longer floats in front of him. Shirt/tie/button materials pinned in C++. Packaged as Mac-Development-20260815T224805Z from c3a4041. walkthroughPassed stays false.
 - 2026-08-15: Replaced the T-pose box coat with a tailored open-front attending coat (notched lapels, hanging sleeves, shirt and tie, metal buttons) and a neck-draped stethoscope. Sketchfab's CC-BY coat needs a login; this kit is original and sized for the 175 cm High Patel. Packaged as Mac-Development-20260815T223632Z from 8051b23. walkthroughPassed stays false.
 - 2026-08-15: Replaced the box coat with an open-front subdivided lab coat and brightened wall/wainscot/trim to clean hospital white. Lamps 19000, exposure +1.40. Packaged as Mac-Development-20260815T221516Z from 34523ed. walkthroughPassed stays false.
 - 2026-08-15: Clad the existing four-room ward with Blender wall panels (wainscot/chair rail/crown), linoleum tiles, a drop ceiling, and window frames. Cube shell kept for collision. Packaged as Mac-Development-20260815T220858Z from dd3ec62. walkthroughPassed stays false.
