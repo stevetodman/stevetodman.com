@@ -262,7 +262,29 @@ USkeletalMeshComponent* ACardioBlockoutNPC::FindAssembledBody() const
         }
         const USkeletalMesh* Mesh = Skel->GetSkeletalMeshAsset();
         const FString MeshName = Mesh ? Mesh->GetName() : FString();
-        UE_LOG(LogCardioAttending, Verbose, TEXT("assembled skel %s mesh=%s"), *Skel->GetName(), *MeshName);
+        UE_LOG(LogCardioAttending, Display, TEXT("assembled skel %s mesh=%s"), *Skel->GetName(), *MeshName);
+        const FString Combined = Skel->GetName() + TEXT(" ") + MeshName;
+        if (Combined.Contains(TEXT("Garment")) || Combined.Contains(TEXT("Shirt"))
+            || Combined.Contains(TEXT("Short")) || Combined.Contains(TEXT("Outfit"))
+            || Combined.Contains(TEXT("Cloth")))
+        {
+            Skel->SetHiddenInGame(true);
+            Skel->SetVisibility(false);
+            UE_LOG(LogCardioAttending, Display, TEXT("hid default garment %s"), *Combined);
+        }
+        if (Skel->GetName().Contains(TEXT("Body")) || MeshName.Contains(TEXT("Body")))
+        {
+            continue;
+        }
+    }
+    for (USkeletalMeshComponent* Skel : Skels)
+    {
+        if (!Skel)
+        {
+            continue;
+        }
+        const USkeletalMesh* Mesh = Skel->GetSkeletalMeshAsset();
+        const FString MeshName = Mesh ? Mesh->GetName() : FString();
         if (Skel->GetName().Contains(TEXT("Body")) || MeshName.Contains(TEXT("Body")))
         {
             return Skel;
@@ -336,7 +358,7 @@ bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
         Follower->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
         Follower->AttachToComponent(Body, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
         Follower->SetRelativeLocationAndRotation(FVector::ZeroVector, FRotator::ZeroRotator);
-        Follower->SetRelativeScale3D(FVector::OneVector);
+        Follower->SetRelativeScale3D(FVector(1.06f));
         Follower->SetLeaderPoseComponent(Body, true);
         Follower->SetHiddenInGame(false);
         Follower->SetVisibility(true, true);
