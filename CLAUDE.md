@@ -1,6 +1,6 @@
 ---
 status: active
-next: Package this Exam Room 3 encounter increment, then a human WASD walk of doorway → Patel → E → Exam Room 3 history/exam. Patel still needs voice/listening/face before step 5 can pass.
+next: Human WASD walk of package Mac-Development-20260815T175555Z (commit 62c6ddb) — doorway → Patel E → Exam Room 3 history/exam. Patel still needs voice/listening/face before step 5 can pass.
 ---
 
 # CLAUDE.md
