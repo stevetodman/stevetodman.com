@@ -1,7 +1,13 @@
 # Cardio Hospital — Unreal vertical slice
 
+The product is the 168-section specification
+[`LegacyCore/plan.md`](LegacyCore/plan.md).
+The one-row scoreboard is [`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md).
+Unreal is the production client for that plan (ADR-0001 / ADR-0002), not a
+different game.
+
 Native Unreal Engine 5.8 foundation for the immersive Cardio Hospital simulation.
-The first production gate is deliberately narrow:
+The first production gate is the section 132 / 166 vertical slice:
 
 1. Start in the outpatient cardiology team room.
 2. Receive the assignment from Dr. Patel.
