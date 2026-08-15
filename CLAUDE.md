@@ -52,8 +52,20 @@ stevetodman.com/
 ├── pedcardsurg/                  # CHD surgical atlas and resident visual education module
 │   ├── index.html                # Primary atlas, PTED library, eponyms, assessment
 │   └── assets/chd-atlas/         # Nine supplied full-resolution PNGs plus web-optimized WebP versions
+├── cardiohospital/               # Cardio Hospital browser preview (stevetodman.com/cardiohospital)
+│   ├── index.html                # Walkable blockout, HCM encounter, auscultation, 12-lead ECG
+│   ├── app.js                    # Deterministic encounter, scoring, localStorage attempts
+│   └── murmur-audio.js           # Web Audio HCM murmur synthesis with Valsalva response
+├── cardio-hospital-3d/           # Next.js + React Three Fiber preview (not deployed)
+├── cardiohospital-unreal/        # Unreal Engine 5.8 production client (not deployed)
+│   ├── Docs/                     # ADR-0001 (UE rebaseline), ADR-0002 (macOS release target)
+│   ├── LegacyCore/plan.md        # Authoritative 168-section spec, pinned by blob hash
+│   ├── Scripts/                  # macOS shell release workflow; PowerShell retained as history
+│   ├── Source/CardioHospital/    # C++ subsystems: clinical data, case runtime, education, learner
+│   ├── Tests/                    # Portable deterministic suite + release-script fixtures
+│   └── SPEC_TRACEABILITY.md      # One classified row per spec section, enforced in CI
 ├── clipboard-sanitizer/          # Standalone shell utilities (not deployed)
-├── .github/workflows/            # phs-v17-integrity.yml, update-cooking-index.yml
+├── .github/workflows/            # phs-v17-integrity.yml, update-cooking-index.yml, cardiohospital-unreal.yml
 ├── study/                        # Kids' Study Hub (stevetodman.com/study)
 │   ├── index.html                # Study Hub landing page
 │   ├── greek-vocab-quiz.html     # Ancient Greece vocabulary + chapter review
@@ -259,6 +271,10 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-15: Rebaselined the Cardio Hospital release target from Windows/RTX to macOS on Apple silicon in ADR-0002, after the primary machine turned out to be an M4 Max with 128 GB. Ported the full stage model to shell — preflight, validation, project generation, editor build, automation, packaging, walkthrough evidence — using the same stage vocabulary as the retained PowerShell path, with a fixture asserting that parity in both directions. Kept the 60 FPS at 2560×1440 bar unchanged because it describes the learner's experience, not the GPU, and recorded that no Windows figure may be carried forward because none was ever measured. ADR-0001 retained unaltered as history per append-only ADR practice.
+- 2026-08-15: Fixed a packaging blocker in the Unreal scaffold: three LegacyCore sources committed with CRLF before `.gitattributes` declared `*.ts text eol=lf` left a pristine clone dirty, which the package provenance gate rejected before any command ran. Added `npm run test:unreal` and the `clinical:*` scripts so the portable suite has a local entry point on any platform.
+- 2026-08-14: Added the Cardio Hospital Unreal migration scaffold — portable deterministic clinical core, seven case graphs, C++ subsystems for clinical data, case runtime, education evaluation, and learner profile, plus the 168-section traceability matrix pinned by blob hash so the authoritative plan cannot drift without a deliberate rebaseline.
+- 2026-08-14: Built the Cardio Hospital browser preview at `/cardiohospital/` — walkable blockout, Dr. Patel assignment, the Marcus Chen HCM encounter, four-site spatial auscultation with Valsalva response, a forced 12-lead ECG interpretation gate, and a no-WebGL QA mode for headless testing.
 - 2026-08-13: Replaced the complete AV canal plate with a new immutable clean asset containing only the operative illustration and preoperative echo; removed the postoperative echo, superior atrial fold artifacts, and the obsolete source images so the blue numbered callouts and arrows cannot reappear through stale PNG/WebP selection. Bumped the PedCardSurg asset bundle version and updated regression coverage.
 - 2026-08-13: Removed the three blue numbered callouts and their leader arrows from the complete AV canal surgical plate, regenerated its WebP derivative, and versioned both the image URLs and PedCardSurg asset bundle to prevent stale artwork from persisting in browser/CDN caches.
 - 2026-08-13: Added explicit versioned asset URLs to `/pedcardsurg/` after a mixed-cache deployment served the updated nine-plate HTML with the old ten-plate Atlas JavaScript. This forces browsers and the CDN to load the corrected complete AV canal, Norwood, and BT-shunt mappings together.
