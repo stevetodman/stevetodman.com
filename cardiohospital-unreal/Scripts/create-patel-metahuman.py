@@ -6,7 +6,18 @@ CHARACTER_NAME = "Patel"
 CHARACTER_OBJECT = f"{CHARACTER_PATH}/{CHARACTER_NAME}.{CHARACTER_NAME}"
 BUILD_PATH = "/Game/MetaHumans"
 COMMON_PATH = "/Game/MetaHumans/Common"
-REPORT_PATH = "/Game/Characters/MetaHumans/patel-assembly"
+
+# High is the real-time AAA target. Cinematic pipeline is offline-heavy and
+# fights the 60 FPS / 2560x1440 packaged gate on this slice.
+PIPELINE_TYPE = unreal.MetaHumanDefaultPipelineType.OPTIMIZED
+PIPELINE_QUALITY = unreal.MetaHumanQualityLevel.HIGH
+
+WARDROBE = {
+    "Outfits": "/MetaHumanCharacter/Optional/Clothing/WI_DefaultGarment.WI_DefaultGarment",
+    "Hair": "/MetaHumanCharacter/Optional/Grooms/Bindings/Hair/WI_Hair_S_Clean.WI_Hair_S_Clean",
+    "Eyebrows": "/MetaHumanCharacter/Optional/Grooms/Bindings/Eyebrows/WI_Eyebrows_M_Natural.WI_Eyebrows_M_Natural",
+    "Eyelashes": "/MetaHumanCharacter/Optional/Grooms/Bindings/Eyelashes/WI_Eyelashes_S_Fine.WI_Eyelashes_S_Fine",
+}
 
 
 def log(message):
@@ -52,17 +63,61 @@ def try_set_height(subsystem, character, centimeters):
     log(f"Set height to {centimeters} cm")
 
 
-def try_add_default_garment(character):
-    wardrobe_item = unreal.load_asset(
-        "/MetaHumanCharacter/Optional/Clothing/WI_DefaultGarment.WI_DefaultGarment"
-    )
+def try_add_wardrobe(character, slot_name, asset_path):
+    wardrobe_item = unreal.load_asset(asset_path)
     if not wardrobe_item:
-        log("Default garment wardrobe item not available")
-        return
-    item_key = character.internal_collection.try_add_item_from_wardrobe_item("Outfits", wardrobe_item)
-    selection = unreal.MetaHumanPipelineSlotSelection(slot_name="Outfits", selected_item=item_key)
+        log(f"Wardrobe item missing: {asset_path}")
+        return False
+    item_key = character.internal_collection.try_add_item_from_wardrobe_item(slot_name, wardrobe_item)
+    if not item_key:
+        log(f"Could not add wardrobe item for {slot_name}")
+        return False
+    selection = unreal.MetaHumanPipelineSlotSelection(slot_name=slot_name, selected_item=item_key)
     character.internal_collection.default_instance.try_add_slot_selection(selection)
-    log("Added default garment")
+    log(f"Added {slot_name} from {asset_path}")
+    return True
+
+
+def apply_attending_skin(subsystem, character):
+    # Warm medium-deep complexion for a South Asian attending. U/V are the
+    # MetaHuman skin-tone atlas; this is authoring, not a stock preset swap.
+    skin_properties = unreal.MetaHumanCharacterSkinProperties()
+    skin_properties.u = 0.42
+    skin_properties.v = 0.58
+    skin_properties.show_top_underwear = True
+    skin_properties.body_texture_index = 2
+    skin_properties.face_texture_index = 2
+    skin_properties.roughness = 0.72
+
+    freckles = unreal.MetaHumanCharacterFrecklesProperties()
+    freckles.density = 0.08
+    freckles.strength = 0.18
+    freckles.saturation = 0.55
+    freckles.tone_shift = 0.1
+
+    accent = unreal.MetaHumanCharacterAccentRegionProperties()
+    accent.lightness = 0.12
+    accent.redness = 0.22
+    accent.saturation = 0.4
+
+    accents = unreal.MetaHumanCharacterAccentRegions()
+    accents.cheeks = accent
+    accents.chin = accent
+    accents.ears = accent
+    accents.forehead = accent
+    accents.lips = accent
+    accents.nose = accent
+    accents.under_eye = accent
+
+    skin_settings = unreal.MetaHumanCharacterSkinSettings()
+    skin_settings.skin = skin_properties
+    skin_settings.freckles = freckles
+    skin_settings.accents = accents
+    skin_settings.enable_texture_overrides = False
+
+    character.preview_material_type = unreal.MetaHumanCharacterSkinPreviewMaterial.EDITABLE
+    subsystem.commit_skin_settings(character, skin_settings)
+    log("Committed attending skin settings")
 
 
 def write_report(payload):
@@ -75,7 +130,7 @@ def write_report(payload):
 
 
 def main():
-    log("Starting Patel MetaHuman authoring")
+    log("Starting Patel MetaHuman authoring (HIGH optimized)")
     subsystem = unreal.get_editor_subsystem(unreal.MetaHumanCharacterEditorSubsystem)
     if subsystem is None:
         fail("MetaHumanCharacterEditorSubsystem is not available")
@@ -86,6 +141,9 @@ def main():
 
     report = {
         "character": CHARACTER_OBJECT,
+        "pipeline": "OPTIMIZED",
+        "quality": "HIGH",
+        "wardrobe": [],
         "autoRig": False,
         "textures": False,
         "built": False,
@@ -95,7 +153,10 @@ def main():
 
     try:
         try_set_height(subsystem, character, 175.0)
-        try_add_default_garment(character)
+        for slot_name, asset_path in WARDROBE.items():
+            if try_add_wardrobe(character, slot_name, asset_path):
+                report["wardrobe"].append(slot_name)
+        apply_attending_skin(subsystem, character)
 
         auto_rig = unreal.MetaHumanCharacterAutoRiggingRequestParams()
         auto_rig.blocking = True
@@ -121,16 +182,20 @@ def main():
         log(f"can_build_meta_human={report['canBuild']}")
         if report["canBuild"]:
             build = unreal.MetaHumanCharacterEditorBuildParameters()
-            build.pipeline_type = unreal.MetaHumanDefaultPipelineType.OPTIMIZED
-            build.pipeline_quality = unreal.MetaHumanQualityLevel.MEDIUM
+            build.pipeline_type = PIPELINE_TYPE
+            build.pipeline_quality = PIPELINE_QUALITY
             build.absolute_build_path = BUILD_PATH
             build.common_folder_path = COMMON_PATH
             build.enable_wardrobe_item_validation = False
-            log("Building assembled MetaHuman")
+            log("Building assembled MetaHuman at HIGH")
             subsystem.build_meta_human(character=character, params=build)
             report["built"] = True
         else:
-            report["error"] = "can_build_meta_human is false after rig/texture steps"
+            report["error"] = (
+                "can_build_meta_human is false after rig/texture steps. "
+                "High-resolution textures require an Epic login in the editor "
+                "and MetaHuman Creator Core Data (Optional)."
+            )
 
         unreal.EditorAssetLibrary.save_directory("/Game/Characters/MetaHumans")
         if report["built"]:

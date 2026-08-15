@@ -171,8 +171,22 @@ void ACardioBlockoutNPC::NotifySpeaking(const bool bInSpeaking)
 void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+
+    const APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    const APawn* Learner = Controller ? Controller->GetPawn() : nullptr;
     if (AssembledVisual)
     {
+        if (!Learner)
+        {
+            return;
+        }
+        const FVector ToLearner = Learner->GetActorLocation() - GetActorLocation();
+        if (ToLearner.Size2D() > 700.f)
+        {
+            return;
+        }
+        SetActorRotation(FRotator(0.f, ToLearner.Rotation().Yaw, 0.f));
+        AssembledVisual->SetActorRotation(GetActorRotation());
         return;
     }
 
@@ -207,8 +221,6 @@ void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
     Torso->SetRelativeRotation(FRotator(-Lean, 0.f, 0.f));
     Coat->SetRelativeRotation(FRotator(-Lean, 0.f, 0.f));
 
-    const APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
-    const APawn* Learner = Controller ? Controller->GetPawn() : nullptr;
     if (!Learner)
     {
         return;

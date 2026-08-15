@@ -1,8 +1,16 @@
 {
   "character": "/Game/Characters/MetaHumans/Patel.Patel",
+  "pipeline": "OPTIMIZED",
+  "quality": "HIGH",
+  "wardrobe": [
+    "Outfits",
+    "Hair",
+    "Eyebrows",
+    "Eyelashes"
+  ],
   "autoRig": true,
-  "textures": false,
-  "built": false,
-  "canBuild": false,
-  "error": "MetaHuman Optional Content is not installed, and unattended EOS login failed (EOS_Auth_PinGrantExpired / EOS_InvalidAuth). High-resolution textures did not download, so assembly cannot run."
+  "textures": true,
+  "built": true,
+  "canBuild": true,
+  "error": ""
 }

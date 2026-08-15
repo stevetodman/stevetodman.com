@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human look at brighter package Mac-Development-20260815T200727Z (commit 77c371a). Patel MetaHuman still blocked: Core Data not on disk.
+next: Human look at the package that includes assembled HIGH BP_Patel. walkthroughPassed stays false until a real packaged run shows voice+gaze+listen+face.
 ---
 
 # CLAUDE.md
@@ -271,6 +271,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-15: Installed MetaHuman Creator Core Data and assembled Dr. Patel as an optimized High MetaHuman (`BP_Patel`, high-res textures, joints+blendshapes, attending skin, short hair). Portrait key/rim lights in the team room. Not Ada. No extra cast. Default garment is still a casual shirt — Core Data has no lab coat. walkthrough step 5 stays unpassed until a packaged human look. 
 - 2026-08-15: Brightened clinic (sun 6.5, lamps 12000, exposure +1.15, thinner fog). Patel still cannot assemble — MetaHuman Optional/Core Data folder is missing. Packaged as Mac-Development-20260815T200727Z from 77c371a.
 - 2026-08-15: Visual pass: unbound post-process, clinic fog, windows/rails/fixtures, Epic 2560x1440 defaults. Patel is a proportioned coat-and-gaze stand-in (not MetaHuman — Optional Content still missing). No patient/parent cast. Packaged as Mac-Development-20260815T195228Z from 105c51a. Portable tests 76/76.
 - 2026-08-15: Default navigation is now click-to-walk / keys 1-4 (plan section 6). Mouse look is hold-right only. The ward is indoor: ceiling, door frames, clinic lamps, linoleum/wood tints. WASD still works. Packaged as Mac-Development-20260815T194333Z from d9e66d0. Portable tests 76/76. walkthroughPassed stays false.

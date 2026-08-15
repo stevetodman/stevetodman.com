@@ -7,45 +7,34 @@ workstation can and cannot do.
 
 - `MetaHumanCharacter` and `MetaHumanSDK` are enabled in
   `CardioHospital.uproject`.
-- `Scripts/create-patel-metahuman.py` creates
-  `/Game/Characters/MetaHumans/Patel` at 175 cm, requests joints+blendshape
-  auto-rig, requests textures, and assembles an optimized Medium build when
-  `can_build_meta_human` is true.
-- `ACardioBlockoutNPC` loads `BP_Patel` if that assembled Blueprint exists and
-  hides the cube fallback. Clinical truth still lives in the case runtime.
-- The character source asset `Content/Characters/MetaHumans/Patel.uasset` was
-  created on 2026-08-15.
+- MetaHuman Creator Core Data is installed at
+  `/Users/Shared/Epic Games/UE_5.8/Engine/Plugins/MetaHuman/MetaHumanCharacter/Content/Optional`.
+- `Scripts/create-patel-metahuman.py` authors `/Game/Characters/MetaHumans/Patel`
+  at 175 cm with attending skin, short clean hair, natural brows, and eyelashes,
+  then auto-rigs joints+blendshapes, downloads high-resolution textures, and
+  assembles an **optimized High** build (real-time AAA, not cinematic).
+- `Content/Characters/MetaHumans/patel-assembly.json` reports
+  `"built": true`, `"textures": true`, `"quality": "HIGH"`.
+- Assembled Blueprint: `Content/MetaHumans/Patel/BP_Patel.uasset`.
+- `ACardioBlockoutNPC` loads that Blueprint, hides the primitive stand-in, and
+  yaws the assembled actor toward the learner. Clinical truth still lives in
+  the case runtime.
 
-## What blocked assembly on this Mac
+## What is still not the walkthrough pass
 
-Unreal Editor logged:
+- Core Data ships only the default casual garment. There is no MetaHuman lab
+  coat in Optional. Do not treat a t-shirt as finished attending wardrobe.
+- Voice, gaze (yaw), and listen still need a packaged human look before
+  walkthrough step 5 can pass. Facial viseme/lip-sync is not wired yet.
+- Do not substitute the Ada test mesh or a crowd template for Dr. Patel.
 
-- `MetaHuman Optional Content folder not found. MetaHuman Creator plugin initialized with limited features.`
-- No `/Engine/Plugins/MetaHuman/MetaHumanCharacter/Content/Optional` tree
-  (no default garment, no local texture-synthesis models).
-- Unattended EOS login failed: `EOS_Auth_PinGrantExpired` then
-  `EOS_InvalidAuth`. Texture download therefore set
-  `has_high_resolution_textures=false` and `can_build_meta_human=false`.
+## Re-assemble
 
-Until those two items are present, a packaged Patel cannot be a MetaHuman.
+From `cardiohospital-unreal`, with Epic signed in through the editor (not
+unattended EOS):
 
-## What a human must do once
-
-1. In Epic Games Launcher, install MetaHuman Creator / Optional Content for
-   Unreal Engine 5.8.
-2. Open this project in the editor and sign in to an Epic account so MetaHuman
-   texture requests can complete.
-3. From `cardiohospital-unreal`, run:
-
-   ```
-   "/Users/Shared/Epic Games/UE_5.8/Engine/Binaries/Mac/UnrealEditor-Cmd" \
-     CardioHospital.uproject -nop4 \
-     -ExecutePythonScript="$PWD/Scripts/create-patel-metahuman.py"
-   ```
-
-4. Confirm `Content/Characters/MetaHumans/patel-assembly.json` shows
-   `"built": true` and that `Content/MetaHumans/` contains `BP_Patel`.
-5. Package again. Do not mark walkthrough step 5 until the packaged app shows
-   voice, gaze, listening, and facial motion on that assembled Patel.
-
-Do not substitute the Ada test mesh or a crowd template for Dr. Patel.
+```
+"/Users/Shared/Epic Games/UE_5.8/Engine/Binaries/Mac/UnrealEditor.app/Contents/MacOS/UnrealEditor" \
+  CardioHospital.uproject -nop4 \
+  -ExecutePythonScript="$PWD/Scripts/create-patel-metahuman.py"
+```
