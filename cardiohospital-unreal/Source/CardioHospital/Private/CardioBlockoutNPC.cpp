@@ -366,10 +366,13 @@ bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
         Follower->SetCastShadow(true);
         Follower->bNeverDistanceCull = true;
         Follower->SetBoundsScale(2.f);
-        if (UMaterialInterface* Visible = LoadObject<UMaterialInterface>(
-                nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")))
+        if (FCString::Strstr(Label, TEXT("LabCoat")))
         {
-            Follower->SetMaterial(0, Visible);
+            if (UMaterialInterface* CoatMat = LoadObject<UMaterialInterface>(
+                    nullptr, TEXT("/Game/Environment/Clinic/M_LabCoat.M_LabCoat")))
+            {
+                Follower->SetMaterial(0, CoatMat);
+            }
         }
         Follower->UpdateBounds();
         Follower->MarkRenderStateDirty();
