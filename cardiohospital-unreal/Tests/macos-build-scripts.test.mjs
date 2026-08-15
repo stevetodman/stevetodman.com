@@ -90,9 +90,11 @@ test("automation verdict rejects empty and failing reports", async () => {
   const source = await script("run-automation.sh");
   const program = source.slice(source.indexOf('const { readFileSync }'), source.indexOf("' \"$report_index\""));
 
-  const verdict = async (report) => {
+  // Unreal writes the report with a UTF-8 BOM and tab indentation. Reproduce
+  // both, because a fixture that omits them hides real parse failures.
+  const verdict = async (report, { bom = true } = {}) => {
     const file = resolve(tmpdir(), `cardio-automation-${randomUUID()}.json`);
-    await writeFile(file, JSON.stringify(report, null, "\t"), "utf8");
+    await writeFile(file, `${bom ? "﻿" : ""}${JSON.stringify(report, null, "\t")}`, "utf8");
     try {
       await run(process.execPath, ["-e", program, file]);
       return "pass";
@@ -105,7 +107,9 @@ test("automation verdict rejects empty and failing reports", async () => {
 
   const passing = (path) => ({ fullTestPath: path, state: "Success", errors: 0 });
 
-  assert.equal(await verdict({ tests: [passing("CardioHospital.Clinical.ContentLoads")] }), "pass");
+  const shape = { tests: [passing("CardioHospital.Clinical.ContentLoads")] };
+  assert.equal(await verdict(shape), "pass", "a BOM-prefixed report must still parse");
+  assert.equal(await verdict(shape, { bom: false }), "pass", "a report without a BOM must also parse");
   assert.equal(await verdict({ tests: [] }), "fail", "an empty report must not pass");
   assert.equal(await verdict({}), "fail", "a report with no tests key must not pass");
   assert.equal(

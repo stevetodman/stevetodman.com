@@ -55,7 +55,8 @@ report_index="${report_dir}/index.json"
 node_path="$(cardio_resolve_node)"
 "$node_path" -e '
 const { readFileSync } = require("node:fs");
-const report = JSON.parse(readFileSync(process.argv[1], "utf8"));
+// Unreal writes the report with a UTF-8 BOM, which JSON.parse rejects.
+const report = JSON.parse(readFileSync(process.argv[1], "utf8").replace(/^\uFEFF/, ""));
 const tests = Array.isArray(report.tests) ? report.tests : [];
 
 if (tests.length === 0) {
