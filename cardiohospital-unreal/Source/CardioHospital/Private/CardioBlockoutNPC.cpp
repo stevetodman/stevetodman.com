@@ -5,6 +5,7 @@
 #include "GameFramework/PlayerController.h"
 #include "UObject/SoftObjectPath.h"
 #include "GameFramework/Pawn.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/StaticMesh.h"
@@ -201,12 +202,25 @@ void ACardioBlockoutNPC::TryAttachAssembledMetaHuman()
 
     AssembledVisual->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
     HidePrimitiveStandIn();
-    // A static mesh is not a coat. The live 224805Z shot was a foam column
-    // in front of the High MetaHuman. Keep overlays off until a skinned
-    // wardrobe item is on BP_Patel.
+    // The Sketchfab coat is authored in A-pose. Freeze the assembled
+    // MetaHuman on its bind pose so the real garment can sit on him
+    // instead of a foam column in front of an idle.
+    TArray<USkeletalMeshComponent*> Skels;
+    AssembledVisual->GetComponents<USkeletalMeshComponent>(Skels);
+    for (USkeletalMeshComponent* Skel : Skels)
+    {
+        if (!Skel)
+        {
+            continue;
+        }
+        Skel->SetAnimationMode(EAnimationMode::AnimationCustomMode);
+        Skel->Stop();
+    }
     if (AttendingCoat)
     {
-        AttendingCoat->SetHiddenInGame(true);
+        AttendingCoat->SetHiddenInGame(false);
+        AttendingCoat->SetRelativeLocation(FVector::ZeroVector);
+        AttendingCoat->SetRelativeScale3D(FVector::OneVector);
     }
     if (AttendingTrousers)
     {
