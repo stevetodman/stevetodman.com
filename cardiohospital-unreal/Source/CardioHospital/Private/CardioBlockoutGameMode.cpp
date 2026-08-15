@@ -7,6 +7,10 @@
 #include "CardioCaseRuntimeTypes.h"
 #include "CardioClinicalDataSubsystem.h"
 #include "CardioHospital.h"
+#include "CardioEducationTypes.h"
+#include "CardioLearnerProfileSubsystem.h"
+#include "CardioLearnerProfileTypes.h"
+#include "Misc/Guid.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/SkyAtmosphereComponent.h"
 #include "Components/SkyLightComponent.h"
@@ -165,6 +169,7 @@ void ACardioBlockoutGameMode::NotifyLearnerLocation(const FVector& Location)
     if (IsTeamRoomLocation(Location))
     {
         TryPerformAction(TEXT("navigate.workroom"));
+        TryPerformAction(TEXT("navigate.return-workroom"));
     }
     if (IsExamRoom3Location(Location))
     {
@@ -185,6 +190,7 @@ void ACardioBlockoutGameMode::HandleInteract(ACardioBlockoutCharacter& Character
     if (Hud->IsPanelOpen())
     {
         CurrentMenuActions.Reset();
+        bChoosingDiagnosis = false;
         Hud->ClosePanel();
         return;
     }
@@ -205,6 +211,25 @@ void ACardioBlockoutGameMode::HandleChooseAction(const int32 ZeroBasedIndex)
 {
     if (!CurrentMenuActions.IsValidIndex(ZeroBasedIndex))
     {
+        return;
+    }
+
+    if (bChoosingDiagnosis)
+    {
+        const FString Diagnosis = CurrentMenuActions[ZeroBasedIndex];
+        bChoosingDiagnosis = false;
+        CurrentMenuActions.Reset();
+        FCardioCaseActionDefinition Submitted;
+        Submitted.Id = TEXT("reasoning.submit");
+        Submitted.Type = TEXT("reasoning");
+        Submitted.Target = TEXT("attending");
+        Submitted.EventType = TEXT("diagnosis_submitted");
+        if (!TryPerformAction(TEXT("reasoning.submit"), DiagnosisPayloadJson(Diagnosis)))
+        {
+            ShowEncounterMenu();
+            return;
+        }
+        ShowActionResult(Submitted);
         return;
     }
 
@@ -229,7 +254,16 @@ void ACardioBlockoutGameMode::HandleChooseAction(const int32 ZeroBasedIndex)
     }
 
     CurrentMenuActions.Reset();
-    if (!TryPerformAction(ActionId) || !bFound)
+    if (!bFound)
+    {
+        ShowEncounterMenu();
+        return;
+    }
+    if (HandleSpecialAction(Chosen))
+    {
+        return;
+    }
+    if (!TryPerformAction(ActionId))
     {
         ShowEncounterMenu();
         return;
@@ -274,7 +308,13 @@ void ACardioBlockoutGameMode::HandleAttending(ACardioBlockoutNPC& Npc)
             TEXT("navigate.workroom"),
             TEXT("attending.open-assignment"),
             TEXT("assignment.accept"),
+            TEXT("navigate.return-workroom"),
         });
+        if (HasAttendingFollowUp())
+        {
+            ShowEncounterMenu();
+            return;
+        }
         Hud->ShowPanel(BuildAssignmentLines(Runtime->GetActiveClinicalCase()));
         return;
     }
@@ -356,7 +396,7 @@ void ACardioBlockoutGameMode::AdvanceImpliedActions(const TArray<FString>& Actio
     }
 }
 
-bool ACardioBlockoutGameMode::TryPerformAction(const FString& ActionId)
+bool ACardioBlockoutGameMode::TryPerformAction(const FString& ActionId, const FString& PayloadJson)
 {
     UGameInstance* GameInstance = GetGameInstance();
     UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
@@ -370,12 +410,34 @@ bool ACardioBlockoutGameMode::TryPerformAction(const FString& ActionId)
     }
 
     FCardioCaseActionResult Result;
-    if (!Runtime->PerformAction(ActionId, TEXT("{}"), Result))
+    if (!Runtime->PerformAction(ActionId, PayloadJson, Result))
     {
         UE_LOG(LogCardioHospital, Warning, TEXT("PerformAction(%s) failed: %s"), *ActionId, *Result.Error);
         return false;
     }
     return true;
+}
+
+bool ACardioBlockoutGameMode::HasAttendingFollowUp() const
+{
+    const UGameInstance* GameInstance = GetGameInstance();
+    const UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Runtime || !Runtime->HasActiveCase())
+    {
+        return false;
+    }
+    for (const FString& ActionId : Runtime->GetAvailableActions())
+    {
+        if (ActionId == TEXT("reasoning.submit")
+            || ActionId == TEXT("debrief.review")
+            || ActionId == TEXT("performance.record")
+            || ActionId == TEXT("next-case.begin")
+            || ActionId.StartsWith(TEXT("management.")))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void ACardioBlockoutGameMode::ShowEncounterMenu()
@@ -390,6 +452,7 @@ void ACardioBlockoutGameMode::ShowEncounterMenu()
     }
 
     CurrentMenuActions.Reset();
+    bChoosingDiagnosis = false;
     TArray<FString> Lines;
     const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
     Lines.Add(ClinicalCase.Room.IsEmpty() ? TEXT("Encounter") : ClinicalCase.Room);
@@ -403,6 +466,10 @@ void ACardioBlockoutGameMode::ShowEncounterMenu()
             || Action.Type == TEXT("exam")
             || Action.Type == TEXT("order")
             || Action.Type == TEXT("review")
+            || Action.Type == TEXT("reasoning")
+            || Action.Type == TEXT("management")
+            || Action.Type == TEXT("debrief")
+            || Action.Type == TEXT("continuation")
             || Action.Id == TEXT("encounter.introduce")
             || Action.Id.EndsWith(TEXT(".finish"));
         if (!bEncounterAction || Choice > 9)
@@ -416,7 +483,14 @@ void ACardioBlockoutGameMode::ShowEncounterMenu()
 
     if (CurrentMenuActions.Num() == 0)
     {
-        Lines.Add(TEXT("No further actions are available in this room."));
+        if (HasAttendingFollowUp())
+        {
+            Lines.Add(TEXT("Return to Dr. Patel in the Cardiology Team Room."));
+        }
+        else
+        {
+            Lines.Add(TEXT("No further actions are available in this room."));
+        }
     }
     Lines.Add(FString());
     Lines.Add(TEXT("[E] Close"));
@@ -465,6 +539,22 @@ FString ACardioBlockoutGameMode::LabelForAction(const FCardioCaseActionDefinitio
                 return Fact.Question;
             }
         }
+    }
+    if (Action.Id == TEXT("reasoning.submit"))
+    {
+        return TEXT("State your diagnosis");
+    }
+    if (Action.Id == TEXT("debrief.review"))
+    {
+        return TEXT("Review case-specific feedback");
+    }
+    if (Action.Id == TEXT("performance.record"))
+    {
+        return TEXT("Record this attempt");
+    }
+    if (Action.Id == TEXT("next-case.begin"))
+    {
+        return TEXT("Begin the next case");
     }
     if (Action.Id.EndsWith(TEXT(".finish")))
     {
@@ -545,6 +635,222 @@ FString ACardioBlockoutGameMode::ResultForAction(const FCardioCaseActionDefiniti
         return FString::Join(Lines, TEXT("\n"));
     }
     return FString();
+}
+
+bool ACardioBlockoutGameMode::HandleSpecialAction(const FCardioCaseActionDefinition& Action)
+{
+    if (Action.Id == TEXT("reasoning.submit"))
+    {
+        ShowDiagnosisMenu();
+        return true;
+    }
+    if (Action.Id == TEXT("debrief.review"))
+    {
+        if (!TryPerformAction(Action.Id))
+        {
+            return false;
+        }
+        ShowDebrief();
+        return true;
+    }
+    if (Action.Id == TEXT("performance.record"))
+    {
+        UGameInstance* GameInstance = GetGameInstance();
+        UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+        UCardioLearnerProfileSubsystem* Profile = GameInstance ? GameInstance->GetSubsystem<UCardioLearnerProfileSubsystem>() : nullptr;
+        APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+        ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+        if (!Runtime || !Profile || !Hud)
+        {
+            return false;
+        }
+
+        FCardioCaseDebrief Debrief;
+        FString Error;
+        if (!Runtime->EvaluateCurrentAttempt(Debrief, Error))
+        {
+            Hud->ShowPanel({ TEXT("Record attempt"), FString(), Error, FString(), TEXT("[E] Close") });
+            return true;
+        }
+        const FString AttemptId = FGuid::NewGuid().ToString(EGuidFormats::DigitsWithHyphens);
+        const FString CompletedAt = FDateTime::UtcNow().ToIso8601();
+        if (!Profile->RecordAttempt(Debrief, AttemptId, CompletedAt, Error))
+        {
+            Hud->ShowPanel({ TEXT("Record attempt"), FString(), Error, FString(), TEXT("[E] Close") });
+            return true;
+        }
+        if (!TryPerformAction(Action.Id))
+        {
+            return false;
+        }
+        Hud->ShowPanel({
+            TEXT("Attempt recorded"),
+            FString(),
+            FString::Printf(TEXT("Content version %s stored without patient identifiers."), *Debrief.CaseVersion),
+            FString(),
+            TEXT("[E] Close"),
+        });
+        return true;
+    }
+    if (Action.Id == TEXT("next-case.begin"))
+    {
+        UGameInstance* GameInstance = GetGameInstance();
+        UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+        UCardioLearnerProfileSubsystem* Profile = GameInstance ? GameInstance->GetSubsystem<UCardioLearnerProfileSubsystem>() : nullptr;
+        APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+        ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+        if (!Runtime || !Profile || !Hud)
+        {
+            return false;
+        }
+        if (!TryPerformAction(Action.Id))
+        {
+            return false;
+        }
+
+        FCardioNextCaseSelection Next;
+        FString Error;
+        if (!Profile->SelectNextCase(Next, Error) || Next.CaseId.IsEmpty())
+        {
+            Hud->ShowPanel({
+                TEXT("Next case"),
+                FString(),
+                Error.IsEmpty() ? TEXT("No contrastive next case is available.") : Error,
+                FString(),
+                TEXT("[E] Close"),
+            });
+            return true;
+        }
+
+        FString StartError;
+        if (!Runtime->StartCase(Next.CaseId, StartError))
+        {
+            Hud->ShowPanel({ TEXT("Next case"), FString(), StartError, FString(), TEXT("[E] Close") });
+            return true;
+        }
+        AdvanceImpliedActions({
+            TEXT("system.load"),
+            TEXT("world.enter"),
+            TEXT("navigate.workroom"),
+            TEXT("attending.open-assignment"),
+            TEXT("assignment.accept"),
+        });
+        const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
+        Hud->ShowPanel({
+            TEXT("Dr. Patel - Cardiology Attending"),
+            FString(),
+            TEXT("\"I have another patient I'd like you to see.\""),
+            FString(),
+            FString::Printf(TEXT("Patient: %s, %.0f-year-old %s"), *ClinicalCase.PatientName, ClinicalCase.Age, *ClinicalCase.Sex),
+            FString::Printf(TEXT("Chief complaint: %s"), *ClinicalCase.ChiefComplaint),
+            FString::Printf(TEXT("Location: %s"), *ClinicalCase.Room),
+            FString(),
+            TEXT("Find your patient and begin the evaluation."),
+            TEXT("[E] Close"),
+        });
+        return true;
+    }
+    return false;
+}
+
+void ACardioBlockoutGameMode::ShowDiagnosisMenu()
+{
+    APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+    UGameInstance* GameInstance = GetGameInstance();
+    UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Hud || !Runtime)
+    {
+        return;
+    }
+
+    CurrentMenuActions.Reset();
+    bChoosingDiagnosis = true;
+    TArray<FString> Lines;
+    Lines.Add(TEXT("Diagnosis"));
+    Lines.Add(FString());
+
+    int32 Choice = 1;
+    for (const FString& Diagnosis : Runtime->GetActiveClinicalCase().Differentials)
+    {
+        if (Diagnosis.IsEmpty() || Choice > 9)
+        {
+            continue;
+        }
+        CurrentMenuActions.Add(Diagnosis);
+        Lines.Add(FString::Printf(TEXT("[%d]  %s"), Choice, *Diagnosis));
+        ++Choice;
+    }
+    if (CurrentMenuActions.Num() == 0)
+    {
+        bChoosingDiagnosis = false;
+        Lines.Add(TEXT("No authored differentials are available."));
+    }
+    Lines.Add(FString());
+    Lines.Add(TEXT("[E] Close"));
+    Hud->ShowPanel(Lines);
+}
+
+void ACardioBlockoutGameMode::ShowDebrief()
+{
+    APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+    UGameInstance* GameInstance = GetGameInstance();
+    UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Hud || !Runtime)
+    {
+        return;
+    }
+
+    FCardioCaseDebrief Debrief;
+    FString Error;
+    if (!Runtime->EvaluateCurrentAttempt(Debrief, Error))
+    {
+        Hud->ShowPanel({ TEXT("Debrief"), FString(), Error, FString(), TEXT("[E] Close") });
+        return;
+    }
+
+    TArray<FString> Lines;
+    Lines.Add(TEXT("Case-specific feedback"));
+    Lines.Add(FString());
+    Lines.Add(FString::Printf(TEXT("Score %d"), Debrief.OverallScore));
+    Lines.Add(FString::Printf(
+        TEXT("Diagnosis: %s (%s)"),
+        Debrief.DiagnosisSubmitted.IsEmpty() ? TEXT("not submitted") : *Debrief.DiagnosisSubmitted,
+        Debrief.bDiagnosisCorrect ? TEXT("matches authored truth") : TEXT("does not match authored truth")));
+    for (const FCardioScoreDimension& Dimension : Debrief.Dimensions)
+    {
+        Lines.Add(FString::Printf(TEXT("%s  %d"), *Dimension.Id, Dimension.Score));
+    }
+    for (const FCardioMissedOpportunity& Missed : Debrief.MissedOpportunities)
+    {
+        Lines.Add(Missed.Message);
+    }
+    for (const FCardioSafetyEvent& Event : Debrief.SafetyEvents)
+    {
+        Lines.Add(Event.Message);
+        if (!Event.Intervention.IsEmpty())
+        {
+            Lines.Add(Event.Intervention);
+        }
+    }
+    const FString TeachingPoint = Runtime->GetActiveClinicalCase().TeachingPoint;
+    if (!TeachingPoint.IsEmpty())
+    {
+        Lines.Add(FString());
+        Lines.Add(TeachingPoint);
+    }
+    Lines.Add(FString());
+    Lines.Add(TEXT("[E] Close"));
+    Hud->ShowPanel(Lines);
+}
+
+FString ACardioBlockoutGameMode::DiagnosisPayloadJson(const FString& Diagnosis)
+{
+    FString Escaped = Diagnosis;
+    Escaped.ReplaceInline(TEXT("\\"), TEXT("\\\\"));
+    Escaped.ReplaceInline(TEXT("\""), TEXT("\\\""));
+    return FString::Printf(TEXT("{\"diagnosis\":\"%s\"}"), *Escaped);
 }
 
 AStaticMeshActor* ACardioBlockoutGameMode::SpawnBlock(UWorld& World, const FVector& Center, const FVector& Size, const FLinearColor& Color) const

@@ -49,13 +49,19 @@ private:
     void HandleAttending(ACardioBlockoutNPC& Npc);
     void HandleExamRoom();
     void AdvanceImpliedActions(const TArray<FString>& ActionIds);
-    bool TryPerformAction(const FString& ActionId);
+    bool TryPerformAction(const FString& ActionId, const FString& PayloadJson = TEXT("{}"));
+    bool HasAttendingFollowUp() const;
     void ShowEncounterMenu();
+    void ShowDiagnosisMenu();
+    void ShowDebrief();
     void ShowActionResult(const FCardioCaseActionDefinition& Action);
+    bool HandleSpecialAction(const FCardioCaseActionDefinition& Action);
     FString LabelForAction(const FCardioCaseActionDefinition& Action) const;
     FString ResultForAction(const FCardioCaseActionDefinition& Action) const;
+    static FString DiagnosisPayloadJson(const FString& Diagnosis);
 
     TArray<FString> CurrentMenuActions;
+    bool bChoosingDiagnosis = false;
     AStaticMeshActor* SpawnBlock(UWorld& World, const FVector& Center, const FVector& Size, const FLinearColor& Color) const;
     void SpawnLighting(UWorld& World) const;
     void SpawnSigns(UWorld& World) const;
