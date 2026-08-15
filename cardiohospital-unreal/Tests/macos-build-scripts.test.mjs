@@ -57,6 +57,25 @@ test("preflight reports actionable categories and claims no performance result",
   assert.match(source, /do not bypass a prerequisite/);
 });
 
+test("preflight detects the Metal toolchain by executing it, not by resolving a path", async () => {
+  const source = await script("check-workstation.sh");
+
+  // A cook fails on every shader without this component, and the failure only
+  // appears minutes in, after the editor build and automation have both passed.
+  assert.match(source, /xcrun metal --version/);
+  assert.match(source, /downloadComponent MetalToolchain/);
+  assert.match(source, /"metalToolchain": \{ "passed"/);
+
+  // `xcrun -f metal` resolves to a path and exits 0 even when the component is
+  // absent, so it cannot be used as the detector. The script says so in a
+  // comment, so assert against the executable lines rather than the whole file.
+  const code = source
+    .split("\n")
+    .filter((line) => !line.trimStart().startsWith("#"))
+    .join("\n");
+  assert.doesNotMatch(code, /xcrun -f metal/);
+});
+
 test("engine discovery honours UE_5_8_ROOT and targets Apple silicon", async () => {
   const source = await script("common.sh");
 

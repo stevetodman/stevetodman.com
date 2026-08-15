@@ -22,11 +22,19 @@ guessing which prerequisite is missing.
 | macOS | A release supported by Unreal Engine 5.8 | Confirm against the engine release notes |
 | Unreal Engine | 5.8 | Install through the Epic Games Launcher |
 | Xcode | The version UE 5.8 requires | `xcodebuild` must be available |
+| Metal toolchain | Installed as an Xcode component | `xcodebuild -downloadComponent MetalToolchain` |
 | Git | Any recent version | Required for package provenance |
 | Node.js | 24 or newer | Required by the clinical tooling |
 
 The command line tools alone are not sufficient. Unreal builds need full Xcode
 selected via `xcode-select`.
+
+Xcode 26 ships the Metal compiler as a separately downloadable component rather
+than in the base install. Without it the editor builds and the automation tests
+pass, and then every shader in the cook fails — thousands of errors, one per
+shader, several minutes in. The preflight detects it by running
+`xcrun metal --version`, because `xcrun -f metal` prints a tool path and exits 0
+even when the component is absent.
 
 If Unreal Engine is installed outside the default Epic Games location, set
 `UE_5_8_ROOT` for the shell rather than editing the scripts.

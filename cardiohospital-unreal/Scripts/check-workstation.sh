@@ -87,6 +87,18 @@ else
 fi
 xcode_version="$(xcodebuild -version 2>/dev/null | head -n 1 || printf 'not detected')"
 
+# --- Metal toolchain --------------------------------------------------------
+# Xcode 26 ships the Metal compiler as a separately downloadable component, and
+# without it every shader in a cook fails. Detection must execute the tool:
+# `xcrun -f metal` returns a path and exit 0 even when the component is absent.
+metal_passed=false
+if xcrun metal --version >/dev/null 2>&1; then
+  metal_passed=true
+else
+  add_user_action "The Metal toolchain is missing, so no shader can be cooked. Install it with: xcodebuild -downloadComponent MetalToolchain"
+fi
+metal_version="$(xcrun metal --version 2>/dev/null | head -n 1 || printf 'not installed')"
+
 # --- Node -------------------------------------------------------------------
 node_passed=false
 node_version="not detected"
@@ -152,6 +164,8 @@ report_path="${reports_dir}/workstation-$(date -u +%Y%m%dT%H%M%SZ).json"
     "$engine_passed" "$CARDIO_REQUIRED_ENGINE_VERSION" "$(cardio_json_escape "$engine_root")"
   printf '  "xcode": { "passed": %s, "version": "%s", "path": "%s" },\n' \
     "$xcode_passed" "$(cardio_json_escape "$xcode_version")" "$(cardio_json_escape "$xcode_path")"
+  printf '  "metalToolchain": { "passed": %s, "version": "%s" },\n' \
+    "$metal_passed" "$(cardio_json_escape "$metal_version")"
   printf '  "node": { "passed": %s, "version": "%s" },\n' "$node_passed" "$(cardio_json_escape "$node_version")"
   printf '  "git": { "passed": %s, "version": "%s" },\n' "$git_passed" "$(cardio_json_escape "$git_version")"
   printf '  "userAction": %s,\n' "$(emit_array ${user_actions+"${user_actions[@]}"})"
@@ -167,6 +181,7 @@ printf '    memory   %s GB (need %s)\n' "$memory_gb" "$MIN_MEMORY_GB"
 printf '    disk     %s GB free (need %s)\n' "$free_disk_gb" "$MIN_FREE_DISK_GB"
 printf '    unreal   %s\n' "${engine_root:-not found}"
 printf '    xcode    %s\n' "$xcode_version"
+printf '    metal    %s\n' "$metal_version"
 printf '    node     %s\n' "$node_version"
 
 if [[ "$passed" == true ]]; then
