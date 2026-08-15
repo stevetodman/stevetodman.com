@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human look at Mac-Development-20260815T225929Z (commit 3d6aced). Static coat/trousers/scope overlays are hidden. Patel is the High MetaHuman in the default casual garment. A professional coat requires a skinned WI_ wardrobe item (Fab Modern Lab Coat ~$19, or Sketchfab login). walkthroughPassed stays false.
+next: Human look at Mac-Development-20260815T231742Z (commit 3fda3eb) for the CC-BY Sketchfab lab coat on A-pose Patel. walkthroughPassed stays false.
 ---
 
 # CLAUDE.md
@@ -271,6 +271,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-15: Downloaded zeryshahid's CC-BY Male Lab Coat and Pants after the Sketchfab account existed, scaled the fabric coat onto Patel, froze him in A-pose, and hid the invented foam overlay. Packaged as Mac-Development-20260815T231742Z from 3fda3eb. Still not a skinned WI_ wardrobe. walkthroughPassed stays false.
 - 2026-08-15: Hid the static coat/trousers/scope overlays. Live look proved a ConstructorHelpers mesh is not a coat. Next coat must be a MetaHuman wardrobe item. Fab Modern Lab Coat is ~$19 and listed for UE 5.6–5.7; Sketchfab CC-BY coat needs a login. Packaged as Mac-Development-20260815T225929Z from 3d6aced. walkthroughPassed stays false.
 - 2026-08-15: Looked at the live 224805Z package: the "coat" was a white foam column standing in front of Patel's t-shirt. Slimmed/flattened the overlay and pulled it back. 225327Z live shot: column is gone; he reads as the High MetaHuman in the default casual garment; scope is a thin loop behind the neck. Static mesh overlay is not a professional attending coat. walkthroughPassed stays false.
 - 2026-08-15: Exported SKM_Patel_Body and shifted the attending coat/scope onto his actual frame (chest +Y, clavicle 141 cm) so the overlay no longer floats in front of him. Shirt/tie/button materials pinned in C++. Packaged as Mac-Development-20260815T224805Z from c3a4041. walkthroughPassed stays false.
