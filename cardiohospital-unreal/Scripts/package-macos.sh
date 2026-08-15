@@ -38,13 +38,30 @@ cardio_info "Packaging Mac ${CONFIGURATION} from ${short_commit}"
   -platform=Mac \
   -clientconfig="$CONFIGURATION" \
   -architecture=arm64 \
-  -nop4 -cook -build -stage -pak -archive \
-  -archivedirectory="$ARCHIVE_DIR" \
+  -nop4 -cook -build -stage -pak \
   -utf8output
 
-app_bundle="$(find "$ARCHIVE_DIR" -maxdepth 3 -name '*.app' -print -quit || true)"
-[[ -n "$app_bundle" ]] ||
-  cardio_fail "Unreal reported success but no .app bundle was archived under ${ARCHIVE_DIR}."
+# UAT's own -archive step copied from Binaries/Mac, which holds the linked
+# executable and nothing else: a 412 MB bundle of seven files carrying no
+# cooked content at all. The bundle Xcode's staging phase assembles under
+# Saved/StagedBuilds is the real one, so archive that explicitly rather than
+# trusting UAT to choose.
+staged_root="${CARDIO_PROJECT_ROOT}/Saved/StagedBuilds/Mac"
+staged_bundle="$(find "$staged_root" -maxdepth 1 -name '*.app' -print -quit 2>/dev/null || true)"
+[[ -n "$staged_bundle" ]] ||
+  cardio_fail "Unreal reported success but no staged .app exists under ${staged_root}."
+
+app_bundle="${ARCHIVE_DIR}/$(basename "$staged_bundle")"
+rm -rf "$app_bundle"
+cp -R "$staged_bundle" "$app_bundle"
+
+# A bundle with no cooked containers is not a package. It can only launch by
+# falling back to uncooked content, which requires the editor, so it is never
+# the learner's build. Fail here rather than sign and hash a hollow bundle.
+cooked_count="$(find "$app_bundle" \( -name '*.pak' -o -name '*.utoc' -o -name '*.ucas' \) | wc -l | tr -d '[:space:]')"
+(( cooked_count > 0 )) ||
+  cardio_fail "${app_bundle} carries no .pak, .utoc, or .ucas. The cooked content never reached the bundle; this is not a package."
+cardio_info "Archived bundle carries ${cooked_count} cooked container(s)."
 
 # Ad-hoc signing so the bundle launches on the reference workstation without a
 # Gatekeeper bypass. ADR-0002 treats a manual quarantine clear as invalidating

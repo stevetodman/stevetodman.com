@@ -154,6 +154,30 @@ test("packaging refuses unverifiable source and starts the manifest at failure",
   assert.match(pkg, /codesign --force --deep --sign -/);
 });
 
+test("packaging archives the staged bundle and refuses one with no cooked content", async () => {
+  const pkg = await script("package-macos.sh");
+
+  // UAT's -archive copies from Binaries/Mac, which holds the linked executable
+  // and no cooked content. The staged bundle is the deliverable.
+  assert.match(pkg, /Saved\/StagedBuilds\/Mac/);
+  assert.doesNotMatch(pkg, /-archivedirectory=/, "UAT must not choose what gets archived");
+
+  // Signing and hashing a bundle without paks produced a manifest that looked
+  // like a real package and was not one. The count must gate the manifest.
+  assert.match(pkg, /'\*\.pak'/);
+  assert.match(pkg, /'\*\.utoc'/);
+  assert.match(pkg, /'\*\.ucas'/);
+  assert.match(pkg, /cooked_count > 0/);
+  assert.match(pkg, /this is not a package/);
+
+  // The gate has to precede the manifest, or it documents a failure the
+  // manifest has already recorded as a success.
+  assert.ok(
+    pkg.indexOf("cooked_count > 0") < pkg.indexOf("build-manifest.json"),
+    "the cooked-content gate must run before the manifest is written",
+  );
+});
+
 test("walkthrough evidence cannot be granted without a complete, measured run", async () => {
   const source = await script("record-walkthrough-evidence.sh");
 
