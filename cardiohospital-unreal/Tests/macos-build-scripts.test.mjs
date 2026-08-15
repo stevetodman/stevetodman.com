@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { access, constants, readFile, readdir } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import { access, constants, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -72,6 +74,50 @@ test("automation uses UE 5.8 syntax and verifies the exported report", async () 
   assert.doesNotMatch(source, /Automation RunTests /);
   assert.match(source, /index\.json/);
   assert.match(source, /No tests ran; this is not a pass/);
+
+  // The report is pretty-printed, so a compact grep pattern silently matches
+  // nothing and waves real failures through. Parse it instead.
+  assert.doesNotMatch(source, /grep -q '"Fail"'/);
+  assert.match(source, /JSON\.parse/);
+  assert.match(source, /tests\.length === 0/);
+  assert.match(source, /state !== "Success"/);
+  assert.match(source, /zero tests/);
+});
+
+test("automation verdict rejects empty and failing reports", async () => {
+  // Exercise the embedded verdict logic against real report shapes rather than
+  // trusting the source text. Shapes copied from a genuine UE 5.8 export.
+  const source = await script("run-automation.sh");
+  const program = source.slice(source.indexOf('const { readFileSync }'), source.indexOf("' \"$report_index\""));
+
+  const verdict = async (report) => {
+    const file = resolve(tmpdir(), `cardio-automation-${randomUUID()}.json`);
+    await writeFile(file, JSON.stringify(report, null, "\t"), "utf8");
+    try {
+      await run(process.execPath, ["-e", program, file]);
+      return "pass";
+    } catch {
+      return "fail";
+    } finally {
+      await rm(file, { force: true });
+    }
+  };
+
+  const passing = (path) => ({ fullTestPath: path, state: "Success", errors: 0 });
+
+  assert.equal(await verdict({ tests: [passing("CardioHospital.Clinical.ContentLoads")] }), "pass");
+  assert.equal(await verdict({ tests: [] }), "fail", "an empty report must not pass");
+  assert.equal(await verdict({}), "fail", "a report with no tests key must not pass");
+  assert.equal(
+    await verdict({ tests: [{ fullTestPath: "CardioHospital.Clinical.ContentLoads", state: "Fail", errors: 1 }] }),
+    "fail",
+    "a failing test must not pass",
+  );
+  assert.equal(
+    await verdict({ tests: [passing("A"), { fullTestPath: "B", state: "NotRun", errors: 0 }] }),
+    "fail",
+    "a skipped test must not pass",
+  );
 });
 
 test("packaging refuses unverifiable source and starts the manifest at failure", async () => {
