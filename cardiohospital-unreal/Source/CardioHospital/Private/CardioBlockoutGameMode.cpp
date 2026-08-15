@@ -1,5 +1,9 @@
 #include "CardioBlockoutGameMode.h"
 
+#include "Components/AudioComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundWaveProcedural.h"
+#include "TimerManager.h"
 #include "CardioBlockoutCharacter.h"
 #include "CardioBlockoutHUD.h"
 #include "CardioBlockoutNPC.h"
@@ -193,6 +197,8 @@ void ACardioBlockoutGameMode::HandleInteract(ACardioBlockoutCharacter& Character
     {
         CurrentMenuActions.Reset();
         bChoosingDiagnosis = false;
+        bChoosingAuscultation = false;
+        StopMurmurAudio();
         SetAttendingListening(false);
         if (AttendingNpc)
         {
@@ -218,6 +224,23 @@ void ACardioBlockoutGameMode::HandleChooseAction(const int32 ZeroBasedIndex)
 {
     if (!CurrentMenuActions.IsValidIndex(ZeroBasedIndex))
     {
+        return;
+    }
+
+    if (bChoosingAuscultation)
+    {
+        const FString Choice = CurrentMenuActions[ZeroBasedIndex];
+        if (Choice == TEXT("__valsalva"))
+        {
+            Murmur.SetValsalva(!Murmur.IsValsalva());
+            if (!Murmur.GetSite().IsEmpty())
+            {
+                StartAuscultationSite(Murmur.GetSite());
+            }
+            ShowAuscultationMenu();
+            return;
+        }
+        StartAuscultationSite(Choice);
         return;
     }
 
@@ -461,6 +484,7 @@ void ACardioBlockoutGameMode::ShowEncounterMenu()
 
     CurrentMenuActions.Reset();
     bChoosingDiagnosis = false;
+    bChoosingAuscultation = false;
     SetAttendingListening(true);
     TArray<FString> Lines;
     const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
@@ -648,6 +672,15 @@ FString ACardioBlockoutGameMode::ResultForAction(const FCardioCaseActionDefiniti
 
 bool ACardioBlockoutGameMode::HandleSpecialAction(const FCardioCaseActionDefinition& Action)
 {
+    if (Action.Id == TEXT("exam.auscultation"))
+    {
+        if (!TryPerformAction(Action.Id))
+        {
+            return false;
+        }
+        ShowAuscultationMenu();
+        return true;
+    }
     if (Action.Id == TEXT("reasoning.submit"))
     {
         ShowDiagnosisMenu();
@@ -975,6 +1008,133 @@ void ACardioBlockoutGameMode::ShowSocraticResponse()
     if (Socratic.Num() > 0)
     {
         SpeakAttending(Socratic[0]);
+    }
+}
+
+void ACardioBlockoutGameMode::ShowAuscultationMenu()
+{
+    APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+    UGameInstance* GameInstance = GetGameInstance();
+    UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Hud || !Runtime)
+    {
+        return;
+    }
+
+    CurrentMenuActions.Reset();
+    bChoosingAuscultation = true;
+    TArray<FString> Lines;
+    Lines.Add(TEXT("Auscultation"));
+    Lines.Add(FString());
+
+    int32 Choice = 1;
+    for (const FCardioAuscultationFinding& Finding : Runtime->GetActiveClinicalCase().Exam.Auscultation)
+    {
+        if (Finding.Site.IsEmpty() || Choice > 8)
+        {
+            continue;
+        }
+        CurrentMenuActions.Add(Finding.Site);
+        const bool bActive = Murmur.GetSite() == Finding.Site && MurmurAudio != nullptr;
+        Lines.Add(FString::Printf(TEXT("[%d]  %s%s"), Choice, *Finding.Site, bActive ? TEXT("  (listening)") : TEXT("")));
+        ++Choice;
+    }
+    CurrentMenuActions.Add(TEXT("__valsalva"));
+    Lines.Add(FString::Printf(TEXT("[%d]  Valsalva %s"), Choice, Murmur.IsValsalva() ? TEXT("on") : TEXT("off")));
+    if (MurmurAudio)
+    {
+        for (const FCardioAuscultationFinding& Finding : Runtime->GetActiveClinicalCase().Exam.Auscultation)
+        {
+            if (Finding.Site == Murmur.GetSite() && !Finding.Description.IsEmpty())
+            {
+                Lines.Add(FString());
+                Lines.Add(Finding.Description);
+                break;
+            }
+        }
+    }
+    Lines.Add(FString());
+    Lines.Add(TEXT("[E] Close"));
+    Hud->ShowPanel(Lines);
+}
+
+void ACardioBlockoutGameMode::StartAuscultationSite(const FString& Site)
+{
+    UGameInstance* GameInstance = GetGameInstance();
+    UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
+    if (!Runtime || !Hud)
+    {
+        return;
+    }
+
+    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
+    Murmur.Configure(
+        FCardioMurmurSynthesizer::PatternForCaseId(ClinicalCase.Id),
+        ClinicalCase.Exam.Vitals.HR,
+        Site,
+        Murmur.IsValsalva());
+
+    if (!MurmurWave)
+    {
+        MurmurWave = NewObject<USoundWaveProcedural>(this);
+        MurmurWave->SetSampleRate(FCardioMurmurSynthesizer::SampleRate);
+        MurmurWave->NumChannels = 1;
+        MurmurWave->bLooping = false;
+        MurmurWave->SoundGroup = SOUNDGROUP_Voice;
+        MurmurWave->bCanProcessAsync = false;
+    }
+
+    TArray<uint8> Pcm;
+    Murmur.RenderSeconds(1.2f, Pcm);
+    MurmurWave->ResetAudio();
+    MurmurWave->QueueAudio(Pcm.GetData(), Pcm.Num());
+
+    if (!MurmurAudio)
+    {
+        MurmurAudio = UGameplayStatics::SpawnSound2D(this, MurmurWave, 1.f, 1.f, 0.f, nullptr, true, false);
+    }
+    else if (!MurmurAudio->IsPlaying())
+    {
+        MurmurAudio->SetSound(MurmurWave);
+        MurmurAudio->Play();
+    }
+
+    if (UWorld* World = GetWorld())
+    {
+        World->GetTimerManager().SetTimer(MurmurTimer, this, &ACardioBlockoutGameMode::PumpMurmurAudio, 0.35f, true);
+    }
+
+    ShowAuscultationMenu();
+}
+
+void ACardioBlockoutGameMode::PumpMurmurAudio()
+{
+    if (!MurmurWave)
+    {
+        return;
+    }
+    TArray<uint8> Pcm;
+    Murmur.RenderSeconds(0.6f, Pcm);
+    MurmurWave->QueueAudio(Pcm.GetData(), Pcm.Num());
+}
+
+void ACardioBlockoutGameMode::StopMurmurAudio()
+{
+    if (UWorld* World = GetWorld())
+    {
+        World->GetTimerManager().ClearTimer(MurmurTimer);
+    }
+    if (MurmurAudio)
+    {
+        MurmurAudio->Stop();
+        MurmurAudio = nullptr;
+    }
+    if (MurmurWave)
+    {
+        MurmurWave->ResetAudio();
     }
 }
 

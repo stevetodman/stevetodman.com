@@ -3,7 +3,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "CardioClinicalTypes.h"
+#include "CardioMurmurSynthesizer.h"
 #include "CardioBlockoutGameMode.generated.h"
+
+class UAudioComponent;
+class USoundWaveProcedural;
 
 class ACardioBlockoutCharacter;
 class ACardioBlockoutNPC;
@@ -62,11 +66,25 @@ private:
     void SetAttendingListening(bool bListening);
     void ShowSocraticResponse();
     TArray<FString> CollectSocraticLines() const;
+    void ShowAuscultationMenu();
+    void StartAuscultationSite(const FString& Site);
+    void PumpMurmurAudio();
+    void StopMurmurAudio();
     static FString DiagnosisPayloadJson(const FString& Diagnosis);
     static FString HistoryActionIdFromKey(const FString& Key);
 
     TArray<FString> CurrentMenuActions;
     bool bChoosingDiagnosis = false;
+    bool bChoosingAuscultation = false;
+    FCardioMurmurSynthesizer Murmur;
+
+    UPROPERTY()
+    TObjectPtr<USoundWaveProcedural> MurmurWave;
+
+    UPROPERTY()
+    TObjectPtr<UAudioComponent> MurmurAudio;
+
+    FTimerHandle MurmurTimer;
 
     UPROPERTY()
     TObjectPtr<ACardioBlockoutNPC> AttendingNpc;

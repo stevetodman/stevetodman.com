@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human walk of package Mac-Development-20260815T181228Z (commit 116f6f1). Import a MetaHuman Patel before claiming walkthrough step 5; TTS plus blink/listen on the blockout figure is not facial performance.
+next: Human walk of the latest package. Auscultation now plays site-specific murmur + Valsalva from authored patterns. Still no MetaHuman Patel, so step 5 remains failed.
 ---
 
 # CLAUDE.md
@@ -271,6 +271,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- 2026-08-15: Exam Room 3 auscultation now plays a procedural murmur aligned with `LegacyCore/src/lib/murmur-audio.ts`. Sites and descriptions come from clinical content; Valsalva boosts HCM and softens Still's. No MetaHuman Patel was imported — engine plugins exist, but there is no Patel identity asset, so step 5 stays failed. Portable tests 76/76.
 - 2026-08-15: Patel presentation adapter: Mac TextToSpeech speaks only authored assignment and Socratic lines; listening lean while the learner menu is open; blink and a speaking cue on the blockout figure. Diagnosis follow-up uses `AttendingSocratic` and missed-opportunity templates from clinical content (section 29/30). No MetaHuman asset yet, so step 5 is still failed. Portable tests 74/74.
 - 2026-08-15: Closed the remaining authored clinic loop in the blockout without adding a patient NPC. Returning to Patel after testing now offers diagnosis (authored differentials only), management, deterministic debrief from `EvaluateCurrentAttempt`, identity-free `RecordAttempt`, and `SelectNextCase` so HCM can start the vasovagal contrast without leaving the world. Portable tests 74/74.
 - 2026-08-15: Continued on the authoritative 168-section plan (`LegacyCore/plan.md`, blob `e8935173`) and the `facfa6d` doorway branch. Linked that spec at the top of the Unreal README. Wired Exam Room 3 into the real case graph: Patel E now advances `system.load` through `assignment.accept`; entering the team/exam rooms records `navigate.workroom` / `navigate.exam-room`; E in Exam Room 3 introduces the encounter and offers numbered history/exam/order actions whose questions and findings come from `clinical-content.json`. No cube patient was added. Patel yaws toward the learner in range (gaze only — not voice or face). Portable Unreal tests 74/74.

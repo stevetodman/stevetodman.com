@@ -148,6 +148,10 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(source, /MissedOpportunityTemplate/);
   assert.match(source, /SpeakOnChannel/);
   assert.match(source, /SetListening/);
+  assert.match(source, /exam.auscultation/);
+  assert.match(source, /ShowAuscultationMenu/);
+  assert.match(source, /PatternForCaseId/);
+  assert.match(source, /__valsalva/);
   assert.match(await read("CardioHospital.uproject"), /"Name": "TextToSpeech"/);
   assert.match(await read("Source/CardioHospital/CardioHospital.Build.cs"), /TextToSpeech/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /BlinkRemaining/);
