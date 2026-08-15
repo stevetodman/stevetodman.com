@@ -18,33 +18,32 @@ The platform, launch-surface, performance, and bounded MetaHuman decisions are
 recorded in
 [`Docs/ADR-0001-unreal-5-8-product-rebaseline.md`](Docs/ADR-0001-unreal-5-8-product-rebaseline.md).
 
-These prerequisites describe the release workstation. Clinical authoring and
-portable validation run on any platform with Node.js 24, and an optional
-non-evidence macOS development tier is described in
-[`Docs/MACOS_DEVELOPMENT.md`](Docs/MACOS_DEVELOPMENT.md).
+The release target is macOS on Apple silicon, decided in
+[`Docs/ADR-0002-macos-release-target.md`](Docs/ADR-0002-macos-release-target.md).
+Clinical authoring and portable validation run on any platform with Node.js 24.
 
 ## Local prerequisites
 
-- Windows 11
+- macOS on Apple silicon, at a release supported by Unreal Engine 5.8
 - Unreal Engine 5.8
-- Visual Studio 2022 17.14 or newer, or Visual Studio 2026, with **Game
-  development with C++**
-- MSVC 14.38 or newer and Windows SDK 10.0.22621.0 or newer
-- Git for Windows
-- Node.js 24, or the Node.js runtime bundled with the Codex Windows app
-- At least 48 GB installed RAM and 100 GB free on the project drive
-- Desktop NVIDIA RTX 4080/4090 or RTX 5080/5090
-- Current stable NVIDIA Studio Driver
+- Xcode, at the version required by that engine release, with `xcodebuild`
+  available; the command line tools alone cannot build Unreal targets
+- Git
+- Node.js 24
+- At least 48 GB of unified memory and 100 GB free on the project drive
 
-All repository scripts are designed to run as a standard user. They never
-install software, alter policy, or request elevation. On a managed PC, send
-[`IT_PREREQUISITES.md`](IT_PREREQUISITES.md) to IT for anything the read-only
-preflight reports as administrator-required.
+All repository scripts run as the normal user. They never install software,
+alter system policy, or request elevation.
 
-From `cardiohospital-unreal`, run the resumable standard-user baseline:
+The Windows PowerShell workflow under `Scripts/` is retained as a historical
+and optional path. ADR-0002 removed it as the release gate; see
+[`Docs/MACOS_DEVELOPMENT.md`](Docs/MACOS_DEVELOPMENT.md) for the division of
+work and what each path may claim.
 
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Scripts\Run-FirstBuild.ps1
+From `cardiohospital-unreal`, run the resumable baseline:
+
+```sh
+./Scripts/run-first-build.sh
 ```
 
 That one command runs preflight, portable validation, project generation,
@@ -52,23 +51,24 @@ Editor compilation, and Unreal automation in order. It writes a unique ignored
 stage report under `Saved/FirstBuildReports`. If a stage fails, fix the reported
 problem and paste the report's `resumeCommand`; preflight always reruns, and a
 completed stage is reused only when its source, workstation/toolchain, and
-artifact hashes still match. Pass `-RerunAll` to deliberately rerun every
+artifact hashes still match. Pass `--rerun-all` to deliberately rerun every
 stage. The individual scripts remain available for focused troubleshooting.
 
 After the baseline passes, commit and push any source fixes and confirm the
 worktree is clean. Then paste the report's `packageResumeCommand`, which adds
-`-IncludePackage`, or start a fresh packaged run:
+`--include-package`, or start a fresh packaged run:
 
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Scripts\Run-FirstBuild.ps1 -IncludePackage -Configuration Development
+```sh
+./Scripts/run-first-build.sh --include-package --configuration Development
 ```
 
-The package stage refuses unverifiable or dirty source. The preflight and
-first-build workflows never overwrite an earlier report. Pass `-ReportPath` to
-choose another new `.json` destination.
+The package stage refuses unverifiable or dirty source, ad-hoc signs the
+bundle so it launches without a Gatekeeper bypass, and writes a manifest that
+starts at `walkthroughPassed=false`. The preflight and first-build workflows
+never overwrite an earlier report.
 
-Pass `-EngineRoot` to any Unreal-dependent script when UE 5.8 is installed in a
-non-standard directory, or set `UE_5_8_ROOT` for the current shell. Automation
+Set `UE_5_8_ROOT` for the current shell when UE 5.8 is installed outside the
+default Epic Games location. Automation
 reports are written under `Saved/AutomationReports`; packaged builds and their
 SHA-256 manifests are written under `PackagedBuilds`. Both directories are
 ignored by Git. A package manifest always begins with `walkthroughPassed=false`;
@@ -76,22 +76,22 @@ only a real packaged walkthrough tied to that package ID can satisfy that
 quality gate.
 
 After packaging, follow [`WALKTHROUGH_CHECKLIST.md`](WALKTHROUGH_CHECKLIST.md).
-`Scripts/Record-WalkthroughEvidence.ps1` verifies the untouched archive and can
-record a failed run without changing the gate. It changes `walkthroughPassed`
-to true only when a fresh passing preflight, the exact packaged executable, all
-19 acceptance steps, the 2560×1440 performance metrics, and a preserved capture
-artifact are explicitly supplied. The full one-row-per-section trace from the
+`Scripts/record-walkthrough-evidence.sh` verifies the untouched archive against
+the manifest hashes and can record a failed run without changing the gate. It
+changes `walkthroughPassed` to true only when a fresh passing preflight, the
+exact packaged `.app` bundle, all 19 acceptance steps, and the 2560×1440
+performance metrics are explicitly supplied. An incomplete run is recorded as
+failed rather than accepted as partial. The full one-row-per-section trace from the
 authoritative 168-section specification to current evidence is recorded in
 [`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md). A shorter engineering summary
 remains in [`REQUIREMENT_COVERAGE.md`](REQUIREMENT_COVERAGE.md).
 
-GitHub Actions parses the PowerShell wrappers, runs their isolated workstation
-and package-evidence fixtures on Windows, and repeats the
-portable export, contract validation, determinism tests, headless case
-simulation, scoring, persistence, adaptive selection, and generated-file check
-on both Windows and Linux. This gate does not
-claim that Unreal Header Tool, C++ compilation, cooking, or the walkthrough has
-passed; those remain local UE 5.8 gates.
+GitHub Actions repeats the portable export, contract validation, determinism
+tests, headless case simulation, scoring, persistence, adaptive selection, and
+generated-file check on macOS, Linux, and Windows, and runs the macOS release
+script fixtures alongside the retained PowerShell ones. This gate does not claim
+that Unreal Header Tool, C++ compilation, cooking, or the walkthrough has
+passed; those remain local UE 5.8 gates on the reference workstation.
 
 ## Clinical source of truth
 

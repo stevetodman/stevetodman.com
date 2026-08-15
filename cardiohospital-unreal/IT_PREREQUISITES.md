@@ -1,45 +1,50 @@
-# Standard-user workstation request
+# Workstation prerequisites
 
-Use this template when the target workstation is managed and the developer
-does not have administrator rights. The project scripts never install software,
-change policy, or request elevation.
+The release target is macOS on Apple silicon, decided in
+[`Docs/ADR-0002-macos-release-target.md`](Docs/ADR-0002-macos-release-target.md).
 
-## Request for IT
+An earlier revision of this document described provisioning a managed Windows
+PC through institutional IT. ADR-0002 replaced that target with a personally
+administered Apple silicon workstation, so the managed-PC escalation path no
+longer applies. Nothing here requires administrator action from another party.
 
-Please provision or confirm the following on the Windows development
-workstation:
+`Scripts/check-workstation.sh` reports every item below and writes an ignored
+JSON report under `Saved/WorkstationReports`. Read that report rather than
+guessing which prerequisite is missing.
 
-- Windows 11 x64, at least 48 GB installed RAM, and a desktop NVIDIA GeForce
-  RTX 4080/4090 or RTX 5080/5090.
-- The current stable NVIDIA Studio Driver.
-- Unreal Engine 5.8, including its Windows prerequisites and Win64 target
-  support, installed in a location the standard user can read and execute.
-- Visual Studio 2022 17.14 or newer, or a UE 5.8-supported Visual Studio 2026
-  installation, with **Game development with C++**
-  (`Microsoft.VisualStudio.Workload.NativeGame`).
-- An x64 MSVC toolset version 14.38 or newer and Windows SDK 10.0.22621.0 or
-  newer.
-- Git for Windows and Node.js 24 available to the standard user. The project
-  can also use the Node.js 24 runtime bundled with Codex when that managed app
-  is already installed.
-- At least 100 GB free on the user-writable project drive for generated
-  project files, compilation, cooking, and package output.
-- Permission for the standard user to run the approved Unreal executables,
-  Visual Studio build tools, Git, Node.js, and repository PowerShell scripts.
+## Required
 
-No institutional credentials, elevated shell, inbound service, or firewall
-exception is required by these project scripts.
+| Item | Requirement | Notes |
+| --- | --- | --- |
+| Hardware | Apple silicon | Intel Macs are out of scope |
+| Memory | 48 GB unified minimum | The reference workstation has 128 GB |
+| Disk | 100 GB free on the project drive | Cooked and packaged output is large |
+| macOS | A release supported by Unreal Engine 5.8 | Confirm against the engine release notes |
+| Unreal Engine | 5.8 | Install through the Epic Games Launcher |
+| Xcode | The version UE 5.8 requires | `xcodebuild` must be available |
+| Git | Any recent version | Required for package provenance |
+| Node.js | 24 or newer | Required by the clinical tooling |
 
-## Verification after provisioning
+The command line tools alone are not sufficient. Unreal builds need full Xcode
+selected via `xcode-select`.
 
-From a normal, non-elevated PowerShell prompt in `cardiohospital-unreal`, run:
+If Unreal Engine is installed outside the default Epic Games location, set
+`UE_5_8_ROOT` for the shell rather than editing the scripts.
 
-```powershell
-./Scripts/Run-Monday-Preflight.ps1
-```
+## Not required
 
-For a non-standard Unreal installation, add
-`-EngineRoot "D:\path\to\UE_5.8"`. The JSON report separates items the user can
-address from items requiring IT or administrator action and is written to a
-unique file under `Saved/WorkstationReports`. Do not bypass a failed hardware,
-compiler, SDK, or engine check.
+- Administrator rights. Every script runs as the normal user.
+- Disabling Gatekeeper or System Integrity Protection. `package-macos.sh`
+  ad-hoc signs the bundle so it launches normally, and clearing a quarantine
+  attribute by hand invalidates the walkthrough.
+- A Windows machine. The PowerShell workflow is retained as history and is not
+  part of the release path.
+
+## Boundaries
+
+Do not enter institutional credentials into project files or terminal prompts.
+Workstation reports contain local inventory; keep them out of source control
+and share them only when someone actually needs them to diagnose a failure.
+
+A passing preflight is not a performance pass and not a walkthrough pass. Only
+measured execution of the exact packaged bundle can establish those.

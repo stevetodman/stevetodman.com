@@ -1,51 +1,53 @@
-# Standard-user Windows handoff
+# macOS handoff
 
-The repository workflow runs without elevation after IT has provisioned the
-machine. Its scripts perform read-only inventory and write only normal project
-outputs; they never install software, change policy, or request administrator
-rights.
+The release target is macOS on Apple silicon, decided in
+[`Docs/ADR-0002-macos-release-target.md`](Docs/ADR-0002-macos-release-target.md).
+
+The workflow runs as the normal user without elevation. Its scripts perform
+read-only inventory and write only normal project outputs under `Saved/` and
+`PackagedBuilds/`; they never install software, change system policy, or
+request administrator rights.
 
 ## First local prompt
 
-> Open this repository as the active project. Read `AGENTS.md`, `README.md`, and
-> `LOCAL_HANDOFF.md` completely. As the normal non-elevated user, run
-> `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Scripts\Run-FirstBuild.ps1`.
-> If preflight fails, read the workstation report's
-> `UserAction` and `ITOrAdminRequired` sections and do not bypass a prerequisite.
+> Open this repository as the active project. Read `AGENTS.md`, `README.md`,
+> `LOCAL_HANDOFF.md`, and `Docs/ADR-0002-macos-release-target.md` completely.
+> From `cardiohospital-unreal`, run `./Scripts/run-first-build.sh`.
+> If preflight fails, read the workstation report's `userAction` and
+> `itOrAdminRequired` entries and do not bypass a prerequisite.
 > If a later stage fails, fix the reported compile, automation, or data-schema
 > problem and paste the stage report's `resumeCommand`; do not add rooms or
 > characters until the baseline passes. Commit and push the validated source,
 > confirm the worktree is clean, then paste `packageResumeCommand` to create the
 > package. Do not mark the walkthrough true by hand. Follow
 > `WALKTHROUGH_CHECKLIST.md` and use
-> `Scripts/Record-WalkthroughEvidence.ps1` only after running that exact packaged
-> executable at the required quality gate. Record an incomplete run as failed
+> `Scripts/record-walkthrough-evidence.sh` only after running that exact packaged
+> `.app` bundle at the required quality gate. Record an incomplete run as failed
 > instead of weakening or skipping a gate.
 
-## Managed-PC prerequisites
+## Prerequisites
 
-If any of these are absent, send `IT_PREREQUISITES.md` and the ignored JSON
-report from `Saved/WorkstationReports` to authorized IT staff:
+`Scripts/check-workstation.sh` reports all of these and writes an ignored JSON
+report under `Saved/WorkstationReports`:
 
 - Epic Games Launcher and Unreal Engine 5.8
-- Visual Studio 2022 17.14+ or Visual Studio 2026 with Game development with C++
-- MSVC 14.38+ and Windows SDK 10.0.22621.0+
-- Git for Windows
-- Node.js 24 or an approved Codex installation containing its bundled runtime
-- NVIDIA Studio Driver
+- Xcode at the version that engine release requires, with `xcodebuild`
+  available; the command line tools alone cannot build Unreal targets
+- Git
+- Node.js 24
 
-The target workstation must run Windows 11 with at least 48 GB RAM, at least
-100 GB free on the project drive, and a desktop RTX 4080/4090 or RTX 5080/5090.
+The reference workstation is Apple silicon with at least 48 GB of unified
+memory, at least 100 GB free on the project drive, and a macOS release listed
+as supported by Unreal Engine 5.8. Intel Macs are out of scope.
+
 Passing preflight does not replace the packaged 2560×1440 performance
 walkthrough.
 
 Do not enter institutional credentials into project files or terminal prompts.
 
-If Git is not yet installed, [PR #19](https://github.com/stevetodman/stevetodman.com/pull/19)
-may be downloaded from GitHub as a ZIP for read-only inspection and portable
-validation. A verifiable package
-still requires a real Git checkout with a clean, committed `HEAD`; ask IT for
-Git rather than weakening that provenance gate.
+Packaging requires a real Git checkout with a clean, committed `HEAD`. A ZIP
+download has no `HEAD` and can never satisfy the provenance gate; use it only
+for read-only inspection.
 
 ## After the baseline builds
 
@@ -75,3 +77,5 @@ capture evidence and attach a truthful pass or failure to the package manifest.
   those warnings.
 - The first local compile must confirm Unreal Header Tool accepts the new
   reflected structs and subsystem signatures; that gate is not yet confirmed.
+  It is the largest single unknown in the migration, and `./Scripts/build-editor.sh`
+  is the shortest path to retiring it.

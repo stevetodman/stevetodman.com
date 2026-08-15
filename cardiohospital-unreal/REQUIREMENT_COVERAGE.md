@@ -21,7 +21,7 @@ Statuses below describe evidence in this repository, not aspirational claims.
 | 83, 109–110, 160, 165 | Clinical truth, case progression, scoring, and education remain independent of rendering and generative dialogue. | Generated schema-v3 truth, `UCardioClinicalDataSubsystem`, `UCardioCaseRuntimeSubsystem`, portable engines, and architecture rules enforce the boundary. | Covered in source; first UE compile still pending. |
 | 106, 147, 152 | Measure performance and maintain a conservative scene budget. | The Unreal target is stable 60 FPS at 2560×1440. `WALKTHROUGH_CHECKLIST.md` requires preserved FPS, frame-time, draw-call, triangle, GPU/texture-memory, NPC-count, and startup evidence. | Workflow covered; real package evidence pending. |
 | 108 | Recommended browser software stack. | Superseded for this high-fidelity client by Unreal Engine 5.8. The deterministic clinical core remains renderer-independent. | Intentionally adapted. |
-| 123–124, 148, 151, 158 | Versioned cases, sources/review metadata, result completeness, reachability, consistency, and medical review. | Export/contract validation, case-authoring diagnostics, reachability and deterministic-path tests run on Windows and Linux. Review fields remain explicitly pending. | Partial: seven ready graphs and zero blocking errors; 32 disclosed warnings require clinical review. |
+| 123–124, 148, 151, 158 | Versioned cases, sources/review metadata, result completeness, reachability, consistency, and medical review. | Export/contract validation, case-authoring diagnostics, reachability and deterministic-path tests run on macOS, Linux, and Windows. Review fields remain explicitly pending. | Partial: seven ready graphs and zero blocking errors; 32 disclosed warnings require clinical review. |
 | 128 | No real patient information or PHI. | Synthetic data rule in `AGENTS.md`, clinical metadata checks, identity-free learner tests, ignored local reports, and evidence privacy warnings. | Covered for current artifacts. |
 | 131–145, 167 | Build the narrow outpatient vertical slice before expanding the hospital. | README, handoff, and engineering rules constrain work to the team-room/corridor/exam-room learner loop; seven deterministic clinic cases now exist. | Curriculum core expanded; world/presentation implementation pending. |
 | 149 | Teleport, state triggers, case-variable display, navigation and performance debug tools. | No production-ready Unreal debug interface exists yet. | Pending after the baseline UE compile gate. |
@@ -30,22 +30,21 @@ Statuses below describe evidence in this repository, not aspirational claims.
 | 153 | Versioned deployment and independently verifiable packages. | Packaging requires clean committed Git source and records source, engine/toolchain versions, per-file SHA-256, package ID, and walkthrough state. Release publication remains a deliberate external step. | Package workflow covered; no release claimed. |
 | 154 | Load only the first world/case initially and stream later content. | The repository is scoped to the first slice, but packaged streaming behavior has not been implemented or measured. | Pending. |
 | 159 | Graceful runtime fallbacks for failed AI, assets, and speech. | Build scripts fail clearly and preserve diagnostic output. Runtime structured dialogue, asset, and typed-speech fallbacks are not yet connected. | Tooling covered; runtime behavior pending. |
-| 166 | Nineteen-step vertical-slice acceptance test. | `WALKTHROUGH_CHECKLIST.md` maps all 19 steps to Unreal. `Record-WalkthroughEvidence.ps1` rejects modified packages and cannot mark a pass without every step, fresh preflight, metrics, and a capture artifact. | Workflow covered; actual walkthrough pending. |
+| 166 | Nineteen-step vertical-slice acceptance test. | `WALKTHROUGH_CHECKLIST.md` maps all 19 steps to Unreal. `record-walkthrough-evidence.sh` rejects modified packages and cannot mark a pass without every step, a fresh preflight, and every metric. | Workflow covered; actual walkthrough pending. |
 
 ## Unreal workstation and handoff additions
 
 The Unreal migration adds local requirements that were not part of the
 browser-first source specification:
 
-- Windows 11, at least 48 GB installed RAM, 100 GB free, and a supported desktop
-  RTX GPU;
-- Unreal Engine 5.8, a supported Visual Studio/MSVC toolchain, and Windows SDK;
-- normal-user operation after IT provisioning, with no installation or
-  elevation attempts from repository scripts; and
+- macOS on Apple silicon, at least 48 GB of unified memory, and 100 GB free;
+- Unreal Engine 5.8 and the Xcode version that release requires;
+- normal-user operation, with no installation or elevation attempts from
+  repository scripts; and
 - a truthful separation between portable CI, UE compilation/automation,
   packaging, and the physical packaged walkthrough.
 
-`Run-Monday-Preflight.ps1`, the resumable `Run-FirstBuild.ps1`,
+`Scripts/check-workstation.sh`, the resumable `Scripts/run-first-build.sh`,
 `IT_PREREQUISITES.md`, `LOCAL_HANDOFF.md`, and the package/evidence manifests
 cover those requirements. Passing one gate never implies that a later gate
 passed.
@@ -53,7 +52,8 @@ passed.
 ## Current evidence boundary
 
 The repository can currently prove portable clinical/test consistency and the
-static behavior of its Windows orchestration. It cannot yet prove Unreal Header
+static behavior of both orchestration paths. It cannot yet prove Unreal Header
 Tool success, C++ compilation, cooking, packaged execution, presentation
-quality, or real RTX performance. Those remain Monday workstation evidence and
-must not be described as complete until their actual artifacts exist.
+quality, or measured performance on the reference workstation. Those remain
+local UE 5.8 gates and must not be described as complete until their actual
+artifacts exist.
