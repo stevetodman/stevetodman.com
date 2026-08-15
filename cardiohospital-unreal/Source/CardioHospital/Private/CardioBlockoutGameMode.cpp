@@ -143,6 +143,14 @@ ACardioBlockoutGameMode::ACardioBlockoutGameMode()
     CeilingLightMesh = LightFinder.Object;
     static ConstructorHelpers::FObjectFinder<UStaticMesh> MonitorFinder(TEXT("/Game/Environment/Clinic/SM_WallMonitor.SM_WallMonitor"));
     WallMonitorMesh = MonitorFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WallPanelFinder(TEXT("/Game/Environment/Clinic/SM_WallPanel.SM_WallPanel"));
+    WallPanelMesh = WallPanelFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> FloorTileFinder(TEXT("/Game/Environment/Clinic/SM_FloorTile.SM_FloorTile"));
+    FloorTileMesh = FloorTileFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> CeilingTileFinder(TEXT("/Game/Environment/Clinic/SM_CeilingTile.SM_CeilingTile"));
+    CeilingTileMesh = CeilingTileFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WindowFinder(TEXT("/Game/Environment/Clinic/SM_WindowUnit.SM_WindowUnit"));
+    WindowUnitMesh = WindowFinder.Object;
 }
 
 void ACardioBlockoutGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
@@ -167,6 +175,7 @@ void ACardioBlockoutGameMode::InitGame(const FString& MapName, const FString& Op
         SpawnBlock(*World, Spec.Center, Spec.Size, Spec.Color);
     }
 
+    SpawnClinicArchitecture(*World);
     SpawnClinicDressing(*World);
     SpawnLighting(*World);
     SpawnSigns(*World);
@@ -1909,6 +1918,105 @@ void ACardioBlockoutGameMode::SpawnClinicDressing(UWorld& World) const
     const FVector BoardScaleLong(13.6f, 1.f, 1.f);
     SpawnMesh(World, BaseboardMesh, FVector(0.0, 186.0, 0.0), FRotator::ZeroRotator, BoardScaleLong);
     SpawnMesh(World, BaseboardMesh, FVector(0.0, -186.0, 0.0), FRotator::ZeroRotator, BoardScaleLong);
+}
+
+void ACardioBlockoutGameMode::SpawnWallRun(
+    UWorld& World,
+    const float StartAlong,
+    const float EndAlong,
+    const float Fixed,
+    const float HeightZ,
+    const bool bAlongX,
+    const float YawDegrees) const
+{
+    if (!WallPanelMesh)
+    {
+        return;
+    }
+
+    const float Length = FMath::Abs(EndAlong - StartAlong);
+    if (Length < 20.f)
+    {
+        return;
+    }
+
+    const int32 Count = FMath::Max(1, FMath::RoundToInt(Length / 100.f));
+    const float Step = Length / static_cast<float>(Count);
+    const float Sign = EndAlong >= StartAlong ? 1.f : -1.f;
+    const FRotator Rotation(0.f, YawDegrees, 0.f);
+    const FVector Scale(Step / 100.f, 1.f, 1.f);
+
+    for (int32 Index = 0; Index < Count; ++Index)
+    {
+        const float Along = StartAlong + Sign * Step * (static_cast<float>(Index) + 0.5f);
+        const FVector Location = bAlongX
+            ? FVector(Along, Fixed, HeightZ)
+            : FVector(Fixed, Along, HeightZ);
+        SpawnMesh(World, WallPanelMesh, Location, Rotation, Scale);
+    }
+}
+
+void ACardioBlockoutGameMode::SpawnTileGrid(
+    UWorld& World,
+    UStaticMesh* Mesh,
+    const float MinX,
+    const float MaxX,
+    const float MinY,
+    const float MaxY,
+    const float Z,
+    const float TileCm) const
+{
+    if (!Mesh || TileCm < 1.f)
+    {
+        return;
+    }
+
+    for (float X = MinX + TileCm * 0.5f; X < MaxX; X += TileCm)
+    {
+        for (float Y = MinY + TileCm * 0.5f; Y < MaxY; Y += TileCm)
+        {
+            SpawnMesh(World, Mesh, FVector(X, Y, Z));
+        }
+    }
+}
+
+void ACardioBlockoutGameMode::SpawnClinicArchitecture(UWorld& World) const
+{
+    // Floor and drop-ceiling sit on the existing cube shell so collision
+    // and doorway math stay in the reviewable GBlockout table.
+    SpawnTileGrid(World, FloorTileMesh, -1500.f, 1500.f, -1000.f, 1000.f, 0.f, 200.f);
+    SpawnTileGrid(World, CeilingTileMesh, -1500.f, 1500.f, -1000.f, 1000.f, 351.f, 200.f);
+
+    // Sit 2 cm inside the cube shell so the painted faces do not z-fight.
+    SpawnWallRun(World, -1500.f, 1500.f, 998.f, 0.f, true, 180.f);
+    SpawnWallRun(World, -1500.f, 1500.f, -998.f, 0.f, true, 0.f);
+    SpawnWallRun(World, -1000.f, 1000.f, 1498.f, 0.f, false, -90.f);
+    SpawnWallRun(World, -1000.f, 1000.f, -1498.f, 0.f, false, 90.f);
+
+    // Corridor partitions, leaving the four doorway gaps at x = ±750.
+    SpawnWallRun(World, -1500.f, -810.f, 188.f, 0.f, true, 0.f);
+    SpawnWallRun(World, -690.f, 690.f, 188.f, 0.f, true, 0.f);
+    SpawnWallRun(World, 810.f, 1500.f, 188.f, 0.f, true, 0.f);
+    SpawnWallRun(World, -1500.f, -810.f, -188.f, 0.f, true, 180.f);
+    SpawnWallRun(World, -690.f, 690.f, -188.f, 0.f, true, 180.f);
+    SpawnWallRun(World, 810.f, 1500.f, -188.f, 0.f, true, 180.f);
+    SpawnWallRun(World, -1500.f, -810.f, 212.f, 0.f, true, 180.f);
+    SpawnWallRun(World, -690.f, 690.f, 212.f, 0.f, true, 180.f);
+    SpawnWallRun(World, 810.f, 1500.f, 212.f, 0.f, true, 180.f);
+    SpawnWallRun(World, -1500.f, -810.f, -212.f, 0.f, true, 0.f);
+    SpawnWallRun(World, -690.f, 690.f, -212.f, 0.f, true, 0.f);
+    SpawnWallRun(World, 810.f, 1500.f, -212.f, 0.f, true, 0.f);
+
+    // Room-dividing north/south walls.
+    SpawnWallRun(World, 200.f, 1000.f, 10.f, 0.f, false, 90.f);
+    SpawnWallRun(World, -1000.f, -200.f, 10.f, 0.f, false, 90.f);
+    SpawnWallRun(World, 200.f, 1000.f, -10.f, 0.f, false, -90.f);
+    SpawnWallRun(World, -1000.f, -200.f, -10.f, 0.f, false, -90.f);
+
+    SpawnMesh(World, WindowUnitMesh, FVector(-400.0, 1002.0, 210.0), FRotator(0.f, 180.f, 0.f));
+    SpawnMesh(World, WindowUnitMesh, FVector(400.0, 1002.0, 210.0), FRotator(0.f, 180.f, 0.f));
+    SpawnMesh(World, WindowUnitMesh, FVector(-400.0, -1002.0, 210.0));
+    SpawnMesh(World, WindowUnitMesh, FVector(400.0, -1002.0, 210.0));
 }
 
 void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const

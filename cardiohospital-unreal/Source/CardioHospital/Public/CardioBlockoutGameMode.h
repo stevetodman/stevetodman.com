@@ -119,6 +119,24 @@ private:
     void SpawnSigns(UWorld& World) const;
     void SpawnSign(UWorld& World, const FString& Text, const FVector& Location, float YawDegrees) const;
     void SpawnClinicDressing(UWorld& World) const;
+    void SpawnClinicArchitecture(UWorld& World) const;
+    void SpawnWallRun(
+        UWorld& World,
+        float StartAlong,
+        float EndAlong,
+        float Fixed,
+        float HeightZ,
+        bool bAlongX,
+        float YawDegrees) const;
+    void SpawnTileGrid(
+        UWorld& World,
+        UStaticMesh* Mesh,
+        float MinX,
+        float MaxX,
+        float MinY,
+        float MaxY,
+        float Z,
+        float TileCm) const;
     void SpawnAttending(UWorld& World);
 
     // Hard references so the cook always carries the engine primitives the
@@ -153,4 +171,16 @@ private:
 
     UPROPERTY()
     TObjectPtr<UStaticMesh> WallMonitorMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> WallPanelMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> FloorTileMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> CeilingTileMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> WindowUnitMesh;
 };

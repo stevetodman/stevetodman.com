@@ -1,6 +1,6 @@
 ---
 status: active
-next: Human look at Mac-Development-20260815T215024Z (commit 1db15f7) for attending coat and clinic meshes. walkthroughPassed stays false.
+next: Human look at the next package for paneled walls, tiled floor, drop ceiling, and window frames. walkthroughPassed stays false.
 ---
 
 # CLAUDE.md
