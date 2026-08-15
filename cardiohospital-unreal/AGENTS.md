@@ -22,6 +22,12 @@ Clinical correctness and a complete learner loop outrank environment breadth.
 - Interactions must remain usable with keyboard and mouse without VR hardware.
 - Target stable 60 FPS at 2560×1440 on the Apple silicon reference workstation defined by ADR-0002.
 - Do not claim a walkthrough passed unless the packaged build was actually run.
+- For spawn-camera fixes, calculate and test the line of sight from the exact
+  spawn coordinate to the intended opening; do not infer yaw from a cardinal
+  room direction.
+- Codex computer-use can launch and inspect the packaged Unreal window, but its
+  brief key taps and non-relative mouse input are not evidence of a playable
+  WASD/mouse walkthrough. Hand the window to a human for learner-control gates.
 
 ## Privacy
 
