@@ -267,9 +267,10 @@ void ACardioBlockoutCharacter::FaceNpc(AActor* Npc)
     SetActorLocation(Stand, false, nullptr, ETeleportType::TeleportPhysics);
 
     LookAtActorFace(Npc);
-
-    const float FaceYaw = (GetActorLocation() - NpcLoc).Rotation().Yaw;
-    Npc->SetActorRotation(FRotator(0.f, FaceYaw, 0.f));
+    if (ACardioBlockoutNPC* Attending = Cast<ACardioBlockoutNPC>(Npc))
+    {
+        Attending->FaceToward(GetActorLocation());
+    }
 }
 
 void ACardioBlockoutCharacter::AdvanceGuidedWalk()

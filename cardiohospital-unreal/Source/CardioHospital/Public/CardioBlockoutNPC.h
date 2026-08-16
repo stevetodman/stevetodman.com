@@ -32,6 +32,7 @@ public:
 
     void SetListening(bool bInListening);
     void NotifySpeaking(bool bInSpeaking);
+    void FaceToward(const FVector& WorldLocation);
     bool HasAssembledMetaHuman() const { return AssembledVisual != nullptr; }
 
 private:
@@ -45,6 +46,7 @@ private:
     void ApplyTint(UStaticMeshComponent* Mesh, const FLinearColor& Color);
     void HidePrimitiveStandIn();
     void TryAttachAssembledMetaHuman();
+    void AlignAssembledVisual();
     USkeletalMeshComponent* FindAssembledBody() const;
     void HideDefaultGarment() const;
     void EnsureSkinnedMeshesLoaded();

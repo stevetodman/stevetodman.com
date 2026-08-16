@@ -16,6 +16,13 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogCardioAttending, Log, All);
 
+namespace
+{
+    // BP_Patel's mesh forward is 90° off the actor. Without this, turning
+    // the actor toward the learner still shows a profile to the camera.
+    constexpr float AssembledMeshYawOffset = 90.f;
+}
+
 ACardioBlockoutNPC::ACardioBlockoutNPC()
 {
     PrimaryActorTick.bCanEverTick = true;
@@ -251,6 +258,7 @@ void ACardioBlockoutNPC::TryAttachAssembledMetaHuman()
     }
 
     AssembledVisual->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+    AlignAssembledVisual();
     HidePrimitiveStandIn();
     if (AttendingCoat)
     {
@@ -453,6 +461,25 @@ bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
     return bAttendingKitAttached;
 }
 
+void ACardioBlockoutNPC::AlignAssembledVisual()
+{
+    if (AssembledVisual)
+    {
+        AssembledVisual->SetRelativeRotation(FRotator(0.f, AssembledMeshYawOffset, 0.f));
+    }
+}
+
+void ACardioBlockoutNPC::FaceToward(const FVector& WorldLocation)
+{
+    const FVector To = WorldLocation - GetActorLocation();
+    if (To.Size2D() < 1.f)
+    {
+        return;
+    }
+    SetActorRotation(FRotator(0.f, To.Rotation().Yaw, 0.f));
+    AlignAssembledVisual();
+}
+
 void ACardioBlockoutNPC::SetListening(const bool bInListening)
 {
     bListening = bInListening;
@@ -489,8 +516,7 @@ void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
         {
             return;
         }
-        SetActorRotation(FRotator(0.f, ToLearner.Rotation().Yaw, 0.f));
-        AssembledVisual->SetActorRotation(GetActorRotation());
+        FaceToward(Learner->GetActorLocation());
         return;
     }
 
