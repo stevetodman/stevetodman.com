@@ -206,6 +206,7 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(character, /WalkTo/);
   assert.match(character, /ClickGo/);
   assert.match(source, /GoToStation/);
+  assert.match(await read("Source/CardioHospital/Private/CardioBlockoutCharacter.cpp"), /FaceNpc/);
   assert.match(source, /CeilingWhite/);
   assert.match(source, /ClinicLamp/);
   assert.match(source, /SpawnClinicDressing/);

@@ -318,7 +318,7 @@ void ACardioBlockoutGameMode::GoToStation(ACardioBlockoutCharacter& Character, c
         bool bInteract;
     };
     static const FStation Stations[] = {
-        { FVector(750.0, 260.0, 88.0), true },
+        { FVector(750.0, 250.0, 88.0), true },
         { FVector(-750.0, 520.0, 88.0), true },
         { FVector(-750.0, -520.0, 88.0), true },
         { FVector(750.0, -520.0, 88.0), true },
@@ -460,6 +460,12 @@ void ACardioBlockoutGameMode::HandleChooseAction(const int32 ZeroBasedIndex)
 void ACardioBlockoutGameMode::HandleAttending(ACardioBlockoutNPC& Npc)
 {
     APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+    if (ACardioBlockoutCharacter* Learner = Controller
+            ? Cast<ACardioBlockoutCharacter>(Controller->GetPawn())
+            : nullptr)
+    {
+        Learner->FaceNpc(&Npc);
+    }
     ACardioBlockoutHUD* Hud = Controller ? Cast<ACardioBlockoutHUD>(Controller->GetHUD()) : nullptr;
     if (!Hud)
     {

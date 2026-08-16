@@ -16,7 +16,7 @@ namespace
 {
     constexpr float InteractionRangeCm = 320.f;
     constexpr float ArriveRadiusCm = 90.f;
-    constexpr float ConversationStandOffCm = 220.f;
+    constexpr float ConversationStandOffCm = 180.f;
     constexpr float AttendingFaceHeightCm = 155.f;
     constexpr float WalkStallLimitSeconds = 0.45f;
 }
@@ -251,6 +251,27 @@ void ACardioBlockoutCharacter::LookAtActorFace(const AActor* Target)
     Controller->SetControlRotation(Facing);
 }
 
+void ACardioBlockoutCharacter::FaceNpc(AActor* Npc)
+{
+    if (!Npc)
+    {
+        return;
+    }
+
+    // Stand south of Patel, toward the team-room door, so arrival is
+    // face-to-face rather than a profile caught beside him.
+    const FVector NpcLoc = Npc->GetActorLocation();
+    FVector Stand = NpcLoc;
+    Stand.Y = NpcLoc.Y - ConversationStandOffCm;
+    Stand.Z = GetActorLocation().Z;
+    SetActorLocation(Stand, false, nullptr, ETeleportType::TeleportPhysics);
+
+    LookAtActorFace(Npc);
+
+    const float FaceYaw = (GetActorLocation() - NpcLoc).Rotation().Yaw;
+    Npc->SetActorRotation(FRotator(0.f, FaceYaw, 0.f));
+}
+
 void ACardioBlockoutCharacter::AdvanceGuidedWalk()
 {
     if (GuidedPath.Num() == 0)
@@ -298,7 +319,7 @@ void ACardioBlockoutCharacter::AdvanceGuidedWalk()
             }
             if (FocusedNpc.IsValid())
             {
-                LookAtActorFace(FocusedNpc.Get());
+                FaceNpc(FocusedNpc.Get());
             }
             if (bInteractOnArrival)
             {

@@ -29,6 +29,7 @@ public:
     bool IsInExamRoom() const;
     bool IsInEducationRoom() const;
     void WalkTo(const FVector& Destination, bool bInteractOnArrival);
+    void FaceNpc(AActor* Npc);
 
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
