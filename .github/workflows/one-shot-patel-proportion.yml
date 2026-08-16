@@ -1,0 +1,81 @@
+name: One-shot Patel proportion patch
+
+on:
+  push:
+    branches:
+      - claude/github-work-yesterday-62xjvk
+    paths:
+      - .github/workflows/one-shot-patel-proportion.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: claude/github-work-yesterday-62xjvk
+
+      - name: Raise Patel's head without widening the neck bust
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          source_path = Path("cardiohospital-unreal/Source/CardioHospital/Private/CardioBlockoutNPC.cpp")
+          source = source_path.read_text(encoding="utf-8")
+          old = '''            // The face mesh includes a wide neck bust that sits on the coat
+            // like a mask. Shrink it so the head seats in the collar.
+            Skel->SetRelativeScale3D(FVector(0.88f, 0.88f, 0.92f));'''
+          new = '''            // Keep the wide neck bust narrow in X/Y so it stays inside the
+            // coat lapels, but recover head height in Z so Patel no longer
+            // reads as undersized at the conversation camera.
+            Skel->SetRelativeScale3D(FVector(0.88f, 0.88f, 0.96f));'''
+          if source.count(old) != 1:
+              raise SystemExit(f"expected exactly one Patel face-scale block, found {source.count(old)}")
+          source_path.write_text(source.replace(old, new), encoding="utf-8")
+
+          test_path = Path("cardiohospital-unreal/Tests/attending-proportions.test.mjs")
+          test_path.write_text('''import assert from "node:assert/strict";
+          import { readFile } from "node:fs/promises";
+          import { dirname, resolve } from "node:path";
+          import test from "node:test";
+          import { fileURLToPath } from "node:url";
+
+          const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+
+          test("Patel recovers head height without widening the MetaHuman neck bust", async () => {
+            const source = await readFile(
+              resolve(projectRoot, "Source/CardioHospital/Private/CardioBlockoutNPC.cpp"),
+              "utf8",
+            );
+            const scale = source.match(
+              /SetRelativeScale3D\\(FVector\\((0\\.\\d+)f, (0\\.\\d+)f, (0\\.\\d+)f\\)\\);\\n        }\\n    }\\n}\\n\\nvoid ACardioBlockoutNPC::EnsureSkinnedMeshesLoaded/,
+            );
+            assert.ok(scale, "the face-specific scale must remain adjacent to garment hiding");
+            const [, x, y, z] = scale.map(Number);
+            assert.equal(x, 0.88, "the neck bust must stay narrow across the lapels");
+            assert.equal(y, 0.88, "the neck bust depth must stay constrained");
+            assert.equal(z, 0.96, "the head should recover vertical proportion");
+            assert.ok(z > x && z > y, "only vertical proportion should be recovered");
+          });
+          '''.replace(/^          /gm, ""), encoding="utf-8")
+          PY
+
+          rm .github/workflows/one-shot-patel-proportion.yml
+
+      - name: Commit the source change and remove this workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cardiohospital-unreal/Source/CardioHospital/Private/CardioBlockoutNPC.cpp \
+                  cardiohospital-unreal/Tests/attending-proportions.test.mjs \
+                  .github/workflows/one-shot-patel-proportion.yml
+          git commit -m "Improve Patel's head height without widening neck"
+          git push origin HEAD:claude/github-work-yesterday-62xjvk
