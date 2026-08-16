@@ -48,6 +48,10 @@ namespace
     const FLinearColor WallHospital(0.96f, 0.97f, 0.98f);
     const FLinearColor CeilingWhite(0.97f, 0.98f, 0.99f);
     const FLinearColor AccentTeal(0.0f, 0.55f, 0.54f);
+    const FLinearColor PosterTeal(0.12f, 0.38f, 0.42f);
+    const FLinearColor PosterNavy(0.14f, 0.22f, 0.30f);
+    const FLinearColor PosterFrost(0.86f, 0.90f, 0.93f);
+    const FLinearColor FrameGraphite(0.18f, 0.20f, 0.22f);
     const FLinearColor WindowGlow(0.70f, 0.84f, 0.96f);
     const FLinearColor RailSteel(0.62f, 0.65f, 0.68f);
     const FLinearColor Grout(0.52f, 0.54f, 0.56f);
@@ -1946,6 +1950,35 @@ void ACardioBlockoutGameMode::SpawnClinicDressing(UWorld& World) const
     const FVector BoardScaleLong(13.6f, 1.f, 1.f);
     SpawnMesh(World, BaseboardMesh, FVector(0.0, 186.0, 0.0), FRotator::ZeroRotator, BoardScaleLong);
     SpawnMesh(World, BaseboardMesh, FVector(0.0, -186.0, 0.0), FRotator::ZeroRotator, BoardScaleLong);
+
+    // Teal identity stripe on the corridor partitions, broken at the doorways.
+    SpawnBlock(World, FVector(-1155.0, 182.0, 118.0), FVector(690.0, 3.0, 6.0), AccentTeal);
+    SpawnBlock(World, FVector(0.0, 182.0, 118.0), FVector(1380.0, 3.0, 6.0), AccentTeal);
+    SpawnBlock(World, FVector(1155.0, 182.0, 118.0), FVector(690.0, 3.0, 6.0), AccentTeal);
+    SpawnBlock(World, FVector(-1155.0, -182.0, 118.0), FVector(690.0, 3.0, 6.0), AccentTeal);
+    SpawnBlock(World, FVector(0.0, -182.0, 118.0), FVector(1380.0, 3.0, 6.0), AccentTeal);
+    SpawnBlock(World, FVector(1155.0, -182.0, 118.0), FVector(690.0, 3.0, 6.0), AccentTeal);
+
+    // Framed wall boards so the upper panels are not empty drywall.
+    auto SpawnPlaque = [&World, this](const FVector& Center, const FVector& Size, const FLinearColor& Face)
+    {
+        const FVector FrameSize(Size.X + 6.f, Size.Y + 1.2f, Size.Z + 6.f);
+        SpawnBlock(World, Center, FrameSize, FrameGraphite);
+        SpawnBlock(World, Center + FVector(0.f, Center.Y > 0.f ? -1.2f : 1.2f, 0.f), Size, Face);
+    };
+    SpawnPlaque(FVector(-1100.0, 181.0, 175.0), FVector(90.0, 2.0, 56.0), PosterTeal);
+    SpawnPlaque(FVector(-400.0, 181.0, 175.0), FVector(90.0, 2.0, 56.0), PosterFrost);
+    SpawnPlaque(FVector(400.0, 181.0, 175.0), FVector(90.0, 2.0, 56.0), PosterNavy);
+    SpawnPlaque(FVector(1100.0, 181.0, 175.0), FVector(90.0, 2.0, 56.0), PosterTeal);
+    SpawnPlaque(FVector(-1100.0, -181.0, 175.0), FVector(90.0, 2.0, 56.0), PosterNavy);
+    SpawnPlaque(FVector(-400.0, -181.0, 175.0), FVector(90.0, 2.0, 56.0), PosterTeal);
+    SpawnPlaque(FVector(400.0, -181.0, 175.0), FVector(90.0, 2.0, 56.0), PosterFrost);
+    SpawnPlaque(FVector(1100.0, -181.0, 175.0), FVector(90.0, 2.0, 56.0), PosterNavy);
+    SpawnBlock(World, FVector(-1488.0, 0.0, 175.0), FVector(4.2, 146.0, 86.0), FrameGraphite);
+    SpawnBlock(World, FVector(-1485.5, 0.0, 175.0), FVector(3.0, 140.0, 80.0), PosterNavy);
+
+    SpawnMesh(World, WallMonitorMesh, FVector(-400.0, 178.0, 200.0), FRotator(0.f, 180.f, 0.f));
+    SpawnMesh(World, WallMonitorMesh, FVector(400.0, -178.0, 200.0));
 }
 
 void ACardioBlockoutGameMode::SpawnWallRun(
@@ -2184,6 +2217,11 @@ void ACardioBlockoutGameMode::SpawnSigns(UWorld& World) const
     SpawnSign(World, TEXT("Reception"), FVector(-1400.0, 0.0, 285.0), 0.f);
     SpawnSign(World, TEXT("Education Room"), FVector(750.0, -184.0, 285.0), 90.f);
     SpawnSign(World, TEXT("ECG / Echo"), FVector(980.0, -184.0, 250.0), 90.f);
+    SpawnSign(World, TEXT("Hand Hygiene"), FVector(-1100.0, 178.0, 175.0), -90.f);
+    SpawnSign(World, TEXT("Quiet Please"), FVector(-400.0, 178.0, 175.0), -90.f);
+    SpawnSign(World, TEXT("Pediatric Cardiology"), FVector(400.0, 178.0, 175.0), -90.f);
+    SpawnSign(World, TEXT("Family Waiting"), FVector(1100.0, 178.0, 175.0), -90.f);
+    SpawnSign(World, TEXT("Clinic Directory"), FVector(-1478.0, 0.0, 200.0), 0.f);
 }
 
 void ACardioBlockoutGameMode::SpawnSign(UWorld& World, const FString& Text, const FVector& Location, const float YawDegrees) const
