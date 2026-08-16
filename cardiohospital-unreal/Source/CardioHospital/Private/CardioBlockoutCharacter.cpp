@@ -17,7 +17,9 @@ namespace
     constexpr float InteractionRangeCm = 320.f;
     constexpr float ArriveRadiusCm = 90.f;
     constexpr float ConversationStandOffCm = 180.f;
-    constexpr float AttendingFaceHeightCm = 155.f;
+    // The temporary Ready Player Me attending is about 188 cm tall; 170 cm is
+    // a reasonable face target until final MetaHuman-native medical art lands.
+    constexpr float AttendingFaceHeightCm = 170.f;
     constexpr float WalkStallLimitSeconds = 0.45f;
 }
 

@@ -18,6 +18,11 @@ DEFINE_LOG_CATEGORY_STATIC(LogCardioAttending, Log, All);
 
 namespace
 {
+    constexpr const TCHAR* GenericDoctorMeshPath =
+        TEXT("/Game/Characters/GenericDoctor/SK_GenericDoctor.SK_GenericDoctor");
+    // UE's Interchange glTF conversion maps the Ready Player Me avatar's
+    // forward axis to Unreal +X, so the temporary rig follows the actor root.
+    constexpr float GenericMeshYawOffset = 0.f;
     // BP_Patel's mesh forward is 90° off the actor. Without this, turning
     // the actor toward the learner still shows a profile to the camera.
     constexpr float AssembledMeshYawOffset = -90.f;
@@ -145,6 +150,13 @@ ACardioBlockoutNPC::ACardioBlockoutNPC()
         AttendingScopeSkel->SetSkeletalMesh(ScopeSkelFinder.Object);
     }
 
+    GenericVisual = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GenericVisual"));
+    GenericVisual->SetupAttachment(Root);
+    GenericVisual->SetMobility(EComponentMobility::Movable);
+    GenericVisual->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    GenericVisual->SetHiddenInGame(true);
+    GenericVisual->SetAnimationMode(EAnimationMode::AnimationCustomMode);
+
     NameText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("NameText"));
     NameText->SetupAttachment(Root);
     NameText->SetMobility(EComponentMobility::Movable);
@@ -207,7 +219,10 @@ void ACardioBlockoutNPC::Configure(const FString& InNpcId, const FString& InDisp
     ApplyTint(LeftEye, EyeWhite);
     ApplyTint(RightEye, EyeWhite);
 
-    TryAttachAssembledMetaHuman();
+    if (!TryAttachGenericDoctor())
+    {
+        TryAttachAssembledMetaHuman();
+    }
 }
 
 void ACardioBlockoutNPC::HidePrimitiveStandIn()
@@ -224,6 +239,49 @@ void ACardioBlockoutNPC::HidePrimitiveStandIn()
         Part->SetHiddenInGame(true);
         Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
+}
+
+bool ACardioBlockoutNPC::TryAttachGenericDoctor()
+{
+    if (!GenericVisual)
+    {
+        return false;
+    }
+
+    USkeletalMesh* Mesh = LoadObject<USkeletalMesh>(nullptr, GenericDoctorMeshPath);
+    if (!Mesh)
+    {
+        UE_LOG(
+            LogCardioAttending,
+            Warning,
+            TEXT("temporary generic doctor missing at %s; trying BP_Patel"),
+            GenericDoctorMeshPath);
+        return false;
+    }
+
+    // Intentional temporary placeholder: this continuous, already-dressed rig
+    // must never enter the MetaHuman coat hiding/skinning/fitting path.
+    GenericVisual->SetSkeletalMesh(Mesh);
+    GenericVisual->SetRelativeLocationAndRotation(
+        FVector::ZeroVector,
+        FRotator(0.f, GenericMeshYawOffset, 0.f));
+    GenericVisual->SetRelativeScale3D(FVector::OneVector);
+    GenericVisual->SetHiddenInGame(false);
+    GenericVisual->SetVisibility(true, true);
+    GenericVisual->SetCastShadow(true);
+    GenericVisual->bNeverDistanceCull = true;
+    GenericVisual->UpdateBounds();
+    GenericVisual->MarkRenderStateDirty();
+
+    bUsingGenericDoctor = true;
+    HidePrimitiveStandIn();
+    UE_LOG(
+        LogCardioAttending,
+        Display,
+        TEXT("using temporary non-medical generic doctor %s for %s"),
+        *Mesh->GetPathName(),
+        *DisplayName);
+    return true;
 }
 
 void ACardioBlockoutNPC::TryAttachAssembledMetaHuman()
@@ -258,7 +316,7 @@ void ACardioBlockoutNPC::TryAttachAssembledMetaHuman()
     }
 
     AssembledVisual->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-    AlignAssembledVisual();
+    AlignActiveVisual();
     HidePrimitiveStandIn();
     if (AttendingCoat)
     {
@@ -470,8 +528,12 @@ bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
     return bAttendingKitAttached;
 }
 
-void ACardioBlockoutNPC::AlignAssembledVisual()
+void ACardioBlockoutNPC::AlignActiveVisual()
 {
+    if (bUsingGenericDoctor && GenericVisual)
+    {
+        GenericVisual->SetRelativeRotation(FRotator(0.f, GenericMeshYawOffset, 0.f));
+    }
     if (AssembledVisual)
     {
         AssembledVisual->SetActorRelativeRotation(FRotator(0.f, AssembledMeshYawOffset, 0.f));
@@ -486,7 +548,9 @@ void ACardioBlockoutNPC::FaceToward(const FVector& WorldLocation)
         return;
     }
     SetActorRotation(FRotator(0.f, To.Rotation().Yaw, 0.f));
-    AlignAssembledVisual();
+    // Gaze is actor/root based for every visual tier. Only the fixed import
+    // yaw differs between the generic glTF and assembled MetaHuman children.
+    AlignActiveVisual();
 }
 
 void ACardioBlockoutNPC::SetListening(const bool bInListening)
@@ -509,6 +573,20 @@ void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
 
     const APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
     const APawn* Learner = Controller ? Controller->GetPawn() : nullptr;
+    if (bUsingGenericDoctor)
+    {
+        if (!Learner)
+        {
+            return;
+        }
+        const FVector ToLearner = Learner->GetActorLocation() - GetActorLocation();
+        if (ToLearner.Size2D() <= 700.f)
+        {
+            FaceToward(Learner->GetActorLocation());
+        }
+        return;
+    }
+
     if (AssembledVisual)
     {
         HideDefaultGarment();

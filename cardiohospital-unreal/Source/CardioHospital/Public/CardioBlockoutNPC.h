@@ -10,9 +10,12 @@ class UTextRenderComponent;
 
 /**
  * Presentation adapter for the first attending. Clinical truth never lives
- * here. The assembled MetaHuman is used when BP_Patel exists; otherwise a
+ * here. The current highest-priority visual is an intentionally temporary,
+ * non-medical-looking generic rig that unblocks clinical-simulation testing.
+ * If that asset is absent, BP_Patel remains the second tier; otherwise a
  * proportioned clinic stand-in carries gaze, listen, blink, and speech cues.
- * That stand-in does not satisfy walkthrough step 5 by itself.
+ * Replace the generic tier with proper MetaHuman-native medical art later.
+ * The primitive stand-in does not satisfy walkthrough step 5 by itself.
  */
 UCLASS()
 class CARDIOHOSPITAL_API ACardioBlockoutNPC : public AActor
@@ -45,8 +48,9 @@ private:
 
     void ApplyTint(UStaticMeshComponent* Mesh, const FLinearColor& Color);
     void HidePrimitiveStandIn();
+    bool TryAttachGenericDoctor();
     void TryAttachAssembledMetaHuman();
-    void AlignAssembledVisual();
+    void AlignActiveVisual();
     USkeletalMeshComponent* FindAssembledBody() const;
     void HideDefaultGarment() const;
     void EnsureSkinnedMeshesLoaded();
@@ -103,6 +107,13 @@ private:
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<USkeletalMeshComponent> AttendingScopeSkel;
 
+    /**
+     * Functional-first placeholder: a complete dressed rig, deliberately kept
+     * separate from every MetaHuman garment-fitting component below it.
+     */
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<USkeletalMeshComponent> GenericVisual;
+
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<UTextRenderComponent> NameText;
 
@@ -123,5 +134,6 @@ private:
     UPROPERTY()
     TObjectPtr<AActor> AssembledVisual;
 
+    bool bUsingGenericDoctor = false;
     bool bAttendingKitAttached = false;
 };
