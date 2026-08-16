@@ -217,6 +217,7 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /SetLeaderPoseComponent/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /EnsureSkinnedMeshesLoaded/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /HideDefaultGarment/);
+  assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /M_DoctorSuit/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /SK_Trousers/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /M_AttendingTie/);
   assert.match(await read("Scripts/blender_skin_sketchfab_coat.py"), /transfer_weights/);

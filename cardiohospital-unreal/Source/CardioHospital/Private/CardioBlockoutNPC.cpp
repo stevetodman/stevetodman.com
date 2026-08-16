@@ -390,7 +390,7 @@ bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
         Follower->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
         Follower->AttachToComponent(Body, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
         Follower->SetRelativeLocationAndRotation(FVector::ZeroVector, FRotator::ZeroRotator);
-        Follower->SetRelativeScale3D(FVector(1.06f));
+        Follower->SetRelativeScale3D(FVector::OneVector);
         Follower->SetLeaderPoseComponent(Body, true);
         Follower->SetHiddenInGame(false);
         Follower->SetVisibility(true, true);
@@ -398,12 +398,12 @@ bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
         Follower->SetCastShadow(true);
         Follower->bNeverDistanceCull = true;
         Follower->SetBoundsScale(2.f);
-        if (FCString::Strstr(Label, TEXT("Trousers")))
+        if (FCString::Strstr(Label, TEXT("LabCoat")))
         {
-            if (UMaterialInterface* TrouserMat = LoadObject<UMaterialInterface>(
-                    nullptr, TEXT("/Game/Environment/Clinic/M_Trousers.M_Trousers")))
+            if (UMaterialInterface* Suit = LoadObject<UMaterialInterface>(
+                    nullptr, TEXT("/Game/Environment/Clinic/M_DoctorSuit.M_DoctorSuit")))
             {
-                Follower->SetMaterial(0, TrouserMat);
+                Follower->SetMaterial(0, Suit);
             }
         }
         Follower->UpdateBounds();
