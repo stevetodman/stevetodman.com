@@ -352,6 +352,12 @@ void ACardioBlockoutNPC::HideDefaultGarment() const
             Skel->SetHiddenInGame(true);
             Skel->SetVisibility(false);
         }
+        else if (Combined.Contains(TEXT("Face")))
+        {
+            // The face mesh includes a wide neck bust that sits on the coat
+            // like a mask. Shrink it so the head seats in the collar.
+            Skel->SetRelativeScale3D(FVector(0.88f, 0.88f, 0.92f));
+        }
     }
 }
 
