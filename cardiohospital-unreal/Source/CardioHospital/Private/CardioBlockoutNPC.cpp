@@ -465,7 +465,7 @@ void ACardioBlockoutNPC::AlignAssembledVisual()
 {
     if (AssembledVisual)
     {
-        AssembledVisual->SetRelativeRotation(FRotator(0.f, AssembledMeshYawOffset, 0.f));
+        AssembledVisual->SetActorRelativeRotation(FRotator(0.f, AssembledMeshYawOffset, 0.f));
     }
 }
 
