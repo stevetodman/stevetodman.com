@@ -408,7 +408,9 @@ bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
         }
         Follower->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
         Follower->AttachToComponent(Body, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-        Follower->SetRelativeLocationAndRotation(FVector(0.f, 1.5f, 2.5f), FRotator::ZeroRotator);
+        // +X is character forward: pull the collar over the MetaHuman neck
+        // so the face is not a bust sitting on the coat.
+        Follower->SetRelativeLocationAndRotation(FVector(5.f, 0.f, 3.f), FRotator::ZeroRotator);
         Follower->SetRelativeScale3D(FVector::OneVector);
         Follower->SetLeaderPoseComponent(Body, true);
         Follower->SetHiddenInGame(false);
