@@ -38,12 +38,12 @@ test("the blockout hard-references its engine primitives and spawns a start", as
   assert.match(source, /SpawnActor<APlayerStart>/);
   assert.match(
     source,
-    /const FVector CorridorPlayerStart\(-1000\.0, 0\.0, 110\.0\)/,
+    /const FVector CorridorPlayerStart\(-1000\.0, 0\.0, 88\.0\)/,
     "the corridor start must stay in the west hallway, not inside Room 1",
   );
   assert.match(
     source,
-    /const FVector TeamRoomDoorwayCenter\(750\.0, 200\.0, 110\.0\)/,
+    /const FVector TeamRoomDoorwayCenter\(750\.0, 200\.0, 88\.0\)/,
     "the intended team-room doorway center must remain explicit",
   );
   assert.match(

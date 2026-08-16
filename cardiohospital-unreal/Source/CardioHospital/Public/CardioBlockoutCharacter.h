@@ -46,6 +46,7 @@ private:
     void CancelGuidedWalk();
     void AdvanceGuidedWalk();
     void BuildWalkPath(const FVector& Destination);
+    void LookAtActorFace(const AActor* Target);
     static float DoorXFor(const FVector& Location);
     static bool IsIndoorsRoom(const FVector& Location);
     void ChooseAction1();
@@ -66,4 +67,5 @@ private:
     TArray<FVector> GuidedPath;
     bool bInteractOnArrival = false;
     bool bLookHeld = false;
+    float WalkStallSeconds = 0.f;
 };

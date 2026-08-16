@@ -56,8 +56,8 @@ namespace
     const FLinearColor RailSteel(0.62f, 0.65f, 0.68f);
     const FLinearColor Grout(0.52f, 0.54f, 0.56f);
 
-    const FVector CorridorPlayerStart(-1000.0, 0.0, 110.0);
-    const FVector TeamRoomDoorwayCenter(750.0, 200.0, 110.0);
+    const FVector CorridorPlayerStart(-1000.0, 0.0, 88.0);
+    const FVector TeamRoomDoorwayCenter(750.0, 200.0, 88.0);
 
     // Northwest is Exam Room 3; southwest is Room 1; northeast is the
     // Cardiology Team Room; southeast is ECG/echo. Bounds stay inside the
@@ -318,10 +318,10 @@ void ACardioBlockoutGameMode::GoToStation(ACardioBlockoutCharacter& Character, c
         bool bInteract;
     };
     static const FStation Stations[] = {
-        { FVector(750.0, 400.0, 110.0), true },
-        { FVector(-750.0, 520.0, 110.0), true },
-        { FVector(-750.0, -520.0, 110.0), true },
-        { FVector(750.0, -520.0, 110.0), true },
+        { FVector(750.0, 260.0, 88.0), true },
+        { FVector(-750.0, 520.0, 88.0), true },
+        { FVector(-750.0, -520.0, 88.0), true },
+        { FVector(750.0, -520.0, 88.0), true },
     };
     if (StationIndex < 0 || StationIndex >= UE_ARRAY_COUNT(Stations))
     {

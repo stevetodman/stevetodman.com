@@ -10,18 +10,22 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
 
 namespace
 {
     constexpr float InteractionRangeCm = 320.f;
     constexpr float ArriveRadiusCm = 90.f;
+    constexpr float ConversationStandOffCm = 220.f;
+    constexpr float AttendingFaceHeightCm = 155.f;
+    constexpr float WalkStallLimitSeconds = 0.45f;
 }
 
 ACardioBlockoutCharacter::ACardioBlockoutCharacter()
 {
     PrimaryActorTick.bCanEverTick = true;
 
-    GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
+    GetCapsuleComponent()->InitCapsuleSize(42.f, 88.f);
 
     bUseControllerRotationPitch = false;
     bUseControllerRotationYaw = true;
@@ -29,7 +33,9 @@ ACardioBlockoutCharacter::ACardioBlockoutCharacter()
 
     Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
     Camera->SetupAttachment(GetCapsuleComponent());
-    Camera->SetRelativeLocation(FVector(0.f, 0.f, 60.f));
+    // Capsule center is 88 cm; +56 puts the eye at 144 cm, conversation
+    // height with Patel's face rather than looking down on his hair.
+    Camera->SetRelativeLocation(FVector(0.f, 0.f, 56.f));
     Camera->bUsePawnControlRotation = true;
 
     GetCharacterMovement()->MaxWalkSpeed = 260.f;
@@ -209,7 +215,7 @@ void ACardioBlockoutCharacter::ClickGo()
     if (ACardioBlockoutNPC* Npc = Cast<ACardioBlockoutNPC>(Hit.GetActor()))
     {
         FocusedNpc = Npc;
-        WalkTo(Npc->GetActorLocation() + Npc->GetActorForwardVector() * 160.f, true);
+        WalkTo(Npc->GetActorLocation() + Npc->GetActorForwardVector() * ConversationStandOffCm, true);
         return;
     }
 
@@ -228,6 +234,21 @@ void ACardioBlockoutCharacter::CancelGuidedWalk()
 {
     GuidedPath.Reset();
     bInteractOnArrival = false;
+    WalkStallSeconds = 0.f;
+}
+
+void ACardioBlockoutCharacter::LookAtActorFace(const AActor* Target)
+{
+    if (!Target || !Controller || !Camera)
+    {
+        return;
+    }
+
+    const FVector Face = Target->GetActorLocation() + FVector(0.f, 0.f, AttendingFaceHeightCm);
+    const FVector Eye = Camera->GetComponentLocation();
+    FRotator Facing = (Face - Eye).Rotation();
+    Facing.Roll = 0.f;
+    Controller->SetControlRotation(Facing);
 }
 
 void ACardioBlockoutCharacter::AdvanceGuidedWalk()
@@ -239,11 +260,46 @@ void ACardioBlockoutCharacter::AdvanceGuidedWalk()
 
     FVector To = GuidedPath[0] - GetActorLocation();
     To.Z = 0.f;
-    if (To.Size() <= ArriveRadiusCm)
+    const UCharacterMovementComponent* Movement = GetCharacterMovement();
+    const bool bStalled = Movement && Movement->Velocity.Size2D() < 8.f;
+    if (bStalled)
+    {
+        WalkStallSeconds += GetWorld() ? GetWorld()->GetDeltaSeconds() : 0.016f;
+    }
+    else
+    {
+        WalkStallSeconds = 0.f;
+    }
+
+    if (To.Size() <= ArriveRadiusCm || WalkStallSeconds >= WalkStallLimitSeconds)
     {
         GuidedPath.RemoveAt(0);
+        WalkStallSeconds = 0.f;
         if (GuidedPath.Num() == 0)
         {
+            if (!FocusedNpc.IsValid())
+            {
+                TArray<AActor*> Npcs;
+                UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACardioBlockoutNPC::StaticClass(), Npcs);
+                float Best = 360.f;
+                for (AActor* Actor : Npcs)
+                {
+                    if (!Actor)
+                    {
+                        continue;
+                    }
+                    const float Dist = FVector::Dist2D(GetActorLocation(), Actor->GetActorLocation());
+                    if (Dist < Best)
+                    {
+                        Best = Dist;
+                        FocusedNpc = Cast<ACardioBlockoutNPC>(Actor);
+                    }
+                }
+            }
+            if (FocusedNpc.IsValid())
+            {
+                LookAtActorFace(FocusedNpc.Get());
+            }
             if (bInteractOnArrival)
             {
                 bInteractOnArrival = false;
@@ -255,12 +311,15 @@ void ACardioBlockoutCharacter::AdvanceGuidedWalk()
 
     const FVector Direction = To.GetSafeNormal();
     AddMovementInput(Direction, 1.f);
-    if (AController* Controller = GetController())
+    if (!bLookHeld)
     {
-        FRotator Facing = Direction.Rotation();
-        Facing.Pitch = 0.f;
-        Facing.Roll = 0.f;
-        Controller->SetControlRotation(Facing);
+        if (AController* WalkController = GetController())
+        {
+            FRotator Facing = Direction.Rotation();
+            Facing.Pitch = WalkController->GetControlRotation().Pitch;
+            Facing.Roll = 0.f;
+            WalkController->SetControlRotation(Facing);
+        }
     }
 }
 
