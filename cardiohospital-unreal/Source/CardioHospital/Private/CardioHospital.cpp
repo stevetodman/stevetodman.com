@@ -1,7 +1,7 @@
-#include "CardioHospital.h"
-#include "Modules/ModuleManager.h"
+#pragma once
 
-DEFINE_LOG_CATEGORY(LogCardioHospital);
-
-IMPLEMENT_PRIMARY_GAME_MODULE(FDefaultGameModuleImpl, CardioHospital, "CardioHospital");
-
+namespace CardioClinicPolish
+{
+    void RegisterWorldHook();
+    void UnregisterWorldHook();
+}
