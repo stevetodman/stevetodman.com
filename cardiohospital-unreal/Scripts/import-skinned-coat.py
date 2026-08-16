@@ -46,7 +46,7 @@ def import_skeletal(fbx: Path, skeleton):
     options.set_editor_property("import_as_skeletal", True)
     options.set_editor_property("import_animations", False)
     options.set_editor_property("import_materials", True)
-    options.set_editor_property("import_textures", False)
+    options.set_editor_property("import_textures", True)
     options.set_editor_property("create_physics_asset", False)
     options.set_editor_property("skeleton", skeleton)
     options.set_editor_property("mesh_type_to_import", unreal.FBXImportType.FBXIT_SKELETAL_MESH)

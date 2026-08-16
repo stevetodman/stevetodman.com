@@ -328,7 +328,7 @@ void ACardioBlockoutNPC::HideDefaultGarment() const
         const FString Combined = Skel->GetName() + TEXT(" ") + (Mesh ? Mesh->GetName() : FString());
         if (Combined.Contains(TEXT("Garment")) || Combined.Contains(TEXT("Shirt"))
             || Combined.Contains(TEXT("Short")) || Combined.Contains(TEXT("Outfit"))
-            || Combined.Contains(TEXT("Cloth")))
+            || Combined.Contains(TEXT("Cloth")) || Combined.Contains(TEXT("Body")))
         {
             Skel->SetHiddenInGame(true);
             Skel->SetVisibility(false);
@@ -398,15 +398,7 @@ bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
         Follower->SetCastShadow(true);
         Follower->bNeverDistanceCull = true;
         Follower->SetBoundsScale(2.f);
-        if (FCString::Strstr(Label, TEXT("LabCoat")))
-        {
-            if (UMaterialInterface* CoatMat = LoadObject<UMaterialInterface>(
-                    nullptr, TEXT("/Game/Environment/Clinic/M_LabCoat.M_LabCoat")))
-            {
-                Follower->SetMaterial(0, CoatMat);
-            }
-        }
-        else if (FCString::Strstr(Label, TEXT("Trousers")))
+        if (FCString::Strstr(Label, TEXT("Trousers")))
         {
             if (UMaterialInterface* TrouserMat = LoadObject<UMaterialInterface>(
                     nullptr, TEXT("/Game/Environment/Clinic/M_Trousers.M_Trousers")))
@@ -434,8 +426,7 @@ bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
     };
 
     const bool bCoat = AttachFollower(AttendingCoatSkel, TEXT("SK_LabCoat"));
-    AttachFollower(AttendingTrousersSkel, TEXT("SK_Trousers"));
-    AttachFollower(AttendingScopeSkel, TEXT("SK_Stethoscope"));
+    // mfyma's doctor mesh already carries shirt, tie, trousers, and a scope.
     bAttendingKitAttached = bCoat;
     return bAttendingKitAttached;
 }
