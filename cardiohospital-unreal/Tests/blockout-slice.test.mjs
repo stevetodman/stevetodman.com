@@ -192,7 +192,7 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(source, /APostProcessVolume/);
   assert.match(source, /WindowGlow/);
   assert.match(source, /SetIntensity\(24000/);
-  assert.match(source, /AutoExposureBias = 0\.55f/);
+  assert.match(source, /AutoExposureBias = 0\.70f/);
   assert.match(source, /WhiteTemp = 7200/);
   assert.match(source, /PatelKey/);
   assert.match(await read("Config/DefaultGameUserSettings.ini"), /ResolutionSizeX=2560/);

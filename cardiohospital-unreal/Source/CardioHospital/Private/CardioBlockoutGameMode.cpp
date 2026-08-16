@@ -1887,14 +1887,38 @@ AStaticMeshActor* ACardioBlockoutGameMode::SpawnMesh(
 
 void ACardioBlockoutGameMode::SpawnClinicDressing(UWorld& World) const
 {
+    // Exam Room 3
     SpawnMesh(World, HospitalBedMesh, FVector(-750.0, 600.0, 0.0), FRotator(0.f, 90.f, 0.f));
+    SpawnMesh(World, ClinicChairMesh, FVector(-620.0, 480.0, 0.0), FRotator(0.f, -20.f, 0.f));
+    SpawnMesh(World, ClinicChairMesh, FVector(-880.0, 520.0, 0.0), FRotator(0.f, 200.f, 0.f));
+    SpawnMesh(World, WallMonitorMesh, FVector(-750.0, 980.0, 140.0), FRotator(0.f, 180.f, 0.f));
+
+    // Room 1
     SpawnMesh(World, HospitalBedMesh, FVector(-750.0, -600.0, 0.0), FRotator(0.f, -90.f, 0.f));
+    SpawnMesh(World, ClinicChairMesh, FVector(-620.0, -480.0, 0.0), FRotator(0.f, 20.f, 0.f));
+    SpawnMesh(World, WallMonitorMesh, FVector(-750.0, -980.0, 140.0));
+
+    // Cardiology Team Room
     SpawnMesh(World, ClinicDeskMesh, FVector(750.0, 620.0, 0.0), FRotator(0.f, 180.f, 0.f));
-    SpawnMesh(World, ClinicDeskMesh, FVector(-1350.0, 90.0, 0.0), FRotator(0.f, 90.f, 0.f));
-    SpawnMesh(World, ExamTableMesh, FVector(750.0, -600.0, 0.0), FRotator(0.f, 0.f, 0.f));
     SpawnMesh(World, ClinicChairMesh, FVector(690.0, 520.0, 0.0), FRotator(0.f, 180.f, 0.f));
     SpawnMesh(World, ClinicChairMesh, FVector(810.0, 520.0, 0.0), FRotator(0.f, 180.f, 0.f));
+    SpawnMesh(World, ClinicChairMesh, FVector(620.0, 470.0, 0.0), FRotator(0.f, 150.f, 0.f));
+    SpawnMesh(World, ClinicChairMesh, FVector(880.0, 470.0, 0.0), FRotator(0.f, -150.f, 0.f));
+    SpawnMesh(World, WallMonitorMesh, FVector(750.0, 980.0, 140.0), FRotator(0.f, 180.f, 0.f));
+    SpawnMesh(World, WallMonitorMesh, FVector(980.0, 620.0, 140.0), FRotator(0.f, -90.f, 0.f));
+
+    // Reception
+    SpawnMesh(World, ClinicDeskMesh, FVector(-1350.0, 90.0, 0.0), FRotator(0.f, 90.f, 0.f));
+    SpawnMesh(World, ClinicChairMesh, FVector(-1180.0, 40.0, 0.0), FRotator(0.f, -90.f, 0.f));
+    SpawnMesh(World, ClinicChairMesh, FVector(-1180.0, 140.0, 0.0), FRotator(0.f, -90.f, 0.f));
     SpawnMesh(World, WallMonitorMesh, FVector(-1280.0, 90.0, 112.0), FRotator(0.f, 90.f, 0.f));
+
+    // Education / ECG-echo
+    SpawnMesh(World, ExamTableMesh, FVector(750.0, -600.0, 0.0), FRotator(0.f, 0.f, 0.f));
+    SpawnMesh(World, ClinicDeskMesh, FVector(1100.0, -700.0, 0.0), FRotator(0.f, -90.f, 0.f));
+    SpawnMesh(World, ClinicChairMesh, FVector(980.0, -640.0, 0.0), FRotator(0.f, 90.f, 0.f));
+    SpawnMesh(World, ClinicChairMesh, FVector(680.0, -480.0, 0.0), FRotator(0.f, 10.f, 0.f));
+    SpawnMesh(World, WallMonitorMesh, FVector(750.0, -980.0, 140.0));
 
     SpawnMesh(World, DoorJambMesh, FVector(-750.0, 200.0, 0.0), FRotator(0.f, 0.f, 0.f));
     SpawnMesh(World, DoorJambMesh, FVector(750.0, 200.0, 0.0), FRotator(0.f, 0.f, 0.f));
@@ -1902,8 +1926,12 @@ void ACardioBlockoutGameMode::SpawnClinicDressing(UWorld& World) const
     SpawnMesh(World, DoorJambMesh, FVector(750.0, -200.0, 0.0), FRotator(0.f, 180.f, 0.f));
 
     const FVector Lights[] = {
+        FVector(-1200.0, 0.0, 348.0),
         FVector(-750.0, 0.0, 348.0),
+        FVector(-250.0, 0.0, 348.0),
+        FVector(250.0, 0.0, 348.0),
         FVector(750.0, 0.0, 348.0),
+        FVector(1200.0, 0.0, 348.0),
         FVector(-750.0, 600.0, 348.0),
         FVector(750.0, 600.0, 348.0),
         FVector(-750.0, -600.0, 348.0),
@@ -2058,8 +2086,10 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
         FVector(-750.0, 600.0, 300.0),
         FVector(-750.0, -600.0, 300.0),
         FVector(750.0, -600.0, 300.0),
-        FVector(0.0, 0.0, 300.0),
-        FVector(-1000.0, 0.0, 300.0),
+        FVector(-1200.0, 0.0, 300.0),
+        FVector(-400.0, 0.0, 300.0),
+        FVector(400.0, 0.0, 300.0),
+        FVector(1200.0, 0.0, 300.0),
     };
     for (int32 Index = 0; Index < UE_ARRAY_COUNT(LightPoints); ++Index)
     {
@@ -2123,7 +2153,7 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
         Grade->Settings.bOverride_AutoExposureMethod = true;
         Grade->Settings.AutoExposureMethod = AEM_Histogram;
         Grade->Settings.bOverride_AutoExposureBias = true;
-        Grade->Settings.AutoExposureBias = 0.55f;
+        Grade->Settings.AutoExposureBias = 0.70f;
         Grade->Settings.bOverride_BloomIntensity = true;
         Grade->Settings.BloomIntensity = 0.08f;
         Grade->Settings.bOverride_AmbientOcclusionIntensity = true;
