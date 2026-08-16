@@ -24,7 +24,7 @@ BODY_CANDIDATES = (
 )
 PREVIEW = Path("/tmp/cardio-assets/skin-preview/mfyma-front.png")
 HEIGHT = 175.0
-HEAD_CUT_Z = 148.0
+HEAD_CUT_Z = 143.0
 MAX_WEIGHTS = 4
 
 
