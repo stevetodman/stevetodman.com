@@ -11,11 +11,13 @@ test("Patel recovers head height without widening the MetaHuman neck bust", asyn
     resolve(projectRoot, "Source/CardioHospital/Private/CardioBlockoutNPC.cpp"),
     "utf8",
   );
-  const scale = source.match(
-    /SetRelativeScale3D\(FVector\((0\.\d+)f, (0\.\d+)f, (0\.\d+)f\)\);\n        }\n    }\n}\n\nvoid ACardioBlockoutNPC::EnsureSkinnedMeshesLoaded/,
+  const faceBranch = source.match(
+    /else if \(Combined\.Contains\(TEXT\("Face"\)\)\)\s*\{[\s\S]*?SetRelativeScale3D\(FVector\((0\.\d+)f, (0\.\d+)f, (0\.\d+)f\)\);/,
   );
-  assert.ok(scale, "the face-specific scale must remain adjacent to garment hiding");
-  const [, x, y, z] = scale.map(Number);
+  assert.ok(faceBranch, "the face-specific branch must keep an explicit scale");
+
+  const [, xText, yText, zText] = faceBranch;
+  const [x, y, z] = [xText, yText, zText].map(Number);
   assert.equal(x, 0.88, "the neck bust must stay narrow across the lapels");
   assert.equal(y, 0.88, "the neck bust depth must stay constrained");
   assert.equal(z, 0.96, "the head should recover vertical proportion");
