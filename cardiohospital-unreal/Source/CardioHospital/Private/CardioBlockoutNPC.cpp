@@ -354,9 +354,10 @@ void ACardioBlockoutNPC::HideDefaultGarment() const
         }
         else if (Combined.Contains(TEXT("Face")))
         {
-            // The face mesh includes a wide neck bust that sits on the coat
-            // like a mask. Shrink it so the head seats in the collar.
-            Skel->SetRelativeScale3D(FVector(0.88f, 0.88f, 0.92f));
+            // Keep the wide neck bust narrow in X/Y so it stays inside the
+            // coat lapels, but recover head height in Z so Patel no longer
+            // reads as undersized at the conversation camera.
+            Skel->SetRelativeScale3D(FVector(0.88f, 0.88f, 0.96f));
         }
     }
 }
