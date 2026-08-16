@@ -408,7 +408,7 @@ bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
         }
         Follower->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
         Follower->AttachToComponent(Body, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-        Follower->SetRelativeLocationAndRotation(FVector::ZeroVector, FRotator::ZeroRotator);
+        Follower->SetRelativeLocationAndRotation(FVector(0.f, 1.5f, 2.5f), FRotator::ZeroRotator);
         Follower->SetRelativeScale3D(FVector::OneVector);
         Follower->SetLeaderPoseComponent(Body, true);
         Follower->SetHiddenInGame(false);
