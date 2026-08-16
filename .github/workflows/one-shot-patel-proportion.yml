@@ -26,6 +26,7 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          from textwrap import dedent
 
           source_path = Path("cardiohospital-unreal/Source/CardioHospital/Private/CardioBlockoutNPC.cpp")
           source = source_path.read_text(encoding="utf-8")
@@ -41,7 +42,8 @@ jobs:
           source_path.write_text(source.replace(old, new), encoding="utf-8")
 
           test_path = Path("cardiohospital-unreal/Tests/attending-proportions.test.mjs")
-          test_path.write_text('''import assert from "node:assert/strict";
+          test_path.write_text(dedent('''\
+          import assert from "node:assert/strict";
           import { readFile } from "node:fs/promises";
           import { dirname, resolve } from "node:path";
           import test from "node:test";
@@ -64,7 +66,7 @@ jobs:
             assert.equal(z, 0.96, "the head should recover vertical proportion");
             assert.ok(z > x && z > y, "only vertical proportion should be recovered");
           });
-          '''.replace(/^          /gm, ""), encoding="utf-8")
+          '''), encoding="utf-8")
           PY
 
           rm .github/workflows/one-shot-patel-proportion.yml
