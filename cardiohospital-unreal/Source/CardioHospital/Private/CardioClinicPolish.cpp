@@ -52,6 +52,36 @@ namespace
         {
         }
 
+        void SetThreeDWorldMeshes(
+            UStaticMesh* InComputer,
+            UStaticMesh* InKeyboard,
+            UStaticMesh* InMouse,
+            UStaticMesh* InLaptop,
+            UStaticMesh* InSink,
+            UStaticMesh* InStool,
+            UStaticMesh* InTrashcan,
+            UStaticMesh* InBookcase,
+            UStaticMesh* InSideTable,
+            UStaticMesh* InBear,
+            UStaticMesh* InDino,
+            UStaticMesh* InHumanHeart,
+            UStaticMesh* InVsdHeart)
+        {
+            Computer = InComputer;
+            Keyboard = InKeyboard;
+            Mouse = InMouse;
+            Laptop = InLaptop;
+            Sink = InSink;
+            Stool = InStool;
+            Trashcan = InTrashcan;
+            Bookcase = InBookcase;
+            SideTable = InSideTable;
+            Bear = InBear;
+            Dino = InDino;
+            HumanHeart = InHumanHeart;
+            VsdHeart = InVsdHeart;
+        }
+
         AStaticMeshActor* SpawnMesh(
             UStaticMesh* MeshAsset,
             const FVector& Location,
@@ -128,6 +158,24 @@ namespace
 
         void SpawnWorkstation(const FVector& SurfaceCenter, const float YawDegrees) const
         {
+            // Prefer the Kenney computer kit from 3dworld when the cooked
+            // meshes are present. Fall back to the cube workstation so a
+            // missing import cannot empty the team-room desks.
+            if (Computer)
+            {
+                const FRotator Rotation(0.f, YawDegrees + 180.f, 0.f);
+                SpawnMesh(Computer, LocalPoint(SurfaceCenter, YawDegrees, FVector(0.f, 6.f, 0.f)), Rotation);
+                if (Keyboard)
+                {
+                    SpawnMesh(Keyboard, LocalPoint(SurfaceCenter, YawDegrees, FVector(-4.f, -28.f, 0.f)), Rotation);
+                }
+                if (Mouse)
+                {
+                    SpawnMesh(Mouse, LocalPoint(SurfaceCenter, YawDegrees, FVector(22.f, -28.f, 0.f)), Rotation);
+                }
+                return;
+            }
+
             // Compact 24-inch workstation: monitor, stand, keyboard, mouse,
             // and a readable cyan-on-navy clinical screen. All parts are
             // non-colliding so they cannot snag click-to-walk navigation.
@@ -207,6 +255,16 @@ namespace
         void SpawnSinkStation(const FVector& Center, const float YawDegrees) const
         {
             const FRotator Rotation(0.f, YawDegrees, 0.f);
+            if (Sink)
+            {
+                SpawnMesh(Sink, Center, Rotation);
+                SpawnLocalBlock(Center, YawDegrees, FVector(72.f, 22.f, 139.f),
+                    FVector(34.f, 14.f, 50.f), FrostedGlass);
+                SpawnLocalBlock(Center, YawDegrees, FVector(72.f, 14.f, 159.f),
+                    FVector(17.f, 4.f, 4.f), ClinicalTeal);
+                return;
+            }
+
             SpawnBlock(Center + FVector(0.f, 0.f, 41.f),
                 FVector(230.f, 62.f, 82.f), CabinetWhite, Rotation);
             SpawnBlock(Center + FVector(0.f, 0.f, 84.f),
@@ -259,13 +317,84 @@ namespace
             return WallMonitor;
         }
 
+        void SpawnThreeDWorldDressing() const
+        {
+            // Pediatric bedside props sit on Kenney side tables, clear of the
+            // x=±750 doorway lanes used by click-to-walk.
+            if (SideTable)
+            {
+                SpawnMesh(SideTable, FVector(-980.f, 780.f, 0.f), FRotator(0.f, 90.f, 0.f));
+                SpawnMesh(SideTable, FVector(-980.f, -780.f, 0.f), FRotator(0.f, 90.f, 0.f));
+            }
+            if (Bear)
+            {
+                SpawnMesh(Bear, FVector(-980.f, 780.f, 55.f), FRotator(0.f, 110.f, 0.f));
+            }
+            if (Dino)
+            {
+                SpawnMesh(Dino, FVector(-980.f, -780.f, 55.f), FRotator(0.f, 70.f, 0.f));
+            }
+            if (Stool)
+            {
+                SpawnMesh(Stool, FVector(-540.f, 680.f, 0.f), FRotator(0.f, -30.f, 0.f));
+                SpawnMesh(Stool, FVector(-540.f, -680.f, 0.f), FRotator(0.f, 30.f, 0.f));
+            }
+            if (Trashcan)
+            {
+                SpawnMesh(Trashcan, FVector(-1460.f, 960.f, 0.f));
+                SpawnMesh(Trashcan, FVector(-1460.f, -960.f, 0.f));
+                SpawnMesh(Trashcan, FVector(1460.f, 450.f, 0.f));
+            }
+            if (Bookcase)
+            {
+                SpawnMesh(Bookcase, FVector(1460.f, 880.f, 0.f), FRotator(0.f, -90.f, 0.f));
+            }
+            if (Laptop)
+            {
+                SpawnMesh(Laptop, FVector(1100.f, -680.f, 79.f), FRotator(0.f, 90.f, 0.f));
+            }
+
+            // Teaching hearts stand in the echo room, east of the doorway and
+            // north of the console, so they read as anatomy props not clutter.
+            const FVector HeartStand(1280.f, -520.f, 0.f);
+            SpawnBlock(HeartStand + FVector(0.f, 0.f, 6.f), FVector(70.f, 36.f, 12.f), CabinetShadow);
+            SpawnBlock(HeartStand + FVector(0.f, 0.f, 48.f), FVector(8.f, 8.f, 72.f), EquipmentGraphite);
+            SpawnBlock(HeartStand + FVector(0.f, 0.f, 88.f), FVector(52.f, 28.f, 4.f), CabinetWhite);
+            if (HumanHeart)
+            {
+                SpawnMesh(HumanHeart, HeartStand + FVector(-12.f, 0.f, 90.f), FRotator(0.f, 200.f, 0.f));
+            }
+            if (VsdHeart)
+            {
+                SpawnMesh(VsdHeart, HeartStand + FVector(14.f, 0.f, 90.f), FRotator(0.f, 160.f, 0.f));
+            }
+        }
+
     private:
         UWorld& World;
         UStaticMesh& Cube;
         UMaterialInterface& BlockMaterial;
         UStaticMesh* WallMonitor = nullptr;
         UStaticMesh* Baseboard = nullptr;
+        UStaticMesh* Computer = nullptr;
+        UStaticMesh* Keyboard = nullptr;
+        UStaticMesh* Mouse = nullptr;
+        UStaticMesh* Laptop = nullptr;
+        UStaticMesh* Sink = nullptr;
+        UStaticMesh* Stool = nullptr;
+        UStaticMesh* Trashcan = nullptr;
+        UStaticMesh* Bookcase = nullptr;
+        UStaticMesh* SideTable = nullptr;
+        UStaticMesh* Bear = nullptr;
+        UStaticMesh* Dino = nullptr;
+        UStaticMesh* HumanHeart = nullptr;
+        UStaticMesh* VsdHeart = nullptr;
     };
+
+    UStaticMesh* LoadClinicMesh(const TCHAR* Path)
+    {
+        return LoadObject<UStaticMesh>(nullptr, Path);
+    }
 
     bool HasPolishActors(UWorld& World)
     {
@@ -308,6 +437,20 @@ namespace
             TEXT("/Game/Environment/Clinic/SM_Baseboard.SM_Baseboard"));
 
         FClinicPolishBuilder Builder(*World, *Cube, *BlockMaterial, WallMonitor, Baseboard);
+        Builder.SetThreeDWorldMeshes(
+            LoadClinicMesh(TEXT("/Game/Environment/Clinic/SM_3DW_Computer.SM_3DW_Computer")),
+            LoadClinicMesh(TEXT("/Game/Environment/Clinic/SM_3DW_Keyboard.SM_3DW_Keyboard")),
+            LoadClinicMesh(TEXT("/Game/Environment/Clinic/SM_3DW_Mouse.SM_3DW_Mouse")),
+            LoadClinicMesh(TEXT("/Game/Environment/Clinic/SM_3DW_Laptop.SM_3DW_Laptop")),
+            LoadClinicMesh(TEXT("/Game/Environment/Clinic/SM_3DW_Sink.SM_3DW_Sink")),
+            LoadClinicMesh(TEXT("/Game/Environment/Clinic/SM_3DW_Stool.SM_3DW_Stool")),
+            LoadClinicMesh(TEXT("/Game/Environment/Clinic/SM_3DW_Trashcan.SM_3DW_Trashcan")),
+            LoadClinicMesh(TEXT("/Game/Environment/Clinic/SM_3DW_Bookcase.SM_3DW_Bookcase")),
+            LoadClinicMesh(TEXT("/Game/Environment/Clinic/SM_3DW_SideTable.SM_3DW_SideTable")),
+            LoadClinicMesh(TEXT("/Game/Environment/Clinic/SM_3DW_Bear.SM_3DW_Bear")),
+            LoadClinicMesh(TEXT("/Game/Environment/Clinic/SM_3DW_Dino.SM_3DW_Dino")),
+            LoadClinicMesh(TEXT("/Game/Environment/Clinic/SM_3DW_HumanHeart.SM_3DW_HumanHeart")),
+            LoadClinicMesh(TEXT("/Game/Environment/Clinic/SM_3DW_VsdHeart.SM_3DW_VsdHeart")));
 
         // Team room: a darker acoustic inset grounds the meeting zone, while
         // paired workstations and a task board make it read as an active
@@ -351,7 +494,8 @@ namespace
         }
 
         Builder.SpawnRoomBaseboards();
-        UE_LOG(LogCardioHospital, Log, TEXT("Clinic polish pass spawned workstations, headwalls, sinks, and diagnostic fixtures."));
+        Builder.SpawnThreeDWorldDressing();
+        UE_LOG(LogCardioHospital, Log, TEXT("Clinic polish pass spawned workstations, headwalls, sinks, 3dworld props, and diagnostic fixtures."));
     }
 
     void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues)

@@ -1,0 +1,44 @@
+3dworld clinic kit
+==================
+
+Copied from the private GitHub repository stevetodman/3dworld
+(https://github.com/stevetodman/3dworld) for the Cardio Hospital Unreal
+team-room-to-exam-room slice. See ASSET_MANIFEST.json for the per-file
+source, license, SHA, and clinical-validation status.
+
+Kenney Furniture Kit
+--------------------
+Source: https://kenney.nl/assets/furniture-kit
+License: CC0 1.0 Public Domain
+Files: computerScreen, computerKeyboard, computerMouse, laptop,
+       bathroomSink, stoolBar, trashcan, bookcaseOpen, sideTable, bear
+
+VSD heart
+---------
+Source listed in 3dworld/public/models/DOWNLOAD_INSTRUCTIONS.md:
+https://sketchfab.com/3d-models/ventricular-septal-defect-e4e0143741f64025af101658210c8c5d
+Author: E-learning UMCG
+License: CC-BY-NC-SA
+This packaged trainer is educational and non-commercial. Attribution is
+required. Share-alike applies to derivatives of this mesh.
+
+Human heart
+-----------
+Committed in 3dworld as public/models/medical/hearts/human-heart.glb.
+The 3dworld AR-heart spec does not record a one-to-one vendor, author,
+or license for the committed binary. Do not redistribute this mesh
+outside this private trainer until provenance is resolved.
+
+Stuffed dinosaur
+----------------
+Committed in 3dworld as public/models/props/dino-stuffed.glb.
+No in-repo vendor or license record. Treat as internal-only until
+provenance is resolved.
+
+Not imported (on purpose)
+-------------------------
+hospital-full.glb (47.7 MB environment)
+charite/operating-room.glb (18.0 MB; two candidate Sketchfab sources
+  with different licenses, not disambiguated)
+Clinical avatars 12–24 MB (Patel-only MetaHuman ADR)
+parent-avatar.glb (byte-identical to male-tech.glb)

@@ -1,0 +1,489 @@
+{
+  "schemaVersion": 1,
+  "title": "3dworld assets imported into Cardio Hospital Unreal",
+  "sourceRepository": "https://github.com/stevetodman/3dworld",
+  "audit": {
+    "committedMedicalModelFiles": 13,
+    "formats": [
+      "12 GLB",
+      "1 USDZ"
+    ],
+    "uniqueBinaries": "12 / 150.7 MB because male-tech.glb and parent-avatar.glb are byte-identical",
+    "note": "This manifest is the follow-up to the GitHub medical 3D asset audit. It records only the clinic-slice files copied into this Unreal project."
+  },
+  "assets": [
+    {
+      "id": "SM_3DW_Computer",
+      "semanticName": "Kenney computer screen",
+      "unrealPath": "/Game/Environment/Clinic/SM_3DW_Computer.SM_3DW_Computer",
+      "sourceRepo": "stevetodman/3dworld",
+      "sourcePath": "public/models/furniture/computerScreen.glb",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "author": "Kenney Furniture Kit",
+      "license": "CC0-1.0",
+      "attribution": "none required",
+      "format": {
+        "delivery": "GLB",
+        "unrealSource": "FBX"
+      },
+      "dimensionsCm": {
+        "x": 56.04,
+        "y": 14.84,
+        "z": 42.0
+      },
+      "units": "cm",
+      "sha256": {
+        "glb": "5942cbad29a2d2b956619569926e81d50a4174403d592fece6556e57632dc643",
+        "fbx": "05e4adba5eea71d61940618a1314b34cfad115d0e1e592d226fe2858aad1c469"
+      },
+      "gitSha": {
+        "glb": "5ad3e286fe6b4a2e48d3fe5e1daa925e5562783a",
+        "fbx": "037ee0c8be86ba479f10f3ea804d86f31a2cb6ee"
+      },
+      "bytes": {
+        "glb": 6404,
+        "fbx": 18876
+      },
+      "modifications": "Imported from 3dworld GLB, converted to a single static mesh, scaled to clinic centimeters, sat on Z=0, exported FBX for Unreal.",
+      "clinicalValidation": "not applicable; non-anatomic environment prop"
+    },
+    {
+      "id": "SM_3DW_Keyboard",
+      "semanticName": "Kenney keyboard",
+      "unrealPath": "/Game/Environment/Clinic/SM_3DW_Keyboard.SM_3DW_Keyboard",
+      "sourceRepo": "stevetodman/3dworld",
+      "sourcePath": "public/models/furniture/computerKeyboard.glb",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "author": "Kenney Furniture Kit",
+      "license": "CC0-1.0",
+      "attribution": "none required",
+      "format": {
+        "delivery": "GLB",
+        "unrealSource": "FBX"
+      },
+      "dimensionsCm": {
+        "x": 30.72,
+        "y": 12.87,
+        "z": 3.0
+      },
+      "units": "cm",
+      "sha256": {
+        "glb": "9d9135789de2120e9f41ce3f0a56dd1b15f40adcc7888739bb842a2d820da322",
+        "fbx": "37f05ab3475e54bbc1d00f354f7145a5b13452bf97acbe26250d976267e8d7c8"
+      },
+      "gitSha": {
+        "glb": "1c008647024bd68e9896db82132b4e0fb9919ce3",
+        "fbx": "5e2452380d92b054eb1474b838a147a65c9debe1"
+      },
+      "bytes": {
+        "glb": 3476,
+        "fbx": 17484
+      },
+      "modifications": "Imported from 3dworld GLB, converted to a single static mesh, scaled to clinic centimeters, sat on Z=0, exported FBX for Unreal.",
+      "clinicalValidation": "not applicable; non-anatomic environment prop"
+    },
+    {
+      "id": "SM_3DW_Mouse",
+      "semanticName": "Kenney mouse",
+      "unrealPath": "/Game/Environment/Clinic/SM_3DW_Mouse.SM_3DW_Mouse",
+      "sourceRepo": "stevetodman/3dworld",
+      "sourcePath": "public/models/furniture/computerMouse.glb",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "author": "Kenney Furniture Kit",
+      "license": "CC0-1.0",
+      "attribution": "none required",
+      "format": {
+        "delivery": "GLB",
+        "unrealSource": "FBX"
+      },
+      "dimensionsCm": {
+        "x": 7.38,
+        "y": 12.64,
+        "z": 3.5
+      },
+      "units": "cm",
+      "sha256": {
+        "glb": "d3ad1a923f0f7707ef367bb969eb94c9076e211c98c830ba52e133fadc5cdfc0",
+        "fbx": "438b58faa2d9059833bd6bbb453785ac0c2082ab61c9b2896f78a9cd5802d930"
+      },
+      "gitSha": {
+        "glb": "b112888ce185a74e05519eff2ae52048c27ff441",
+        "fbx": "4293943233281a049a545d1a72e9cde57826fdbb"
+      },
+      "bytes": {
+        "glb": 5868,
+        "fbx": 17596
+      },
+      "modifications": "Imported from 3dworld GLB, converted to a single static mesh, scaled to clinic centimeters, sat on Z=0, exported FBX for Unreal.",
+      "clinicalValidation": "not applicable; non-anatomic environment prop"
+    },
+    {
+      "id": "SM_3DW_Laptop",
+      "semanticName": "Kenney laptop",
+      "unrealPath": "/Game/Environment/Clinic/SM_3DW_Laptop.SM_3DW_Laptop",
+      "sourceRepo": "stevetodman/3dworld",
+      "sourcePath": "public/models/furniture/laptop.glb",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "author": "Kenney Furniture Kit",
+      "license": "CC0-1.0",
+      "attribution": "none required",
+      "format": {
+        "delivery": "GLB",
+        "unrealSource": "FBX"
+      },
+      "dimensionsCm": {
+        "x": 35.89,
+        "y": 32.64,
+        "z": 22.0
+      },
+      "units": "cm",
+      "sha256": {
+        "glb": "5fa8a1f4a71ab8d82ef64da77a6973ffd350c6d4557516069a4ffd4bb8d808af",
+        "fbx": "709cd3bf83f8aef53b166c392beb7cefd38e03df56cfabfc97d1fcf44ea10a89"
+      },
+      "gitSha": {
+        "glb": "5c9a3da196169844309a06c0530a3b7400dd4cb6",
+        "fbx": "d6d3e1e6bfd64adceb7580252b22158028d629f5"
+      },
+      "bytes": {
+        "glb": 5540,
+        "fbx": 19484
+      },
+      "modifications": "Imported from 3dworld GLB, converted to a single static mesh, scaled to clinic centimeters, sat on Z=0, exported FBX for Unreal.",
+      "clinicalValidation": "not applicable; non-anatomic environment prop"
+    },
+    {
+      "id": "SM_3DW_Sink",
+      "semanticName": "Kenney bathroom sink",
+      "unrealPath": "/Game/Environment/Clinic/SM_3DW_Sink.SM_3DW_Sink",
+      "sourceRepo": "stevetodman/3dworld",
+      "sourcePath": "public/models/furniture/bathroomSink.glb",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "author": "Kenney Furniture Kit",
+      "license": "CC0-1.0",
+      "attribution": "none required",
+      "format": {
+        "delivery": "GLB",
+        "unrealSource": "FBX"
+      },
+      "dimensionsCm": {
+        "x": 52.21,
+        "y": 44.54,
+        "z": 86.0
+      },
+      "units": "cm",
+      "sha256": {
+        "glb": "39d4f19608cab7e0fed52303b2c689f5f51fae1bad9b6913cb53d838875e797e",
+        "fbx": "8b16817c96e374df72d974d042b19ba7ac6d3a34d55fb7d864a653df6b5f0c65"
+      },
+      "gitSha": {
+        "glb": "ac4a03fbe9d8df08ba4a2816fc6ccbb2e51dba79",
+        "fbx": "8223aeab4784a29cadf6081df7c9c41c26ea68d8"
+      },
+      "bytes": {
+        "glb": 22536,
+        "fbx": 27628
+      },
+      "modifications": "Imported from 3dworld GLB, converted to a single static mesh, scaled to clinic centimeters, sat on Z=0, exported FBX for Unreal.",
+      "clinicalValidation": "not applicable; non-anatomic environment prop"
+    },
+    {
+      "id": "SM_3DW_Stool",
+      "semanticName": "Kenney stool",
+      "unrealPath": "/Game/Environment/Clinic/SM_3DW_Stool.SM_3DW_Stool",
+      "sourceRepo": "stevetodman/3dworld",
+      "sourcePath": "public/models/furniture/stoolBar.glb",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "author": "Kenney Furniture Kit",
+      "license": "CC0-1.0",
+      "attribution": "none required",
+      "format": {
+        "delivery": "GLB",
+        "unrealSource": "FBX"
+      },
+      "dimensionsCm": {
+        "x": 37.83,
+        "y": 32.76,
+        "z": 62.0
+      },
+      "units": "cm",
+      "sha256": {
+        "glb": "a86167a9f92401a61fec7e509ad089ecc552d0f299743add3aeb919acb24e341",
+        "fbx": "968fa483d510acfd7aef29fe1f6d943774e8e24dfa93afbe6ed9408dee673e26"
+      },
+      "gitSha": {
+        "glb": "53cd1fab1105cc74bbc34654a20dee769753522a",
+        "fbx": "26765c8e11b57315671189c68420d67d864adc59"
+      },
+      "bytes": {
+        "glb": 11816,
+        "fbx": 20828
+      },
+      "modifications": "Imported from 3dworld GLB, converted to a single static mesh, scaled to clinic centimeters, sat on Z=0, exported FBX for Unreal.",
+      "clinicalValidation": "not applicable; non-anatomic environment prop"
+    },
+    {
+      "id": "SM_3DW_Trashcan",
+      "semanticName": "Kenney trashcan",
+      "unrealPath": "/Game/Environment/Clinic/SM_3DW_Trashcan.SM_3DW_Trashcan",
+      "sourceRepo": "stevetodman/3dworld",
+      "sourcePath": "public/models/furniture/trashcan.glb",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "author": "Kenney Furniture Kit",
+      "license": "CC0-1.0",
+      "attribution": "none required",
+      "format": {
+        "delivery": "GLB",
+        "unrealSource": "FBX"
+      },
+      "dimensionsCm": {
+        "x": 20.39,
+        "y": 22.98,
+        "z": 42.0
+      },
+      "units": "cm",
+      "sha256": {
+        "glb": "e0ccc1fe50cbd05386477fdff527171d1cf7c0de2ba7ff3233f8d9561feb2561",
+        "fbx": "163865633480627ec0555eae19c891127c2141f0950157020342df31c4f60c8e"
+      },
+      "gitSha": {
+        "glb": "116970fba2a939ebf857f94f62d4d078c1e74b1b",
+        "fbx": "c7b356eee45f5a04c2dfeff38888654d93b9c023"
+      },
+      "bytes": {
+        "glb": 6452,
+        "fbx": 18620
+      },
+      "modifications": "Imported from 3dworld GLB, converted to a single static mesh, scaled to clinic centimeters, sat on Z=0, exported FBX for Unreal.",
+      "clinicalValidation": "not applicable; non-anatomic environment prop"
+    },
+    {
+      "id": "SM_3DW_Bookcase",
+      "semanticName": "Kenney open bookcase",
+      "unrealPath": "/Game/Environment/Clinic/SM_3DW_Bookcase.SM_3DW_Bookcase",
+      "sourceRepo": "stevetodman/3dworld",
+      "sourcePath": "public/models/furniture/bookcaseOpen.glb",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "author": "Kenney Furniture Kit",
+      "license": "CC0-1.0",
+      "attribution": "none required",
+      "format": {
+        "delivery": "GLB",
+        "unrealSource": "FBX"
+      },
+      "dimensionsCm": {
+        "x": 72.73,
+        "y": 45.45,
+        "z": 160.0
+      },
+      "units": "cm",
+      "sha256": {
+        "glb": "750702218d68c062b15dfef6ab06a4014d1cfa8bd05f02e57c53b7e13bec157c",
+        "fbx": "ab5c3481ec9ecae187ea98f6353baa655b2983adec81fa363d0037bf5a092769"
+      },
+      "gitSha": {
+        "glb": "fdee58b08d8e9592904e54a224a1c889d6368155",
+        "fbx": "29e908db312ade714cb08fdc860f3f03be9ef981"
+      },
+      "bytes": {
+        "glb": 18020,
+        "fbx": 21868
+      },
+      "modifications": "Imported from 3dworld GLB, converted to a single static mesh, scaled to clinic centimeters, sat on Z=0, exported FBX for Unreal.",
+      "clinicalValidation": "not applicable; non-anatomic environment prop"
+    },
+    {
+      "id": "SM_3DW_SideTable",
+      "semanticName": "Kenney side table",
+      "unrealPath": "/Game/Environment/Clinic/SM_3DW_SideTable.SM_3DW_SideTable",
+      "sourceRepo": "stevetodman/3dworld",
+      "sourcePath": "public/models/furniture/sideTable.glb",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "author": "Kenney Furniture Kit",
+      "license": "CC0-1.0",
+      "attribution": "none required",
+      "format": {
+        "delivery": "GLB",
+        "unrealSource": "FBX"
+      },
+      "dimensionsCm": {
+        "x": 76.47,
+        "y": 31.48,
+        "z": 55.0
+      },
+      "units": "cm",
+      "sha256": {
+        "glb": "8227810584f7d37582e4e9ec821c56f1dc54b99c88a8dc74242ea3b7402bc472",
+        "fbx": "bb0eb9716bd99135dbe007df228365c42c88b7c7ebee3c647b2680882983c74d"
+      },
+      "gitSha": {
+        "glb": "beeea65d387af41f7faa5a43c2c28182693d078b",
+        "fbx": "dcc30948452602d57cfec2d2bb4fba64cb92ac7b"
+      },
+      "bytes": {
+        "glb": 8800,
+        "fbx": 19180
+      },
+      "modifications": "Imported from 3dworld GLB, converted to a single static mesh, scaled to clinic centimeters, sat on Z=0, exported FBX for Unreal.",
+      "clinicalValidation": "not applicable; non-anatomic environment prop"
+    },
+    {
+      "id": "SM_3DW_Bear",
+      "semanticName": "Kenney teddy bear",
+      "unrealPath": "/Game/Environment/Clinic/SM_3DW_Bear.SM_3DW_Bear",
+      "sourceRepo": "stevetodman/3dworld",
+      "sourcePath": "public/models/furniture/bear.glb",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "author": "Kenney Furniture Kit",
+      "license": "CC0-1.0",
+      "attribution": "none required",
+      "format": {
+        "delivery": "GLB",
+        "unrealSource": "FBX"
+      },
+      "dimensionsCm": {
+        "x": 19.05,
+        "y": 12.1,
+        "z": 22.0
+      },
+      "units": "cm",
+      "sha256": {
+        "glb": "fd87c08f81dcd652b1f7f61afae9d1f040fa1322ac4ddda6f543ed423b954aed",
+        "fbx": "35016a2f24091aa080e7ac5150a8101ff29cc0c7f8b3d1e936d39b5ca9296334"
+      },
+      "gitSha": {
+        "glb": "0409b6bc737ee9720f3bc871cf38e02f0a450b4c",
+        "fbx": "ec78e016ea17035de4a84296577290d6e48e1e3a"
+      },
+      "bytes": {
+        "glb": 11884,
+        "fbx": 24396
+      },
+      "modifications": "Imported from 3dworld GLB, converted to a single static mesh, scaled to clinic centimeters, sat on Z=0, exported FBX for Unreal.",
+      "clinicalValidation": "not applicable; non-anatomic environment prop"
+    },
+    {
+      "id": "SM_3DW_Dino",
+      "semanticName": "Stuffed dinosaur bedside prop",
+      "unrealPath": "/Game/Environment/Clinic/SM_3DW_Dino.SM_3DW_Dino",
+      "sourceRepo": "stevetodman/3dworld",
+      "sourcePath": "public/models/props/dino-stuffed.glb",
+      "sourceUrl": "https://github.com/stevetodman/3dworld",
+      "author": "stevetodman/3dworld committed prop",
+      "license": "unresolved",
+      "attribution": "do not redistribute until provenance is resolved",
+      "format": {
+        "delivery": "GLB",
+        "unrealSource": "FBX"
+      },
+      "dimensionsCm": {
+        "x": 32.02,
+        "y": 20.03,
+        "z": 28.0
+      },
+      "units": "cm",
+      "sha256": {
+        "glb": "19b9a3841ebfd7595da9cd595b74e231da29730fe8030a2d17a021bc26b563ef",
+        "fbx": "b630df5ea052f7d6cb34a693c56f82b8a9179ce6081275b555703fbc53f4236d"
+      },
+      "gitSha": {
+        "glb": "6767a37d4abb57cb9bb16d10242acdff89719c40",
+        "fbx": "9f1680ab7eef867d0a286d7975b888803d443189"
+      },
+      "bytes": {
+        "glb": 404176,
+        "fbx": 184380
+      },
+      "modifications": "Imported from 3dworld GLB, converted to a single static mesh, scaled to clinic centimeters, sat on Z=0, exported FBX for Unreal.",
+      "clinicalValidation": "not applicable; non-anatomic environment prop"
+    },
+    {
+      "id": "SM_3DW_HumanHeart",
+      "semanticName": "Human heart teaching model",
+      "unrealPath": "/Game/Environment/Clinic/SM_3DW_HumanHeart.SM_3DW_HumanHeart",
+      "sourceRepo": "stevetodman/3dworld",
+      "sourcePath": "public/models/medical/hearts/human-heart.glb",
+      "sourceUrl": "https://github.com/stevetodman/3dworld",
+      "author": "stevetodman/3dworld committed heart; vendor not recorded",
+      "license": "unresolved",
+      "attribution": "do not redistribute until provenance is resolved",
+      "format": {
+        "delivery": "GLB",
+        "unrealSource": "FBX"
+      },
+      "dimensionsCm": {
+        "x": 13.93,
+        "y": 12.47,
+        "z": 18.0
+      },
+      "units": "cm",
+      "sha256": {
+        "glb": "b72b11530615d9095cc90c7aaafa8dd49043424479c73a4fc3d14bc0cd712f31",
+        "fbx": "656accdce43df48620f8b7d58b51369d65767de8cf4475dcfc9c2f1ed66a68b3"
+      },
+      "gitSha": {
+        "glb": "4b1fa0026d58eb4165174a7839e3f57efb254bf3",
+        "fbx": "2ea10d5ab37f5750cfa5247d12fd8b5a7280172a"
+      },
+      "bytes": {
+        "glb": 28500,
+        "fbx": 47772
+      },
+      "modifications": "Imported from 3dworld GLB, converted to a single static mesh, scaled to clinic centimeters, sat on Z=0, exported FBX for Unreal.",
+      "clinicalValidation": "not clinically validated; conceptual teaching prop"
+    },
+    {
+      "id": "SM_3DW_VsdHeart",
+      "semanticName": "Ventricular septal defect heart",
+      "unrealPath": "/Game/Environment/Clinic/SM_3DW_VsdHeart.SM_3DW_VsdHeart",
+      "sourceRepo": "stevetodman/3dworld",
+      "sourcePath": "public/models/medical/hearts/vsd-heart.glb",
+      "sourceUrl": "https://sketchfab.com/3d-models/ventricular-septal-defect-e4e0143741f64025af101658210c8c5d",
+      "author": "E-learning UMCG via Sketchfab",
+      "license": "CC-BY-NC-SA",
+      "attribution": "E-learning UMCG. Non-commercial educational use. Share-alike if derived.",
+      "format": {
+        "delivery": "GLB",
+        "unrealSource": "FBX"
+      },
+      "dimensionsCm": {
+        "x": 21.99,
+        "y": 25.64,
+        "z": 20.0
+      },
+      "units": "cm",
+      "sha256": {
+        "glb": "9e2513dc9debd80629591245c0a62c643947830929da8a816a1ce3bd80893c9f",
+        "fbx": "d6e0227a85900a798205802ca12b3c484a7613f261d7165acddc142515a40f8d"
+      },
+      "gitSha": {
+        "glb": "b0969755f304f6374ce51b0c26ac692c81b7a882",
+        "fbx": "59dfcbd552d6c8a5265c97f6f6b8b1bc1231e413"
+      },
+      "bytes": {
+        "glb": 3451012,
+        "fbx": 5215772
+      },
+      "modifications": "Imported from 3dworld GLB, converted to a single static mesh, scaled to clinic centimeters, sat on Z=0, exported FBX for Unreal.",
+      "clinicalValidation": "not clinically validated in this trainer; teaching prop only"
+    }
+  ],
+  "excludedFromThisSlice": [
+    {
+      "sourcePath": "public/models/medical/hospital-full.glb",
+      "reason": "47.7 MB environment; exceeds the team-room-to-exam-room slice and 60 FPS budget"
+    },
+    {
+      "sourcePath": "public/models/charite/operating-room.glb",
+      "reason": "18.0 MB; two Sketchfab candidates (CC-BY vs CC-BY-NC) are not disambiguated"
+    },
+    {
+      "sourcePath": "public/models/characters/avatars/*.glb",
+      "reason": "12\u201324 MB clinical avatars; Patel-only MetaHuman ADR forbids an extra cast"
+    },
+    {
+      "sourcePath": "public/models/characters/avatars/parent-avatar.glb",
+      "reason": "byte-identical to male-tech.glb; accidental parent-role alias"
+    }
+  ]
+}

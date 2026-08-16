@@ -45,6 +45,7 @@ test("the polish pass adds distinct clinical zones without embedding clinical tr
     "SpawnSinkStation",
     "SpawnEchoConsole",
     "SpawnRoomBaseboards",
+    "SpawnThreeDWorldDressing",
   ]) {
     assert.match(source, new RegExp(`${helper}\\(`), `missing ${helper}`);
   }

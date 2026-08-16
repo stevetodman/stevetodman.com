@@ -183,4 +183,45 @@ private:
 
     UPROPERTY()
     TObjectPtr<UStaticMesh> WindowUnitMesh;
+
+    // 3dworld clinic-slice meshes. ConstructorHelpers keep them in the cook;
+    // CardioClinicPolish places them at runtime.
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ThreeDWorldComputerMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ThreeDWorldKeyboardMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ThreeDWorldMouseMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ThreeDWorldLaptopMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ThreeDWorldSinkMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ThreeDWorldStoolMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ThreeDWorldTrashcanMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ThreeDWorldBookcaseMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ThreeDWorldSideTableMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ThreeDWorldBearMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ThreeDWorldDinoMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ThreeDWorldHumanHeartMesh;
+
+    UPROPERTY()
+    TObjectPtr<UStaticMesh> ThreeDWorldVsdHeartMesh;
 };

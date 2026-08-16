@@ -155,6 +155,33 @@ ACardioBlockoutGameMode::ACardioBlockoutGameMode()
     CeilingTileMesh = CeilingTileFinder.Object;
     static ConstructorHelpers::FObjectFinder<UStaticMesh> WindowFinder(TEXT("/Game/Environment/Clinic/SM_WindowUnit.SM_WindowUnit"));
     WindowUnitMesh = WindowFinder.Object;
+
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WorldComputerFinder(TEXT("/Game/Environment/Clinic/SM_3DW_Computer.SM_3DW_Computer"));
+    ThreeDWorldComputerMesh = WorldComputerFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WorldKeyboardFinder(TEXT("/Game/Environment/Clinic/SM_3DW_Keyboard.SM_3DW_Keyboard"));
+    ThreeDWorldKeyboardMesh = WorldKeyboardFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WorldMouseFinder(TEXT("/Game/Environment/Clinic/SM_3DW_Mouse.SM_3DW_Mouse"));
+    ThreeDWorldMouseMesh = WorldMouseFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WorldLaptopFinder(TEXT("/Game/Environment/Clinic/SM_3DW_Laptop.SM_3DW_Laptop"));
+    ThreeDWorldLaptopMesh = WorldLaptopFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WorldSinkFinder(TEXT("/Game/Environment/Clinic/SM_3DW_Sink.SM_3DW_Sink"));
+    ThreeDWorldSinkMesh = WorldSinkFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WorldStoolFinder(TEXT("/Game/Environment/Clinic/SM_3DW_Stool.SM_3DW_Stool"));
+    ThreeDWorldStoolMesh = WorldStoolFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WorldTrashFinder(TEXT("/Game/Environment/Clinic/SM_3DW_Trashcan.SM_3DW_Trashcan"));
+    ThreeDWorldTrashcanMesh = WorldTrashFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WorldBookcaseFinder(TEXT("/Game/Environment/Clinic/SM_3DW_Bookcase.SM_3DW_Bookcase"));
+    ThreeDWorldBookcaseMesh = WorldBookcaseFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WorldSideTableFinder(TEXT("/Game/Environment/Clinic/SM_3DW_SideTable.SM_3DW_SideTable"));
+    ThreeDWorldSideTableMesh = WorldSideTableFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WorldBearFinder(TEXT("/Game/Environment/Clinic/SM_3DW_Bear.SM_3DW_Bear"));
+    ThreeDWorldBearMesh = WorldBearFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WorldDinoFinder(TEXT("/Game/Environment/Clinic/SM_3DW_Dino.SM_3DW_Dino"));
+    ThreeDWorldDinoMesh = WorldDinoFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WorldHeartFinder(TEXT("/Game/Environment/Clinic/SM_3DW_HumanHeart.SM_3DW_HumanHeart"));
+    ThreeDWorldHumanHeartMesh = WorldHeartFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WorldVsdFinder(TEXT("/Game/Environment/Clinic/SM_3DW_VsdHeart.SM_3DW_VsdHeart"));
+    ThreeDWorldVsdHeartMesh = WorldVsdFinder.Object;
 }
 
 void ACardioBlockoutGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
