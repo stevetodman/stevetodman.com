@@ -102,9 +102,9 @@ def tile_uvs(obj, tile_cm):
 
 
 def build_wall_panel():
-    paint = mat("M_WallPaint", (0.97, 0.97, 0.96), roughness=0.42)
-    wainscot = mat("M_Wainscot", (0.94, 0.95, 0.95), roughness=0.32)
-    trim = mat("M_WallTrim", (0.98, 0.98, 0.97), roughness=0.38)
+    paint = mat("M_WallPaint", (0.96, 0.97, 0.98), roughness=0.38)
+    wainscot = mat("M_Wainscot", (0.88, 0.90, 0.92), roughness=0.30)
+    trim = mat("M_WallTrim", (0.97, 0.98, 0.99), roughness=0.34)
     # 100 cm wide, 12 cm thick, 350 cm tall. Origin at floor center.
     parts = [
         cube("Upper", (100, 10, 230), (0, 0, 235), paint, 0.2),
@@ -118,8 +118,8 @@ def build_wall_panel():
 
 
 def build_floor_tile():
-    vinyl = mat("M_ClinicFloor", (0.78, 0.77, 0.73), roughness=0.40)
-    grout = mat("M_FloorGrout", (0.62, 0.61, 0.58), roughness=0.55)
+    vinyl = mat("M_ClinicFloor", (0.74, 0.76, 0.78), roughness=0.36)
+    grout = mat("M_FloorGrout", (0.52, 0.54, 0.56), roughness=0.50)
     parts = [cube("Slab", (200, 200, 3), (0, 0, 1.5), vinyl, 0.05)]
     for x in (-50, 50):
         parts.append(cube(f"GX{x}", (1.2, 200, 3.2), (x, 0, 1.6), grout, 0.0))
@@ -131,8 +131,8 @@ def build_floor_tile():
 
 
 def build_ceiling_tile():
-    tile = mat("M_CeilingTile", (0.98, 0.98, 0.97), roughness=0.55)
-    grid = mat("M_CeilingGrid", (0.70, 0.71, 0.72), roughness=0.35, metallic=0.25)
+    tile = mat("M_CeilingTile", (0.97, 0.98, 0.99), roughness=0.50)
+    grid = mat("M_CeilingGrid", (0.78, 0.80, 0.82), roughness=0.32, metallic=0.2)
     parts = [cube("Field", (196, 196, 2), (0, 0, 0), tile, 0.1)]
     parts.append(cube("FrameX", (200, 4, 3), (0, 98, 0), grid, 0.05))
     parts.append(cube("FrameX2", (200, 4, 3), (0, -98, 0), grid, 0.05))

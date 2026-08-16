@@ -212,7 +212,7 @@ def build_exam_table():
 
 
 def build_hospital_bed():
-    linen = mat("M_Linen", (0.91, 0.90, 0.88), roughness=0.7)
+    linen = mat("M_Linen", (0.94, 0.95, 0.96), roughness=0.65)
     frame = mat("M_BedFrame", (0.18, 0.22, 0.28), roughness=0.4, metallic=0.35)
     parts = [
         cube("Mattress", (200, 88, 16), (0, 0, 48), linen, 1.0),
@@ -227,7 +227,7 @@ def build_hospital_bed():
 
 
 def build_desk():
-    wood = mat("M_DeskWood", (0.38, 0.27, 0.17), roughness=0.52)
+    wood = mat("M_DeskWood", (0.78, 0.80, 0.82), roughness=0.42)
     metal = mat("M_DeskMetal", (0.45, 0.47, 0.5), roughness=0.35, metallic=0.55)
     parts = [
         cube("Top", (180, 80, 6), (0, 0, 76), wood, 0.5),
@@ -266,13 +266,13 @@ def build_door_jamb():
 
 
 def build_baseboard():
-    paint = mat("M_Baseboard", (0.78, 0.78, 0.76), roughness=0.5)
+    paint = mat("M_Baseboard", (0.92, 0.93, 0.94), roughness=0.42)
     return cube("SM_Baseboard", (100, 4, 10), (0, 0, 5), paint, 0.2)
 
 
 def build_ceiling_light():
     plastic = mat("M_LightHousing", (0.92, 0.93, 0.94), roughness=0.35)
-    diffuser = mat("M_LightDiffuser", (0.98, 0.98, 0.96), roughness=0.2)
+    diffuser = mat("M_LightDiffuser", (0.96, 0.98, 1.0), roughness=0.18)
     parts = [
         cube("Housing", (160, 36, 6), (0, 0, 3), plastic, 0.3),
         cube("Lens", (148, 28, 2), (0, 0, 0.5), diffuser, 0.2),

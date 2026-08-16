@@ -44,13 +44,13 @@ namespace
         FLinearColor Color;
     };
 
-    const FLinearColor FloorLinoleum(0.78f, 0.77f, 0.73f);
-    const FLinearColor WallHospital(0.97f, 0.97f, 0.96f);
-    const FLinearColor CeilingWhite(0.98f, 0.98f, 0.97f);
+    const FLinearColor FloorLinoleum(0.74f, 0.76f, 0.78f);
+    const FLinearColor WallHospital(0.96f, 0.97f, 0.98f);
+    const FLinearColor CeilingWhite(0.97f, 0.98f, 0.99f);
     const FLinearColor AccentTeal(0.0f, 0.55f, 0.54f);
-    const FLinearColor WindowGlow(0.72f, 0.84f, 0.95f);
-    const FLinearColor RailSteel(0.55f, 0.58f, 0.60f);
-    const FLinearColor Grout(0.42f, 0.40f, 0.36f);
+    const FLinearColor WindowGlow(0.70f, 0.84f, 0.96f);
+    const FLinearColor RailSteel(0.62f, 0.65f, 0.68f);
+    const FLinearColor Grout(0.52f, 0.54f, 0.56f);
 
     const FVector CorridorPlayerStart(-1000.0, 0.0, 110.0);
     const FVector TeamRoomDoorwayCenter(750.0, 200.0, 110.0);
@@ -2036,10 +2036,10 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
     UDirectionalLightComponent* Sun = NewObject<UDirectionalLightComponent>(Rig, TEXT("Sun"));
     Sun->SetupAttachment(Root);
     Sun->SetMobility(EComponentMobility::Movable);
-    Sun->SetRelativeRotation(FRotator(-48.f, 28.f, 0.f));
-    Sun->SetIntensity(8.0f);
-    Sun->SetLightColor(FLinearColor(1.f, 0.97f, 0.92f));
-    Sun->SetSpecularScale(0.55f);
+    Sun->SetRelativeRotation(FRotator(-52.f, 18.f, 0.f));
+    Sun->SetIntensity(4.2f);
+    Sun->SetLightColor(FLinearColor(0.93f, 0.96f, 1.f));
+    Sun->SetSpecularScale(0.4f);
     Sun->SetAtmosphereSunLight(true);
     Sun->RegisterComponent();
 
@@ -2068,12 +2068,12 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
         Lamp->SetupAttachment(Root);
         Lamp->SetMobility(EComponentMobility::Movable);
         Lamp->SetWorldLocation(LightPoints[Index]);
-        Lamp->SetIntensity(19000.f);
-        Lamp->SetAttenuationRadius(2000.f);
-        Lamp->SetLightColor(FLinearColor(1.f, 0.96f, 0.9f));
-        Lamp->SetSpecularScale(0.55f);
+        Lamp->SetIntensity(24000.f);
+        Lamp->SetAttenuationRadius(2200.f);
+        Lamp->SetLightColor(FLinearColor(0.94f, 0.97f, 1.f));
+        Lamp->SetSpecularScale(0.35f);
         Lamp->SetUseTemperature(true);
-        Lamp->SetTemperature(4500.f);
+        Lamp->SetTemperature(5600.f);
         Lamp->RegisterComponent();
     }
 
@@ -2083,13 +2083,13 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
     PatelKey->SetMobility(EComponentMobility::Movable);
     PatelKey->SetWorldLocation(FVector(750.0, 280.0, 210.0));
     PatelKey->SetWorldRotation(FRotator(-18.f, 90.f, 0.f));
-    PatelKey->SetIntensity(18.f);
+    PatelKey->SetIntensity(16.f);
     PatelKey->SetInnerConeAngle(22.f);
     PatelKey->SetOuterConeAngle(42.f);
     PatelKey->SetAttenuationRadius(900.f);
-    PatelKey->SetLightColor(FLinearColor(1.f, 0.95f, 0.88f));
+    PatelKey->SetLightColor(FLinearColor(0.96f, 0.98f, 1.f));
     PatelKey->SetUseTemperature(true);
-    PatelKey->SetTemperature(4300.f);
+    PatelKey->SetTemperature(5300.f);
     PatelKey->SetSpecularScale(0.7f);
     PatelKey->RegisterComponent();
 
@@ -2108,10 +2108,10 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
 
     UExponentialHeightFogComponent* Fog = NewObject<UExponentialHeightFogComponent>(Rig, TEXT("ClinicFog"));
     Fog->SetupAttachment(Root);
-    Fog->SetFogDensity(0.004f);
-    Fog->SetFogHeightFalloff(0.08f);
-    Fog->SetFogInscatteringColor(FLinearColor(0.82f, 0.86f, 0.88f));
-    Fog->SetFogMaxOpacity(0.12f);
+    Fog->SetFogDensity(0.0022f);
+    Fog->SetFogHeightFalloff(0.1f);
+    Fog->SetFogInscatteringColor(FLinearColor(0.76f, 0.84f, 0.92f));
+    Fog->SetFogMaxOpacity(0.07f);
     Fog->RegisterComponent();
 
     APostProcessVolume* Grade = World.SpawnActor<APostProcessVolume>(FVector::ZeroVector, FRotator::ZeroRotator, Params);
@@ -2123,21 +2123,23 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
         Grade->Settings.bOverride_AutoExposureMethod = true;
         Grade->Settings.AutoExposureMethod = AEM_Histogram;
         Grade->Settings.bOverride_AutoExposureBias = true;
-        Grade->Settings.AutoExposureBias = 1.40f;
+        Grade->Settings.AutoExposureBias = 0.55f;
         Grade->Settings.bOverride_BloomIntensity = true;
-        Grade->Settings.BloomIntensity = 0.18f;
+        Grade->Settings.BloomIntensity = 0.08f;
         Grade->Settings.bOverride_AmbientOcclusionIntensity = true;
-        Grade->Settings.AmbientOcclusionIntensity = 0.42f;
+        Grade->Settings.AmbientOcclusionIntensity = 0.28f;
         Grade->Settings.bOverride_AmbientOcclusionRadius = true;
-        Grade->Settings.AmbientOcclusionRadius = 42.f;
+        Grade->Settings.AmbientOcclusionRadius = 36.f;
         Grade->Settings.bOverride_VignetteIntensity = true;
-        Grade->Settings.VignetteIntensity = 0.05f;
+        Grade->Settings.VignetteIntensity = 0.02f;
+        Grade->Settings.bOverride_WhiteTemp = true;
+        Grade->Settings.WhiteTemp = 7200.f;
         Grade->Settings.bOverride_ColorSaturation = true;
-        Grade->Settings.ColorSaturation = FVector4(1.05f, 1.03f, 0.99f, 1.f);
+        Grade->Settings.ColorSaturation = FVector4(1.0f, 1.0f, 1.03f, 1.f);
         Grade->Settings.bOverride_ColorContrast = true;
-        Grade->Settings.ColorContrast = FVector4(1.06f, 1.05f, 1.03f, 1.f);
+        Grade->Settings.ColorContrast = FVector4(1.03f, 1.03f, 1.04f, 1.f);
         Grade->Settings.bOverride_FilmGrainIntensity = true;
-        Grade->Settings.FilmGrainIntensity = 0.015f;
+        Grade->Settings.FilmGrainIntensity = 0.0f;
     }
 }
 
