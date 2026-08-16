@@ -10,6 +10,7 @@
 #include "Components/TextRenderComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMesh.h"
+#include "Materials/MaterialInterface.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -48,6 +49,8 @@ ACardioBlockoutNPC::ACardioBlockoutNPC()
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> CoatSkelFinder(TEXT("/Game/Environment/Clinic/SK_LabCoat.SK_LabCoat"));
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> TrouserSkelFinder(TEXT("/Game/Environment/Clinic/SK_Trousers.SK_Trousers"));
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> ScopeSkelFinder(TEXT("/Game/Environment/Clinic/SK_Stethoscope.SK_Stethoscope"));
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> SuitFinder(TEXT("/Game/Environment/Clinic/M_AttendingSuit.M_AttendingSuit"));
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> SuitFallbackFinder(TEXT("/Game/Environment/Clinic/M_DoctorSuit.M_DoctorSuit"));
 
     AttendingCoat = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttendingCoat"));
     AttendingCoat->SetupAttachment(Root);
@@ -103,6 +106,14 @@ ACardioBlockoutNPC::ACardioBlockoutNPC()
     if (CoatSkelFinder.Succeeded())
     {
         AttendingCoatSkel->SetSkeletalMesh(CoatSkelFinder.Object);
+    }
+    if (SuitFinder.Succeeded())
+    {
+        AttendingCoatSkel->SetMaterial(0, SuitFinder.Object);
+    }
+    else if (SuitFallbackFinder.Succeeded())
+    {
+        AttendingCoatSkel->SetMaterial(0, SuitFallbackFinder.Object);
     }
 
     AttendingTrousersSkel = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("AttendingTrousersSkel"));
@@ -400,10 +411,21 @@ bool ACardioBlockoutNPC::AttachSkinnedAttendingKit()
         Follower->SetBoundsScale(2.f);
         if (FCString::Strstr(Label, TEXT("LabCoat")))
         {
-            if (UMaterialInterface* Suit = LoadObject<UMaterialInterface>(
-                    nullptr, TEXT("/Game/Environment/Clinic/M_DoctorSuit.M_DoctorSuit")))
+            UMaterialInterface* Suit = LoadObject<UMaterialInterface>(
+                nullptr, TEXT("/Game/Environment/Clinic/M_AttendingSuit.M_AttendingSuit"));
+            if (!Suit)
+            {
+                Suit = LoadObject<UMaterialInterface>(
+                    nullptr, TEXT("/Game/Environment/Clinic/M_DoctorSuit.M_DoctorSuit"));
+            }
+            if (Suit)
             {
                 Follower->SetMaterial(0, Suit);
+                UE_LOG(LogCardioAttending, Display, TEXT("applied suit %s"), *Suit->GetPathName());
+            }
+            else
+            {
+                UE_LOG(LogCardioAttending, Warning, TEXT("no attending suit material cooked"));
             }
         }
         Follower->UpdateBounds();
