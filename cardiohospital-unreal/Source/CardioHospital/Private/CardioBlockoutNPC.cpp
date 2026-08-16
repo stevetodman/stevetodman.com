@@ -20,7 +20,7 @@ namespace
 {
     // BP_Patel's mesh forward is 90° off the actor. Without this, turning
     // the actor toward the learner still shows a profile to the camera.
-    constexpr float AssembledMeshYawOffset = 90.f;
+    constexpr float AssembledMeshYawOffset = -90.f;
 }
 
 ACardioBlockoutNPC::ACardioBlockoutNPC()
