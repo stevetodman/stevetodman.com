@@ -7,6 +7,7 @@
 #include "Engine/GameInstance.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
+#include "Serialization/JsonWriter.h"
 #include "Subsystems/SubsystemCollection.h"
 
 void UCardioCaseRuntimeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -104,6 +105,31 @@ bool UCardioCaseRuntimeSubsystem::PerformAction(
         return false;
     }
 
+    if (Action->EventType.Equals(TEXT("history_question"), ESearchCase::CaseSensitive))
+    {
+        const FCardioHistoryFact* Fact = ActiveCase.History.FindByPredicate(
+            [Action](const FCardioHistoryFact& Candidate)
+            {
+                return Candidate.Key.Equals(Action->Target, ESearchCase::CaseSensitive);
+            });
+        if (!Fact)
+        {
+            OutResult.Error = FString::Printf(TEXT("No authored history fact for %s"), *Action->Target);
+            return false;
+        }
+        PayloadObject->SetStringField(TEXT("key"), Fact->Key);
+        PayloadObject->SetStringField(TEXT("question"), Fact->Question);
+        PayloadObject->SetStringField(TEXT("answer"), Fact->Answer);
+        FString DisclosedPayload;
+        const TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&DisclosedPayload);
+        if (!FJsonSerializer::Serialize(PayloadObject.ToSharedRef(), Writer))
+        {
+            OutResult.Error = FString::Printf(TEXT("Action %s disclosure payload failed to serialize"), *ActionId);
+            return false;
+        }
+        NormalizedPayloadJson = DisclosedPayload;
+    }
+
     for (const FString& Effect : Action->Effects)
     {
         State.Effects.AddUnique(Effect);
@@ -130,6 +156,7 @@ bool UCardioCaseRuntimeSubsystem::PerformAction(
     OutResult.bSucceeded = true;
     OutResult.NodeAfter = State.NodeId;
     OutResult.bTransitioned = !OutResult.NodeBefore.Equals(OutResult.NodeAfter, ESearchCase::CaseSensitive);
+    OutResult.PayloadJson = NormalizedPayloadJson;
     return true;
 }
 
@@ -195,6 +222,33 @@ TArray<FCardioCaseActionDefinition> UCardioCaseRuntimeSubsystem::GetAvailableAct
         }
     }
     return Available;
+}
+
+TArray<FCardioHistoryFact> UCardioCaseRuntimeSubsystem::GetRevealedHistory() const
+{
+    TArray<FCardioHistoryFact> Revealed;
+    if (!bHasActiveCase)
+    {
+        return Revealed;
+    }
+
+    TSet<FString> Asked;
+    for (const FCardioCaseActionEvent& Event : State.ActionLog)
+    {
+        if (Event.EventType.Equals(TEXT("history_question"), ESearchCase::CaseSensitive))
+        {
+            Asked.Add(Event.Target);
+        }
+    }
+
+    for (const FCardioHistoryFact& Fact : ActiveCase.History)
+    {
+        if (Asked.Contains(Fact.Key))
+        {
+            Revealed.Add(Fact);
+        }
+    }
+    return Revealed;
 }
 
 bool UCardioCaseRuntimeSubsystem::HasPassedAcceptance() const

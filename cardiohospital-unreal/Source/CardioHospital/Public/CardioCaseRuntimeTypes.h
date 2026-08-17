@@ -39,4 +39,5 @@ struct FCardioCaseActionResult
     UPROPERTY(BlueprintReadOnly) FString Error;
     UPROPERTY(BlueprintReadOnly) FString NodeBefore;
     UPROPERTY(BlueprintReadOnly) FString NodeAfter;
+    UPROPERTY(BlueprintReadOnly) FString PayloadJson;
 };

@@ -155,6 +155,23 @@ function validateCase(failures, clinicalCase, index) {
     }
   }
 
+  if (Array.isArray(clinicalCase.history) && Array.isArray(clinicalCase.redFlagKeys)) {
+    const redFlagSet = new Set(clinicalCase.redFlagKeys);
+    const redFlagAnswers = clinicalCase.history
+      .filter((fact) => redFlagSet.has(fact.key) && hasText(fact.answer))
+      .map((fact) => fact.answer);
+    clinicalCase.history.forEach((fact, factIndex) => {
+      if (!isObject(fact) || redFlagSet.has(fact.key) || !hasText(fact.answer)) return;
+      for (const redFlagAnswer of redFlagAnswers) {
+        addFailure(
+          failures,
+          !fact.answer.includes(redFlagAnswer),
+          `${path}.history[${factIndex}] leaks a red-flag answer that must require a specific question`,
+        );
+      }
+    });
+  }
+
   addFailure(failures, isObject(clinicalCase.missedOpportunityTemplate), `${path}.missedOpportunityTemplate must be an object`);
   if (isObject(clinicalCase.missedOpportunityTemplate)) {
     for (const [key, message] of Object.entries(clinicalCase.missedOpportunityTemplate)) {

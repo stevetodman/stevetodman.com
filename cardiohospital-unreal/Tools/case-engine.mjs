@@ -54,7 +54,7 @@ export class CaseEngine {
       actionId,
       eventType: definition.eventType,
       target: definition.target,
-      payload: clone(payload),
+      payload: { ...clone(payload), ...this.#disclosurePayload(definition) },
     };
     this.actionLog.push(event);
 
@@ -101,6 +101,30 @@ export class CaseEngine {
       completedActions: [...this.completedActions].sort(),
       actionLog: clone(this.actionLog),
     };
+  }
+
+  getRevealedHistory() {
+    const asked = new Set(
+      this.actionLog
+        .filter((event) => event.eventType === "history_question")
+        .map((event) => event.target),
+    );
+    return this.clinicalCase.history
+      .filter((fact) => asked.has(fact.key))
+      .map((fact) => ({
+        key: fact.key,
+        question: fact.question,
+        answer: fact.answer,
+        redFlag: Boolean(fact.redFlag),
+        confidential: Boolean(fact.confidential),
+      }));
+  }
+
+  #disclosurePayload(definition) {
+    if (definition.eventType !== "history_question") return {};
+    const fact = this.clinicalCase.history.find((entry) => entry.key === definition.target);
+    if (!fact) throw new Error(`No authored history fact for ${definition.target}`);
+    return { key: fact.key, question: fact.question, answer: fact.answer };
   }
 
   #findAction(actionId) {

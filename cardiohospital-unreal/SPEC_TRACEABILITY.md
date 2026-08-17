@@ -24,9 +24,9 @@ status, evidence, and gap together.
 
 | Status | Count | Meaning |
 | --- | ---: | --- |
-| `TESTED-PORTABLE` | 18 | Renderer-independent behavior is implemented and exercised by portable tests. This never implies Unreal compilation or presentation. |
+| `TESTED-PORTABLE` | 19 | Renderer-independent behavior is implemented and exercised by portable tests. This never implies Unreal compilation or presentation. |
 | `PREVIEW-ONLY` | 22 | Demonstrated only in an inherited browser prototype; it is not an Unreal implementation. |
-| `DATA-ONLY` | 23 | Authored data or archived code exists, but no active playable implementation exists. |
+| `DATA-ONLY` | 22 | Authored data or archived code exists, but no active playable implementation exists. |
 | `PARTIAL` | 57 | Some required behavior exists, but material clauses or the native Unreal presentation are incomplete. |
 | `MISSING` | 32 | No meaningful implementation evidence was found at the checkpoint. |
 | `FUTURE` | 8 | The authoritative plan explicitly defers the item or the approved vertical-slice scope defers it. |
@@ -65,10 +65,10 @@ status, evidence, and gap together.
 | 10 | `LegacyCore/plan.md:L288` | PATIENT ROOM EXPERIENCE | `PARTIAL` | `BH`, `U0` | Browser encounter panels exist, but no patient NPC behavior or native room experience exists. |
 | 11 | `LegacyCore/plan.md:L320` | NPC CONVERSATION SYSTEM | `PARTIAL` | `BH`, `CG` | Structured browser choices and authored facts exist; typed, voice, and natural dialogue do not. |
 | 12 | `LegacyCore/plan.md:L359` | PATIENT AI ARCHITECTURE | `PARTIAL` | `CG`, `UD`, `UR` | Fixed truth and deterministic actions exist; the AI expression layer is absent and Unreal source is uncompiled. |
-| 13 | `LegacyCore/plan.md:L393` | INFORMATION DISCLOSURE RULES | `DATA-ONLY` | `CG` | Facts and prompts exist, but no runtime disclosure gate enforces the complete rules. |
+| 13 | `LegacyCore/plan.md:L393` | INFORMATION DISCLOSURE RULES | `TESTED-PORTABLE` | `CG`, `EE`, `UR` | History answers are disclosed only for asked keys; generic questions cannot leak red-flag text; native NPC delivery is still absent. |
 | 14 | `LegacyCore/plan.md:L423` | PERSONALITY MODEL | `MISSING` | `NONE` | No personality model exists. |
 | 15 | `LegacyCore/plan.md:L443` | PEDIATRIC PATIENT BEHAVIOR | `DATA-ONLY` | `CG`, `SD` | Pediatric case data exists without a behavior model. |
-| 16 | `LegacyCore/plan.md:L468` | CONFIDENTIAL ADOLESCENT INTERVIEW | `TESTED-PORTABLE` | `CG`, `EE` | Adolescent hypertension gates confidential substance-use questions behind a parent-step-out action; native presentation of the interview is still absent. |
+| 16 | `LegacyCore/plan.md:L468` | CONFIDENTIAL ADOLESCENT INTERVIEW | `TESTED-PORTABLE` | `CG`, `EE` | HCM and adolescent hypertension gate confidential substance questions behind a parent-step-out action; native presentation of the interview is still absent. |
 | 17 | `LegacyCore/plan.md:L488` | PHYSICAL EXAMINATION | `PARTIAL` | `BH`, `CG`, `UR` | Browser exam actions and deterministic action definitions exist; no native examination actors or presentation exist. |
 | 18 | `LegacyCore/plan.md:L524` | STETHOSCOPE SYSTEM | `PREVIEW-ONLY` | `BH` | Four browser auscultation sites and a Valsalva response exist; no native system exists. |
 | 19 | `LegacyCore/plan.md:L555` | MURMUR AUDIO ENGINE | `PARTIAL` | `BH`, `AR` | A synthesized HCM browser demonstration exists; no production spatial and phase-aware native engine exists. |

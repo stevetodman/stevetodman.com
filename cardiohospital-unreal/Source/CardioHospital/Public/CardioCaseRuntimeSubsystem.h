@@ -33,6 +33,10 @@ public:
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
     TArray<FCardioCaseActionDefinition> GetAvailableActionDefinitions() const;
 
+    // World UI must display this, not GetActiveClinicalCase().History.
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
+    TArray<FCardioHistoryFact> GetRevealedHistory() const;
+
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
     TArray<FString> GetMissingAcceptanceActions() const;
 

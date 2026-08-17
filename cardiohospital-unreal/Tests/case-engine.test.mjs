@@ -36,6 +36,7 @@ const OPTIMAL_PATH = [
   "history.exertional-timing",
   "history.family-sudden-death",
   "history.prodrome",
+  "history.confidential-interview",
   "history.finish",
   "exam.general",
   "exam.vitals",
@@ -92,6 +93,34 @@ test("case can complete with omissions without falsely passing acceptance", asyn
   assert.ok(report.missingActions.includes("history.exertional-timing"));
   assert.ok(report.missingActions.includes("order.ecg"));
   assert.ok(report.missingActions.includes("management.restrict-sports"));
+});
+
+test("generic history does not disclose a specific red-flag answer", async () => {
+  const document = await loadDocument();
+  const engine = createCaseEngine(document, "case-hcm");
+  const clinicalCase = document.cases.find((item) => item.id === "case-hcm");
+  const suddenDeath = clinicalCase.history.find((fact) => fact.key === "family_sudden_death");
+  performAll(engine, [...OPENING, "history.generic"]);
+
+  const revealed = engine.getRevealedHistory();
+  const generic = engine.snapshot().actionLog.find((event) => event.actionId === "history.generic");
+  assert.deepEqual(revealed.map((fact) => fact.key), ["generic"]);
+  assert.equal(generic.payload.key, "generic");
+  assert.equal(generic.payload.answer, clinicalCase.history.find((fact) => fact.key === "generic").answer);
+  assert.ok(!generic.payload.answer.includes(suddenDeath.answer));
+  assert.ok(!revealed.some((fact) => fact.key === "family_sudden_death"));
+
+  engine.perform("history.family-sudden-death");
+  assert.ok(engine.getRevealedHistory().some((fact) => fact.key === "family_sudden_death" && fact.answer === suddenDeath.answer));
+});
+
+test("HCM stimulant history stays closed until the parent steps out", async () => {
+  const engine = createCaseEngine(await loadDocument(), "case-hcm");
+  performAll(engine, [...OPENING, "history.generic"]);
+  assert.ok(engine.getAvailableActions().includes("history.confidential-interview"));
+  assert.ok(!engine.getAvailableActions().includes("history.stimulant-use"));
+  engine.perform("history.confidential-interview");
+  assert.ok(engine.getAvailableActions().includes("history.stimulant-use"));
 });
 
 test("test results cannot be reviewed before their order", async () => {
