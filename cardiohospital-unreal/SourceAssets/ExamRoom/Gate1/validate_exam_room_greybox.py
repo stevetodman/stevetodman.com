@@ -29,7 +29,6 @@ from exam_room_greybox_layout import (
     door_clear_aabb,
     envelope_by_name,
     gap_x,
-    gap_y,
     overlap_area,
     room_aabb,
 )
@@ -51,7 +50,7 @@ def _circle_hits_aabb(center, radius, box):
 def main():
     boxes = {item["name"]: aabb_xy(item["size"], item["location"]) for item in ENVELOPES}
     table = boxes["ZONE_ExamTable"]
-    desk = boxes["ZONE_ProviderWorkstation"]
+    desk = boxes["ZONE_WestCasework"]
     ecg = boxes["ZONE_ECGStation"]
     chair = boxes["ZONE_ParentChair"]
     stool = boxes["ZONE_PhysicianStool"]
@@ -60,7 +59,12 @@ def main():
     checks = []
 
     for name, box in boxes.items():
-        outside = box[0] < room[0] - 1e-6 or box[1] > room[1] + 1e-6 or box[2] < room[2] - 1e-6 or box[3] > room[3] + 1e-6
+        outside = (
+            box[0] < room[0] - 1e-6
+            or box[1] > room[1] + 1e-6
+            or box[2] < room[2] - 1e-6
+            or box[3] > room[3] + 1e-6
+        )
         checks.append(
             _result(
                 f"{name} inside room",
@@ -82,8 +86,6 @@ def main():
             )
 
     aisle_south = table[2] - PROVIDER_AISLE_M
-    aisle_ok = aisle_south >= stool[3] - 0.58  # stool is allowed inside the working aisle
-    # The aisle itself must exist as empty space except the stool.
     blocked = False
     for name, box in boxes.items():
         if name in {"ZONE_ExamTable", "ZONE_PhysicianStool"}:
@@ -95,14 +97,14 @@ def main():
         _result(
             "provider aisle 0.91 m south of table",
             "fail" if blocked else "pass",
-            f"aisle_y={aisle_south:.3f}..{table[2]:.3f} stool_allowed={aisle_ok}",
+            f"aisle_y={aisle_south:.3f}..{table[2]:.3f}",
         )
     )
 
     pass_gap = gap_x(table, desk)
     checks.append(
         _result(
-            "staff pass table vs workstation",
+            "staff pass table vs west casework",
             "fail" if pass_gap + 1e-6 < STAFF_PASS_M else "pass",
             f"gap_m={pass_gap:.3f}",
         )
@@ -127,7 +129,6 @@ def main():
         for name, box in boxes.items()
         if name != "ZONE_PhysicianStool" and _circle_hits_aabb(TURN_CENTER, radius, box)
     ]
-    # Stool is movable; turning space is evaluated without it.
     checks.append(
         _result(
             "turning circle 1.52 m south-center",

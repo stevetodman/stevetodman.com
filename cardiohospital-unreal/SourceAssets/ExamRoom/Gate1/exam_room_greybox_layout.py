@@ -100,7 +100,8 @@ DEFAULT_OUTPUT = GATE1_DIR / "generated"
 
 
 def aabb_xy(size, location):
-    hx, hy = size[0] / 2.0, hy = size[1] / 2.0
+    hx = size[0] / 2.0
+    hy = size[1] / 2.0
     cx, cy = location[0], location[1]
     return (cx - hx, cx + hx, cy - hy, cy + hy)
 

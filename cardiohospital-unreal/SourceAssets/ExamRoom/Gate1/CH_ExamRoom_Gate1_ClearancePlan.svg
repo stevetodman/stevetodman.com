@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 520" width="560" height="520" role="img" aria-label="Gate 1 v2 exam-room clearance plan">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 520" width="560" height="520" role="img" aria-label="Gate 1 v2 exam-room clearance plan with west-wall sink">
   <style>
     text { font-family: ui-sans-serif, Calibri, Helvetica, Arial, sans-serif; fill: #1b2428; }
     .title { font-size: 14px; font-weight: 700; }
@@ -12,26 +12,21 @@
     .casework { fill: #e39a6b; fill-opacity: 0.55; stroke: #8a4a1c; stroke-width: 1.2; }
     .seat { fill: #9b8bb8; fill-opacity: 0.55; stroke: #4a3a6a; stroke-width: 1.2; }
     .bp { fill: #d7d7d7; stroke: #5c686e; stroke-width: 1; stroke-dasharray: 3 2; }
+    .sink { fill: #cfe4ee; stroke: #2a5a74; stroke-width: 1.2; }
     .aisle { fill: none; stroke: #2a7a52; stroke-width: 1.2; stroke-dasharray: 4 3; }
     .turn { fill: none; stroke: #2a7a52; stroke-width: 1; }
     .door { fill: #d9e4c8; stroke: #4d6a28; stroke-width: 1.2; }
     .window { fill: #9ec5d6; stroke: #2a5a74; stroke-width: 1.2; }
   </style>
-  <text class="title" x="24" y="22">CH Exam Room — Gate 1 v2 clearance plan</text>
-  <text class="meta" x="24" y="38">4.27 m × 3.96 m clear · metres · north up · provisional, not clinical approval</text>
+  <text class="title" x="24" y="22">CH Exam Room — Gate 1 v2 + west-wall sink</text>
+  <text class="meta" x="24" y="38">4.27 m × 3.96 m clear · metres · north up · provisional review stills, not final art</text>
 
-  <!-- room floor: origin at (68, 68); scale 90 px/m -->
   <rect class="floor" x="68" y="68" width="384.3" height="356.4"/>
-
-  <!-- north window -->
   <rect class="window" x="178.4" y="56" width="162" height="12"/>
   <text class="label" x="230" y="52">window 1.80</text>
-
-  <!-- south door -->
   <rect class="door" x="129.6" y="424.4" width="81.9" height="12"/>
   <text class="label" x="138" y="452">door 0.91 outswing</text>
 
-  <!-- walls as thick frame -->
   <rect class="wall" x="57.2" y="57.2" width="10.8" height="378"/>
   <rect class="wall" x="452.3" y="57.2" width="10.8" height="378"/>
   <rect class="wall" x="57.2" y="57.2" width="121" height="10.8"/>
@@ -39,40 +34,36 @@
   <rect class="wall" x="57.2" y="424.4" width="72.4" height="10.8"/>
   <rect class="wall" x="211.5" y="424.4" width="251.6" height="10.8"/>
 
-  <!-- table -->
   <rect class="table" x="219.7" y="81.5" width="163.8" height="64.8"/>
-  <text class="label" x="258" y="118">exam table 1.82×0.72</text>
+  <text class="label" x="248" y="118">exam table 1.82×0.72</text>
 
-  <!-- workstation west -->
-  <rect class="casework" x="68" y="164.3" width="55.8" height="112.5"/>
-  <text class="label" x="72" y="222">workstation</text>
+  <!-- west casework: 0.62 x 2.20 at (-1.825, 0.25) -->
+  <rect class="casework" x="68" y="101.3" width="55.8" height="198"/>
+  <text class="label" x="70" y="168">casework</text>
+  <text class="label" x="72" y="180">+ computer</text>
+  <!-- sink on south half -->
+  <rect class="sink" x="74" y="248" width="38" height="38" rx="4"/>
+  <text class="label" x="78" y="270">sink</text>
 
-  <!-- ECG east -->
   <rect class="casework" x="411.8" y="75.2" width="40.5" height="72"/>
   <text class="label" x="368" y="92">ECG cart</text>
 
-  <!-- BP keep-clear -->
   <rect class="bp" x="423" y="244.4" width="18" height="18"/>
   <text class="label" x="368" y="256">BP wall</text>
 
-  <!-- parent chair SE -->
   <rect class="seat" x="331.6" y="359.3" width="70.2" height="73.8"/>
   <text class="label" x="340" y="398">parent chair</text>
 
-  <!-- stool -->
   <rect class="seat" x="287.6" y="176.3" width="52.2" height="52.2"/>
   <text class="label" x="292" y="206">stool</text>
 
-  <!-- provider aisle -->
   <rect class="aisle" x="219.7" y="146.3" width="163.8" height="81.9"/>
   <text class="dim" x="248" y="172">provider aisle 0.91</text>
 
-  <!-- turning circle at (0.20, -0.70) -->
   <circle class="turn" cx="278.1" cy="325.4" r="68.4"/>
   <text class="dim" x="248" y="322">turn 1.52</text>
 
-  <!-- overall dims -->
   <text class="dim" x="230" y="478">width 4.27</text>
   <text class="dim" x="470" y="250" transform="rotate(-90 478 250)">depth 3.96</text>
-  <text class="meta" x="24" y="502">Green dashed = required provider aisle. Green circle = 60 in turning space. Not production art.</text>
+  <text class="meta" x="24" y="502">Enter at SW door, wash at west sink, then to table. Not production art.</text>
 </svg>
