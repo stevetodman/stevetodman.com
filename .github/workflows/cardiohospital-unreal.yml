@@ -1,0 +1,81 @@
+name: Cardio Hospital Unreal
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'cardiohospital-unreal/**'
+      - '.github/workflows/cardiohospital-unreal.yml'
+  pull_request:
+    paths:
+      - 'cardiohospital-unreal/**'
+      - '.github/workflows/cardiohospital-unreal.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  clinical-contract:
+    name: Clinical contract (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Parse Windows PowerShell wrappers
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $allErrors = @()
+          Get-ChildItem cardiohospital-unreal/Scripts -Filter *.ps1 -File | ForEach-Object {
+            $tokens = $null
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              $_.FullName,
+              [ref]$tokens,
+              [ref]$parseErrors
+            ) | Out-Null
+            $allErrors += $parseErrors
+          }
+          if ($allErrors.Count -gt 0) {
+            $allErrors | Format-List
+            throw "PowerShell parser found $($allErrors.Count) error(s)."
+          }
+
+      - name: Exercise portable PowerShell wrapper
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./cardiohospital-unreal/Scripts/Run-Validation.ps1
+
+      - name: Export clinical content
+        run: node --experimental-strip-types cardiohospital-unreal/Tools/export-clinical-data.mjs
+
+      - name: Validate clinical contract
+        run: node cardiohospital-unreal/Tools/validate-clinical-data.mjs
+
+      - name: Validate case authoring coverage
+        run: node cardiohospital-unreal/Tools/case-authoring-report.mjs
+
+      - name: Test deterministic engine, export, and safeguards
+        run: node --test cardiohospital-unreal/Tests/*.test.mjs
+
+      - name: Require committed generated content to be current
+        run: git diff --exit-code -- cardiohospital-unreal/Content/Data/clinical-content.json

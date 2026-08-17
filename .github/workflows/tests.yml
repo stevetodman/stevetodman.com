@@ -13,6 +13,12 @@ on:
       - 'admin/**'
       - 'genetics-chd/**'
       - 'pedcardsurg/**'
+      - 'hypertension/**'
+      - 'cardiovascular-risk/**'
+      - 'aortopathy/**'
+      - 'myocarditis/**'
+      - 'pals/**'
+      - 'cardiohospital/**'
       - 'newbornscreen/**'
       - 'index.html'
       - 'package.json'
@@ -28,6 +34,12 @@ on:
       - 'admin/**'
       - 'genetics-chd/**'
       - 'pedcardsurg/**'
+      - 'hypertension/**'
+      - 'cardiovascular-risk/**'
+      - 'aortopathy/**'
+      - 'myocarditis/**'
+      - 'pals/**'
+      - 'cardiohospital/**'
       - 'newbornscreen/**'
       - 'index.html'
       - 'package.json'
@@ -66,7 +78,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in phs/v17/*.js genetics-chd/assets/*.js pedcardsurg/assets/*.js tests/*.mjs tests/helpers/*.mjs; do
+          for file in phs/v17/*.js genetics-chd/assets/*.js pedcardsurg/assets/*.js cardiohospital/*.js tests/*.mjs tests/helpers/*.mjs; do
             node --check "$file"
           done
 
@@ -85,11 +97,29 @@ jobs:
       - name: BP calculator correctness
         run: npm run test:bp
 
+      - name: Hypertension academy
+        run: npm run test:hypertension
+
+      - name: Cardiovascular prevention academy
+        run: npm run test:cardiovascular-risk
+
+      - name: Aortopathy academy
+        run: npm run test:aortopathy
+
+      - name: Myocarditis academy
+        run: npm run test:myocarditis
+
+      - name: PALS academy
+        run: npm run test:pals
+
       - name: Genetics of CHD academy
         run: npm run test:genetics-chd
 
       - name: PedCardSurg academy
         run: npm run test:pedcardsurg
+
+      - name: Cardio Hospital browser vertical slice
+        run: npm run test:cardiohospital
 
       - name: Site conventions and smoke
         run: npm run test:smoke
