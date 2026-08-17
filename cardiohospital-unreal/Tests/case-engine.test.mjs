@@ -114,6 +114,29 @@ test("generic history does not disclose a specific red-flag answer", async () =>
   assert.ok(engine.getRevealedHistory().some((fact) => fact.key === "family_sudden_death" && fact.answer === suddenDeath.answer));
 });
 
+test("history menu items are questions the HUD can print without leaking answers", async () => {
+  const document = await loadDocument();
+  const engine = createCaseEngine(document, "case-hcm");
+  const clinicalCase = document.cases.find((item) => item.id === "case-hcm");
+  performAll(engine, [
+    "system.load",
+    "world.enter",
+    "navigate.workroom",
+    "attending.open-assignment",
+    "assignment.accept",
+    "navigate.exam-room",
+    "encounter.introduce",
+  ]);
+  const historyMenu = engine.getActionMenu().filter((item) => item.type === "history");
+  assert.ok(historyMenu.length >= 3);
+  for (const item of historyMenu) {
+    const fact = clinicalCase.history.find((entry) => `history.${entry.key.replaceAll("_", "-")}` === item.id);
+    if (!fact) continue;
+    assert.equal(item.label, fact.question);
+    assert.ok(!item.label.includes(fact.answer));
+  }
+});
+
 test("action menu uses authored questions and never the answers", async () => {
   const document = await loadDocument();
   const engine = createCaseEngine(document, "case-hcm");
