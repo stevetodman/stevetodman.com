@@ -131,7 +131,7 @@ flags, missing correct management, or broken counterfactual references.
 Warnings identify non-blocking authoring debt. In particular, a
 `structured-result-missing` warning must be resolved with medically reviewed
 content—not an invented placeholder—before that result is shown in gameplay.
-The current expected report is zero errors and 32 warnings: 31 missing
+The current expected report is zero errors and 41 warnings: 40 missing
 structured results and one HCM `Genetics referral` test/management
 classification that requires clinical review. Do not invent results or
 silently reclassify that item merely to remove a warning.

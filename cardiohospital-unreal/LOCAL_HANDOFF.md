@@ -69,9 +69,9 @@ capture evidence and attach a truthful pass or failure to the package manifest.
   deterministic clinic cases. Keep these tests green while connecting world
   interactions.
 - Run `Tools/case-authoring-report.mjs` before exposing a new order in the UI.
-  The current expected result is zero errors and 32 warnings: 31 missing
-  structured results and one HCM genetics classification awaiting clinical
-  review. Do not invent results or reclassify clinical content merely to silence
-  those warnings.
+  The current expected result is zero errors and 41 warnings: 40 missing
+  structured results and one HCM genetics-referral classification awaiting
+  clinical review. Do not invent results or reclassify clinical content merely
+  to silence those warnings.
 - The first local compile must confirm Unreal Header Tool accepts the new
   reflected structs and subsystem signatures; that gate is not yet confirmed.

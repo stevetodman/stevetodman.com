@@ -133,7 +133,7 @@ status, evidence, and gap together.
 | 78 | `LegacyCore/plan.md:L1904` | ELEVATOR SYSTEM | `MISSING` | `NONE` | No elevator exists. |
 | 79 | `LegacyCore/plan.md:L1923` | WORLD MAP | `MISSING` | `NONE` | No world map exists. |
 | 80 | `LegacyCore/plan.md:L1933` | QUEST SYSTEM | `TESTED-PORTABLE` | `CG`, `EE`, `UR` | Deterministic case transitions are tested portably and exposed by uncompiled Unreal source. |
-| 81 | `LegacyCore/plan.md:L1964` | CASE GRAPH ARCHITECTURE | `TESTED-PORTABLE` | `CG`, `UD`, `UR` | Seven graphs compile, validate, and run deterministically; Unreal ingestion still needs compilation. |
+| 81 | `LegacyCore/plan.md:L1964` | CASE GRAPH ARCHITECTURE | `TESTED-PORTABLE` | `CG`, `UD`, `UR` | Nine graphs compile, validate, and run deterministically; Unreal ingestion still needs compilation. |
 | 82 | `LegacyCore/plan.md:L1986` | CASE AUTHORING SYSTEM | `PARTIAL` | `CG` | Concise code authoring and diagnostics exist; no nonprogrammer editor exists. |
 | 83 | `LegacyCore/plan.md:L2010` | CASE TRUTH SEPARATION | `TESTED-PORTABLE` | `CG`, `UD` | Truth, graph actions, and evaluation remain separate and contract-tested. |
 | 84 | `LegacyCore/plan.md:L2028` | AI ARCHITECTURE | `PARTIAL` | `CG`, `UD`, `UR` | Deterministic factual layers exist; no generative conversation layer exists. |
@@ -189,21 +189,21 @@ status, evidence, and gap together.
 | 134 | `LegacyCore/plan.md:L3015` | SECOND CASE | `PARTIAL` | `CG`, `EE` | Vasovagal contrast behavior is tested; it has no player-facing presentation. |
 | 135 | `LegacyCore/plan.md:L3031` | THIRD CASE | `TESTED-PORTABLE` | `CG`, `EE` | The Long-QT case graph completes optimally and exercises its critical safety intervention in portable tests; no native presentation exists. |
 | 136 | `LegacyCore/plan.md:L3046` | PHASE 1 — CORE WORLD ENGINE | `PARTIAL` | `BH`, `BW`, `CG`, `EE`, `U0` | Browser movement, door, collision, and blockout plus portable case systems exist; the native world, NPC, animation, dialogue, chart, and save systems are incomplete. |
-| 137 | `LegacyCore/plan.md:L3065` | PHASE 2 — CLINIC SIMULATOR | `PARTIAL` | `CG`, `EE`, `BH` | Seven deterministic case graphs and one browser-facing case exist; the required 8–12 playable cases and full clinic are absent. |
+| 137 | `LegacyCore/plan.md:L3065` | PHASE 2 — CLINIC SIMULATOR | `PARTIAL` | `CG`, `EE`, `BH` | Nine deterministic case graphs and one browser-facing case exist; native playable presentation of the 8–12-case clinic is still absent. |
 | 138 | `LegacyCore/plan.md:L3082` | PHASE 3 — INPATIENT HOSPITAL | `DATA-ONLY` | `SD` | PICU, NICU, and ED seeds exist as content only. |
 | 139 | `LegacyCore/plan.md:L3097` | PHASE 4 — PROCEDURAL WORLD | `DATA-ONLY` | `SD` | Cath, OR, MRI, and CT seeds exist as content only. |
 | 140 | `LegacyCore/plan.md:L3111` | PHASE 5 — DEEP PHYSIOLOGY | `MISSING` | `NONE` | No embedded deep-physiology simulation exists. |
 | 141 | `LegacyCore/plan.md:L3123` | PHASE 6 — ADAPTIVE AI CURRICULUM | `PARTIAL` | `EE`, `AR` | Learner mastery and adaptive selection are tested and longitudinal data is archived; no native campaign or automated conversational teaching exists. |
 | 142 | `LegacyCore/plan.md:L3134` | PHASE 7 — MULTIPLAYER / VR | `FUTURE` | `OPS` | Explicitly deferred until the single-player curriculum is mature. |
 | 143 | `LegacyCore/plan.md:L3140` | WHAT SHOULD NOT BE BUILT FIRST | `SUPERSEDED` | `OPS`, `U0` | Scope restraint is retained; ADR-0001 permits only one bounded Dr. Patel MetaHuman quality spike after baseline gates, not a photorealistic cast-first effort. |
-| 144 | `LegacyCore/plan.md:L3157` | FIRST RELEASE TARGET | `PARTIAL` | `CG`, `EE`, `U0` | Five first-release graphs are tested, with two additional graphs now ready; environment, characters, dialogue, and native package are absent. |
+| 144 | `LegacyCore/plan.md:L3157` | FIRST RELEASE TARGET | `PARTIAL` | `CG`, `EE`, `U0` | Nine deterministic graphs are tested, covering the five first-release cases plus Long-QT, coarctation, MSK chest pain, and adolescent HTN; environment, characters, dialogue, and native package are absent. |
 | 145 | `LegacyCore/plan.md:L3192` | IDEAL FIRST FIVE CASES | `TESTED-PORTABLE` | `CG`, `EE`, `CI` | Innocent murmur, HCM, vasovagal syncope, WPW, and myocarditis have ready deterministic graphs and complete/unsafe path coverage. |
 | 146 | `LegacyCore/plan.md:L3215` | MINIMUM ASSET LIST | `PARTIAL` | `BW`, `U0` | A few primitive browser blockout assets exist; required native environments, characters, props, animation, and audio are overwhelmingly absent. |
 | 147 | `LegacyCore/plan.md:L3281` | ESTIMATED MODEL COMPLEXITY | `PREVIEW-ONLY` | `BW` | Browser primitives are conservative; no documented measurements or native asset budgets exist. |
 | 148 | `LegacyCore/plan.md:L3301` | CONTENT CREATION PIPELINE | `PARTIAL` | `CG`, `UD` | Case objectives, truth, graph rules, safety, scoring, prompts, and debrief data are validated; dialogue database, world build, and formal medical signoff are incomplete. |
 | 149 | `LegacyCore/plan.md:L3334` | DEVELOPER TOOLING | `PREVIEW-ONLY` | `BH`, `OPS` | Browser QA teleports and package metrics workflow exist; required spawn/state/event/dialogue/navmesh/collider debug interfaces do not. |
 | 150 | `LegacyCore/plan.md:L3356` | AUTOMATED TESTING | `PARTIAL` | `CI`, `CG`, `EE`, `BH`, `OPS` | Portable unit/integration, workstation wrappers, and both local browser HCM Playwright paths pass; GitHub browser CI, Unreal compile, native world/dialogue/physiology, and packaged tests remain unpassed. |
-| 151 | `LegacyCore/plan.md:L3382` | MEDICAL CONSISTENCY TESTS | `PARTIAL` | `CG`, `CI` | Seven graphs are ready with zero blocking errors; 32 disclosed warnings remain and structured-result completeness is not yet enforced for gameplay exposure. |
+| 151 | `LegacyCore/plan.md:L3382` | MEDICAL CONSISTENCY TESTS | `PARTIAL` | `CG`, `CI` | Nine graphs are ready with zero blocking errors; 41 disclosed warnings remain and structured-result completeness is not yet enforced for gameplay exposure. |
 | 152 | `LegacyCore/plan.md:L3401` | PERFORMANCE TESTING | `WORKSTATION-GATED` | `OPS`, `U0` | Metrics and evidence format are defined; no packaged 2560x1440 run or baseline exists. |
 | 153 | `LegacyCore/plan.md:L3420` | DEPLOYMENT | `PARTIAL` | `BH`, `OPS` | Browser preview is deployed and verifiable package scripts exist; no native package or release artifact has passed. |
 | 154 | `LegacyCore/plan.md:L3442` | LOADING STRATEGY | `MISSING` | `U0` | No native world/case loading or streaming strategy is implemented. |
@@ -218,7 +218,7 @@ status, evidence, and gap together.
 | 163 | `LegacyCore/plan.md:L3616` | THE REAL PRODUCT | `PARTIAL` | `CG`, `EE`, `UD`, `UR` | Reusable case, education, learner, and data systems exist; world, character, and dialogue systems remain incomplete. |
 | 164 | `LegacyCore/plan.md:L3630` | FUTURE SPECIALTIES | `FUTURE` | `SD` | Future specialties are deferred; content seeds are not implementation. |
 | 165 | `LegacyCore/plan.md:L3651` | HIGHEST-VALUE TECHNICAL ARCHITECTURE | `PARTIAL` | `BW`, `CG`, `EE`, `UD`, `UR` | World preview and clinical/case/education cores exist; character and conversation engines do not. |
-| 166 | `LegacyCore/plan.md:L3680` | VERTICAL SLICE ACCEPTANCE TEST | `PARTIAL` | `BH`, `CG`, `EE`, `OPS`, `U0` | Seven graphs model all 19 checkpoints and two local browser Playwright paths pass with persistence, but they use QA teleports and lack free speech, physical attending return, free reasoning, and a different in-world next case; no packaged Unreal step has passed. |
+| 166 | `LegacyCore/plan.md:L3680` | VERTICAL SLICE ACCEPTANCE TEST | `PARTIAL` | `BH`, `CG`, `EE`, `OPS`, `U0` | Nine graphs model all 19 checkpoints and two local browser Playwright paths pass with persistence, but they use QA teleports and lack free speech, physical attending return, free reasoning, and a different in-world next case; no packaged Unreal step has passed. |
 | 167 | `LegacyCore/plan.md:L3710` | RECOMMENDED FIRST BUILD | `PARTIAL` | `BW`, `U0`, `OPS` | Browser workroom, corridor, and one exam room exist; three rooms, ECG, echo, native world, and polished package are absent. |
 | 168 | `LegacyCore/plan.md:L3736` | FINAL PRODUCT VISION | `FUTURE` | `SD`, `U0` | This remains the long-term vision; specialty data seeds do not constitute implementation. |
 <!-- TRACEABILITY_TABLE_END -->
@@ -240,7 +240,7 @@ status, evidence, and gap together.
 5. Musculoskeletal chest-pain and adolescent-hypertension/ABPM graphs are now
    authored and portable-tested. Formal medical review and native presentation
    remain open; do not invent structured results to clear remaining warnings.
-6. Resolve the 32 authoring warnings only with sourced, medically reviewed
+6. Resolve the 41 authoring warnings only with sourced, medically reviewed
    results and classification decisions. Do not invent content to obtain zero
    warnings.
 7. Obtain and record formal clinical review and permission for any named
