@@ -77,6 +77,8 @@ test("complete clinical process earns full deterministic scores", async () => {
   const result = debrief(document, engine);
   assert.equal(result.overallScore, 100);
   assert.ok(result.dimensions.every((dimension) => dimension.score === 100));
+  assert.match(result.summaryFeedback, /You identified Hypertrophic Cardiomyopathy/);
+  assert.match(result.summaryFeedback, /Exercise restriction should occur BEFORE diagnostic completion/);
   assert.deepEqual(result.missedOpportunities, []);
   assert.deepEqual(result.safetyEvents, []);
 });
@@ -137,6 +139,8 @@ test("omissions and unsafe clearance produce case-specific debrief", async () =>
   assert.deepEqual(result.unnecessaryTests, ["CT angiography"]);
   assert.equal(result.safetyEvents[0].severity, "critical");
   assert.match(result.safetyEvents[0].intervention, /attending stops discharge/i);
+  assert.match(result.summaryFeedback, /Submitted Vasovagal syncope/);
+  assert.match(result.summaryFeedback, /Unnecessary testing included CT angiography/);
   assert.equal(result.counterfactuals[0].alternateCaseId, "case-vasovagal");
 });
 

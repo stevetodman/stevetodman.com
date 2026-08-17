@@ -114,6 +114,29 @@ test("generic history does not disclose a specific red-flag answer", async () =>
   assert.ok(engine.getRevealedHistory().some((fact) => fact.key === "family_sudden_death" && fact.answer === suddenDeath.answer));
 });
 
+test("exam and test findings stay closed until the matching action", async () => {
+  const document = await loadDocument();
+  const engine = createCaseEngine(document, "case-hcm");
+  const clinicalCase = document.cases.find((item) => item.id === "case-hcm");
+  performAll(engine, [...OPENING, "history.finish"]);
+  assert.deepEqual(engine.getRevealedExam(), {});
+  assert.deepEqual(engine.getRevealedResults(), []);
+
+  engine.perform("exam.general");
+  assert.equal(engine.getRevealedExam().general, clinicalCase.exam.general);
+  assert.equal(engine.getRevealedExam().auscultation, undefined);
+
+  performAll(engine, ["exam.finish"]);
+  engine.perform("order.echo");
+  assert.deepEqual(engine.getRevealedResults(), []);
+  assert.ok(!JSON.stringify(engine.snapshot().actionLog.at(-1).payload).includes(clinicalCase.echo.summary));
+
+  engine.perform("review.echo");
+  const echo = engine.getRevealedResults().find((item) => item.test === "Echocardiogram");
+  assert.equal(echo.findings.summary, clinicalCase.echo.summary);
+  assert.ok(!engine.getRevealedResults().some((item) => item.test === "ECG"));
+});
+
 test("HCM stimulant history stays closed until the parent steps out", async () => {
   const engine = createCaseEngine(await loadDocument(), "case-hcm");
   performAll(engine, [...OPENING, "history.generic"]);

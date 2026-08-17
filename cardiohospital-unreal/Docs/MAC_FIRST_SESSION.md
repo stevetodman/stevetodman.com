@@ -38,8 +38,12 @@ git merge origin/agent/launch-set-msk-htn
 Expect conflicts in:
 
 - `LegacyCore/src/lib/case-graphs.ts` / `cases-data.ts` / `clinical-content.json`
-- `Tools/education-engine.mjs`, `Tools/clinical-data-contract.mjs`
-- `Source/CardioHospital/.../CardioCaseRuntimeSubsystem.*`
+- `Tools/education-engine.mjs`, `Tools/clinical-data-contract.mjs`, `Tools/case-engine.mjs`
+- `Source/CardioHospital/Private/CardioCaseRuntimeSubsystem.cpp` and
+  `CardioEducationEvaluator.cpp` — keep Mac world files
+  (`CardioBlockoutHUD.cpp`, `CardioBlockoutGameMode.cpp`,
+  `CardioBlockoutNPC.cpp`) untouched; merge our GetRevealed* /
+  SummaryFeedback APIs into the Mac runtime
 - `SPEC_TRACEABILITY.md`, `LOCAL_HANDOFF.md`, `README.md`
 
 **Keep Mac world/presentation. Keep #24 clinical truth, 9-case contract,
@@ -64,8 +68,11 @@ and next-case Room 1 **already exist**. Do not rebuild them.
 
 1. Launch the **existing** packaged app or a fresh `./Scripts/run-first-build.sh`
    package. Confirm spawn aims at the team-room doorway, not a wall.
-2. Wire the HUD to `GetRevealedHistory()` (from #24). Stop reading
-   `GetActiveClinicalCase().History` for on-screen text.
+2. In `CardioBlockoutHUD.cpp`, wire the HUD to `GetRevealedHistory()`,
+   `GetRevealedExam()`, `HasReviewedTest` / `GetRevealedEcg` /
+   `GetRevealedEcho`, and debrief `SummaryFeedback`. Stop reading
+   `GetActiveClinicalCase()` truth arrays for on-screen text. Ordering
+   an echo must not show the echo summary.
 3. Confirm `history.confidential-interview` before Marcus stimulant use
    and before Priya substance use. The graph now requires it.
 4. Confirm diagnosis list is the authored `differentials` array. Debrief

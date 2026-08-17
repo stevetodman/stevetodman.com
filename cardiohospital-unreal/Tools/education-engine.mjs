@@ -128,10 +128,48 @@ export function evaluateAttempt({ snapshot, graph, clinicalCase }) {
     diagnosisCorrect,
     overallScore,
     dimensions,
+    summaryFeedback: buildSummaryFeedback({
+      diagnosis,
+      diagnosisCorrect,
+      clinicalCase,
+      missedOpportunities,
+      safetyEvents,
+      unnecessaryTests,
+    }),
     missedOpportunities,
     unnecessaryTests,
     safetyEvents,
     counterfactuals,
     actionLog: structuredClone(snapshot.actionLog),
   };
+}
+
+function buildSummaryFeedback({
+  diagnosis,
+  diagnosisCorrect,
+  clinicalCase,
+  missedOpportunities,
+  safetyEvents,
+  unnecessaryTests,
+}) {
+  const parts = [];
+  if (diagnosisCorrect) {
+    parts.push(`You identified ${clinicalCase.correctDiagnosis}.`);
+  } else if (diagnosis) {
+    parts.push(`Submitted ${diagnosis}; authored diagnosis is ${clinicalCase.correctDiagnosis}.`);
+  }
+  for (const missed of missedOpportunities) parts.push(missed.message);
+  for (const event of safetyEvents) parts.push(event.message);
+  if (unnecessaryTests.length > 0) {
+    parts.push(`Unnecessary testing included ${unnecessaryTests.join(", ")}.`);
+  }
+  if (
+    diagnosisCorrect
+    && missedOpportunities.length === 0
+    && safetyEvents.length === 0
+    && unnecessaryTests.length === 0
+  ) {
+    parts.push(clinicalCase.teachingPoint);
+  }
+  return parts.join(" ");
 }

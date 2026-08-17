@@ -251,6 +251,57 @@ TArray<FCardioHistoryFact> UCardioCaseRuntimeSubsystem::GetRevealedHistory() con
     return Revealed;
 }
 
+bool UCardioCaseRuntimeSubsystem::HasReviewedTest(const FString& TestName) const
+{
+    if (!bHasActiveCase)
+    {
+        return false;
+    }
+    return State.ActionLog.ContainsByPredicate(
+        [&TestName](const FCardioCaseActionEvent& Event)
+        {
+            return Event.EventType.Equals(TEXT("test_interpreted"), ESearchCase::CaseSensitive)
+                && Event.Target.Equals(TestName, ESearchCase::CaseSensitive);
+        });
+}
+
+FCardioExamFindings UCardioCaseRuntimeSubsystem::GetRevealedExam() const
+{
+    FCardioExamFindings Revealed;
+    if (!bHasActiveCase)
+    {
+        return Revealed;
+    }
+
+    TSet<FString> Performed;
+    for (const FCardioCaseActionEvent& Event : State.ActionLog)
+    {
+        if (Event.EventType.Equals(TEXT("exam_performed"), ESearchCase::CaseSensitive))
+        {
+            Performed.Add(Event.Target);
+        }
+    }
+
+    if (Performed.Contains(TEXT("general"))) Revealed.General = ActiveCase.Exam.General;
+    if (Performed.Contains(TEXT("vitals"))) Revealed.Vitals = ActiveCase.Exam.Vitals;
+    if (Performed.Contains(TEXT("auscultation"))) Revealed.Auscultation = ActiveCase.Exam.Auscultation;
+    if (Performed.Contains(TEXT("femoralPulses"))) Revealed.FemoralPulses = ActiveCase.Exam.FemoralPulses;
+    if (!Performed.IsEmpty()) Revealed.Extras = ActiveCase.Exam.Extras;
+    return Revealed;
+}
+
+FCardioEcgFindings UCardioCaseRuntimeSubsystem::GetRevealedEcg(bool& bRevealed) const
+{
+    bRevealed = HasReviewedTest(TEXT("ECG"));
+    return bRevealed ? ActiveCase.Ecg : FCardioEcgFindings{};
+}
+
+FCardioEchoFindings UCardioCaseRuntimeSubsystem::GetRevealedEcho(bool& bRevealed) const
+{
+    bRevealed = HasReviewedTest(TEXT("Echocardiogram"));
+    return bRevealed ? ActiveCase.Echo : FCardioEchoFindings{};
+}
+
 bool UCardioCaseRuntimeSubsystem::HasPassedAcceptance() const
 {
     return IsCaseComplete() && GetMissingAcceptanceActions().IsEmpty();

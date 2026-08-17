@@ -24,10 +24,10 @@ status, evidence, and gap together.
 
 | Status | Count | Meaning |
 | --- | ---: | --- |
-| `TESTED-PORTABLE` | 19 | Renderer-independent behavior is implemented and exercised by portable tests. This never implies Unreal compilation or presentation. |
+| `TESTED-PORTABLE` | 20 | Renderer-independent behavior is implemented and exercised by portable tests. This never implies Unreal compilation or presentation. |
 | `PREVIEW-ONLY` | 22 | Demonstrated only in an inherited browser prototype; it is not an Unreal implementation. |
 | `DATA-ONLY` | 22 | Authored data or archived code exists, but no active playable implementation exists. |
-| `PARTIAL` | 57 | Some required behavior exists, but material clauses or the native Unreal presentation are incomplete. |
+| `PARTIAL` | 56 | Some required behavior exists, but material clauses or the native Unreal presentation are incomplete. |
 | `MISSING` | 32 | No meaningful implementation evidence was found at the checkpoint. |
 | `FUTURE` | 8 | The authoritative plan explicitly defers the item or the approved vertical-slice scope defers it. |
 | `SUPERSEDED` | 6 | A platform-specific clause is intentionally adapted by ADR-0001; its underlying product intent remains in force. |
@@ -107,7 +107,7 @@ status, evidence, and gap together.
 | 52 | `LegacyCore/plan.md:L1379` | VIRTUAL CONFERENCE ROOM | `MISSING` | `NONE` | No virtual conference room exists. |
 | 53 | `LegacyCore/plan.md:L1395` | CASE DEBRIEF ROOM | `PARTIAL` | `BH`, `EE`, `UR` | Browser debrief and deterministic evaluation exist; no native debrief room or compiled UI exists. |
 | 54 | `LegacyCore/plan.md:L1411` | ASSESSMENT PHILOSOPHY | `TESTED-PORTABLE` | `EE`, `UR` | All eleven specified dimensions, including differential diagnosis, are scored portably from authored differentials and discriminators; Unreal evaluator source matches but remains uncompiled. |
-| 55 | `LegacyCore/plan.md:L1436` | EXAMPLE SCORING | `PARTIAL` | `BH`, `EE`, `UR` | Scores and case-specific feedback exist in browser/portable code; native presentation is absent. |
+| 55 | `LegacyCore/plan.md:L1436` | EXAMPLE SCORING | `TESTED-PORTABLE` | `BH`, `EE`, `UR` | Debrief now emits a deterministic summary assembled from authored diagnosis, missed-opportunity, safety, and teaching-point text; native debrief UI is still absent. |
 | 56 | `LegacyCore/plan.md:L1457` | INVISIBLE SCORING | `PREVIEW-ONLY` | `BH` | Browser hides scores until debrief; no native learner loop demonstrates this. |
 | 57 | `LegacyCore/plan.md:L1476` | CLINICAL ACTION LOG | `TESTED-PORTABLE` | `CG`, `EE`, `UR` | Deterministic action-log preservation is tested portably and mirrored in uncompiled Unreal source. |
 | 58 | `LegacyCore/plan.md:L1498` | MISSED OPPORTUNITY ENGINE | `TESTED-PORTABLE` | `EE`, `UR` | Portable tests exercise omissions and missed opportunities; Unreal code remains workstation-gated. |

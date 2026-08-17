@@ -120,11 +120,43 @@ export class CaseEngine {
       }));
   }
 
+  getRevealedExam() {
+    const performed = new Set(
+      this.actionLog
+        .filter((event) => event.eventType === "exam_performed")
+        .map((event) => event.target),
+    );
+    return performedFindings(this.clinicalCase.exam, performed);
+  }
+
+  getRevealedResults() {
+    const reviewed = new Set(
+      this.actionLog
+        .filter((event) => event.eventType === "test_interpreted")
+        .map((event) => event.target),
+    );
+    const results = [];
+    if (reviewed.has("ECG")) results.push({ test: "ECG", findings: clone(this.clinicalCase.ecg) });
+    if (reviewed.has("Echocardiogram")) results.push({ test: "Echocardiogram", findings: clone(this.clinicalCase.echo) });
+    return results;
+  }
+
   #disclosurePayload(definition) {
-    if (definition.eventType !== "history_question") return {};
-    const fact = this.clinicalCase.history.find((entry) => entry.key === definition.target);
-    if (!fact) throw new Error(`No authored history fact for ${definition.target}`);
-    return { key: fact.key, question: fact.question, answer: fact.answer };
+    if (definition.eventType === "history_question") {
+      const fact = this.clinicalCase.history.find((entry) => entry.key === definition.target);
+      if (!fact) throw new Error(`No authored history fact for ${definition.target}`);
+      return { key: fact.key, question: fact.question, answer: fact.answer };
+    }
+    if (definition.eventType === "exam_performed") {
+      const finding = examFindingForTarget(this.clinicalCase.exam, definition.target);
+      if (finding === undefined) throw new Error(`No authored exam finding for ${definition.target}`);
+      return { target: definition.target, finding };
+    }
+    if (definition.eventType === "test_interpreted") {
+      if (definition.target === "ECG") return { test: "ECG", findings: clone(this.clinicalCase.ecg) };
+      if (definition.target === "Echocardiogram") return { test: "Echocardiogram", findings: clone(this.clinicalCase.echo) };
+    }
+    return {};
   }
 
   #findAction(actionId) {
@@ -132,6 +164,24 @@ export class CaseEngine {
     if (!definition) throw new Error(`Unknown action ${actionId}`);
     return definition;
   }
+}
+
+function examFindingForTarget(exam, target) {
+  if (target === "general") return exam.general;
+  if (target === "vitals") return clone(exam.vitals);
+  if (target === "auscultation") return clone(exam.auscultation);
+  if (target === "femoralPulses") return exam.femoralPulses;
+  return undefined;
+}
+
+function performedFindings(exam, performed) {
+  const revealed = {};
+  if (performed.has("general")) revealed.general = exam.general;
+  if (performed.has("vitals")) revealed.vitals = clone(exam.vitals);
+  if (performed.has("auscultation")) revealed.auscultation = clone(exam.auscultation);
+  if (performed.has("femoralPulses")) revealed.femoralPulses = exam.femoralPulses;
+  if (performed.size > 0) revealed.extras = clone(exam.extras ?? []);
+  return revealed;
 }
 
 export function createCaseEngine(document, caseId) {

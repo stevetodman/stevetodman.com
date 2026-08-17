@@ -321,6 +321,41 @@ bool FCardioEducationEvaluator::EvaluateAttempt(
         Feedback.AlternateCaseId = Definition.AlternateCaseId;
     }
 
+    TArray<FString> SummaryParts;
+    if (OutDebrief.bDiagnosisCorrect)
+    {
+        SummaryParts.Add(FString::Printf(TEXT("You identified %s."), *ClinicalCase.CorrectDiagnosis));
+    }
+    else if (!OutDebrief.DiagnosisSubmitted.IsEmpty())
+    {
+        SummaryParts.Add(FString::Printf(
+            TEXT("Submitted %s; authored diagnosis is %s."),
+            *OutDebrief.DiagnosisSubmitted,
+            *ClinicalCase.CorrectDiagnosis));
+    }
+    for (const FCardioMissedOpportunity& Missed : OutDebrief.MissedOpportunities)
+    {
+        SummaryParts.Add(Missed.Message);
+    }
+    for (const FCardioSafetyEvent& Event : OutDebrief.SafetyEvents)
+    {
+        SummaryParts.Add(Event.Message);
+    }
+    if (!OutDebrief.UnnecessaryTests.IsEmpty())
+    {
+        SummaryParts.Add(FString::Printf(
+            TEXT("Unnecessary testing included %s."),
+            *FString::Join(OutDebrief.UnnecessaryTests, TEXT(", "))));
+    }
+    if (OutDebrief.bDiagnosisCorrect
+        && OutDebrief.MissedOpportunities.IsEmpty()
+        && OutDebrief.SafetyEvents.IsEmpty()
+        && OutDebrief.UnnecessaryTests.IsEmpty())
+    {
+        SummaryParts.Add(ClinicalCase.TeachingPoint);
+    }
+    OutDebrief.SummaryFeedback = FString::Join(SummaryParts, TEXT(" "));
+
     OutDebrief.ActionLog = Snapshot.ActionLog;
     return true;
 }
