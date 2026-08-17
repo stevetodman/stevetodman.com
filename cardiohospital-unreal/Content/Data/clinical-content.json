@@ -3,9 +3,9 @@
   "generatedAt": "source-hash-derived",
   "sourceHashes": {
     "cases-data.ts": "d4fffdf4e02a2ec7e8f19ef9408bf4c466f872efceebf8890b3e5720b0627f58",
-    "case-graphs.ts": "1c1f948708101089d9a7d64594bc5f68da00a024b7170f20d34f7a2bae8926aa",
+    "case-graphs.ts": "e065e7cbc890d1a5a4eaf027733d9af60d43fe7fda12a1d2f14b2ed19843080d",
     "case-graph-authoring.ts": "de4329c63e5e25fb6a760431f913dd0c02cac58274453d585b220bb127891e83",
-    "case-concepts.ts": "dfd07add6dfde6743858564fb15169dbac57667135121aed5ed79b5e30c59d46",
+    "case-concepts.ts": "2a7f967cc66804559885a36594ee5c540d30dd60c599add949c979bd4c0ed1b0",
     "case-metadata.ts": "aff9db41431260f7508bd6d885ebdf3995873cb1f9d027ab490f81f214f88d79",
     "capstone.ts": "f41ef28c8f3f65f880f6463eecc078a33a26c5bef2c5633ede9d3b556fc443f1",
     "cath-case.ts": "6cfae2d628c6c8fcae29925f8928b69fa08d9d9fd915bb2f53be12bcc8f817b9",
@@ -1385,6 +1385,16 @@
           ]
         },
         {
+          "id": "history.confidential-interview",
+          "type": "conversation",
+          "target": "parent-step-out",
+          "eventType": "confidential_interview_started",
+          "requiresAll": [],
+          "effects": [
+            "completed:history.confidential-interview"
+          ]
+        },
+        {
           "id": "history.generic",
           "type": "history",
           "target": "generic",
@@ -1459,7 +1469,9 @@
           "type": "history",
           "target": "stimulant_use",
           "eventType": "history_question",
-          "requiresAll": [],
+          "requiresAll": [
+            "completed:history.confidential-interview"
+          ],
           "effects": [
             "completed:history.stimulant-use"
           ]
@@ -1837,6 +1849,7 @@
           "id": "history",
           "phase": "history",
           "availableActions": [
+            "history.confidential-interview",
             "history.generic",
             "history.exertional-timing",
             "history.family-sudden-death",
@@ -1848,6 +1861,7 @@
             "history.finish"
           ],
           "acceptanceActions": [
+            "history.confidential-interview",
             "history.generic",
             "history.exertional-timing",
             "history.family-sudden-death",
@@ -8041,7 +8055,8 @@
       "id": "confidential-adolescent-interview",
       "label": "Confidential adolescent interview",
       "caseIds": [
-        "case-adolescent-htn"
+        "case-adolescent-htn",
+        "case-hcm"
       ],
       "dimensionIds": [
         "history",

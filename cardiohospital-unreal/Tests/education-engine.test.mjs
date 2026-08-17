@@ -48,6 +48,7 @@ test("complete clinical process earns full deterministic scores", async () => {
     "history.palpitations",
     "history.triggers",
     "history.activity-level",
+    "history.confidential-interview",
     "history.stimulant-use",
     "history.finish",
     "exam.general",

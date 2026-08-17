@@ -21,7 +21,7 @@ const HCM_AUTHORING: OutpatientCaseAuthoring = {
     { key: "palpitations" },
     { key: "triggers" },
     { key: "activity_level" },
-    { key: "stimulant_use" },
+    { key: "stimulant_use", confidential: true },
   ],
   examAcceptanceTargets: ["general", "vitals", "auscultation"],
   orders: [

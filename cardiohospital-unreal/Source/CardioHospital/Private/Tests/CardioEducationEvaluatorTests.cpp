@@ -120,6 +120,7 @@ bool FCardioEducationEvaluatorTest::RunTest(const FString& Parameters)
         TEXT("history.palpitations"),
         TEXT("history.triggers"),
         TEXT("history.activity-level"),
+        TEXT("history.confidential-interview"),
         TEXT("history.stimulant-use"),
         TEXT("history.finish"),
         TEXT("exam.general"),
