@@ -3,9 +3,9 @@
   "generatedAt": "source-hash-derived",
   "sourceHashes": {
     "cases-data.ts": "d4fffdf4e02a2ec7e8f19ef9408bf4c466f872efceebf8890b3e5720b0627f58",
-    "case-graphs.ts": "4f80957f22512cd107f44c4911ddc1a7eec18ccd93d5fbf5a20dff1638d39f47",
-    "case-graph-authoring.ts": "211e783949571d710b9b1810018d6069624103c2f5f9790b2a2ac442ebbd3aab",
-    "case-concepts.ts": "f5976a4620b95f4a9666356f77224475d41d1d11b44db4af56f12777074e1700",
+    "case-graphs.ts": "1c1f948708101089d9a7d64594bc5f68da00a024b7170f20d34f7a2bae8926aa",
+    "case-graph-authoring.ts": "de4329c63e5e25fb6a760431f913dd0c02cac58274453d585b220bb127891e83",
+    "case-concepts.ts": "dfd07add6dfde6743858564fb15169dbac57667135121aed5ed79b5e30c59d46",
     "case-metadata.ts": "aff9db41431260f7508bd6d885ebdf3995873cb1f9d027ab490f81f214f88d79",
     "capstone.ts": "f41ef28c8f3f65f880f6463eecc078a33a26c5bef2c5633ede9d3b556fc443f1",
     "cath-case.ts": "6cfae2d628c6c8fcae29925f8928b69fa08d9d9fd915bb2f53be12bcc8f817b9",
@@ -7225,6 +7225,16 @@
           ]
         },
         {
+          "id": "history.confidential-interview",
+          "type": "conversation",
+          "target": "parent-step-out",
+          "eventType": "confidential_interview_started",
+          "requiresAll": [],
+          "effects": [
+            "completed:history.confidential-interview"
+          ]
+        },
+        {
           "id": "history.generic",
           "type": "history",
           "target": "generic",
@@ -7279,7 +7289,9 @@
           "type": "history",
           "target": "substance_use",
           "eventType": "history_question",
-          "requiresAll": [],
+          "requiresAll": [
+            "completed:history.confidential-interview"
+          ],
           "effects": [
             "completed:history.substance-use"
           ]
@@ -7687,6 +7699,7 @@
           "id": "history",
           "phase": "history",
           "availableActions": [
+            "history.confidential-interview",
             "history.generic",
             "history.activity-level",
             "history.pmh",
@@ -7696,6 +7709,7 @@
             "history.finish"
           ],
           "acceptanceActions": [
+            "history.confidential-interview",
             "history.generic",
             "history.activity-level",
             "history.pmh",
@@ -8021,6 +8035,17 @@
         "testSelection",
         "clinicalReasoning",
         "safety"
+      ]
+    },
+    {
+      "id": "confidential-adolescent-interview",
+      "label": "Confidential adolescent interview",
+      "caseIds": [
+        "case-adolescent-htn"
+      ],
+      "dimensionIds": [
+        "history",
+        "communication"
       ]
     }
   ],

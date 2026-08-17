@@ -206,6 +206,7 @@ test("adolescent hypertension completes with ABPM and no same-day medication", a
     "history.pmh",
     "history.meds",
     "history.family-sudden-death",
+    "history.confidential-interview",
     "history.substance-use",
     "history.finish",
     ...EXAM,
@@ -224,6 +225,19 @@ test("adolescent hypertension completes with ABPM and no same-day medication", a
   assert.equal(engine.getAcceptanceReport().acceptancePassed, true);
   assert.equal(debrief.overallScore, 100);
   assert.deepEqual(debrief.safetyEvents, []);
+});
+
+test("confidential substance history is unavailable until the parent steps out", async () => {
+  const document = await loadDocument();
+  const engine = createCaseEngine(document, "case-adolescent-htn");
+  run(engine, [
+    ...OPENING,
+    "history.generic",
+  ]);
+  assert.ok(engine.getAvailableActions().includes("history.confidential-interview"));
+  assert.ok(!engine.getAvailableActions().includes("history.substance-use"));
+  engine.perform("history.confidential-interview");
+  assert.ok(engine.getAvailableActions().includes("history.substance-use"));
 });
 
 test("starting antihypertensives from one school reading is penalized", async () => {

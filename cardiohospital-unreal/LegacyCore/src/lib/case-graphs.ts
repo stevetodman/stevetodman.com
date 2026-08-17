@@ -397,7 +397,7 @@ const ADOLESCENT_HTN_AUTHORING: OutpatientCaseAuthoring = {
     { key: "pmh", acceptance: true },
     { key: "meds" },
     { key: "family_sudden_death", acceptance: true },
-    { key: "substance_use" },
+    { key: "substance_use", confidential: true },
   ],
   examAcceptanceTargets: ["general", "vitals", "femoralPulses"],
   orders: [

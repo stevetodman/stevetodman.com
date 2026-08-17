@@ -24,9 +24,9 @@ status, evidence, and gap together.
 
 | Status | Count | Meaning |
 | --- | ---: | --- |
-| `TESTED-PORTABLE` | 16 | Renderer-independent behavior is implemented and exercised by portable tests. This never implies Unreal compilation or presentation. |
+| `TESTED-PORTABLE` | 17 | Renderer-independent behavior is implemented and exercised by portable tests. This never implies Unreal compilation or presentation. |
 | `PREVIEW-ONLY` | 22 | Demonstrated only in an inherited browser prototype; it is not an Unreal implementation. |
-| `DATA-ONLY` | 24 | Authored data or archived code exists, but no active playable implementation exists. |
+| `DATA-ONLY` | 23 | Authored data or archived code exists, but no active playable implementation exists. |
 | `PARTIAL` | 58 | Some required behavior exists, but material clauses or the native Unreal presentation are incomplete. |
 | `MISSING` | 32 | No meaningful implementation evidence was found at the checkpoint. |
 | `FUTURE` | 8 | The authoritative plan explicitly defers the item or the approved vertical-slice scope defers it. |
@@ -68,7 +68,7 @@ status, evidence, and gap together.
 | 13 | `LegacyCore/plan.md:L393` | INFORMATION DISCLOSURE RULES | `DATA-ONLY` | `CG` | Facts and prompts exist, but no runtime disclosure gate enforces the complete rules. |
 | 14 | `LegacyCore/plan.md:L423` | PERSONALITY MODEL | `MISSING` | `NONE` | No personality model exists. |
 | 15 | `LegacyCore/plan.md:L443` | PEDIATRIC PATIENT BEHAVIOR | `DATA-ONLY` | `CG`, `SD` | Pediatric case data exists without a behavior model. |
-| 16 | `LegacyCore/plan.md:L468` | CONFIDENTIAL ADOLESCENT INTERVIEW | `DATA-ONLY` | `AR` | Legacy content references confidentiality; no active privacy interaction or gate exists. |
+| 16 | `LegacyCore/plan.md:L468` | CONFIDENTIAL ADOLESCENT INTERVIEW | `TESTED-PORTABLE` | `CG`, `EE` | Adolescent hypertension gates confidential substance-use questions behind a parent-step-out action; native presentation of the interview is still absent. |
 | 17 | `LegacyCore/plan.md:L488` | PHYSICAL EXAMINATION | `PARTIAL` | `BH`, `CG`, `UR` | Browser exam actions and deterministic action definitions exist; no native examination actors or presentation exist. |
 | 18 | `LegacyCore/plan.md:L524` | STETHOSCOPE SYSTEM | `PREVIEW-ONLY` | `BH` | Four browser auscultation sites and a Valsalva response exist; no native system exists. |
 | 19 | `LegacyCore/plan.md:L555` | MURMUR AUDIO ENGINE | `PARTIAL` | `BH`, `AR` | A synthesized HCM browser demonstration exists; no production spatial and phase-aware native engine exists. |

@@ -69,4 +69,10 @@ export const CASE_CONCEPTS: CaseConceptDefinition[] = [
     caseIds: ["case-adolescent-htn"],
     dimensionIds: ["testSelection", "clinicalReasoning", "safety"],
   },
+  {
+    id: "confidential-adolescent-interview",
+    label: "Confidential adolescent interview",
+    caseIds: ["case-adolescent-htn"],
+    dimensionIds: ["history", "communication"],
+  },
 ];
