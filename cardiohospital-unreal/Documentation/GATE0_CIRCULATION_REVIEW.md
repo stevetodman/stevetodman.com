@@ -11,7 +11,7 @@ Y: -1.980 (south / door) → +1.980 (north / window)
 
 ## Method
 
-Axis-aligned envelopes from `build_exam_room_greybox.py` were converted to floor AABBs. Fail means two review envelopes occupy the same floor, a required aisle is narrower than its target, or the 36 in door approach is blocked. Warn means a parked cart sits closer than 0.76 m to another object but is intended to be used at the table.
+Axis-aligned envelopes from `exam_room_greybox_layout.py` were converted to floor AABBs. Fail means two review envelopes occupy the same floor, a required aisle is narrower than its target, or the 36 in door approach is blocked. Warn means a parked cart sits closer than 0.76 m to another object but is intended to be used at the table.
 
 Targets:
 
@@ -20,7 +20,7 @@ Targets:
 | Envelope overlap | intersection area > 0 |
 | Provider working aisle | < 0.91 m on the south side of the table |
 | Staff pass | < 0.76 m between workstation and table |
-| Door clear | any seating or stool AABB intersects the 0.91 m door leaf in plan |
+| Door clear | any seating AABB intersects the 0.91 m door approach |
 | Turning space | no 1.52 m circle exists in the south-center clear floor |
 
 Run the same numbers on a workstation with Python 3:
@@ -44,10 +44,10 @@ Findings:
 
 1. **FAIL — ECG overlaps the exam table** by about 0.24 × 0.24 m.
 2. **FAIL — staff pass** between workstation and table is 0.35 m.
-3. **FAIL — stool sits in the door path.** Stool south edge is 0.71 m from the door wall; the 0.91 m door opening is at x = −1.505..−0.595 and the stool occupies the first step inside the room.
+3. **FAIL — stool sits in the door path.** Stool south edge is 0.71 m from the door wall.
 4. **FAIL — parent chair crowds the door.** Chair AABB x = −1.82..−1.04 shares the door x-range; the chair starts 0.95 m inside the threshold.
 5. **FAIL — provider aisle.** Table south edge is at y = −0.05. A 0.91 m aisle would run to y = −0.96 and is occupied by the stool.
-6. **WARN — dedicated BP island** is atypical. Outpatient pediatric cardiology almost always uses a wall aneroid or a cuff on the table. The 0.48 m island buys almost no clinical value and spends circulation.
+6. **WARN — dedicated BP island** is atypical. Outpatient pediatric cardiology almost always uses a wall aneroid or a cuff on the table.
 7. Door outswing into the waiting vignette is correct and should be kept.
 
 This is the “busy with all six envelopes” note from the original handoff, now measured.
@@ -65,12 +65,12 @@ Same room. Same door and window. Equipment is pulled to walls and oriented so th
 | Parent chair | 1.595, −1.42, 0.525 | 0.78 × 0.82 × 1.05 | SE corner, clear of the door |
 | Physician stool | 0.55, 0.67, 0.39 | 0.58 × 0.58 × 0.78 | Working position in the south aisle |
 
-Clearances that now pass:
+Clearances:
 
 | Check | Value |
 | --- | --- |
-| Table vs workstation | 1.06 m |
-| Provider aisle south of table | 0.91 m (y = 0.20..1.11), stool occupies it only while in use |
+| Table vs workstation | 0.96 m |
+| Provider aisle south of table | 0.91 m (y = 0.20..1.11); stool occupies it only while in use |
 | Door vs chair / stool | no intersection |
 | Turning circle | 1.52 m at (0.20, −0.70) |
 | ECG parked vs table | 0.43 m (warn: cart is meant to pull to the table) |
