@@ -20,16 +20,14 @@ recorded in
 
 ## Local prerequisites
 
-- Windows 11
-- Unreal Engine 5.8
-- Visual Studio 2022 17.14 or newer, or Visual Studio 2026, with **Game
-  development with C++**
-- MSVC 14.38 or newer and Windows SDK 10.0.22621.0 or newer
-- Git for Windows
-- Node.js 24, or the Node.js runtime bundled with the Codex Windows app
-- At least 48 GB installed RAM and 100 GB free on the project drive
-- Desktop NVIDIA RTX 4080/4090 or RTX 5080/5090
-- Current stable NVIDIA Studio Driver
+**Release machine is the M4 Max.** Start at
+[`Docs/MAC_FIRST_SESSION.md`](Docs/MAC_FIRST_SESSION.md) and ADR-0002.
+
+- macOS on Apple silicon, Unreal Engine 5.8, Xcode (not CLT-only), Git, Node 24
+- At least 48 GB unified memory and 100 GB free
+- `xcrun metal --version` must print a real compiler
+
+Windows PowerShell prerequisites below are optional history, not the release gate.
 
 All repository scripts are designed to run as a standard user. They never
 install software, alter policy, or request elevation. On a managed PC, send

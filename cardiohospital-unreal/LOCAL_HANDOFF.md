@@ -1,4 +1,11 @@
-# Standard-user Windows handoff
+# Handoff
+
+The release target is macOS on Apple silicon (ADR-0002). **On the M4 Max,
+open [`Docs/MAC_FIRST_SESSION.md`](Docs/MAC_FIRST_SESSION.md) first.**
+
+The Windows notes below are retained for the optional PowerShell path.
+
+# Standard-user Windows handoff (optional, not the release gate)
 
 The repository workflow runs without elevation after IT has provisioned the
 machine. Its scripts perform read-only inventory and write only normal project

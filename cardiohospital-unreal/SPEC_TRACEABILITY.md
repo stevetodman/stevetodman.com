@@ -68,7 +68,7 @@ status, evidence, and gap together.
 | 13 | `LegacyCore/plan.md:L393` | INFORMATION DISCLOSURE RULES | `TESTED-PORTABLE` | `CG`, `EE`, `UR` | History answers are disclosed only for asked keys; generic questions cannot leak red-flag text; native NPC delivery is still absent. |
 | 14 | `LegacyCore/plan.md:L423` | PERSONALITY MODEL | `MISSING` | `NONE` | No personality model exists. |
 | 15 | `LegacyCore/plan.md:L443` | PEDIATRIC PATIENT BEHAVIOR | `DATA-ONLY` | `CG`, `SD` | Pediatric case data exists without a behavior model. |
-| 16 | `LegacyCore/plan.md:L468` | CONFIDENTIAL ADOLESCENT INTERVIEW | `TESTED-PORTABLE` | `CG`, `EE` | HCM and adolescent hypertension gate confidential substance questions behind a parent-step-out action; native presentation of the interview is still absent. |
+| 16 | `LegacyCore/plan.md:L468` | CONFIDENTIAL ADOLESCENT INTERVIEW | `TESTED-PORTABLE` | `CG`, `EE` | HCM, vasovagal, myocarditis, and adolescent hypertension gate confidential substance questions behind a parent-step-out action; native presentation of the interview is still absent. |
 | 17 | `LegacyCore/plan.md:L488` | PHYSICAL EXAMINATION | `PARTIAL` | `BH`, `CG`, `UR` | Browser exam actions and deterministic action definitions exist; no native examination actors or presentation exist. |
 | 18 | `LegacyCore/plan.md:L524` | STETHOSCOPE SYSTEM | `PREVIEW-ONLY` | `BH` | Four browser auscultation sites and a Valsalva response exist; no native system exists. |
 | 19 | `LegacyCore/plan.md:L555` | MURMUR AUDIO ENGINE | `PARTIAL` | `BH`, `AR` | A synthesized HCM browser demonstration exists; no production spatial and phase-aware native engine exists. |
@@ -204,7 +204,7 @@ status, evidence, and gap together.
 | 149 | `LegacyCore/plan.md:L3334` | DEVELOPER TOOLING | `PREVIEW-ONLY` | `BH`, `OPS` | Browser QA teleports and package metrics workflow exist; required spawn/state/event/dialogue/navmesh/collider debug interfaces do not. |
 | 150 | `LegacyCore/plan.md:L3356` | AUTOMATED TESTING | `PARTIAL` | `CI`, `CG`, `EE`, `BH`, `OPS` | Portable unit/integration, workstation wrappers, and both local browser HCM Playwright paths pass; GitHub browser CI, Unreal compile, native world/dialogue/physiology, and packaged tests remain unpassed. |
 | 151 | `LegacyCore/plan.md:L3382` | MEDICAL CONSISTENCY TESTS | `PARTIAL` | `CG`, `CI` | Nine graphs are ready with zero blocking errors; 41 disclosed warnings remain and structured-result completeness is not yet enforced for gameplay exposure. |
-| 152 | `LegacyCore/plan.md:L3401` | PERFORMANCE TESTING | `WORKSTATION-GATED` | `OPS`, `U0` | Metrics and evidence format are defined; no packaged 2560x1440 run or baseline exists. |
+| 152 | `LegacyCore/plan.md:L3401` | PERFORMANCE TESTING | `WORKSTATION-GATED` | `OPS`, `U0` | Metrics and evidence format are defined for the Apple silicon reference workstation; no passing packaged 2560x1440 capture exists on this branch. |
 | 153 | `LegacyCore/plan.md:L3420` | DEPLOYMENT | `PARTIAL` | `BH`, `OPS` | Browser preview is deployed and verifiable package scripts exist; no native package or release artifact has passed. |
 | 154 | `LegacyCore/plan.md:L3442` | LOADING STRATEGY | `MISSING` | `U0` | No native world/case loading or streaming strategy is implemented. |
 | 155 | `LegacyCore/plan.md:L3458` | OFFLINE POSSIBILITY | `FUTURE` | `CG`, `EE`, `OPS` | Deterministic components are local, but a supported offline product is explicitly deferred. |

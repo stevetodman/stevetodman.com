@@ -7,22 +7,25 @@ or a package produced from dirty or unknown source.
 
 ## Before the run
 
-1. Run `Scripts/Run-Monday-Preflight.ps1` as the normal, non-elevated user and
-   keep its fresh JSON report under `Saved/WorkstationReports`.
+1. On the M4 Max, run `./Scripts/check-workstation.sh` as the normal user and
+   keep its fresh JSON report under `Saved/WorkstationReports`. The PowerShell
+   Monday-preflight script is retained history, not the release gate (ADR-0002).
 2. Run portable validation, project generation, Editor compilation, and Unreal
-   automation successfully.
+   automation successfully (`./Scripts/run-first-build.sh`).
 3. Commit and push the validated source, confirm the worktree is clean, and run
-   `Scripts/Package-Windows.ps1`.
+   `./Scripts/package-macos.sh`.
 4. Do not edit, replace, or add files in the package directory. Launch the
-   `CardioHospital.exe` listed in that package's `build-manifest.json`.
-5. Use 2560×1440 and the current NVIDIA Studio Driver. Capture a performance
-   artifact such as an Unreal Insights trace or exported CSV. `stat fps`,
-   `stat unit`, `stat RHI`, `stat memory`, and `stat streaming` can provide the
-   measurements, but a visible overlay by itself is not a preserved artifact.
+   `CardioHospital.app` listed in that package's `build-manifest.json`. Do not
+   clear quarantine by hand.
+5. Use 2560×1440 on the Apple silicon reference workstation. Capture a
+   performance artifact such as an Unreal Insights trace or exported CSV.
+   `stat fps`, `stat unit`, `stat RHI`, `stat memory`, and `stat streaming`
+   can provide the measurements, but a visible overlay by itself is not a
+   preserved artifact. No Windows FPS figure may be carried forward.
 
 ## Nineteen acceptance steps
 
-Record a step as passed only when it works in the exact packaged executable.
+Record a step as passed only when it works in the exact packaged `.app`.
 
 1. The packaged executable starts without an Editor or missing-prerequisite error.
 2. The learner enters the rendered outpatient cardiology environment.
@@ -49,8 +52,8 @@ not pass. Record a failed run rather than weakening the checklist.
 
 ## Performance evidence
 
-The Unreal quality gate is stable 60 FPS at 2560×1440 on a supported desktop
-RTX workstation. The evidence recorder requires:
+The Unreal quality gate is stable 60 FPS at 2560×1440 on the Apple silicon
+reference workstation (ADR-0002). The evidence recorder requires:
 
 - average FPS of at least 60;
 - 95th-percentile frame time no greater than 16.7 ms;
@@ -68,15 +71,19 @@ numeric threshold, record it as failed.
 
 For a failed or incomplete run:
 
-```powershell
-./Scripts/Record-WalkthroughEvidence.ps1 `
-  -PackageDirectory "./PackagedBuilds/Win64-Development-..." `
-  -WorkstationReportPath "./Saved/WorkstationReports/monday-preflight-....json" `
-  -Outcome Failed `
-  -ConfirmExactPackageRun `
-  -PassedAcceptanceStep (1..7) `
-  -Notes "Step 8 failed: parent interaction did not become available."
+```bash
+./Scripts/record-walkthrough-evidence.sh \
+  --package-directory "./PackagedBuilds/Mac-Development-..." \
+  --workstation-report "./Saved/WorkstationReports/..." \
+  --outcome Failed \
+  --confirm-exact-package-run \
+  --passed-steps 1,2,3,4,7 \
+  --notes "Step 5 failed: no packaged voice/face pass."
 ```
+
+The PowerShell recorder remains as history. Prefer the shell script on the
+release machine. If flag names differ after merge, use the script's own
+`--help` rather than inventing a pass.
 
 For a passing run, explicitly provide all steps and measured values:
 

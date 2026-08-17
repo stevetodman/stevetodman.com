@@ -30,7 +30,7 @@ Statuses below describe evidence in this repository, not aspirational claims.
 | 153 | Versioned deployment and independently verifiable packages. | Packaging requires clean committed Git source and records source, engine/toolchain versions, per-file SHA-256, package ID, and walkthrough state. Release publication remains a deliberate external step. | Package workflow covered; no release claimed. |
 | 154 | Load only the first world/case initially and stream later content. | The repository is scoped to the first slice, but packaged streaming behavior has not been implemented or measured. | Pending. |
 | 159 | Graceful runtime fallbacks for failed AI, assets, and speech. | Build scripts fail clearly and preserve diagnostic output. Runtime structured dialogue, asset, and typed-speech fallbacks are not yet connected. | Tooling covered; runtime behavior pending. |
-| 166 | Nineteen-step vertical-slice acceptance test. | `WALKTHROUGH_CHECKLIST.md` maps all 19 steps to Unreal. `Record-WalkthroughEvidence.ps1` rejects modified packages and cannot mark a pass without every step, fresh preflight, metrics, and a capture artifact. | Workflow covered; actual walkthrough pending. |
+| 166 | Nineteen-step vertical-slice acceptance test. | `WALKTHROUGH_CHECKLIST.md` maps all 19 steps to Unreal. The macOS `record-walkthrough-evidence.sh` path is the release recorder (ADR-0002); the PowerShell recorder is retained history. Neither can mark a pass without every step, fresh preflight, metrics, and a capture artifact. | Workflow covered; actual walkthrough pending. |
 
 ## Unreal workstation and handoff additions
 
