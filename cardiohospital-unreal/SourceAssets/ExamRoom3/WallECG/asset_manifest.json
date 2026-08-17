@@ -48,6 +48,13 @@
     4096,
     2048
   ],
+  "shared_material_sets": [
+    "PowderCoat_WarmWhite",
+    "ABS_Graphite",
+    "BrushedSteel",
+    "Rubber_Black",
+    "AntiGlareGlass"
+  ],
   "validation_renderer": "OptiX: NVIDIA GeForce RTX 4090, NVIDIA GeForce RTX 4090",
   "unreal_import": {
     "combine_meshes": true,

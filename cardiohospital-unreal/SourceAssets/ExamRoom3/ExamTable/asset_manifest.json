@@ -51,6 +51,14 @@
     "Normal": "T_CH_ExamTable_Upholstery_Normal_4K.png"
   },
   "texture_resolution": 4096,
+  "validation_renderer": "OptiX: NVIDIA GeForce RTX 4090, NVIDIA GeForce RTX 4090",
+  "shared_material_sets": [
+    "PowderCoat_WarmWhite",
+    "MedicalVinyl_Teal",
+    "BrushedSteel",
+    "ABS_Graphite",
+    "Rubber_Black"
+  ],
   "unreal_import": {
     "combine_meshes": true,
     "import_normals_and_tangents": true,

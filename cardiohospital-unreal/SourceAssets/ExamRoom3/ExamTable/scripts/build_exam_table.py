@@ -22,6 +22,10 @@ ASSET_DIR = Path(__file__).resolve().parents[1]
 EXPORT_DIR = ASSET_DIR / "exports"
 RENDER_DIR = ASSET_DIR / "renders"
 TEXTURE_DIR = ASSET_DIR / "textures"
+SHARED_MATERIAL_SCRIPTS = ASSET_DIR.parents[1] / "Shared" / "ClinicalMaterials" / "scripts"
+import sys
+sys.path.insert(0, str(SHARED_MATERIAL_SCRIPTS))
+from clinical_materials import apply_pbr_set
 for folder in (EXPORT_DIR, RENDER_DIR, TEXTURE_DIR):
     folder.mkdir(parents=True, exist_ok=True)
 
@@ -391,7 +395,27 @@ def point_camera(obj, target):
 
 def render_views(camera):
     scene = bpy.context.scene
-    scene.render.engine = "BLENDER_EEVEE"
+    renderer = "EEVEE fallback"
+    try:
+        preferences = bpy.context.preferences.addons["cycles"].preferences
+        preferences.compute_device_type = "OPTIX"
+        preferences.get_devices()
+        enabled = []
+        for device in preferences.devices:
+            device.use = device.type in {"OPTIX", "CUDA"}
+            if device.use:
+                enabled.append(device.name)
+        if enabled:
+            scene.render.engine = "CYCLES"
+            scene.cycles.device = "GPU"
+            scene.cycles.samples = 64
+            scene.cycles.use_denoising = True
+            scene.cycles.max_bounces = 6
+            renderer = "OptiX: " + ", ".join(enabled)
+        else:
+            scene.render.engine = "BLENDER_EEVEE"
+    except Exception:
+        scene.render.engine = "BLENDER_EEVEE"
     scene.render.resolution_x = 1400
     scene.render.resolution_y = 1050
     scene.render.resolution_percentage = 100
@@ -410,6 +434,8 @@ def render_views(camera):
         point_camera(camera, Vector(target))
         scene.render.filepath = str(RENDER_DIR / f"CH_ExamTable_{name}.png")
         bpy.ops.render.render(write_still=True)
+    print(f"VALIDATION_RENDERER={renderer}")
+    return renderer
 
 
 def mesh_stats(objects):
@@ -436,6 +462,11 @@ def main():
     collision = material("MI_CH_Collision_Debug", (1.0, 0.04, 0.02), roughness=0.4)
     maps = create_upholstery_textures()
     attach_upholstery_nodes(upholstery, maps)
+    apply_pbr_set(white, "PowderCoat_WarmWhite", tiling=7.0, normal_strength=0.24)
+    apply_pbr_set(upholstery, "MedicalVinyl_Teal", tiling=6.0, normal_strength=0.34)
+    apply_pbr_set(steel, "BrushedSteel", tiling=5.0, normal_strength=0.28)
+    apply_pbr_set(dark, "ABS_Graphite", tiling=8.0, normal_strength=0.26)
+    apply_pbr_set(rubber, "Rubber_Black", tiling=9.0, normal_strength=0.30)
     mats = (white, upholstery, steel, dark, accent, rubber)
 
     lod0 = build_lod0(mats, lod0_collection)
@@ -459,7 +490,7 @@ def main():
 
     camera = build_studio(mats)
     select_collection([])
-    render_views(camera)
+    renderer = render_views(camera)
 
     manifest = {
         "asset_id": "CH-EXAMTABLE-001",
@@ -476,6 +507,8 @@ def main():
         "materials": [mat.name for mat in mats],
         "textures": {key: path.name for key, path in maps.items()},
         "texture_resolution": 4096,
+        "validation_renderer": renderer,
+        "shared_material_sets": ["PowderCoat_WarmWhite", "MedicalVinyl_Teal", "BrushedSteel", "ABS_Graphite", "Rubber_Black"],
         "unreal_import": {
             "combine_meshes": True,
             "import_normals_and_tangents": True,

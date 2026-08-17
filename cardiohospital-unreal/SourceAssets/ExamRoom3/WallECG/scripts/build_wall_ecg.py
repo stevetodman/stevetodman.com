@@ -19,6 +19,10 @@ ASSET_DIR = Path(__file__).resolve().parents[1]
 EXPORT_DIR = ASSET_DIR / "exports"
 RENDER_DIR = ASSET_DIR / "renders"
 TEXTURE_DIR = ASSET_DIR / "textures"
+SHARED_MATERIAL_SCRIPTS = ASSET_DIR.parents[1] / "Shared" / "ClinicalMaterials" / "scripts"
+import sys
+sys.path.insert(0, str(SHARED_MATERIAL_SCRIPTS))
+from clinical_materials import apply_pbr_set
 for folder in (EXPORT_DIR, RENDER_DIR, TEXTURE_DIR):
     folder.mkdir(parents=True, exist_ok=True)
 
@@ -536,6 +540,11 @@ def main():
     cyan = mat("MI_CH_Status_Cyan", (0.02, 0.40, 0.62), roughness=0.26, emission=(0.01, 0.36, 0.7), emission_strength=1.5)
     yellow = mat("MI_CH_Status_Amber", (0.88, 0.46, 0.025), roughness=0.30, emission=(0.7, 0.25, 0.01), emission_strength=1.0)
     debug = mat("MI_CH_Collision_Debug", (1.0, 0.02, 0.01), roughness=0.5)
+    apply_pbr_set(white, "PowderCoat_WarmWhite", tiling=7.0, normal_strength=0.24)
+    apply_pbr_set(graphite, "ABS_Graphite", tiling=8.0, normal_strength=0.26)
+    apply_pbr_set(steel, "BrushedSteel", tiling=5.0, normal_strength=0.28)
+    apply_pbr_set(rubber, "Rubber_Black", tiling=9.0, normal_strength=0.30)
+    apply_pbr_set(glass, "AntiGlareGlass", tiling=4.0, normal_strength=0.16)
     materials = (white, graphite, steel, rubber, glass, coral, cyan, yellow)
     lod0 = build_lod0(materials, lod0_group, screen_states["sinus"])
     lod1 = duplicate_lod(lod0, lod1_group, 1, 0.58)
@@ -563,6 +572,7 @@ def main():
         "uv_channels": ["UV0", "UV1_Lightmap"],
         "screen_states": {key: path.name for key, path in screen_states.items()},
         "screen_resolution": [4096, 2048],
+        "shared_material_sets": ["PowderCoat_WarmWhite", "ABS_Graphite", "BrushedSteel", "Rubber_Black", "AntiGlareGlass"],
         "validation_renderer": renderer,
         "unreal_import": {
             "combine_meshes": True,

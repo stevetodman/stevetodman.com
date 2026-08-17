@@ -9,6 +9,7 @@
 *.blend filter=lfs diff=lfs merge=lfs -text
 SourceAssets/ExamRoom3/ExamTable/textures/*.png filter=lfs diff=lfs merge=lfs -text
 SourceAssets/ExamRoom3/WallECG/textures/*.png filter=lfs diff=lfs merge=lfs -text
+SourceAssets/Shared/ClinicalMaterials/textures/*.png filter=lfs diff=lfs merge=lfs -text
 
 *.ts text eol=lf
 *.ini text eol=crlf
