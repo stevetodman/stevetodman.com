@@ -200,12 +200,20 @@ bool FCardioEducationEvaluator::EvaluateAttempt(
         (OutDebrief.bDiagnosisCorrect ? 70.0 : 0.0) + RedFlagScore * 0.3);
     const int32 ManagementScore = Percentage(ManagementActions, ClinicalCase.CorrectManagement);
 
-    const TArray<FString> CommunicationExpected = {
+    TArray<FString> CommunicationExpected = {
         TEXT("attending.open-assignment"),
         TEXT("encounter.introduce"),
         TEXT("reasoning.submit"),
         TEXT("debrief.review")
     };
+    if (Graph.Actions.ContainsByPredicate(
+        [](const FCardioCaseActionDefinition& Action)
+        {
+            return Action.Id.Equals(TEXT("history.confidential-interview"), ESearchCase::CaseSensitive);
+        }))
+    {
+        CommunicationExpected.Add(TEXT("history.confidential-interview"));
+    }
     TArray<FString> CommunicationCompleted;
     for (const FString& ActionId : CompletedActions)
     {

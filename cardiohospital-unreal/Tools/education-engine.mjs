@@ -88,6 +88,9 @@ export function evaluateAttempt({ snapshot, graph, clinicalCase }) {
   const reasoningScore = clampScore((diagnosisCorrect ? 70 : 0) + redFlagScore * 0.3);
   const managementScore = percentage(managementActions, clinicalCase.correctManagement);
   const communicationExpected = ["attending.open-assignment", "encounter.introduce", "reasoning.submit", "debrief.review"];
+  if (graph.actions.some((action) => action.id === "history.confidential-interview")) {
+    communicationExpected.push("history.confidential-interview");
+  }
   const communicationScore = percentage([...completedActions], communicationExpected);
   const duplicateCount = snapshot.actionLog.length - new Set(snapshot.actionLog.map((event) => event.actionId)).size;
   const efficiencyScore = clampScore(100 - unnecessaryTests.length * 25 - duplicateCount * 5);

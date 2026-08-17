@@ -70,7 +70,7 @@ const VASOVAGAL_AUTHORING: OutpatientCaseAuthoring = {
     { key: "triggers", acceptance: true },
     { key: "family_sudden_death" },
     { key: "palpitations" },
-    { key: "substance_use" },
+    { key: "substance_use", confidential: true },
   ],
   examAcceptanceTargets: ["general", "vitals", "auscultation"],
   orders: [
@@ -197,7 +197,7 @@ const MYOCARDITIS_AUTHORING: OutpatientCaseAuthoring = {
     { key: "activity_level", acceptance: true },
     { key: "palpitations", acceptance: true },
     { key: "prodrome" },
-    { key: "substance_use" },
+    { key: "substance_use", confidential: true },
   ],
   examAcceptanceTargets: ["general", "vitals", "auscultation", "femoralPulses"],
   orders: [

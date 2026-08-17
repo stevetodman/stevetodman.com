@@ -106,6 +106,7 @@ test("myocarditis completes with full workup and monitored admission", async () 
     "history.activity-level",
     "history.palpitations",
     "history.prodrome",
+    "history.confidential-interview",
     "history.substance-use",
     "history.finish",
     ...EXAM,
