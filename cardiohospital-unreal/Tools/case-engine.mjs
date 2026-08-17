@@ -129,6 +129,41 @@ export class CaseEngine {
     return performedFindings(this.clinicalCase.exam, performed);
   }
 
+  getPresentation() {
+    const phase = this.currentNode?.phase ?? "complete";
+    const completed = this.completedActions;
+    const assigned = completed.has("assignment.accept");
+    const introduced = completed.has("encounter.introduce");
+    const diagnosing = ["reasoning", "management", "debrief", "continuation", "complete"].includes(phase);
+    const diagnosed = completed.has("reasoning.submit");
+    const debriefed = completed.has("debrief.review");
+
+    return {
+      caseId: this.graph.caseId,
+      phase,
+      nodeId: this.nodeId,
+      availableActionIds: this.getAvailableActions(),
+      assignment: assigned
+        ? {
+            patientName: this.clinicalCase.patientName,
+            age: this.clinicalCase.age,
+            sex: this.clinicalCase.sex,
+            chiefComplaint: this.clinicalCase.chiefComplaint,
+            room: this.clinicalCase.room,
+            vibe: this.clinicalCase.vibe,
+            parentPresent: this.clinicalCase.parentPresent,
+          }
+        : null,
+      history: introduced ? this.getRevealedHistory() : [],
+      exam: this.getRevealedExam(),
+      results: this.getRevealedResults(),
+      diagnosisChoices: diagnosing ? clone(this.clinicalCase.differentials) : [],
+      socratic: diagnosed ? clone(this.clinicalCase.attendingSocratic) : [],
+      teachingPoint: debriefed ? this.clinicalCase.teachingPoint : "",
+      correctDiagnosis: debriefed ? this.clinicalCase.correctDiagnosis : "",
+    };
+  }
+
   getRevealedResults() {
     const reviewed = new Set(
       this.actionLog

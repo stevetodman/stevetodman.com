@@ -68,10 +68,12 @@ and next-case Room 1 **already exist**. Do not rebuild them.
 
 1. Launch the **existing** packaged app or a fresh `./Scripts/run-first-build.sh`
    package. Confirm spawn aims at the team-room doorway, not a wall.
-2. In `CardioBlockoutHUD.cpp`, wire the HUD to `GetRevealedHistory()`,
-   `GetRevealedExam()`, `HasReviewedTest` / `GetRevealedEcg` /
-   `GetRevealedEcho`, and debrief `SummaryFeedback`. Stop reading
-   `GetActiveClinicalCase()` truth arrays for on-screen text. Ordering
+2. In `CardioBlockoutGameMode.cpp` (not just the HUD), replace
+   `GetActiveClinicalCase()` panel text and the local
+   `bParentSteppedOut` flag with `GetPresentationState()` plus
+   `history.confidential-interview`. Diagnosis menu =
+   `DiagnosisChoices`. Socratic lines only after submit. Teaching
+   point and correct diagnosis only after `debrief.review`. Ordering
    an echo must not show the echo summary.
 3. Confirm `history.confidential-interview` before Marcus stimulant use
    and before Priya substance use. The graph now requires it.

@@ -302,6 +302,63 @@ FCardioEchoFindings UCardioCaseRuntimeSubsystem::GetRevealedEcho(bool& bRevealed
     return bRevealed ? ActiveCase.Echo : FCardioEchoFindings{};
 }
 
+FCardioPresentationState UCardioCaseRuntimeSubsystem::GetPresentationState() const
+{
+    FCardioPresentationState Presentation;
+    if (!bHasActiveCase)
+    {
+        return Presentation;
+    }
+
+    const FCardioCaseNodeDefinition* Node = FindCurrentNode();
+    Presentation.CaseId = State.CaseId;
+    Presentation.Phase = Node ? Node->Phase : TEXT("complete");
+    Presentation.NodeId = State.NodeId;
+    Presentation.AvailableActionIds = GetAvailableActions();
+
+    const bool bAssigned = State.CompletedActions.Contains(TEXT("assignment.accept"));
+    const bool bIntroduced = State.CompletedActions.Contains(TEXT("encounter.introduce"));
+    const bool bDiagnosing =
+        Presentation.Phase == TEXT("reasoning")
+        || Presentation.Phase == TEXT("management")
+        || Presentation.Phase == TEXT("debrief")
+        || Presentation.Phase == TEXT("continuation")
+        || Presentation.Phase == TEXT("complete");
+    const bool bDiagnosed = State.CompletedActions.Contains(TEXT("reasoning.submit"));
+    const bool bDebriefed = State.CompletedActions.Contains(TEXT("debrief.review"));
+
+    if (bAssigned)
+    {
+        Presentation.bHasAssignment = true;
+        Presentation.Assignment.PatientName = ActiveCase.PatientName;
+        Presentation.Assignment.Age = ActiveCase.Age;
+        Presentation.Assignment.Sex = ActiveCase.Sex;
+        Presentation.Assignment.ChiefComplaint = ActiveCase.ChiefComplaint;
+        Presentation.Assignment.Room = ActiveCase.Room;
+        Presentation.Assignment.Vibe = ActiveCase.Vibe;
+        Presentation.Assignment.ParentPresent = ActiveCase.ParentPresent;
+    }
+    if (bIntroduced)
+    {
+        Presentation.History = GetRevealedHistory();
+    }
+    Presentation.Exam = GetRevealedExam();
+    if (bDiagnosing)
+    {
+        Presentation.DiagnosisChoices = ActiveCase.Differentials;
+    }
+    if (bDiagnosed)
+    {
+        Presentation.Socratic = ActiveCase.AttendingSocratic;
+    }
+    if (bDebriefed)
+    {
+        Presentation.TeachingPoint = ActiveCase.TeachingPoint;
+        Presentation.CorrectDiagnosis = ActiveCase.CorrectDiagnosis;
+    }
+    return Presentation;
+}
+
 bool UCardioCaseRuntimeSubsystem::HasPassedAcceptance() const
 {
     return IsCaseComplete() && GetMissingAcceptanceActions().IsEmpty();

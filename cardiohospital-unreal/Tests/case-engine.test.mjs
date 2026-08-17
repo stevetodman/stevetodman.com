@@ -114,6 +114,55 @@ test("generic history does not disclose a specific red-flag answer", async () =>
   assert.ok(engine.getRevealedHistory().some((fact) => fact.key === "family_sudden_death" && fact.answer === suddenDeath.answer));
 });
 
+test("presentation hides diagnosis and teaching until debrief", async () => {
+  const document = await loadDocument();
+  const engine = createCaseEngine(document, "case-hcm");
+  const clinicalCase = document.cases.find((item) => item.id === "case-hcm");
+
+  performAll(engine, ["system.load", "world.enter", "navigate.workroom"]);
+  let view = engine.getPresentation();
+  assert.equal(view.assignment, null);
+  assert.deepEqual(view.diagnosisChoices, []);
+  assert.equal(view.correctDiagnosis, "");
+  assert.equal(view.teachingPoint, "");
+  assert.ok(!JSON.stringify(view).includes(clinicalCase.correctDiagnosis));
+
+  performAll(engine, ["attending.open-assignment", "assignment.accept"]);
+  view = engine.getPresentation();
+  assert.equal(view.assignment.chiefComplaint, clinicalCase.chiefComplaint);
+  assert.equal(view.assignment.room, clinicalCase.room);
+  assert.deepEqual(view.diagnosisChoices, []);
+  assert.equal(view.correctDiagnosis, "");
+
+  performAll(engine, [
+    "navigate.exam-room",
+    "encounter.introduce",
+    "history.finish",
+    "exam.finish",
+    "testing.finish",
+    "navigate.return-workroom",
+  ]);
+  view = engine.getPresentation();
+  assert.deepEqual(view.diagnosisChoices, clinicalCase.differentials);
+  assert.deepEqual(view.socratic, []);
+  assert.equal(view.correctDiagnosis, "");
+
+  engine.perform("reasoning.submit", { diagnosis: "Vasovagal syncope" });
+  view = engine.getPresentation();
+  assert.deepEqual(view.socratic, clinicalCase.attendingSocratic);
+  assert.equal(view.teachingPoint, "");
+  assert.equal(view.correctDiagnosis, "");
+
+  performAll(engine, [
+    "reasoning.finish",
+    "management.finish",
+    "debrief.review",
+  ]);
+  view = engine.getPresentation();
+  assert.equal(view.correctDiagnosis, clinicalCase.correctDiagnosis);
+  assert.equal(view.teachingPoint, clinicalCase.teachingPoint);
+});
+
 test("exam and test findings stay closed until the matching action", async () => {
   const document = await loadDocument();
   const engine = createCaseEngine(document, "case-hcm");

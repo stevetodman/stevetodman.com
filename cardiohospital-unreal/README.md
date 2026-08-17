@@ -100,9 +100,10 @@ and sources have actually completed that gate with the reviewers' consent.
 `UCardioCaseRuntimeSubsystem` is the Blueprint-facing adapter for deterministic
 case progression. World actors should call `StartCase`, query
 `GetAvailableActions`, report player choices through `PerformAction`, and
-display `GetRevealedHistory` rather than the full case-history array. They
-must not implement separate clinical branching in Blueprint. A generic
-history question must not reveal a red-flag answer.
+display `GetPresentationState` rather than `GetActiveClinicalCase`.
+They must not implement separate clinical branching in Blueprint. A
+generic history question must not reveal a red-flag answer. Diagnosis
+and teaching text stay hidden until debrief.
 
 The portable test suite currently exercises complete and deliberately flawed
 paths through all nine deterministic clinic cases: innocent murmur, HCM,

@@ -62,6 +62,10 @@ public:
     FCardioCaseRuntimeState GetRuntimeState() const { return State; }
 
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
+    FCardioPresentationState GetPresentationState() const;
+
+    // Full truth for evaluators only. World UI must use GetPresentationState.
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
     FCardioClinicalCase GetActiveClinicalCase() const { return ActiveCase; }
 
 private:

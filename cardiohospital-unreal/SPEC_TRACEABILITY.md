@@ -65,7 +65,7 @@ status, evidence, and gap together.
 | 10 | `LegacyCore/plan.md:L288` | PATIENT ROOM EXPERIENCE | `PARTIAL` | `BH`, `U0` | Browser encounter panels exist, but no patient NPC behavior or native room experience exists. |
 | 11 | `LegacyCore/plan.md:L320` | NPC CONVERSATION SYSTEM | `PARTIAL` | `BH`, `CG` | Structured browser choices and authored facts exist; typed, voice, and natural dialogue do not. |
 | 12 | `LegacyCore/plan.md:L359` | PATIENT AI ARCHITECTURE | `PARTIAL` | `CG`, `UD`, `UR` | Fixed truth and deterministic actions exist; the AI expression layer is absent and Unreal source is uncompiled. |
-| 13 | `LegacyCore/plan.md:L393` | INFORMATION DISCLOSURE RULES | `TESTED-PORTABLE` | `CG`, `EE`, `UR` | History answers are disclosed only for asked keys; generic questions cannot leak red-flag text; native NPC delivery is still absent. |
+| 13 | `LegacyCore/plan.md:L393` | INFORMATION DISCLOSURE RULES | `TESTED-PORTABLE` | `CG`, `EE`, `UR` | History, exam, and results disclose only after the matching action; presentation state hides diagnosis and teaching until debrief; native NPC delivery is still absent. |
 | 14 | `LegacyCore/plan.md:L423` | PERSONALITY MODEL | `MISSING` | `NONE` | No personality model exists. |
 | 15 | `LegacyCore/plan.md:L443` | PEDIATRIC PATIENT BEHAVIOR | `DATA-ONLY` | `CG`, `SD` | Pediatric case data exists without a behavior model. |
 | 16 | `LegacyCore/plan.md:L468` | CONFIDENTIAL ADOLESCENT INTERVIEW | `TESTED-PORTABLE` | `CG`, `EE` | HCM, vasovagal, myocarditis, and adolescent hypertension gate confidential substance questions behind a parent-step-out action; native presentation of the interview is still absent. |
