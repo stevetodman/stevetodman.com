@@ -22,6 +22,7 @@ WINDOW_X = 0.55
 WINDOW_SILL = 0.95
 
 # Floor envelopes. Sizes and centers match the Blender builder.
+# The west-wall casework includes the sink and the computer surface.
 ENVELOPES = (
     {
         "name": "ZONE_ExamTable",
@@ -30,9 +31,9 @@ ENVELOPES = (
         "role": "hero",
     },
     {
-        "name": "ZONE_ProviderWorkstation",
-        "size": (0.62, 1.25, 1.25),
-        "location": (-1.825, 0.55, 0.625),
+        "name": "ZONE_WestCasework",
+        "size": (0.62, 2.20, 0.90),
+        "location": (-1.825, 0.25, 0.45),
         "role": "hero",
     },
     {
@@ -60,6 +61,14 @@ ENVELOPES = (
         "role": "seating",
     },
 )
+
+# Sink bowl sits on the south half of the west casework (enter, wash, then examine).
+SINK = {
+    "name": "FIX_Sink",
+    "size": (0.42, 0.42, 0.20),
+    "location": (-1.75, -0.45, 0.95),
+    "parent": "ZONE_WestCasework",
+}
 
 CAMERAS = {
     "CAM_Benchmark_Doorway": {
@@ -91,7 +100,7 @@ DEFAULT_OUTPUT = GATE1_DIR / "generated"
 
 
 def aabb_xy(size, location):
-    hx, hy = size[0] / 2.0, size[1] / 2.0
+    hx, hy = size[0] / 2.0, hy = size[1] / 2.0
     cx, cy = location[0], location[1]
     return (cx - hx, cx + hx, cy - hy, cy + hy)
 
