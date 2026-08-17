@@ -88,8 +88,12 @@ test("CI preserves cross-platform portable and generated-content gates", async (
     "utf8",
   );
 
+  // The release platform must be in the matrix, and the other two stay so the
+  // portable core keeps proving it is genuinely platform independent.
+  assert.match(workflow, /macos-latest/);
   assert.match(workflow, /ubuntu-latest/);
   assert.match(workflow, /windows-latest/);
+  assert.match(workflow, /run-validation\.sh/);
   assert.match(workflow, /Parse Windows PowerShell wrappers/);
   assert.match(workflow, /Run-Validation\.ps1/);
   assert.match(workflow, /git diff --exit-code -- cardiohospital-unreal\/Content\/Data\/clinical-content\.json/);

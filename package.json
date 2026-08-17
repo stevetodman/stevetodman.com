@@ -16,7 +16,12 @@
     "test:pedcardsurg": "node --test tests/pedcardsurg-academy.test.mjs",
     "test:cardiohospital": "node --test tests/cardiohospital-preview.test.mjs",
     "test:smoke": "node --test tests/site-smoke.test.mjs",
-    "test:integrity": "node phs/v17/tests/integrity.mjs"
+    "test:integrity": "node phs/v17/tests/integrity.mjs",
+    "test:unreal": "node --test cardiohospital-unreal/Tests/*.test.mjs",
+    "clinical:export": "node --experimental-strip-types cardiohospital-unreal/Tools/export-clinical-data.mjs",
+    "clinical:validate": "node cardiohospital-unreal/Tools/validate-clinical-data.mjs",
+    "clinical:report": "node cardiohospital-unreal/Tools/case-authoring-report.mjs",
+    "clinical:check": "npm run clinical:export && npm run clinical:validate && npm run test:unreal && git diff --exit-code -- cardiohospital-unreal/Content/Data/clinical-content.json"
   },
   "devDependencies": {
     "playwright": "^1.56.1"

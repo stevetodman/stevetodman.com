@@ -27,6 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
+          - macos-latest
           - ubuntu-latest
           - windows-latest
     runs-on: ${{ matrix.os }}
@@ -64,6 +65,21 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: ./cardiohospital-unreal/Scripts/Run-Validation.ps1
+
+      # The macOS release scripts are checked for syntax and gate wording on
+      # every platform via the portable fixtures below. This step additionally
+      # confirms the executable bits survive checkout on the release platform.
+      - name: Verify macOS release scripts are executable
+        if: runner.os == 'macOS'
+        run: |
+          for script in cardiohospital-unreal/Scripts/*.sh; do
+            test -x "$script" || { echo "not executable: $script"; exit 1; }
+            bash -n "$script"
+          done
+
+      - name: Exercise the portable macOS validation path
+        if: runner.os == 'macOS'
+        run: ./cardiohospital-unreal/Scripts/run-validation.sh
 
       - name: Export clinical content
         run: node --experimental-strip-types cardiohospital-unreal/Tools/export-clinical-data.mjs

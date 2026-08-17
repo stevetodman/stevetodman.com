@@ -29,11 +29,14 @@ namespace
             return 100;
         }
 
-        const int32 CompletedCount = Completed.CountByPredicate(
-            [&Expected](const FString& Item)
+        int32 CompletedCount = 0;
+        for (const FString& Item : Completed)
+        {
+            if (Expected.Contains(Item))
             {
-                return Expected.Contains(Item);
-            });
+                ++CompletedCount;
+            }
+        }
         return ClampScore(static_cast<double>(CompletedCount) / Expected.Num() * 100.0);
     }
 

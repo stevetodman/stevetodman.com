@@ -1,0 +1,16 @@
+{
+  "character": "/Game/Characters/MetaHumans/Patel.Patel",
+  "pipeline": "OPTIMIZED",
+  "quality": "HIGH",
+  "wardrobe": [
+    "Outfits",
+    "Hair",
+    "Eyebrows",
+    "Eyelashes"
+  ],
+  "autoRig": true,
+  "textures": true,
+  "built": true,
+  "canBuild": true,
+  "error": ""
+}

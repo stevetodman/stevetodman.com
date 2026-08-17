@@ -1,0 +1,145 @@
+[
+  {
+    "id": "SM_3DW_Computer",
+    "source": "public/models/furniture/computerScreen.glb",
+    "glb": "Content/Environment/Source/3dworld/glb/computerScreen.glb",
+    "fbx": "Content/Environment/Source/3dworld/fbx/SM_3DW_Computer.fbx",
+    "size_cm": {
+      "x": 56.04,
+      "y": 14.84,
+      "z": 42.0
+    }
+  },
+  {
+    "id": "SM_3DW_Keyboard",
+    "source": "public/models/furniture/computerKeyboard.glb",
+    "glb": "Content/Environment/Source/3dworld/glb/computerKeyboard.glb",
+    "fbx": "Content/Environment/Source/3dworld/fbx/SM_3DW_Keyboard.fbx",
+    "size_cm": {
+      "x": 30.72,
+      "y": 12.87,
+      "z": 3.0
+    }
+  },
+  {
+    "id": "SM_3DW_Mouse",
+    "source": "public/models/furniture/computerMouse.glb",
+    "glb": "Content/Environment/Source/3dworld/glb/computerMouse.glb",
+    "fbx": "Content/Environment/Source/3dworld/fbx/SM_3DW_Mouse.fbx",
+    "size_cm": {
+      "x": 7.38,
+      "y": 12.64,
+      "z": 3.5
+    }
+  },
+  {
+    "id": "SM_3DW_Laptop",
+    "source": "public/models/furniture/laptop.glb",
+    "glb": "Content/Environment/Source/3dworld/glb/laptop.glb",
+    "fbx": "Content/Environment/Source/3dworld/fbx/SM_3DW_Laptop.fbx",
+    "size_cm": {
+      "x": 35.89,
+      "y": 32.64,
+      "z": 22.0
+    }
+  },
+  {
+    "id": "SM_3DW_Sink",
+    "source": "public/models/furniture/bathroomSink.glb",
+    "glb": "Content/Environment/Source/3dworld/glb/bathroomSink.glb",
+    "fbx": "Content/Environment/Source/3dworld/fbx/SM_3DW_Sink.fbx",
+    "size_cm": {
+      "x": 52.21,
+      "y": 44.54,
+      "z": 86.0
+    }
+  },
+  {
+    "id": "SM_3DW_Stool",
+    "source": "public/models/furniture/stoolBar.glb",
+    "glb": "Content/Environment/Source/3dworld/glb/stoolBar.glb",
+    "fbx": "Content/Environment/Source/3dworld/fbx/SM_3DW_Stool.fbx",
+    "size_cm": {
+      "x": 37.83,
+      "y": 32.76,
+      "z": 62.0
+    }
+  },
+  {
+    "id": "SM_3DW_Trashcan",
+    "source": "public/models/furniture/trashcan.glb",
+    "glb": "Content/Environment/Source/3dworld/glb/trashcan.glb",
+    "fbx": "Content/Environment/Source/3dworld/fbx/SM_3DW_Trashcan.fbx",
+    "size_cm": {
+      "x": 20.39,
+      "y": 22.98,
+      "z": 42.0
+    }
+  },
+  {
+    "id": "SM_3DW_Bookcase",
+    "source": "public/models/furniture/bookcaseOpen.glb",
+    "glb": "Content/Environment/Source/3dworld/glb/bookcaseOpen.glb",
+    "fbx": "Content/Environment/Source/3dworld/fbx/SM_3DW_Bookcase.fbx",
+    "size_cm": {
+      "x": 72.73,
+      "y": 45.45,
+      "z": 160.0
+    }
+  },
+  {
+    "id": "SM_3DW_SideTable",
+    "source": "public/models/furniture/sideTable.glb",
+    "glb": "Content/Environment/Source/3dworld/glb/sideTable.glb",
+    "fbx": "Content/Environment/Source/3dworld/fbx/SM_3DW_SideTable.fbx",
+    "size_cm": {
+      "x": 76.47,
+      "y": 31.48,
+      "z": 55.0
+    }
+  },
+  {
+    "id": "SM_3DW_Bear",
+    "source": "public/models/furniture/bear.glb",
+    "glb": "Content/Environment/Source/3dworld/glb/bear.glb",
+    "fbx": "Content/Environment/Source/3dworld/fbx/SM_3DW_Bear.fbx",
+    "size_cm": {
+      "x": 19.05,
+      "y": 12.1,
+      "z": 22.0
+    }
+  },
+  {
+    "id": "SM_3DW_Dino",
+    "source": "public/models/props/dino-stuffed.glb",
+    "glb": "Content/Environment/Source/3dworld/glb/dino-stuffed.glb",
+    "fbx": "Content/Environment/Source/3dworld/fbx/SM_3DW_Dino.fbx",
+    "size_cm": {
+      "x": 32.02,
+      "y": 20.03,
+      "z": 28.0
+    }
+  },
+  {
+    "id": "SM_3DW_HumanHeart",
+    "source": "public/models/medical/hearts/human-heart.glb",
+    "glb": "Content/Environment/Source/3dworld/glb/human-heart.glb",
+    "fbx": "Content/Environment/Source/3dworld/fbx/SM_3DW_HumanHeart.fbx",
+    "size_cm": {
+      "x": 13.93,
+      "y": 12.47,
+      "z": 18.0
+    }
+  },
+  {
+    "id": "SM_3DW_VsdHeart",
+    "source": "public/models/medical/hearts/vsd-heart.glb",
+    "glb": "Content/Environment/Source/3dworld/glb/vsd-heart.glb",
+    "fbx": "Content/Environment/Source/3dworld/fbx/SM_3DW_VsdHeart.fbx",
+    "size_cm": {
+      "x": 21.99,
+      "y": 25.64,
+      "z": 20.0
+    }
+  }
+]

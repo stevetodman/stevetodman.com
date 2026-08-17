@@ -12,7 +12,8 @@ public class CardioHospital : ModuleRules
             "CoreUObject",
             "Engine",
             "Json",
-            "JsonUtilities"
+            "JsonUtilities",
+            "TextToSpeech"
         });
     }
 }

@@ -158,7 +158,7 @@ status, evidence, and gap together.
 | 103 | `LegacyCore/plan.md:L2382` | DIEGETIC INTERFACES | `PREVIEW-ONLY` | `BH`, `BW` | Browser room and attending interactions are the only diegetic evidence. |
 | 104 | `LegacyCore/plan.md:L2396` | NON-DIEGETIC INTERFACES | `PREVIEW-ONLY` | `BH` | Browser briefing, encounter, order, and debrief overlays only. |
 | 105 | `LegacyCore/plan.md:L2407` | TUTORIAL | `PARTIAL` | `BH`, `BW` | Control hints exist; no progressive tutorial teaches the clinical loop. |
-| 106 | `LegacyCore/plan.md:L2434` | PERFORMANCE TARGETS | `SUPERSEDED` | `OPS`, `U0` | ADR-0001 establishes the 2560x1440, stable-60-FPS RTX quality gate; no measured package exists and lower-spec compatibility remains future work. |
+| 106 | `LegacyCore/plan.md:L2434` | PERFORMANCE TARGETS | `SUPERSEDED` | `OPS`, `U0` | ADR-0002 keeps the 2560x1440 stable-60-FPS bar and moves it to the Apple silicon reference workstation; no measured package exists and lower-spec compatibility remains future work. |
 | 107 | `LegacyCore/plan.md:L2459` | RENDERER | `SUPERSEDED` | `BH`, `BW`, `OPS` | ADR-0001 replaces Three.js/WebGPU-WebGL as the production renderer with Unreal Engine 5.8; browser projects remain previews. |
 | 108 | `LegacyCore/plan.md:L2469` | RECOMMENDED SOFTWARE STACK | `SUPERSEDED` | `CG`, `OPS` | ADR-0001 replaces the production client stack with Unreal 5.8 while retaining renderer-independent clinical content; backend, AI, and speech remain absent. |
 | 109 | `LegacyCore/plan.md:L2498` | ENGINE ARCHITECTURE | `PARTIAL` | `CG`, `EE`, `UD`, `UR` | Clinical, case, and education layers exist; world, character, dialogue, speech, and backend layers do not. |
@@ -250,7 +250,8 @@ status, evidence, and gap together.
    packaged walkthrough. Obtain the pending GitHub result for the integration
    checkpoint.
 9. Capture accessibility and 2560x1440 performance evidence from the packaged
-   executable on the approved RTX-class workstation.
+   macOS application bundle on the Apple silicon reference workstation. No
+   Windows figure may be carried forward, because none was ever measured.
 
 ## Truthfulness rule
 
