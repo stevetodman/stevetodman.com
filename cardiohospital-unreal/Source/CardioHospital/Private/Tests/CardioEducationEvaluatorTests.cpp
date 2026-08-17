@@ -168,7 +168,7 @@ bool FCardioEducationEvaluatorTest::RunTest(const FString& Parameters)
             Error));
     TestEqual(TEXT("Optimal overall score"), OptimalDebrief.OverallScore, 100);
     TestTrue(TEXT("Optimal diagnosis is correct"), OptimalDebrief.bDiagnosisCorrect);
-    TestEqual(TEXT("All scoring dimensions are present"), OptimalDebrief.Dimensions.Num(), 10);
+    TestEqual(TEXT("All scoring dimensions are present"), OptimalDebrief.Dimensions.Num(), 11);
     TestTrue(
         TEXT("Every optimal dimension scores 100"),
         !OptimalDebrief.Dimensions.ContainsByPredicate(

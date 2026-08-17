@@ -2,6 +2,7 @@ const DIMENSION_ORDER = Object.freeze([
   "history",
   "physicalExamination",
   "redFlagRecognition",
+  "differentialDiagnosis",
   "testSelection",
   "interpretation",
   "clinicalReasoning",
@@ -78,6 +79,12 @@ export function evaluateAttempt({ snapshot, graph, clinicalCase }) {
   const testSelectionScore = clampScore(appropriateTestScore - unnecessaryTests.length * 25);
   const interpretationScore = percentage(interpretedTests, expectedInterpretedTests);
   const diagnosisCorrect = submittedDiagnosis(snapshot.actionLog) === clinicalCase.correctDiagnosis;
+  const diagnosis = submittedDiagnosis(snapshot.actionLog);
+  const diagnosisOnAuthoredDifferential = Array.isArray(clinicalCase.differentials)
+    && clinicalCase.differentials.includes(diagnosis);
+  const differentialScore = !diagnosis || !diagnosisOnAuthoredDifferential
+    ? 0
+    : clampScore((diagnosisCorrect ? 60 : 30) + redFlagScore * 0.4);
   const reasoningScore = clampScore((diagnosisCorrect ? 70 : 0) + redFlagScore * 0.3);
   const managementScore = percentage(managementActions, clinicalCase.correctManagement);
   const communicationExpected = ["attending.open-assignment", "encounter.introduce", "reasoning.submit", "debrief.review"];
@@ -91,6 +98,7 @@ export function evaluateAttempt({ snapshot, graph, clinicalCase }) {
     history: historyScore,
     physicalExamination: physicalScore,
     redFlagRecognition: redFlagScore,
+    differentialDiagnosis: differentialScore,
     testSelection: testSelectionScore,
     interpretation: interpretationScore,
     clinicalReasoning: reasoningScore,

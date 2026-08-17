@@ -9,6 +9,7 @@ namespace
     constexpr TCHAR HistoryDimension[] = TEXT("history");
     constexpr TCHAR PhysicalExaminationDimension[] = TEXT("physicalExamination");
     constexpr TCHAR RedFlagRecognitionDimension[] = TEXT("redFlagRecognition");
+    constexpr TCHAR DifferentialDiagnosisDimension[] = TEXT("differentialDiagnosis");
     constexpr TCHAR TestSelectionDimension[] = TEXT("testSelection");
     constexpr TCHAR InterpretationDimension[] = TEXT("interpretation");
     constexpr TCHAR ClinicalReasoningDimension[] = TEXT("clinicalReasoning");
@@ -190,6 +191,11 @@ bool FCardioEducationEvaluator::EvaluateAttempt(
         ClinicalCase.CorrectDiagnosis,
         ESearchCase::CaseSensitive);
 
+    const bool bDiagnosisOnAuthoredDifferential = ClinicalCase.Differentials.Contains(
+        OutDebrief.DiagnosisSubmitted);
+    const int32 DifferentialScore = OutDebrief.DiagnosisSubmitted.IsEmpty() || !bDiagnosisOnAuthoredDifferential
+        ? 0
+        : ClampScore((OutDebrief.bDiagnosisCorrect ? 60.0 : 30.0) + RedFlagScore * 0.4);
     const int32 ReasoningScore = ClampScore(
         (OutDebrief.bDiagnosisCorrect ? 70.0 : 0.0) + RedFlagScore * 0.3);
     const int32 ManagementScore = Percentage(ManagementActions, ClinicalCase.CorrectManagement);
@@ -253,6 +259,7 @@ bool FCardioEducationEvaluator::EvaluateAttempt(
     AddDimension(OutDebrief, HistoryDimension, HistoryScore);
     AddDimension(OutDebrief, PhysicalExaminationDimension, PhysicalScore);
     AddDimension(OutDebrief, RedFlagRecognitionDimension, RedFlagScore);
+    AddDimension(OutDebrief, DifferentialDiagnosisDimension, DifferentialScore);
     AddDimension(OutDebrief, TestSelectionDimension, TestSelectionScore);
     AddDimension(OutDebrief, InterpretationDimension, InterpretationScore);
     AddDimension(OutDebrief, ClinicalReasoningDimension, ReasoningScore);

@@ -405,6 +405,7 @@ function validateConcepts(failures, concepts, caseIds) {
     "history",
     "physicalExamination",
     "redFlagRecognition",
+    "differentialDiagnosis",
     "testSelection",
     "interpretation",
     "clinicalReasoning",

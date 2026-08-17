@@ -47,6 +47,7 @@ namespace
         AddDimension(Debrief, TEXT("history"), 25);
         AddDimension(Debrief, TEXT("physicalExamination"), 0);
         AddDimension(Debrief, TEXT("redFlagRecognition"), 0);
+        AddDimension(Debrief, TEXT("differentialDiagnosis"), 0);
         AddDimension(Debrief, TEXT("testSelection"), 0);
         AddDimension(Debrief, TEXT("interpretation"), 0);
         AddDimension(Debrief, TEXT("clinicalReasoning"), 0);
@@ -74,6 +75,7 @@ namespace
         AddDimension(Debrief, TEXT("history"), Score);
         AddDimension(Debrief, TEXT("physicalExamination"), Score);
         AddDimension(Debrief, TEXT("redFlagRecognition"), Score);
+        AddDimension(Debrief, TEXT("differentialDiagnosis"), Score);
         AddDimension(Debrief, TEXT("testSelection"), Score);
         AddDimension(Debrief, TEXT("interpretation"), Score);
         AddDimension(Debrief, TEXT("clinicalReasoning"), Score);

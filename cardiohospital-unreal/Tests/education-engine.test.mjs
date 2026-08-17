@@ -80,6 +80,38 @@ test("complete clinical process earns full deterministic scores", async () => {
   assert.deepEqual(result.safetyEvents, []);
 });
 
+test("differential diagnosis scores authored-set membership separately from the final pick", async () => {
+  const document = await loadDocument();
+
+  function scoreFor(diagnosis, extraHistory = []) {
+    const engine = createCaseEngine(document, "case-hcm");
+    run(engine, [
+      ...opening(),
+      "history.generic",
+      ...extraHistory,
+      "history.finish",
+      "exam.finish",
+      "testing.finish",
+      "navigate.return-workroom",
+      ["reasoning.submit", { diagnosis }],
+      "reasoning.finish",
+      "management.finish",
+    ]);
+    return debrief(document, engine).dimensions.find((item) => item.id === "differentialDiagnosis").score;
+  }
+
+  assert.equal(
+    scoreFor("Hypertrophic Cardiomyopathy", [
+      "history.exertional-timing",
+      "history.family-sudden-death",
+      "history.prodrome",
+    ]),
+    100,
+  );
+  assert.equal(scoreFor("Vasovagal syncope"), 30);
+  assert.equal(scoreFor("Anxiety"), 0);
+});
+
 test("omissions and unsafe clearance produce case-specific debrief", async () => {
   const document = await loadDocument();
   const engine = createCaseEngine(document, "case-hcm");
