@@ -119,6 +119,36 @@ export const CASE_METADATA: Record<string, CaseMetadata> = {
       { label: "AAP Hypertension Guideline", citation: "Flynn JT et al. Pediatrics. 2017;140(3):e20171904." },
     ],
   },
+  "case-msk-chest-pain": {
+    author: "S. Todman, MD",
+    medicalReviewer: "Formal review pending",
+    version: "1.0",
+    lastReviewed: "Not yet formally reviewed",
+    teachingObjectives: [
+      "Recognize musculoskeletal chest pain as the usual pediatric etiology",
+      "Use reproducibility and the absence of exertional cardiac symptoms to defer testing",
+      "Contrast this presentation with postviral myocarditis",
+    ],
+    sources: [
+      { label: "Pediatric chest pain vs myocarditis",
+        citation: "Law YM et al. Circulation. 2021;144(6):e123-e135. Pediatric chest-pain teaching contrast; formal review pending." },
+    ],
+  },
+  "case-adolescent-htn": {
+    author: "S. Todman, MD",
+    medicalReviewer: "Formal review pending",
+    version: "1.0",
+    lastReviewed: "Not yet formally reviewed",
+    teachingObjectives: [
+      "Do not diagnose or medicate hypertension from a single school reading",
+      "Compare four-limb BPs and femorals to exclude coarctation",
+      "Use ABPM to confirm ambulatory hypertension before labeling or treating",
+    ],
+    sources: [
+      { label: "AAP Clinical Practice Guideline for Screening and Management of High Blood Pressure", citation: "Flynn JT et al. Pediatrics. 2017;140(3):e20171904." },
+      { label: "AHA Pediatric ABPM Scientific Statement", citation: "Flynn JT et al. Hypertension. 2022;79:e114–e124." },
+    ],
+  },
 };
 
 export function getCaseMetadata(caseId: string): CaseMetadata | undefined {
