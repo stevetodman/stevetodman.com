@@ -36,6 +36,7 @@ const OPTIMAL_PATH = [
   "history.exertional-timing",
   "history.family-sudden-death",
   "history.prodrome",
+  "history.confidential-interview",
   "history.finish",
   "exam.general",
   "exam.vitals",
@@ -92,6 +93,156 @@ test("case can complete with omissions without falsely passing acceptance", asyn
   assert.ok(report.missingActions.includes("history.exertional-timing"));
   assert.ok(report.missingActions.includes("order.ecg"));
   assert.ok(report.missingActions.includes("management.restrict-sports"));
+});
+
+test("generic history does not disclose a specific red-flag answer", async () => {
+  const document = await loadDocument();
+  const engine = createCaseEngine(document, "case-hcm");
+  const clinicalCase = document.cases.find((item) => item.id === "case-hcm");
+  const suddenDeath = clinicalCase.history.find((fact) => fact.key === "family_sudden_death");
+  performAll(engine, [...OPENING, "history.generic"]);
+
+  const revealed = engine.getRevealedHistory();
+  const generic = engine.snapshot().actionLog.find((event) => event.actionId === "history.generic");
+  assert.deepEqual(revealed.map((fact) => fact.key), ["generic"]);
+  assert.equal(generic.payload.key, "generic");
+  assert.equal(generic.payload.answer, clinicalCase.history.find((fact) => fact.key === "generic").answer);
+  assert.ok(!generic.payload.answer.includes(suddenDeath.answer));
+  assert.ok(!revealed.some((fact) => fact.key === "family_sudden_death"));
+
+  engine.perform("history.family-sudden-death");
+  assert.ok(engine.getRevealedHistory().some((fact) => fact.key === "family_sudden_death" && fact.answer === suddenDeath.answer));
+});
+
+test("history menu items are questions the HUD can print without leaking answers", async () => {
+  const document = await loadDocument();
+  const engine = createCaseEngine(document, "case-hcm");
+  const clinicalCase = document.cases.find((item) => item.id === "case-hcm");
+  performAll(engine, [
+    "system.load",
+    "world.enter",
+    "navigate.workroom",
+    "attending.open-assignment",
+    "assignment.accept",
+    "navigate.exam-room",
+    "encounter.introduce",
+  ]);
+  const historyMenu = engine.getActionMenu().filter((item) => item.type === "history");
+  assert.ok(historyMenu.length >= 3);
+  for (const item of historyMenu) {
+    const fact = clinicalCase.history.find((entry) => `history.${entry.key.replaceAll("_", "-")}` === item.id);
+    if (!fact) continue;
+    assert.equal(item.label, fact.question);
+    assert.ok(!item.label.includes(fact.answer));
+  }
+});
+
+test("action menu uses authored questions and never the answers", async () => {
+  const document = await loadDocument();
+  const engine = createCaseEngine(document, "case-hcm");
+  const clinicalCase = document.cases.find((item) => item.id === "case-hcm");
+  const suddenDeath = clinicalCase.history.find((fact) => fact.key === "family_sudden_death");
+  performAll(engine, [
+    "system.load",
+    "world.enter",
+    "navigate.workroom",
+    "attending.open-assignment",
+    "assignment.accept",
+    "navigate.exam-room",
+    "encounter.introduce",
+  ]);
+
+  const menu = engine.getPresentation().menu;
+  const suddenDeathItem = menu.find((item) => item.id === "history.family-sudden-death");
+  const interview = menu.find((item) => item.id === "history.confidential-interview");
+  assert.equal(suddenDeathItem.label, suddenDeath.question);
+  assert.ok(!suddenDeathItem.label.includes(suddenDeath.answer));
+  assert.ok(!JSON.stringify(menu).includes(suddenDeath.answer));
+  assert.equal(interview.label, "Ask the parent to step outside for a few minutes");
+
+  engine.perform("history.generic");
+  assert.ok(!engine.getActionMenu().some((item) => item.id === "history.generic"));
+});
+
+test("presentation hides diagnosis and teaching until debrief", async () => {
+  const document = await loadDocument();
+  const engine = createCaseEngine(document, "case-hcm");
+  const clinicalCase = document.cases.find((item) => item.id === "case-hcm");
+
+  performAll(engine, ["system.load", "world.enter", "navigate.workroom"]);
+  let view = engine.getPresentation();
+  assert.equal(view.assignment, null);
+  assert.deepEqual(view.diagnosisChoices, []);
+  assert.equal(view.correctDiagnosis, "");
+  assert.equal(view.teachingPoint, "");
+  assert.ok(!JSON.stringify(view).includes(clinicalCase.correctDiagnosis));
+
+  performAll(engine, ["attending.open-assignment", "assignment.accept"]);
+  view = engine.getPresentation();
+  assert.equal(view.assignment.chiefComplaint, clinicalCase.chiefComplaint);
+  assert.equal(view.assignment.room, clinicalCase.room);
+  assert.deepEqual(view.diagnosisChoices, []);
+  assert.equal(view.correctDiagnosis, "");
+
+  performAll(engine, [
+    "navigate.exam-room",
+    "encounter.introduce",
+    "history.finish",
+    "exam.finish",
+    "testing.finish",
+    "navigate.return-workroom",
+  ]);
+  view = engine.getPresentation();
+  assert.deepEqual(view.diagnosisChoices, clinicalCase.differentials);
+  assert.deepEqual(view.socratic, []);
+  assert.equal(view.correctDiagnosis, "");
+
+  engine.perform("reasoning.submit", { diagnosis: "Vasovagal syncope" });
+  view = engine.getPresentation();
+  assert.deepEqual(view.socratic, clinicalCase.attendingSocratic);
+  assert.equal(view.teachingPoint, "");
+  assert.equal(view.correctDiagnosis, "");
+
+  performAll(engine, [
+    "reasoning.finish",
+    "management.finish",
+    "debrief.review",
+  ]);
+  view = engine.getPresentation();
+  assert.equal(view.correctDiagnosis, clinicalCase.correctDiagnosis);
+  assert.equal(view.teachingPoint, clinicalCase.teachingPoint);
+});
+
+test("exam and test findings stay closed until the matching action", async () => {
+  const document = await loadDocument();
+  const engine = createCaseEngine(document, "case-hcm");
+  const clinicalCase = document.cases.find((item) => item.id === "case-hcm");
+  performAll(engine, [...OPENING, "history.finish"]);
+  assert.deepEqual(engine.getRevealedExam(), {});
+  assert.deepEqual(engine.getRevealedResults(), []);
+
+  engine.perform("exam.general");
+  assert.equal(engine.getRevealedExam().general, clinicalCase.exam.general);
+  assert.equal(engine.getRevealedExam().auscultation, undefined);
+
+  performAll(engine, ["exam.finish"]);
+  engine.perform("order.echo");
+  assert.deepEqual(engine.getRevealedResults(), []);
+  assert.ok(!JSON.stringify(engine.snapshot().actionLog.at(-1).payload).includes(clinicalCase.echo.summary));
+
+  engine.perform("review.echo");
+  const echo = engine.getRevealedResults().find((item) => item.test === "Echocardiogram");
+  assert.equal(echo.findings.summary, clinicalCase.echo.summary);
+  assert.ok(!engine.getRevealedResults().some((item) => item.test === "ECG"));
+});
+
+test("HCM stimulant history stays closed until the parent steps out", async () => {
+  const engine = createCaseEngine(await loadDocument(), "case-hcm");
+  performAll(engine, [...OPENING, "history.generic"]);
+  assert.ok(engine.getAvailableActions().includes("history.confidential-interview"));
+  assert.ok(!engine.getAvailableActions().includes("history.stimulant-use"));
+  engine.perform("history.confidential-interview");
+  assert.ok(engine.getAvailableActions().includes("history.stimulant-use"));
 });
 
 test("test results cannot be reviewed before their order", async () => {

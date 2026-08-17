@@ -1,0 +1,11 @@
+{
+  "name": "cardiohospital-unreal",
+  "private": true,
+  "type": "module",
+  "description": "Portable clinical suite for the Unreal vertical slice. Unreal compile remains a local gate.",
+  "scripts": {
+    "test:unreal": "node --test Tests/case-authoring-report.test.mjs Tests/case-engine.test.mjs Tests/case-graph-compiler.test.mjs Tests/clinical-data.test.mjs Tests/contrast-cases.test.mjs Tests/education-engine.test.mjs Tests/expanded-clinic-cases.test.mjs Tests/first-build-scripts.test.mjs Tests/first-release-cases.test.mjs Tests/learner-model.test.mjs Tests/spec-traceability.test.mjs Tests/workstation-build-scripts.test.mjs",
+    "clinical:export": "node --experimental-strip-types Tools/export-clinical-data.mjs",
+    "clinical:check": "node Tools/validate-clinical-data.mjs"
+  }
+}

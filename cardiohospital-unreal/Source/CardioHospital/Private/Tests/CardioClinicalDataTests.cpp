@@ -22,8 +22,8 @@ bool FCardioClinicalContentTest::RunTest(const FString& Parameters)
         TEXT("Clinical JSON matches the Unreal schema"),
         FJsonObjectConverter::JsonObjectStringToUStruct(Json, &Document, 0, 0));
     TestEqual(TEXT("Schema version"), Document.SchemaVersion, 3);
-    TestEqual(TEXT("Outpatient case count"), Document.Cases.Num(), 7);
-    TestEqual(TEXT("First-release playable graph count"), Document.CaseGraphs.Num(), 7);
+    TestEqual(TEXT("Outpatient case count"), Document.Cases.Num(), 9);
+    TestEqual(TEXT("Playable graph count"), Document.CaseGraphs.Num(), 9);
     TestTrue(TEXT("Educational concept map exists"), Document.Concepts.Num() > 0);
     TestEqual(TEXT("Every case has provenance metadata"), Document.Metadata.Num(), Document.Cases.Num());
     TestTrue(TEXT("Clinical source hashes are retained"), Document.SourceHashes.Num() > 0);

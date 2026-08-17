@@ -20,16 +20,14 @@ recorded in
 
 ## Local prerequisites
 
-- Windows 11
-- Unreal Engine 5.8
-- Visual Studio 2022 17.14 or newer, or Visual Studio 2026, with **Game
-  development with C++**
-- MSVC 14.38 or newer and Windows SDK 10.0.22621.0 or newer
-- Git for Windows
-- Node.js 24, or the Node.js runtime bundled with the Codex Windows app
-- At least 48 GB installed RAM and 100 GB free on the project drive
-- Desktop NVIDIA RTX 4080/4090 or RTX 5080/5090
-- Current stable NVIDIA Studio Driver
+**Release machine is the M4 Max.** Start at
+[`Docs/MAC_FIRST_SESSION.md`](Docs/MAC_FIRST_SESSION.md) and ADR-0002.
+
+- macOS on Apple silicon, Unreal Engine 5.8, Xcode (not CLT-only), Git, Node 24
+- At least 48 GB unified memory and 100 GB free
+- `xcrun metal --version` must print a real compiler
+
+Windows PowerShell prerequisites below are optional history, not the release gate.
 
 All repository scripts are designed to run as a standard user. They never
 install software, alter policy, or request elevation. On a managed PC, send
@@ -101,12 +99,16 @@ and sources have actually completed that gate with the reviewers' consent.
 
 `UCardioCaseRuntimeSubsystem` is the Blueprint-facing adapter for deterministic
 case progression. World actors should call `StartCase`, query
-`GetAvailableActions`, and report player choices through `PerformAction`; they
-must not implement separate clinical branching in Blueprint.
+`GetAvailableActions`, report player choices through `PerformAction`, and
+display `GetPresentationState` rather than `GetActiveClinicalCase`.
+They must not implement separate clinical branching in Blueprint. A
+generic history question must not reveal a red-flag answer. Diagnosis
+and teaching text stay hidden until debrief.
 
 The portable test suite currently exercises complete and deliberately flawed
-paths through all seven deterministic clinic cases: innocent murmur, HCM,
-vasovagal syncope, WPW, myocarditis, Long-QT syndrome, and coarctation. It
+paths through all nine deterministic clinic cases: innocent murmur, HCM,
+vasovagal syncope, WPW, myocarditis, Long-QT syndrome, coarctation,
+musculoskeletal chest pain, and adolescent hypertension / ABPM. It
 verifies action ordering, clinical omissions, unnecessary testing, safety
 intervention, debrief scoring, learner persistence, mastery, and adaptive
 selection without claiming Unreal compilation or presentation quality.
@@ -130,7 +132,7 @@ flags, missing correct management, or broken counterfactual references.
 Warnings identify non-blocking authoring debt. In particular, a
 `structured-result-missing` warning must be resolved with medically reviewed
 content—not an invented placeholder—before that result is shown in gameplay.
-The current expected report is zero errors and 32 warnings: 31 missing
+The current expected report is zero errors and 41 warnings: 40 missing
 structured results and one HCM `Genetics referral` test/management
 classification that requires clinical review. Do not invent results or
 silently reclassify that item merely to remove a warning.

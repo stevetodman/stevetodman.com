@@ -1,6 +1,8 @@
 # AAA vertical slice docs
 
-**Start here:** [START_HERE.md](./START_HERE.md)
+**On the M4 Max, start here:** [../MAC_FIRST_SESSION.md](../MAC_FIRST_SESSION.md)
+
+Slice docs: [START_HERE.md](./START_HERE.md)
 
 Look-dev and production targets for the Unreal outpatient slice (Team Room → Exam Room 3 → HCM).
 

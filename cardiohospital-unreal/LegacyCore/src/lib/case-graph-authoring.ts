@@ -70,6 +70,7 @@ export interface CaseGraphDefinition {
 export interface HistoryActionAuthoring {
   key: string;
   acceptance?: boolean;
+  confidential?: boolean;
 }
 
 export interface OrderActionAuthoring {
@@ -145,8 +146,26 @@ function validateAuthoring(config: OutpatientCaseAuthoring) {
 export function compileOutpatientCaseGraph(config: OutpatientCaseAuthoring): CaseGraphDefinition {
   validateAuthoring(config);
 
-  const historyActions = config.history.map((entry) =>
-    action(historyActionId(entry.key), "history", entry.key, "history_question"));
+  const confidentialHistory = config.history.filter((entry) => entry.confidential);
+  const confidentialInterviewAction = confidentialHistory.length > 0
+    ? action(
+        "history.confidential-interview",
+        "conversation",
+        "parent-step-out",
+        "confidential_interview_started",
+      )
+    : null;
+  const historyActions = [
+    ...(confidentialInterviewAction ? [confidentialInterviewAction] : []),
+    ...config.history.map((entry) =>
+      action(
+        historyActionId(entry.key),
+        "history",
+        entry.key,
+        "history_question",
+        entry.confidential ? ["completed:history.confidential-interview"] : [],
+      )),
+  ];
   const examTargets = ["general", "vitals", "auscultation", "femoralPulses"];
   const examActions = examTargets.map((target) => action(examActionId(target), "exam", target, "exam_performed"));
   const orderActions = config.orders.flatMap((entry) => {
@@ -199,8 +218,15 @@ export function compileOutpatientCaseGraph(config: OutpatientCaseAuthoring): Cas
       {
         id: "history",
         phase: "history",
-        availableActions: [...config.history.map((entry) => historyActionId(entry.key)), "history.finish"],
-        acceptanceActions: config.history.filter((entry) => entry.acceptance).map((entry) => historyActionId(entry.key)),
+        availableActions: [
+          ...(confidentialInterviewAction ? ["history.confidential-interview"] : []),
+          ...config.history.map((entry) => historyActionId(entry.key)),
+          "history.finish",
+        ],
+        acceptanceActions: [
+          ...(confidentialInterviewAction ? ["history.confidential-interview"] : []),
+          ...config.history.filter((entry) => entry.acceptance).map((entry) => historyActionId(entry.key)),
+        ],
         transitions: [transition("examination", "history.finish")],
       },
       {

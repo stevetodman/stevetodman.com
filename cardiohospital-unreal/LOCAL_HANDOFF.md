@@ -1,4 +1,12 @@
-# Standard-user Windows handoff
+# Handoff
+
+The release target is macOS on Apple silicon (ADR-0002). **Next agent:
+[`Docs/NEXT_AGENT.md`](Docs/NEXT_AGENT.md).** On the M4 Max, then open
+[`Docs/MAC_FIRST_SESSION.md`](Docs/MAC_FIRST_SESSION.md).
+
+The Windows notes below are retained for the optional PowerShell path.
+
+# Standard-user Windows handoff (optional, not the release gate)
 
 The repository workflow runs without elevation after IT has provisioned the
 machine. Its scripts perform read-only inventory and write only normal project
@@ -65,13 +73,13 @@ capture evidence and attach a truthful pass or failure to the package manifest.
 - `UCardioClinicalDataSubsystem` loads the schema-v3 generated runtime artifact,
   including clinical cases, graphs, safety rules, counterfactuals, and concepts.
 - `UCardioCaseRuntimeSubsystem` exposes deterministic case actions to Blueprint.
-- Portable tests simulate complete and unsafe paths across all seven current
+- Portable tests simulate complete and unsafe paths across all nine current
   deterministic clinic cases. Keep these tests green while connecting world
   interactions.
 - Run `Tools/case-authoring-report.mjs` before exposing a new order in the UI.
-  The current expected result is zero errors and 32 warnings: 31 missing
-  structured results and one HCM genetics classification awaiting clinical
-  review. Do not invent results or reclassify clinical content merely to silence
-  those warnings.
+  The current expected result is zero errors and 41 warnings: 40 missing
+  structured results and one HCM genetics-referral classification awaiting
+  clinical review. Do not invent results or reclassify clinical content merely
+  to silence those warnings.
 - The first local compile must confirm Unreal Header Tool accepts the new
   reflected structs and subsystem signatures; that gate is not yet confirmed.

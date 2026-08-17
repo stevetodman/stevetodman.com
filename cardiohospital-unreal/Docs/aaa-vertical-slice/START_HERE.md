@@ -10,6 +10,7 @@ This is the only fidelity target until `walkthroughPassed` is true.
 
 ## Read in this order (15 minutes)
 
+0. On the M4 Max: [`../MAC_FIRST_SESSION.md`](../MAC_FIRST_SESSION.md)
 1. [AAA_VERTICAL_SLICE_TARGET.md](./AAA_VERTICAL_SLICE_TARGET.md) — what “done” looks and feels like  
 2. [UNREAL_BLENDER_WORKFLOW.md](./UNREAL_BLENDER_WORKFLOW.md) — phases A→D and tool roles  
 3. Root project rules: [`../../AGENTS.md`](../../AGENTS.md)  
@@ -31,19 +32,28 @@ Skim when needed:
 | Dialogue needs voice + gaze + listening + facial motion | Steps 5 and 8 of the walkthrough |
 | Never invent structured lab/echo results to silence warnings | Medical integrity |
 | No PHI, credentials, workstation paths in notes or captures | Privacy |
-| `walkthroughPassed` only via `Record-WalkthroughEvidence.ps1` on a **packaged** exe | No Editor false greens |
+| `walkthroughPassed` only via `record-walkthrough-evidence.sh` on a **packaged** `.app` | No Editor false greens |
 
 ---
 
 ## What to do this week (single path)
 
+**On the M4 Max, start at
+[`../MAC_FIRST_SESSION.md`](../MAC_FIRST_SESSION.md).** The Mac already
+has a packaged ward. Do not recreate Phase A from scratch. Merge PR #24
+into the macOS world branch first.
+
 ### Day 1–2 — Phase A (playable graybox)
-1. Open `cardiohospital-unreal` in **UE 5.8** on Windows (see `IT_PREREQUISITES.md` / `LOCAL_HANDOFF.md`).
-2. Create map `Content/Maps/OutpatientClinic_VSlice`.
-3. Block out **Team Room**, short **corridor**, **Exam Room 3** with engine primitives (scale in **meters**).
-4. Keyboard/mouse move + look; collision so you can enter both rooms.
-5. Placeholder interact volumes on Patel / Marcus / parent positions (Editor-only stubs are fine **until** package).
-6. Call into `UCardioCaseRuntimeSubsystem` (`StartCase`, `GetAvailableActions`, `PerformAction`) for the HCM path — do not reimplement branching in Blueprint.
+1. Open `cardiohospital-unreal` in **UE 5.8** on the M4 Max (see
+   [`../MAC_FIRST_SESSION.md`](../MAC_FIRST_SESSION.md) and
+   [`../ADR-0002-macos-release-target.md`](../ADR-0002-macos-release-target.md)).
+2. After the merge, walk the **existing** team room / corridor / Exam Room 3.
+   Only create `Content/Maps/OutpatientClinic_VSlice` if that merge left you
+   with no map — the macOS branch already authors a runtime ward.
+3. Keyboard/mouse move + look; collision so you can enter both rooms.
+4. Display `GetRevealedHistory` — never dump the full case-history array.
+5. Call into `UCardioCaseRuntimeSubsystem` (`StartCase`, `GetAvailableActions`,
+   `PerformAction`) for the HCM path — do not reimplement branching.
 
 **Exit criteria:** You can walk Team Room → Room 3 and trigger the case start without crashing.
 
@@ -64,9 +74,9 @@ Skim when needed:
 **Exit criteria:** Conversation distance looks clinical, not prototype; still must hit gameplay steps.
 
 ### Package gate — Phase D
-1. Clean git worktree; run `Scripts/Run-FirstBuild.ps1` then package (`-IncludePackage`).
-2. Run the **19-step** checklist on the **packaged** `CardioHospital.exe` at 2560×1440.
-3. Record evidence with `Scripts/Record-WalkthroughEvidence.ps1` (FPS ≥ 60, p95 frame time ≤ 16.7 ms).
+1. Clean git worktree; run `./Scripts/run-first-build.sh` then `./Scripts/package-macos.sh`.
+2. Run the **19-step** checklist on the **packaged** `.app` at 2560×1440.
+3. Record evidence with `./Scripts/record-walkthrough-evidence.sh` (FPS ≥ 60, p95 frame time ≤ 16.7 ms).
 4. Only a full passing record sets `walkthroughPassed`.
 
 ---
@@ -85,10 +95,8 @@ Skim when needed:
 
 ## If you only have 90 minutes
 
-1. Open UE → verify project builds (`Run-FirstBuild` preflight if unsure).  
-2. Create `OutpatientClinic_VSlice` with three volumes (team / corridor / exam).  
-3. Walk from team room into exam room with collision.  
-4. Stop. Commit. Do not open Blender until Phase A exit criteria pass.
+Follow the 90-minute block in [`../MAC_FIRST_SESSION.md`](../MAC_FIRST_SESSION.md).
+Do not open Blender. Do not add a second character.
 
 ---
 
