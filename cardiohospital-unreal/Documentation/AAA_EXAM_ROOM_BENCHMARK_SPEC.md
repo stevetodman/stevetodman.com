@@ -1,9 +1,12 @@
-Exit code: 0
-Wall time: 0.4 seconds
-Output:
 # CardioHospital Unreal — Pediatric Cardiology Exam Room Benchmark
 
-Status: authoritative environment proposal pending clinical-layout and reference-board approval.
+Status: authoritative environment proposal. Gate 0 reference board and circulation review are open. Gate 1 greybox exists as circulation-revised layout v2. Nothing here is clinical approval.
+
+See also:
+
+- `GATE0_REFERENCE_BOARD.md`
+- `GATE0_CIRCULATION_REVIEW.md`
+- `../SourceAssets/ExamRoom/Gate1/`
 
 ## Product decision
 
@@ -78,6 +81,8 @@ World convention:
 - Major architectural pivots at logical installation points.
 
 The greybox must include clearance envelopes around the exam table, door swing, parent chair, clinician stool, workstation, ECG station, and blood-pressure station. These envelopes are review aids and must not ship visibly.
+
+Layout v1 placed all six envelopes as floor islands and failed circulation. Layout v2 (current) keeps this footprint, puts the table on the north wall with the head east, parks ECG and BP on the east wall, and moves the parent chair to the southeast corner. See `GATE0_CIRCULATION_REVIEW.md`.
 
 ## Required environment
 
@@ -267,5 +272,4 @@ No screenshot can approve the room if the corresponding packaged camera view fai
 
 Do not generate another standalone prop or generic material pack.
 
-Create the measured architectural greybox and three provisional benchmark cameras first. Render the three views with neutral temporary materials. Review proportions, equipment zones, doorway sightline, window contribution, and clinical clearances. Only after Gate 1 passes should the room-specific material palette and production architecture begin.
-
+Sign the Gate 0 checklist in `GATE0_REFERENCE_BOARD.md`. That is a clinical-layout decision: keep the 4.27 × 3.96 m footprint and layout v2, mark up a different arrangement, or request a larger shell. Only after that decision should Gate 2 production architecture begin.

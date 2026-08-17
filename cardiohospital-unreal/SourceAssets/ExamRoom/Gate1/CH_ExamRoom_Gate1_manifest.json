@@ -1,71 +1,68 @@
-Exit code: 0
-Wall time: 0.4 seconds
-Output:
 {
   "gate": "Gate 1 - Architectural greybox",
-  "status": "provisional; requires clinical-layout and reference-board review",
+  "layout": "v2",
+  "status": "provisional circulation revision; requires clinical-layout and reference-board review",
   "dimensions_m": {
     "width": 4.27,
     "depth": 3.96,
     "height": 2.74
   },
-  "door_clear_m": [
-    0.91,
-    2.13
-  ],
-  "window_opening_m": [
-    1.8,
-    1.2
-  ],
+  "door_clear_m": [0.91, 2.13],
+  "window_opening_m": [1.8, 1.2],
   "benchmark_cameras": {
     "CAM_Benchmark_Doorway": {
-      "location_m": [
-        -1.05,
-        -1.86,
-        1.7
-      ],
-      "rotation_radians": [
-        1.366892,
-        0.0,
-        -0.497443
-      ],
+      "location_m": [-1.05, -1.7, 1.7],
+      "target_m": [0.25, 1.2, 1.18],
       "lens_mm": 30.0
     },
     "CAM_Benchmark_PatientSide": {
-      "location_m": [
-        1.88,
-        -1.72,
-        1.92
-      ],
-      "rotation_radians": [
-        1.285237,
-        -0.0,
-        0.78793
-      ],
+      "location_m": [1.7, 0.15, 1.7],
+      "target_m": [0.35, 1.4, 1.05],
       "lens_mm": 32.0
     },
     "CAM_Benchmark_Provider": {
-      "location_m": [
-        -1.88,
-        -1.68,
-        1.92
-      ],
-      "rotation_radians": [
-        1.294264,
-        -0.0,
-        -0.837981
-      ],
+      "location_m": [-1.7, -0.2, 1.7],
+      "target_m": [0.1, 1.0, 1.05],
       "lens_mm": 32.0
     }
   },
   "equipment_zones": [
-    "ZONE_ExamTable",
-    "ZONE_ProviderWorkstation",
-    "ZONE_ECGStation",
-    "ZONE_BloodPressure",
-    "ZONE_ParentChair",
-    "ZONE_PhysicianStool"
+    {
+      "name": "ZONE_ExamTable",
+      "size_m": [1.82, 0.72, 0.94],
+      "location_m": [0.35, 1.47, 0.47],
+      "role": "hero"
+    },
+    {
+      "name": "ZONE_ProviderWorkstation",
+      "size_m": [0.62, 1.25, 1.25],
+      "location_m": [-1.825, 0.55, 0.625],
+      "role": "hero"
+    },
+    {
+      "name": "ZONE_ECGStation",
+      "size_m": [0.45, 0.80, 0.80],
+      "location_m": [1.91, 1.47, 0.70],
+      "role": "hero"
+    },
+    {
+      "name": "ZONE_BloodPressure",
+      "size_m": [0.20, 0.20, 1.10],
+      "location_m": [1.91, -0.40, 0.70],
+      "role": "keep_clear"
+    },
+    {
+      "name": "ZONE_ParentChair",
+      "size_m": [0.78, 0.82, 1.05],
+      "location_m": [1.595, -1.42, 0.525],
+      "role": "seating"
+    },
+    {
+      "name": "ZONE_PhysicianStool",
+      "size_m": [0.58, 0.58, 0.78],
+      "location_m": [0.55, 0.67, 0.39],
+      "role": "seating"
+    }
   ],
   "production_warning": "No greybox geometry or clearance volume is approved final art."
 }
-
