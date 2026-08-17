@@ -1,20 +1,55 @@
-Exit code: 0
-Wall time: 0.4 seconds
-Output:
-"""Build the Gate 1 pediatric cardiology exam-room benchmark greybox."""
+"""Build the Gate 1 pediatric cardiology exam-room benchmark greybox.
 
-from pathlib import Path
+Run with Blender:
+  blender --background --python build_exam_room_greybox.py
+
+Optional output override after -- :
+  blender --background --python build_exam_room_greybox.py -- --output D:/tmp/examroom
+
+Default output is ./generated next to this script. The previous hardcoded
+Codex path is gone. Layout numbers live in exam_room_greybox_layout.py.
+"""
+
+from __future__ import annotations
+
 import json
 import math
+import sys
+from pathlib import Path
 
 import bpy
 from mathutils import Vector
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
 
-OUTPUT = Path(r"C:\Users\sht001\Documents\Codex\2026-08-17\im\outputs")
-OUTPUT.mkdir(parents=True, exist_ok=True)
-ROOM_W, ROOM_D, ROOM_H = 4.27, 3.96, 2.74
-WALL = 0.12
+from exam_room_greybox_layout import (
+    CAMERAS,
+    DEFAULT_OUTPUT,
+    DOOR_H,
+    DOOR_W,
+    DOOR_X,
+    ENVELOPES,
+    LAYOUT_VERSION,
+    ROOM_D,
+    ROOM_H,
+    ROOM_W,
+    WALL,
+    WINDOW_H,
+    WINDOW_SILL,
+    WINDOW_W,
+    WINDOW_X,
+)
+
+
+def output_dir():
+    argv = sys.argv
+    if "--" in argv:
+        extra = argv[argv.index("--") + 1 :]
+        if "--output" in extra:
+            return Path(extra[extra.index("--output") + 1]).expanduser()
+    return DEFAULT_OUTPUT
 
 
 def reset():
@@ -86,6 +121,8 @@ def add_camera(name, location, target, lens=50):
 
 
 def main():
+    dest = output_dir()
+    dest.mkdir(parents=True, exist_ok=True)
     reset()
     scene = bpy.context.scene
     scene.unit_settings.system = "METRIC"
@@ -98,6 +135,7 @@ def main():
     exam_mat = material("ZONE_ExamTable", (0.16, 0.48, 0.52), 0.55, 0.80)
     equipment_mat = material("ZONE_Equipment", (0.93, 0.34, 0.18), 0.55, 0.75)
     seating_mat = material("ZONE_Seating", (0.40, 0.30, 0.60), 0.55, 0.75)
+    keep_mat = material("ZONE_KeepClear", (0.70, 0.70, 0.72), 0.55, 0.45)
 
     architecture = bpy.data.collections.new("GB_ARCHITECTURE")
     scene.collection.children.link(architecture)
@@ -109,25 +147,20 @@ def main():
     box("GB_FinishedFloor", (ROOM_W, ROOM_D, 0.10), (0, 0, -0.05), floor_mat, collection=architecture)
     box("GB_Wall_West", (WALL, ROOM_D, ROOM_H), (-ROOM_W / 2, 0, ROOM_H / 2), wall_mat, collection=architecture)
     box("GB_Wall_East", (WALL, ROOM_D, ROOM_H), (ROOM_W / 2, 0, ROOM_H / 2), wall_mat, collection=architecture)
-    # South doorway: 0.91 m clear, slightly left of room center.
-    wall_with_opening_y("GB_Wall_South", -ROOM_D / 2, -1.05, 0.91, 0.0, 2.13, wall_mat)
-    # North daylight window: provisional 1.80 x 1.20 m, 0.95 m sill.
-    wall_with_opening_y("GB_Wall_North", ROOM_D / 2, 0.55, 1.80, 0.95, 1.20, wall_mat)
-    box("GB_WindowGlass", (1.76, 0.025, 1.16), (0.55, ROOM_D / 2 - 0.02, 1.55), glass_mat, 0.002, architecture)
+    wall_with_opening_y("GB_Wall_South", -ROOM_D / 2, DOOR_X, DOOR_W, 0.0, DOOR_H, wall_mat)
+    wall_with_opening_y("GB_Wall_North", ROOM_D / 2, WINDOW_X, WINDOW_W, WINDOW_SILL, WINDOW_H, wall_mat)
+    box("GB_WindowGlass", (WINDOW_W - 0.04, 0.025, WINDOW_H - 0.04), (WINDOW_X, ROOM_D / 2 - 0.02, WINDOW_SILL + WINDOW_H / 2), glass_mat, 0.002, architecture)
 
-    # Door leaf shown open toward the shallow waiting-area vignette.
-    door = box("GB_DoorLeaf", (0.91, 0.045, 2.13), (-1.05, -ROOM_D / 2 - 0.03, 1.065), trim_mat, 0.01, architecture)
+    door = box("GB_DoorLeaf", (DOOR_W, 0.045, DOOR_H), (DOOR_X, -ROOM_D / 2 - 0.03, DOOR_H / 2), trim_mat, 0.01, architecture)
     door.rotation_euler.z = math.radians(-68)
     door.location.x = -1.48
     door.location.y = -2.32
     door.hide_render = True
 
-    # Shallow, non-traversal waiting-area sightline.
     box("GB_WaitingFloor", (2.40, 1.55, 0.10), (-0.85, -2.78, -0.05), floor_mat, collection=architecture)
     box("GB_WaitingBackWall", (2.40, WALL, ROOM_H), (-0.85, -3.55, ROOM_H / 2), wall_mat, collection=architecture)
     box("GB_WaitingSideReturn", (WALL, 1.55, ROOM_H), (0.35, -2.78, ROOM_H / 2), wall_mat, collection=architecture)
 
-    # Baseboard and wall-protection bands establish the architectural hierarchy.
     for x in (-ROOM_W / 2 + 0.065, ROOM_W / 2 - 0.065):
         box(f"GB_Baseboard_X_{x:+.2f}", (0.035, ROOM_D - 0.12, 0.12), (x, 0, 0.06), trim_mat, 0.003, architecture)
         box(f"GB_ChairRail_X_{x:+.2f}", (0.045, ROOM_D - 0.12, 0.13), (x, 0, 0.92), trim_mat, 0.006, architecture)
@@ -135,7 +168,6 @@ def main():
         box(f"GB_Baseboard_Y_{y:+.2f}", (ROOM_W - 0.12, 0.035, 0.12), (0, y, 0.06), trim_mat, 0.003, architecture)
         box(f"GB_ChairRail_Y_{y:+.2f}", (ROOM_W - 0.12, 0.045, 0.13), (0, y, 0.92), trim_mat, 0.006, architecture)
 
-    # Ceiling tiles and exposed review grid.
     tile = 0.61
     x_count = int(ROOM_W / tile)
     y_count = int(ROOM_D / tile)
@@ -143,8 +175,14 @@ def main():
     y_start = -(y_count - 1) * tile / 2
     for ix in range(x_count):
         for iy in range(y_count):
-            box(f"GB_CeilingTile_{ix}_{iy}", (tile - 0.018, tile - 0.018, 0.025),
-                (x_start + ix * tile, y_start + iy * tile, ROOM_H), ceiling_mat, 0.002, architecture)
+            box(
+                f"GB_CeilingTile_{ix}_{iy}",
+                (tile - 0.018, tile - 0.018, 0.025),
+                (x_start + ix * tile, y_start + iy * tile, ROOM_H),
+                ceiling_mat,
+                0.002,
+                architecture,
+            )
     for ix in range(x_count + 1):
         x = x_start - tile / 2 + ix * tile
         box(f"GB_CeilingRailX_{ix}", (0.018, ROOM_D, 0.035), (x, 0, ROOM_H - 0.006), trim_mat, 0.001, hardware)
@@ -156,25 +194,18 @@ def main():
     box("GB_HVAC_Supply", (0.58, 0.58, 0.04), (-1.48, -1.18, ROOM_H - 0.045), trim_mat, 0.008, hardware)
     box("GB_HVAC_Return", (0.58, 0.29, 0.04), (1.48, 1.18, ROOM_H - 0.045), trim_mat, 0.008, hardware)
 
-    # Provisional equipment envelopes; not production props.
-    envelope_specs = (
-        ("ZONE_ExamTable", (1.85, 0.78, 0.95), (0.48, 0.34, 0.475), exam_mat),
-        ("ZONE_ProviderWorkstation", (1.25, 0.62, 1.25), (-1.42, 0.92, 0.625), equipment_mat),
-        ("ZONE_ECGStation", (0.90, 0.45, 0.80), (1.62, 0.72, 1.42), equipment_mat),
-        ("ZONE_BloodPressure", (0.48, 0.48, 1.30), (1.62, -0.78, 0.65), equipment_mat),
-        ("ZONE_ParentChair", (0.78, 0.82, 1.05), (-1.43, -0.62, 0.525), seating_mat),
-        ("ZONE_PhysicianStool", (0.58, 0.58, 0.78), (0.15, -0.98, 0.39), seating_mat),
-    )
-    for name, size, location, zone_mat in envelope_specs:
-        obj = box(name, size, location, zone_mat, 0.025, zones)
+    role_mats = {"hero": equipment_mat, "seating": seating_mat, "keep_clear": keep_mat}
+    for spec in ENVELOPES:
+        zone_mat = exam_mat if spec["name"] == "ZONE_ExamTable" else role_mats[spec["role"]]
+        obj = box(spec["name"], spec["size"], spec["location"], zone_mat, 0.025, zones)
         wire = obj.modifiers.new("ReviewEnvelopeWire", "WIREFRAME")
         wire.thickness = 0.009
         wire.use_replace = True
         bpy.context.view_layer.objects.active = obj
         bpy.ops.object.modifier_apply(modifier=wire.name)
         obj["review_only"] = True
+        obj["layout_version"] = LAYOUT_VERSION
 
-    # Neutral review lighting; final lighting remains an Unreal Gate 2 task.
     world = scene.world or bpy.data.worlds.new("GB_World")
     scene.world = world
     world.use_nodes = True
@@ -190,7 +221,6 @@ def main():
         light = bpy.data.objects.new(data.name, data)
         scene.collection.objects.link(light)
         light.location = (x, y, ROOM_H - 0.10)
-        light.rotation_euler = (0, 0, 0)
     day = bpy.data.lights.new("GB_DaylightContribution", "AREA")
     day.energy = 220
     day.shape = "RECTANGLE"
@@ -199,23 +229,22 @@ def main():
     day.color = (0.70, 0.84, 1.0)
     daylight = bpy.data.objects.new(day.name, day)
     scene.collection.objects.link(daylight)
-    daylight.location = (0.55, 2.18, 1.55)
+    daylight.location = (WINDOW_X, 2.18, WINDOW_SILL + WINDOW_H / 2)
     daylight.rotation_euler = (math.radians(90), 0, 0)
 
-    cameras = {
-        "CAM_Benchmark_Doorway": add_camera("CAM_Benchmark_Doorway", (-1.05, -1.86, 1.70), (0.15, 0.35, 1.18), 30),
-        "CAM_Benchmark_PatientSide": add_camera("CAM_Benchmark_PatientSide", (1.88, -1.72, 1.92), (-0.10, 0.25, 1.10), 32),
-        "CAM_Benchmark_Provider": add_camera("CAM_Benchmark_Provider", (-1.88, -1.68, 1.92), (0.32, 0.30, 1.08), 32),
-    }
+    cameras = {}
+    for name, spec in CAMERAS.items():
+        cameras[name] = add_camera(name, spec["location"], spec["target"], spec["lens_mm"])
+
     scene.render.engine = "BLENDER_EEVEE"
-    scene.render.resolution_x = 1600
-    scene.render.resolution_y = 900
+    scene.render.resolution_x = 2560
+    scene.render.resolution_y = 1440
     scene.render.resolution_percentage = 100
     scene.render.image_settings.file_format = "PNG"
     scene.view_settings.look = "AgX - Medium High Contrast"
     for name, camera in cameras.items():
         scene.camera = camera
-        scene.render.filepath = str(OUTPUT / f"{name}.png")
+        scene.render.filepath = str(dest / f"{name}.png")
         bpy.ops.render.render(write_still=True)
 
     plan_data = bpy.data.cameras.new("CAM_ClearancePlan")
@@ -224,45 +253,72 @@ def main():
     plan_camera.location = (0, 0, 8)
     plan_camera.data.type = "ORTHO"
     plan_camera.data.ortho_scale = 5.6
-    hidden_for_plan = [obj for obj in scene.objects if obj.name.startswith("GB_Ceiling") or obj.name.startswith("GB_LED")
-                       or obj.name.startswith("GB_HVAC")]
+    hidden_for_plan = [
+        obj
+        for obj in scene.objects
+        if obj.name.startswith("GB_Ceiling") or obj.name.startswith("GB_LED") or obj.name.startswith("GB_HVAC")
+    ]
     for obj in hidden_for_plan:
         obj.hide_render = True
     scene.camera = plan_camera
-    scene.render.filepath = str(OUTPUT / "CAM_ClearancePlan.png")
+    scene.render.filepath = str(dest / "CAM_ClearancePlan.png")
     bpy.ops.render.render(write_still=True)
     for obj in hidden_for_plan:
         obj.hide_render = False
 
-    # Exports are review artifacts; clearance envelopes remain visible by design.
     bpy.ops.object.select_all(action="DESELECT")
     export_objects = [obj for obj in scene.objects if obj.type in {"MESH", "CURVE"}]
     for obj in export_objects:
         obj.select_set(True)
-    bpy.ops.export_scene.fbx(filepath=str(OUTPUT / "CH_ExamRoom_Gate1_Greybox.fbx"), use_selection=True,
-                             axis_forward="-Y", axis_up="Z", bake_anim=False, add_leaf_bones=False)
-    bpy.ops.export_scene.gltf(filepath=str(OUTPUT / "CH_ExamRoom_Gate1_Greybox.glb"), export_format="GLB",
-                              use_selection=True, export_apply=True, export_yup=True)
+    bpy.ops.export_scene.fbx(
+        filepath=str(dest / "CH_ExamRoom_Gate1_Greybox.fbx"),
+        use_selection=True,
+        axis_forward="-Y",
+        axis_up="Z",
+        bake_anim=False,
+        add_leaf_bones=False,
+    )
+    bpy.ops.export_scene.gltf(
+        filepath=str(dest / "CH_ExamRoom_Gate1_Greybox.glb"),
+        export_format="GLB",
+        use_selection=True,
+        export_apply=True,
+        export_yup=True,
+    )
     bpy.context.preferences.filepaths.save_version = 0
-    bpy.ops.wm.save_as_mainfile(filepath=str(OUTPUT / "CH_ExamRoom_Gate1_Greybox.blend"), compress=True)
+    bpy.ops.wm.save_as_mainfile(filepath=str(dest / "CH_ExamRoom_Gate1_Greybox.blend"), compress=True)
+
     manifest = {
         "gate": "Gate 1 - Architectural greybox",
-        "status": "provisional; requires clinical-layout and reference-board review",
+        "layout": LAYOUT_VERSION,
+        "status": "provisional circulation revision; requires clinical-layout and reference-board review",
         "dimensions_m": {"width": ROOM_W, "depth": ROOM_D, "height": ROOM_H},
-        "door_clear_m": [0.91, 2.13],
-        "window_opening_m": [1.80, 1.20],
+        "door_clear_m": [DOOR_W, DOOR_H],
+        "window_opening_m": [WINDOW_W, WINDOW_H],
         "benchmark_cameras": {
-            name: {"location_m": [round(v, 4) for v in camera.location],
-                   "rotation_radians": [round(v, 6) for v in camera.rotation_euler], "lens_mm": camera.data.lens}
+            name: {
+                "location_m": [round(v, 4) for v in camera.location],
+                "rotation_radians": [round(v, 6) for v in camera.rotation_euler],
+                "lens_mm": camera.data.lens,
+            }
             for name, camera in cameras.items()
         },
-        "equipment_zones": [name for name, *_ in envelope_specs],
+        "equipment_zones": [
+            {
+                "name": spec["name"],
+                "size_m": list(spec["size"]),
+                "location_m": list(spec["location"]),
+                "role": spec["role"],
+            }
+            for spec in ENVELOPES
+        ],
+        "output_dir": str(dest),
         "production_warning": "No greybox geometry or clearance volume is approved final art.",
     }
-    (OUTPUT / "CH_ExamRoom_Gate1_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    (dest / "CH_ExamRoom_Gate1_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    (SCRIPT_DIR / "CH_ExamRoom_Gate1_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(manifest, indent=2))
 
 
 if __name__ == "__main__":
     main()
-
