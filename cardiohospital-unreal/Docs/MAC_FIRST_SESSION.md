@@ -1,5 +1,7 @@
 # Mac first session — do this, in this order
 
+New agent: also read [`NEXT_AGENT.md`](NEXT_AGENT.md).
+
 The M4 Max is the release machine (ADR-0002). This managed Windows PC
 cannot compile Unreal. The Mac already has a walkable packaged ward.
 This branch has the nine-case clinical core, disclosure, and scoring

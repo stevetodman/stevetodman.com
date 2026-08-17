@@ -1,7 +1,8 @@
 # Handoff
 
-The release target is macOS on Apple silicon (ADR-0002). **On the M4 Max,
-open [`Docs/MAC_FIRST_SESSION.md`](Docs/MAC_FIRST_SESSION.md) first.**
+The release target is macOS on Apple silicon (ADR-0002). **Next agent:
+[`Docs/NEXT_AGENT.md`](Docs/NEXT_AGENT.md).** On the M4 Max, then open
+[`Docs/MAC_FIRST_SESSION.md`](Docs/MAC_FIRST_SESSION.md).
 
 The Windows notes below are retained for the optional PowerShell path.
 
