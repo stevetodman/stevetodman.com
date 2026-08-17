@@ -1,0 +1,65 @@
+{
+  "asset_id": "CH-WALLECG-001",
+  "display_name": "CardioHospital Wall-Mounted ECG Workstation",
+  "authorship": "Original unbranded hard-surface asset authored for CardioHospital",
+  "clinical_content": "Synthetic simulation display states; no PHI",
+  "units": "metres",
+  "dimensions_m": {
+    "width": 0.92,
+    "depth_from_wall": 0.64,
+    "height": 0.78
+  },
+  "origin": "wall mounting-plate center",
+  "forward_axis": "-Y",
+  "up_axis": "Z",
+  "lod_stats": {
+    "LOD0": {
+      "objects": 42,
+      "vertices": 8260,
+      "triangles": 16350
+    },
+    "LOD1": {
+      "objects": 42,
+      "vertices": 4807,
+      "triangles": 9444
+    },
+    "LOD2": {
+      "objects": 42,
+      "vertices": 2280,
+      "triangles": 4390
+    }
+  },
+  "collision": [
+    "UCX_SM_CH_WallECG_01_00",
+    "UCX_SM_CH_WallECG_01_01",
+    "UCX_SM_CH_WallECG_01_02",
+    "UCX_SM_CH_WallECG_01_03"
+  ],
+  "uv_channels": [
+    "UV0",
+    "UV1_Lightmap"
+  ],
+  "screen_states": {
+    "sinus": "T_CH_WallECG_Screen_sinus_4K.png",
+    "tachy": "T_CH_WallECG_Screen_tachy_4K.png",
+    "artifact": "T_CH_WallECG_Screen_artifact_4K.png"
+  },
+  "screen_resolution": [
+    4096,
+    2048
+  ],
+  "validation_renderer": "OptiX: NVIDIA GeForce RTX 4090, NVIDIA GeForce RTX 4090",
+  "unreal_import": {
+    "combine_meshes": true,
+    "import_normals_and_tangents": true,
+    "generate_lightmap_uvs": false,
+    "screen_material": "translucency disabled; emissive RGB texture",
+    "suggested_lod_distance_m": [
+      0,
+      7,
+      18
+    ],
+    "nanite_recommended": true
+  },
+  "license": "Project-owned original asset; no third-party geometry, trademarks, or patient data embedded."
+}
