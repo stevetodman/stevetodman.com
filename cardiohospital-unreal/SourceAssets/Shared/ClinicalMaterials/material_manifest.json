@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "library": "CardioHospital Clinical Materials",
+  "authorship": "Original deterministic project-owned textures",
+  "resolution": [
+    4096,
+    4096
+  ],
+  "packing": {
+    "ORM_R": "ambient_occlusion",
+    "ORM_G": "roughness",
+    "ORM_B": "metalness"
+  },
+  "materials": {
+    "PowderCoat_WarmWhite": {
+      "textures": {
+        "base_color": "T_CH_PowderCoat_WarmWhite_BaseColor_4K.png",
+        "normal": "T_CH_PowderCoat_WarmWhite_Normal_4K.png",
+        "orm": "T_CH_PowderCoat_WarmWhite_ORM_4K.png"
+      },
+      "tiling_scale": 7.0,
+      "profile": "powder"
+    },
+    "BrushedSteel": {
+      "textures": {
+        "base_color": "T_CH_BrushedSteel_BaseColor_4K.png",
+        "normal": "T_CH_BrushedSteel_Normal_4K.png",
+        "orm": "T_CH_BrushedSteel_ORM_4K.png"
+      },
+      "tiling_scale": 5.0,
+      "profile": "steel"
+    },
+    "ABS_Graphite": {
+      "textures": {
+        "base_color": "T_CH_ABS_Graphite_BaseColor_4K.png",
+        "normal": "T_CH_ABS_Graphite_Normal_4K.png",
+        "orm": "T_CH_ABS_Graphite_ORM_4K.png"
+      },
+      "tiling_scale": 8.0,
+      "profile": "abs"
+    },
+    "MedicalVinyl_Teal": {
+      "textures": {
+        "base_color": "T_CH_MedicalVinyl_Teal_BaseColor_4K.png",
+        "normal": "T_CH_MedicalVinyl_Teal_Normal_4K.png",
+        "orm": "T_CH_MedicalVinyl_Teal_ORM_4K.png"
+      },
+      "tiling_scale": 6.0,
+      "profile": "vinyl"
+    },
+    "Rubber_Black": {
+      "textures": {
+        "base_color": "T_CH_Rubber_Black_BaseColor_4K.png",
+        "normal": "T_CH_Rubber_Black_Normal_4K.png",
+        "orm": "T_CH_Rubber_Black_ORM_4K.png"
+      },
+      "tiling_scale": 9.0,
+      "profile": "rubber"
+    },
+    "AntiGlareGlass": {
+      "textures": {
+        "base_color": "T_CH_AntiGlareGlass_BaseColor_4K.png",
+        "normal": "T_CH_AntiGlareGlass_Normal_4K.png",
+        "orm": "T_CH_AntiGlareGlass_ORM_4K.png"
+      },
+      "tiling_scale": 4.0,
+      "profile": "glass"
+    }
+  },
+  "license": "Project-owned original material library; no third-party scans or imagery."
+}

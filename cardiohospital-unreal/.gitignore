@@ -27,4 +27,5 @@ Captures/
 PackagedBuilds/
 *.tmp
 *.log
-
+__pycache__/
+*.py[cod]

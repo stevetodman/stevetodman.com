@@ -1,0 +1,74 @@
+{
+  "asset_id": "CH-EXAMTABLE-001",
+  "display_name": "CardioHospital Pediatric Exam Table",
+  "authorship": "Original unbranded hard-surface asset authored for CardioHospital",
+  "units": "metres",
+  "dimensions_m": {
+    "length": 1.82,
+    "width": 0.72,
+    "surface_height": 0.94
+  },
+  "origin": "floor center",
+  "forward_axis": "-Y",
+  "up_axis": "Z",
+  "lod_stats": {
+    "LOD0": {
+      "objects": 32,
+      "vertices": 6048,
+      "triangles": 11972
+    },
+    "LOD1": {
+      "objects": 32,
+      "vertices": 3519,
+      "triangles": 6914
+    },
+    "LOD2": {
+      "objects": 32,
+      "vertices": 1729,
+      "triangles": 3334
+    }
+  },
+  "collision": [
+    "UCX_SM_CH_ExamTable_01_00",
+    "UCX_SM_CH_ExamTable_01_01",
+    "UCX_SM_CH_ExamTable_01_02"
+  ],
+  "uv_channels": [
+    "UV0",
+    "UV1_Lightmap"
+  ],
+  "materials": [
+    "MI_CH_PowderCoat_WarmWhite",
+    "MI_CH_Upholstery_Teal",
+    "MI_CH_BrushedSteel",
+    "MI_CH_ABS_Graphite",
+    "MI_CH_Pediatric_Coral",
+    "MI_CH_Rubber_Tread"
+  ],
+  "textures": {
+    "BaseColor": "T_CH_ExamTable_Upholstery_BaseColor_4K.png",
+    "Roughness": "T_CH_ExamTable_Upholstery_Roughness_4K.png",
+    "Normal": "T_CH_ExamTable_Upholstery_Normal_4K.png"
+  },
+  "texture_resolution": 4096,
+  "validation_renderer": "OptiX: NVIDIA GeForce RTX 4090, NVIDIA GeForce RTX 4090",
+  "shared_material_sets": [
+    "PowderCoat_WarmWhite",
+    "MedicalVinyl_Teal",
+    "BrushedSteel",
+    "ABS_Graphite",
+    "Rubber_Black"
+  ],
+  "unreal_import": {
+    "combine_meshes": true,
+    "import_normals_and_tangents": true,
+    "generate_lightmap_uvs": false,
+    "lod_distance_targets_m": [
+      0,
+      6,
+      15
+    ],
+    "nanite_recommended": true
+  },
+  "license": "Project-owned original asset; no third-party geometry, trademarks, or reference imagery embedded."
+}
