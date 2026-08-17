@@ -42,7 +42,7 @@ export const CASE_CONCEPTS: CaseConceptDefinition[] = [
   {
     id: "test-selection-restraint",
     label: "Test selection restraint",
-    caseIds: ["case-innocent-murmur", "case-vasovagal"],
+    caseIds: ["case-innocent-murmur", "case-vasovagal", "case-msk-chest-pain"],
     dimensionIds: ["testSelection", "efficiency", "communication"],
   },
   {
@@ -54,7 +54,19 @@ export const CASE_CONCEPTS: CaseConceptDefinition[] = [
   {
     id: "pediatric-hypertension",
     label: "Pediatric hypertension workup",
-    caseIds: ["case-coarctation"],
+    caseIds: ["case-coarctation", "case-adolescent-htn"],
     dimensionIds: ["physicalExamination", "testSelection", "clinicalReasoning"],
+  },
+  {
+    id: "pediatric-chest-pain",
+    label: "Pediatric chest-pain discrimination",
+    caseIds: ["case-msk-chest-pain", "case-myocarditis"],
+    dimensionIds: ["history", "physicalExamination", "testSelection", "clinicalReasoning"],
+  },
+  {
+    id: "abpm-confirmation",
+    label: "ABPM confirmation of hypertension",
+    caseIds: ["case-adolescent-htn"],
+    dimensionIds: ["testSelection", "clinicalReasoning", "safety"],
   },
 ];
