@@ -1,0 +1,71 @@
+Exit code: 0
+Wall time: 0.4 seconds
+Output:
+{
+  "gate": "Gate 1 - Architectural greybox",
+  "status": "provisional; requires clinical-layout and reference-board review",
+  "dimensions_m": {
+    "width": 4.27,
+    "depth": 3.96,
+    "height": 2.74
+  },
+  "door_clear_m": [
+    0.91,
+    2.13
+  ],
+  "window_opening_m": [
+    1.8,
+    1.2
+  ],
+  "benchmark_cameras": {
+    "CAM_Benchmark_Doorway": {
+      "location_m": [
+        -1.05,
+        -1.86,
+        1.7
+      ],
+      "rotation_radians": [
+        1.366892,
+        0.0,
+        -0.497443
+      ],
+      "lens_mm": 30.0
+    },
+    "CAM_Benchmark_PatientSide": {
+      "location_m": [
+        1.88,
+        -1.72,
+        1.92
+      ],
+      "rotation_radians": [
+        1.285237,
+        -0.0,
+        0.78793
+      ],
+      "lens_mm": 32.0
+    },
+    "CAM_Benchmark_Provider": {
+      "location_m": [
+        -1.88,
+        -1.68,
+        1.92
+      ],
+      "rotation_radians": [
+        1.294264,
+        -0.0,
+        -0.837981
+      ],
+      "lens_mm": 32.0
+    }
+  },
+  "equipment_zones": [
+    "ZONE_ExamTable",
+    "ZONE_ProviderWorkstation",
+    "ZONE_ECGStation",
+    "ZONE_BloodPressure",
+    "ZONE_ParentChair",
+    "ZONE_PhysicianStool"
+  ],
+  "production_warning": "No greybox geometry or clearance volume is approved final art."
+}
+
