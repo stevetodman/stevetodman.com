@@ -1,16 +1,18 @@
 # CardioHospital Unreal — Pediatric Cardiology Exam Room Benchmark
 
-Status: authoritative environment proposal. Gate 0 reference board and circulation review are open. Gate 1 greybox exists as circulation-revised layout v2. Nothing here is clinical approval.
+Status: layout v2 + west-wall sink accepted 2026-08-17. Gate 2 architecture has not started. Nothing here is a packaged Unreal approval.
 
 See also:
 
+- `AAA_DCC_PIPELINE.md` — Blender / Hunyuan / Unreal ownership
+- `AAA_HUNYUAN_JOBS.md` — prop generation cards
 - `GATE0_REFERENCE_BOARD.md`
 - `GATE0_CIRCULATION_REVIEW.md`
 - `../SourceAssets/ExamRoom/Gate1/`
 
 ## Product decision
 
-Unreal Engine remains the primary immersive runtime. Next.js, React, and TypeScript remain appropriate for conventional application surfaces, authoring tools, analytics, and curriculum interfaces. Blender and texture-authoring tools produce source assets; Unreal owns final lighting, materials, interactions, packaging, and performance evidence.
+Unreal Engine 5.8 is the primary immersive runtime. Blender is the asset source of truth. Hunyuan3D may generate first-pass hero and medium props; it may not generate the room shell, trim, or tiling materials. Next.js, React, and TypeScript remain appropriate for conventional application surfaces. React Three Fiber is not the production renderer.
 
 The simulator must prove one photoreal pediatric cardiology exam room before expanding its environment scope.
 
@@ -63,14 +65,15 @@ Every external reference or source asset must have recorded provenance and licen
 
 ## Provisional measured shell
 
-These dimensions are a greybox starting point, not a claim about a specific institution. They require clinical-layout review before production modeling:
+Accepted greybox starting point, still not a claim about a named institution:
 
 - Interior clear width: 4.27 m.
 - Interior clear depth: 3.96 m.
 - Finished ceiling height: 2.74 m.
-- Door clear opening: 0.91 m × 2.13 m.
-- Exterior window opening: approximately 1.80 m × 1.20 m, subject to the chosen references.
-- Ceiling module: 0.61 m grid unless the approved reference uses another system.
+- Door clear opening: 0.91 m × 2.13 m, outswing.
+- Exterior window opening: 1.80 m × 1.20 m.
+- Ceiling module: 0.61 m grid.
+- West wall is one casework run: sink near the door, computer at the foot of the table.
 
 World convention:
 
@@ -80,9 +83,7 @@ World convention:
 - Finished floor at `Z = 0`.
 - Major architectural pivots at logical installation points.
 
-The greybox must include clearance envelopes around the exam table, door swing, parent chair, clinician stool, workstation, ECG station, and blood-pressure station. These envelopes are review aids and must not ship visibly.
-
-Layout v1 placed all six envelopes as floor islands and failed circulation. Layout v2 (current) keeps this footprint, puts the table on the north wall with the head east, parks ECG and BP on the east wall, and moves the parent chair to the southeast corner. See `GATE0_CIRCULATION_REVIEW.md`.
+Clearance envelopes are review aids and must not ship visibly.
 
 ## Required environment
 
@@ -100,13 +101,14 @@ Layout v1 placed all six envelopes as floor islands and failed circulation. Layo
 - HVAC supply and return elements.
 - Sprinkler head, speaker, smoke detector/sensor, and other visible ceiling hardware supported by references.
 - Electrical receptacles, data plates, switches, and wall penetrations at credible heights.
+- West-wall casework with a clinical sink.
 
 ### Hero assets
 
 - Pediatric exam table.
 - ECG workstation.
-- Physician workstation.
-- Blood-pressure station.
+- Physician workstation (surface on the west casework).
+- Blood-pressure station (wall device).
 
 ### Medium assets
 
@@ -130,13 +132,13 @@ Camera transforms are finalized after greybox review and then version-controlled
 
 1. **Doorway establishing view** — shows the exam table, window/daylight direction, parent seating, provider zone, and enough doorway context to communicate a hospital without constructing a corridor.
 2. **Patient-side view** — tests the exam table, ECG station, wall system, ceiling, material scale, and conversation-distance realism.
-3. **Provider-workstation view** — tests casework, computer equipment, ECG/blood-pressure integration, doorway vignette, and close material response.
+3. **Provider-workstation view** — tests casework, sink, computer equipment, doorway vignette, and close material response.
 
 Every environment milestone must render all three cameras at 2560 × 1440 using identical exposure, tone mapping, and scalability settings.
 
 ## Material system
 
-The room palette is reference-driven. A generic material is not approved merely because it is technically PBR.
+The room palette is reference-driven. A generic material is not approved merely because it is technically PBR. Hunyuan maps are a first pass and must be replaced or recalibrated in Blender/Unreal.
 
 Each production material must record:
 
@@ -233,7 +235,7 @@ No screenshot can approve the room if the corresponding packaged camera view fai
 
 ### Gate 2 — Architecture and lighting
 
-- Walls, protection, trim, floor, ceiling, doors, window, outlets, casework, and ceiling hardware complete.
+- Walls, protection, trim, floor, ceiling, doors, window, outlets, casework, sink, and ceiling hardware complete.
 - Material scale and roughness approved.
 - Lighting/color pipeline approved from all cameras.
 
@@ -270,6 +272,4 @@ No screenshot can approve the room if the corresponding packaged camera view fai
 
 ## Immediate next action
 
-Do not generate another standalone prop or generic material pack.
-
-Sign the Gate 0 checklist in `GATE0_REFERENCE_BOARD.md`. That is a clinical-layout decision: keep the 4.27 × 3.96 m footprint and layout v2, mark up a different arrangement, or request a larger shell. Only after that decision should Gate 2 production architecture begin.
+Build the Gate 2 architectural shell in Blender. Do not generate another standalone Hunyuan prop until that shell is in the three locked cameras with temporary materials.
