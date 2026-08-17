@@ -65,7 +65,7 @@ capture evidence and attach a truthful pass or failure to the package manifest.
 - `UCardioClinicalDataSubsystem` loads the schema-v3 generated runtime artifact,
   including clinical cases, graphs, safety rules, counterfactuals, and concepts.
 - `UCardioCaseRuntimeSubsystem` exposes deterministic case actions to Blueprint.
-- Portable tests simulate complete and unsafe paths across all seven current
+- Portable tests simulate complete and unsafe paths across all nine current
   deterministic clinic cases. Keep these tests green while connecting world
   interactions.
 - Run `Tools/case-authoring-report.mjs` before exposing a new order in the UI.

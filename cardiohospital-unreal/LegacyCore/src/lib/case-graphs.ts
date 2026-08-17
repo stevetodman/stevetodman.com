@@ -337,7 +337,109 @@ export const INNOCENT_MURMUR_CASE_GRAPH = compileOutpatientCaseGraph(INNOCENT_MU
 export const WPW_CASE_GRAPH = compileOutpatientCaseGraph(WPW_AUTHORING);
 export const MYOCARDITIS_CASE_GRAPH = compileOutpatientCaseGraph(MYOCARDITIS_AUTHORING);
 export const LONG_QT_CASE_GRAPH = compileOutpatientCaseGraph(LONG_QT_AUTHORING);
+const MSK_CHEST_PAIN_AUTHORING: OutpatientCaseAuthoring = {
+  caseId: "case-msk-chest-pain",
+  version: "1.0",
+  roomTarget: "room-4",
+  encounterTarget: "jordan-and-parent",
+  history: [
+    { key: "generic", acceptance: true },
+    { key: "activity_level", acceptance: true },
+    { key: "palpitations" },
+    { key: "viral_illness", acceptance: true },
+    { key: "family_sudden_death" },
+    { key: "substance_use" },
+  ],
+  examAcceptanceTargets: ["general", "vitals", "auscultation"],
+  orders: [
+    { id: "ecg", target: "ECG", reviewable: true },
+    { id: "echo", target: "Echocardiogram", reviewable: true },
+    { id: "troponin", target: "Troponin" },
+    { id: "bnp", target: "BNP" },
+    { id: "cardiac-mri", target: "Cardiac MRI" },
+    { id: "cxr", target: "CXR" },
+  ],
+  management: [
+    { id: "reassure-msk", target: "Reassure — musculoskeletal / costochondral pain", acceptance: true },
+    { id: "continue-activity", target: "Continue usual activity as tolerated", acceptance: true },
+    { id: "chest-wall-care", target: "Supportive chest-wall care and return precautions", acceptance: true },
+    { id: "admit", target: "Admit for chest-pain rule-out" },
+    { id: "restrict-sports", target: "Restrict from sports" },
+  ],
+  safetyRules: [
+    {
+      id: "msk-unnecessary-restriction",
+      severity: "major",
+      requiredActions: ["management.continue-activity"],
+      prohibitedActions: ["management.restrict-sports", "management.admit"],
+      message: "Reproducible musculoskeletal chest pain was treated as cardiac disease with restriction or admission.",
+      intervention: "The attending corrects the plan and returns the patient to usual activity with chest-wall precautions.",
+    },
+  ],
+  counterfactuals: [
+    {
+      id: "msk-versus-myocarditis",
+      prompt: "What if this pain started at rest after a viral illness and the exam was not reproducible?",
+      alternateCaseId: "case-myocarditis",
+      triggerMissingActions: ["history.viral-illness", "history.activity-level"],
+    },
+  ],
+};
+
+const ADOLESCENT_HTN_AUTHORING: OutpatientCaseAuthoring = {
+  caseId: "case-adolescent-htn",
+  version: "1.0",
+  roomTarget: "room-1",
+  encounterTarget: "priya-and-parent",
+  history: [
+    { key: "generic", acceptance: true },
+    { key: "activity_level", acceptance: true },
+    { key: "pmh", acceptance: true },
+    { key: "meds" },
+    { key: "family_sudden_death", acceptance: true },
+    { key: "substance_use" },
+  ],
+  examAcceptanceTargets: ["general", "vitals", "femoralPulses"],
+  orders: [
+    { id: "abpm", target: "ABPM" },
+    { id: "ecg", target: "ECG", reviewable: true },
+    { id: "echo", target: "Echocardiogram", reviewable: true },
+    { id: "cardiac-mri", target: "Cardiac MRI" },
+    { id: "ct-angiography", target: "CT angiography" },
+    { id: "troponin", target: "Troponin" },
+    { id: "holter", target: "Holter" },
+  ],
+  management: [
+    { id: "no-meds-yet", target: "Do not start antihypertensive therapy from a single school reading", acceptance: true },
+    { id: "arrange-abpm", target: "Arrange 24-hour ABPM to confirm hypertension", acceptance: true },
+    { id: "lifestyle", target: "Lifestyle counseling (sodium, activity, weight, energy drinks)", acceptance: true },
+    { id: "repeat-office-bp", target: "Repeat properly measured office BP", acceptance: true },
+    { id: "start-antihypertensive", target: "Start an ACE inhibitor today" },
+    { id: "restrict-all-sports", target: "Bench from all sports indefinitely" },
+  ],
+  safetyRules: [
+    {
+      id: "htn-unconfirmed-medication",
+      severity: "major",
+      requiredActions: ["management.no-meds-yet", "management.arrange-abpm"],
+      prohibitedActions: ["management.start-antihypertensive"],
+      message: "Antihypertensive therapy was started from a single unconfirmed school blood pressure.",
+      intervention: "The attending holds the prescription, repeats a proper office measurement, and schedules ABPM.",
+    },
+  ],
+  counterfactuals: [
+    {
+      id: "htn-versus-coarctation",
+      prompt: "What if the femorals were delayed and the leg BPs were 50 mmHg lower than the arms?",
+      alternateCaseId: "case-coarctation",
+      triggerMissingActions: ["exam.femoral-pulses"],
+    },
+  ],
+};
+
 export const COARCTATION_CASE_GRAPH = compileOutpatientCaseGraph(COARCTATION_AUTHORING);
+export const MSK_CHEST_PAIN_CASE_GRAPH = compileOutpatientCaseGraph(MSK_CHEST_PAIN_AUTHORING);
+export const ADOLESCENT_HTN_CASE_GRAPH = compileOutpatientCaseGraph(ADOLESCENT_HTN_AUTHORING);
 export const CASE_GRAPHS: CaseGraphDefinition[] = [
   HCM_CASE_GRAPH,
   VASOVAGAL_CASE_GRAPH,
@@ -346,4 +448,6 @@ export const CASE_GRAPHS: CaseGraphDefinition[] = [
   MYOCARDITIS_CASE_GRAPH,
   LONG_QT_CASE_GRAPH,
   COARCTATION_CASE_GRAPH,
+  MSK_CHEST_PAIN_CASE_GRAPH,
+  ADOLESCENT_HTN_CASE_GRAPH,
 ];

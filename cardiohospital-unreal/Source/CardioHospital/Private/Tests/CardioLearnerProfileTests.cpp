@@ -99,8 +99,8 @@ bool FCardioLearnerProfileTest::RunTest(const FString& Parameters)
         AddError(Error);
         return false;
     }
-    TestEqual(TEXT("All seven outpatient cases are available"), Document.Cases.Num(), 7);
-    TestEqual(TEXT("All seven outpatient graphs are available"), Document.CaseGraphs.Num(), 7);
+    TestEqual(TEXT("All nine outpatient cases are available"), Document.Cases.Num(), 9);
+    TestEqual(TEXT("All nine outpatient graphs are available"), Document.CaseGraphs.Num(), 9);
 
     TSet<FString> ProfilePropertyNames;
     for (TFieldIterator<FProperty> Property(FCardioLearnerProfile::StaticStruct()); Property; ++Property)
@@ -385,7 +385,7 @@ bool FCardioLearnerProfileTest::RunTest(const FString& Parameters)
         }
         RotationProfile = MoveTemp(NextProfile);
     }
-    TestEqual(TEXT("Adaptive rotation covers all seven cases"), SelectedCaseIds.Num(), 7);
+    TestEqual(TEXT("Adaptive rotation covers all nine cases"), SelectedCaseIds.Num(), 9);
     for (const FCardioClinicalCase& ClinicalCase : Document.Cases)
     {
         TestTrue(

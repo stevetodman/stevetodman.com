@@ -75,7 +75,7 @@ status, evidence, and gap together.
 | 20 | `LegacyCore/plan.md:L583` | VITAL SIGNS SYSTEM | `PARTIAL` | `BH`, `CG` | Static vitals and authored four-limb findings exist; no live native vital-sign system exists. |
 | 21 | `LegacyCore/plan.md:L608` | CLINICAL TABLET | `MISSING` | `NONE` | No clinical tablet exists. |
 | 22 | `LegacyCore/plan.md:L630` | ELECTRONIC MEDICAL RECORD | `DATA-ONLY` | `CG` | Clinical data exists without an EMR interface or runtime. |
-| 23 | `LegacyCore/plan.md:L669` | ORDER ENTRY | `PARTIAL` | `BH`, `CG`, `EE` | One browser case and seven tested graphs support orders; no native order-entry UI exists. |
+| 23 | `LegacyCore/plan.md:L669` | ORDER ENTRY | `PARTIAL` | `BH`, `CG`, `EE` | One browser case and nine tested graphs support orders; no native order-entry UI exists. |
 | 24 | `LegacyCore/plan.md:L697` | CONSEQUENCES OF TESTING | `TESTED-PORTABLE` | `CG`, `EE` | Portable tests exercise unnecessary testing, cost, delay, and scoring consequences; native presentation remains pending. |
 | 25 | `LegacyCore/plan.md:L716` | ECG ROOM | `PREVIEW-ONLY` | `BH` | Browser ECG overlay only; no physical or native ECG room exists. |
 | 26 | `LegacyCore/plan.md:L733` | ECG INTERPRETATION ENGINE | `PARTIAL` | `BH`, `CG` | HCM browser reader and authored patterns exist; no reusable native interpretation engine exists. |
@@ -84,7 +84,7 @@ status, evidence, and gap together.
 | 29 | `LegacyCore/plan.md:L804` | CARDIOLOGY ATTENDING AI | `PARTIAL` | `BH`, `CG` | A scripted browser attending and authored prompts exist; attending AI does not. |
 | 30 | `LegacyCore/plan.md:L830` | SOCRATIC TEACHING ENGINE | `PARTIAL` | `EE`, `UR` | Deterministic feedback and counterfactuals exist; no conversational Socratic engine exists and Unreal evaluator is uncompiled. |
 | 31 | `LegacyCore/plan.md:L854` | ATTENDING PERSONALITIES | `MISSING` | `NONE` | No attending personality system exists. |
-| 32 | `LegacyCore/plan.md:L878` | INITIAL CLINIC CASES | `PARTIAL` | `CG` | Seven case truths and seven tested graphs exist; musculoskeletal chest pain and hypertension with ABPM remain absent. |
+| 32 | `LegacyCore/plan.md:L878` | INITIAL CLINIC CASES | `PARTIAL` | `CG` | Nine case truths and nine tested graphs exist, including musculoskeletal chest pain and adolescent hypertension/ABPM; native presentation is still absent. |
 | 33 | `LegacyCore/plan.md:L978` | CONTRASTIVE CASE DESIGN | `TESTED-PORTABLE` | `CG`, `EE` | HCM and vasovagal contrast paths and test-restraint behavior are tested. |
 | 34 | `LegacyCore/plan.md:L1001` | HOSPITAL EVENT SYSTEM | `DATA-ONLY` | `AR` | Archived pager events exist without an active hospital event system. |
 | 35 | `LegacyCore/plan.md:L1017` | TIME SYSTEM | `PREVIEW-ONLY` | `BH` | Browser displays a fixed time; no advancing clock, schedule, or timed event system exists. |
@@ -237,9 +237,9 @@ status, evidence, and gap together.
 4. Implement the bounded Dr. Patel character-quality gate with voice, listening
    pose, gaze, blink, and facial motion. Do not expand the cast until the slice
    passes.
-5. Add the missing musculoskeletal chest-pain and adolescent-hypertension/ABPM
-   cases. Seven graphs are ready, but the authoritative launch set still has
-   these two gaps.
+5. Musculoskeletal chest-pain and adolescent-hypertension/ABPM graphs are now
+   authored and portable-tested. Formal medical review and native presentation
+   remain open; do not invent structured results to clear remaining warnings.
 6. Resolve the 32 authoring warnings only with sourced, medically reviewed
    results and classification decisions. Do not invent content to obtain zero
    warnings.

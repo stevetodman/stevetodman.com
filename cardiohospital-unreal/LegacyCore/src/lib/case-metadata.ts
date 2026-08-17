@@ -130,8 +130,7 @@ export const CASE_METADATA: Record<string, CaseMetadata> = {
       "Contrast this presentation with postviral myocarditis",
     ],
     sources: [
-      { label: "Pediatric chest pain vs myocarditis",
-        citation: "Law YM et al. Circulation. 2021;144(6):e123-e135. Pediatric chest-pain teaching contrast; formal review pending." },
+      { label: "AHA Scientific Statement on Chest Pain in Children", citation: "Friedman KG, Alexander ME. Circulation. 2013; related pediatric chest-pain reviews; myocarditis contrast: Law YM et al. Circulation. 2021." },
     ],
   },
   "case-adolescent-htn": {

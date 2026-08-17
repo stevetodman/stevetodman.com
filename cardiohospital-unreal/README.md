@@ -105,8 +105,9 @@ case progression. World actors should call `StartCase`, query
 must not implement separate clinical branching in Blueprint.
 
 The portable test suite currently exercises complete and deliberately flawed
-paths through all seven deterministic clinic cases: innocent murmur, HCM,
-vasovagal syncope, WPW, myocarditis, Long-QT syndrome, and coarctation. It
+paths through all nine deterministic clinic cases: innocent murmur, HCM,
+vasovagal syncope, WPW, myocarditis, Long-QT syndrome, coarctation,
+musculoskeletal chest pain, and adolescent hypertension / ABPM. It
 verifies action ordering, clinical omissions, unnecessary testing, safety
 intervention, debrief scoring, learner persistence, mastery, and adaptive
 selection without claiming Unreal compilation or presentation quality.

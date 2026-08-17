@@ -454,7 +454,7 @@ export function validateClinicalDocument(document, { expectedSourceHashes } = {}
 
   addFailure(failures, document.schemaVersion === 3, "schemaVersion must be 3");
   addFailure(failures, document.generatedAt === "source-hash-derived", "generatedAt must remain reproducible");
-  addFailure(failures, Array.isArray(document.cases) && document.cases.length === 7, "expected exactly seven outpatient cases");
+  addFailure(failures, Array.isArray(document.cases) && document.cases.length === 9, "expected exactly nine outpatient cases");
 
   const ids = new Set();
   document.cases?.forEach((clinicalCase, index) => {
