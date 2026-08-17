@@ -181,6 +181,10 @@ TArray<FString> UCardioCaseRuntimeSubsystem::GetAvailableActions() const
 
     for (const FString& ActionId : Node->AvailableActions)
     {
+        if (State.CompletedActions.Contains(ActionId))
+        {
+            continue;
+        }
         const FCardioCaseActionDefinition* Action = FindAction(ActionId);
         if (Action && HasAllEffects(Action->RequiresAll))
         {
@@ -222,6 +226,62 @@ TArray<FCardioCaseActionDefinition> UCardioCaseRuntimeSubsystem::GetAvailableAct
         }
     }
     return Available;
+}
+
+namespace
+{
+    FString MenuLabelFor(const FCardioCaseActionDefinition& Action, const FCardioClinicalCase& ClinicalCase)
+    {
+        if (Action.Id == TEXT("history.confidential-interview"))
+        {
+            return TEXT("Ask the parent to step outside for a few minutes");
+        }
+        if (Action.EventType == TEXT("history_question"))
+        {
+            if (const FCardioHistoryFact* Fact = ClinicalCase.History.FindByPredicate(
+                [&Action](const FCardioHistoryFact& Candidate)
+                {
+                    return Candidate.Key.Equals(Action.Target, ESearchCase::CaseSensitive);
+                }))
+            {
+                return Fact->Question;
+            }
+        }
+        if (Action.EventType == TEXT("exam_performed"))
+        {
+            if (Action.Target == TEXT("general")) return TEXT("General appearance");
+            if (Action.Target == TEXT("vitals")) return TEXT("Vital signs");
+            if (Action.Target == TEXT("auscultation")) return TEXT("Auscultation");
+            if (Action.Target == TEXT("femoralPulses")) return TEXT("Femoral pulses");
+        }
+        if (Action.Type == TEXT("order")) return FString::Printf(TEXT("Order %s"), *Action.Target);
+        if (Action.Type == TEXT("review")) return FString::Printf(TEXT("Review %s"), *Action.Target);
+        if (Action.Type == TEXT("management")) return Action.Target;
+        if (Action.Id == TEXT("history.finish")) return TEXT("Finish history");
+        if (Action.Id == TEXT("exam.finish")) return TEXT("Finish examination");
+        if (Action.Id == TEXT("testing.finish")) return TEXT("Finish testing");
+        if (Action.Id == TEXT("reasoning.submit")) return TEXT("Submit diagnosis");
+        if (Action.Id == TEXT("debrief.review")) return TEXT("Review debrief");
+        return Action.Target;
+    }
+}
+
+TArray<FCardioActionMenuItem> UCardioCaseRuntimeSubsystem::GetActionMenu() const
+{
+    TArray<FCardioActionMenuItem> Menu;
+    for (const FString& ActionId : GetAvailableActions())
+    {
+        const FCardioCaseActionDefinition* Action = FindAction(ActionId);
+        if (!Action)
+        {
+            continue;
+        }
+        FCardioActionMenuItem& Item = Menu.AddDefaulted_GetRef();
+        Item.Id = Action->Id;
+        Item.Type = Action->Type;
+        Item.Label = MenuLabelFor(*Action, ActiveCase);
+    }
+    return Menu;
 }
 
 TArray<FCardioHistoryFact> UCardioCaseRuntimeSubsystem::GetRevealedHistory() const
@@ -315,6 +375,7 @@ FCardioPresentationState UCardioCaseRuntimeSubsystem::GetPresentationState() con
     Presentation.Phase = Node ? Node->Phase : TEXT("complete");
     Presentation.NodeId = State.NodeId;
     Presentation.AvailableActionIds = GetAvailableActions();
+    Presentation.Menu = GetActionMenu();
 
     const bool bAssigned = State.CompletedActions.Contains(TEXT("assignment.accept"));
     const bool bIntroduced = State.CompletedActions.Contains(TEXT("encounter.introduce"));

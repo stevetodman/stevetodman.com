@@ -126,7 +126,7 @@ status, evidence, and gap together.
 | 71 | `LegacyCore/plan.md:L1770` | HOSPITAL STREAMING | `MISSING` | `U0` | No authored native level exists to stream. |
 | 72 | `LegacyCore/plan.md:L1793` | LEVEL-OF-DETAIL SYSTEM | `MISSING` | `U0` | No native art or LOD policy is implemented. |
 | 73 | `LegacyCore/plan.md:L1808` | COLLISION SYSTEM | `PREVIEW-ONLY` | `BW` | Rapier collision exists only in the browser blockout. |
-| 74 | `LegacyCore/plan.md:L1823` | INTERACTION SYSTEM | `PARTIAL` | `BH`, `BW`, `UR` | Browser E-key interactions and a deterministic Unreal action API exist; native world actors do not. |
+| 74 | `LegacyCore/plan.md:L1823` | INTERACTION SYSTEM | `PARTIAL` | `BH`, `BW`, `UR` | Browser E-key interactions and a deterministic Unreal action API with authored menu labels exist; native world actors on this branch do not. |
 | 75 | `LegacyCore/plan.md:L1857` | CONTEXT-AWARE CURSOR | `PREVIEW-ONLY` | `BH`, `BW` | Context prompts exist only in browser prototypes. |
 | 76 | `LegacyCore/plan.md:L1882` | OBJECT HIGHLIGHTING | `MISSING` | `NONE` | No object-highlighting system exists. |
 | 77 | `LegacyCore/plan.md:L1890` | DOOR SYSTEM | `PREVIEW-ONLY` | `BH`, `BW` | One browser door interaction exists; no reusable native door system exists. |

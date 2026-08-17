@@ -33,8 +33,20 @@ export class CaseEngine {
   getAvailableActions() {
     if (this.isComplete) return [];
     return this.currentNode.availableActions.filter((actionId) => {
+      if (this.completedActions.has(actionId)) return false;
       const definition = this.#findAction(actionId);
       return definition.requiresAll.every((effect) => this.effects.has(effect));
+    });
+  }
+
+  getActionMenu() {
+    return this.getAvailableActions().map((actionId) => {
+      const definition = this.#findAction(actionId);
+      return {
+        id: actionId,
+        type: definition.type,
+        label: actionLabel(definition, this.clinicalCase),
+      };
     });
   }
 
@@ -143,6 +155,7 @@ export class CaseEngine {
       phase,
       nodeId: this.nodeId,
       availableActionIds: this.getAvailableActions(),
+      menu: this.getActionMenu(),
       assignment: assigned
         ? {
             patientName: this.clinicalCase.patientName,
@@ -199,6 +212,34 @@ export class CaseEngine {
     if (!definition) throw new Error(`Unknown action ${actionId}`);
     return definition;
   }
+}
+
+function actionLabel(definition, clinicalCase) {
+  if (definition.id === "history.confidential-interview") {
+    return "Ask the parent to step outside for a few minutes";
+  }
+  if (definition.eventType === "history_question") {
+    const fact = clinicalCase.history.find((entry) => entry.key === definition.target);
+    return fact?.question ?? definition.target;
+  }
+  if (definition.eventType === "exam_performed") {
+    const labels = {
+      general: "General appearance",
+      vitals: "Vital signs",
+      auscultation: "Auscultation",
+      femoralPulses: "Femoral pulses",
+    };
+    return labels[definition.target] ?? definition.target;
+  }
+  if (definition.type === "order") return `Order ${definition.target}`;
+  if (definition.type === "review") return `Review ${definition.target}`;
+  if (definition.type === "management") return definition.target;
+  if (definition.id === "history.finish") return "Finish history";
+  if (definition.id === "exam.finish") return "Finish examination";
+  if (definition.id === "testing.finish") return "Finish testing";
+  if (definition.id === "reasoning.submit") return "Submit diagnosis";
+  if (definition.id === "debrief.review") return "Review debrief";
+  return definition.target;
 }
 
 function examFindingForTarget(exam, target) {

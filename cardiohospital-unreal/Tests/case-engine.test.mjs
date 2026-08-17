@@ -114,6 +114,33 @@ test("generic history does not disclose a specific red-flag answer", async () =>
   assert.ok(engine.getRevealedHistory().some((fact) => fact.key === "family_sudden_death" && fact.answer === suddenDeath.answer));
 });
 
+test("action menu uses authored questions and never the answers", async () => {
+  const document = await loadDocument();
+  const engine = createCaseEngine(document, "case-hcm");
+  const clinicalCase = document.cases.find((item) => item.id === "case-hcm");
+  const suddenDeath = clinicalCase.history.find((fact) => fact.key === "family_sudden_death");
+  performAll(engine, [
+    "system.load",
+    "world.enter",
+    "navigate.workroom",
+    "attending.open-assignment",
+    "assignment.accept",
+    "navigate.exam-room",
+    "encounter.introduce",
+  ]);
+
+  const menu = engine.getPresentation().menu;
+  const suddenDeathItem = menu.find((item) => item.id === "history.family-sudden-death");
+  const interview = menu.find((item) => item.id === "history.confidential-interview");
+  assert.equal(suddenDeathItem.label, suddenDeath.question);
+  assert.ok(!suddenDeathItem.label.includes(suddenDeath.answer));
+  assert.ok(!JSON.stringify(menu).includes(suddenDeath.answer));
+  assert.equal(interview.label, "Ask the parent to step outside for a few minutes");
+
+  engine.perform("history.generic");
+  assert.ok(!engine.getActionMenu().some((item) => item.id === "history.generic"));
+});
+
 test("presentation hides diagnosis and teaching until debrief", async () => {
   const document = await loadDocument();
   const engine = createCaseEngine(document, "case-hcm");

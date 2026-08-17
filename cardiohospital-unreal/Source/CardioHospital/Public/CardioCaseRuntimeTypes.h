@@ -45,6 +45,16 @@ struct FCardioAssignmentBrief
 };
 
 USTRUCT(BlueprintType)
+struct FCardioActionMenuItem
+{
+    GENERATED_BODY()
+
+    UPROPERTY(BlueprintReadOnly) FString Id;
+    UPROPERTY(BlueprintReadOnly) FString Type;
+    UPROPERTY(BlueprintReadOnly) FString Label;
+};
+
+USTRUCT(BlueprintType)
 struct FCardioPresentationState
 {
     GENERATED_BODY()
@@ -53,6 +63,7 @@ struct FCardioPresentationState
     UPROPERTY(BlueprintReadOnly) FString Phase;
     UPROPERTY(BlueprintReadOnly) FString NodeId;
     UPROPERTY(BlueprintReadOnly) TArray<FString> AvailableActionIds;
+    UPROPERTY(BlueprintReadOnly) TArray<FCardioActionMenuItem> Menu;
     UPROPERTY(BlueprintReadOnly) bool bHasAssignment = false;
     UPROPERTY(BlueprintReadOnly) FCardioAssignmentBrief Assignment;
     UPROPERTY(BlueprintReadOnly) TArray<FCardioHistoryFact> History;

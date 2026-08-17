@@ -33,6 +33,9 @@ public:
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
     TArray<FCardioCaseActionDefinition> GetAvailableActionDefinitions() const;
 
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
+    TArray<FCardioActionMenuItem> GetActionMenu() const;
+
     // World UI must display these, not GetActiveClinicalCase() truth arrays.
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
     TArray<FCardioHistoryFact> GetRevealedHistory() const;
