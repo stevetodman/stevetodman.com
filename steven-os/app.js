@@ -182,12 +182,24 @@ function renderQueue(selector, items, emptyText, live, context = {}) {
   }
 
   if (live && selector === '#execution') {
-    node.innerHTML = items.map((item) => `
+    node.innerHTML = items.map((item) => {
+      const meta = item.metadata || {};
+      const next = meta.nextAction || meta.next_action;
+      const command = meta.command;
+      const blocked = Number(item.blocked_evidence || 0);
+      const failing = Number(item.failing_evidence || 0);
+      const counts = [];
+      if (failing) counts.push(`${failing} fail`);
+      if (blocked) counts.push(`${blocked} blocked`);
+      return `
       <article class="queue-item">
         <div class="queue-title">${esc(item.project_name || item.projectName)}</div>
         <div class="queue-reason">${esc(item.kind || '')} · ${esc(item.title || item.reason)}</div>
-        <div class="queue-reason">State: ${esc(item.state || '')}</div>
-      </article>`).join('');
+        <div class="queue-reason">State: ${esc(item.state || '')}${counts.length ? ` · ${esc(counts.join(' · '))}` : ''}</div>
+        ${next ? `<div class="queue-reason"><em>Next:</em> ${esc(next)}</div>` : ''}
+        ${command ? `<code class="command">${esc(command)}</code>` : ''}
+      </article>`;
+    }).join('');
     return;
   }
 
