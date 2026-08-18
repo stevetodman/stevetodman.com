@@ -43,6 +43,17 @@ The checked-in `state/projects.json` remains a shadow fixture for the static das
 - Future browser access must go through authenticated server endpoints; do not expose `steven_os` directly through the Data API.
 - No provider API keys, GitHub tokens, service-role keys, email contents, or calendar data belong in the repository.
 
+## Org-wide GitHub registry
+
+The live dashboard reads every `steven_os.projects` row. Active `stevetodman/*` repositories are discovered by `scripts/ingest-github-org.mjs` and upserted through the existing secret ingest function. Dependabot PRs and idle drafts are stored only as filter facts; they do not enter the execution queue. Archived repos are skipped.
+
+```sh
+node steven-os/scripts/ingest-github-org.mjs --dry-run
+node steven-os/scripts/ingest-github-org.mjs
+```
+
+The Cardio Hospital specialist runner (`ingest-github-pr.mjs`) remains for package/walkthrough boundaries. It is no longer the only ingest path.
+
 ## Next implementation step
 
-Add a narrowly authenticated server-side API for reads/writes against the private schema, then run the GitHub normalizer from an event-driven ingest worker instead of manual connector ingestion. After that, replace the static dashboard fixture with database-backed reads and add provider adapters/evaluation telemetry.
+Schedule the org ingest from a trusted local or GitHub App identity. Do not widen the current OIDC gateway to every repository until that identity exists. Then add Chief-of-Staff next-action writing without inventing clinical decisions.

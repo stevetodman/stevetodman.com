@@ -4,6 +4,14 @@ import fs from 'node:fs/promises';
 import { buildDecisionQueue, buildExecutionQueue, classifyGate } from '../steven-os/lib/policy-engine.mjs';
 import { createProviderRegistry, routeModel } from '../steven-os/lib/model-router.mjs';
 import { normalizePullRequest, preserveEvidenceBoundary } from '../steven-os/lib/github-normalizer.mjs';
+import {
+  classifyPullRequest,
+  isBotPullRequest,
+  loadCatalog,
+  routePullRequest,
+  shouldIngestRepo,
+  workItemExternalId
+} from '../steven-os/lib/org-normalizer.mjs';
 
 const statePath = new URL('../steven-os/state/projects.json', import.meta.url);
 const ingestFunctionPath = new URL('../steven-os/supabase/functions/steven-os-ingest/index.ts', import.meta.url);
@@ -135,4 +143,70 @@ test('GitHub-to-Steven-OS bridge uses short-lived OIDC with narrow trust', async
   assert.match(runner, /ACTIONS_ID_TOKEN_REQUEST_TOKEN/);
   assert.doesNotMatch(runner, /sb_secret_[A-Za-z0-9_-]+/);
   assert.match(config, /\[functions\.steven-os-github-ingest\][\s\S]*verify_jwt\s*=\s*false/);
+});
+
+const catalogPath = new URL('../steven-os/config/projects.json', import.meta.url);
+
+async function loadCatalogFromDisk() {
+  return loadCatalog(JSON.parse(await fs.readFile(catalogPath, 'utf8')));
+}
+
+test('Dependabot pull requests are not execution work', async () => {
+  const catalog = await loadCatalogFromDisk();
+  const pr = {
+    number: 14,
+    title: 'Bump @typescript-eslint/parser from 6.21.0 to 8.65.0',
+    author: { login: 'dependabot[bot]' },
+    isDraft: false,
+    updatedAt: '2026-08-04T14:42:42Z'
+  };
+  assert.equal(isBotPullRequest(pr, catalog), true);
+  const classified = classifyPullRequest(pr, catalog);
+  assert.equal(classified.ownerClass, 'external');
+  assert.equal(classified.ingestWorkItem, false);
+});
+
+test('idle drafts are parked and kept off the execution queue', async () => {
+  const catalog = await loadCatalogFromDisk();
+  const pr = {
+    number: 1,
+    title: 'Add AAP-guided pediatric BP next-step workflow',
+    author: { login: 'stevetodman' },
+    isDraft: true,
+    updatedAt: '2026-07-27T22:49:20Z'
+  };
+  const classified = classifyPullRequest(pr, catalog, new Date('2026-08-18T15:00:00Z'));
+  assert.equal(classified.ownerClass, 'external');
+  assert.equal(classified.state, 'parked');
+  assert.equal(classified.ingestWorkItem, true);
+});
+
+test('stevetodman.com Mac integrate PR routes to cardio-hospital', async () => {
+  const catalog = await loadCatalogFromDisk();
+  const pr = {
+    number: 27,
+    title: 'Integrate launch-set clinical core into the Mac world branch',
+    headRefName: 'mac/integrate-launch-set',
+    author: { login: 'stevetodman' }
+  };
+  assert.equal(routePullRequest('stevetodman/stevetodman.com', pr, catalog), 'cardio-hospital');
+  assert.equal(workItemExternalId('stevetodman/stevetodman.com', pr, catalog), 'pr:27');
+});
+
+test('stevetodman.com ABPM PR routes to the site project', async () => {
+  const catalog = await loadCatalogFromDisk();
+  const pr = {
+    number: 3,
+    title: 'Harden pediatric ABPM test preview with safety and UX gates',
+    headRefName: 'agent/pediatric-abpm-worldclass-gates',
+    author: { login: 'stevetodman' }
+  };
+  assert.equal(routePullRequest('stevetodman/stevetodman.com', pr, catalog), 'stevetodman-com');
+  assert.equal(workItemExternalId('stevetodman/stevetodman.com', pr, catalog), 'pr:stevetodman/stevetodman.com#3');
+});
+
+test('archived repos are skipped', async () => {
+  const catalog = await loadCatalogFromDisk();
+  assert.equal(shouldIngestRepo({ name: 'heartquest', isArchived: true }, catalog), false);
+  assert.equal(shouldIngestRepo({ name: 'peds-ecg-viewer', isArchived: false }, catalog), true);
 });

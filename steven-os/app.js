@@ -71,26 +71,39 @@ function alternativesHtml(item) {
   return `<div class="queue-reason"><em>Options:</em> ${esc(labels.join(' · '))}</div>`;
 }
 
+function projectCard(project) {
+  return `
+    <article class="project-card">
+      <div class="project-head">
+        <div>
+          <div class="eyebrow">Priority ${esc(project.priority)}</div>
+          <h2>${esc(project.name)}</h2>
+        </div>
+        ${stateBadge(project.status)}
+      </div>
+      <p class="objective">${esc(project.objective)}</p>
+      <dl class="facts">
+        <div><dt>Open work</dt><dd>${esc(project.open_work_items ?? 0)}</dd></div>
+        <div><dt>Open decisions</dt><dd>${esc(project.open_decisions ?? 0)}</dd></div>
+        <div><dt>Evidence</dt><dd>${esc(project.passing_evidence ?? 0)} pass · ${esc(project.failing_evidence ?? 0)} fail · ${esc(project.blocked_evidence ?? 0)} blocked</dd></div>
+        <div><dt>Updated</dt><dd>${project.updated_at ? esc(new Date(project.updated_at).toLocaleString()) : '—'}</dd></div>
+      </dl>
+      ${project.production_url ? `<p class="objective"><a href="${esc(project.production_url)}" target="_blank" rel="noreferrer">${esc(project.production_url)}</a></p>` : ''}
+    </article>`;
+}
+
+function isQuietProject(project) {
+  return Number(project.open_work_items || 0) === 0 && Number(project.open_decisions || 0) === 0;
+}
+
 function renderProjects(projects, mode) {
   if (mode === 'live') {
-    $('#projects').innerHTML = projects.map((project) => `
-      <article class="project-card">
-        <div class="project-head">
-          <div>
-            <div class="eyebrow">Priority ${esc(project.priority)}</div>
-            <h2>${esc(project.name)}</h2>
-          </div>
-          ${stateBadge(project.status)}
-        </div>
-        <p class="objective">${esc(project.objective)}</p>
-        <dl class="facts">
-          <div><dt>Open work</dt><dd>${esc(project.open_work_items ?? 0)}</dd></div>
-          <div><dt>Open decisions</dt><dd>${esc(project.open_decisions ?? 0)}</dd></div>
-          <div><dt>Evidence</dt><dd>${esc(project.passing_evidence ?? 0)} pass · ${esc(project.failing_evidence ?? 0)} fail · ${esc(project.blocked_evidence ?? 0)} blocked</dd></div>
-          <div><dt>Updated</dt><dd>${project.updated_at ? esc(new Date(project.updated_at).toLocaleString()) : '—'}</dd></div>
-        </dl>
-        ${project.production_url ? `<p class="objective"><a href="${esc(project.production_url)}" target="_blank" rel="noreferrer">${esc(project.production_url)}</a></p>` : ''}
-      </article>`).join('');
+    const active = projects.filter((project) => !isQuietProject(project));
+    const quiet = projects.filter(isQuietProject);
+    const quietBlock = quiet.length
+      ? `<details class="quiet-projects"><summary>Quiet (${quiet.length})</summary>${quiet.map(projectCard).join('')}</details>`
+      : '';
+    $('#projects').innerHTML = `${active.map(projectCard).join('')}${quietBlock}`;
     return;
   }
 
