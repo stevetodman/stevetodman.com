@@ -345,10 +345,10 @@ void ACardioBlockoutGameMode::GoToStation(ACardioBlockoutCharacter& Character, c
         bool bInteract;
     };
     static const FStation Stations[] = {
-        { FVector(750.0, 250.0, 88.0), true },
-        { FVector(-750.0, 520.0, 88.0), true },
-        { FVector(-750.0, -520.0, 88.0), true },
-        { FVector(750.0, -520.0, 88.0), true },
+        { FVector(750.0, 280.0, 88.0), true },
+        { FVector(-750.0, 340.0, 88.0), true },
+        { FVector(-750.0, -340.0, 88.0), true },
+        { FVector(750.0, -340.0, 88.0), true },
     };
     if (StationIndex < 0 || StationIndex >= UE_ARRAY_COUNT(Stations))
     {
@@ -1755,7 +1755,8 @@ AStaticMeshActor* ACardioBlockoutGameMode::SpawnMesh(
     UStaticMesh* MeshAsset,
     const FVector& Location,
     const FRotator& Rotation,
-    const FVector& Scale) const
+    const FVector& Scale,
+    const bool bEnableCollision) const
 {
     if (!MeshAsset)
     {
@@ -1774,7 +1775,7 @@ AStaticMeshActor* ACardioBlockoutGameMode::SpawnMesh(
     Mesh->SetMobility(EComponentMobility::Movable);
     Mesh->SetStaticMesh(MeshAsset);
     Actor->SetActorScale3D(Scale);
-    Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    Mesh->SetCollisionEnabled(bEnableCollision ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision);
     return Actor;
 }
 
@@ -1813,10 +1814,10 @@ void ACardioBlockoutGameMode::SpawnClinicDressing(UWorld& World) const
     SpawnMesh(World, ClinicChairMesh, FVector(680.0, -480.0, 0.0), FRotator(0.f, 10.f, 0.f));
     SpawnMesh(World, WallMonitorMesh, FVector(750.0, -980.0, 140.0));
 
-    SpawnMesh(World, DoorJambMesh, FVector(-750.0, 200.0, 0.0), FRotator(0.f, 0.f, 0.f));
-    SpawnMesh(World, DoorJambMesh, FVector(750.0, 200.0, 0.0), FRotator(0.f, 0.f, 0.f));
-    SpawnMesh(World, DoorJambMesh, FVector(-750.0, -200.0, 0.0), FRotator(0.f, 180.f, 0.f));
-    SpawnMesh(World, DoorJambMesh, FVector(750.0, -200.0, 0.0), FRotator(0.f, 180.f, 0.f));
+    SpawnMesh(World, DoorJambMesh, FVector(-750.0, 200.0, 0.0), FRotator(0.f, 0.f, 0.f), FVector(1.f), false);
+    SpawnMesh(World, DoorJambMesh, FVector(750.0, 200.0, 0.f), FRotator(0.f, 0.f, 0.f), FVector(1.f), false);
+    SpawnMesh(World, DoorJambMesh, FVector(-750.0, -200.0, 0.0), FRotator(0.f, 180.f, 0.f), FVector(1.f), false);
+    SpawnMesh(World, DoorJambMesh, FVector(750.0, -200.0, 0.0), FRotator(0.f, 180.f, 0.f), FVector(1.f), false);
 
     const FVector Lights[] = {
         FVector(-1200.0, 0.0, 348.0),

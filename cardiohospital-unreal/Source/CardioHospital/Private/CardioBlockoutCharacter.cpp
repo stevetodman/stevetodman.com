@@ -297,6 +297,14 @@ void ACardioBlockoutCharacter::AdvanceGuidedWalk()
 
     if (To.Size() <= ArriveRadiusCm || WalkStallSeconds >= WalkStallLimitSeconds)
     {
+        if (WalkStallSeconds >= WalkStallLimitSeconds)
+        {
+            // Tight door frames stall the capsule. Snap onto this waypoint
+            // instead of skipping ahead and walking through a wall.
+            FVector Snap = GuidedPath[0];
+            Snap.Z = GetActorLocation().Z;
+            SetActorLocation(Snap, false, nullptr, ETeleportType::TeleportPhysics);
+        }
         GuidedPath.RemoveAt(0);
         WalkStallSeconds = 0.f;
         if (GuidedPath.Num() == 0)
@@ -367,15 +375,34 @@ void ACardioBlockoutCharacter::BuildWalkPath(const FVector& Destination)
     const bool bSameWing = (From.X < 0.f) == (Destination.X < 0.f);
     const bool bSameRoom = bFromRoom && bDestRoom && bSameSide && bSameWing;
 
+    const auto AddPoint = [this, &From](const float X, const float Y)
+    {
+        if (GuidedPath.Num() > 0)
+        {
+            const FVector& Last = GuidedPath.Last();
+            if (FMath::IsNearlyEqual(Last.X, X, 8.f) && FMath::IsNearlyEqual(Last.Y, Y, 8.f))
+            {
+                return;
+            }
+        }
+        GuidedPath.Add(FVector(X, Y, From.Z));
+    };
+
     if (bFromRoom && !bSameRoom)
     {
-        GuidedPath.Add(FVector(DoorXFor(From), From.Y > 0.f ? 160.f : -160.f, From.Z));
+        const float DoorX = DoorXFor(From);
+        const float RoomY = From.Y > 0.f ? 280.f : -280.f;
+        AddPoint(DoorX, RoomY);
+        AddPoint(DoorX, 0.f);
     }
     if (bDestRoom && !bSameRoom)
     {
-        GuidedPath.Add(FVector(DoorXFor(Destination), Destination.Y > 0.f ? 160.f : -160.f, From.Z));
+        const float DoorX = DoorXFor(Destination);
+        const float RoomY = Destination.Y > 0.f ? 280.f : -280.f;
+        AddPoint(DoorX, 0.f);
+        AddPoint(DoorX, RoomY);
     }
-    GuidedPath.Add(FVector(Destination.X, Destination.Y, From.Z));
+    AddPoint(Destination.X, Destination.Y);
 }
 
 void ACardioBlockoutCharacter::ChooseActionIndex(const int32 ZeroBasedIndex)

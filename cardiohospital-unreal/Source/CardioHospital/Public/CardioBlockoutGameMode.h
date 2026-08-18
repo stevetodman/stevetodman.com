@@ -113,7 +113,8 @@ private:
         UStaticMesh* Mesh,
         const FVector& Location,
         const FRotator& Rotation = FRotator::ZeroRotator,
-        const FVector& Scale = FVector(1.f)) const;
+        const FVector& Scale = FVector(1.f),
+        bool bEnableCollision = true) const;
     void SpawnLighting(UWorld& World) const;
     void SpawnSigns(UWorld& World) const;
     void SpawnSign(UWorld& World, const FString& Text, const FVector& Location, float YawDegrees) const;

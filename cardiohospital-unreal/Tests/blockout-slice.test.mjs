@@ -152,12 +152,11 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(source, /ShowHistoryMenu/);
   assert.match(source, /__talk/);
   assert.match(source, /__examine/);
-  assert.match(source, /__parent_step_out/);
-  assert.match(source, /AllowConfidentialInterview/);
-  assert.match(source, /ParentPresent/);
-  assert.match(source, /ClinicalCase.Vibe/);
-  assert.match(source, /Ask the parent to step outside/);
-  assert.match(source, /Talk with the patient and parent/);
+  assert.match(source, /history.confidential-interview/);
+  assert.match(source, /GetActionMenu\(\)/);
+  assert.match(source, /GetPresentationState\(\)/);
+  assert.match(source, /Assignment.ParentPresent/);
+  assert.match(source, /Assignment.Vibe/);
   assert.match(source, /TEXT\("navigate.return-workroom"\)/);
   assert.match(source, /attending.open-assignment/);
   assert.match(source, /assignment.accept/);
@@ -165,7 +164,7 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(source, /debrief.review/);
   assert.match(source, /performance.record/);
   assert.match(source, /next-case.begin/);
-  assert.match(source, /Differentials/);
+  assert.match(source, /DiagnosisChoices/);
   assert.match(source, /RecordAttempt/);
   assert.match(source, /SelectNextCase/);
   const content = JSON.parse(await read("Content/Data/clinical-content.json"));
@@ -173,8 +172,7 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.ok(contrast, "the contrast case must ship");
   assert.equal(contrast.room, "Room 1", "the contrast case must keep its authored Room 1 location");
   assert.match(source, /EvaluateCurrentAttempt/);
-  assert.match(source, /AttendingSocratic/);
-  assert.match(source, /MissedOpportunityTemplate/);
+  assert.match(source, /GetPresentationState\(\)\.Socratic/);
   assert.match(source, /SpeakOnChannel/);
   assert.match(source, /SetListening/);
   assert.match(source, /exam.auscultation/);
@@ -203,14 +201,24 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(source, /PatelKey/);
   assert.match(await read("Config/DefaultGameUserSettings.ini"), /ResolutionSizeX=2560/);
   assert.match(await read("Config/DefaultEngine.ini"), /r\.AntiAliasingMethod=4/);
-  assert.match(source, /Fact.Key == Action.Target/);
-  assert.match(source, /Fact.Answer/);
+  assert.match(source, /GetRevealedHistory\(\)/);
+  assert.match(source, /Revealed\[Index\]\.Answer/);
   assert.doesNotMatch(source, /SpawnActor<ACardioBlockoutNPC>.*marcus|GPatientNpcId/i);
   assert.doesNotMatch(source, /Hypertrophic Cardiomyopathy/);
   assert.match(character, /NotifyLearnerLocation/);
   assert.match(character, /IsRoom1Location/);
   assert.match(character, /WalkTo/);
   assert.match(character, /ClickGo/);
+  assert.match(
+    character,
+    /AddPoint\(DoorX, 0\.f\)/,
+    "cross-room walks must route down the corridor spine, not through the north wall",
+  );
+  assert.match(
+    source,
+    /FVector\(-750\.0, 340\.0, 88\.0\)/,
+    "Exam Room 3 station must sit inside the doorway, not in the chairs",
+  );
   assert.match(source, /GoToStation/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutCharacter.cpp"), /FaceNpc/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /FaceToward/);
