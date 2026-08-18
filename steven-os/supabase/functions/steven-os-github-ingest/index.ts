@@ -5,7 +5,7 @@ const DISCOVERY_URL = `${ISSUER}/.well-known/openid-configuration`;
 const AUDIENCE = "steven-os-github-ingest:v1";
 const REPOSITORY = "stevetodman/stevetodman.com";
 const REPOSITORY_ID = "1121860459";
-const WORKFLOW_REF = `${REPOSITORY}/.github/workflows/steven-os-ingest.yml@refs/heads/main`;
+const WORKFLOW_REF = "stevetodman/stevetodman.com/.github/workflows/steven-os-ingest.yml@refs/heads/main";
 const ALLOWED_EVENTS = new Set(["workflow_run", "schedule", "workflow_dispatch"]);
 
 let jwksPromise: Promise<ReturnType<typeof createRemoteJWKSet>> | null = null;
