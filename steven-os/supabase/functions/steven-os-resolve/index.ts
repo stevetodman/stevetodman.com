@@ -22,6 +22,7 @@ export default {
       const id = typeof body.id === "string" ? body.id : "";
       const action = body.action === "reject" ? "reject" : "approve";
       const notes = typeof body.notes === "string" ? body.notes : "";
+      const force = body.force === true;
 
       if (!id) {
         return Response.json({ error: "id_required" }, { status: 400 });
@@ -35,15 +36,25 @@ export default {
         resolved_at: new Date().toISOString(),
       };
 
-      const rows = await sql`
-        update steven_os.decisions
-        set
-          state = ${state},
-          decided_at = now(),
-          recommendation = coalesce(recommendation, '{}'::jsonb) || ${sql.json(recommendation)}
-        where id = ${id}::uuid and state = 'open'
-        returning id, title, state, decided_at
-      `;
+      const rows = force
+        ? await sql`
+            update steven_os.decisions
+            set
+              state = ${state},
+              decided_at = now(),
+              recommendation = coalesce(recommendation, '{}'::jsonb) || ${sql.json(recommendation)}
+            where id = ${id}::uuid
+            returning id, title, state, decided_at, recommendation
+          `
+        : await sql`
+            update steven_os.decisions
+            set
+              state = ${state},
+              decided_at = now(),
+              recommendation = coalesce(recommendation, '{}'::jsonb) || ${sql.json(recommendation)}
+            where id = ${id}::uuid and state = 'open'
+            returning id, title, state, decided_at, recommendation
+          `;
 
       if (!rows.length) {
         return Response.json({ error: "not_found_or_already_resolved" }, { status: 404 });
