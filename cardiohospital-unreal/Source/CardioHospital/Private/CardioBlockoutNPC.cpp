@@ -20,12 +20,14 @@ namespace
 {
     constexpr const TCHAR* GenericDoctorMeshPath =
         TEXT("/Game/Characters/GenericDoctor/SK_GenericDoctor.SK_GenericDoctor");
-    // UE's Interchange glTF conversion maps the Ready Player Me avatar's
-    // forward axis to Unreal +X, so the temporary rig follows the actor root.
-    constexpr float GenericMeshYawOffset = 0.f;
+    // male-doctor.glb (and the primitive stand-in) face +Y. Actor forward is
+    // +X, so a 0° mesh yaw leaves Patel in profile when he turns toward you.
+    constexpr float GenericMeshYawOffset = -90.f;
     // BP_Patel's mesh forward is 90° off the actor. Without this, turning
     // the actor toward the learner still shows a profile to the camera.
     constexpr float AssembledMeshYawOffset = -90.f;
+    constexpr float PrimitiveMeshYawOffset = -90.f;
+    constexpr float AcknowledgeDistanceCm = 700.f;
 }
 
 ACardioBlockoutNPC::ACardioBlockoutNPC()
@@ -547,9 +549,12 @@ void ACardioBlockoutNPC::FaceToward(const FVector& WorldLocation)
     {
         return;
     }
-    SetActorRotation(FRotator(0.f, To.Rotation().Yaw, 0.f));
-    // Gaze is actor/root based for every visual tier. Only the fixed import
-    // yaw differs between the generic glTF and assembled MetaHuman children.
+    // Actor +X is logical forward. Primitive parts live on +Y, so the root
+    // itself must carry that import yaw; skinned tiers correct on the child.
+    const float RootYawOffset = (bUsingGenericDoctor || AssembledVisual)
+        ? 0.f
+        : PrimitiveMeshYawOffset;
+    SetActorRotation(FRotator(0.f, To.Rotation().Yaw + RootYawOffset, 0.f));
     AlignActiveVisual();
 }
 
@@ -573,20 +578,6 @@ void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
 
     const APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
     const APawn* Learner = Controller ? Controller->GetPawn() : nullptr;
-    if (bUsingGenericDoctor)
-    {
-        if (!Learner)
-        {
-            return;
-        }
-        const FVector ToLearner = Learner->GetActorLocation() - GetActorLocation();
-        if (ToLearner.Size2D() <= 700.f)
-        {
-            FaceToward(Learner->GetActorLocation());
-        }
-        return;
-    }
-
     if (AssembledVisual)
     {
         HideDefaultGarment();
@@ -594,16 +585,19 @@ void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
         {
             AttachSkinnedAttendingKit();
         }
-        if (!Learner)
-        {
-            return;
-        }
+    }
+
+    if (Learner)
+    {
         const FVector ToLearner = Learner->GetActorLocation() - GetActorLocation();
-        if (ToLearner.Size2D() > 700.f)
+        if (ToLearner.Size2D() <= AcknowledgeDistanceCm)
         {
-            return;
+            FaceToward(Learner->GetActorLocation());
         }
-        FaceToward(Learner->GetActorLocation());
+    }
+
+    if (bUsingGenericDoctor || AssembledVisual)
+    {
         return;
     }
 
@@ -644,16 +638,13 @@ void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
     }
 
     const FVector ToLearner = Learner->GetActorLocation() - GetActorLocation();
-    if (ToLearner.Size2D() > 700.f)
+    if (ToLearner.Size2D() > AcknowledgeDistanceCm)
     {
         return;
     }
 
-    const float Yaw = ToLearner.Rotation().Yaw;
-    SetActorRotation(FRotator(0.f, Yaw, 0.f));
-    const float HeadYaw = FMath::ClampAngle(Yaw - GetActorRotation().Yaw, -18.f, 18.f);
-    Head->SetRelativeRotation(FRotator(-2.f, HeadYaw, 0.f));
-    Hair->SetRelativeRotation(FRotator(-2.f, HeadYaw, 0.f));
+    Head->SetRelativeRotation(FRotator(-2.f, 0.f, 0.f));
+    Hair->SetRelativeRotation(FRotator(-2.f, 0.f, 0.f));
 }
 
 FString ACardioBlockoutNPC::GetInteractionPrompt() const

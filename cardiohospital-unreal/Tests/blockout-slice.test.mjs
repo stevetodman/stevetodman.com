@@ -187,7 +187,9 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(attending, /TryAttachGenericDoctor/);
   assert.match(attending, /Characters\/GenericDoctor\/SK_GenericDoctor/);
   assert.match(attending, /if \(!TryAttachGenericDoctor\(\)\)[\s\S]*TryAttachAssembledMetaHuman\(\)/);
-  assert.match(attending, /if \(bUsingGenericDoctor\)[\s\S]*FaceToward/);
+  assert.match(attending, /GenericMeshYawOffset = -90\.f/);
+  assert.match(attending, /AcknowledgeDistanceCm = 700\.f/);
+  assert.match(attending, /if \(ToLearner\.Size2D\(\) <= AcknowledgeDistanceCm\)[\s\S]*FaceToward/);
   assert.match(await read("Scripts/import-generic-doctor.py"), /non-medical-looking/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /LeftEye/);
   assert.match(await read("Source/CardioHospital/Private/CardioBlockoutNPC.cpp"), /BasicShapes\/Cylinder/);
