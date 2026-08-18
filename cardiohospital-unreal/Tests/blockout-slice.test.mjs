@@ -215,6 +215,21 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
     "cross-room walks must route down the corridor spine, not through the north wall",
   );
   assert.match(
+    character,
+    /WaypointArriveRadiusCm = 24\.f/,
+    "door waypoints must be reached before turning; 90 cm early-arrive clips the jamb",
+  );
+  assert.match(
+    character,
+    /CorridorApproachY = 110\.f/,
+    "each doorway needs a corridor-side approach so the last step is a straight shot",
+  );
+  assert.match(
+    character,
+    /bNeedX && bNeedY/,
+    "guided walks must axis-align instead of cutting the door corner",
+  );
+  assert.match(
     source,
     /FVector\(-750\.0, 340\.0, 88\.0\)/,
     "Exam Room 3 station must sit inside the doorway, not in the chairs",

@@ -46,6 +46,8 @@ private:
     void ApplyClinicInputMode();
     void CancelGuidedWalk();
     void AdvanceGuidedWalk();
+    void AdvanceWaypoint();
+    void FinishGuidedArrival();
     void BuildWalkPath(const FVector& Destination);
     void LookAtActorFace(const AActor* Target);
     static float DoorXFor(const FVector& Location);
