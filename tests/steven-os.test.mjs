@@ -5,6 +5,7 @@ import { buildDecisionQueue, buildExecutionQueue, classifyGate } from '../steven
 import { createProviderRegistry, routeModel } from '../steven-os/lib/model-router.mjs';
 import { normalizePullRequest, preserveEvidenceBoundary } from '../steven-os/lib/github-normalizer.mjs';
 import { formatBriefText } from '../steven-os/lib/control-plane.mjs';
+import { isBlockedWork, splitExecution } from '../steven-os/lib/home-bands.mjs';
 import {
   classifyPullRequest,
   isBotPullRequest,
@@ -219,7 +220,17 @@ test('archived repos are skipped', async () => {
   assert.equal(shouldIngestRepo({ name: 'peds-ecg-viewer', isArchived: false }, catalog), true);
 });
 
-test('brief formatter prints queues without embedding secrets', () => {
+test('home screen splits blocked package work from open PRs', () => {
+  const { working, blocked } = splitExecution([
+    { title: 'PR 27', state: 'open', kind: 'pull_request' },
+    { title: 'Mac package', state: 'blocked', kind: 'package', blocked_evidence: 2 }
+  ]);
+  assert.equal(working.length, 1);
+  assert.equal(blocked.length, 1);
+  assert.equal(isBlockedWork({ failing_evidence: 1, state: 'open' }), true);
+});
+
+test('brief formatter prints the four home-screen bands', () => {
   const text = formatBriefText({
     generatedAt: '2026-08-18T15:00:00.000Z',
     mode: 'server-secret',
@@ -230,15 +241,23 @@ test('brief formatter prints queues without embedding secrets', () => {
       title: 'Integrate launch-set clinical core into the Mac world branch',
       state: 'open',
       metadata: { nextAction: 'Apply GameMode merge' }
+    }, {
+      project_name: 'Cardio Hospital',
+      kind: 'package',
+      title: 'Mac package',
+      state: 'blocked'
     }],
+    shipped: [{ title: 'Smoke-test decision create', project_name: 'Cardio Hospital', kind: 'decision' }],
     projects: [
       { name: 'Cardio Hospital', priority: 1, open_work_items: 7, open_decisions: 0 },
       { name: 'quiet-repo', priority: 8, open_work_items: 0, open_decisions: 0 }
     ]
   });
-  assert.match(text, /Needs you: 0/);
-  assert.match(text, /Apply GameMode merge/);
-  assert.match(text, /Quiet: 1/);
+  assert.match(text, /STEVEN BRIEF/);
+  assert.match(text, /NEEDS YOU\s+0/);
+  assert.match(text, /AGENTS WORKING\s+1/);
+  assert.match(text, /BLOCKED\s+1/);
+  assert.match(text, /COMPLETED SINCE YESTERDAY\s+1/);
   assert.doesNotMatch(text, /sb_secret_/);
 });
 

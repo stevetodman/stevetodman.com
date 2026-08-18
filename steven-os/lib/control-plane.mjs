@@ -3,6 +3,7 @@ import path from 'node:path';
 import process from 'node:process';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
+import { blockedReason, splitExecution, workLabel, workMeta } from './home-bands.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const LOCAL_CONFIG_PATH = path.join(HERE, '../config.local.js');
@@ -70,48 +71,42 @@ export function formatBriefText(data) {
   const projects = data.projects || [];
   const decisions = data.decisions || [];
   const execution = data.execution || [];
+  const shipped = data.shipped || [];
+  const { working, blocked } = splitExecution(execution);
   const lines = [
-    `Steven OS brief — ${data.generatedAt || new Date().toISOString()}`,
-    `Mode: ${data.mode || 'unknown'}`,
-    `Needs you: ${decisions.length}`,
-    `Execution: ${execution.length}`,
-    `Projects: ${projects.length}`,
-    ''
+    'STEVEN BRIEF',
+    data.generatedAt || new Date().toISOString(),
+    '',
+    `NEEDS YOU                         ${decisions.length}`
   ];
 
-  lines.push('NEEDS YOU');
-  if (!decisions.length) {
-    lines.push('  (none)');
-  } else {
-    for (const item of decisions) {
-      lines.push(`  ${item.id}`);
-      lines.push(`    ${item.project_name} · ${item.title}`);
-      if (item.question) lines.push(`    ${item.question}`);
-      if (item.consequence) lines.push(`    Consequence: ${item.consequence}`);
-    }
+  if (!decisions.length) lines.push('(none)');
+  for (const item of decisions) {
+    lines.push(`${item.title}    ${item.project_name || ''}`);
   }
 
-  lines.push('', 'EXECUTION');
-  if (!execution.length) {
-    lines.push('  (none)');
-  } else {
-    for (const item of execution) {
-      const next = item.metadata?.nextAction || item.metadata?.next_action;
-      lines.push(`  ${item.project_name} · ${item.kind} · ${item.title}`);
-      lines.push(`    state=${item.state}${next ? ` · next: ${next}` : ''}`);
-    }
+  lines.push('', `AGENTS WORKING                   ${working.length}`);
+  if (!working.length) lines.push('(none)');
+  for (const item of working) {
+    lines.push(`${workLabel(item)}    ${workMeta(item)}`);
   }
 
-  lines.push('', 'PROJECTS');
-  for (const project of projects) {
-    const open = Number(project.open_work_items || 0);
-    const dec = Number(project.open_decisions || 0);
-    if (open === 0 && dec === 0) continue;
-    lines.push(`  [${project.priority}] ${project.name} — ${open} open work · ${dec} decisions`);
+  lines.push('', `BLOCKED                           ${blocked.length}`);
+  if (!blocked.length) lines.push('(none)');
+  for (const item of blocked) {
+    lines.push(`${workLabel(item)}    ${blockedReason(item)}`);
+  }
+
+  lines.push('', `COMPLETED SINCE YESTERDAY         ${shipped.length}`);
+  if (!shipped.length) lines.push('(none)');
+  for (const item of shipped) {
+    lines.push(`✓ ${item.title}    ${item.project_name || item.kind || ''}`);
   }
 
   const quiet = projects.filter((project) => Number(project.open_work_items || 0) === 0 && Number(project.open_decisions || 0) === 0);
-  if (quiet.length) lines.push(`  Quiet: ${quiet.length} projects with no open human work`);
+  if (quiet.length) {
+    lines.push('', `Quiet projects: ${quiet.length}`);
+  }
 
   return `${lines.join('\n')}\n`;
 }
