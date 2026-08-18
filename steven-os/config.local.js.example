@@ -1,0 +1,9 @@
+/**
+ * Copy to config.local.js (gitignored) and fill in the secret used by
+ * the steven-os-brief / steven-os-ingest edge functions.
+ *
+ *   cp config.local.js.example config.local.js
+ */
+window.STEVEN_OS_CONFIG = Object.assign(window.STEVEN_OS_CONFIG || {}, {
+  apiSecret: "REPLACE_WITH_YOUR_STEVEN_OS_SECRET"
+});
