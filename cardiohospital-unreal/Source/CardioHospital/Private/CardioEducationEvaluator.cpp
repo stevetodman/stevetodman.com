@@ -9,6 +9,7 @@ namespace
     constexpr TCHAR HistoryDimension[] = TEXT("history");
     constexpr TCHAR PhysicalExaminationDimension[] = TEXT("physicalExamination");
     constexpr TCHAR RedFlagRecognitionDimension[] = TEXT("redFlagRecognition");
+    constexpr TCHAR DifferentialDiagnosisDimension[] = TEXT("differentialDiagnosis");
     constexpr TCHAR TestSelectionDimension[] = TEXT("testSelection");
     constexpr TCHAR InterpretationDimension[] = TEXT("interpretation");
     constexpr TCHAR ClinicalReasoningDimension[] = TEXT("clinicalReasoning");
@@ -193,16 +194,29 @@ bool FCardioEducationEvaluator::EvaluateAttempt(
         ClinicalCase.CorrectDiagnosis,
         ESearchCase::CaseSensitive);
 
+    const bool bDiagnosisOnAuthoredDifferential = ClinicalCase.Differentials.Contains(
+        OutDebrief.DiagnosisSubmitted);
+    const int32 DifferentialScore = OutDebrief.DiagnosisSubmitted.IsEmpty() || !bDiagnosisOnAuthoredDifferential
+        ? 0
+        : ClampScore((OutDebrief.bDiagnosisCorrect ? 60.0 : 30.0) + RedFlagScore * 0.4);
     const int32 ReasoningScore = ClampScore(
         (OutDebrief.bDiagnosisCorrect ? 70.0 : 0.0) + RedFlagScore * 0.3);
     const int32 ManagementScore = Percentage(ManagementActions, ClinicalCase.CorrectManagement);
 
-    const TArray<FString> CommunicationExpected = {
+    TArray<FString> CommunicationExpected = {
         TEXT("attending.open-assignment"),
         TEXT("encounter.introduce"),
         TEXT("reasoning.submit"),
         TEXT("debrief.review")
     };
+    if (Graph.Actions.ContainsByPredicate(
+        [](const FCardioCaseActionDefinition& Action)
+        {
+            return Action.Id.Equals(TEXT("history.confidential-interview"), ESearchCase::CaseSensitive);
+        }))
+    {
+        CommunicationExpected.Add(TEXT("history.confidential-interview"));
+    }
     TArray<FString> CommunicationCompleted;
     for (const FString& ActionId : CompletedActions)
     {
@@ -256,6 +270,7 @@ bool FCardioEducationEvaluator::EvaluateAttempt(
     AddDimension(OutDebrief, HistoryDimension, HistoryScore);
     AddDimension(OutDebrief, PhysicalExaminationDimension, PhysicalScore);
     AddDimension(OutDebrief, RedFlagRecognitionDimension, RedFlagScore);
+    AddDimension(OutDebrief, DifferentialDiagnosisDimension, DifferentialScore);
     AddDimension(OutDebrief, TestSelectionDimension, TestSelectionScore);
     AddDimension(OutDebrief, InterpretationDimension, InterpretationScore);
     AddDimension(OutDebrief, ClinicalReasoningDimension, ReasoningScore);
@@ -308,6 +323,41 @@ bool FCardioEducationEvaluator::EvaluateAttempt(
         Feedback.Prompt = Definition.Prompt;
         Feedback.AlternateCaseId = Definition.AlternateCaseId;
     }
+
+    TArray<FString> SummaryParts;
+    if (OutDebrief.bDiagnosisCorrect)
+    {
+        SummaryParts.Add(FString::Printf(TEXT("You identified %s."), *ClinicalCase.CorrectDiagnosis));
+    }
+    else if (!OutDebrief.DiagnosisSubmitted.IsEmpty())
+    {
+        SummaryParts.Add(FString::Printf(
+            TEXT("Submitted %s; authored diagnosis is %s."),
+            *OutDebrief.DiagnosisSubmitted,
+            *ClinicalCase.CorrectDiagnosis));
+    }
+    for (const FCardioMissedOpportunity& Missed : OutDebrief.MissedOpportunities)
+    {
+        SummaryParts.Add(Missed.Message);
+    }
+    for (const FCardioSafetyEvent& Event : OutDebrief.SafetyEvents)
+    {
+        SummaryParts.Add(Event.Message);
+    }
+    if (!OutDebrief.UnnecessaryTests.IsEmpty())
+    {
+        SummaryParts.Add(FString::Printf(
+            TEXT("Unnecessary testing included %s."),
+            *FString::Join(OutDebrief.UnnecessaryTests, TEXT(", "))));
+    }
+    if (OutDebrief.bDiagnosisCorrect
+        && OutDebrief.MissedOpportunities.IsEmpty()
+        && OutDebrief.SafetyEvents.IsEmpty()
+        && OutDebrief.UnnecessaryTests.IsEmpty())
+    {
+        SummaryParts.Add(ClinicalCase.TeachingPoint);
+    }
+    OutDebrief.SummaryFeedback = FString::Join(SummaryParts, TEXT(" "));
 
     OutDebrief.ActionLog = Snapshot.ActionLog;
     return true;

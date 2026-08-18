@@ -85,17 +85,16 @@ private:
     void SetAttendingListening(bool bListening);
     void ShowSocraticResponse();
     TArray<FString> CollectSocraticLines() const;
+    void FillMenuFromPresentation(TArray<FString>& Lines, const TArray<FString>& AllowedTypes);
     void ShowAuscultationMenu();
     void StartAuscultationSite(const FString& Site);
     void PumpMurmurAudio();
     void StopMurmurAudio();
     static FString DiagnosisPayloadJson(const FString& Diagnosis);
-    static FString HistoryActionIdFromKey(const FString& Key);
 
     TArray<FString> CurrentMenuActions;
     bool bChoosingDiagnosis = false;
     bool bChoosingAuscultation = false;
-    bool bParentSteppedOut = false;
     FCardioMurmurSynthesizer Murmur;
 
     UPROPERTY()
@@ -108,16 +107,38 @@ private:
 
     UPROPERTY()
     TObjectPtr<ACardioBlockoutNPC> AttendingNpc;
+
+    UPROPERTY()
+    TObjectPtr<ACardioBlockoutNPC> EncounterPatientNpc;
+
+    UPROPERTY()
+    TObjectPtr<ACardioBlockoutNPC> EncounterParentNpc;
     AStaticMeshActor* SpawnBlock(UWorld& World, const FVector& Center, const FVector& Size, const FLinearColor& Color) const;
     AStaticMeshActor* SpawnMesh(
         UWorld& World,
         UStaticMesh* Mesh,
         const FVector& Location,
         const FRotator& Rotation = FRotator::ZeroRotator,
-        const FVector& Scale = FVector(1.f)) const;
+        const FVector& Scale = FVector(1.f),
+        bool bEnableCollision = true) const;
     void SpawnLighting(UWorld& World) const;
     void SpawnSigns(UWorld& World) const;
-    void SpawnSign(UWorld& World, const FString& Text, const FVector& Location, float YawDegrees) const;
+    void SpawnSign(
+        UWorld& World,
+        const FString& Text,
+        const FVector& Location,
+        float YawDegrees,
+        float WorldSize,
+        bool bMountPlate) const;
+    void RefreshEncounterOccupants();
+    ACardioBlockoutNPC* SpawnEncounterNpc(
+        UWorld& World,
+        const FString& NpcId,
+        const FString& DisplayName,
+        const FVector& Location,
+        const FRotator& Rotation,
+        float UniformScale,
+        const FLinearColor& CoatColor);
     void SpawnClinicDressing(UWorld& World) const;
     void SpawnClinicArchitecture(UWorld& World) const;
     void SpawnWallRun(

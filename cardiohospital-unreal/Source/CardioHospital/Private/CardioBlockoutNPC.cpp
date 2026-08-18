@@ -20,12 +20,14 @@ namespace
 {
     constexpr const TCHAR* GenericDoctorMeshPath =
         TEXT("/Game/Characters/GenericDoctor/SK_GenericDoctor.SK_GenericDoctor");
-    // UE's Interchange glTF conversion maps the Ready Player Me avatar's
-    // forward axis to Unreal +X, so the temporary rig follows the actor root.
-    constexpr float GenericMeshYawOffset = 0.f;
+    // male-doctor.glb (and the primitive stand-in) face +Y. Actor forward is
+    // +X, so a 0° mesh yaw leaves Patel in profile when he turns toward you.
+    constexpr float GenericMeshYawOffset = -90.f;
     // BP_Patel's mesh forward is 90° off the actor. Without this, turning
     // the actor toward the learner still shows a profile to the camera.
     constexpr float AssembledMeshYawOffset = -90.f;
+    constexpr float PrimitiveMeshYawOffset = -90.f;
+    constexpr float AcknowledgeDistanceCm = 700.f;
 }
 
 ACardioBlockoutNPC::ACardioBlockoutNPC()
@@ -150,6 +152,14 @@ ACardioBlockoutNPC::ACardioBlockoutNPC()
         AttendingScopeSkel->SetSkeletalMesh(ScopeSkelFinder.Object);
     }
 
+    EncounterVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("EncounterVisual"));
+    EncounterVisual->SetupAttachment(Root);
+    EncounterVisual->SetMobility(EComponentMobility::Movable);
+    EncounterVisual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    EncounterVisual->SetHiddenInGame(true);
+    EncounterVisual->SetCastShadow(true);
+    EncounterVisual->bNeverDistanceCull = true;
+
     GenericVisual = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GenericVisual"));
     GenericVisual->SetupAttachment(Root);
     GenericVisual->SetMobility(EComponentMobility::Movable);
@@ -219,6 +229,11 @@ void ACardioBlockoutNPC::Configure(const FString& InNpcId, const FString& InDisp
     ApplyTint(LeftEye, EyeWhite);
     ApplyTint(RightEye, EyeWhite);
 
+    if (NpcId.Equals(TEXT("encounter-patient")) && TryAttachEncounterPatient())
+    {
+        return;
+    }
+
     if (!TryAttachGenericDoctor())
     {
         TryAttachAssembledMetaHuman();
@@ -239,6 +254,56 @@ void ACardioBlockoutNPC::HidePrimitiveStandIn()
         Part->SetHiddenInGame(true);
         Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
+}
+
+bool ACardioBlockoutNPC::TryAttachEncounterPatient()
+{
+    constexpr const TCHAR* PatientMeshPath =
+        TEXT("/Game/Characters/EncounterPatient/SM_EncounterPatient.SM_EncounterPatient");
+    if (!EncounterVisual)
+    {
+        return false;
+    }
+
+    UStaticMesh* Mesh = LoadObject<UStaticMesh>(nullptr, PatientMeshPath);
+    if (!Mesh)
+    {
+        UE_LOG(
+            LogCardioAttending,
+            Warning,
+            TEXT("encounter patient mesh missing at %s; falling back"),
+            PatientMeshPath);
+        return false;
+    }
+
+    // Hunyuan export is Z-up, ~2 m. glTF import is centimeters. Face the
+    // doorway the same way the generic doctor does (-90° mesh yaw).
+    EncounterVisual->SetStaticMesh(Mesh);
+    EncounterVisual->SetRelativeLocationAndRotation(
+        FVector::ZeroVector,
+        FRotator(0.f, GenericMeshYawOffset, 0.f));
+    EncounterVisual->SetRelativeScale3D(FVector(1.f));
+    EncounterVisual->SetHiddenInGame(false);
+    EncounterVisual->SetVisibility(true, true);
+    EncounterVisual->SetCastShadow(true);
+    EncounterVisual->bNeverDistanceCull = true;
+    EncounterVisual->UpdateBounds();
+    EncounterVisual->MarkRenderStateDirty();
+
+    bUsingEncounterPatient = true;
+    HidePrimitiveStandIn();
+    if (GenericVisual)
+    {
+        GenericVisual->SetHiddenInGame(true);
+        GenericVisual->SetSkeletalMesh(nullptr);
+    }
+    UE_LOG(
+        LogCardioAttending,
+        Display,
+        TEXT("using projected child patient %s for %s"),
+        *Mesh->GetPathName(),
+        *DisplayName);
+    return true;
 }
 
 bool ACardioBlockoutNPC::TryAttachGenericDoctor()
@@ -534,6 +599,10 @@ void ACardioBlockoutNPC::AlignActiveVisual()
     {
         GenericVisual->SetRelativeRotation(FRotator(0.f, GenericMeshYawOffset, 0.f));
     }
+    if (bUsingEncounterPatient && EncounterVisual)
+    {
+        EncounterVisual->SetRelativeRotation(FRotator(0.f, GenericMeshYawOffset, 0.f));
+    }
     if (AssembledVisual)
     {
         AssembledVisual->SetActorRelativeRotation(FRotator(0.f, AssembledMeshYawOffset, 0.f));
@@ -547,9 +616,12 @@ void ACardioBlockoutNPC::FaceToward(const FVector& WorldLocation)
     {
         return;
     }
-    SetActorRotation(FRotator(0.f, To.Rotation().Yaw, 0.f));
-    // Gaze is actor/root based for every visual tier. Only the fixed import
-    // yaw differs between the generic glTF and assembled MetaHuman children.
+    // Actor +X is logical forward. Primitive parts live on +Y, so the root
+    // itself must carry that import yaw; skinned tiers correct on the child.
+    const float RootYawOffset = (bUsingGenericDoctor || bUsingEncounterPatient || AssembledVisual)
+        ? 0.f
+        : PrimitiveMeshYawOffset;
+    SetActorRotation(FRotator(0.f, To.Rotation().Yaw + RootYawOffset, 0.f));
     AlignActiveVisual();
 }
 
@@ -573,20 +645,6 @@ void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
 
     const APlayerController* Controller = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
     const APawn* Learner = Controller ? Controller->GetPawn() : nullptr;
-    if (bUsingGenericDoctor)
-    {
-        if (!Learner)
-        {
-            return;
-        }
-        const FVector ToLearner = Learner->GetActorLocation() - GetActorLocation();
-        if (ToLearner.Size2D() <= 700.f)
-        {
-            FaceToward(Learner->GetActorLocation());
-        }
-        return;
-    }
-
     if (AssembledVisual)
     {
         HideDefaultGarment();
@@ -594,16 +652,19 @@ void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
         {
             AttachSkinnedAttendingKit();
         }
-        if (!Learner)
-        {
-            return;
-        }
+    }
+
+    if (Learner)
+    {
         const FVector ToLearner = Learner->GetActorLocation() - GetActorLocation();
-        if (ToLearner.Size2D() > 700.f)
+        if (ToLearner.Size2D() <= AcknowledgeDistanceCm)
         {
-            return;
+            FaceToward(Learner->GetActorLocation());
         }
-        FaceToward(Learner->GetActorLocation());
+    }
+
+    if (bUsingGenericDoctor || bUsingEncounterPatient || AssembledVisual)
+    {
         return;
     }
 
@@ -644,16 +705,13 @@ void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
     }
 
     const FVector ToLearner = Learner->GetActorLocation() - GetActorLocation();
-    if (ToLearner.Size2D() > 700.f)
+    if (ToLearner.Size2D() > AcknowledgeDistanceCm)
     {
         return;
     }
 
-    const float Yaw = ToLearner.Rotation().Yaw;
-    SetActorRotation(FRotator(0.f, Yaw, 0.f));
-    const float HeadYaw = FMath::ClampAngle(Yaw - GetActorRotation().Yaw, -18.f, 18.f);
-    Head->SetRelativeRotation(FRotator(-2.f, HeadYaw, 0.f));
-    Hair->SetRelativeRotation(FRotator(-2.f, HeadYaw, 0.f));
+    Head->SetRelativeRotation(FRotator(-2.f, 0.f, 0.f));
+    Hair->SetRelativeRotation(FRotator(-2.f, 0.f, 0.f));
 }
 
 FString ACardioBlockoutNPC::GetInteractionPrompt() const

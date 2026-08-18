@@ -1,13 +1,7 @@
 # Cardio Hospital — Unreal vertical slice
 
-The product is the 168-section specification
-[`LegacyCore/plan.md`](LegacyCore/plan.md).
-The one-row scoreboard is [`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md).
-Unreal is the production client for that plan (ADR-0001 / ADR-0002), not a
-different game.
-
 Native Unreal Engine 5.8 foundation for the immersive Cardio Hospital simulation.
-The first production gate is the section 132 / 166 vertical slice:
+The first production gate is deliberately narrow:
 
 1. Start in the outpatient cardiology team room.
 2. Receive the assignment from Dr. Patel.
@@ -24,32 +18,26 @@ The platform, launch-surface, performance, and bounded MetaHuman decisions are
 recorded in
 [`Docs/ADR-0001-unreal-5-8-product-rebaseline.md`](Docs/ADR-0001-unreal-5-8-product-rebaseline.md).
 
-The release target is macOS on Apple silicon, decided in
-[`Docs/ADR-0002-macos-release-target.md`](Docs/ADR-0002-macos-release-target.md).
-Clinical authoring and portable validation run on any platform with Node.js 24.
-
 ## Local prerequisites
 
-- macOS on Apple silicon, at a release supported by Unreal Engine 5.8
-- Unreal Engine 5.8
-- Xcode, at the version required by that engine release, with `xcodebuild`
-  available; the command line tools alone cannot build Unreal targets
-- Git
-- Node.js 24
-- At least 48 GB of unified memory and 100 GB free on the project drive
+**Release machine is the M4 Max.** Start at
+[`Docs/MAC_FIRST_SESSION.md`](Docs/MAC_FIRST_SESSION.md) and ADR-0002.
 
-All repository scripts run as the normal user. They never install software,
-alter system policy, or request elevation.
+- macOS on Apple silicon, Unreal Engine 5.8, Xcode (not CLT-only), Git, Node 24
+- At least 48 GB unified memory and 100 GB free
+- `xcrun metal --version` must print a real compiler
 
-The Windows PowerShell workflow under `Scripts/` is retained as a historical
-and optional path. ADR-0002 removed it as the release gate; see
-[`Docs/MACOS_DEVELOPMENT.md`](Docs/MACOS_DEVELOPMENT.md) for the division of
-work and what each path may claim.
+Windows PowerShell prerequisites below are optional history, not the release gate.
 
-From `cardiohospital-unreal`, run the resumable baseline:
+All repository scripts are designed to run as a standard user. They never
+install software, alter policy, or request elevation. On a managed PC, send
+[`IT_PREREQUISITES.md`](IT_PREREQUISITES.md) to IT for anything the read-only
+preflight reports as administrator-required.
 
-```sh
-./Scripts/run-first-build.sh
+From `cardiohospital-unreal`, run the resumable standard-user baseline:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Scripts\Run-FirstBuild.ps1
 ```
 
 That one command runs preflight, portable validation, project generation,
@@ -57,24 +45,23 @@ Editor compilation, and Unreal automation in order. It writes a unique ignored
 stage report under `Saved/FirstBuildReports`. If a stage fails, fix the reported
 problem and paste the report's `resumeCommand`; preflight always reruns, and a
 completed stage is reused only when its source, workstation/toolchain, and
-artifact hashes still match. Pass `--rerun-all` to deliberately rerun every
+artifact hashes still match. Pass `-RerunAll` to deliberately rerun every
 stage. The individual scripts remain available for focused troubleshooting.
 
 After the baseline passes, commit and push any source fixes and confirm the
 worktree is clean. Then paste the report's `packageResumeCommand`, which adds
-`--include-package`, or start a fresh packaged run:
+`-IncludePackage`, or start a fresh packaged run:
 
-```sh
-./Scripts/run-first-build.sh --include-package --configuration Development
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Scripts\Run-FirstBuild.ps1 -IncludePackage -Configuration Development
 ```
 
-The package stage refuses unverifiable or dirty source, ad-hoc signs the
-bundle so it launches without a Gatekeeper bypass, and writes a manifest that
-starts at `walkthroughPassed=false`. The preflight and first-build workflows
-never overwrite an earlier report.
+The package stage refuses unverifiable or dirty source. The preflight and
+first-build workflows never overwrite an earlier report. Pass `-ReportPath` to
+choose another new `.json` destination.
 
-Set `UE_5_8_ROOT` for the current shell when UE 5.8 is installed outside the
-default Epic Games location. Automation
+Pass `-EngineRoot` to any Unreal-dependent script when UE 5.8 is installed in a
+non-standard directory, or set `UE_5_8_ROOT` for the current shell. Automation
 reports are written under `Saved/AutomationReports`; packaged builds and their
 SHA-256 manifests are written under `PackagedBuilds`. Both directories are
 ignored by Git. A package manifest always begins with `walkthroughPassed=false`;
@@ -82,22 +69,22 @@ only a real packaged walkthrough tied to that package ID can satisfy that
 quality gate.
 
 After packaging, follow [`WALKTHROUGH_CHECKLIST.md`](WALKTHROUGH_CHECKLIST.md).
-`Scripts/record-walkthrough-evidence.sh` verifies the untouched archive against
-the manifest hashes and can record a failed run without changing the gate. It
-changes `walkthroughPassed` to true only when a fresh passing preflight, the
-exact packaged `.app` bundle, all 19 acceptance steps, and the 2560×1440
-performance metrics are explicitly supplied. An incomplete run is recorded as
-failed rather than accepted as partial. The full one-row-per-section trace from the
+`Scripts/Record-WalkthroughEvidence.ps1` verifies the untouched archive and can
+record a failed run without changing the gate. It changes `walkthroughPassed`
+to true only when a fresh passing preflight, the exact packaged executable, all
+19 acceptance steps, the 2560×1440 performance metrics, and a preserved capture
+artifact are explicitly supplied. The full one-row-per-section trace from the
 authoritative 168-section specification to current evidence is recorded in
 [`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md). A shorter engineering summary
 remains in [`REQUIREMENT_COVERAGE.md`](REQUIREMENT_COVERAGE.md).
 
-GitHub Actions repeats the portable export, contract validation, determinism
-tests, headless case simulation, scoring, persistence, adaptive selection, and
-generated-file check on macOS, Linux, and Windows, and runs the macOS release
-script fixtures alongside the retained PowerShell ones. This gate does not claim
-that Unreal Header Tool, C++ compilation, cooking, or the walkthrough has
-passed; those remain local UE 5.8 gates on the reference workstation.
+GitHub Actions parses the PowerShell wrappers, runs their isolated workstation
+and package-evidence fixtures on Windows, and repeats the
+portable export, contract validation, determinism tests, headless case
+simulation, scoring, persistence, adaptive selection, and generated-file check
+on both Windows and Linux. This gate does not
+claim that Unreal Header Tool, C++ compilation, cooking, or the walkthrough has
+passed; those remain local UE 5.8 gates.
 
 ## Clinical source of truth
 
@@ -112,12 +99,16 @@ and sources have actually completed that gate with the reviewers' consent.
 
 `UCardioCaseRuntimeSubsystem` is the Blueprint-facing adapter for deterministic
 case progression. World actors should call `StartCase`, query
-`GetAvailableActions`, and report player choices through `PerformAction`; they
-must not implement separate clinical branching in Blueprint.
+`GetAvailableActions`, report player choices through `PerformAction`, and
+display `GetPresentationState` rather than `GetActiveClinicalCase`.
+They must not implement separate clinical branching in Blueprint. A
+generic history question must not reveal a red-flag answer. Diagnosis
+and teaching text stay hidden until debrief.
 
 The portable test suite currently exercises complete and deliberately flawed
-paths through all seven deterministic clinic cases: innocent murmur, HCM,
-vasovagal syncope, WPW, myocarditis, Long-QT syndrome, and coarctation. It
+paths through all nine deterministic clinic cases: innocent murmur, HCM,
+vasovagal syncope, WPW, myocarditis, Long-QT syndrome, coarctation,
+musculoskeletal chest pain, and adolescent hypertension / ABPM. It
 verifies action ordering, clinical omissions, unnecessary testing, safety
 intervention, debrief scoring, learner persistence, mastery, and adaptive
 selection without claiming Unreal compilation or presentation quality.
@@ -141,7 +132,7 @@ flags, missing correct management, or broken counterfactual references.
 Warnings identify non-blocking authoring debt. In particular, a
 `structured-result-missing` warning must be resolved with medically reviewed
 content—not an invented placeholder—before that result is shown in gameplay.
-The current expected report is zero errors and 32 warnings: 31 missing
+The current expected report is zero errors and 41 warnings: 40 missing
 structured results and one HCM `Genetics referral` test/management
 classification that requires clinical review. Do not invent results or
 silently reclassify that item merely to remove a warning.

@@ -55,6 +55,7 @@ struct CARDIOHOSPITAL_API FCardioCaseDebrief
     UPROPERTY(BlueprintReadOnly) FString DiagnosisSubmitted;
     UPROPERTY(BlueprintReadOnly) bool bDiagnosisCorrect = false;
     UPROPERTY(BlueprintReadOnly) int32 OverallScore = 0;
+    UPROPERTY(BlueprintReadOnly) FString SummaryFeedback;
     UPROPERTY(BlueprintReadOnly) TArray<FCardioScoreDimension> Dimensions;
     UPROPERTY(BlueprintReadOnly) TArray<FCardioMissedOpportunity> MissedOpportunities;
     UPROPERTY(BlueprintReadOnly) TArray<FString> UnnecessaryTests;

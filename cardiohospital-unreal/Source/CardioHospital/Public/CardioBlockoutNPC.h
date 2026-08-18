@@ -48,6 +48,7 @@ private:
 
     void ApplyTint(UStaticMeshComponent* Mesh, const FLinearColor& Color);
     void HidePrimitiveStandIn();
+    bool TryAttachEncounterPatient();
     bool TryAttachGenericDoctor();
     void TryAttachAssembledMetaHuman();
     void AlignActiveVisual();
@@ -115,6 +116,9 @@ private:
     TObjectPtr<USkeletalMeshComponent> GenericVisual;
 
     UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UStaticMeshComponent> EncounterVisual;
+
+    UPROPERTY(VisibleAnywhere)
     TObjectPtr<UTextRenderComponent> NameText;
 
     UPROPERTY()
@@ -135,5 +139,6 @@ private:
     TObjectPtr<AActor> AssembledVisual;
 
     bool bUsingGenericDoctor = false;
+    bool bUsingEncounterPatient = false;
     bool bAttendingKitAttached = false;
 };

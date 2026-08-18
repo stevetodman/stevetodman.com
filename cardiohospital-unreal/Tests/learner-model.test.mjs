@@ -30,6 +30,7 @@ function debrief(overrides = {}) {
       { id: "history", score: 25 },
       { id: "physicalExamination", score: 0 },
       { id: "redFlagRecognition", score: 0 },
+      { id: "differentialDiagnosis", score: 0 },
       { id: "testSelection", score: 0 },
       { id: "interpretation", score: 0 },
       { id: "clinicalReasoning", score: 0 },

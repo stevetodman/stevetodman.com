@@ -2,6 +2,7 @@ const DIMENSION_ORDER = Object.freeze([
   "history",
   "physicalExamination",
   "redFlagRecognition",
+  "differentialDiagnosis",
   "testSelection",
   "interpretation",
   "clinicalReasoning",
@@ -78,9 +79,18 @@ export function evaluateAttempt({ snapshot, graph, clinicalCase }) {
   const testSelectionScore = clampScore(appropriateTestScore - unnecessaryTests.length * 25);
   const interpretationScore = percentage(interpretedTests, expectedInterpretedTests);
   const diagnosisCorrect = submittedDiagnosis(snapshot.actionLog) === clinicalCase.correctDiagnosis;
+  const diagnosis = submittedDiagnosis(snapshot.actionLog);
+  const diagnosisOnAuthoredDifferential = Array.isArray(clinicalCase.differentials)
+    && clinicalCase.differentials.includes(diagnosis);
+  const differentialScore = !diagnosis || !diagnosisOnAuthoredDifferential
+    ? 0
+    : clampScore((diagnosisCorrect ? 60 : 30) + redFlagScore * 0.4);
   const reasoningScore = clampScore((diagnosisCorrect ? 70 : 0) + redFlagScore * 0.3);
   const managementScore = percentage(managementActions, clinicalCase.correctManagement);
   const communicationExpected = ["attending.open-assignment", "encounter.introduce", "reasoning.submit", "debrief.review"];
+  if (graph.actions.some((action) => action.id === "history.confidential-interview")) {
+    communicationExpected.push("history.confidential-interview");
+  }
   const communicationScore = percentage([...completedActions], communicationExpected);
   const duplicateCount = snapshot.actionLog.length - new Set(snapshot.actionLog.map((event) => event.actionId)).size;
   const efficiencyScore = clampScore(100 - unnecessaryTests.length * 25 - duplicateCount * 5);
@@ -91,6 +101,7 @@ export function evaluateAttempt({ snapshot, graph, clinicalCase }) {
     history: historyScore,
     physicalExamination: physicalScore,
     redFlagRecognition: redFlagScore,
+    differentialDiagnosis: differentialScore,
     testSelection: testSelectionScore,
     interpretation: interpretationScore,
     clinicalReasoning: reasoningScore,
@@ -117,10 +128,48 @@ export function evaluateAttempt({ snapshot, graph, clinicalCase }) {
     diagnosisCorrect,
     overallScore,
     dimensions,
+    summaryFeedback: buildSummaryFeedback({
+      diagnosis,
+      diagnosisCorrect,
+      clinicalCase,
+      missedOpportunities,
+      safetyEvents,
+      unnecessaryTests,
+    }),
     missedOpportunities,
     unnecessaryTests,
     safetyEvents,
     counterfactuals,
     actionLog: structuredClone(snapshot.actionLog),
   };
+}
+
+function buildSummaryFeedback({
+  diagnosis,
+  diagnosisCorrect,
+  clinicalCase,
+  missedOpportunities,
+  safetyEvents,
+  unnecessaryTests,
+}) {
+  const parts = [];
+  if (diagnosisCorrect) {
+    parts.push(`You identified ${clinicalCase.correctDiagnosis}.`);
+  } else if (diagnosis) {
+    parts.push(`Submitted ${diagnosis}; authored diagnosis is ${clinicalCase.correctDiagnosis}.`);
+  }
+  for (const missed of missedOpportunities) parts.push(missed.message);
+  for (const event of safetyEvents) parts.push(event.message);
+  if (unnecessaryTests.length > 0) {
+    parts.push(`Unnecessary testing included ${unnecessaryTests.join(", ")}.`);
+  }
+  if (
+    diagnosisCorrect
+    && missedOpportunities.length === 0
+    && safetyEvents.length === 0
+    && unnecessaryTests.length === 0
+  ) {
+    parts.push(clinicalCase.teachingPoint);
+  }
+  return parts.join(" ");
 }

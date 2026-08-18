@@ -46,6 +46,8 @@ private:
     void ApplyClinicInputMode();
     void CancelGuidedWalk();
     void AdvanceGuidedWalk();
+    void AdvanceWaypoint();
+    void FinishGuidedArrival();
     void BuildWalkPath(const FVector& Destination);
     void LookAtActorFace(const AActor* Target);
     static float DoorXFor(const FVector& Location);
@@ -68,5 +70,4 @@ private:
     TArray<FVector> GuidedPath;
     bool bInteractOnArrival = false;
     bool bLookHeld = false;
-    float WalkStallSeconds = 0.f;
 };

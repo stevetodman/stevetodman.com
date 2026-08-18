@@ -73,6 +73,8 @@ namespace
     // Content/Data/clinical-content.json; a portable test enforces that, and
     // no clinical fact about the case may be hardcoded in this file.
     const FString GAttendingNpcId = TEXT("dr-patel");
+    const FString GEncounterPatientId = TEXT("encounter-patient");
+    const FString GEncounterParentId = TEXT("encounter-parent");
     const FString GAssignedCaseId = TEXT("case-hcm");
 
     // A 30 m x 20 m clinic floor: corridor, four rooms, a ceiling, and door
@@ -325,6 +327,12 @@ void ACardioBlockoutGameMode::HandleInteract(ACardioBlockoutCharacter& Character
         return;
     }
 
+    if (Npc && (Npc->GetNpcId() == GEncounterPatientId || Npc->GetNpcId() == GEncounterParentId))
+    {
+        HandleExamRoom();
+        return;
+    }
+
     if (IsExamRoom3Location(Character.GetActorLocation()) || IsRoom1Location(Character.GetActorLocation()))
     {
         HandleExamRoom();
@@ -345,10 +353,10 @@ void ACardioBlockoutGameMode::GoToStation(ACardioBlockoutCharacter& Character, c
         bool bInteract;
     };
     static const FStation Stations[] = {
-        { FVector(750.0, 250.0, 88.0), true },
-        { FVector(-750.0, 520.0, 88.0), true },
-        { FVector(-750.0, -520.0, 88.0), true },
-        { FVector(750.0, -520.0, 88.0), true },
+        { FVector(750.0, 280.0, 88.0), true },
+        { FVector(-750.0, 340.0, 88.0), true },
+        { FVector(-750.0, -340.0, 88.0), true },
+        { FVector(750.0, -340.0, 88.0), true },
     };
     if (StationIndex < 0 || StationIndex >= UE_ARRAY_COUNT(Stations))
     {
@@ -424,9 +432,9 @@ void ACardioBlockoutGameMode::HandleChooseAction(const int32 ZeroBasedIndex)
         ShowExamMenu();
         return;
     }
-    if (ActionId == TEXT("__parent_step_out"))
+    if (ActionId == TEXT("history.confidential-interview"))
     {
-        bParentSteppedOut = true;
+        TryPerformAction(TEXT("history.confidential-interview"));
         ShowHistoryMenu();
         return;
     }
@@ -503,16 +511,16 @@ void ACardioBlockoutGameMode::HandleAttending(ACardioBlockoutNPC& Npc)
     UCardioClinicalDataSubsystem* Data = GameInstance ? GameInstance->GetSubsystem<UCardioClinicalDataSubsystem>() : nullptr;
     UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
 
-    const auto BuildAssignmentLines = [&Npc](const FCardioClinicalCase& ClinicalCase)
+    const auto BuildAssignmentLines = [&Npc](const FCardioAssignmentBrief& Assignment)
     {
         TArray<FString> Lines;
         Lines.Add(FString::Printf(TEXT("%s - Cardiology Attending"), *Npc.GetDisplayName()));
         Lines.Add(FString());
         Lines.Add(TEXT("\"I have a patient I'd like you to see.\""));
         Lines.Add(FString());
-        Lines.Add(FString::Printf(TEXT("Patient: %s, %.0f-year-old %s"), *ClinicalCase.PatientName, ClinicalCase.Age, *ClinicalCase.Sex));
-        Lines.Add(FString::Printf(TEXT("Chief complaint: %s"), *ClinicalCase.ChiefComplaint));
-        Lines.Add(FString::Printf(TEXT("Location: %s"), *ClinicalCase.Room));
+        Lines.Add(FString::Printf(TEXT("Patient: %s, %.0f-year-old %s"), *Assignment.PatientName, Assignment.Age, *Assignment.Sex));
+        Lines.Add(FString::Printf(TEXT("Chief complaint: %s"), *Assignment.ChiefComplaint));
+        Lines.Add(FString::Printf(TEXT("Location: %s"), *Assignment.Room));
         Lines.Add(FString());
         Lines.Add(TEXT("Find your patient and begin the evaluation."));
         Lines.Add(TEXT("[E] Close"));
@@ -534,7 +542,7 @@ void ACardioBlockoutGameMode::HandleAttending(ACardioBlockoutNPC& Npc)
             ShowEncounterMenu();
             return;
         }
-        Hud->ShowPanel(BuildAssignmentLines(Runtime->GetActiveClinicalCase()));
+        Hud->ShowPanel(BuildAssignmentLines(Runtime->GetPresentationState().Assignment));
         return;
     }
 
@@ -552,7 +560,6 @@ void ACardioBlockoutGameMode::HandleAttending(ACardioBlockoutNPC& Npc)
     }
 
     FString StartError;
-    bParentSteppedOut = false;
     if (!Runtime->StartCase(GAssignedCaseId, StartError))
     {
         UE_LOG(LogCardioHospital, Error, TEXT("StartCase(%s) failed: %s"), *GAssignedCaseId, *StartError);
@@ -575,7 +582,8 @@ void ACardioBlockoutGameMode::HandleAttending(ACardioBlockoutNPC& Npc)
     });
 
     UE_LOG(LogCardioHospital, Log, TEXT("Case %s started from the team room assignment."), *GAssignedCaseId);
-    Hud->ShowPanel(BuildAssignmentLines(Runtime->GetActiveClinicalCase()));
+    RefreshEncounterOccupants();
+    Hud->ShowPanel(BuildAssignmentLines(Runtime->GetPresentationState().Assignment));
     SpeakAttending(TEXT("I have a patient I'd like you to see."));
 }
 
@@ -606,12 +614,12 @@ void ACardioBlockoutGameMode::HandleExamRoom()
     const FVector Location = Pawn ? Pawn->GetActorLocation() : FVector::ZeroVector;
     if (!IsAssignedExamRoomLocation(Location))
     {
-        const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
+        const FString Room = Runtime->GetPresentationState().Assignment.Room;
         Hud->ShowPanel({
-            ClinicalCase.Room.IsEmpty() ? TEXT("Exam room") : ClinicalCase.Room,
+            Room.IsEmpty() ? TEXT("Exam room") : Room,
             FString(),
             TEXT("This is not the assigned room."),
-            FString::Printf(TEXT("The assignment is %s."), *ClinicalCase.Room),
+            FString::Printf(TEXT("The assignment is %s."), *Room),
             FString(),
             TEXT("[E] Close"),
         });
@@ -728,70 +736,56 @@ bool ACardioBlockoutGameMode::HasExamRoomWork() const
 
 bool ACardioBlockoutGameMode::HasPendingConfidentialHistory() const
 {
-    if (bParentSteppedOut)
-    {
-        return false;
-    }
     const UGameInstance* GameInstance = GetGameInstance();
     const UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
-    if (!Runtime || !Runtime->HasActiveCase())
-    {
-        return false;
-    }
-    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
-    if (!ClinicalCase.AllowConfidentialInterview || !ClinicalCase.ParentPresent)
-    {
-        return false;
-    }
-    for (const FCardioCaseActionDefinition& Action : Runtime->GetAvailableActionDefinitions())
-    {
-        if (Action.Type != TEXT("history") && !Action.Id.StartsWith(TEXT("history.")))
-        {
-            continue;
-        }
-        for (const FCardioHistoryFact& Fact : ClinicalCase.History)
-        {
-            if (Fact.Confidential && (Fact.Key == Action.Target || HistoryActionIdFromKey(Fact.Key) == Action.Id))
-            {
-                return true;
-            }
-        }
-    }
-    return false;
+    return Runtime && Runtime->GetAvailableActions().Contains(TEXT("history.confidential-interview"));
 }
 
 bool ACardioBlockoutGameMode::ShouldOfferHistoryAction(const FCardioCaseActionDefinition& Action) const
 {
-    if (Action.Type != TEXT("history") && !Action.Id.StartsWith(TEXT("history.")))
-    {
-        return false;
-    }
-    if (Action.Id.EndsWith(TEXT(".finish")))
-    {
-        return true;
-    }
-
     const UGameInstance* GameInstance = GetGameInstance();
     const UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
-    if (!Runtime || !Runtime->HasActiveCase())
+    if (!Runtime)
     {
         return false;
     }
+    return Runtime->GetAvailableActions().Contains(Action.Id);
+}
 
-    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
-    for (const FCardioHistoryFact& Fact : ClinicalCase.History)
+void ACardioBlockoutGameMode::FillMenuFromPresentation(TArray<FString>& Lines, const TArray<FString>& AllowedTypes)
+{
+    UGameInstance* GameInstance = GetGameInstance();
+    UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
+    if (!Runtime)
     {
-        if (Fact.Key != Action.Target && HistoryActionIdFromKey(Fact.Key) != Action.Id)
+        return;
+    }
+
+    const FCardioPresentationState View = Runtime->GetPresentationState();
+    int32 Choice = CurrentMenuActions.Num() + 1;
+    for (const FCardioActionMenuItem& Item : View.Menu)
+    {
+        if (Choice > 9)
+        {
+            break;
+        }
+        bool bAllowed = AllowedTypes.Num() == 0;
+        for (const FString& Allowed : AllowedTypes)
+        {
+            if (Item.Type == Allowed || Item.Id == Allowed)
+            {
+                bAllowed = true;
+                break;
+            }
+        }
+        if (!bAllowed)
         {
             continue;
         }
-        if (!Fact.Confidential)
-        {
-            return true;
-        }
-        return !ClinicalCase.ParentPresent || bParentSteppedOut;
+        CurrentMenuActions.Add(Item.Id);
+        Lines.Add(FString::Printf(TEXT("[%d]  %s"), Choice, *Item.Label));
+        ++Choice;
     }
-    return true;
 }
 
 void ACardioBlockoutGameMode::ShowEncounterIntroduction()
@@ -806,20 +800,20 @@ void ACardioBlockoutGameMode::ShowEncounterIntroduction()
     }
 
     TryPerformAction(TEXT("encounter.introduce"));
-    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
+    const FCardioAssignmentBrief Assignment = Runtime->GetPresentationState().Assignment;
     TArray<FString> Lines;
-    Lines.Add(ClinicalCase.Room.IsEmpty() ? TEXT("Encounter") : ClinicalCase.Room);
+    Lines.Add(Assignment.Room.IsEmpty() ? TEXT("Encounter") : Assignment.Room);
     Lines.Add(FString());
-    Lines.Add(FString::Printf(TEXT("%s, %.0f-year-old %s"), *ClinicalCase.PatientName, ClinicalCase.Age, *ClinicalCase.Sex));
-    if (!ClinicalCase.ChiefComplaint.IsEmpty())
+    Lines.Add(FString::Printf(TEXT("%s, %.0f-year-old %s"), *Assignment.PatientName, Assignment.Age, *Assignment.Sex));
+    if (!Assignment.ChiefComplaint.IsEmpty())
     {
-        Lines.Add(ClinicalCase.ChiefComplaint);
+        Lines.Add(Assignment.ChiefComplaint);
     }
     Lines.Add(FString());
-    if (!ClinicalCase.Vibe.IsEmpty())
+    if (!Assignment.Vibe.IsEmpty())
     {
         TArray<FString> Sentences;
-        ClinicalCase.Vibe.ParseIntoArray(Sentences, TEXT(". "), true);
+        Assignment.Vibe.ParseIntoArray(Sentences, TEXT(". "), true);
         for (FString& Sentence : Sentences)
         {
             Sentence.TrimStartAndEndInline();
@@ -834,7 +828,7 @@ void ACardioBlockoutGameMode::ShowEncounterIntroduction()
             Lines.Add(Sentence);
         }
     }
-    if (ClinicalCase.ParentPresent)
+    if (Assignment.ParentPresent)
     {
         Lines.Add(FString());
         Lines.Add(TEXT("A parent is present."));
@@ -859,13 +853,15 @@ void ACardioBlockoutGameMode::ShowExamRoomMenu()
     bChoosingDiagnosis = false;
     bChoosingAuscultation = false;
     TArray<FString> Lines;
-    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
-    Lines.Add(ClinicalCase.Room.IsEmpty() ? TEXT("Encounter") : ClinicalCase.Room);
+    const FCardioPresentationState View = Runtime->GetPresentationState();
+    const FCardioAssignmentBrief& Assignment = View.Assignment;
+    Lines.Add(Assignment.Room.IsEmpty() ? TEXT("Encounter") : Assignment.Room);
     Lines.Add(FString());
-    Lines.Add(FString::Printf(TEXT("%s, %.0f-year-old %s"), *ClinicalCase.PatientName, ClinicalCase.Age, *ClinicalCase.Sex));
-    if (ClinicalCase.ParentPresent)
+    Lines.Add(FString::Printf(TEXT("%s, %.0f-year-old %s"), *Assignment.PatientName, Assignment.Age, *Assignment.Sex));
+    if (Assignment.ParentPresent)
     {
-        Lines.Add(bParentSteppedOut
+        const bool bConfidentialDone = Runtime->GetRuntimeState().CompletedActions.Contains(TEXT("history.confidential-interview"));
+        Lines.Add(bConfidentialDone
             ? TEXT("The parent has stepped outside.")
             : TEXT("A parent is present."));
     }
@@ -873,57 +869,29 @@ void ACardioBlockoutGameMode::ShowExamRoomMenu()
 
     bool bHasTalk = false;
     bool bHasExam = false;
-    TArray<FCardioCaseActionDefinition> FinishActions;
-    for (const FCardioCaseActionDefinition& Action : Runtime->GetAvailableActionDefinitions())
+    for (const FCardioActionMenuItem& Item : View.Menu)
     {
-        if (ShouldOfferHistoryAction(Action) && !Action.Id.EndsWith(TEXT(".finish")))
+        if (Item.Type == TEXT("history") && !Item.Id.EndsWith(TEXT(".finish")))
         {
             bHasTalk = true;
         }
-        else if ((Action.Type == TEXT("exam") || Action.Id.StartsWith(TEXT("exam.")))
-            && !Action.Id.EndsWith(TEXT(".finish")))
+        else if (Item.Type == TEXT("exam") && !Item.Id.EndsWith(TEXT(".finish")))
         {
             bHasExam = true;
         }
-        else if ((Action.Id == TEXT("history.finish") || Action.Id == TEXT("exam.finish"))
-            && FinishActions.Num() < 4)
-        {
-            FinishActions.Add(Action);
-        }
-    }
-    if (HasPendingConfidentialHistory())
-    {
-        bHasTalk = true;
     }
 
-    int32 Choice = 1;
-    if (bHasTalk && Choice <= 9)
+    if (bHasTalk)
     {
         CurrentMenuActions.Add(TEXT("__talk"));
-        Lines.Add(FString::Printf(
-            TEXT("[%d]  %s"),
-            Choice,
-            (ClinicalCase.ParentPresent && !bParentSteppedOut)
-                ? TEXT("Talk with the patient and parent")
-                : TEXT("Talk with the patient")));
-        ++Choice;
+        Lines.Add(TEXT("[1]  Talk"));
     }
-    if (bHasExam && Choice <= 9)
+    if (bHasExam)
     {
         CurrentMenuActions.Add(TEXT("__examine"));
-        Lines.Add(FString::Printf(TEXT("[%d]  Examine"), Choice));
-        ++Choice;
+        Lines.Add(FString::Printf(TEXT("[%d]  Examine"), CurrentMenuActions.Num()));
     }
-    for (const FCardioCaseActionDefinition& Action : FinishActions)
-    {
-        if (Choice > 9)
-        {
-            break;
-        }
-        CurrentMenuActions.Add(Action.Id);
-        Lines.Add(FString::Printf(TEXT("[%d]  %s"), Choice, *LabelForAction(Action)));
-        ++Choice;
-    }
+    FillMenuFromPresentation(Lines, { TEXT("history.finish"), TEXT("exam.finish") });
 
     if (CurrentMenuActions.Num() == 0)
     {
@@ -955,13 +923,14 @@ void ACardioBlockoutGameMode::ShowHistoryMenu(const FString& LastQuestion, const
     CurrentMenuActions.Reset();
     bChoosingDiagnosis = false;
     bChoosingAuscultation = false;
-    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
+    const FCardioPresentationState View = Runtime->GetPresentationState();
     TArray<FString> Lines;
-    Lines.Add(ClinicalCase.PatientName.IsEmpty() ? TEXT("History") : ClinicalCase.PatientName);
+    Lines.Add(View.Assignment.PatientName.IsEmpty() ? TEXT("History") : View.Assignment.PatientName);
     Lines.Add(FString());
-    if (ClinicalCase.ParentPresent)
+    if (View.Assignment.ParentPresent)
     {
-        Lines.Add(bParentSteppedOut
+        const bool bConfidentialDone = Runtime->GetRuntimeState().CompletedActions.Contains(TEXT("history.confidential-interview"));
+        Lines.Add(bConfidentialDone
             ? TEXT("The parent has stepped outside.")
             : TEXT("A parent is present."));
         Lines.Add(FString());
@@ -985,40 +954,7 @@ void ACardioBlockoutGameMode::ShowHistoryMenu(const FString& LastQuestion, const
         Lines.Add(FString());
     }
 
-    int32 Choice = 1;
-    FCardioCaseActionDefinition FinishAction;
-    bool bHasFinish = false;
-    for (const FCardioCaseActionDefinition& Action : Runtime->GetAvailableActionDefinitions())
-    {
-        if (!ShouldOfferHistoryAction(Action))
-        {
-            continue;
-        }
-        if (Action.Id.EndsWith(TEXT(".finish")))
-        {
-            FinishAction = Action;
-            bHasFinish = true;
-            continue;
-        }
-        if (Choice > 8)
-        {
-            continue;
-        }
-        CurrentMenuActions.Add(Action.Id);
-        Lines.Add(FString::Printf(TEXT("[%d]  %s"), Choice, *LabelForAction(Action)));
-        ++Choice;
-    }
-    if (ClinicalCase.AllowConfidentialInterview && ClinicalCase.ParentPresent && !bParentSteppedOut && Choice <= 9)
-    {
-        CurrentMenuActions.Add(TEXT("__parent_step_out"));
-        Lines.Add(FString::Printf(TEXT("[%d]  Ask the parent to step outside"), Choice));
-        ++Choice;
-    }
-    if (bHasFinish && Choice <= 9)
-    {
-        CurrentMenuActions.Add(FinishAction.Id);
-        Lines.Add(FString::Printf(TEXT("[%d]  %s"), Choice, *LabelForAction(FinishAction)));
-    }
+    FillMenuFromPresentation(Lines, { TEXT("history") });
     if (CurrentMenuActions.Num() == 0)
     {
         Lines.Add(TEXT("No further history is available."));
@@ -1064,18 +1000,7 @@ void ACardioBlockoutGameMode::ShowExamMenu(const FString& LastLabel, const FStri
         Lines.Add(FString());
     }
 
-    int32 Choice = 1;
-    for (const FCardioCaseActionDefinition& Action : Runtime->GetAvailableActionDefinitions())
-    {
-        const bool bExamAction = Action.Type == TEXT("exam") || Action.Id.StartsWith(TEXT("exam."));
-        if (!bExamAction || Choice > 9)
-        {
-            continue;
-        }
-        CurrentMenuActions.Add(Action.Id);
-        Lines.Add(FString::Printf(TEXT("[%d]  %s"), Choice, *LabelForAction(Action)));
-        ++Choice;
-    }
+    FillMenuFromPresentation(Lines, { TEXT("exam") });
     if (CurrentMenuActions.Num() == 0)
     {
         Lines.Add(TEXT("No further exam actions are available."));
@@ -1114,24 +1039,14 @@ void ACardioBlockoutGameMode::ShowEncounterMenu()
     Lines.Add(TEXT("Dr. Patel - Cardiology Attending"));
     Lines.Add(FString());
 
-    int32 Choice = 1;
-    for (const FCardioCaseActionDefinition& Action : Runtime->GetAvailableActionDefinitions())
-    {
-        const bool bFollowUpAction =
-            Action.Type == TEXT("reasoning")
-            || Action.Type == TEXT("management")
-            || Action.Type == TEXT("debrief")
-            || Action.Type == TEXT("continuation")
-            || Action.Id == TEXT("performance.record")
-            || Action.Id == TEXT("next-case.begin");
-        if (!bFollowUpAction || Choice > 9)
-        {
-            continue;
-        }
-        CurrentMenuActions.Add(Action.Id);
-        Lines.Add(FString::Printf(TEXT("[%d]  %s"), Choice, *LabelForAction(Action)));
-        ++Choice;
-    }
+    FillMenuFromPresentation(Lines, {
+        TEXT("reasoning"),
+        TEXT("management"),
+        TEXT("debrief"),
+        TEXT("continuation"),
+        TEXT("performance.record"),
+        TEXT("next-case.begin"),
+    });
 
     if (CurrentMenuActions.Num() == 0)
     {
@@ -1160,21 +1075,7 @@ void ACardioBlockoutGameMode::ShowDiagnosticsMenu()
     Lines.Add(TEXT("ECG / Echo"));
     Lines.Add(FString());
 
-    int32 Choice = 1;
-    for (const FCardioCaseActionDefinition& Action : Runtime->GetAvailableActionDefinitions())
-    {
-        const bool bDiagnostic =
-            Action.Type == TEXT("order")
-            || Action.Type == TEXT("review")
-            || Action.Id == TEXT("testing.finish");
-        if (!bDiagnostic || Choice > 9)
-        {
-            continue;
-        }
-        CurrentMenuActions.Add(Action.Id);
-        Lines.Add(FString::Printf(TEXT("[%d]  %s"), Choice, *LabelForAction(Action)));
-        ++Choice;
-    }
+    FillMenuFromPresentation(Lines, { TEXT("order"), TEXT("review"), TEXT("testing.finish") });
     if (CurrentMenuActions.Num() == 0)
     {
         Lines.Add(TEXT("No studies are available yet. Finish the exam in Exam Room 3, or return to Dr. Patel."));
@@ -1195,21 +1096,29 @@ void ACardioBlockoutGameMode::ShowEcgReview()
         return;
     }
 
-    const FCardioEcgFindings Ecg = Runtime->GetActiveClinicalCase().Ecg;
+    bool bRevealed = false;
+    const FCardioEcgFindings Ecg = Runtime->GetRevealedEcg(bRevealed);
     TArray<FString> Lines;
     Lines.Add(TEXT("ECG"));
     Lines.Add(FString());
-    Lines.Add(FString::Printf(TEXT("Rhythm  %s"), *Ecg.Rhythm));
-    Lines.Add(FString::Printf(TEXT("Rate    %d"), Ecg.Rate));
-    Lines.Add(FString::Printf(TEXT("PR %s   QRS %s   QTc %s"), *Ecg.Intervals.PR, *Ecg.Intervals.QRS, *Ecg.Intervals.QTc));
-    Lines.Add(FString::Printf(TEXT("Axis    %s"), *Ecg.Axis));
-    if (!Ecg.Pattern.IsEmpty())
+    if (!bRevealed)
     {
-        Lines.Add(FString::Printf(TEXT("Pattern %s"), *Ecg.Pattern));
+        Lines.Add(TEXT("not reviewed yet"));
     }
-    for (const FString& Finding : Ecg.KeyFindings)
+    else
     {
-        Lines.Add(Finding);
+        Lines.Add(FString::Printf(TEXT("Rhythm  %s"), *Ecg.Rhythm));
+        Lines.Add(FString::Printf(TEXT("Rate    %d"), Ecg.Rate));
+        Lines.Add(FString::Printf(TEXT("PR %s   QRS %s   QTc %s"), *Ecg.Intervals.PR, *Ecg.Intervals.QRS, *Ecg.Intervals.QTc));
+        Lines.Add(FString::Printf(TEXT("Axis    %s"), *Ecg.Axis));
+        if (!Ecg.Pattern.IsEmpty())
+        {
+            Lines.Add(FString::Printf(TEXT("Pattern %s"), *Ecg.Pattern));
+        }
+        for (const FString& Finding : Ecg.KeyFindings)
+        {
+            Lines.Add(Finding);
+        }
     }
     Lines.Add(FString());
     Lines.Add(TEXT("[E] Close"));
@@ -1227,17 +1136,25 @@ void ACardioBlockoutGameMode::ShowEchoReview()
         return;
     }
 
-    const FCardioEchoFindings Echo = Runtime->GetActiveClinicalCase().Echo;
+    bool bRevealed = false;
+    const FCardioEchoFindings Echo = Runtime->GetRevealedEcho(bRevealed);
     TArray<FString> Lines;
     Lines.Add(TEXT("Echocardiogram"));
     Lines.Add(FString());
-    if (!Echo.Summary.IsEmpty())
+    if (!bRevealed)
     {
-        Lines.Add(Echo.Summary);
+        Lines.Add(TEXT("not reviewed yet"));
     }
-    for (const FString& Finding : Echo.KeyFindings)
+    else
     {
-        Lines.Add(Finding);
+        if (!Echo.Summary.IsEmpty())
+        {
+            Lines.Add(Echo.Summary);
+        }
+        for (const FString& Finding : Echo.KeyFindings)
+        {
+            Lines.Add(Finding);
+        }
     }
     Lines.Add(FString());
     Lines.Add(TEXT("[E] Close"));
@@ -1277,39 +1194,15 @@ FString ACardioBlockoutGameMode::LabelForAction(const FCardioCaseActionDefinitio
 {
     UGameInstance* GameInstance = GetGameInstance();
     UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
-    if (Runtime && (Action.Type == TEXT("history") || Action.Id.StartsWith(TEXT("history."))))
+    if (Runtime)
     {
-        for (const FCardioHistoryFact& Fact : Runtime->GetActiveClinicalCase().History)
+        for (const FCardioActionMenuItem& Item : Runtime->GetActionMenu())
         {
-            if (Fact.Key == Action.Target && !Fact.Question.IsEmpty())
+            if (Item.Id == Action.Id && !Item.Label.IsEmpty())
             {
-                return Fact.Question;
+                return Item.Label;
             }
         }
-    }
-    if (Action.Id == TEXT("reasoning.submit"))
-    {
-        return TEXT("State your diagnosis");
-    }
-    if (Action.Id == TEXT("debrief.review"))
-    {
-        return TEXT("Review case-specific feedback");
-    }
-    if (Action.Id == TEXT("performance.record"))
-    {
-        return TEXT("Record this attempt");
-    }
-    if (Action.Id == TEXT("next-case.begin"))
-    {
-        return TEXT("Begin the next case");
-    }
-    if (Action.Id.EndsWith(TEXT(".finish")))
-    {
-        return FString::Printf(TEXT("Finish %s"), *Action.Type);
-    }
-    if (!Action.Target.IsEmpty())
-    {
-        return Action.Target.Replace(TEXT("_"), TEXT(" "));
     }
     return Action.Id;
 }
@@ -1323,62 +1216,71 @@ FString ACardioBlockoutGameMode::ResultForAction(const FCardioCaseActionDefiniti
         return FString();
     }
 
-    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
     if (Action.Type == TEXT("history") || Action.Id.StartsWith(TEXT("history.")))
     {
-        for (const FCardioHistoryFact& Fact : ClinicalCase.History)
+        const TArray<FCardioHistoryFact> Revealed = Runtime->GetRevealedHistory();
+        for (int32 Index = Revealed.Num() - 1; Index >= 0; --Index)
         {
-            if (Fact.Key == Action.Target)
+            if (Revealed[Index].Key == Action.Target || Revealed[Index].Question == Action.Target)
             {
-                return Fact.Answer;
+                return Revealed[Index].Answer;
             }
+        }
+        return Revealed.Num() > 0 ? Revealed.Last().Answer : FString();
+    }
+    if (Action.Type == TEXT("exam") || Action.Id.StartsWith(TEXT("exam.")))
+    {
+        const FCardioExamFindings Exam = Runtime->GetRevealedExam();
+        if (Action.Id == TEXT("exam.general"))
+        {
+            return Exam.General;
+        }
+        if (Action.Id == TEXT("exam.vitals"))
+        {
+            return FString::Printf(TEXT("HR %d   BP %s   RR %d   SpO2 %d"), Exam.Vitals.HR, *Exam.Vitals.BP, Exam.Vitals.RR, Exam.Vitals.SpO2);
+        }
+        if (Action.Id == TEXT("exam.auscultation"))
+        {
+            TArray<FString> Lines;
+            for (const FCardioAuscultationFinding& Finding : Exam.Auscultation)
+            {
+                Lines.Add(FString::Printf(TEXT("%s: %s"), *Finding.Site, *Finding.Description));
+            }
+            return FString::Join(Lines, TEXT("\n"));
+        }
+        if (Action.Id == TEXT("exam.femoral-pulses"))
+        {
+            return Exam.FemoralPulses;
         }
         return FString();
     }
-    if (Action.Id == TEXT("exam.general"))
-    {
-        return ClinicalCase.Exam.General;
-    }
-    if (Action.Id == TEXT("exam.vitals"))
-    {
-        return FString::Printf(
-            TEXT("HR %d   BP %s   RR %d   SpO2 %d"),
-            ClinicalCase.Exam.Vitals.HR,
-            *ClinicalCase.Exam.Vitals.BP,
-            ClinicalCase.Exam.Vitals.RR,
-            ClinicalCase.Exam.Vitals.SpO2);
-    }
-    if (Action.Id == TEXT("exam.auscultation"))
-    {
-        TArray<FString> Lines;
-        for (const FCardioAuscultationFinding& Finding : ClinicalCase.Exam.Auscultation)
-        {
-            Lines.Add(FString::Printf(TEXT("%s: %s"), *Finding.Site, *Finding.Description));
-        }
-        return FString::Join(Lines, TEXT("\n"));
-    }
-    if (Action.Id == TEXT("exam.femoral-pulses"))
-    {
-        return ClinicalCase.Exam.FemoralPulses;
-    }
     if (Action.Id == TEXT("review.ecg"))
     {
-        TArray<FString> Lines;
-        Lines.Add(FString::Printf(TEXT("%s at %d bpm"), *ClinicalCase.Ecg.Rhythm, ClinicalCase.Ecg.Rate));
-        for (const FString& Finding : ClinicalCase.Ecg.KeyFindings)
+        if (!Runtime->HasReviewedTest(TEXT("ECG")))
         {
-            Lines.Add(Finding);
+            return TEXT("not reviewed yet");
         }
+        bool bRevealed = false;
+        const FCardioEcgFindings Ecg = Runtime->GetRevealedEcg(bRevealed);
+        TArray<FString> Lines;
+        Lines.Add(FString::Printf(TEXT("%s at %d bpm"), *Ecg.Rhythm, Ecg.Rate));
+        Lines.Append(Ecg.KeyFindings);
         return FString::Join(Lines, TEXT("\n"));
     }
     if (Action.Id == TEXT("review.echo"))
     {
-        TArray<FString> Lines;
-        Lines.Add(ClinicalCase.Echo.Summary);
-        for (const FString& Finding : ClinicalCase.Echo.KeyFindings)
+        if (!Runtime->HasReviewedTest(TEXT("Echocardiogram")))
         {
-            Lines.Add(Finding);
+            return TEXT("not reviewed yet");
         }
+        bool bRevealed = false;
+        const FCardioEchoFindings Echo = Runtime->GetRevealedEcho(bRevealed);
+        TArray<FString> Lines;
+        if (!Echo.Summary.IsEmpty())
+        {
+            Lines.Add(Echo.Summary);
+        }
+        Lines.Append(Echo.KeyFindings);
         return FString::Join(Lines, TEXT("\n"));
     }
     return FString();
@@ -1497,7 +1399,6 @@ bool ACardioBlockoutGameMode::HandleSpecialAction(const FCardioCaseActionDefinit
         }
 
         FString StartError;
-        bParentSteppedOut = false;
         if (!Runtime->StartCase(Next.CaseId, StartError))
         {
             Hud->ShowPanel({ TEXT("Next case"), FString(), StartError, FString(), TEXT("[E] Close") });
@@ -1510,19 +1411,20 @@ bool ACardioBlockoutGameMode::HandleSpecialAction(const FCardioCaseActionDefinit
             TEXT("attending.open-assignment"),
             TEXT("assignment.accept"),
         });
-        const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
+        const FCardioAssignmentBrief Assignment = Runtime->GetPresentationState().Assignment;
         Hud->ShowPanel({
             TEXT("Dr. Patel - Cardiology Attending"),
             FString(),
             TEXT("\"I have another patient I'd like you to see.\""),
             FString(),
-            FString::Printf(TEXT("Patient: %s, %.0f-year-old %s"), *ClinicalCase.PatientName, ClinicalCase.Age, *ClinicalCase.Sex),
-            FString::Printf(TEXT("Chief complaint: %s"), *ClinicalCase.ChiefComplaint),
-            FString::Printf(TEXT("Location: %s"), *ClinicalCase.Room),
+            FString::Printf(TEXT("Patient: %s, %.0f-year-old %s"), *Assignment.PatientName, Assignment.Age, *Assignment.Sex),
+            FString::Printf(TEXT("Chief complaint: %s"), *Assignment.ChiefComplaint),
+            FString::Printf(TEXT("Location: %s"), *Assignment.Room),
             FString(),
             TEXT("Find your patient and begin the evaluation."),
             TEXT("[E] Close"),
         });
+        RefreshEncounterOccupants();
         SpeakAttending(TEXT("I have another patient I'd like you to see."));
         return true;
     }
@@ -1548,7 +1450,7 @@ void ACardioBlockoutGameMode::ShowDiagnosisMenu()
     Lines.Add(FString());
 
     int32 Choice = 1;
-    for (const FString& Diagnosis : Runtime->GetActiveClinicalCase().Differentials)
+    for (const FString& Diagnosis : Runtime->GetPresentationState().DiagnosisChoices)
     {
         if (Diagnosis.IsEmpty() || Choice > 9)
         {
@@ -1590,32 +1492,24 @@ void ACardioBlockoutGameMode::ShowDebrief()
     TArray<FString> Lines;
     Lines.Add(TEXT("Case-specific feedback"));
     Lines.Add(FString());
-    Lines.Add(FString::Printf(TEXT("Score %d"), Debrief.OverallScore));
-    Lines.Add(FString::Printf(
-        TEXT("Diagnosis: %s (%s)"),
-        Debrief.DiagnosisSubmitted.IsEmpty() ? TEXT("not submitted") : *Debrief.DiagnosisSubmitted,
-        Debrief.bDiagnosisCorrect ? TEXT("matches authored truth") : TEXT("does not match authored truth")));
+    if (!Debrief.SummaryFeedback.IsEmpty())
+    {
+        Lines.Add(Debrief.SummaryFeedback);
+        Lines.Add(FString());
+    }
     for (const FCardioScoreDimension& Dimension : Debrief.Dimensions)
     {
         Lines.Add(FString::Printf(TEXT("%s  %d"), *Dimension.Id, Dimension.Score));
     }
-    for (const FCardioMissedOpportunity& Missed : Debrief.MissedOpportunities)
-    {
-        Lines.Add(Missed.Message);
-    }
-    for (const FCardioSafetyEvent& Event : Debrief.SafetyEvents)
-    {
-        Lines.Add(Event.Message);
-        if (!Event.Intervention.IsEmpty())
-        {
-            Lines.Add(Event.Intervention);
-        }
-    }
-    const FString TeachingPoint = Runtime->GetActiveClinicalCase().TeachingPoint;
-    if (!TeachingPoint.IsEmpty())
+    const FCardioPresentationState View = Runtime->GetPresentationState();
+    if (!View.CorrectDiagnosis.IsEmpty())
     {
         Lines.Add(FString());
-        Lines.Add(TeachingPoint);
+        Lines.Add(View.CorrectDiagnosis);
+    }
+    if (!View.TeachingPoint.IsEmpty())
+    {
+        Lines.Add(View.TeachingPoint);
     }
     Lines.Add(FString());
     Lines.Add(TEXT("[E] Close"));
@@ -1628,11 +1522,6 @@ FString ACardioBlockoutGameMode::DiagnosisPayloadJson(const FString& Diagnosis)
     Escaped.ReplaceInline(TEXT("\\"), TEXT("\\\\"));
     Escaped.ReplaceInline(TEXT("\""), TEXT("\\\""));
     return FString::Printf(TEXT("{\"diagnosis\":\"%s\"}"), *Escaped);
-}
-
-FString ACardioBlockoutGameMode::HistoryActionIdFromKey(const FString& Key)
-{
-    return FString::Printf(TEXT("history.%s"), *Key.Replace(TEXT("_"), TEXT("-")));
 }
 
 void ACardioBlockoutGameMode::SetAttendingListening(const bool bListening)
@@ -1684,38 +1573,13 @@ void ACardioBlockoutGameMode::SpeakAttending(const FString& AuthoredLine)
 
 TArray<FString> ACardioBlockoutGameMode::CollectSocraticLines() const
 {
-    TArray<FString> Lines;
     const UGameInstance* GameInstance = GetGameInstance();
     const UCardioCaseRuntimeSubsystem* Runtime = GameInstance ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>() : nullptr;
-    if (!Runtime || !Runtime->HasActiveCase())
+    if (!Runtime)
     {
-        return Lines;
+        return {};
     }
-
-    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
-    const TArray<FString>& Completed = Runtime->GetRuntimeState().CompletedActions;
-    for (const FString& Key : ClinicalCase.RedFlagKeys)
-    {
-        if (Completed.Contains(HistoryActionIdFromKey(Key)))
-        {
-            continue;
-        }
-        if (const FString* Missed = ClinicalCase.MissedOpportunityTemplate.Find(Key))
-        {
-            if (!Missed->IsEmpty())
-            {
-                Lines.Add(*Missed);
-            }
-        }
-    }
-    for (const FString& Question : ClinicalCase.AttendingSocratic)
-    {
-        if (!Question.IsEmpty())
-        {
-            Lines.Add(Question);
-        }
-    }
-    return Lines;
+    return Runtime->GetPresentationState().Socratic;
 }
 
 void ACardioBlockoutGameMode::ShowSocraticResponse()
@@ -1762,7 +1626,8 @@ void ACardioBlockoutGameMode::ShowAuscultationMenu()
     Lines.Add(FString());
 
     int32 Choice = 1;
-    for (const FCardioAuscultationFinding& Finding : Runtime->GetActiveClinicalCase().Exam.Auscultation)
+    const FCardioExamFindings Exam = Runtime->GetRevealedExam();
+    for (const FCardioAuscultationFinding& Finding : Exam.Auscultation)
     {
         if (Finding.Site.IsEmpty() || Choice > 8)
         {
@@ -1777,7 +1642,7 @@ void ACardioBlockoutGameMode::ShowAuscultationMenu()
     Lines.Add(FString::Printf(TEXT("[%d]  Valsalva %s"), Choice, Murmur.IsValsalva() ? TEXT("on") : TEXT("off")));
     if (MurmurAudio)
     {
-        for (const FCardioAuscultationFinding& Finding : Runtime->GetActiveClinicalCase().Exam.Auscultation)
+        for (const FCardioAuscultationFinding& Finding : Exam.Auscultation)
         {
             if (Finding.Site == Murmur.GetSite() && !Finding.Description.IsEmpty())
             {
@@ -1803,10 +1668,11 @@ void ACardioBlockoutGameMode::StartAuscultationSite(const FString& Site)
         return;
     }
 
-    const FCardioClinicalCase ClinicalCase = Runtime->GetActiveClinicalCase();
+    const FCardioPresentationState View = Runtime->GetPresentationState();
+    const int32 HeartRate = View.Exam.Vitals.HR > 0 ? View.Exam.Vitals.HR : 80;
     Murmur.Configure(
-        FCardioMurmurSynthesizer::PatternForCaseId(ClinicalCase.Id),
-        ClinicalCase.Exam.Vitals.HR,
+        FCardioMurmurSynthesizer::PatternForCaseId(View.CaseId),
+        HeartRate,
         Site,
         Murmur.IsValsalva());
 
@@ -1899,7 +1765,8 @@ AStaticMeshActor* ACardioBlockoutGameMode::SpawnMesh(
     UStaticMesh* MeshAsset,
     const FVector& Location,
     const FRotator& Rotation,
-    const FVector& Scale) const
+    const FVector& Scale,
+    const bool bEnableCollision) const
 {
     if (!MeshAsset)
     {
@@ -1918,7 +1785,7 @@ AStaticMeshActor* ACardioBlockoutGameMode::SpawnMesh(
     Mesh->SetMobility(EComponentMobility::Movable);
     Mesh->SetStaticMesh(MeshAsset);
     Actor->SetActorScale3D(Scale);
-    Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    Mesh->SetCollisionEnabled(bEnableCollision ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision);
     return Actor;
 }
 
@@ -1957,10 +1824,10 @@ void ACardioBlockoutGameMode::SpawnClinicDressing(UWorld& World) const
     SpawnMesh(World, ClinicChairMesh, FVector(680.0, -480.0, 0.0), FRotator(0.f, 10.f, 0.f));
     SpawnMesh(World, WallMonitorMesh, FVector(750.0, -980.0, 140.0));
 
-    SpawnMesh(World, DoorJambMesh, FVector(-750.0, 200.0, 0.0), FRotator(0.f, 0.f, 0.f));
-    SpawnMesh(World, DoorJambMesh, FVector(750.0, 200.0, 0.0), FRotator(0.f, 0.f, 0.f));
-    SpawnMesh(World, DoorJambMesh, FVector(-750.0, -200.0, 0.0), FRotator(0.f, 180.f, 0.f));
-    SpawnMesh(World, DoorJambMesh, FVector(750.0, -200.0, 0.0), FRotator(0.f, 180.f, 0.f));
+    SpawnMesh(World, DoorJambMesh, FVector(-750.0, 200.0, 0.0), FRotator(0.f, 0.f, 0.f), FVector(1.f), false);
+    SpawnMesh(World, DoorJambMesh, FVector(750.0, 200.0, 0.f), FRotator(0.f, 0.f, 0.f), FVector(1.f), false);
+    SpawnMesh(World, DoorJambMesh, FVector(-750.0, -200.0, 0.0), FRotator(0.f, 180.f, 0.f), FVector(1.f), false);
+    SpawnMesh(World, DoorJambMesh, FVector(750.0, -200.0, 0.0), FRotator(0.f, 180.f, 0.f), FVector(1.f), false);
 
     const FVector Lights[] = {
         FVector(-1200.0, 0.0, 348.0),
@@ -2241,27 +2108,51 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
 
 void ACardioBlockoutGameMode::SpawnSigns(UWorld& World) const
 {
-    // Door signs face the corridor from above each gap. Room names follow the
-    // case flow the walkthrough checklist expects; the sign is wayfinding, the
-    // clinical location string shown in the assignment comes from content.
-    SpawnSign(World, TEXT("Exam Room 3"), FVector(-750.0, 184.0, 285.0), -90.f);
-    SpawnSign(World, TEXT("Cardiology Team Room"), FVector(750.0, 184.0, 285.0), -90.f);
-    SpawnSign(World, TEXT("Room 1"), FVector(-750.0, -184.0, 285.0), 90.f);
-    SpawnSign(World, TEXT("Reception"), FVector(-1400.0, 0.0, 285.0), 0.f);
-    SpawnSign(World, TEXT("Education Room"), FVector(750.0, -184.0, 285.0), 90.f);
-    SpawnSign(World, TEXT("ECG / Echo"), FVector(980.0, -184.0, 250.0), 90.f);
-    SpawnSign(World, TEXT("Hand Hygiene"), FVector(-1100.0, 178.0, 175.0), -90.f);
-    SpawnSign(World, TEXT("Quiet Please"), FVector(-400.0, 178.0, 175.0), -90.f);
-    SpawnSign(World, TEXT("Pediatric Cardiology"), FVector(400.0, 178.0, 175.0), -90.f);
-    SpawnSign(World, TEXT("Family Waiting"), FVector(1100.0, 178.0, 175.0), -90.f);
-    SpawnSign(World, TEXT("Clinic Directory"), FVector(-1478.0, 0.0, 200.0), 0.f);
+    // Door plates sit on the corridor face, sized to the opening, not as
+    // free-floating billboards. Wall captions sit on the existing plaques.
+    SpawnSign(World, TEXT("Exam Room 3"), FVector(-750.0, 189.0, 268.0), -90.f, 12.f, true);
+    SpawnSign(World, TEXT("Cardiology\nTeam Room"), FVector(750.0, 189.0, 268.0), -90.f, 11.f, true);
+    SpawnSign(World, TEXT("Room 1"), FVector(-750.0, -189.0, 268.0), 90.f, 12.f, true);
+    SpawnSign(World, TEXT("Reception"), FVector(-1488.0, 0.0, 268.0), 0.f, 12.f, true);
+    SpawnSign(World, TEXT("Education Room"), FVector(750.0, -189.0, 268.0), 90.f, 11.f, true);
+    SpawnSign(World, TEXT("ECG / Echo"), FVector(980.0, -189.0, 248.0), 90.f, 11.f, true);
+    SpawnSign(World, TEXT("Hand Hygiene"), FVector(-1100.0, 179.6, 175.0), -90.f, 9.f, false);
+    SpawnSign(World, TEXT("Quiet Please"), FVector(-400.0, 179.6, 175.0), -90.f, 9.f, false);
+    SpawnSign(World, TEXT("Pediatric\nCardiology"), FVector(400.0, 179.6, 175.0), -90.f, 10.f, false);
+    SpawnSign(World, TEXT("Family Waiting"), FVector(1100.0, 179.6, 175.0), -90.f, 9.f, false);
+    SpawnSign(World, TEXT("Clinic Directory"), FVector(-1486.0, 0.0, 200.0), 0.f, 10.f, true);
 }
 
-void ACardioBlockoutGameMode::SpawnSign(UWorld& World, const FString& Text, const FVector& Location, const float YawDegrees) const
+void ACardioBlockoutGameMode::SpawnSign(
+    UWorld& World,
+    const FString& Text,
+    const FVector& Location,
+    const float YawDegrees,
+    const float WorldSize,
+    const bool bMountPlate) const
 {
+    const FRotator Rotation(0.f, YawDegrees, 0.f);
+    const FVector Forward = Rotation.Vector();
+
+    if (bMountPlate)
+    {
+        TArray<FString> Lines;
+        Text.ParseIntoArrayLines(Lines, false);
+        int32 Longest = 1;
+        for (const FString& Line : Lines)
+        {
+            Longest = FMath::Max(Longest, Line.Len());
+        }
+        const float PlateW = FMath::Clamp(WorldSize * 0.58f * static_cast<float>(Longest) + 14.f, 36.f, 130.f);
+        const float PlateH = WorldSize * FMath::Max(1, Lines.Num()) * 1.3f + 10.f;
+        const bool bFacingY = FMath::Abs(FMath::Abs(YawDegrees) - 90.f) < 45.f;
+        const FVector PlateSize = bFacingY ? FVector(PlateW, 2.4f, PlateH) : FVector(2.4f, PlateW, PlateH);
+        SpawnBlock(World, Location - Forward * 1.4f, PlateSize, PosterFrost);
+    }
+
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    ATextRenderActor* Sign = World.SpawnActor<ATextRenderActor>(Location, FRotator(0.f, YawDegrees, 0.f), Params);
+    ATextRenderActor* Sign = World.SpawnActor<ATextRenderActor>(Location, Rotation, Params);
     if (!Sign)
     {
         return;
@@ -2271,7 +2162,8 @@ void ACardioBlockoutGameMode::SpawnSign(UWorld& World, const FString& Text, cons
     Render->SetMobility(EComponentMobility::Movable);
     Render->SetText(FText::FromString(Text));
     Render->SetHorizontalAlignment(EHTA_Center);
-    Render->SetWorldSize(34.f);
+    Render->SetVerticalAlignment(EVRTA_TextCenter);
+    Render->SetWorldSize(WorldSize);
     Render->SetTextRenderColor(FColor(8, 92, 88));
 }
 
@@ -2285,5 +2177,79 @@ void ACardioBlockoutGameMode::SpawnAttending(UWorld& World)
     {
         Attending->Configure(GAttendingNpcId, TEXT("Dr. Patel"), FLinearColor(0.93f, 0.93f, 0.95f));
         AttendingNpc = Attending;
+    }
+}
+
+ACardioBlockoutNPC* ACardioBlockoutGameMode::SpawnEncounterNpc(
+    UWorld& World,
+    const FString& NpcId,
+    const FString& DisplayName,
+    const FVector& Location,
+    const FRotator& Rotation,
+    const float UniformScale,
+    const FLinearColor& CoatColor)
+{
+    FActorSpawnParameters Params;
+    Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    ACardioBlockoutNPC* Npc = World.SpawnActor<ACardioBlockoutNPC>(Location, Rotation, Params);
+    if (!Npc)
+    {
+        return nullptr;
+    }
+    Npc->Configure(NpcId, DisplayName, CoatColor);
+    Npc->SetActorScale3D(FVector(UniformScale));
+    return Npc;
+}
+
+void ACardioBlockoutGameMode::RefreshEncounterOccupants()
+{
+    if (EncounterPatientNpc)
+    {
+        EncounterPatientNpc->Destroy();
+        EncounterPatientNpc = nullptr;
+    }
+    if (EncounterParentNpc)
+    {
+        EncounterParentNpc->Destroy();
+        EncounterParentNpc = nullptr;
+    }
+
+    UWorld* World = GetWorld();
+    const UGameInstance* GameInstance = GetGameInstance();
+    const UCardioCaseRuntimeSubsystem* Runtime = GameInstance
+        ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>()
+        : nullptr;
+    if (!World || !Runtime || !Runtime->HasActiveCase())
+    {
+        return;
+    }
+
+    const FCardioClinicalCase& ActiveCase = Runtime->GetActiveClinicalCase();
+    const bool bRoom1 = MatchesExamRoom(FVector(-750.f, -400.f, 88.f), ActiveCase.Room);
+    const float Side = bRoom1 ? -1.f : 1.f;
+    const FRotator FacingDoor(0.f, bRoom1 ? 90.f : -90.f, 0.f);
+
+    // Off the x = ±750 doorway lane: patient beside the bed, parent by the
+    // chairs. Names and presence come from the assigned case, not this file.
+    const float PatientScale = FMath::Clamp(0.62f + static_cast<float>(ActiveCase.Age) * 0.02f, 0.62f, 0.96f);
+    EncounterPatientNpc = SpawnEncounterNpc(
+        *World,
+        GEncounterPatientId,
+        ActiveCase.PatientName,
+        FVector(-820.0, Side * 560.0, 0.0),
+        FacingDoor,
+        PatientScale,
+        FLinearColor(0.18f, 0.42f, 0.62f));
+
+    if (ActiveCase.ParentPresent)
+    {
+        EncounterParentNpc = SpawnEncounterNpc(
+            *World,
+            GEncounterParentId,
+            TEXT("Parent"),
+            FVector(-580.0, Side * 450.0, 0.0),
+            FacingDoor,
+            1.f,
+            FLinearColor(0.46f, 0.36f, 0.32f));
     }
 }

@@ -33,6 +33,22 @@ test("compiler gives result review a deterministic order prerequisite", () => {
   assert.deepEqual(review.requiresAll, ["completed:order.ecg"]);
 });
 
+test("compiler gates confidential history behind a parent-step-out interview", () => {
+  const graph = compileOutpatientCaseGraph(minimalAuthoring({
+    history: [
+      { key: "generic", acceptance: true },
+      { key: "substance_use", confidential: true },
+    ],
+  }));
+  const interview = graph.actions.find((entry) => entry.id === "history.confidential-interview");
+  const substance = graph.actions.find((entry) => entry.id === "history.substance-use");
+  const historyNode = graph.nodes.find((node) => node.id === "history");
+  assert.equal(interview.eventType, "confidential_interview_started");
+  assert.deepEqual(substance.requiresAll, ["completed:history.confidential-interview"]);
+  assert.ok(historyNode.availableActions.includes("history.confidential-interview"));
+  assert.ok(historyNode.acceptanceActions.includes("history.confidential-interview"));
+});
+
 test("compiler rejects duplicate authoring identifiers", () => {
   const config = minimalAuthoring({
     orders: [

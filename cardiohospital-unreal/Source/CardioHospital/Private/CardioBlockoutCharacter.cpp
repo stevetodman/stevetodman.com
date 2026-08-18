@@ -15,12 +15,20 @@
 namespace
 {
     constexpr float InteractionRangeCm = 320.f;
+    // Final station stop only. Intermediate door waypoints use the tighter
+    // radius below so a 42 cm capsule cannot cut a 120 cm doorway.
     constexpr float ArriveRadiusCm = 90.f;
+    constexpr float WaypointArriveRadiusCm = 24.f;
+    constexpr float AxisAlignCm = 16.f;
     constexpr float ConversationStandOffCm = 180.f;
     // The temporary Ready Player Me attending is about 188 cm tall; 170 cm is
     // a reasonable face target until final MetaHuman-native medical art lands.
     constexpr float AttendingFaceHeightCm = 170.f;
-    constexpr float WalkStallLimitSeconds = 0.45f;
+    // Just south/north of the corridor partitions (Y = ±200) and clear of
+    // the cube wall thickness, so the next step is a straight shot through
+    // the door at x = ±750.
+    constexpr float CorridorApproachY = 110.f;
+    constexpr float RoomDoorY = 280.f;
 }
 
 ACardioBlockoutCharacter::ACardioBlockoutCharacter()
@@ -236,7 +244,6 @@ void ACardioBlockoutCharacter::CancelGuidedWalk()
 {
     GuidedPath.Reset();
     bInteractOnArrival = false;
-    WalkStallSeconds = 0.f;
 }
 
 void ACardioBlockoutCharacter::LookAtActorFace(const AActor* Target)
@@ -260,18 +267,51 @@ void ACardioBlockoutCharacter::FaceNpc(AActor* Npc)
         return;
     }
 
-    // Stand south of Patel, toward the team-room door, so arrival is
-    // face-to-face rather than a profile caught beside him.
-    const FVector NpcLoc = Npc->GetActorLocation();
-    FVector Stand = NpcLoc;
-    Stand.Y = NpcLoc.Y - ConversationStandOffCm;
-    Stand.Z = GetActorLocation().Z;
-    SetActorLocation(Stand, false, nullptr, ETeleportType::TeleportPhysics);
-
     LookAtActorFace(Npc);
     if (ACardioBlockoutNPC* Attending = Cast<ACardioBlockoutNPC>(Npc))
     {
         Attending->FaceToward(GetActorLocation());
+    }
+}
+
+void ACardioBlockoutCharacter::FinishGuidedArrival()
+{
+    if (!FocusedNpc.IsValid())
+    {
+        TArray<AActor*> Npcs;
+        UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACardioBlockoutNPC::StaticClass(), Npcs);
+        float Best = 360.f;
+        for (AActor* Actor : Npcs)
+        {
+            if (!Actor)
+            {
+                continue;
+            }
+            const float Dist = FVector::Dist2D(GetActorLocation(), Actor->GetActorLocation());
+            if (Dist < Best && Dist <= 280.f)
+            {
+                Best = Dist;
+                FocusedNpc = Cast<ACardioBlockoutNPC>(Actor);
+            }
+        }
+    }
+    if (FocusedNpc.IsValid())
+    {
+        FaceNpc(FocusedNpc.Get());
+    }
+    if (bInteractOnArrival)
+    {
+        bInteractOnArrival = false;
+        Interact();
+    }
+}
+
+void ACardioBlockoutCharacter::AdvanceWaypoint()
+{
+    GuidedPath.RemoveAt(0);
+    if (GuidedPath.Num() == 0)
+    {
+        FinishGuidedArrival();
     }
 }
 
@@ -282,58 +322,28 @@ void ACardioBlockoutCharacter::AdvanceGuidedWalk()
         return;
     }
 
-    FVector To = GuidedPath[0] - GetActorLocation();
+    const FVector Here = GetActorLocation();
+    FVector To = GuidedPath[0] - Here;
     To.Z = 0.f;
-    const UCharacterMovementComponent* Movement = GetCharacterMovement();
-    const bool bStalled = Movement && Movement->Velocity.Size2D() < 8.f;
-    if (bStalled)
-    {
-        WalkStallSeconds += GetWorld() ? GetWorld()->GetDeltaSeconds() : 0.016f;
-    }
-    else
-    {
-        WalkStallSeconds = 0.f;
-    }
+    const bool bLast = GuidedPath.Num() == 1;
+    const float Radius = bLast ? ArriveRadiusCm : WaypointArriveRadiusCm;
 
-    if (To.Size() <= ArriveRadiusCm || WalkStallSeconds >= WalkStallLimitSeconds)
+    if (To.Size() <= Radius)
     {
-        GuidedPath.RemoveAt(0);
-        WalkStallSeconds = 0.f;
-        if (GuidedPath.Num() == 0)
-        {
-            if (!FocusedNpc.IsValid())
-            {
-                TArray<AActor*> Npcs;
-                UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACardioBlockoutNPC::StaticClass(), Npcs);
-                float Best = 360.f;
-                for (AActor* Actor : Npcs)
-                {
-                    if (!Actor)
-                    {
-                        continue;
-                    }
-                    const float Dist = FVector::Dist2D(GetActorLocation(), Actor->GetActorLocation());
-                    if (Dist < Best)
-                    {
-                        Best = Dist;
-                        FocusedNpc = Cast<ACardioBlockoutNPC>(Actor);
-                    }
-                }
-            }
-            if (FocusedNpc.IsValid())
-            {
-                FaceNpc(FocusedNpc.Get());
-            }
-            if (bInteractOnArrival)
-            {
-                bInteractOnArrival = false;
-                Interact();
-            }
-        }
+        AdvanceWaypoint();
         return;
     }
 
-    const FVector Direction = To.GetSafeNormal();
+    // An L toward a door must stay on one axis. Diagonal input from a 90 cm
+    // early turn is what wedges the capsule into the jamb.
+    const bool bNeedX = FMath::Abs(To.X) > AxisAlignCm;
+    const bool bNeedY = FMath::Abs(To.Y) > AxisAlignCm;
+    FVector Direction = To.GetSafeNormal();
+    if (bNeedX && bNeedY)
+    {
+        Direction = FVector(FMath::Sign(To.X), 0.f, 0.f);
+    }
+
     AddMovementInput(Direction, 1.f);
     if (!bLookHeld)
     {
@@ -367,15 +377,36 @@ void ACardioBlockoutCharacter::BuildWalkPath(const FVector& Destination)
     const bool bSameWing = (From.X < 0.f) == (Destination.X < 0.f);
     const bool bSameRoom = bFromRoom && bDestRoom && bSameSide && bSameWing;
 
+    const auto AddPoint = [this, &From](const float X, const float Y)
+    {
+        if (GuidedPath.Num() > 0)
+        {
+            const FVector& Last = GuidedPath.Last();
+            if (FMath::IsNearlyEqual(Last.X, X, 8.f) && FMath::IsNearlyEqual(Last.Y, Y, 8.f))
+            {
+                return;
+            }
+        }
+        GuidedPath.Add(FVector(X, Y, From.Z));
+    };
+
     if (bFromRoom && !bSameRoom)
     {
-        GuidedPath.Add(FVector(DoorXFor(From), From.Y > 0.f ? 160.f : -160.f, From.Z));
+        const float DoorX = DoorXFor(From);
+        const float Side = From.Y > 0.f ? 1.f : -1.f;
+        AddPoint(DoorX, Side * RoomDoorY);
+        AddPoint(DoorX, Side * CorridorApproachY);
+        AddPoint(DoorX, 0.f);
     }
     if (bDestRoom && !bSameRoom)
     {
-        GuidedPath.Add(FVector(DoorXFor(Destination), Destination.Y > 0.f ? 160.f : -160.f, From.Z));
+        const float DoorX = DoorXFor(Destination);
+        const float Side = Destination.Y > 0.f ? 1.f : -1.f;
+        AddPoint(DoorX, 0.f);
+        AddPoint(DoorX, Side * CorridorApproachY);
+        AddPoint(DoorX, Side * RoomDoorY);
     }
-    GuidedPath.Add(FVector(Destination.X, Destination.Y, From.Z));
+    AddPoint(Destination.X, Destination.Y);
 }
 
 void ACardioBlockoutCharacter::ChooseActionIndex(const int32 ZeroBasedIndex)
