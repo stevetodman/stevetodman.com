@@ -11,23 +11,38 @@ Steven OS is a model-agnostic control plane for project memory, execution, verif
 - **Postgres remembers.** Durable state lives in structured storage, not in chat history.
 - **Steven decides.** Clinical judgment, high-consequence publication, money thresholds, irreversible actions, and strategic choices escalate to Steven.
 
-## v0 vertical slice
+## Current state
 
-This directory intentionally does not make live provider calls and does not require secrets. It proves three primitives:
+A dedicated Supabase project named `steven-os` is provisioned in `us-east-1`. The live database uses the private `steven_os` schema in `schema.sql`; `anon` and `authenticated` have no table privileges in that schema. Supabase security advisors currently report zero security lints.
 
-1. A canonical structured project record with evidence boundaries.
-2. A policy engine that separates execution work from Steven-only decisions.
-3. A provider/model router whose task contract is capability-based rather than provider-name-based.
+The first canonical live project is Cardio Hospital / PR #19. Its record was seeded from current GitHub PR and workflow state rather than from chat memory. The database separately records:
 
-The initial real project snapshot is Cardio Hospital / PR #19. The dashboard distinguishes successful portable CI from the still-unverified native Unreal gates.
+- the PR source and exact head SHA,
+- normalized work-item state,
+- GitHub Actions evidence,
+- the native Unreal evidence boundary,
+- execution-owned next work,
+- and Steven-only decision gates.
+
+The checked-in `state/projects.json` remains a shadow fixture for the static dashboard and regression tests; it is not the canonical database.
+
+## v0 primitives
+
+1. Structured canonical project/work-item state with evidence boundaries.
+2. Provenance sources and immutable observed events.
+3. A policy engine that separates execution work from Steven-only decisions.
+4. A provider/model router whose task contract is capability-based rather than provider-name-based.
+5. Model-run telemetry tables for quality, cost, latency, revisions, and acceptance.
+6. A GitHub normalizer that converts provider-specific PR/workflow payloads into provider-neutral control-plane facts.
 
 ## Security boundary
 
 - PHI is forbidden in v0.
 - `index.html` is `noindex` and is not linked from the public homepage.
-- `schema.sql` uses a private `steven_os` Postgres schema and revokes browser roles. Future browser access should go through authenticated server endpoints rather than exposing the control-plane tables directly.
+- Canonical tables live in a non-exposed private Postgres schema.
+- Future browser access must go through authenticated server endpoints; do not expose `steven_os` directly through the Data API.
 - No provider API keys, GitHub tokens, service-role keys, email contents, or calendar data belong in the repository.
 
 ## Next implementation step
 
-Provision a dedicated Supabase project, apply `schema.sql`, add authenticated server endpoints, then replace the checked-in shadow snapshot with ingest jobs that read GitHub/deployment state and persist normalized events. After the control plane is reliable, add provider adapters and model evaluation telemetry.
+Add a narrowly authenticated server-side API for reads/writes against the private schema, then run the GitHub normalizer from an event-driven ingest worker instead of manual connector ingestion. After that, replace the static dashboard fixture with database-backed reads and add provider adapters/evaluation telemetry.
