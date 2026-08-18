@@ -7,7 +7,11 @@ const API_SECRET = config.apiSecret || '';
 
 const $ = (selector) => document.querySelector(selector);
 const esc = (value = '') => String(value).replace(/[&<>'\"]/g, (char) => ({
-  '&': '&', '<': '<', '>': '>', "'": '&#39;', '"': '"'
+  '&': '&',
+  '<': '<',
+  '>': '>',
+  "'": '&#39;',
+  '"': '"'
 }[char]));
 
 function stateBadge(state) {
@@ -19,32 +23,30 @@ function projectLinks(item, projects, execution) {
   const project = (projects || []).find((p) => p.id === item.project_id);
   const work = (execution || []).find((w) => w.project_id === item.project_id);
   const links = [];
+  const title = (item.title || '').toLowerCase();
 
-  if (project?.production_url) {
+  // Clinical review: readable summary page first (not the old blocky site)
+  if (title.includes('clinical')) {
+    links.push(`<a class="review-link" href="./clinical-review.html">Read the 9 cases (review page)</a>`);
+    links.push(`<a class="review-link" href="https://github.com/stevetodman/stevetodman.com/pull/24" target="_blank" rel="noreferrer">Open PR #24</a>`);
+    links.push(`<a class="review-link" href="https://github.com/stevetodman/stevetodman.com/pull/19" target="_blank" rel="noreferrer">Open PR #19</a>`);
+    return `<div class="review-links">${links.join('')}</div>`;
+  }
+
+  if (title.includes('branding')) {
+    links.push(`<a class="review-link" href="./clinical-review.html">Context on review page</a>`);
+    links.push(`<a class="review-link" href="https://stevetodman.com/cardiohospital/" target="_blank" rel="noreferrer">Old web build (branding check only)</a>`);
+  }
+
+  if (project?.production_url && !title.includes('clinical')) {
     links.push(`<a class="review-link" href="${esc(project.production_url)}" target="_blank" rel="noreferrer">Open live product</a>`);
   }
 
   const repo = project?.repository_full_name;
-  const meta = work?.metadata || {};
-  if (repo && meta.headBranch) {
-    const prGuess = meta.prUrl || meta.html_url;
-    if (prGuess) {
-      links.push(`<a class="review-link" href="${esc(prGuess)}" target="_blank" rel="noreferrer">Open pull request</a>`);
-    } else if (work?.kind === 'pull_request' && work?.title) {
-      // Cardio Hospital pilot PR #19 is the known live source for this project
-      links.push(`<a class="review-link" href="https://github.com/${esc(repo)}/pull/19" target="_blank" rel="noreferrer">Open PR #19</a>`);
-    }
+  if (repo && work?.kind === 'pull_request') {
+    links.push(`<a class="review-link" href="https://github.com/${esc(repo)}/pull/19" target="_blank" rel="noreferrer">Open PR #19</a>`);
   } else if (repo) {
     links.push(`<a class="review-link" href="https://github.com/${esc(repo)}" target="_blank" rel="noreferrer">Open repository</a>`);
-  }
-
-  // Decision-specific guidance
-  const title = (item.title || '').toLowerCase();
-  if (title.includes('clinical')) {
-    links.push(`<a class="review-link" href="https://stevetodman.com/cardiohospital/" target="_blank" rel="noreferrer">Review clinical experience</a>`);
-  }
-  if (title.includes('branding')) {
-    links.push(`<a class="review-link" href="https://stevetodman.com/cardiohospital/" target="_blank" rel="noreferrer">Inspect branding in product</a>`);
   }
 
   if (!links.length) return '';
