@@ -1,0 +1,7 @@
+# Secret-key authorization is enforced inside each function with @supabase/server.
+# Current Supabase secret API keys are not JWTs, so gateway JWT verification must be disabled.
+[functions.steven-os-ingest]
+verify_jwt = false
+
+[functions.steven-os-brief]
+verify_jwt = false
