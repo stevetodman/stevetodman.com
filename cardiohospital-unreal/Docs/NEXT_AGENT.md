@@ -1,7 +1,6 @@
 # Next agent — start here
 
-Session date: 2026-08-17. Managed Windows PC. No Unreal compile here.
-Release machine is the M4 Max (ADR-0002).
+Session date: 2026-08-18. M4 Max. Branch `mac/integrate-launch-set`.
 
 ## What you are building
 
@@ -9,6 +8,22 @@ Packaged outpatient slice: team room → Patel assigns HCM → Exam Room 3
 → Marcus + parent → debrief → vasovagal contrast in Room 1.
 Acceptance is the 19-step packaged walkthrough at 2560×1440.
 `walkthroughPassed` is still false.
+
+## Current Mac state (2026-08-18)
+
+- Merge of #24 into the Mac world branch is committed as `0e7377b`.
+- Package exists:
+  `PackagedBuilds/Mac-Development-20260818T143911Z/CardioHospital.app`
+- Honest packaged launch recorded in
+  `Docs/walkthrough-20260818T145002Z-failed.md`. Steps 1–2 only.
+- Live window was 1440×1112, not 2560×1440.
+- Patel is still the temporary generic doctor mesh.
+- `bParentSteppedOut` is still in `CardioBlockoutGameMode`. Apply
+  [`MAC_MERGE_GAME_MODE.md`](MAC_MERGE_GAME_MODE.md) before trusting
+  the #24 confidential-interview / action-menu HUD path.
+
+If you are on this Mac, do **not** re-merge. Do the GameMode edits,
+repackage, then a human WASD pass of that new `.app`.
 
 Authoritative spec: `LegacyCore/plan.md` (168 sections).
 Ledger: `SPEC_TRACEABILITY.md`. Do not invent structured results.
