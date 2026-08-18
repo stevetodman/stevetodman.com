@@ -152,6 +152,14 @@ ACardioBlockoutNPC::ACardioBlockoutNPC()
         AttendingScopeSkel->SetSkeletalMesh(ScopeSkelFinder.Object);
     }
 
+    EncounterVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("EncounterVisual"));
+    EncounterVisual->SetupAttachment(Root);
+    EncounterVisual->SetMobility(EComponentMobility::Movable);
+    EncounterVisual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    EncounterVisual->SetHiddenInGame(true);
+    EncounterVisual->SetCastShadow(true);
+    EncounterVisual->bNeverDistanceCull = true;
+
     GenericVisual = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GenericVisual"));
     GenericVisual->SetupAttachment(Root);
     GenericVisual->SetMobility(EComponentMobility::Movable);
@@ -221,6 +229,11 @@ void ACardioBlockoutNPC::Configure(const FString& InNpcId, const FString& InDisp
     ApplyTint(LeftEye, EyeWhite);
     ApplyTint(RightEye, EyeWhite);
 
+    if (NpcId.Equals(TEXT("encounter-patient")) && TryAttachEncounterPatient())
+    {
+        return;
+    }
+
     if (!TryAttachGenericDoctor())
     {
         TryAttachAssembledMetaHuman();
@@ -241,6 +254,56 @@ void ACardioBlockoutNPC::HidePrimitiveStandIn()
         Part->SetHiddenInGame(true);
         Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
+}
+
+bool ACardioBlockoutNPC::TryAttachEncounterPatient()
+{
+    constexpr const TCHAR* PatientMeshPath =
+        TEXT("/Game/Characters/EncounterPatient/SM_EncounterPatient.SM_EncounterPatient");
+    if (!EncounterVisual)
+    {
+        return false;
+    }
+
+    UStaticMesh* Mesh = LoadObject<UStaticMesh>(nullptr, PatientMeshPath);
+    if (!Mesh)
+    {
+        UE_LOG(
+            LogCardioAttending,
+            Warning,
+            TEXT("encounter patient mesh missing at %s; falling back"),
+            PatientMeshPath);
+        return false;
+    }
+
+    // Hunyuan export is Z-up, ~2 m. glTF import is centimeters. Face the
+    // doorway the same way the generic doctor does (-90° mesh yaw).
+    EncounterVisual->SetStaticMesh(Mesh);
+    EncounterVisual->SetRelativeLocationAndRotation(
+        FVector::ZeroVector,
+        FRotator(0.f, GenericMeshYawOffset, 0.f));
+    EncounterVisual->SetRelativeScale3D(FVector(1.f));
+    EncounterVisual->SetHiddenInGame(false);
+    EncounterVisual->SetVisibility(true, true);
+    EncounterVisual->SetCastShadow(true);
+    EncounterVisual->bNeverDistanceCull = true;
+    EncounterVisual->UpdateBounds();
+    EncounterVisual->MarkRenderStateDirty();
+
+    bUsingEncounterPatient = true;
+    HidePrimitiveStandIn();
+    if (GenericVisual)
+    {
+        GenericVisual->SetHiddenInGame(true);
+        GenericVisual->SetSkeletalMesh(nullptr);
+    }
+    UE_LOG(
+        LogCardioAttending,
+        Display,
+        TEXT("using projected child patient %s for %s"),
+        *Mesh->GetPathName(),
+        *DisplayName);
+    return true;
 }
 
 bool ACardioBlockoutNPC::TryAttachGenericDoctor()
@@ -536,6 +599,10 @@ void ACardioBlockoutNPC::AlignActiveVisual()
     {
         GenericVisual->SetRelativeRotation(FRotator(0.f, GenericMeshYawOffset, 0.f));
     }
+    if (bUsingEncounterPatient && EncounterVisual)
+    {
+        EncounterVisual->SetRelativeRotation(FRotator(0.f, GenericMeshYawOffset, 0.f));
+    }
     if (AssembledVisual)
     {
         AssembledVisual->SetActorRelativeRotation(FRotator(0.f, AssembledMeshYawOffset, 0.f));
@@ -551,7 +618,7 @@ void ACardioBlockoutNPC::FaceToward(const FVector& WorldLocation)
     }
     // Actor +X is logical forward. Primitive parts live on +Y, so the root
     // itself must carry that import yaw; skinned tiers correct on the child.
-    const float RootYawOffset = (bUsingGenericDoctor || AssembledVisual)
+    const float RootYawOffset = (bUsingGenericDoctor || bUsingEncounterPatient || AssembledVisual)
         ? 0.f
         : PrimitiveMeshYawOffset;
     SetActorRotation(FRotator(0.f, To.Rotation().Yaw + RootYawOffset, 0.f));
@@ -596,7 +663,7 @@ void ACardioBlockoutNPC::Tick(const float DeltaSeconds)
         }
     }
 
-    if (bUsingGenericDoctor || AssembledVisual)
+    if (bUsingGenericDoctor || bUsingEncounterPatient || AssembledVisual)
     {
         return;
     }
