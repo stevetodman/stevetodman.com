@@ -6,7 +6,7 @@ const API_SECRET = config.apiSecret || '';
 
 const $ = (selector) => document.querySelector(selector);
 const esc = (value = '') => String(value).replace(/[&<>'\"]/g, (char) => ({
-  '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  '&': '&', '<': '<', '>': '>', "'": '&#39;', '"': '"'
 }[char]));
 
 function stateBadge(state) {
@@ -101,12 +101,21 @@ function renderQueue(selector, items, emptyText, live) {
 
 async function loadLive() {
   if (!BRIEF_URL) throw new Error('No briefUrl configured');
+  if (!API_SECRET || API_SECRET.includes('REPLACE_WITH')) {
+    throw new Error('apiSecret not set in config.local.js');
+  }
 
-  const headers = { Accept: 'application/json' };
-  if (API_SECRET) headers.Authorization = `Bearer ${API_SECRET}`;
+  const headers = {
+    Accept: 'application/json',
+    Authorization: `Bearer ${API_SECRET}`,
+    apikey: API_SECRET,
+  };
 
   const res = await fetch(BRIEF_URL, { headers, cache: 'no-store' });
-  if (!res.ok) throw new Error(`Live brief failed: ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Live brief failed: ${res.status} ${body.slice(0, 200)}`);
+  }
   const data = await res.json();
 
   return {
