@@ -85,17 +85,16 @@ private:
     void SetAttendingListening(bool bListening);
     void ShowSocraticResponse();
     TArray<FString> CollectSocraticLines() const;
+    void FillMenuFromPresentation(TArray<FString>& Lines, const TArray<FString>& AllowedTypes);
     void ShowAuscultationMenu();
     void StartAuscultationSite(const FString& Site);
     void PumpMurmurAudio();
     void StopMurmurAudio();
     static FString DiagnosisPayloadJson(const FString& Diagnosis);
-    static FString HistoryActionIdFromKey(const FString& Key);
 
     TArray<FString> CurrentMenuActions;
     bool bChoosingDiagnosis = false;
     bool bChoosingAuscultation = false;
-    bool bParentSteppedOut = false;
     FCardioMurmurSynthesizer Murmur;
 
     UPROPERTY()
