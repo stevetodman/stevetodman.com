@@ -155,6 +155,23 @@ function validateCase(failures, clinicalCase, index) {
     }
   }
 
+  if (Array.isArray(clinicalCase.history) && Array.isArray(clinicalCase.redFlagKeys)) {
+    const redFlagSet = new Set(clinicalCase.redFlagKeys);
+    const redFlagAnswers = clinicalCase.history
+      .filter((fact) => redFlagSet.has(fact.key) && hasText(fact.answer))
+      .map((fact) => fact.answer);
+    clinicalCase.history.forEach((fact, factIndex) => {
+      if (!isObject(fact) || redFlagSet.has(fact.key) || !hasText(fact.answer)) return;
+      for (const redFlagAnswer of redFlagAnswers) {
+        addFailure(
+          failures,
+          !fact.answer.includes(redFlagAnswer),
+          `${path}.history[${factIndex}] leaks a red-flag answer that must require a specific question`,
+        );
+      }
+    });
+  }
+
   addFailure(failures, isObject(clinicalCase.missedOpportunityTemplate), `${path}.missedOpportunityTemplate must be an object`);
   if (isObject(clinicalCase.missedOpportunityTemplate)) {
     for (const [key, message] of Object.entries(clinicalCase.missedOpportunityTemplate)) {
@@ -405,6 +422,7 @@ function validateConcepts(failures, concepts, caseIds) {
     "history",
     "physicalExamination",
     "redFlagRecognition",
+    "differentialDiagnosis",
     "testSelection",
     "interpretation",
     "clinicalReasoning",
@@ -454,7 +472,7 @@ export function validateClinicalDocument(document, { expectedSourceHashes } = {}
 
   addFailure(failures, document.schemaVersion === 3, "schemaVersion must be 3");
   addFailure(failures, document.generatedAt === "source-hash-derived", "generatedAt must remain reproducible");
-  addFailure(failures, Array.isArray(document.cases) && document.cases.length === 7, "expected exactly seven outpatient cases");
+  addFailure(failures, Array.isArray(document.cases) && document.cases.length === 9, "expected exactly nine outpatient cases");
 
   const ids = new Set();
   document.cases?.forEach((clinicalCase, index) => {

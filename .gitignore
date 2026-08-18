@@ -3,3 +3,5 @@
 # Test tooling
 node_modules/
 package-lock.json
+steven-os/config.local.js
+steven-os/supabase/.temp/

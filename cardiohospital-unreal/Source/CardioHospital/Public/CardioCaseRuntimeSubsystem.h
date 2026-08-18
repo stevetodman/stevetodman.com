@@ -34,6 +34,25 @@ public:
     TArray<FCardioCaseActionDefinition> GetAvailableActionDefinitions() const;
 
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
+    TArray<FCardioActionMenuItem> GetActionMenu() const;
+
+    // World UI must display these, not GetActiveClinicalCase() truth arrays.
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
+    TArray<FCardioHistoryFact> GetRevealedHistory() const;
+
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
+    FCardioExamFindings GetRevealedExam() const;
+
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
+    bool HasReviewedTest(const FString& TestName) const;
+
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
+    FCardioEcgFindings GetRevealedEcg(bool& bRevealed) const;
+
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
+    FCardioEchoFindings GetRevealedEcho(bool& bRevealed) const;
+
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
     TArray<FString> GetMissingAcceptanceActions() const;
 
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
@@ -45,6 +64,10 @@ public:
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
     FCardioCaseRuntimeState GetRuntimeState() const { return State; }
 
+    UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
+    FCardioPresentationState GetPresentationState() const;
+
+    // Full truth for evaluators only. World UI must use GetPresentationState.
     UFUNCTION(BlueprintPure, Category="Cardio Hospital|Case Runtime")
     FCardioClinicalCase GetActiveClinicalCase() const { return ActiveCase; }
 

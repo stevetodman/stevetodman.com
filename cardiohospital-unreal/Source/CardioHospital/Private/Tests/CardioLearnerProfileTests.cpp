@@ -47,6 +47,7 @@ namespace
         AddDimension(Debrief, TEXT("history"), 25);
         AddDimension(Debrief, TEXT("physicalExamination"), 0);
         AddDimension(Debrief, TEXT("redFlagRecognition"), 0);
+        AddDimension(Debrief, TEXT("differentialDiagnosis"), 0);
         AddDimension(Debrief, TEXT("testSelection"), 0);
         AddDimension(Debrief, TEXT("interpretation"), 0);
         AddDimension(Debrief, TEXT("clinicalReasoning"), 0);
@@ -74,6 +75,7 @@ namespace
         AddDimension(Debrief, TEXT("history"), Score);
         AddDimension(Debrief, TEXT("physicalExamination"), Score);
         AddDimension(Debrief, TEXT("redFlagRecognition"), Score);
+        AddDimension(Debrief, TEXT("differentialDiagnosis"), Score);
         AddDimension(Debrief, TEXT("testSelection"), Score);
         AddDimension(Debrief, TEXT("interpretation"), Score);
         AddDimension(Debrief, TEXT("clinicalReasoning"), Score);
@@ -99,8 +101,8 @@ bool FCardioLearnerProfileTest::RunTest(const FString& Parameters)
         AddError(Error);
         return false;
     }
-    TestEqual(TEXT("All seven outpatient cases are available"), Document.Cases.Num(), 7);
-    TestEqual(TEXT("All seven outpatient graphs are available"), Document.CaseGraphs.Num(), 7);
+    TestEqual(TEXT("All nine outpatient cases are available"), Document.Cases.Num(), 9);
+    TestEqual(TEXT("All nine outpatient graphs are available"), Document.CaseGraphs.Num(), 9);
 
     TSet<FString> ProfilePropertyNames;
     for (TFieldIterator<FProperty> Property(FCardioLearnerProfile::StaticStruct()); Property; ++Property)
@@ -385,7 +387,7 @@ bool FCardioLearnerProfileTest::RunTest(const FString& Parameters)
         }
         RotationProfile = MoveTemp(NextProfile);
     }
-    TestEqual(TEXT("Adaptive rotation covers all seven cases"), SelectedCaseIds.Num(), 7);
+    TestEqual(TEXT("Adaptive rotation covers all nine cases"), SelectedCaseIds.Num(), 9);
     for (const FCardioClinicalCase& ClinicalCase : Document.Cases)
     {
         TestTrue(
