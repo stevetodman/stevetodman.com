@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-18T07:16:00-05:00",
+  "mode": "shadow",
+  "projects": [
+    {
+      "id": "cardio-hospital",
+      "name": "Cardio Hospital",
+      "objective": "Create a high-fidelity pediatric cardiology resident simulation with deterministic clinical scoring and a credible immersive environment.",
+      "priority": 1,
+      "status": "active",
+      "riskLevel": "high",
+      "repository": {
+        "fullName": "stevetodman/stevetodman.com",
+        "url": "https://github.com/stevetodman/stevetodman.com"
+      },
+      "production": {
+        "url": "https://stevetodman.com/cardiohospital/",
+        "verifiedAgainstHead": false
+      },
+      "currentWork": {
+        "kind": "pull_request",
+        "number": 19,
+        "title": "Add Cardio Hospital Unreal migration scaffold",
+        "url": "https://github.com/stevetodman/stevetodman.com/pull/19",
+        "state": "open",
+        "draft": true,
+        "mergeable": true,
+        "headBranch": "agent/unreal-migration-scaffold",
+        "headSha": "67ded600a65c6d29f24dabb0cdef045feb95e9de",
+        "commits": 16,
+        "changedFiles": 103,
+        "updatedAt": "2026-08-17T18:41:33Z"
+      },
+      "evidence": [
+        {
+          "id": "portable-tests",
+          "claim": "Portable/browser repository suite passed 222/222 tests across 33 suites.",
+          "status": "pass",
+          "source": "pr-19-description"
+        },
+        {
+          "id": "actions-unreal",
+          "claim": "GitHub Actions Cardio Hospital Unreal run #96 completed successfully at the current PR head.",
+          "status": "pass",
+          "source": "github-actions"
+        },
+        {
+          "id": "actions-tests",
+          "claim": "GitHub Actions Tests run #157 completed successfully at the current PR head.",
+          "status": "pass",
+          "source": "github-actions"
+        },
+        {
+          "id": "ue-native-gates",
+          "claim": "UE 5.8 compile, Unreal automation, cook/package, packaged walkthrough, real SaveGame I/O, and target-hardware performance remain unverified.",
+          "status": "blocked",
+          "source": "pr-19-evidence-boundary"
+        }
+      ],
+      "gates": [
+        {
+          "id": "native-unreal-validation",
+          "type": "deterministic",
+          "state": "blocked",
+          "owner": "execution",
+          "reason": "Requires the provisioned RTX workstation with the UE 5.8 / Visual Studio toolchain."
+        },
+        {
+          "id": "clinical-review",
+          "type": "human_judgment",
+          "state": "needs_human",
+          "owner": "steven",
+          "reason": "Formal clinical review/sign-off remains pending."
+        },
+        {
+          "id": "institutional-branding",
+          "type": "human_judgment",
+          "state": "needs_human",
+          "owner": "steven",
+          "reason": "Named institutional branding permission remains pending."
+        }
+      ],
+      "nextAction": {
+        "owner": "execution",
+        "action": "Run the documented first-build pipeline on the provisioned RTX workstation and attach machine-verifiable results before considering merge.",
+        "command": "./Scripts/Run-FirstBuild.ps1 -IncludePackage -Configuration Development"
+      }
+    }
+  ]
+}
