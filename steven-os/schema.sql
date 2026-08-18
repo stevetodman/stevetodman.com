@@ -142,3 +142,66 @@ create index if not exists evidence_source_idx on steven_os.evidence(source_id);
 create index if not exists evidence_work_item_idx on steven_os.evidence(work_item_id);
 create index if not exists model_runs_agent_run_idx on steven_os.model_runs(agent_run_id);
 create index if not exists model_runs_registry_idx on steven_os.model_runs(model_registry_id);
+
+-- Private read models keep API/orchestration code thin and deterministic.
+create or replace view steven_os.project_brief as
+select
+  p.id,
+  p.name,
+  p.objective,
+  p.status,
+  p.priority,
+  p.risk_level,
+  p.repository_full_name,
+  p.production_url,
+  p.updated_at,
+  count(distinct w.id) filter (where w.state not in ('complete','closed','merged')) as open_work_items,
+  count(distinct e.id) filter (where e.status='pass') as passing_evidence,
+  count(distinct e.id) filter (where e.status='fail') as failing_evidence,
+  count(distinct e.id) filter (where e.status='blocked') as blocked_evidence,
+  count(distinct d.id) filter (where d.state='open') as open_decisions
+from steven_os.projects p
+left join steven_os.work_items w on w.project_id=p.id
+left join steven_os.evidence e on e.project_id=p.id
+left join steven_os.decisions d on d.project_id=p.id
+group by p.id;
+
+create or replace view steven_os.decision_queue as
+select
+  d.id,
+  d.project_id,
+  p.name as project_name,
+  p.priority,
+  d.title,
+  d.question,
+  d.recommendation,
+  d.alternatives,
+  d.consequence,
+  d.created_at
+from steven_os.decisions d
+join steven_os.projects p on p.id=d.project_id
+where d.state='open'
+order by p.priority asc, d.created_at asc;
+
+create or replace view steven_os.execution_queue as
+select
+  w.id,
+  w.project_id,
+  p.name as project_name,
+  p.priority,
+  w.kind,
+  w.title,
+  w.state,
+  w.acceptance_criteria,
+  w.metadata,
+  w.updated_at,
+  (select count(*) from steven_os.evidence e where e.work_item_id=w.id and e.status='blocked') as blocked_evidence,
+  (select count(*) from steven_os.evidence e where e.work_item_id=w.id and e.status='fail') as failing_evidence
+from steven_os.work_items w
+join steven_os.projects p on p.id=w.project_id
+where w.owner_class='execution' and w.state not in ('complete','closed','merged')
+order by p.priority asc, w.updated_at asc;
+
+revoke all on steven_os.project_brief from public, anon, authenticated;
+revoke all on steven_os.decision_queue from public, anon, authenticated;
+revoke all on steven_os.execution_queue from public, anon, authenticated;
