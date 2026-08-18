@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import { buildDecisionQueue, buildExecutionQueue, classifyGate } from '../steven-os/lib/policy-engine.mjs';
 import { createProviderRegistry, routeModel } from '../steven-os/lib/model-router.mjs';
 import { normalizePullRequest, preserveEvidenceBoundary } from '../steven-os/lib/github-normalizer.mjs';
+import { formatBriefText } from '../steven-os/lib/control-plane.mjs';
 import {
   classifyPullRequest,
   isBotPullRequest,
@@ -19,6 +20,13 @@ const briefFunctionPath = new URL('../steven-os/supabase/functions/steven-os-bri
 const githubIngestFunctionPath = new URL('../steven-os/supabase/functions/steven-os-github-ingest/index.ts', import.meta.url);
 const githubIngestWorkflowPath = new URL('../.github/workflows/steven-os-ingest.yml', import.meta.url);
 const githubIngestRunnerPath = new URL('../steven-os/scripts/ingest-github-pr.mjs', import.meta.url);
+const morningWorkflowPath = new URL('../.github/workflows/steven-os-morning.yml', import.meta.url);
+const morningRunnerPath = new URL('../steven-os/scripts/run-morning.mjs', import.meta.url);
+const briefPath = new URL('../steven-os/scripts/brief.mjs', import.meta.url);
+const resolveCliPath = new URL('../steven-os/scripts/resolve-decision.mjs', import.meta.url);
+const registerPath = new URL('../steven-os/scripts/register-project.mjs', import.meta.url);
+const createDecisionPath = new URL('../steven-os/scripts/create-decision.mjs', import.meta.url);
+const resolveFunctionPath = new URL('../steven-os/supabase/functions/steven-os-resolve/index.ts', import.meta.url);
 const supabaseConfigPath = new URL('../steven-os/supabase/config.toml', import.meta.url);
 
 async function loadState() {
@@ -209,4 +217,46 @@ test('archived repos are skipped', async () => {
   const catalog = await loadCatalogFromDisk();
   assert.equal(shouldIngestRepo({ name: 'heartquest', isArchived: true }, catalog), false);
   assert.equal(shouldIngestRepo({ name: 'peds-ecg-viewer', isArchived: false }, catalog), true);
+});
+
+test('brief formatter prints queues without embedding secrets', () => {
+  const text = formatBriefText({
+    generatedAt: '2026-08-18T15:00:00.000Z',
+    mode: 'server-secret',
+    decisions: [],
+    execution: [{
+      project_name: 'Cardio Hospital',
+      kind: 'pull_request',
+      title: 'Integrate launch-set clinical core into the Mac world branch',
+      state: 'open',
+      metadata: { nextAction: 'Apply GameMode merge' }
+    }],
+    projects: [
+      { name: 'Cardio Hospital', priority: 1, open_work_items: 7, open_decisions: 0 },
+      { name: 'quiet-repo', priority: 8, open_work_items: 0, open_decisions: 0 }
+    ]
+  });
+  assert.match(text, /Needs you: 0/);
+  assert.match(text, /Apply GameMode merge/);
+  assert.match(text, /Quiet: 1/);
+  assert.doesNotMatch(text, /sb_secret_/);
+});
+
+test('morning loop and decision CLIs do not embed credentials or service-role keys', async () => {
+  const files = await Promise.all([
+    fs.readFile(morningWorkflowPath, 'utf8'),
+    fs.readFile(morningRunnerPath, 'utf8'),
+    fs.readFile(briefPath, 'utf8'),
+    fs.readFile(resolveCliPath, 'utf8'),
+    fs.readFile(registerPath, 'utf8'),
+    fs.readFile(createDecisionPath, 'utf8'),
+    fs.readFile(resolveFunctionPath, 'utf8')
+  ]);
+  for (const source of files) {
+    assert.doesNotMatch(source, /sb_secret_[A-Za-z0-9_-]+/);
+    assert.doesNotMatch(source, /SUPABASE_SERVICE_ROLE_KEY/);
+  }
+  assert.match(files[0], /run-morning\.mjs --skip-sync/);
+  assert.match(files[1], /ingest-github-org\.mjs/);
+  assert.match(files[6], /action === "create"/);
 });

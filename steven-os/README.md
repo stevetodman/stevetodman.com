@@ -54,6 +54,27 @@ node steven-os/scripts/ingest-github-org.mjs
 
 The Cardio Hospital specialist runner (`ingest-github-pr.mjs`) remains for package/walkthrough boundaries. It is no longer the only ingest path.
 
+## Daily loop
+
+Local morning run (org sync + brief):
+
+```sh
+node steven-os/scripts/run-morning.mjs
+node steven-os/scripts/run-morning.mjs --skip-sync
+node steven-os/scripts/brief.mjs
+node steven-os/scripts/register-project.mjs --list
+node steven-os/scripts/resolve-decision.mjs --list
+```
+
+The GitHub Action `steven-os-morning.yml` snapshots the live brief only. It does not hold a service-role key and does not sync private repos. Full org sync stays on this Mac via `gh`.
+
+Decisions use the existing secret resolve API, not direct table access:
+
+```sh
+node steven-os/scripts/create-decision.mjs --project=cardio-hospital --title="..." --question="..."
+node steven-os/scripts/resolve-decision.mjs <id> --approve
+```
+
 ## Next implementation step
 
-Schedule the org ingest from a trusted local or GitHub App identity. Do not widen the current OIDC gateway to every repository until that identity exists. Then add Chief-of-Staff next-action writing without inventing clinical decisions.
+Deploy the resolve-function `create` action if it is not already live. Do not widen the OIDC gateway to every repository until a GitHub App identity exists.
