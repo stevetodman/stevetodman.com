@@ -15,6 +15,10 @@
     }
   },
   "pullRequest": 19,
+  "workflowEvidenceNames": [
+    "Tests",
+    "Cardio Hospital Unreal"
+  ],
   "acceptanceCriteria": [
     "UE 5.8 UHT/UBT compilation passes on target workstation",
     "Unreal automation is discovered and passes",
