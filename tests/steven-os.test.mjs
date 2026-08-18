@@ -8,6 +8,9 @@ import { normalizePullRequest, preserveEvidenceBoundary } from '../steven-os/lib
 const statePath = new URL('../steven-os/state/projects.json', import.meta.url);
 const ingestFunctionPath = new URL('../steven-os/supabase/functions/steven-os-ingest/index.ts', import.meta.url);
 const briefFunctionPath = new URL('../steven-os/supabase/functions/steven-os-brief/index.ts', import.meta.url);
+const githubIngestFunctionPath = new URL('../steven-os/supabase/functions/steven-os-github-ingest/index.ts', import.meta.url);
+const githubIngestWorkflowPath = new URL('../.github/workflows/steven-os-ingest.yml', import.meta.url);
+const githubIngestRunnerPath = new URL('../steven-os/scripts/ingest-github-pr.mjs', import.meta.url);
 const supabaseConfigPath = new URL('../steven-os/supabase/config.toml', import.meta.url);
 
 async function loadState() {
@@ -108,4 +111,28 @@ test('backend functions require secret auth in code and never embed credentials'
 
   assert.match(config, /\[functions\.steven-os-ingest\][\s\S]*verify_jwt\s*=\s*false/);
   assert.match(config, /\[functions\.steven-os-brief\][\s\S]*verify_jwt\s*=\s*false/);
+});
+
+test('GitHub-to-Steven-OS bridge uses short-lived OIDC with narrow trust', async () => {
+  const [gateway, workflow, runner, config] = await Promise.all([
+    fs.readFile(githubIngestFunctionPath, 'utf8'),
+    fs.readFile(githubIngestWorkflowPath, 'utf8'),
+    fs.readFile(githubIngestRunnerPath, 'utf8'),
+    fs.readFile(supabaseConfigPath, 'utf8')
+  ]);
+
+  assert.match(gateway, /https:\/\/token\.actions\.githubusercontent\.com/);
+  assert.match(gateway, /steven-os-github-ingest:v1/);
+  assert.match(gateway, /REPOSITORY_ID = "1121860459"/);
+  assert.match(gateway, /stevetodman\/stevetodman\.com\/\.github\/workflows\/steven-os-ingest\.yml@refs\/heads\/main/);
+  assert.match(gateway, /jwtVerify\(/);
+  assert.match(gateway, /algorithms: \["RS256"\]/);
+  assert.match(workflow, /id-token:\s*write/);
+  assert.match(workflow, /contents:\s*read/);
+  assert.match(workflow, /actions:\s*read/);
+  assert.doesNotMatch(workflow, /SUPABASE_[A-Z_]+\s*:/);
+  assert.match(runner, /ACTIONS_ID_TOKEN_REQUEST_URL/);
+  assert.match(runner, /ACTIONS_ID_TOKEN_REQUEST_TOKEN/);
+  assert.doesNotMatch(runner, /sb_secret_[A-Za-z0-9_-]+/);
+  assert.match(config, /\[functions\.steven-os-github-ingest\][\s\S]*verify_jwt\s*=\s*false/);
 });
