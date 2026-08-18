@@ -27,6 +27,20 @@ h2 { letter-spacing:-.025em; }
 .queue-title { font-weight:800; margin-bottom:5px; }
 .queue-reason { color:#b4bdc8; line-height:1.45; font-size:.9rem; }
 .command { display:block; overflow:auto; padding:10px; margin-top:10px; border-radius:8px; background:#080a0c; color:#d6e4ff; font-size:.75rem; }
+.decision-actions { display:flex; gap:0.5rem; margin-top:0.85rem; }
+.decision-actions button {
+  flex:1;
+  padding:0.65rem 0.75rem;
+  border-radius:8px;
+  border:1px solid #333;
+  background:#1a1d21;
+  color:#e8eaed;
+  font-size:0.9rem;
+  cursor:pointer;
+}
+.btn-approve { border-color:#2e7d32 !important; }
+.btn-reject { border-color:#c62828 !important; }
+.decision-actions button:hover { filter:brightness(1.15); }
 .section-heading { display:flex; justify-content:space-between; align-items:end; margin-bottom:14px; }
 .projects { display:grid; gap:16px; }
 .project-card { padding:26px; }

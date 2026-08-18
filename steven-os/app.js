@@ -2,11 +2,12 @@ import { buildDecisionQueue, buildExecutionQueue } from './lib/policy-engine.mjs
 
 const config = window.STEVEN_OS_CONFIG || {};
 const BRIEF_URL = config.briefUrl || '';
+const RESOLVE_URL = (config.briefUrl || '').replace(/steven-os-brief\/?$/, 'steven-os-resolve');
 const API_SECRET = config.apiSecret || '';
 
 const $ = (selector) => document.querySelector(selector);
 const esc = (value = '') => String(value).replace(/[&<>'\"]/g, (char) => ({
-  '&': '&', '<': '<', '>': '>', "'": '&#39;', '"': '"'
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
 }[char]));
 
 function stateBadge(state) {
@@ -62,6 +63,35 @@ function renderProjects(projects, mode) {
   }).join('');
 }
 
+async function resolveDecision(id, action) {
+  if (!API_SECRET || !RESOLVE_URL) {
+    alert('Resolve API not configured');
+    return;
+  }
+  if (!confirm(action === 'approve' ? 'Approve this decision?' : 'Reject / supersede this decision?')) {
+    return;
+  }
+
+  const res = await fetch(RESOLVE_URL, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${API_SECRET}`,
+      apikey: API_SECRET,
+    },
+    body: JSON.stringify({ id, action }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    alert(`Resolve failed: ${res.status} ${text.slice(0, 200)}`);
+    return;
+  }
+
+  await start();
+}
+
 function renderQueue(selector, items, emptyText, live) {
   const node = $(selector);
   if (!items.length) {
@@ -71,12 +101,23 @@ function renderQueue(selector, items, emptyText, live) {
 
   if (live && selector === '#needs-you') {
     node.innerHTML = items.map((item) => `
-      <article class="queue-item">
+      <article class="queue-item" data-id="${esc(item.id)}">
         <div class="queue-title">${esc(item.project_name || item.projectName)}</div>
         <div class="queue-reason"><strong>${esc(item.title || item.reason)}</strong></div>
         ${item.question ? `<div class="queue-reason">${esc(item.question)}</div>` : ''}
         ${item.consequence ? `<div class="queue-reason">Consequence: ${esc(item.consequence)}</div>` : ''}
+        <div class="decision-actions">
+          <button type="button" class="btn-approve" data-action="approve">Approve</button>
+          <button type="button" class="btn-reject" data-action="reject">Reject</button>
+        </div>
       </article>`).join('');
+
+    node.querySelectorAll('button[data-action]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.closest('.queue-item')?.dataset.id;
+        if (id) resolveDecision(id, btn.dataset.action);
+      });
+    });
     return;
   }
 

@@ -9,3 +9,6 @@ verify_jwt = false
 
 [functions.steven-os-github-ingest]
 verify_jwt = false
+
+[functions.steven-os-resolve]
+verify_jwt = false
