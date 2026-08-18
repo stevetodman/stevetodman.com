@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#0b0d10">
+  <title>Steven OS · Shadow Mode</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">Control plane · <span id="mode">loading</span></div>
+        <h1>Steven OS</h1>
+        <p class="subhead">Models reason. Tools act. Workflows coordinate. Evaluations judge. Postgres remembers. Steven decides.</p>
+      </div>
+      <div class="freshness">Snapshot <span id="generated">—</span></div>
+    </header>
+
+    <div id="app-error" class="error" hidden></div>
+
+    <section class="metrics" aria-label="System summary">
+      <div class="metric"><strong id="decision-count">—</strong><span>Needs you</span></div>
+      <div class="metric"><strong id="execution-count">—</strong><span>Execution queue</span></div>
+      <div class="metric"><strong id="project-count">—</strong><span>Tracked projects</span></div>
+    </section>
+
+    <section class="grid">
+      <div class="panel decision-panel">
+        <div class="panel-heading"><span class="signal signal-human"></span><h2>Needs You</h2></div>
+        <p>Only gates requiring human judgment should appear here.</p>
+        <div id="needs-you" class="queue"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-heading"><span class="signal signal-exec"></span><h2>Execution</h2></div>
+        <p>Work the system should perform without asking you.</p>
+        <div id="execution" class="queue"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">Canonical project state</div>
+          <h2>Projects</h2>
+        </div>
+      </div>
+      <div id="projects" class="projects"></div>
+    </section>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
