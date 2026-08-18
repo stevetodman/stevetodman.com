@@ -1,7 +1,11 @@
-# Secret-key authorization is enforced inside each function with @supabase/server.
-# Current Supabase secret API keys are not JWTs, so gateway JWT verification must be disabled.
+# Auth is enforced inside each function. Current Supabase secret API keys and
+# GitHub OIDC tokens are not Supabase user JWTs, so gateway JWT verification
+# is intentionally disabled for these server-to-server endpoints.
 [functions.steven-os-ingest]
 verify_jwt = false
 
 [functions.steven-os-brief]
+verify_jwt = false
+
+[functions.steven-os-github-ingest]
 verify_jwt = false
