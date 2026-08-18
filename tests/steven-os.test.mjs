@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import { buildDecisionQueue, buildExecutionQueue, classifyGate } from '../steven-os/lib/policy-engine.mjs';
 import { createProviderRegistry, routeModel } from '../steven-os/lib/model-router.mjs';
+import { normalizePullRequest, preserveEvidenceBoundary } from '../steven-os/lib/github-normalizer.mjs';
 
 const statePath = new URL('../steven-os/state/projects.json', import.meta.url);
 
@@ -46,4 +47,44 @@ test('provider registry accepts arbitrary provider IDs', () => {
   const registry = createProviderRegistry([{ id: 'openai' }, { id: 'anthropic' }, { id: 'google' }, { id: 'future-model-company' }]);
   assert.equal(registry.list().length, 4);
   assert.equal(registry.get('future-model-company').id, 'future-model-company');
+});
+
+test('GitHub ingestion normalizes facts without deciding project readiness', () => {
+  const pr = {
+    number: 19,
+    url: 'https://github.com/stevetodman/stevetodman.com/pull/19',
+    title: 'Add Cardio Hospital Unreal migration scaffold',
+    state: 'open',
+    draft: true,
+    mergeable: true,
+    base: 'main',
+    head: 'agent/unreal-migration-scaffold',
+    head_sha: '67ded600a65c6d29f24dabb0cdef045feb95e9de',
+    commits: 16,
+    changed_files: 103,
+    updated_at: '2026-08-17T18:41:33Z'
+  };
+  const workflowRuns = [
+    { id: 1, name: 'Tests', status: 'completed', conclusion: 'success', run_number: 157, workflow_id: 10 },
+    { id: 2, name: 'Cardio Hospital Unreal', status: 'completed', conclusion: 'success', run_number: 96, workflow_id: 11 }
+  ];
+  const normalized = normalizePullRequest({ repositoryFullName: 'stevetodman/stevetodman.com', pr, workflowRuns, observedAt: '2026-08-18T12:30:00Z' });
+  assert.equal(normalized.source.sourceSha, pr.head_sha);
+  assert.equal(normalized.workItem.ownerClass, 'execution');
+  assert.equal(normalized.ciEvidence.length, 2);
+  assert.ok(normalized.ciEvidence.every((e) => e.status === 'pass'));
+  assert.equal(normalized.event.payload.ci.success, 2);
+  assert.equal(normalized.event.payload.ci.failed, 0);
+});
+
+test('green GitHub CI cannot erase an independent evidence boundary', () => {
+  const normalized = normalizePullRequest({
+    repositoryFullName: 'stevetodman/stevetodman.com',
+    pr: { number: 19, url: 'x', title: 'x', state: 'open', draft: true, mergeable: true, base: 'main', head: 'feature', head_sha: 'abc', updated_at: '2026-08-18T00:00:00Z' },
+    workflowRuns: [{ id: 1, name: 'Tests', status: 'completed', conclusion: 'success', run_number: 1, workflow_id: 1 }]
+  });
+  const bounded = preserveEvidenceBoundary(normalized, ['Native target-hardware validation remains unverified.']);
+  assert.equal(bounded.ciEvidence[0].status, 'pass');
+  assert.equal(bounded.boundaryEvidence[0].status, 'blocked');
+  assert.match(bounded.boundaryEvidence[0].claim, /unverified/i);
 });
