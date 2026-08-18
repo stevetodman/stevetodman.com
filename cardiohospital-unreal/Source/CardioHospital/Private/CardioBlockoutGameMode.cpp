@@ -73,6 +73,8 @@ namespace
     // Content/Data/clinical-content.json; a portable test enforces that, and
     // no clinical fact about the case may be hardcoded in this file.
     const FString GAttendingNpcId = TEXT("dr-patel");
+    const FString GEncounterPatientId = TEXT("encounter-patient");
+    const FString GEncounterParentId = TEXT("encounter-parent");
     const FString GAssignedCaseId = TEXT("case-hcm");
 
     // A 30 m x 20 m clinic floor: corridor, four rooms, a ceiling, and door
@@ -325,6 +327,12 @@ void ACardioBlockoutGameMode::HandleInteract(ACardioBlockoutCharacter& Character
         return;
     }
 
+    if (Npc && (Npc->GetNpcId() == GEncounterPatientId || Npc->GetNpcId() == GEncounterParentId))
+    {
+        HandleExamRoom();
+        return;
+    }
+
     if (IsExamRoom3Location(Character.GetActorLocation()) || IsRoom1Location(Character.GetActorLocation()))
     {
         HandleExamRoom();
@@ -574,6 +582,7 @@ void ACardioBlockoutGameMode::HandleAttending(ACardioBlockoutNPC& Npc)
     });
 
     UE_LOG(LogCardioHospital, Log, TEXT("Case %s started from the team room assignment."), *GAssignedCaseId);
+    RefreshEncounterOccupants();
     Hud->ShowPanel(BuildAssignmentLines(Runtime->GetPresentationState().Assignment));
     SpeakAttending(TEXT("I have a patient I'd like you to see."));
 }
@@ -1415,6 +1424,7 @@ bool ACardioBlockoutGameMode::HandleSpecialAction(const FCardioCaseActionDefinit
             TEXT("Find your patient and begin the evaluation."),
             TEXT("[E] Close"),
         });
+        RefreshEncounterOccupants();
         SpeakAttending(TEXT("I have another patient I'd like you to see."));
         return true;
     }
@@ -2098,27 +2108,51 @@ void ACardioBlockoutGameMode::SpawnLighting(UWorld& World) const
 
 void ACardioBlockoutGameMode::SpawnSigns(UWorld& World) const
 {
-    // Door signs face the corridor from above each gap. Room names follow the
-    // case flow the walkthrough checklist expects; the sign is wayfinding, the
-    // clinical location string shown in the assignment comes from content.
-    SpawnSign(World, TEXT("Exam Room 3"), FVector(-750.0, 184.0, 285.0), -90.f);
-    SpawnSign(World, TEXT("Cardiology Team Room"), FVector(750.0, 184.0, 285.0), -90.f);
-    SpawnSign(World, TEXT("Room 1"), FVector(-750.0, -184.0, 285.0), 90.f);
-    SpawnSign(World, TEXT("Reception"), FVector(-1400.0, 0.0, 285.0), 0.f);
-    SpawnSign(World, TEXT("Education Room"), FVector(750.0, -184.0, 285.0), 90.f);
-    SpawnSign(World, TEXT("ECG / Echo"), FVector(980.0, -184.0, 250.0), 90.f);
-    SpawnSign(World, TEXT("Hand Hygiene"), FVector(-1100.0, 178.0, 175.0), -90.f);
-    SpawnSign(World, TEXT("Quiet Please"), FVector(-400.0, 178.0, 175.0), -90.f);
-    SpawnSign(World, TEXT("Pediatric Cardiology"), FVector(400.0, 178.0, 175.0), -90.f);
-    SpawnSign(World, TEXT("Family Waiting"), FVector(1100.0, 178.0, 175.0), -90.f);
-    SpawnSign(World, TEXT("Clinic Directory"), FVector(-1478.0, 0.0, 200.0), 0.f);
+    // Door plates sit on the corridor face, sized to the opening, not as
+    // free-floating billboards. Wall captions sit on the existing plaques.
+    SpawnSign(World, TEXT("Exam Room 3"), FVector(-750.0, 189.0, 268.0), -90.f, 12.f, true);
+    SpawnSign(World, TEXT("Cardiology\nTeam Room"), FVector(750.0, 189.0, 268.0), -90.f, 11.f, true);
+    SpawnSign(World, TEXT("Room 1"), FVector(-750.0, -189.0, 268.0), 90.f, 12.f, true);
+    SpawnSign(World, TEXT("Reception"), FVector(-1488.0, 0.0, 268.0), 0.f, 12.f, true);
+    SpawnSign(World, TEXT("Education Room"), FVector(750.0, -189.0, 268.0), 90.f, 11.f, true);
+    SpawnSign(World, TEXT("ECG / Echo"), FVector(980.0, -189.0, 248.0), 90.f, 11.f, true);
+    SpawnSign(World, TEXT("Hand Hygiene"), FVector(-1100.0, 179.6, 175.0), -90.f, 9.f, false);
+    SpawnSign(World, TEXT("Quiet Please"), FVector(-400.0, 179.6, 175.0), -90.f, 9.f, false);
+    SpawnSign(World, TEXT("Pediatric\nCardiology"), FVector(400.0, 179.6, 175.0), -90.f, 10.f, false);
+    SpawnSign(World, TEXT("Family Waiting"), FVector(1100.0, 179.6, 175.0), -90.f, 9.f, false);
+    SpawnSign(World, TEXT("Clinic Directory"), FVector(-1486.0, 0.0, 200.0), 0.f, 10.f, true);
 }
 
-void ACardioBlockoutGameMode::SpawnSign(UWorld& World, const FString& Text, const FVector& Location, const float YawDegrees) const
+void ACardioBlockoutGameMode::SpawnSign(
+    UWorld& World,
+    const FString& Text,
+    const FVector& Location,
+    const float YawDegrees,
+    const float WorldSize,
+    const bool bMountPlate) const
 {
+    const FRotator Rotation(0.f, YawDegrees, 0.f);
+    const FVector Forward = Rotation.Vector();
+
+    if (bMountPlate)
+    {
+        TArray<FString> Lines;
+        Text.ParseIntoArrayLines(Lines, false);
+        int32 Longest = 1;
+        for (const FString& Line : Lines)
+        {
+            Longest = FMath::Max(Longest, Line.Len());
+        }
+        const float PlateW = FMath::Clamp(WorldSize * 0.58f * static_cast<float>(Longest) + 14.f, 36.f, 130.f);
+        const float PlateH = WorldSize * FMath::Max(1, Lines.Num()) * 1.3f + 10.f;
+        const bool bFacingY = FMath::Abs(FMath::Abs(YawDegrees) - 90.f) < 45.f;
+        const FVector PlateSize = bFacingY ? FVector(PlateW, 2.4f, PlateH) : FVector(2.4f, PlateW, PlateH);
+        SpawnBlock(World, Location - Forward * 1.4f, PlateSize, PosterFrost);
+    }
+
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    ATextRenderActor* Sign = World.SpawnActor<ATextRenderActor>(Location, FRotator(0.f, YawDegrees, 0.f), Params);
+    ATextRenderActor* Sign = World.SpawnActor<ATextRenderActor>(Location, Rotation, Params);
     if (!Sign)
     {
         return;
@@ -2128,7 +2162,8 @@ void ACardioBlockoutGameMode::SpawnSign(UWorld& World, const FString& Text, cons
     Render->SetMobility(EComponentMobility::Movable);
     Render->SetText(FText::FromString(Text));
     Render->SetHorizontalAlignment(EHTA_Center);
-    Render->SetWorldSize(34.f);
+    Render->SetVerticalAlignment(EVRTA_TextCenter);
+    Render->SetWorldSize(WorldSize);
     Render->SetTextRenderColor(FColor(8, 92, 88));
 }
 
@@ -2142,5 +2177,79 @@ void ACardioBlockoutGameMode::SpawnAttending(UWorld& World)
     {
         Attending->Configure(GAttendingNpcId, TEXT("Dr. Patel"), FLinearColor(0.93f, 0.93f, 0.95f));
         AttendingNpc = Attending;
+    }
+}
+
+ACardioBlockoutNPC* ACardioBlockoutGameMode::SpawnEncounterNpc(
+    UWorld& World,
+    const FString& NpcId,
+    const FString& DisplayName,
+    const FVector& Location,
+    const FRotator& Rotation,
+    const float UniformScale,
+    const FLinearColor& CoatColor)
+{
+    FActorSpawnParameters Params;
+    Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    ACardioBlockoutNPC* Npc = World.SpawnActor<ACardioBlockoutNPC>(Location, Rotation, Params);
+    if (!Npc)
+    {
+        return nullptr;
+    }
+    Npc->Configure(NpcId, DisplayName, CoatColor);
+    Npc->SetActorScale3D(FVector(UniformScale));
+    return Npc;
+}
+
+void ACardioBlockoutGameMode::RefreshEncounterOccupants()
+{
+    if (EncounterPatientNpc)
+    {
+        EncounterPatientNpc->Destroy();
+        EncounterPatientNpc = nullptr;
+    }
+    if (EncounterParentNpc)
+    {
+        EncounterParentNpc->Destroy();
+        EncounterParentNpc = nullptr;
+    }
+
+    UWorld* World = GetWorld();
+    const UGameInstance* GameInstance = GetGameInstance();
+    const UCardioCaseRuntimeSubsystem* Runtime = GameInstance
+        ? GameInstance->GetSubsystem<UCardioCaseRuntimeSubsystem>()
+        : nullptr;
+    if (!World || !Runtime || !Runtime->HasActiveCase())
+    {
+        return;
+    }
+
+    const FCardioClinicalCase& ActiveCase = Runtime->GetActiveClinicalCase();
+    const bool bRoom1 = MatchesExamRoom(FVector(-750.f, -400.f, 88.f), ActiveCase.Room);
+    const float Side = bRoom1 ? -1.f : 1.f;
+    const FRotator FacingDoor(0.f, bRoom1 ? 90.f : -90.f, 0.f);
+
+    // Off the x = ±750 doorway lane: patient beside the bed, parent by the
+    // chairs. Names and presence come from the assigned case, not this file.
+    const float PatientScale = FMath::Clamp(0.62f + static_cast<float>(ActiveCase.Age) * 0.02f, 0.62f, 0.96f);
+    EncounterPatientNpc = SpawnEncounterNpc(
+        *World,
+        GEncounterPatientId,
+        ActiveCase.PatientName,
+        FVector(-820.0, Side * 560.0, 0.0),
+        FacingDoor,
+        PatientScale,
+        FLinearColor(0.18f, 0.42f, 0.62f));
+
+    if (ActiveCase.ParentPresent)
+    {
+        EncounterParentNpc = SpawnEncounterNpc(
+            *World,
+            GEncounterParentId,
+            TEXT("Parent"),
+            FVector(-580.0, Side * 450.0, 0.0),
+            FacingDoor,
+            1.f,
+            FLinearColor(0.46f, 0.36f, 0.32f));
     }
 }

@@ -24,8 +24,6 @@ namespace
     // The temporary Ready Player Me attending is about 188 cm tall; 170 cm is
     // a reasonable face target until final MetaHuman-native medical art lands.
     constexpr float AttendingFaceHeightCm = 170.f;
-    constexpr float WalkStallLimitSeconds = 0.45f;
-    constexpr float WalkStallSnapSeconds = 1.1f;
     // Just south/north of the corridor partitions (Y = ±200) and clear of
     // the cube wall thickness, so the next step is a straight shot through
     // the door at x = ±750.
@@ -246,7 +244,6 @@ void ACardioBlockoutCharacter::CancelGuidedWalk()
 {
     GuidedPath.Reset();
     bInteractOnArrival = false;
-    WalkStallSeconds = 0.f;
 }
 
 void ACardioBlockoutCharacter::LookAtActorFace(const AActor* Target)
@@ -270,14 +267,6 @@ void ACardioBlockoutCharacter::FaceNpc(AActor* Npc)
         return;
     }
 
-    // Stand south of Patel, toward the team-room door, so arrival is
-    // face-to-face rather than a profile caught beside him.
-    const FVector NpcLoc = Npc->GetActorLocation();
-    FVector Stand = NpcLoc;
-    Stand.Y = NpcLoc.Y - ConversationStandOffCm;
-    Stand.Z = GetActorLocation().Z;
-    SetActorLocation(Stand, false, nullptr, ETeleportType::TeleportPhysics);
-
     LookAtActorFace(Npc);
     if (ACardioBlockoutNPC* Attending = Cast<ACardioBlockoutNPC>(Npc))
     {
@@ -299,7 +288,7 @@ void ACardioBlockoutCharacter::FinishGuidedArrival()
                 continue;
             }
             const float Dist = FVector::Dist2D(GetActorLocation(), Actor->GetActorLocation());
-            if (Dist < Best)
+            if (Dist < Best && Dist <= 280.f)
             {
                 Best = Dist;
                 FocusedNpc = Cast<ACardioBlockoutNPC>(Actor);
@@ -320,7 +309,6 @@ void ACardioBlockoutCharacter::FinishGuidedArrival()
 void ACardioBlockoutCharacter::AdvanceWaypoint()
 {
     GuidedPath.RemoveAt(0);
-    WalkStallSeconds = 0.f;
     if (GuidedPath.Num() == 0)
     {
         FinishGuidedArrival();
@@ -339,16 +327,6 @@ void ACardioBlockoutCharacter::AdvanceGuidedWalk()
     To.Z = 0.f;
     const bool bLast = GuidedPath.Num() == 1;
     const float Radius = bLast ? ArriveRadiusCm : WaypointArriveRadiusCm;
-    const UCharacterMovementComponent* Movement = GetCharacterMovement();
-    const bool bStalled = Movement && Movement->Velocity.Size2D() < 8.f;
-    if (bStalled)
-    {
-        WalkStallSeconds += GetWorld() ? GetWorld()->GetDeltaSeconds() : 0.016f;
-    }
-    else
-    {
-        WalkStallSeconds = 0.f;
-    }
 
     if (To.Size() <= Radius)
     {
@@ -364,21 +342,6 @@ void ACardioBlockoutCharacter::AdvanceGuidedWalk()
     if (bNeedX && bNeedY)
     {
         Direction = FVector(FMath::Sign(To.X), 0.f, 0.f);
-    }
-
-    if (WalkStallSeconds >= WalkStallLimitSeconds)
-    {
-        if (WalkStallSeconds < WalkStallSnapSeconds)
-        {
-            AddMovementInput(Direction, 1.f);
-            return;
-        }
-        // Aligned and still blocked: snap onto this waypoint, never the next.
-        FVector Snap = GuidedPath[0];
-        Snap.Z = Here.Z;
-        SetActorLocation(Snap, false, nullptr, ETeleportType::TeleportPhysics);
-        AdvanceWaypoint();
-        return;
     }
 
     AddMovementInput(Direction, 1.f);

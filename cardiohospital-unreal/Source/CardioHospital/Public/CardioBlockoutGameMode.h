@@ -107,6 +107,12 @@ private:
 
     UPROPERTY()
     TObjectPtr<ACardioBlockoutNPC> AttendingNpc;
+
+    UPROPERTY()
+    TObjectPtr<ACardioBlockoutNPC> EncounterPatientNpc;
+
+    UPROPERTY()
+    TObjectPtr<ACardioBlockoutNPC> EncounterParentNpc;
     AStaticMeshActor* SpawnBlock(UWorld& World, const FVector& Center, const FVector& Size, const FLinearColor& Color) const;
     AStaticMeshActor* SpawnMesh(
         UWorld& World,
@@ -117,7 +123,22 @@ private:
         bool bEnableCollision = true) const;
     void SpawnLighting(UWorld& World) const;
     void SpawnSigns(UWorld& World) const;
-    void SpawnSign(UWorld& World, const FString& Text, const FVector& Location, float YawDegrees) const;
+    void SpawnSign(
+        UWorld& World,
+        const FString& Text,
+        const FVector& Location,
+        float YawDegrees,
+        float WorldSize,
+        bool bMountPlate) const;
+    void RefreshEncounterOccupants();
+    ACardioBlockoutNPC* SpawnEncounterNpc(
+        UWorld& World,
+        const FString& NpcId,
+        const FString& DisplayName,
+        const FVector& Location,
+        const FRotator& Rotation,
+        float UniformScale,
+        const FLinearColor& CoatColor);
     void SpawnClinicDressing(UWorld& World) const;
     void SpawnClinicArchitecture(UWorld& World) const;
     void SpawnWallRun(

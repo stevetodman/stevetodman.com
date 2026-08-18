@@ -96,7 +96,7 @@ test("every axis the character binds is mapped, and every mapping is bound", asy
 test("the ward names its rooms to match the case flow", async () => {
   const source = await read("Source/CardioHospital/Private/CardioBlockoutGameMode.cpp");
 
-  for (const room of ["Exam Room 3", "Room 1", "Cardiology Team Room", "Reception", "Education Room", "ECG / Echo"]) {
+  for (const room of ["Exam Room 3", "Room 1", "Cardiology\\\\nTeam Room", "Reception", "Education Room", "ECG / Echo"]) {
     assert.match(source, new RegExp(`SpawnSign\\(World, TEXT\\("${room}"\\)`), `missing door sign for ${room}`);
   }
 });
@@ -207,6 +207,22 @@ test("exam room 3 advances the case graph without a placeholder patient NPC", as
   assert.match(source, /Revealed\[Index\]\.Answer/);
   assert.doesNotMatch(source, /SpawnActor<ACardioBlockoutNPC>.*marcus|GPatientNpcId/i);
   assert.doesNotMatch(source, /Hypertrophic Cardiomyopathy/);
+  assert.match(source, /RefreshEncounterOccupants/);
+  assert.match(source, /ActiveCase\.PatientName/);
+  assert.match(source, /ActiveCase\.ParentPresent/);
+  assert.match(source, /GEncounterPatientId/);
+  assert.match(source, /Pediatric\\nCardiology/);
+  assert.match(character, /LookAtActorFace\(Npc\)/);
+  assert.doesNotMatch(
+    character,
+    /void ACardioBlockoutCharacter::FaceNpc[\s\S]*SetActorLocation/,
+    "arriving at someone must turn to face them, not teleport the learner",
+  );
+  assert.doesNotMatch(
+    character,
+    /WalkStallSnapSeconds|TeleportPhysics/,
+    "guided walks must not snap-teleport through doorways",
+  );
   assert.match(character, /NotifyLearnerLocation/);
   assert.match(character, /IsRoom1Location/);
   assert.match(character, /WalkTo/);

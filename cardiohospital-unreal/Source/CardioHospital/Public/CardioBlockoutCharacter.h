@@ -70,5 +70,4 @@ private:
     TArray<FVector> GuidedPath;
     bool bInteractOnArrival = false;
     bool bLookHeld = false;
-    float WalkStallSeconds = 0.f;
 };
