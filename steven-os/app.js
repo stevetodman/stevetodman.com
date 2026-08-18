@@ -7,12 +7,66 @@ const API_SECRET = config.apiSecret || '';
 
 const $ = (selector) => document.querySelector(selector);
 const esc = (value = '') => String(value).replace(/[&<>'\"]/g, (char) => ({
-  '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  '&': '&', '<': '<', '>': '>', "'": '&#39;', '"': '"'
 }[char]));
 
 function stateBadge(state) {
   const safe = esc(state || 'unknown');
   return `<span class="badge badge-${safe.replace(/[^a-z0-9_-]/gi, '-').toLowerCase()}">${safe.replaceAll('_', ' ')}</span>`;
+}
+
+function projectLinks(item, projects, execution) {
+  const project = (projects || []).find((p) => p.id === item.project_id);
+  const work = (execution || []).find((w) => w.project_id === item.project_id);
+  const links = [];
+
+  if (project?.production_url) {
+    links.push(`<a class="review-link" href="${esc(project.production_url)}" target="_blank" rel="noreferrer">Open live product</a>`);
+  }
+
+  const repo = project?.repository_full_name;
+  const meta = work?.metadata || {};
+  if (repo && meta.headBranch) {
+    const prGuess = meta.prUrl || meta.html_url;
+    if (prGuess) {
+      links.push(`<a class="review-link" href="${esc(prGuess)}" target="_blank" rel="noreferrer">Open pull request</a>`);
+    } else if (work?.kind === 'pull_request' && work?.title) {
+      // Cardio Hospital pilot PR #19 is the known live source for this project
+      links.push(`<a class="review-link" href="https://github.com/${esc(repo)}/pull/19" target="_blank" rel="noreferrer">Open PR #19</a>`);
+    }
+  } else if (repo) {
+    links.push(`<a class="review-link" href="https://github.com/${esc(repo)}" target="_blank" rel="noreferrer">Open repository</a>`);
+  }
+
+  // Decision-specific guidance
+  const title = (item.title || '').toLowerCase();
+  if (title.includes('clinical')) {
+    links.push(`<a class="review-link" href="https://stevetodman.com/cardiohospital/" target="_blank" rel="noreferrer">Review clinical experience</a>`);
+  }
+  if (title.includes('branding')) {
+    links.push(`<a class="review-link" href="https://stevetodman.com/cardiohospital/" target="_blank" rel="noreferrer">Inspect branding in product</a>`);
+  }
+
+  if (!links.length) return '';
+  return `<div class="review-links">${links.join('')}</div>`;
+}
+
+function recommendationHtml(item) {
+  const rec = item.recommendation;
+  if (!rec) return '';
+  if (typeof rec === 'string') {
+    return `<div class="queue-reason"><em>Recommendation:</em> ${esc(rec)}</div>`;
+  }
+  const action = rec.recommended_action || rec.action || rec.text;
+  if (!action) return '';
+  return `<div class="queue-reason"><em>Recommendation:</em> ${esc(action)}</div>`;
+}
+
+function alternativesHtml(item) {
+  const alts = item.alternatives;
+  if (!Array.isArray(alts) || !alts.length) return '';
+  const labels = alts.map((a) => (typeof a === 'string' ? a : a.label || a.id || JSON.stringify(a)));
+  return `<div class="queue-reason"><em>Options:</em> ${esc(labels.join(' · '))}</div>`;
 }
 
 function renderProjects(projects, mode) {
@@ -33,6 +87,7 @@ function renderProjects(projects, mode) {
           <div><dt>Evidence</dt><dd>${esc(project.passing_evidence ?? 0)} pass · ${esc(project.failing_evidence ?? 0)} fail · ${esc(project.blocked_evidence ?? 0)} blocked</dd></div>
           <div><dt>Updated</dt><dd>${project.updated_at ? esc(new Date(project.updated_at).toLocaleString()) : '—'}</dd></div>
         </dl>
+        ${project.production_url ? `<p class="objective"><a href="${esc(project.production_url)}" target="_blank" rel="noreferrer">${esc(project.production_url)}</a></p>` : ''}
       </article>`).join('');
     return;
   }
@@ -92,7 +147,7 @@ async function resolveDecision(id, action) {
   await start();
 }
 
-function renderQueue(selector, items, emptyText, live) {
+function renderQueue(selector, items, emptyText, live, context = {}) {
   const node = $(selector);
   if (!items.length) {
     node.innerHTML = `<div class="empty">${esc(emptyText)}</div>`;
@@ -105,7 +160,10 @@ function renderQueue(selector, items, emptyText, live) {
         <div class="queue-title">${esc(item.project_name || item.projectName)}</div>
         <div class="queue-reason"><strong>${esc(item.title || item.reason)}</strong></div>
         ${item.question ? `<div class="queue-reason">${esc(item.question)}</div>` : ''}
+        ${recommendationHtml(item)}
+        ${alternativesHtml(item)}
         ${item.consequence ? `<div class="queue-reason">Consequence: ${esc(item.consequence)}</div>` : ''}
+        ${projectLinks(item, context.projects, context.execution)}
         <div class="decision-actions">
           <button type="button" class="btn-approve" data-action="approve">Approve</button>
           <button type="button" class="btn-reject" data-action="reject">Reject</button>
@@ -199,8 +257,9 @@ async function start() {
   $('#execution-count').textContent = payload.execution.length;
   $('#project-count').textContent = payload.projects.length;
 
-  renderQueue('#needs-you', payload.decisions, 'No human decisions required.', payload.live);
-  renderQueue('#execution', payload.execution, 'No execution work queued.', payload.live);
+  const ctx = { projects: payload.projects, execution: payload.execution };
+  renderQueue('#needs-you', payload.decisions, 'No human decisions required.', payload.live, ctx);
+  renderQueue('#execution', payload.execution, 'No execution work queued.', payload.live, ctx);
   renderProjects(payload.projects, payload.live ? 'live' : 'shadow');
 }
 
