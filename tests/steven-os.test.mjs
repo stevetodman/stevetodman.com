@@ -6,6 +6,9 @@ import { createProviderRegistry, routeModel } from '../steven-os/lib/model-route
 import { normalizePullRequest, preserveEvidenceBoundary } from '../steven-os/lib/github-normalizer.mjs';
 
 const statePath = new URL('../steven-os/state/projects.json', import.meta.url);
+const ingestFunctionPath = new URL('../steven-os/supabase/functions/steven-os-ingest/index.ts', import.meta.url);
+const briefFunctionPath = new URL('../steven-os/supabase/functions/steven-os-brief/index.ts', import.meta.url);
+const supabaseConfigPath = new URL('../steven-os/supabase/config.toml', import.meta.url);
 
 async function loadState() {
   return JSON.parse(await fs.readFile(statePath, 'utf8'));
@@ -87,4 +90,22 @@ test('green GitHub CI cannot erase an independent evidence boundary', () => {
   assert.equal(bounded.ciEvidence[0].status, 'pass');
   assert.equal(bounded.boundaryEvidence[0].status, 'blocked');
   assert.match(bounded.boundaryEvidence[0].claim, /unverified/i);
+});
+
+test('backend functions require secret auth in code and never embed credentials', async () => {
+  const [ingest, brief, config] = await Promise.all([
+    fs.readFile(ingestFunctionPath, 'utf8'),
+    fs.readFile(briefFunctionPath, 'utf8'),
+    fs.readFile(supabaseConfigPath, 'utf8')
+  ]);
+
+  for (const source of [ingest, brief]) {
+    assert.match(source, /withSupabase\(\{ auth: "secret" \}/);
+    assert.match(source, /SUPABASE_DB_URL/);
+    assert.doesNotMatch(source, /sb_secret_[A-Za-z0-9_-]+/);
+    assert.doesNotMatch(source, /service_role[^\n]*[:=][^\n]*[A-Za-z0-9_-]{20,}/i);
+  }
+
+  assert.match(config, /\[functions\.steven-os-ingest\][\s\S]*verify_jwt\s*=\s*false/);
+  assert.match(config, /\[functions\.steven-os-brief\][\s\S]*verify_jwt\s*=\s*false/);
 });
