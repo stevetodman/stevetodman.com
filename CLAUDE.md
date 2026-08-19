@@ -56,6 +56,7 @@ stevetodman.com/
 ├── .github/workflows/            # phs-v17-integrity.yml, update-cooking-index.yml
 ├── study/                        # Kids' Study Hub (stevetodman.com/study)
 │   ├── index.html                # Study Hub landing page
+│   ├── us-states.html            # 50 States Challenge: spelling + map location practice/test
 │   ├── greek-vocab-quiz.html     # Ancient Greece vocabulary + chapter review
 │   ├── fract-vocab-quiz.html     # Root words: fract, frag, frail
 │   ├── topic-e-quiz.html         # Eureka Math G4M5 Topic E fractions quiz
@@ -259,6 +260,7 @@ At the end of each work session, Claude will:
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- **2026-08-18**: Created study/us-states.html: 50 States Challenge (Explore map, Spelling Practice, Map Practice, Full Test with grade + spell/map subscores). Uses an inline SVG map (50 state paths extracted from a public-domain state-boundary dataset, embedded directly &mdash; no external map dependency), plus a zoomed Northeast inset in Map Practice so small New England states stay tappable on phone screens. Added Study Hub card. First-day-of-5th-grade study tool per user request.
 - 2026-08-13: Replaced the complete AV canal plate with a new immutable clean asset containing only the operative illustration and preoperative echo; removed the postoperative echo, superior atrial fold artifacts, and the obsolete source images so the blue numbered callouts and arrows cannot reappear through stale PNG/WebP selection. Bumped the PedCardSurg asset bundle version and updated regression coverage.
 - 2026-08-13: Removed the three blue numbered callouts and their leader arrows from the complete AV canal surgical plate, regenerated its WebP derivative, and versioned both the image URLs and PedCardSurg asset bundle to prevent stale artwork from persisting in browser/CDN caches.
 - 2026-08-13: Added explicit versioned asset URLs to `/pedcardsurg/` after a mixed-cache deployment served the updated nine-plate HTML with the old ten-plate Atlas JavaScript. This forces browsers and the CDN to load the corrected complete AV canal, Norwood, and BT-shunt mappings together.
@@ -275,3 +277,5 @@ At the end of each work session, Claude will:
 - 2026-08-12: Added the interactive 2025 AAP newborn CCHD pulse-oximetry screening module at `/newbornscreen/`, including the updated algorithm, bedside response guidance, and a 17-question quiz. Added it to site-wide smoke-test coverage.
 - 2026-08-03: Advanced the BP calculator to version 3.1 with years/months-first age entry, DOB alternative, simultaneous accessible validation, 2–3-reading auto-averaging, drift-free cm/ft+in toggles with local preference, new-patient clearing, explicit threshold deltas, normal-equivalent BP z-scores, clinical-threshold chart mode, direct labels and line patterns, and dark-mode coverage. Expanded the browser regression suite for each workflow.
 - 2026-08-03: Rebuilt the pediatric BP calculator with monthly CDC growth references, exact AAP reading categories and drivers, category-specific follow-up, interactive age curves, copy/print support, a screening table, public validation documentation, and exhaustive 1,904-cell browser regression coverage.
+- **2026-02-27**: Renamed english/ → twins/ → study/. Study tools live at stevetodman.com/study/. Added Study Hub card to homework-tracker (~/Desktop/twins/homework-tracker/src/hub.ts) — CSS class `.study` + card HTML added. NOT YET DEPLOYED — need to run `npm run deploy` in homework-tracker project.
+- **2026-02-27**: Created fract-vocab-quiz.html, topic-e-quiz.html (Eureka Math G4M5 Topic E), 100-fact-club.html. Updated index.html with all cards. All math answers verified computationally.
