@@ -115,6 +115,35 @@
   .btn-retry-missed { background: #e53e3e; color: #fff; }
   .btn-restart { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
   .btn-home { background: #4a5568; color: #fff; }
+
+  /* Player strip / profiles */
+  .player-strip { text-align: center; font-size: 0.85rem; color: #5a6678; margin-bottom: 10px; }
+  .switch-link { background: none; border: none; padding: 0; font: inherit; color: #667eea; text-decoration: underline; cursor: pointer; }
+  .profile-pick .card-icon { font-size: 2.2rem; }
+
+  /* Road trip */
+  path.state.mastered { fill: #48bb78; }
+  .road-trip-card { background: #fff; border-radius: 16px; padding: 16px 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 18px; }
+  .road-trip-header { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; color: #1a365d; margin-bottom: 8px; font-size: 0.95rem; }
+  .road-trip-card .map-wrap { margin-bottom: 8px; padding: 6px; }
+  .road-trip-card .map-wrap svg { max-height: 200px; }
+  .road-trip-note { text-align: center; font-size: 0.85rem; color: #5a6678; }
+
+  /* Trophy case */
+  .trophy-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+  .trophy-card { background: #fff; border-radius: 16px; padding: 20px 22px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); min-width: 190px; text-align: center; border: 2px solid transparent; }
+  .trophy-card.active-player { border-color: #667eea; }
+  .trophy-name { font-size: 1.15rem; font-weight: 700; color: #1a365d; margin-bottom: 10px; }
+  .you-tag { display: inline-block; background: #667eea; color: #fff; font-size: 0.68rem; font-weight: 600; padding: 1px 8px; border-radius: 999px; margin-left: 4px; vertical-align: middle; }
+  .trophy-stat { font-size: 0.9rem; color: #4a5568; margin: 6px 0; }
+  .trophy-num { font-size: 1.25rem; font-weight: 700; color: #667eea; margin-right: 4px; }
+
+  /* Boss battles */
+  .boss-banner { background: linear-gradient(135deg, #744210, #c05621); color: #fff; border-radius: 16px; padding: 18px 22px; text-align: center; margin-bottom: 16px; }
+  .boss-name { font-size: 1.3rem; font-weight: 700; }
+  .hp-bar { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+  .hp-pip { width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,0.3); }
+  .hp-pip.full { background: #fc8181; box-shadow: 0 0 0 2px rgba(255,255,255,0.5) inset; }
 </style>
 </head>
 <body>
@@ -157,6 +186,92 @@ function normalize(s) {
   return String(s).trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+/* ── PROGRESS DATA (profiles, mastery, road trip, bosses) ── */
+var STORAGE_KEY = "usStatesRoadTrip";
+var PLAYER_NAMES = ["Luke", "Samantha"];
+var MASTERY_STREAK = 3;   // correct answers in a row to master a state
+var BOSS_MIN_WRONG = 2;   // misses before a state can become a boss
+var BOSS_COUNT = 3;       // max active bosses at once
+var BOSS_HP = 3;
+
+function emptyProfile() {
+  return { stateStats: {}, masteredOrder: [], weekKey: "", weekMastered: 0, bossesDefeated: 0 };
+}
+function loadData() {
+  var raw = null;
+  try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+  var data = null;
+  if (raw) { try { data = JSON.parse(raw); } catch (e) { data = null; } }
+  if (!data || typeof data !== "object") data = { activeProfile: null, profiles: {} };
+  if (!data.profiles) data.profiles = {};
+  PLAYER_NAMES.forEach(function(name) {
+    if (!data.profiles[name]) data.profiles[name] = emptyProfile();
+  });
+  return data;
+}
+function saveData(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+}
+function setActiveProfile(name) {
+  var data = loadData();
+  data.activeProfile = name;
+  saveData(data);
+}
+function currentWeekKey() {
+  var d = new Date();
+  var onejan = new Date(d.getFullYear(), 0, 1);
+  var week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
+  return d.getFullYear() + "-W" + week;
+}
+function weeklyMasteredCount(p) {
+  if (!p || p.weekKey !== currentWeekKey()) return 0;
+  return p.weekMastered || 0;
+}
+
+/* Records one answer for the active profile; returns { justMastered } */
+function recordAnswer(code, correct) {
+  var data = loadData();
+  if (!data.activeProfile) return { justMastered: false };
+  var p = data.profiles[data.activeProfile];
+  var st = p.stateStats[code] || (p.stateStats[code] = { streak: 0, correct: 0, wrong: 0, mastered: false });
+  var justMastered = false;
+  if (correct) {
+    st.correct++;
+    st.streak++;
+    if (!st.mastered && st.streak >= MASTERY_STREAK) {
+      st.mastered = true;
+      justMastered = true;
+      var wk = currentWeekKey();
+      if (p.weekKey !== wk) { p.weekKey = wk; p.weekMastered = 0; }
+      p.weekMastered = (p.weekMastered || 0) + 1;
+      p.masteredOrder.push(code);
+    }
+  } else {
+    st.wrong++;
+    st.streak = 0;
+  }
+  saveData(data);
+  return { justMastered: justMastered };
+}
+
+/* States this profile keeps missing, worst first */
+function getBossStates(p) {
+  var codes = Object.keys(p.stateStats);
+  var candidates = codes
+    .map(function(c) { return { code: c, wrong: p.stateStats[c].wrong }; })
+    .filter(function(x) { return x.wrong >= BOSS_MIN_WRONG; })
+    .sort(function(a, b) { return b.wrong - a.wrong; });
+  return candidates.slice(0, BOSS_COUNT).map(function(x) { return byCode(x.code); });
+}
+function defeatBoss(code) {
+  var data = loadData();
+  if (!data.activeProfile) return;
+  var p = data.profiles[data.activeProfile];
+  if (p.stateStats[code]) p.stateStats[code].wrong = 0;
+  p.bossesDefeated = (p.bossesDefeated || 0) + 1;
+  saveData(data);
+}
+
 /* ── MAP BUILDER ── */
 var NE_VIEWBOX = "985 120 140 260";
 /* opts: { interactive:bool, showTitles:bool, targetCode:str, classMap:{code:className}, viewBox:str } */
@@ -183,6 +298,15 @@ function mapWrapHTML(svgHTML, id) {
   return '<div class="map-wrap" id="' + id + '">' + svgHTML + '</div>';
 }
 
+function buildRoadTripSVG(p) {
+  var classMap = {};
+  for (var i = 0; i < STATES.length; i++) {
+    var st = p.stateStats[STATES[i].code];
+    if (st && st.mastered) classMap[STATES[i].code] = "mastered";
+  }
+  return buildMapSVG({ interactive: false, showTitles: true, classMap: classMap });
+}
+
 function zoomControlsHTML() {
   return '<div class="map-controls">' +
     '<button id="zoomToggle">' + (zoomed ? "🔍 Zoom Out" : "🔍 Zoom In") + '</button>' +
@@ -199,11 +323,49 @@ function wireZoomToggle(wrapId) {
   });
 }
 
-/* ── MENU ── */
-function showMenu() {
+/* ── PROFILE PICKER ── */
+function showProfilePicker() {
   app.innerHTML =
     '<h1>🗺️ 50 States Challenge</h1>' +
+    '<p class="subtitle">Who&rsquo;s playing?</p>' +
+    '<div class="menu-cards">' +
+      PLAYER_NAMES.map(function(name) {
+        return '<button type="button" class="menu-card profile-pick" data-name="' + esc(name) + '">' +
+          '<div class="card-icon">🙋</div>' +
+          '<h2>' + esc(name) + '</h2>' +
+        '</button>';
+      }).join("") +
+    '</div>' +
+    '<a class="back-link" href="./">&larr; Back to Study Hub</a>';
+
+  app.querySelectorAll(".profile-pick").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      setActiveProfile(btn.dataset.name);
+      showMenu();
+    });
+  });
+}
+
+/* ── MENU ── */
+function showMenu() {
+  var data = loadData();
+  if (!data.activeProfile) { showProfilePicker(); return; }
+  var activeName = data.activeProfile;
+  var p = data.profiles[activeName];
+  var masteredCount = p.masteredOrder.length;
+  var lastCode = masteredCount > 0 ? p.masteredOrder[masteredCount - 1] : null;
+  var lastState = lastCode ? byCode(lastCode) : null;
+  var bossCount = getBossStates(p).length;
+
+  app.innerHTML =
+    '<div class="player-strip">Playing as <strong>' + esc(activeName) + '</strong> &middot; <button type="button" class="switch-link" id="switchProfile">Switch player</button></div>' +
+    '<h1>🗺️ 50 States Challenge</h1>' +
     '<p class="subtitle">Learn to spell every state and find it on the map!</p>' +
+    '<div class="road-trip-card">' +
+      '<div class="road-trip-header"><span>🚗 Road Trip Progress</span><span>' + masteredCount + '/50 states visited</span></div>' +
+      mapWrapHTML(buildRoadTripSVG(p), "tripMap") +
+      (lastState ? '<div class="road-trip-note">Last stop: ' + esc(lastState.name) + '</div>' : '<div class="road-trip-note">Get 3 in a row on a state to add it to your road trip!</div>') +
+    '</div>' +
     '<div class="menu-cards">' +
       '<button type="button" class="menu-card" data-mode="explore">' +
         '<div class="card-icon">🔎</div>' +
@@ -229,8 +391,22 @@ function showMenu() {
         '<h2>Full Test</h2>' +
         '<p>A mix of spelling and map questions covering all 50 states &mdash; just like the real test</p>' +
       '</button>' +
+      '<button type="button" class="menu-card" data-mode="boss">' +
+        '<div class="card-icon">👑</div>' +
+        '<span class="badge">' + (bossCount > 0 ? bossCount + ' active' : 'None yet') + '</span>' +
+        '<h2>Boss Battles</h2>' +
+        '<p>Take on the states that keep beating you &mdash; defeat them for good</p>' +
+      '</button>' +
+      '<button type="button" class="menu-card" data-mode="trophy">' +
+        '<div class="card-icon">🏆</div>' +
+        '<span class="badge">Luke vs Samantha</span>' +
+        '<h2>Family Trophy Case</h2>' +
+        '<p>See who&rsquo;s mastered more states this week</p>' +
+      '</button>' +
     '</div>' +
     '<a class="back-link" href="./">&larr; Back to Study Hub</a>';
+
+  document.getElementById("switchProfile").addEventListener("click", showProfilePicker);
 
   app.querySelectorAll(".menu-card").forEach(function(card) {
     card.addEventListener("click", function() {
@@ -239,8 +415,131 @@ function showMenu() {
       else if (m === "spell") { startQueue("spell", STATES.map(function(s){ return {code:s.code,name:s.name,type:"spell"}; })); }
       else if (m === "map") { startQueue("map", STATES.map(function(s){ return {code:s.code,name:s.name,type:"map"}; })); }
       else if (m === "test") { startTest(); }
+      else if (m === "boss") { startBossBattle(); }
+      else if (m === "trophy") { showTrophyCase(); }
     });
   });
+}
+
+/* ── FAMILY TROPHY CASE ── */
+function showTrophyCase() {
+  var data = loadData();
+  var cards = PLAYER_NAMES.map(function(name) {
+    var p = data.profiles[name];
+    var mastered = p.masteredOrder.length;
+    var weekly = weeklyMasteredCount(p);
+    var bosses = p.bossesDefeated || 0;
+    var isActive = data.activeProfile === name;
+    return '<div class="trophy-card' + (isActive ? ' active-player' : '') + '">' +
+      '<div class="trophy-name">' + esc(name) + (isActive ? ' <span class="you-tag">you</span>' : '') + '</div>' +
+      '<div class="trophy-stat"><span class="trophy-num">' + mastered + '</span>/50 states mastered</div>' +
+      '<div class="trophy-stat"><span class="trophy-num">' + weekly + '</span> mastered this week</div>' +
+      '<div class="trophy-stat"><span class="trophy-num">' + bosses + '</span> bosses defeated</div>' +
+    '</div>';
+  }).join("");
+
+  var wA = weeklyMasteredCount(data.profiles[PLAYER_NAMES[0]]);
+  var wB = weeklyMasteredCount(data.profiles[PLAYER_NAMES[1]]);
+  var leadLine;
+  if (wA === 0 && wB === 0) leadLine = "Nobody&rsquo;s mastered a state yet this week &mdash; go practice!";
+  else if (wA === wB) leadLine = "It&rsquo;s a tie this week! 🤝";
+  else leadLine = (wA > wB ? PLAYER_NAMES[0] : PLAYER_NAMES[1]) + " is leading this week! 🏆";
+
+  app.innerHTML =
+    '<h1>🏆 Family Trophy Case</h1>' +
+    '<p class="subtitle">' + leadLine + '</p>' +
+    '<div class="trophy-row">' + cards + '</div>' +
+    '<div class="btn-row"><button class="btn-home" id="toMenu">Back to Menu</button></div>';
+  document.getElementById("toMenu").addEventListener("click", showMenu);
+}
+
+/* ── BOSS BATTLES ── */
+var bossQueue = [];
+function startBossBattle() {
+  var data = loadData();
+  var p = data.profiles[data.activeProfile];
+  var bosses = getBossStates(p);
+  if (bosses.length === 0) {
+    app.innerHTML =
+      '<h1>👑 Boss Battles</h1>' +
+      '<div class="prompt-card"><p>No bosses yet! Bosses show up when you miss a state a couple of times in Spelling or Map Practice. Go practice, then come back to battle your toughest states.</p></div>' +
+      '<div class="btn-row"><button class="btn-home" id="toMenu">Back to Menu</button></div>';
+    document.getElementById("toMenu").addEventListener("click", showMenu);
+    return;
+  }
+  bossQueue = bosses.map(function(s) { return { code: s.code, name: s.name, hp: BOSS_HP }; });
+  renderBossQuestion();
+}
+
+function renderBossQuestion() {
+  var alive = bossQueue.filter(function(b) { return b.hp > 0; });
+  if (alive.length === 0) { renderBossResults(); return; }
+  var boss = alive[Math.floor(Math.random() * alive.length)];
+  var s = byCode(boss.code);
+  var svg = buildMapSVG({ interactive: false, showTitles: false, targetCode: s.code });
+  var hpDots = "";
+  for (var i = 0; i < BOSS_HP; i++) hpDots += '<span class="hp-pip' + (i < boss.hp ? ' full' : '') + '"></span>';
+
+  app.innerHTML =
+    '<h1>👑 Boss Battle</h1>' +
+    '<div class="boss-banner">' +
+      '<div class="boss-name">' + esc(s.name) + '</div>' +
+      '<div class="hp-bar">' + hpDots + '</div>' +
+    '</div>' +
+    mapWrapHTML(svg, "bossMap") +
+    '<div class="prompt-card">' +
+      '<div class="prompt-label">Spell it to attack!</div>' +
+      '<form class="spell-form" id="bossForm" autocomplete="off">' +
+        '<input type="text" id="bossInput" aria-label="Type the state name" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Spell it here...">' +
+        '<button type="submit">Attack!</button>' +
+      '</form>' +
+    '</div>' +
+    '<div class="feedback" id="feedback"></div>';
+
+  var input = document.getElementById("bossInput");
+  input.focus();
+  var answered = false;
+
+  document.getElementById("bossForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    if (answered) return;
+    answered = true;
+    var correct = normalize(input.value) === normalize(s.name);
+    input.disabled = true;
+    var fb = document.getElementById("feedback");
+    var mres = recordAnswer(s.code, correct);
+    if (correct) {
+      boss.hp--;
+      if (boss.hp <= 0) {
+        defeatBoss(boss.code);
+        fb.className = "feedback correct-fb";
+        fb.textContent = "💥 Direct hit! " + s.name + " is defeated!" + (mres.justMastered ? " 🌟 Mastered too!" : "");
+      } else {
+        fb.className = "feedback correct-fb";
+        fb.textContent = "💥 Hit! " + boss.hp + " HP left." + (mres.justMastered ? " 🌟 State mastered!" : "");
+      }
+    } else {
+      fb.className = "feedback wrong-fb";
+      fb.textContent = "Missed! It's spelled: " + s.name;
+    }
+    var btn = document.createElement("button");
+    btn.className = "next-btn";
+    btn.textContent = "Continue →";
+    btn.addEventListener("click", renderBossQuestion);
+    fb.parentNode.insertBefore(btn, fb.nextSibling);
+  });
+}
+
+function renderBossResults() {
+  var count = bossQueue.length;
+  app.innerHTML =
+    '<h1>👑 Boss Battles Complete!</h1>' +
+    '<div class="prompt-card results">' +
+      '<div class="score-big">🏆</div>' +
+      '<div class="message">You defeated all ' + count + ' boss state' + (count === 1 ? "" : "s") + '! They won&rsquo;t give you trouble again &mdash; for now.</div>' +
+    '</div>' +
+    '<div class="btn-row"><button class="btn-home" id="toMenu">Back to Menu</button></div>';
+  document.getElementById("toMenu").addEventListener("click", showMenu);
 }
 
 /* ── EXPLORE MODE ── */
@@ -359,9 +658,10 @@ function renderSpellQuestion(item, onDone) {
     input.disabled = true;
     var fb = document.getElementById("feedback");
     var pathEl = document.querySelector('#qMap path[data-code="' + s.code + '"]');
+    var mres = recordAnswer(s.code, correct);
     if (correct) {
       fb.className = "feedback correct-fb";
-      fb.textContent = "✓ Correct! " + s.name;
+      fb.textContent = "✓ Correct! " + s.name + (mres.justMastered ? " — 🌟 State mastered!" : "");
       if (pathEl) pathEl.classList.add("correct");
     } else {
       fb.className = "feedback wrong-fb";
@@ -415,6 +715,7 @@ function renderMapQuestion(item, onDone) {
         var clicked = p.dataset.code;
         var correct = clicked === s.code;
         var fb = document.getElementById("feedback");
+        var mres = recordAnswer(s.code, correct);
         mapIds.forEach(function(id) {
           var match = document.querySelector('#' + id + ' path[data-code="' + clicked + '"]');
           if (match) match.classList.add(correct ? "correct" : "wrong");
@@ -426,7 +727,7 @@ function renderMapQuestion(item, onDone) {
         });
         if (correct) {
           fb.className = "feedback correct-fb";
-          fb.textContent = "✓ Correct! That’s " + s.name;
+          fb.textContent = "✓ Correct! That’s " + s.name + (mres.justMastered ? " — 🌟 State mastered!" : "");
         } else {
           fb.className = "feedback wrong-fb";
           fb.textContent = "Not quite. " + s.name + " is highlighted in orange.";
