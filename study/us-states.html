@@ -197,6 +197,7 @@ function normalize(s) {
 /* ── PROGRESS DATA (profiles, mastery, road trip, bosses) ── */
 var STORAGE_KEY = "usStatesRoadTrip";
 var PLAYER_NAMES = ["Luke", "Samantha"];
+var PLAYER_ICONS = { Luke: "👦", Samantha: "👧" };
 var MASTERY_STREAK = 3;   // correct answers in a row to master a state
 var BOSS_MIN_WRONG = 2;   // misses before a state can become a boss
 var BOSS_COUNT = 3;       // max active bosses at once
@@ -205,7 +206,14 @@ var BOSS_HP = 3;
 function emptyProfile() {
   return { stateStats: {}, masteredOrder: [], weekKey: "", weekMastered: 0, bossesDefeated: 0 };
 }
+/* In-memory cache, kept in sync with localStorage. If localStorage is
+   unavailable (Safari Private Browsing throws on every write) or a write
+   silently fails, this cache is still the source of truth for the rest of
+   this page's life, so picking a profile always sticks for this session
+   instead of silently bouncing back to the picker. */
+var memCache = null;
 function loadData() {
+  if (memCache) return memCache;
   var raw = null;
   try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) {}
   var data = null;
@@ -215,9 +223,11 @@ function loadData() {
   PLAYER_NAMES.forEach(function(name) {
     if (!data.profiles[name]) data.profiles[name] = emptyProfile();
   });
-  return data;
+  memCache = data;
+  return memCache;
 }
 function saveData(data) {
+  memCache = data;
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
 }
 function setActiveProfile(name) {
@@ -380,7 +390,7 @@ function buildRoadTripSVG(p) {
     var st = p.stateStats[STATES[i].code];
     if (st && st.mastered) classMap[STATES[i].code] = "mastered";
   }
-  return buildMapSVG({ interactive: false, showTitles: true, classMap: classMap });
+  return buildMapSVG({ interactive: false, showTitles: false, classMap: classMap });
 }
 
 function zoomControlsHTML() {
@@ -407,7 +417,7 @@ function showProfilePicker() {
     '<div class="menu-cards">' +
       PLAYER_NAMES.map(function(name) {
         return '<button type="button" class="menu-card profile-pick" data-name="' + esc(name) + '">' +
-          '<div class="card-icon">🙋</div>' +
+          '<div class="card-icon">' + (PLAYER_ICONS[name] || "🙋") + '</div>' +
           '<h2>' + esc(name) + '</h2>' +
         '</button>';
       }).join("") +
@@ -999,6 +1009,17 @@ function renderResultsScreen(cfg) {
   document.getElementById("restart").addEventListener("click", cfg.onRestart);
   document.getElementById("toMenu").addEventListener("click", showMenu);
 }
+
+/* If anything throws (including inside a click handler), show a visible,
+   recoverable error instead of leaving the screen looking frozen. */
+window.addEventListener("error", function(e) {
+  app.innerHTML =
+    '<h1>Oops!</h1>' +
+    '<div class="prompt-card"><p>Something went wrong: ' + esc((e && e.message) || "unknown error") + '</p></div>' +
+    '<div class="btn-row"><button class="btn-restart" id="errRestart">Restart</button></div>';
+  var b = document.getElementById("errRestart");
+  if (b) b.addEventListener("click", function() { memCache = null; showMenu(); });
+});
 
 showMenu();
 </script>
