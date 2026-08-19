@@ -110,4 +110,5 @@ jobs:
         run: npm run test:pedcardsurg
 
       - name: Site conventions and smoke
+        if: ${{ !cancelled() }}
         run: npm run test:smoke
