@@ -42,6 +42,12 @@ function currentRoundState(page) {
   return page.evaluate(() => window.__pinSprintState());
 }
 
+async function tapCode(page, code) {
+  const fatTarget = page.locator(`#pinMap path.pin-hit[data-code="${code}"]`);
+  if (await fatTarget.count()) await fatTarget.click();
+  else await page.locator(`#pinMap path.state[data-code="${code}"]`).click();
+}
+
 describe('Pin Sprint', () => {
   test('first-try correct answer advances and updates the shared mastery data', async () => {
     const { context, page } = await openSprint();
@@ -50,7 +56,7 @@ describe('Pin Sprint', () => {
 
     // Expected answer comes from the game data model, never scraped from the
     // prompt or highlighted DOM.
-    await page.click(`#pinMap path.state[data-code="${target.code}"]`);
+    await tapCode(page, target.code);
     await page.waitForFunction(index => window.__pinSprintState().currentIndex > index, beforeState.currentIndex);
 
     const afterState = await currentRoundState(page);
@@ -81,7 +87,7 @@ describe('Pin Sprint', () => {
       return w.STATES.find(s => s.code !== targetCode).code;
     }, target.code);
 
-    await page.click(`#pinMap path.state[data-code="${wrongCode}"]`);
+    await tapCode(page, wrongCode);
     let state = await currentRoundState(page);
     assert.equal(state.currentIndex, beforeState.currentIndex, 'a wrong tap should not advance');
     assert.equal(state.attempts, 1);
@@ -105,7 +111,7 @@ describe('Pin Sprint', () => {
     }, target.code);
     assert.equal(wrongCountBeforeCorrection, 1, 'multiple retry taps must not multiply the mastery penalty');
 
-    await page.click(`#pinMap path.state[data-code="${target.code}"]`);
+    await tapCode(page, target.code);
     await page.waitForFunction(index => window.__pinSprintState().currentIndex > index, beforeState.currentIndex);
     const afterState = await currentRoundState(page);
     assert.equal(afterState.firstTryScore, 0, 'a corrected miss should not become a first-try point');
@@ -132,8 +138,9 @@ describe('Pin Sprint', () => {
       if (!state.roundStates.length || state.currentIndex >= state.roundStates.length) break;
       const target = state.roundStates[state.currentIndex];
       await page.evaluate(code => {
-        const el = document.querySelector(`#pinMap path.state[data-code="${code}"]`);
-        el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        const hit = document.querySelector(`#pinMap path.pin-hit[data-code="${code}"]`);
+        const visible = document.querySelector(`#pinMap path.state[data-code="${code}"]`);
+        (hit || visible).dispatchEvent(new MouseEvent('click', { bubbles: true }));
       }, target.code);
       if (await page.$('#again')) break;
     }
