@@ -1345,12 +1345,14 @@ function renderBossQuestion() {
   app.innerHTML =
     '<h1>👑 Boss Battle</h1>' +
     '<div class="boss-banner">' +
-      '<div class="boss-name">' + esc(s.name) + '</div>' +
+      // The name must NOT appear here: this is a spelling question, and the
+      // banner used to print the answer directly above the input box.
+      '<div class="boss-name" id="bossName">👑 Boss State</div>' +
       '<div class="hp-bar">' + hpDots + '</div>' +
     '</div>' +
     mapWrapHTML(svg, "bossMap") +
     '<div class="prompt-card">' +
-      '<div class="prompt-label">Spell it to attack!</div>' +
+      '<div class="prompt-label">Spell the highlighted state to attack!</div>' +
       '<form class="spell-form" id="bossForm" autocomplete="off">' +
         '<input type="text" id="bossInput" aria-label="Type the state name" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Spell it here...">' +
         '<button type="submit">Attack!</button>' +
@@ -1373,6 +1375,8 @@ function renderBossQuestion() {
     bumpStreak(correct);
     celebrate(correct, mres.justMastered);
     animateState("bossMap", s.code, correct);
+    var nameEl = document.getElementById("bossName");
+    if (nameEl) nameEl.textContent = "👑 " + s.name;   // revealed only after answering
     if (correct) {
       boss.hp--;
       if (boss.hp <= 0) {
