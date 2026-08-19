@@ -1,6 +1,6 @@
 ---
 status: active
-next: Obtain pediatric resident and specialist feedback on the genetics-of-CHD and other resident mastery modules
+next: Verify StudyHub cloud save on a real iPhone (see Handoff), then decide on the Road Trip redesign
 ---
 
 # CLAUDE.md
@@ -261,6 +261,92 @@ then automatically checked against the page conventions above. See
 At the end of each work session, Claude will:
 1. Update `next:` in frontmatter with the next logical step
 2. Append to History below with what was done and why
+
+---
+
+## Handoff — read this first (2026-08-19)
+
+The last several sessions were all on `study/us-states.html` (50 States Challenge),
+driven by the two kids actually using it. Everything below is **merged and live**
+unless marked otherwise.
+
+### Open threads, most important first
+
+1. **🔴 `clintel` Supabase project has RLS disabled on all 10 `public` tables.**
+   `users`, `profiles`, `briefs` (169 rows), `brief_items` (495), `tracked_trials`
+   (192), `seen_items` (502), `pipeline_runs`, `faers_*` — all fully exposed to the
+   `anon`/`authenticated` roles. Anyone with that project's anon key can read or
+   modify every row. Pre-existing, surfaced to the user, and **deliberately not
+   fixed**: enabling RLS without policies blocks all access and would break the
+   pipeline writing those rows. Needs a policy set matching how clintel actually
+   reads/writes. StudyHub's own table is unaffected — it is in a separate
+   `studyhub` schema with grants revoked and RLS on.
+
+2. **🟡 Cloud save has never talked to the live Edge Function.** This sandbox's
+   proxy blocks direct HTTPS to `supabase.co`, so the client was verified only
+   against a mock implementing the same contract, plus the real merge code run
+   directly in Node (12 assertions). The function *is* deployed to clintel
+   (`studyhub-save`, `verify_jwt: false` — the family token is the credential).
+   **First real-device open is the outstanding check**: play on one phone, use
+   "Use on another device", open the link on a second device, confirm progress
+   crosses and nothing is lost.
+
+3. **🟡 CI has not been running the smoke suite.** In `.github/workflows/tests.yml`
+   the `pedcardsurg` step runs *before* "Site conventions and smoke", and the
+   shell is `bash -e`, so when pedcardsurg fails the smoke step is **skipped**.
+   Smoke has therefore been green-by-omission on every recent PR. It was run
+   locally every time (117/117), but CI should be reordered or made
+   non-fail-fast so it actually covers it.
+
+4. **🟢 Watch whether the anti-discouragement changes actually help Samantha.**
+   Round difficulty now adapts to rolling accuracy (see History). If she is still
+   getting discouraged, the knobs are `roundMix()` and `quickRoundSize()` in
+   `study/us-states.html`.
+
+5. **🟢 Road Trip redesign — agreed as a good direction, not built.** The idea:
+   make the trip *the* game rather than a quiz with rewards bolted on. Every state
+   starts gray and "comes alive" when mastered; boss battles become mid-round
+   "roadblocks" instead of a separate menu; a sticker/passport collection screen.
+   Deferred as too big for now: the drag-and-drop place-the-state mini-game, 50
+   authored state personalities, and multi-variant "mystery stops". Note the
+   redesign was explicitly judged **not** to be what fixes a discouraged kid —
+   difficulty mix and comparison framing were.
+
+6. **🟢 Ideas raised and not yet built:** region mini-rounds ("Northeast Sprint —
+   5 states"), state-of-the-day, occasional mystery/silhouette question, "which do
+   you want next?" choice questions, speed bonus without a visible timer,
+   perfect-round badge.
+
+### Known-failing tests — do not chase these
+
+These fail on **clean `origin/main`**, verified by stashing changes and re-running.
+Treat this as the baseline; only investigate something *outside* this list:
+
+- `myocarditis-academy` — "learning interactions", "mastery assessment"
+- `phs-v18-audit-remediation` — "tablet layout does not overflow horizontally"
+  (`959px > 768px`); also "hard time budget and responsive layout"
+- `pedcardsurg-academy` — WebP image assertion. **Passes 6/6 standalone**; only
+  fails under full-suite load. Timing flake, not a content problem.
+
+### Running the tests in this environment
+
+Playwright's own browser download is blocked, but a Chromium is pre-installed.
+The harness honours an override, so use:
+
+```sh
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome npm test
+```
+
+Without it every browser suite fails with "Executable doesn't exist".
+
+### One testing lesson worth keeping
+
+A Boss Battle bug shipped where the banner printed the state's name directly above
+the box asking the child to spell it. It survived because the verification script
+**read the answer out of the DOM** to answer the question — so a UI that displayed
+the answer passed. Derive expected answers from the data model, never from the
+page. There is now a check asserting the answer appears nowhere on screen (visible
+text, `title`/`aria-label`/`placeholder`, SVG `<title>`) before answering.
 
 ---
 
