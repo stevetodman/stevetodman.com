@@ -17,6 +17,7 @@
     justify-content: center;
     padding: 20px;
   }
+  main { min-width: 0; }
   .container { max-width: 720px; width: 100%; }
   h1 { text-align: center; font-size: 1.7rem; margin-bottom: 6px; color: #1a365d; }
   .subtitle { text-align: center; color: #5a6678; font-size: 0.95rem; margin-bottom: 24px; }
@@ -66,7 +67,7 @@
 
   .spell-form { display: flex; gap: 10px; margin-top: 16px; }
   .spell-form input {
-    flex: 1; padding: 14px 16px; font-size: 1.1rem; border: 2px solid #e2e8f0; border-radius: 12px;
+    flex: 1; min-width: 0; padding: 14px 16px; font-size: 1.1rem; border: 2px solid #e2e8f0; border-radius: 12px;
     color: #2d3748; text-align: center;
   }
   .spell-form input:focus { outline: none; border-color: #667eea; }
@@ -120,6 +121,13 @@
   .player-strip { text-align: center; font-size: 0.85rem; color: #5a6678; margin-bottom: 10px; }
   .switch-link { background: none; border: none; padding: 0; font: inherit; color: #667eea; text-decoration: underline; cursor: pointer; }
   .profile-pick .card-icon { font-size: 2.2rem; }
+
+  /* Sync code */
+  .sync-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.95rem;
+    background: #f7f8ff; border: 2px dashed #667eea; border-radius: 10px; padding: 14px 16px;
+    word-break: break-all; margin-bottom: 14px; color: #4c3fbf; cursor: text; user-select: all;
+  }
 
   /* Road trip */
   path.state.mastered { fill: #48bb78; }
@@ -272,6 +280,74 @@ function defeatBoss(code) {
   saveData(data);
 }
 
+/* ── SYNC CODE (cross-device, no account/server needed) ── */
+/* Packs one profile into a short pasteable "ST1-..." code, and merges a
+   decoded profile back in without losing progress already made on this
+   device (union of mastered states, max of counters). */
+function encodeProfile(name, p) {
+  var wrong = {}, streak = {};
+  Object.keys(p.stateStats).forEach(function(c) {
+    var st = p.stateStats[c];
+    if (st.wrong > 0) wrong[c] = st.wrong;
+    if (!st.mastered && st.streak > 0) streak[c] = st.streak;
+  });
+  var json = JSON.stringify({ n: name, m: p.masteredOrder, w: wrong, s: streak, wk: p.weekKey, wc: p.weekMastered, b: p.bossesDefeated });
+  var b64 = btoa(unescape(encodeURIComponent(json))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return "ST1-" + b64;
+}
+function decodeProfile(code) {
+  code = String(code).trim();
+  if (code.slice(0, 4) !== "ST1-") throw new Error("bad code");
+  var b64 = code.slice(4).replace(/-/g, "+").replace(/_/g, "/");
+  while (b64.length % 4) b64 += "=";
+  var payload = JSON.parse(decodeURIComponent(escape(atob(b64))));
+  if (!payload || typeof payload !== "object" || !payload.n) throw new Error("bad payload");
+  var p = emptyProfile();
+  p.masteredOrder = Array.isArray(payload.m) ? payload.m : [];
+  p.weekKey = payload.wk || "";
+  p.weekMastered = payload.wc || 0;
+  p.bossesDefeated = payload.b || 0;
+  p.masteredOrder.forEach(function(c) {
+    p.stateStats[c] = { streak: MASTERY_STREAK, correct: MASTERY_STREAK, wrong: 0, mastered: true };
+  });
+  Object.keys(payload.w || {}).forEach(function(c) {
+    if (!p.stateStats[c]) p.stateStats[c] = { streak: 0, correct: 0, wrong: 0, mastered: false };
+    p.stateStats[c].wrong = payload.w[c];
+  });
+  Object.keys(payload.s || {}).forEach(function(c) {
+    if (!p.stateStats[c]) p.stateStats[c] = { streak: 0, correct: 0, wrong: 0, mastered: false };
+    p.stateStats[c].streak = payload.s[c];
+  });
+  return { name: payload.n, profile: p };
+}
+function mergeProfiles(a, b) {
+  var out = emptyProfile();
+  var allCodes = {};
+  Object.keys(a.stateStats).forEach(function(c) { allCodes[c] = 1; });
+  Object.keys(b.stateStats).forEach(function(c) { allCodes[c] = 1; });
+  Object.keys(allCodes).forEach(function(c) {
+    var sa = a.stateStats[c] || { streak: 0, correct: 0, wrong: 0, mastered: false };
+    var sb = b.stateStats[c] || { streak: 0, correct: 0, wrong: 0, mastered: false };
+    out.stateStats[c] = {
+      streak: Math.max(sa.streak, sb.streak),
+      correct: Math.max(sa.correct, sb.correct),
+      wrong: Math.max(sa.wrong, sb.wrong),
+      mastered: sa.mastered || sb.mastered
+    };
+  });
+  var seen = {};
+  a.masteredOrder.concat(b.masteredOrder).forEach(function(c) {
+    if (out.stateStats[c] && out.stateStats[c].mastered && !seen[c]) { seen[c] = true; out.masteredOrder.push(c); }
+  });
+  var wk = currentWeekKey();
+  var aw = a.weekKey === wk ? (a.weekMastered || 0) : 0;
+  var bw = b.weekKey === wk ? (b.weekMastered || 0) : 0;
+  out.weekKey = wk;
+  out.weekMastered = Math.max(aw, bw);
+  out.bossesDefeated = Math.max(a.bossesDefeated || 0, b.bossesDefeated || 0);
+  return out;
+}
+
 /* ── MAP BUILDER ── */
 var NE_VIEWBOX = "985 120 140 260";
 /* opts: { interactive:bool, showTitles:bool, targetCode:str, classMap:{code:className}, viewBox:str } */
@@ -358,7 +434,9 @@ function showMenu() {
   var bossCount = getBossStates(p).length;
 
   app.innerHTML =
-    '<div class="player-strip">Playing as <strong>' + esc(activeName) + '</strong> &middot; <button type="button" class="switch-link" id="switchProfile">Switch player</button></div>' +
+    '<div class="player-strip">Playing as <strong>' + esc(activeName) + '</strong> &middot; ' +
+      '<button type="button" class="switch-link" id="switchProfile">Switch player</button> &middot; ' +
+      '<button type="button" class="switch-link" id="syncDevices">Sync devices</button></div>' +
     '<h1>🗺️ 50 States Challenge</h1>' +
     '<p class="subtitle">Learn to spell every state and find it on the map!</p>' +
     '<div class="road-trip-card">' +
@@ -407,6 +485,7 @@ function showMenu() {
     '<a class="back-link" href="./">&larr; Back to Study Hub</a>';
 
   document.getElementById("switchProfile").addEventListener("click", showProfilePicker);
+  document.getElementById("syncDevices").addEventListener("click", showSyncScreen);
 
   app.querySelectorAll(".menu-card").forEach(function(card) {
     card.addEventListener("click", function() {
@@ -450,6 +529,75 @@ function showTrophyCase() {
     '<p class="subtitle">' + leadLine + '</p>' +
     '<div class="trophy-row">' + cards + '</div>' +
     '<div class="btn-row"><button class="btn-home" id="toMenu">Back to Menu</button></div>';
+  document.getElementById("toMenu").addEventListener("click", showMenu);
+}
+
+/* ── SYNC ACROSS DEVICES ── */
+function showSyncScreen() {
+  var data = loadData();
+  var activeName = data.activeProfile;
+  var p = data.profiles[activeName];
+  var code = encodeProfile(activeName, p);
+
+  app.innerHTML =
+    '<h1>🔗 Sync Across Devices</h1>' +
+    '<p class="subtitle">Copy this code and paste it in on your other device (phone, computer, tablet) to bring your progress with you.</p>' +
+    '<div class="prompt-card">' +
+      '<div class="prompt-label">' + esc(activeName) + '&rsquo;s Sync Code</div>' +
+      '<div class="sync-code" id="syncCodeBox" tabindex="0">' + esc(code) + '</div>' +
+      '<button type="button" class="next-btn" id="copyCode">📋 Copy Code</button>' +
+      '<div class="feedback" id="copyFeedback"></div>' +
+    '</div>' +
+    '<div class="prompt-card">' +
+      '<div class="prompt-label">Have a code from another device?</div>' +
+      '<form class="spell-form" id="importForm" autocomplete="off">' +
+        '<input type="text" id="importInput" aria-label="Paste sync code" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="ST1-...">' +
+        '<button type="submit">Import</button>' +
+      '</form>' +
+      '<div class="feedback" id="importFeedback"></div>' +
+    '</div>' +
+    '<div class="btn-row"><button class="btn-home" id="toMenu">Back to Menu</button></div>';
+
+  document.getElementById("syncCodeBox").addEventListener("click", function() {
+    var range = document.createRange();
+    range.selectNodeContents(this);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+
+  document.getElementById("copyCode").addEventListener("click", function() {
+    var fb = document.getElementById("copyFeedback");
+    var done = function() { fb.className = "feedback correct-fb"; fb.textContent = "Copied! Paste it on your other device."; };
+    var fail = function() { fb.className = "feedback wrong-fb"; fb.textContent = "Couldn't copy automatically — tap the code above to select it, then copy manually."; };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(done, fail);
+    } else {
+      fail();
+    }
+  });
+
+  document.getElementById("importForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    var fb = document.getElementById("importFeedback");
+    var raw = document.getElementById("importInput").value;
+    var decoded = null;
+    try { decoded = decodeProfile(raw); } catch (err) { decoded = null; }
+    if (!decoded || PLAYER_NAMES.indexOf(decoded.name) === -1) {
+      fb.className = "feedback wrong-fb";
+      fb.textContent = "That code doesn't look right. Double-check you copied the whole thing.";
+      return;
+    }
+    var d = loadData();
+    var existing = d.profiles[decoded.name] || emptyProfile();
+    d.profiles[decoded.name] = mergeProfiles(existing, decoded.profile);
+    d.activeProfile = decoded.name;
+    saveData(d);
+    fb.className = "feedback correct-fb";
+    fb.textContent = "Synced! Loading " + esc(decoded.name) + "'s progress…";
+    setTimeout(showMenu, 800);
+  });
+
   document.getElementById("toMenu").addEventListener("click", showMenu);
 }
 
