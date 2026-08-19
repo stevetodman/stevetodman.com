@@ -43,6 +43,38 @@ The checked-in `state/projects.json` remains a shadow fixture for the static das
 - Future browser access must go through authenticated server endpoints; do not expose `steven_os` directly through the Data API.
 - No provider API keys, GitHub tokens, service-role keys, email contents, or calendar data belong in the repository.
 
+## Org-wide GitHub registry
+
+The live dashboard reads every `steven_os.projects` row. Active `stevetodman/*` repositories are discovered by `scripts/ingest-github-org.mjs` and upserted through the existing secret ingest function. Dependabot PRs and idle drafts are stored only as filter facts; they do not enter the execution queue. Archived repos are skipped.
+
+```sh
+node steven-os/scripts/ingest-github-org.mjs --dry-run
+node steven-os/scripts/ingest-github-org.mjs
+```
+
+The Cardio Hospital specialist runner (`ingest-github-pr.mjs`) remains for package/walkthrough boundaries. It is no longer the only ingest path.
+
+## Daily loop
+
+Local morning run (org sync + brief):
+
+```sh
+node steven-os/scripts/run-morning.mjs
+node steven-os/scripts/run-morning.mjs --skip-sync
+node steven-os/scripts/brief.mjs
+node steven-os/scripts/register-project.mjs --list
+node steven-os/scripts/resolve-decision.mjs --list
+```
+
+The GitHub Action `steven-os-morning.yml` snapshots the live brief only. It does not hold a service-role key and does not sync private repos. Full org sync stays on this Mac via `gh`.
+
+Decisions use the existing secret resolve API, not direct table access:
+
+```sh
+node steven-os/scripts/create-decision.mjs --project=cardio-hospital --title="..." --question="..."
+node steven-os/scripts/resolve-decision.mjs <id> --approve
+```
+
 ## Next implementation step
 
-Add a narrowly authenticated server-side API for reads/writes against the private schema, then run the GitHub normalizer from an event-driven ingest worker instead of manual connector ingestion. After that, replace the static dashboard fixture with database-backed reads and add provider adapters/evaluation telemetry.
+Deploy the resolve-function `create` action if it is not already live. Do not widen the OIDC gateway to every repository until a GitHub App identity exists.

@@ -19,6 +19,37 @@ export default {
 
     try {
       const body = await req.json();
+      if (body.action === "create") {
+        const projectId = typeof body.project_id === "string" ? body.project_id.trim() : "";
+        const title = typeof body.title === "string" ? body.title.trim() : "";
+        const question = typeof body.question === "string" ? body.question.trim() : "";
+        const consequence = typeof body.consequence === "string" && body.consequence.trim()
+          ? body.consequence.trim()
+          : null;
+        if (!projectId || !title || !question) {
+          return Response.json({ error: "project_title_question_required" }, { status: 400 });
+        }
+        const recommendation = body.recommendation && typeof body.recommendation === "object" && !Array.isArray(body.recommendation)
+          ? body.recommendation
+          : null;
+        const alternatives = Array.isArray(body.alternatives) ? body.alternatives : [];
+        const rows = await sql`
+          insert into steven_os.decisions
+            (project_id, title, question, recommendation, alternatives, state, consequence)
+          values (
+            ${projectId},
+            ${title},
+            ${question},
+            ${recommendation ? sql.json(recommendation) : null},
+            ${sql.json(alternatives)},
+            'open',
+            ${consequence}
+          )
+          returning id, project_id, title, question, state, created_at
+        `;
+        return Response.json({ ok: true, decision: rows[0] });
+      }
+
       const id = typeof body.id === "string" ? body.id : "";
       const action = body.action === "reject" ? "reject" : "approve";
       const notes = typeof body.notes === "string" ? body.notes : "";

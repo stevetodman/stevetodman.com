@@ -42,12 +42,40 @@ export default {
         order by priority asc, updated_at asc
       `;
 
+      const shippedWork = await sql`
+        select w.id, w.project_id, p.name as project_name, w.kind, w.title,
+               w.state, w.updated_at
+        from steven_os.work_items w
+        join steven_os.projects p on p.id = w.project_id
+        where w.state in ('complete', 'closed', 'merged')
+          and w.kind not in ('repository', 'registration')
+          and w.updated_at >= now() - interval '24 hours'
+        order by w.updated_at desc
+        limit 20
+      `;
+
+      const shippedDecisions = await sql`
+        select d.id, d.project_id, p.name as project_name,
+               'decision' as kind, d.title, d.state, d.decided_at as updated_at
+        from steven_os.decisions d
+        join steven_os.projects p on p.id = d.project_id
+        where d.state in ('decided', 'superseded')
+          and d.decided_at >= now() - interval '24 hours'
+        order by d.decided_at desc
+        limit 20
+      `;
+
+      const shipped = [...shippedWork, ...shippedDecisions]
+        .sort((a, b) => new Date(b.updated_at).valueOf() - new Date(a.updated_at).valueOf())
+        .slice(0, 20);
+
       return Response.json({
         generatedAt: new Date().toISOString(),
         mode: "server-secret",
         projects,
         decisions,
         execution,
+        shipped,
       });
     } catch (error) {
       console.error("steven-os-brief", error);

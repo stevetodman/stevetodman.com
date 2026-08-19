@@ -3,3 +3,9 @@
 # Test tooling
 node_modules/
 package-lock.json
+
+# Steven OS local secrets and generated briefs
+steven-os/config.local.js
+steven-os/state/latest-brief.txt
+steven-os/state/latest-brief.json
+steven-os/supabase/.temp/

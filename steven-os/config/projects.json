@@ -1,0 +1,73 @@
+{
+  "defaults": {
+    "owner": "stevetodman",
+    "skipArchived": true,
+    "idleDraftDays": 14,
+    "botLogins": [
+      "dependabot",
+      "dependabot[bot]",
+      "renovate",
+      "renovate[bot]",
+      "github-actions[bot]"
+    ],
+    "botTitlePatterns": [
+      "^Bump ",
+      "^Update .+ requirement from ",
+      "^chore\\(deps\\)"
+    ],
+    "defaultPriorityWithHumanPr": 4,
+    "defaultPriorityQuiet": 8,
+    "unspecifiedObjective": "Unspecified — needs an objective"
+  },
+  "projects": [
+    {
+      "id": "cardio-hospital",
+      "name": "Cardio Hospital",
+      "objective": "Create a high-fidelity pediatric cardiology resident simulation with deterministic clinical scoring and a credible immersive environment.",
+      "status": "active",
+      "priority": 1,
+      "riskLevel": "high",
+      "repositoryFullName": "stevetodman/stevetodman.com",
+      "productionUrl": "https://stevetodman.com/cardiohospital/",
+      "metadata": {
+        "pilot": true,
+        "canonicalSource": "live_github_and_workstation",
+        "currentIntegrationPr": 27,
+        "currentPackageId": "CardioHospital-Mac-Development-0e7377b4ecc6-20260818T143911Z",
+        "walkthroughPassed": false
+      },
+      "route": {
+        "pullRequestNumbers": [19, 20, 22, 23, 24, 27],
+        "parkedPullRequestNumbers": [22, 23],
+        "headBranchPatterns": [
+          "cardiohospital",
+          "unreal",
+          "^mac/",
+          "launch-set",
+          "aaa-exam",
+          "github-work-yesterday"
+        ],
+        "titlePatterns": [
+          "Cardio Hospital",
+          "Unreal",
+          "walkthrough",
+          "MetaHuman",
+          "Exam Room",
+          "launch-set",
+          "launch set"
+        ]
+      },
+      "legacyUnnamespacedPrs": true
+    },
+    {
+      "id": "stevetodman-com",
+      "name": "stevetodman.com",
+      "objective": "Personal site, teaching academies, and tools hosted at stevetodman.com, excluding the Cardio Hospital Unreal slice.",
+      "status": "active",
+      "priority": 3,
+      "riskLevel": "medium",
+      "repositoryFullName": "stevetodman/stevetodman.com",
+      "productionUrl": "https://stevetodman.com/"
+    }
+  ]
+}
