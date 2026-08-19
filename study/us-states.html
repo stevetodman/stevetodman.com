@@ -2,10 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="50 States Challenge — learn to spell every U.S. state and find it on the map, then take the full graded test.">
 <title>50 States Challenge</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<!-- Add to Home Screen: iOS needs a real PNG here (it ignores data: URIs and SVG). -->
+<link rel="apple-touch-icon" href="icons/us-states-180.png">
+<link rel="manifest" href="us-states.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="50 States">
+<meta name="theme-color" content="#667eea">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -15,7 +23,10 @@
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    padding: 20px;
+    /* Launched from the iPhone home screen the page runs full-screen, so the
+       notch and home indicator would otherwise sit on top of the content. */
+    padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
+             max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
   }
   main { min-width: 0; }
   .container { max-width: 720px; width: 100%; }
@@ -161,6 +172,26 @@
   .hp-bar { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
   .hp-pip { width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,0.3); }
   .hp-pip.full { background: #fc8181; box-shadow: 0 0 0 2px rgba(255,255,255,0.5) inset; }
+
+  /* Confetti (mastery celebration) */
+  #confetti {
+    position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 50;
+  }
+  .confetti-bit {
+    position: absolute; width: 10px; height: 14px; border-radius: 2px; will-change: transform, opacity;
+    animation: confetti-fall 1400ms cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
+  }
+  @keyframes confetti-fall {
+    0%   { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translate3d(var(--dx), 105vh, 0) rotate(var(--rot)); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .confetti-bit { animation-duration: 1ms; opacity: 0; }
+  }
+
+  /* Quick Round / resume cards */
+  .badge-quick { background: #b04a12; }
+  .badge-resume { background: #2c7a7b; }
 </style>
 </head>
 <body>
@@ -180,6 +211,7 @@ var score = 0;
 var subScore = { spell: 0, spellTotal: 0, map: 0, mapTotal: 0 };
 var missed = [];          // [{code, name, type}]
 var zoomed = false;
+var roundLabel = "";      // heading for the current round, e.g. "Quick Round"
 
 /* ── HELPERS ── */
 function shuffle(arr) {
@@ -201,6 +233,103 @@ function normalize(s) {
   return String(s).trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+/* ── SOUND ──
+   iOS Safari will not start an AudioContext outside a user gesture and
+   suspends it when the page is backgrounded, so the context is created on the
+   first tap and resumed before every sound. (Haptics are deliberately absent:
+   Safari on iOS does not support the Vibration API, so feedback is audio and
+   motion only.) */
+var SOUND_KEY = "usStatesSound";
+var audioCtx = null;
+var soundOn = true;
+try { soundOn = localStorage.getItem(SOUND_KEY) !== "off"; } catch (e) {}
+
+function setSoundOn(on) {
+  soundOn = on;
+  try { localStorage.setItem(SOUND_KEY, on ? "on" : "off"); } catch (e) {}
+}
+function unlockAudio() {
+  if (audioCtx) return;
+  var Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return;
+  try { audioCtx = new Ctx(); } catch (e) { audioCtx = null; }
+}
+document.addEventListener("touchstart", unlockAudio, { once: true, passive: true });
+document.addEventListener("mousedown", unlockAudio, { once: true });
+
+/* notes: [{f: hz, t: startSeconds, d: durationSeconds}] */
+function playNotes(notes, type, peak) {
+  if (!soundOn) return;
+  unlockAudio();
+  if (!audioCtx) return;
+  if (audioCtx.state === "suspended") { try { audioCtx.resume(); } catch (e) {} }
+  var now = audioCtx.currentTime;
+  notes.forEach(function(n) {
+    var osc = audioCtx.createOscillator();
+    var gain = audioCtx.createGain();
+    osc.type = type || "sine";
+    osc.frequency.setValueAtTime(n.f, now + n.t);
+    // Short attack/decay envelope; a raw gate would click.
+    gain.gain.setValueAtTime(0.0001, now + n.t);
+    gain.gain.exponentialRampToValueAtTime(peak || 0.18, now + n.t + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + n.t + n.d);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now + n.t);
+    osc.stop(now + n.t + n.d + 0.02);
+  });
+}
+function soundCorrect() {
+  playNotes([{ f: 587.33, t: 0, d: 0.11 }, { f: 880, t: 0.09, d: 0.16 }], "sine");
+}
+function soundWrong() {
+  playNotes([{ f: 196, t: 0, d: 0.18 }, { f: 146.83, t: 0.13, d: 0.22 }], "triangle", 0.14);
+}
+function soundMastery() {
+  playNotes([
+    { f: 523.25, t: 0, d: 0.12 }, { f: 659.25, t: 0.1, d: 0.12 },
+    { f: 783.99, t: 0.2, d: 0.12 }, { f: 1046.5, t: 0.3, d: 0.3 }
+  ], "sine", 0.2);
+}
+function soundVictory() {
+  playNotes([
+    { f: 523.25, t: 0, d: 0.14 }, { f: 659.25, t: 0.13, d: 0.14 },
+    { f: 783.99, t: 0.26, d: 0.14 }, { f: 1046.5, t: 0.39, d: 0.16 },
+    { f: 783.99, t: 0.55, d: 0.12 }, { f: 1046.5, t: 0.66, d: 0.42 }
+  ], "sine", 0.2);
+}
+
+/* ── CONFETTI ── */
+var CONFETTI_COLORS = ["#667eea", "#764ba2", "#48bb78", "#f6ad55", "#fc8181", "#38b2ac"];
+function burstConfetti(count) {
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var layer = document.getElementById("confetti");
+  if (!layer) {
+    layer = document.createElement("div");
+    layer.id = "confetti";
+    document.body.appendChild(layer);
+  }
+  var n = count || 28;
+  for (var i = 0; i < n; i++) {
+    var bit = document.createElement("div");
+    bit.className = "confetti-bit";
+    bit.style.left = (10 + Math.random() * 80) + "%";
+    bit.style.top = (-8 - Math.random() * 12) + "%";
+    bit.style.background = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+    bit.style.setProperty("--dx", (Math.random() * 160 - 80) + "px");
+    bit.style.setProperty("--rot", (Math.random() * 720 - 360) + "deg");
+    bit.style.animationDelay = (Math.random() * 180) + "ms";
+    layer.appendChild(bit);
+    (function(el) { setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 1900); })(bit);
+  }
+}
+/* Fired whenever an answer resolves, so every mode gets the same feedback. */
+function celebrate(correct, justMastered) {
+  if (justMastered) { soundMastery(); burstConfetti(30); }
+  else if (correct) soundCorrect();
+  else soundWrong();
+}
+
 /* ── PROGRESS DATA (profiles, mastery, road trip, bosses) ── */
 var STORAGE_KEY = "usStatesRoadTrip";
 var PLAYER_NAMES = ["Luke", "Samantha"];
@@ -218,7 +347,7 @@ var BOSS_COUNT = 3;       // max active bosses at once
 var BOSS_HP = 3;
 
 function emptyProfile() {
-  return { stateStats: {}, masteredOrder: [], weekKey: "", weekMastered: 0, bossesDefeated: 0, avatar: null };
+  return { stateStats: {}, masteredOrder: [], weekKey: "", weekMastered: 0, bossesDefeated: 0, avatar: null, round: null };
 }
 function avatarFor(name, p) {
   return (p && p.avatar) || PLAYER_ICONS[name] || "🙋";
@@ -287,6 +416,63 @@ function recordAnswer(code, correct) {
   }
   saveData(data);
   return { justMastered: justMastered };
+}
+
+/* ── QUICK ROUND + RESUME ──
+   A full 50-question pass is a long sit on a phone, so a Quick Round is a
+   short, targeted set: states this profile has not mastered come first
+   (most-missed, then least-practised, then never-seen), which is also where
+   the practice is actually worth spending. */
+var QUICK_ROUND_SIZE = 10;
+function quickRoundStates(p, n) {
+  var ranked = STATES.map(function(s) {
+    var st = p.stateStats[s.code];
+    return {
+      s: s,
+      mastered: st ? st.mastered : false,
+      wrong: st ? st.wrong : 0,
+      seen: st ? (st.correct + st.wrong) : 0,
+      jitter: Math.random()
+    };
+  });
+  ranked.sort(function(a, b) {
+    if (a.mastered !== b.mastered) return a.mastered ? 1 : -1;  // unmastered first
+    if (b.wrong !== a.wrong) return b.wrong - a.wrong;          // most-missed first
+    if (a.seen !== b.seen) return a.seen - b.seen;              // least-practised first
+    return a.jitter - b.jitter;                                 // otherwise random
+  });
+  return ranked.slice(0, n).map(function(r) { return r.s; });
+}
+
+/* The active round is snapshotted after every answer so closing the tab or
+   taking a call mid-round does not throw the round away. */
+function saveRound(snapshot) {
+  var data = loadData();
+  if (!data.activeProfile) return;
+  data.profiles[data.activeProfile].round = snapshot;
+  saveData(data);
+}
+function clearRound() { saveRound(null); }
+function getSavedRound() {
+  var data = loadData();
+  if (!data.activeProfile) return null;
+  var r = data.profiles[data.activeProfile].round;
+  if (!r || !r.queue || !r.queue.length) return null;
+  if (r.qIndex <= 0 || r.qIndex >= r.queue.length) return null;  // nothing meaningful to resume
+  return r;
+}
+function snapshotRound() {
+  return {
+    mode: mode, label: roundLabel, queue: queue, qIndex: qIndex,
+    score: score, missed: missed, subScore: subScore
+  };
+}
+function resumeSavedRound() {
+  var r = getSavedRound();
+  if (!r) { showMenu(); return; }
+  mode = r.mode; roundLabel = r.label || ""; queue = r.queue; qIndex = r.qIndex;
+  score = r.score; missed = r.missed || []; subScore = r.subScore || { spell: 0, spellTotal: 0, map: 0, mapTotal: 0 };
+  if (mode === "test") renderTestQuestion(); else renderQueueQuestion();
 }
 
 /* States this profile keeps missing, worst first */
@@ -374,6 +560,9 @@ function mergeProfiles(a, b) {
   out.weekMastered = Math.max(aw, bw);
   out.bossesDefeated = Math.max(a.bossesDefeated || 0, b.bossesDefeated || 0);
   out.avatar = a.avatar || b.avatar || null;
+  /* An in-progress round is device-local (it is not in the sync code at all),
+     so keep whatever this device already had rather than dropping it. */
+  out.round = a.round || null;
   return out;
 }
 
@@ -587,12 +776,15 @@ function showMenu() {
   var lastCode = masteredCount > 0 ? p.masteredOrder[masteredCount - 1] : null;
   var lastState = lastCode ? byCode(lastCode) : null;
   var bossCount = getBossStates(p).length;
+  var savedRound = getSavedRound();
 
   app.innerHTML =
     '<div class="player-strip">' + avatarFor(activeName, p) + ' Playing as <strong>' + esc(activeName) + '</strong> &middot; ' +
       '<button type="button" class="switch-link" id="switchProfile">Switch player</button> &middot; ' +
       '<button type="button" class="switch-link" id="changeAvatar">Change avatar</button> &middot; ' +
-      '<button type="button" class="switch-link" id="syncDevices">Sync devices</button></div>' +
+      '<button type="button" class="switch-link" id="syncDevices">Sync devices</button> &middot; ' +
+      '<button type="button" class="switch-link" id="soundToggle" aria-pressed="' + (soundOn ? "true" : "false") + '">' +
+        (soundOn ? "🔊 Sound on" : "🔇 Sound off") + '</button></div>' +
     '<h1>🗺️ 50 States Challenge</h1>' +
     '<p class="subtitle">Learn to spell every state and find it on the map!</p>' +
     '<div class="road-trip-card">' +
@@ -601,6 +793,20 @@ function showMenu() {
       (lastState ? '<div class="road-trip-note">Last stop: ' + esc(lastState.name) + '</div>' : '<div class="road-trip-note">Get 3 in a row on a state to add it to your road trip!</div>') +
     '</div>' +
     '<div class="menu-cards">' +
+      (savedRound ? (
+        '<button type="button" class="menu-card" data-mode="resume">' +
+          '<div class="card-icon">⏭️</div>' +
+          '<span class="badge badge-resume">' + (savedRound.queue.length - savedRound.qIndex) + ' left</span>' +
+          '<h2>Resume ' + esc(savedRound.label || "Round") + '</h2>' +
+          '<p>Pick up where you left off &mdash; question ' + (savedRound.qIndex + 1) + ' of ' + savedRound.queue.length + '</p>' +
+        '</button>'
+      ) : '') +
+      '<button type="button" class="menu-card" data-mode="quick">' +
+        '<div class="card-icon">⚡</div>' +
+        '<span class="badge badge-quick">' + QUICK_ROUND_SIZE + ' questions</span>' +
+        '<h2>Quick Round</h2>' +
+        '<p>A short mixed round aimed at the states you haven&rsquo;t mastered yet &mdash; perfect for a few spare minutes</p>' +
+      '</button>' +
       '<button type="button" class="menu-card" data-mode="explore">' +
         '<div class="card-icon">🔎</div>' +
         '<span class="badge">Study</span>' +
@@ -643,11 +849,18 @@ function showMenu() {
   document.getElementById("switchProfile").addEventListener("click", showProfilePicker);
   document.getElementById("changeAvatar").addEventListener("click", function() { showAvatarPicker(showMenu); });
   document.getElementById("syncDevices").addEventListener("click", showSyncScreen);
+  document.getElementById("soundToggle").addEventListener("click", function() {
+    setSoundOn(!soundOn);
+    if (soundOn) soundCorrect();   // confirm it is actually audible now
+    showMenu();
+  });
 
   app.querySelectorAll(".menu-card").forEach(function(card) {
     card.addEventListener("click", function() {
       var m = card.dataset.mode;
       if (m === "explore") { showExplore(); }
+      else if (m === "quick") { startQuickRound(); }
+      else if (m === "resume") { resumeSavedRound(); }
       else if (m === "spell") { startQueue("spell", STATES.map(function(s){ return {code:s.code,name:s.name,type:"spell"}; })); }
       else if (m === "map") { startQueue("map", STATES.map(function(s){ return {code:s.code,name:s.name,type:"map"}; })); }
       else if (m === "test") { startTest(); }
@@ -813,6 +1026,7 @@ function renderBossQuestion() {
     input.disabled = true;
     var fb = document.getElementById("feedback");
     var mres = recordAnswer(s.code, correct);
+    celebrate(correct, mres.justMastered);
     if (correct) {
       boss.hp--;
       if (boss.hp <= 0) {
@@ -892,17 +1106,46 @@ function showExplore() {
 }
 
 /* ── SPELL / MAP PRACTICE (shared queue engine) ── */
-function startQueue(m, pool) {
+function startQueue(m, pool, label) {
   mode = m;
+  roundLabel = label || "";
   queue = shuffle(pool);
   qIndex = 0;
   score = 0;
   missed = [];
+  subScore = { spell: 0, spellTotal: 0, map: 0, mapTotal: 0 };
   renderQueueQuestion();
 }
 
+/* 10 questions, mixed spelling and map, aimed at this profile's weak states. */
+function startQuickRound() {
+  var data = loadData();
+  var picks = quickRoundStates(data.profiles[data.activeProfile], QUICK_ROUND_SIZE);
+  mode = "test";
+  roundLabel = "Quick Round";
+  queue = shuffle(picks.map(function(s, i) {
+    return { code: s.code, name: s.name, type: (i % 2 === 0 ? "spell" : "map") };
+  }));
+  qIndex = 0;
+  score = 0;
+  subScore = { spell: 0, spellTotal: 0, map: 0, mapTotal: 0 };
+  missed = [];
+  renderTestQuestion();
+}
+
+/* Both question renderers are shared by the practice queue and the graded
+   test, so advancing has to return to whichever flow started the round.
+   Routing every "Next" through the queue flow made a graded test silently
+   become map-only practice after its first question, with no subscores and
+   no grade at the end. */
+function advanceQuestion() {
+  if (mode === "test") renderTestQuestion();
+  else renderQueueQuestion();
+}
+
 function renderQueueQuestion() {
-  if (qIndex >= queue.length) { renderQueueResults(); return; }
+  if (qIndex >= queue.length) { clearRound(); renderQueueResults(); return; }
+  saveRound(snapshotRound());
   var item = queue[qIndex];
   if (mode === "spell") renderSpellQuestion(item, afterQueueAnswer);
   else renderMapQuestion(item, afterQueueAnswer);
@@ -915,6 +1158,7 @@ function afterQueueAnswer(correct, item) {
 
 function renderQueueResults() {
   var total = queue.length;
+  if (score === total && total > 0) { soundVictory(); burstConfetti(46); }
   renderResultsScreen({
     title: mode === "spell" ? "Spelling Results" : "Map Results",
     score: score,
@@ -922,7 +1166,7 @@ function renderQueueResults() {
     missed: missed,
     onRetryMissed: function() {
       if (missed.length === 0) return;
-      startQueue(mode, missed.map(function(m){ return {code:m.code, name:m.name, type:mode}; }));
+      startQueue(mode, missed.map(function(m){ return {code:m.code, name:m.name, type:mode}; }), roundLabel);
     },
     onRestart: function() {
       var pool = STATES.map(function(s){ return {code:s.code, name:s.name, type:mode}; });
@@ -938,7 +1182,7 @@ function renderSpellQuestion(item, onDone) {
   var pct = Math.round((qIndex / queue.length) * 100);
 
   app.innerHTML =
-    '<h1>✏️ Spelling Practice</h1>' +
+    '<h1>' + (roundLabel ? '⚡ ' + esc(roundLabel) : '✏️ Spelling Practice') + '</h1>' +
     '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
     '<div class="score-line"><span>Question ' + (qIndex + 1) + ' of ' + queue.length + '</span><span>Score: ' + score + '</span></div>' +
     mapWrapHTML(svg, "qMap") +
@@ -964,6 +1208,7 @@ function renderSpellQuestion(item, onDone) {
     var fb = document.getElementById("feedback");
     var pathEl = document.querySelector('#qMap path[data-code="' + s.code + '"]');
     var mres = recordAnswer(s.code, correct);
+    celebrate(correct, mres.justMastered);
     if (correct) {
       fb.className = "feedback correct-fb";
       fb.textContent = "✓ Correct! " + s.name + (mres.justMastered ? " — 🌟 State mastered!" : "");
@@ -979,7 +1224,7 @@ function renderSpellQuestion(item, onDone) {
     btn.addEventListener("click", function() {
       qIndex++;
       onDone(correct, item);
-      renderQueueQuestion();
+      advanceQuestion();
     });
     fb.parentNode.insertBefore(btn, fb.nextSibling);
   });
@@ -994,7 +1239,7 @@ function renderMapQuestion(item, onDone) {
   var insetSVG = small ? buildMapSVG({ interactive: true, showTitles: false, viewBox: zoomViewBoxFor(s.code) }) : "";
 
   app.innerHTML =
-    '<h1>📍 Map Practice</h1>' +
+    '<h1>' + (roundLabel ? '⚡ ' + esc(roundLabel) : '📍 Map Practice') + '</h1>' +
     '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
     '<div class="score-line"><span>Question ' + (qIndex + 1) + ' of ' + queue.length + '</span><span>Score: ' + score + '</span></div>' +
     '<div class="prompt-card">' +
@@ -1021,6 +1266,7 @@ function renderMapQuestion(item, onDone) {
         var correct = clicked === s.code;
         var fb = document.getElementById("feedback");
         var mres = recordAnswer(s.code, correct);
+        celebrate(correct, mres.justMastered);
         mapIds.forEach(function(id) {
           var match = document.querySelector('#' + id + ' path[data-code="' + clicked + '"]');
           if (match) match.classList.add(correct ? "correct" : "wrong");
@@ -1043,7 +1289,7 @@ function renderMapQuestion(item, onDone) {
         btn.addEventListener("click", function() {
           qIndex++;
           onDone(correct, item);
-          renderQueueQuestion();
+          advanceQuestion();
         });
         fb.parentNode.insertBefore(btn, fb.nextSibling);
       });
@@ -1054,6 +1300,7 @@ function renderMapQuestion(item, onDone) {
 /* ── FULL TEST (mixed) ── */
 function startTest() {
   mode = "test";
+  roundLabel = "";
   var pool = shuffle(STATES.slice());
   queue = pool.map(function(s, i) {
     return { code: s.code, name: s.name, type: (i % 2 === 0 ? "spell" : "map") };
@@ -1067,7 +1314,10 @@ function startTest() {
 }
 
 function renderTestQuestion() {
-  if (qIndex >= queue.length) { renderTestResults(); return; }
+  if (qIndex >= queue.length) { clearRound(); renderTestResults(); return; }
+  // Snapshot before the per-question totals below are incremented, so resuming
+  // re-runs that increment exactly once rather than double-counting.
+  saveRound(snapshotRound());
   var item = queue[qIndex];
   if (item.type === "spell") {
     subScore.spellTotal++;
@@ -1092,9 +1342,10 @@ function renderTestResults() {
   var pct = Math.round((score / total) * 100);
   var grade = pct >= 90 ? "A" : pct >= 80 ? "B" : pct >= 70 ? "C" : pct >= 60 ? "D" : "F";
   var gradeColor = pct >= 80 ? "#38a169" : pct >= 60 ? "#dd6b20" : "#e53e3e";
+  if (score === total && total > 0) { soundVictory(); burstConfetti(46); }
 
   renderResultsScreen({
-    title: "Full Test Results",
+    title: (roundLabel === "Quick Round" ? "Quick Round Results" : "Full Test Results"),
     score: score,
     total: total,
     grade: grade,
@@ -1111,7 +1362,7 @@ function renderTestResults() {
       missed = [];
       renderTestQuestion();
     },
-    onRestart: startTest
+    onRestart: (roundLabel === "Quick Round" ? startQuickRound : startTest)
   });
 }
 
