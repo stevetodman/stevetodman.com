@@ -1,6 +1,6 @@
 ---
 status: active
-next: Obtain pediatric resident and specialist feedback on the genetics-of-CHD and other resident mastery modules
+next: Verify StudyHub cloud save on a real iPhone (see Handoff), then decide on the Road Trip redesign
 ---
 
 # CLAUDE.md
@@ -59,6 +59,7 @@ stevetodman.com/
 │   ├── us-states.html            # 50 States Challenge: spelling + map location practice/test
 │   ├── us-states.webmanifest     # Add-to-Home-Screen manifest for the states app
 │   ├── icons/                    # PNG app icons (iOS apple-touch-icon + manifest/maskable)
+│   ├── supabase/functions/       # studyhub-save Edge Function (cloud save; deployed to the clintel project)
 │   ├── greek-vocab-quiz.html     # Ancient Greece vocabulary + chapter review
 │   ├── fract-vocab-quiz.html     # Root words: fract, frag, frail
 │   ├── topic-e-quiz.html         # Eureka Math G4M5 Topic E fractions quiz
@@ -203,7 +204,11 @@ Every page should have:
 - a visible `:focus-visible` outline on all interactive elements
 - interactive controls built from `<button>`/`<a>`, never `<div onclick>`
 - text contrast of at least 4.5:1 (3:1 for large text)
-- no external network dependencies — no CDN fonts, scripts, or stylesheets
+- no external network dependencies — no CDN fonts, scripts, or stylesheets.
+  **One deliberate exception**: `study/us-states.html` makes a runtime `fetch`
+  to the StudyHub cloud-save Edge Function. It loads no external subresource,
+  and the page is fully playable with the request failing or blocked —
+  localStorage is the source of truth and the network is fire-and-forget.
 
 ## Testing
 
@@ -259,9 +264,96 @@ At the end of each work session, Claude will:
 
 ---
 
+## Handoff — read this first (2026-08-19)
+
+The last several sessions were all on `study/us-states.html` (50 States Challenge),
+driven by the two kids actually using it. Everything below is **merged and live**
+unless marked otherwise.
+
+### Open threads, most important first
+
+1. **🔴 `clintel` Supabase project has RLS disabled on all 10 `public` tables.**
+   `users`, `profiles`, `briefs` (169 rows), `brief_items` (495), `tracked_trials`
+   (192), `seen_items` (502), `pipeline_runs`, `faers_*` — all fully exposed to the
+   `anon`/`authenticated` roles. Anyone with that project's anon key can read or
+   modify every row. Pre-existing, surfaced to the user, and **deliberately not
+   fixed**: enabling RLS without policies blocks all access and would break the
+   pipeline writing those rows. Needs a policy set matching how clintel actually
+   reads/writes. StudyHub's own table is unaffected — it is in a separate
+   `studyhub` schema with grants revoked and RLS on.
+
+2. **🟡 Cloud save has never talked to the live Edge Function.** This sandbox's
+   proxy blocks direct HTTPS to `supabase.co`, so the client was verified only
+   against a mock implementing the same contract, plus the real merge code run
+   directly in Node (12 assertions). The function *is* deployed to clintel
+   (`studyhub-save`, `verify_jwt: false` — the family token is the credential).
+   **First real-device open is the outstanding check**: play on one phone, use
+   "Use on another device", open the link on a second device, confirm progress
+   crosses and nothing is lost.
+
+3. **🟡 CI has not been running the smoke suite.** In `.github/workflows/tests.yml`
+   the `pedcardsurg` step runs *before* "Site conventions and smoke", and the
+   shell is `bash -e`, so when pedcardsurg fails the smoke step is **skipped**.
+   Smoke has therefore been green-by-omission on every recent PR. It was run
+   locally every time (117/117), but CI should be reordered or made
+   non-fail-fast so it actually covers it.
+
+4. **🟢 Watch whether the anti-discouragement changes actually help Samantha.**
+   Round difficulty now adapts to rolling accuracy (see History). If she is still
+   getting discouraged, the knobs are `roundMix()` and `quickRoundSize()` in
+   `study/us-states.html`.
+
+5. **🟢 Road Trip redesign — agreed as a good direction, not built.** The idea:
+   make the trip *the* game rather than a quiz with rewards bolted on. Every state
+   starts gray and "comes alive" when mastered; boss battles become mid-round
+   "roadblocks" instead of a separate menu; a sticker/passport collection screen.
+   Deferred as too big for now: the drag-and-drop place-the-state mini-game, 50
+   authored state personalities, and multi-variant "mystery stops". Note the
+   redesign was explicitly judged **not** to be what fixes a discouraged kid —
+   difficulty mix and comparison framing were.
+
+6. **🟢 Ideas raised and not yet built:** region mini-rounds ("Northeast Sprint —
+   5 states"), state-of-the-day, occasional mystery/silhouette question, "which do
+   you want next?" choice questions, speed bonus without a visible timer,
+   perfect-round badge.
+
+### Known-failing tests — do not chase these
+
+These fail on **clean `origin/main`**, verified by stashing changes and re-running.
+Treat this as the baseline; only investigate something *outside* this list:
+
+- `myocarditis-academy` — "learning interactions", "mastery assessment"
+- `phs-v18-audit-remediation` — "tablet layout does not overflow horizontally"
+  (`959px > 768px`); also "hard time budget and responsive layout"
+- `pedcardsurg-academy` — WebP image assertion. **Passes 6/6 standalone**; only
+  fails under full-suite load. Timing flake, not a content problem.
+
+### Running the tests in this environment
+
+Playwright's own browser download is blocked, but a Chromium is pre-installed.
+The harness honours an override, so use:
+
+```sh
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome npm test
+```
+
+Without it every browser suite fails with "Executable doesn't exist".
+
+### One testing lesson worth keeping
+
+A Boss Battle bug shipped where the banner printed the state's name directly above
+the box asking the child to spell it. It survived because the verification script
+**read the answer out of the DOM** to answer the question — so a UI that displayed
+the answer passed. Derive expected answers from the data model, never from the
+page. There is now a check asserting the answer appears nowhere on screen (visible
+text, `title`/`aria-label`/`placeholder`, SVG `<title>`) before answering.
+
+---
+
 ## History
 
 <!-- Claude appends here. Most recent first. -->
+- **2026-08-19**: Added StudyHub cloud save for study/us-states.html. Progress now survives a lost phone and follows the kids between devices, with no login: a random per-family token is generated on first play and kept in localStorage, and only its SHA-256 is stored server-side. Sharing to a second device puts that token in the URL **fragment** (`#k=`), never the query string, so it never reaches a server log; the receiving device adopts it and immediately scrubs it from the URL and history. localStorage remains the source of truth and cloud writes are debounced and fire-and-forget, so the quiz never blocks on the network and stays fully playable offline (status reads "⚠️ Saved on this device only"). The existing ST1- code remains as the no-network fallback. **Conflicts are merged, never last-writer-wins**: two children on two devices, both offline, is the normal case and there is no adult to arbitrate, so the Edge Function unions mastered states and takes the max of counters — verified order-independent and idempotent. Hosted in the **clintel** Supabase project in its own `studyhub` schema with `anon`/`authenticated` revoked and RLS enabled as defence in depth; the browser never receives a Supabase key of any kind, and the function is written to touch nothing outside that schema. Note: clintel's pre-existing `public` tables still have RLS disabled (flagged to the user, left for them to address deliberately, since enabling it without policies would break their running pipeline).
 - **2026-08-19**: Fixed a Boss Battle bug where the banner printed the state's name directly above the input box that asked the learner to spell it — the answer was on screen. The banner now reads "👑 Boss State" and the target is identified only by the highlighted map (same as Spelling Practice); the name is revealed after answering. Root cause of it going unnoticed: the verification script *scraped the answer out of the DOM* (`.boss-name`) to answer the question, so a UI that displays the answer still passed. The script now reads the expected answer from the data model, and a dedicated check asserts the state name appears nowhere in visible text, `title`/`aria-label`/`placeholder` attributes, or SVG `<title>` tooltips before answering — for both Spelling Practice and Boss Battles.
 - **2026-08-19**: **Anti-discouragement pass on study/us-states.html**, prompted by one of the kids getting discouraged. Three mechanics added in earlier sessions turned out to work against whichever child is struggling, and all three were fixed: (1) `quickRoundStates()` sorted *most-missed first*, so every Quick Round was 10 questions of that child's worst states — a guaranteed wall. Rounds are now a deliberate mix whose composition adapts to the profile's rolling recent accuracy (`p.recent`, last 12 answers): under 50% accuracy gives ~70% already-mastered states and shortens the round to 5, over 90% gives ~10% familiar and keeps 10. The round also deliberately opens on a mastered state so it starts with a win. No difficulty setting is exposed — labelling a child "easy" is its own discouragement. (2) The Trophy Case rendered "X is leading this week 🏆", which is demoralising for whichever sibling is behind; replaced with per-child personal bests (best streak, best round) and a neutral headline. (3) Mastery streaks reset to 0 on any miss, making progress feel erased; now decays by one (Leitner-style), and a mastered state stays mastered. Also added near-miss recovery (a missed state returns 3-4 questions later, once per round, and answering it earns "💪 Got it this time!"), supportive wrong-answer copy, one safely-checkable fact per state shown after ~25% of correct answers (with a longer auto-advance delay so it can be read), streak-milestone celebrations at 5/10/20, and a "Play 5 more" button on the results screen for momentum.
 - **2026-08-19**: Answer-feel pass on study/us-states.html: correct answers now auto-advance after 750ms (wrong ones never do — the learner needs to see the answer first), the answered state pops on correct and shakes on wrong, a 🔥 streak appears in the score line, and mastery progress is shown inline (`Colorado ⭐⭐○ — 1 more to master` → `🎉 COLORADO MASTERED!`). The Next button is fixed to the thumb zone under 640px. Tapping Next while an auto-advance is pending cancels the timer rather than double-advancing. Added enlarged invisible tap targets (`path.state-hit`) for the smallest states, painted smallest-last so the tiniest wins any overlap, with `touchstart` press feedback since iOS Safari does not fire `:active` reliably on SVG. **Calibrated empirically rather than guessed**: fat targets steal area from neighbours, so stroke width and set size were swept and measured (fraction of each state's own interior still hitting itself). Width dominates; the chosen 8 states @ stroke 7 keeps Rhode Island's full reach while lifting Massachusetts 64%→73% and Pennsylvania 88%→97% versus 15 @ stroke 9. Tap-target count is deliberately decoupled from `SMALL_STATE_COUNT` (still 15) because the zoom inset and the fat targets solve different problems. Note: giving the fat target only to the current question's answer was rejected — it would give the answer away.

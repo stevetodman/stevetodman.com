@@ -193,6 +193,7 @@
     margin: 8px auto 0; max-width: 460px; background: #fffaf0; border: 1px solid #f6e0b8;
     border-radius: 10px; padding: 8px 12px; font-size: 0.88rem; color: #7a5320; line-height: 1.4;
   }
+  .cloud-status { font-size: 0.78rem; color: #718096; margin-top: 2px; min-height: 14px; }
   .best-line { text-align: center; font-size: 0.85rem; color: #5a6678; margin-top: 6px; }
   .new-best { color: #b04a12; font-weight: 700; }
 
@@ -668,6 +669,7 @@ function recordAnswer(code, correct) {
   /* Rolling window of recent results, used to pick how hard the next round is. */
   p.recent = (p.recent || []).concat(correct ? 1 : 0).slice(-RECENT_WINDOW);
   saveData(data);
+  schedulePush();   // local write already done; the cloud catches up in the background
   return { justMastered: justMastered };
 }
 
@@ -807,6 +809,181 @@ function defeatBoss(code) {
   if (p.stateStats[code]) p.stateStats[code].wrong = 0;
   p.bossesDefeated = (p.bossesDefeated || 0) + 1;
   saveData(data);
+}
+
+/* ── CLOUD SAVE ──
+   Progress is saved to a small Supabase-backed endpoint so it survives a lost
+   phone and follows the kids between devices. Design constraints:
+
+   - localStorage stays the source of truth. Every answer is written locally
+     and the UI never waits on the network, so the quiz plays identically on a
+     plane or a dead connection; the cloud write is fire-and-forget.
+   - There is no login. A random per-family token is generated on first use and
+     kept in localStorage; only its hash is stored server-side. The browser
+     never holds a Supabase key of any kind.
+   - Sharing to a second device puts that token in the URL *fragment*, which is
+     never sent to a server and so never lands in an access log.
+   - The server MERGES rather than overwrites, so two devices used offline
+     cannot destroy each other's progress. See the Edge Function for why.
+   The ST1- sync code below still works, and is the fallback when there is no
+   network at all. */
+var CLOUD_URL = "https://lpjvsjezjjasgpkvjjlq.supabase.co/functions/v1/studyhub-save";
+var CLOUD_TOKEN_KEY = "usStatesCloudToken";
+var CLOUD_PUSH_DEBOUNCE_MS = 2500;
+var cloudStatus = "idle";     // idle | saving | saved | offline
+var cloudPushTimer = null;
+var cloudPushInFlight = false;
+var cloudPushQueued = false;
+
+function cloudToken(create) {
+  var t = null;
+  try { t = localStorage.getItem(CLOUD_TOKEN_KEY); } catch (e) {}
+  if (!t && create) {
+    t = newCloudToken();
+    try { localStorage.setItem(CLOUD_TOKEN_KEY, t); } catch (e) {}
+  }
+  return t;
+}
+function newCloudToken() {
+  var bytes = new Uint8Array(24);
+  if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(bytes);
+  else for (var i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+  var out = "";
+  for (var j = 0; j < bytes.length; j++) out += ("0" + bytes[j].toString(16)).slice(-2);
+  return out;
+}
+function setCloudToken(t) {
+  try { localStorage.setItem(CLOUD_TOKEN_KEY, t); } catch (e) {}
+}
+function setCloudStatus(state) {
+  cloudStatus = state;
+  var el = document.getElementById("cloudStatus");
+  if (el) el.textContent = cloudStatusText();
+}
+function cloudStatusText() {
+  if (cloudStatus === "saving") return "☁️ Saving…";
+  if (cloudStatus === "saved") return "☁️ Saved";
+  if (cloudStatus === "offline") return "⚠️ Saved on this device only";
+  return "";
+}
+
+function cloudRequest(payload) {
+  return fetch(CLOUD_URL, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(payload)
+  }).then(function(res) {
+    if (!res.ok) throw new Error("cloud " + res.status);
+    return res.json();
+  });
+}
+
+/* Only the durable, mergeable part of each profile is sent. */
+function cloudPayload() {
+  var data = loadData();
+  var out = {};
+  PLAYER_NAMES.forEach(function(name) {
+    var p = data.profiles[name];
+    if (!p) return;
+    out[name] = {
+      stateStats: p.stateStats, masteredOrder: p.masteredOrder,
+      weekKey: p.weekKey, weekMastered: p.weekMastered,
+      bossesDefeated: p.bossesDefeated, avatar: p.avatar,
+      bestStreak: p.bestStreak, bestRound: p.bestRound
+    };
+  });
+  return out;
+}
+
+/* Fold a server document back into local storage using the same merge rules
+   the server applies, so both sides agree without a round trip. */
+function applyCloudData(remote) {
+  if (!remote || typeof remote !== "object") return;
+  var data = loadData();
+  PLAYER_NAMES.forEach(function(name) {
+    if (!remote[name]) return;
+    var incoming = emptyProfile();
+    var r = remote[name];
+    incoming.stateStats = r.stateStats || {};
+    incoming.masteredOrder = r.masteredOrder || [];
+    incoming.weekKey = r.weekKey || "";
+    incoming.weekMastered = r.weekMastered || 0;
+    incoming.bossesDefeated = r.bossesDefeated || 0;
+    incoming.avatar = r.avatar || null;
+    incoming.bestStreak = r.bestStreak || 0;
+    incoming.bestRound = r.bestRound || null;
+    var local = data.profiles[name] || emptyProfile();
+    var merged = mergeProfiles(local, incoming);
+    merged.bestStreak = Math.max(local.bestStreak || 0, incoming.bestStreak || 0);
+    merged.bestRound = pickBestRound(local.bestRound, incoming.bestRound);
+    merged.recent = local.recent || [];   // device-local, never synced
+    data.profiles[name] = merged;
+  });
+  saveData(data);
+}
+function pickBestRound(a, b) {
+  if (!a) return b || null;
+  if (!b) return a;
+  if (a.total === b.total) return a.score >= b.score ? a : b;
+  return a.total >= b.total ? a : b;
+}
+
+function cloudPush() {
+  var token = cloudToken(true);
+  if (!token) return Promise.resolve();
+  if (cloudPushInFlight) { cloudPushQueued = true; return Promise.resolve(); }
+  cloudPushInFlight = true;
+  setCloudStatus("saving");
+  return cloudRequest({ token: token, action: "push", data: cloudPayload() })
+    .then(function(res) {
+      applyCloudData(res.data);
+      setCloudStatus("saved");
+    })
+    .catch(function() { setCloudStatus("offline"); })
+    .then(function() {
+      cloudPushInFlight = false;
+      if (cloudPushQueued) { cloudPushQueued = false; schedulePush(0); }
+    });
+}
+/* Answers arrive faster than we want to hit the network, so pushes coalesce. */
+function schedulePush(delay) {
+  if (cloudPushTimer) clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(function() {
+    cloudPushTimer = null;
+    cloudPush();
+  }, delay === undefined ? CLOUD_PUSH_DEBOUNCE_MS : delay);
+}
+
+function cloudPull() {
+  var token = cloudToken(false);
+  if (!token) return Promise.resolve(false);
+  setCloudStatus("saving");
+  return cloudRequest({ token: token, action: "pull" })
+    .then(function(res) {
+      if (res.found) applyCloudData(res.data);
+      setCloudStatus("saved");
+      return !!res.found;
+    })
+    .catch(function() { setCloudStatus("offline"); return false; });
+}
+
+function cloudShareLink() {
+  var token = cloudToken(true);
+  // The token goes in the FRAGMENT: fragments are not sent to the server, so
+  // it stays out of web-server and CDN access logs.
+  return location.origin + location.pathname + "#k=" + encodeURIComponent(token);
+}
+
+/* Adopt a token handed over by a share link, then scrub it from the URL and
+   from history so a shoulder-surfer or a shared screenshot does not keep it. */
+function adoptTokenFromHash() {
+  var m = /(?:^|[#&])k=([^&]+)/.exec(location.hash || "");
+  if (!m) return false;
+  var token = decodeURIComponent(m[1]).trim();
+  if (token.length < 20 || token.length > 200) return false;
+  setCloudToken(token);
+  try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+  return true;
 }
 
 /* ── SYNC CODE (cross-device, no account/server needed) ── */
@@ -1127,7 +1304,8 @@ function showMenu() {
       '<button type="button" class="switch-link" id="changeAvatar">Change avatar</button> &middot; ' +
       '<button type="button" class="switch-link" id="syncDevices">Sync devices</button> &middot; ' +
       '<button type="button" class="switch-link" id="soundToggle" aria-pressed="' + (soundOn ? "true" : "false") + '">' +
-        (soundOn ? "🔊 Sound on" : "🔇 Sound off") + '</button></div>' +
+        (soundOn ? "🔊 Sound on" : "🔇 Sound off") + '</button>' +
+      '<div class="cloud-status" id="cloudStatus">' + cloudStatusText() + '</div></div>' +
     '<h1>🗺️ 50 States Challenge</h1>' +
     '<p class="subtitle">Learn to spell every state and find it on the map!</p>' +
     '<div class="road-trip-card">' +
@@ -1252,10 +1430,17 @@ function showSyncScreen() {
   var code = encodeProfile(activeName, p);
 
   app.innerHTML =
-    '<h1>🔗 Sync Across Devices</h1>' +
-    '<p class="subtitle">Copy this code and paste it in on your other device (phone, computer, tablet) to bring your progress with you.</p>' +
+    '<h1>🔗 Use On Another Device</h1>' +
+    '<p class="subtitle">Send this link to your other phone, tablet or computer. Open it there and your progress comes with you &mdash; and keeps saving on both.</p>' +
     '<div class="prompt-card">' +
-      '<div class="prompt-label">' + esc(activeName) + '&rsquo;s Sync Code</div>' +
+      '<div class="prompt-label">Your family link</div>' +
+      '<div class="sync-code" id="shareLinkBox" tabindex="0">' + esc(cloudShareLink()) + '</div>' +
+      '<button type="button" class="next-btn" id="copyLink">🔗 Copy Link</button>' +
+      '<div class="feedback" id="linkFeedback"></div>' +
+      '<p class="road-trip-note">Anyone with this link can see and change your progress, so only share it with your own devices.</p>' +
+    '</div>' +
+    '<div class="prompt-card">' +
+      '<div class="prompt-label">No internet? ' + esc(activeName) + '&rsquo;s offline sync code</div>' +
       '<div class="sync-code" id="syncCodeBox" tabindex="0">' + esc(code) + '</div>' +
       '<button type="button" class="next-btn" id="copyCode">📋 Copy Code</button>' +
       '<div class="feedback" id="copyFeedback"></div>' +
@@ -1276,6 +1461,22 @@ function showSyncScreen() {
     var sel = window.getSelection();
     sel.removeAllRanges();
     sel.addRange(range);
+  });
+
+  document.getElementById("shareLinkBox").addEventListener("click", function() {
+    var range = document.createRange();
+    range.selectNodeContents(this);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+  document.getElementById("copyLink").addEventListener("click", function() {
+    var fb = document.getElementById("linkFeedback");
+    var link = cloudShareLink();
+    var done = function() { fb.className = "feedback correct-fb"; fb.textContent = "Copied! Open it on your other device."; };
+    var fail = function() { fb.className = "feedback wrong-fb"; fb.textContent = "Couldn't copy automatically — tap the link above to select it, then copy."; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done, fail);
+    else fail();
   });
 
   document.getElementById("copyCode").addEventListener("click", function() {
@@ -1830,7 +2031,20 @@ window.addEventListener("error", function(e) {
   if (b) b.addEventListener("click", function() { memCache = null; showMenu(); });
 });
 
-showMenu();
+/* Boot. The page renders immediately from localStorage; the cloud pull is
+   layered on top when (and if) it arrives, so a slow or absent network never
+   delays the first screen. */
+(function boot() {
+  var adopted = adoptTokenFromHash();
+  showMenu();
+  if (adopted) {
+    // A share link was just opened: pull that family's progress in, then show
+    // the menu again so the road trip reflects it.
+    cloudPull().then(function() { showMenu(); });
+  } else if (cloudToken(false)) {
+    cloudPull().then(function(found) { if (found) showMenu(); });
+  }
+})();
 </script>
 </body>
 </html>
