@@ -89,6 +89,7 @@ export const SITE_PAGES = [
   '/cooking/ribs-timer.html',
   '/study/',
   '/study/us-states.html',
+  '/study/pin-sprint.html',
   '/study/greek-vocab-quiz.html',
   '/study/fract-vocab-quiz.html',
   '/study/topic-e-quiz.html',
