@@ -162,10 +162,18 @@ describe('study tools are keyboard operable', () => {
       const focused = await page.evaluate(() => document.activeElement.classList.contains('menu-card'));
       assert.ok(focused, 'menu cards must be focusable');
 
-      await page.keyboard.press('Enter');
-      // Some tools play a short countdown before the round begins.
-      await page.waitForFunction(() => document.querySelectorAll('.menu-card').length === 0, { timeout: 8000 })
-        .catch(() => { throw new Error('keyboard activation did not leave the menu'); });
+      // Some tools chain a screen first (e.g. a player picker) before the real
+      // mode menu, and some play a short countdown before the round begins.
+      // Keep pressing Enter on whatever card is now first until every .menu-card
+      // is gone, or give up after a few hops.
+      let left = false;
+      for (let step = 0; step < 3 && !left; step++) {
+        await page.keyboard.press('Enter');
+        left = await page.waitForFunction(() => document.querySelectorAll('.menu-card').length === 0, { timeout: 8000 })
+          .then(() => true).catch(() => false);
+        if (!left) await page.evaluate(() => document.querySelectorAll('.menu-card')[0]?.focus());
+      }
+      assert.ok(left, 'keyboard activation did not leave the menu');
 
       await context.close();
     });
