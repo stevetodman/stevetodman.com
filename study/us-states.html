@@ -189,6 +189,13 @@
     .confetti-bit { animation-duration: 1ms; opacity: 0; }
   }
 
+  .fact-line {
+    margin: 8px auto 0; max-width: 460px; background: #fffaf0; border: 1px solid #f6e0b8;
+    border-radius: 10px; padding: 8px 12px; font-size: 0.88rem; color: #7a5320; line-height: 1.4;
+  }
+  .best-line { text-align: center; font-size: 0.85rem; color: #5a6678; margin-top: 6px; }
+  .new-best { color: #b04a12; font-weight: 700; }
+
   /* Quick Round / resume cards */
   .badge-quick { background: #b04a12; }
   .badge-resume { background: #2c7a7b; }
@@ -256,6 +263,7 @@ var subScore = { spell: 0, spellTotal: 0, map: 0, mapTotal: 0 };
 var missed = [];          // [{code, name, type}]
 var zoomed = false;
 var roundLabel = "";      // heading for the current round, e.g. "Quick Round"
+var retriedThisRound = {};// codes already re-queued once, so a miss cannot loop forever
 
 /* ── HELPERS ── */
 function shuffle(arr) {
@@ -374,6 +382,79 @@ function celebrate(correct, justMastered) {
   else soundWrong();
 }
 
+/* ── ENCOURAGEMENT ──
+   Wrong answers are the moment a discouraged learner is most likely to quit,
+   so the copy is supportive and never sarcastic, and a correct answer
+   sometimes carries a fact so the reward is not always just "right". */
+var KIND_MISSES = [
+  "Close one — you'll get it next time!",
+  "Tricky one. Now you know it!",
+  "Not quite — but that's how you learn it.",
+  "Almost! Keep going.",
+  "That one catches everybody."
+];
+function kindMiss() { return KIND_MISSES[Math.floor(Math.random() * KIND_MISSES.length)]; }
+
+/* One short, safely-checkable fact per state. Shown after roughly one correct
+   answer in four, so it stays a surprise instead of becoming noise. */
+var STATE_FACTS = {
+  AL: "🚀 Rockets that carried astronauts to the Moon were designed in Huntsville.",
+  AK: "🐻 Alaska is the largest state — bigger than Texas, California and Montana combined.",
+  AZ: "🏜️ The Grand Canyon is here.",
+  AR: "💎 You can dig for real diamonds at Crater of Diamonds State Park.",
+  CA: "👥 California has more people than any other state.",
+  CO: "🏔️ Colorado is the highest state — its lowest point is still about a mile up.",
+  CT: "📖 Connecticut is one of the smallest states, but one of the first.",
+  DE: "1️⃣ Delaware was the first state to join the United States.",
+  FL: "🌊 No place in Florida is more than about 60 miles from the ocean.",
+  GA: "🍑 Georgia is nicknamed the Peach State.",
+  HI: "🌺 Hawaii is the only state made entirely of islands.",
+  ID: "🥔 Idaho grows more potatoes than any other state.",
+  IL: "🌆 Chicago built one of the world's first skyscrapers.",
+  IN: "🏁 The Indianapolis 500 has run here for over a century.",
+  IA: "🌽 Iowa grows more corn than any other state.",
+  KS: "🌪️ Kansas sits in Tornado Alley — and it's where Dorothy is from.",
+  KY: "🐎 The Kentucky Derby is the oldest yearly horse race in the country.",
+  LA: "🎺 Louisiana has parishes instead of counties.",
+  ME: "🦞 Maine touches only one other state — New Hampshire.",
+  MD: "🦀 Maryland is famous for its blue crabs.",
+  MA: "⛵ The Pilgrims landed at Plymouth in 1620.",
+  MI: "🧤 Michigan's lower half is shaped like a mitten.",
+  MN: "💧 Minnesota is called the Land of 10,000 Lakes.",
+  MS: "🎸 The Mississippi River gave this state its name.",
+  MO: "🌉 The Gateway Arch in St. Louis is the tallest arch in the world.",
+  MT: "🦬 Montana is nicknamed Big Sky Country.",
+  NE: "🌾 Nebraska's state legislature is the only one in the country with just one chamber.",
+  NV: "🎰 Most of Nevada is desert.",
+  NH: "🗳️ New Hampshire votes first in presidential primaries.",
+  NJ: "🌳 New Jersey is the most crowded state — the most people per square mile.",
+  NM: "🎈 Albuquerque hosts the world's biggest hot air balloon festival.",
+  NY: "🗽 The Statue of Liberty stands in New York Harbor.",
+  NC: "✈️ The Wright brothers flew the first airplane at Kitty Hawk.",
+  ND: "🦬 North Dakota is one of the least crowded states.",
+  OH: "🚀 Ohio is the birthplace of Neil Armstrong, the first person on the Moon.",
+  OK: "🐄 Oklahoma was once called Indian Territory.",
+  OR: "🌲 Crater Lake is the deepest lake in the United States.",
+  PA: "🔔 The Liberty Bell is in Philadelphia.",
+  RI: "📏 Rhode Island is the smallest state of all 50.",
+  SC: "🌴 South Carolina is called the Palmetto State.",
+  SD: "🗿 Four presidents' faces are carved into Mount Rushmore.",
+  TN: "🎶 Nashville is known as Music City.",
+  TX: "⭐ Texas is the largest of the lower 48 states.",
+  UT: "🧂 The Great Salt Lake is saltier than the ocean.",
+  VT: "🍁 Vermont produces more maple syrup than any other state.",
+  VA: "🏛️ Eight U.S. presidents were born in Virginia — more than any other state.",
+  WA: "🌋 Mount St. Helens erupted here in 1980.",
+  WV: "⛰️ West Virginia is the only state entirely inside the Appalachian Mountains.",
+  WI: "🧀 Wisconsin makes more cheese than any other state.",
+  WY: "🐻 Yellowstone, the first national park, is mostly in Wyoming."
+};
+function maybeFact(code) {
+  if (Math.random() > 0.25) return "";
+  var f = STATE_FACTS[code];
+  return f ? f : "";
+}
+
 /* ── ANSWER FEEL (streak, animation, auto-advance) ── */
 var streakCount = 0;
 var autoAdvanceTimer = null;
@@ -381,7 +462,37 @@ var AUTO_ADVANCE_MS = 750;
 
 function bumpStreak(correct) {
   streakCount = correct ? streakCount + 1 : 0;
+  if (correct) {
+    if (streakCount === 5 || streakCount === 10 || (streakCount > 10 && streakCount % 10 === 0)) {
+      burstConfetti(streakCount >= 10 ? 34 : 22);
+      soundMastery();
+    }
+    recordBestStreak(streakCount);
+  }
   return streakCount;
+}
+
+/* Personal bests replace the head-to-head "who is winning" framing. A
+   scoreboard that says another child is ahead is demoralising for whoever is
+   behind, and it is the child who is already struggling who sees it most. */
+function recordBestStreak(n) {
+  var data = loadData();
+  if (!data.activeProfile) return;
+  var p = data.profiles[data.activeProfile];
+  if (n > (p.bestStreak || 0)) { p.bestStreak = n; saveData(data); }
+}
+/* Returns true when this round beat the stored best for its length. */
+function recordBestRound(scoreValue, total) {
+  var data = loadData();
+  if (!data.activeProfile) return false;
+  var p = data.profiles[data.activeProfile];
+  var best = p.bestRound && p.bestRound.total === total ? p.bestRound.score : -1;
+  if (scoreValue > best) {
+    p.bestRound = { score: scoreValue, total: total };
+    saveData(data);
+    return best >= 0;   // only call it a NEW best if there was one to beat
+  }
+  return false;
 }
 function streakHTML() {
   if (streakCount < 2) return "";
@@ -419,10 +530,18 @@ function masteryPipsHTML(code, justMastered) {
 function cancelAutoAdvance() {
   if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = null; }
 }
-function scheduleAutoAdvance(fn) {
+function scheduleAutoAdvance(fn, ms) {
   cancelAutoAdvance();
-  autoAdvanceTimer = setTimeout(function() { autoAdvanceTimer = null; fn(); }, AUTO_ADVANCE_MS);
+  autoAdvanceTimer = setTimeout(function() { autoAdvanceTimer = null; fn(); }, ms || AUTO_ADVANCE_MS);
 }
+/* A fact needs longer on screen than a bare "Correct!". */
+function advanceDelayFor(hasFact) { return hasFact ? AUTO_ADVANCE_MS + 1600 : AUTO_ADVANCE_MS; }
+function factLineHTML(code) {
+  var f = maybeFact(code);
+  lastFactShown = !!f;
+  return f ? '<div class="fact-line">' + esc(f) + '</div>' : "";
+}
+var lastFactShown = false;
 
 /* Shared "Next" button: fixed to the thumb zone on phones, and safe to press
    while an auto-advance is pending (the timer is cancelled, never doubled). */
@@ -468,12 +587,14 @@ var AVATAR_OPTIONS = [
   { e: "🌟", l: "Star" }, { e: "🏄", l: "Surfer" }, { e: "🎸", l: "Rockstar" }, { e: "⚽", l: "Soccer ball" }
 ];
 var MASTERY_STREAK = 3;   // correct answers in a row to master a state
+var RECENT_WINDOW = 12;   // answers kept for the difficulty/size adaptation
 var BOSS_MIN_WRONG = 2;   // misses before a state can become a boss
 var BOSS_COUNT = 3;       // max active bosses at once
 var BOSS_HP = 3;
 
 function emptyProfile() {
-  return { stateStats: {}, masteredOrder: [], weekKey: "", weekMastered: 0, bossesDefeated: 0, avatar: null, round: null };
+  return { stateStats: {}, masteredOrder: [], weekKey: "", weekMastered: 0, bossesDefeated: 0, avatar: null, round: null,
+           recent: [], bestStreak: 0, bestRound: null };
 }
 function avatarFor(name, p) {
   return (p && p.avatar) || PLAYER_ICONS[name] || "🙋";
@@ -538,10 +659,25 @@ function recordAnswer(code, correct) {
     }
   } else {
     st.wrong++;
-    st.streak = 0;
+    /* Leitner-style: a miss steps mastery back one, it does not wipe it out.
+       Resetting ⭐⭐○ to ○○○ makes progress feel erased, which is exactly what
+       discourages a learner who is already struggling. A mastered state also
+       stays mastered — the map only ever grows. */
+    st.streak = Math.max(0, st.streak - 1);
   }
+  /* Rolling window of recent results, used to pick how hard the next round is. */
+  p.recent = (p.recent || []).concat(correct ? 1 : 0).slice(-RECENT_WINDOW);
   saveData(data);
   return { justMastered: justMastered };
+}
+
+/* Share of the last few answers that were right; null until there is enough
+   to judge. Drives round difficulty and size. */
+function recentAccuracy(p) {
+  var r = p.recent || [];
+  if (r.length < 4) return null;
+  var hits = r.reduce(function(a, b) { return a + b; }, 0);
+  return hits / r.length;
 }
 
 /* ── QUICK ROUND + RESUME ──
@@ -550,24 +686,76 @@ function recordAnswer(code, correct) {
    (most-missed, then least-practised, then never-seen), which is also where
    the practice is actually worth spending. */
 var QUICK_ROUND_SIZE = 10;
+/* How much of a round should be states this profile already knows.
+   Serving a struggling learner nothing but their worst states is a wall:
+   every round becomes ten questions they are already bad at. The mix adapts
+   to recent accuracy, so a learner who is missing a lot gets mostly familiar
+   states and keeps succeeding, and the proportion of new ones rises quietly
+   as they improve. Nothing about this is surfaced as a difficulty setting —
+   labelling a child "easy" is its own discouragement. */
+function roundMix(p, n) {
+  var acc = recentAccuracy(p);
+  var familiarShare;
+  if (acc === null) familiarShare = 0.4;        // new player: gentle but not trivial
+  else if (acc < 0.5) familiarShare = 0.7;      // struggling: mostly wins
+  else if (acc < 0.75) familiarShare = 0.45;
+  else if (acc < 0.9) familiarShare = 0.25;
+  else familiarShare = 0.1;                     // thriving: push into new ground
+  var familiar = Math.round(n * familiarShare);
+  return { familiar: familiar, fresh: n - familiar };
+}
+
+/* Round length also eases off for a learner who is struggling: a shorter round
+   ends sooner, on a success, and can be repeated with "Play 5 more". */
+function quickRoundSize(p) {
+  var acc = recentAccuracy(p);
+  return (acc !== null && acc < 0.5) ? 5 : QUICK_ROUND_SIZE;
+}
+
 function quickRoundStates(p, n) {
-  var ranked = STATES.map(function(s) {
+  var mastered = [], learning = [];
+  STATES.forEach(function(s) {
     var st = p.stateStats[s.code];
-    return {
+    var entry = {
       s: s,
-      mastered: st ? st.mastered : false,
       wrong: st ? st.wrong : 0,
       seen: st ? (st.correct + st.wrong) : 0,
+      streak: st ? st.streak : 0,
       jitter: Math.random()
     };
+    if (st && st.mastered) mastered.push(entry); else learning.push(entry);
   });
-  ranked.sort(function(a, b) {
-    if (a.mastered !== b.mastered) return a.mastered ? 1 : -1;  // unmastered first
-    if (b.wrong !== a.wrong) return b.wrong - a.wrong;          // most-missed first
-    if (a.seen !== b.seen) return a.seen - b.seen;              // least-practised first
-    return a.jitter - b.jitter;                                 // otherwise random
+
+  // Weakest first among the states still being learned.
+  learning.sort(function(a, b) {
+    if (b.wrong !== a.wrong) return b.wrong - a.wrong;
+    if (a.seen !== b.seen) return a.seen - b.seen;
+    return a.jitter - b.jitter;
   });
-  return ranked.slice(0, n).map(function(r) { return r.s; });
+  // Among mastered states, favour the ones practised least recently.
+  mastered.sort(function(a, b) { return a.jitter - b.jitter; });
+
+  var mix = roundMix(p, n);
+  var picks = mastered.slice(0, mix.familiar).concat(learning.slice(0, mix.fresh));
+  // Backfill if either pool was too small (e.g. a brand-new profile has no
+  // mastered states at all).
+  if (picks.length < n) {
+    var used = {};
+    picks.forEach(function(x) { used[x.s.code] = true; });
+    learning.concat(mastered).forEach(function(x) {
+      if (picks.length < n && !used[x.s.code]) { used[x.s.code] = true; picks.push(x); }
+    });
+  }
+
+  picks = shuffle(picks);
+  // Open on a state they know, so the round starts with a win.
+  var opener = -1;
+  for (var i = 0; i < picks.length; i++) {
+    var pst = p.stateStats[picks[i].s.code];
+    if (pst && pst.mastered) { opener = i; break; }
+  }
+  if (opener > 0) { var t = picks[0]; picks[0] = picks[opener]; picks[opener] = t; }
+  return picks.slice(0, n).map(function(r) { return r.s; });
 }
 
 /* The active round is snapshotted after every answer so closing the tab or
@@ -946,6 +1134,7 @@ function showMenu() {
       '<div class="road-trip-header"><span>🚗 Road Trip Progress</span><span>' + masteredCount + '/50 states visited</span></div>' +
       mapWrapHTML(buildRoadTripSVG(p), "tripMap") +
       (lastState ? '<div class="road-trip-note">Last stop: ' + esc(lastState.name) + '</div>' : '<div class="road-trip-note">Get 3 in a row on a state to add it to your road trip!</div>') +
+      (p.bestStreak ? '<div class="best-line">Best streak: 🔥 ' + p.bestStreak + '</div>' : '') +
     '</div>' +
     '<div class="menu-cards">' +
       (savedRound ? (
@@ -958,9 +1147,9 @@ function showMenu() {
       ) : '') +
       '<button type="button" class="menu-card" data-mode="quick">' +
         '<div class="card-icon">⚡</div>' +
-        '<span class="badge badge-quick">' + QUICK_ROUND_SIZE + ' questions</span>' +
+        '<span class="badge badge-quick">' + quickRoundSize(p) + ' questions</span>' +
         '<h2>Quick Round</h2>' +
-        '<p>A short mixed round aimed at the states you haven&rsquo;t mastered yet &mdash; perfect for a few spare minutes</p>' +
+        '<p>A short mixed round &mdash; a few states you know, a few you&rsquo;re still learning</p>' +
       '</button>' +
       '<button type="button" class="menu-card" data-mode="explore">' +
         '<div class="card-icon">🔎</div>' +
@@ -1038,16 +1227,14 @@ function showTrophyCase() {
       '<div class="trophy-name">' + avatarFor(name, p) + ' ' + esc(name) + (isActive ? ' <span class="you-tag">you</span>' : '') + '</div>' +
       '<div class="trophy-stat"><span class="trophy-num">' + mastered + '</span>/50 states mastered</div>' +
       '<div class="trophy-stat"><span class="trophy-num">' + weekly + '</span> mastered this week</div>' +
+      '<div class="trophy-stat"><span class="trophy-num">' + (p.bestStreak || 0) + '</span> best streak 🔥</div>' +
       '<div class="trophy-stat"><span class="trophy-num">' + bosses + '</span> bosses defeated</div>' +
     '</div>';
   }).join("");
 
-  var wA = weeklyMasteredCount(data.profiles[PLAYER_NAMES[0]]);
-  var wB = weeklyMasteredCount(data.profiles[PLAYER_NAMES[1]]);
-  var leadLine;
-  if (wA === 0 && wB === 0) leadLine = "Nobody&rsquo;s mastered a state yet this week &mdash; go practice!";
-  else if (wA === wB) leadLine = "It&rsquo;s a tie this week! 🤝";
-  else leadLine = (wA > wB ? PLAYER_NAMES[0] : PLAYER_NAMES[1]) + " is leading this week! 🏆";
+  /* Deliberately not a leaderboard: each child is measured against their own
+     best, never against their sibling. */
+  var leadLine = "Everyone&rsquo;s got their own map to fill in 🗺️";
 
   app.innerHTML =
     '<h1>🏆 Family Trophy Case</h1>' +
@@ -1158,12 +1345,14 @@ function renderBossQuestion() {
   app.innerHTML =
     '<h1>👑 Boss Battle</h1>' +
     '<div class="boss-banner">' +
-      '<div class="boss-name">' + esc(s.name) + '</div>' +
+      // The name must NOT appear here: this is a spelling question, and the
+      // banner used to print the answer directly above the input box.
+      '<div class="boss-name" id="bossName">👑 Boss State</div>' +
       '<div class="hp-bar">' + hpDots + '</div>' +
     '</div>' +
     mapWrapHTML(svg, "bossMap") +
     '<div class="prompt-card">' +
-      '<div class="prompt-label">Spell it to attack!</div>' +
+      '<div class="prompt-label">Spell the highlighted state to attack!</div>' +
       '<form class="spell-form" id="bossForm" autocomplete="off">' +
         '<input type="text" id="bossInput" aria-label="Type the state name" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Spell it here...">' +
         '<button type="submit">Attack!</button>' +
@@ -1186,6 +1375,8 @@ function renderBossQuestion() {
     bumpStreak(correct);
     celebrate(correct, mres.justMastered);
     animateState("bossMap", s.code, correct);
+    var nameEl = document.getElementById("bossName");
+    if (nameEl) nameEl.textContent = "👑 " + s.name;   // revealed only after answering
     if (correct) {
       boss.hp--;
       if (boss.hp <= 0) {
@@ -1204,7 +1395,7 @@ function renderBossQuestion() {
 
     var next = makeNextButton("Continue →", renderBossQuestion);
     fb.parentNode.insertBefore(next.el, fb.nextSibling);
-    if (correct) scheduleAutoAdvance(next.go);
+    if (correct) scheduleAutoAdvance(next.go, advanceDelayFor(lastFactShown));
   });
 }
 
@@ -1275,25 +1466,32 @@ function startQueue(m, pool, label) {
   qIndex = 0;
   score = 0;
   missed = [];
+  retriedThisRound = {};
   subScore = { spell: 0, spellTotal: 0, map: 0, mapTotal: 0 };
   renderQueueQuestion();
 }
 
 /* 10 questions, mixed spelling and map, aimed at this profile's weak states. */
-function startQuickRound() {
+function startQuickRound(size) {
   cancelAutoAdvance();
   streakCount = 0;
   var data = loadData();
-  var picks = quickRoundStates(data.profiles[data.activeProfile], QUICK_ROUND_SIZE);
+  var p = data.profiles[data.activeProfile];
+  var n = size || quickRoundSize(p);
+  var picks = quickRoundStates(p, n);
   mode = "test";
   roundLabel = "Quick Round";
-  queue = shuffle(picks.map(function(s, i) {
-    return { code: s.code, name: s.name, type: (i % 2 === 0 ? "spell" : "map") };
-  }));
+  /* Question types are shuffled, but the state order is not: quickRoundStates
+     deliberately puts a state they know first so the round opens on a win. */
+  var types = shuffle(picks.map(function(_, i) { return i % 2 === 0 ? "spell" : "map"; }));
+  queue = picks.map(function(s, i) {
+    return { code: s.code, name: s.name, type: types[i] };
+  });
   qIndex = 0;
   score = 0;
   subScore = { spell: 0, spellTotal: 0, map: 0, mapTotal: 0 };
   missed = [];
+  retriedThisRound = {};
   renderTestQuestion();
 }
 
@@ -1315,16 +1513,29 @@ function renderQueueQuestion() {
   else renderMapQuestion(item, afterQueueAnswer);
 }
 
+/* Near-miss recovery: a state they just missed comes back a few questions
+   later in the same round. Getting it the second time turns a failure into a
+   success while it is still fresh, which is both better practice and much
+   better for morale than only seeing it again in the "review these" list. */
+function queueRetry(item) {
+  if (retriedThisRound[item.code]) return;      // at most one retry per state per round
+  retriedThisRound[item.code] = true;
+  var at = Math.min(queue.length, qIndex + 3 + Math.floor(Math.random() * 2));
+  queue.splice(at, 0, { code: item.code, name: item.name, type: item.type, retry: true });
+}
+
 function afterQueueAnswer(correct, item) {
   if (correct) score++;
-  else missed.push(item);
+  else { missed.push(item); queueRetry(item); }
 }
 
 function renderQueueResults() {
   var total = queue.length;
   if (score === total && total > 0) { soundVictory(); burstConfetti(46); }
+  var newBest = recordBestRound(score, total);
   renderResultsScreen({
     title: mode === "spell" ? "Spelling Results" : "Map Results",
+    newBest: newBest,
     score: score,
     total: total,
     missed: missed,
@@ -1378,14 +1589,16 @@ function renderSpellQuestion(item, onDone) {
     animateState("qMap", s.code, correct);
     if (correct) {
       fb.className = "feedback correct-fb";
-      fb.textContent = "✓ Correct! " + s.name + (mres.justMastered ? " — 🌟 State mastered!" : "");
+      fb.textContent = (item.retry ? "💪 Got it this time! " : "✓ Correct! ") + s.name +
+                       (mres.justMastered ? " — 🌟 State mastered!" : "");
       if (pathEl) pathEl.classList.add("correct");
     } else {
       fb.className = "feedback wrong-fb";
-      fb.textContent = "The correct spelling is: " + s.name;
+      fb.textContent = kindMiss() + " It's spelled: " + s.name;
       if (pathEl) pathEl.classList.add("wrong");
     }
-    document.getElementById("masteryPips").innerHTML = masteryPipsHTML(s.code, mres.justMastered);
+    document.getElementById("masteryPips").innerHTML =
+      masteryPipsHTML(s.code, mres.justMastered) + (correct ? factLineHTML(s.code) : "");
 
     var next = makeNextButton(qIndex + 1 >= queue.length ? "See Results" : "Next →", function() {
       qIndex++;
@@ -1452,12 +1665,14 @@ function renderMapQuestion(item, onDone) {
         });
         if (correct) {
           fb.className = "feedback correct-fb";
-          fb.textContent = "✓ Correct! That’s " + s.name + (mres.justMastered ? " — 🌟 State mastered!" : "");
+          fb.textContent = (item.retry ? "💪 Got it this time! That’s " : "✓ Correct! That’s ") + s.name +
+                           (mres.justMastered ? " — 🌟 State mastered!" : "");
         } else {
           fb.className = "feedback wrong-fb";
-          fb.textContent = "Not quite. " + s.name + " is highlighted in orange.";
+          fb.textContent = kindMiss() + " " + s.name + " is highlighted in orange.";
         }
-        document.getElementById("masteryPips").innerHTML = masteryPipsHTML(s.code, mres.justMastered);
+        document.getElementById("masteryPips").innerHTML =
+          masteryPipsHTML(s.code, mres.justMastered) + (correct ? factLineHTML(s.code) : "");
 
         var next = makeNextButton(qIndex + 1 >= queue.length ? "See Results" : "Next →", function() {
           qIndex++;
@@ -1465,7 +1680,7 @@ function renderMapQuestion(item, onDone) {
           advanceQuestion();
         });
         fb.parentNode.insertBefore(next.el, fb.nextSibling);
-        if (correct) scheduleAutoAdvance(next.go);
+        if (correct) scheduleAutoAdvance(next.go, advanceDelayFor(lastFactShown));
       });
     });
   });
@@ -1484,6 +1699,7 @@ function startTest() {
   queue = shuffle(queue);
   qIndex = 0;
   score = 0;
+  retriedThisRound = {};
   subScore = { spell: 0, spellTotal: 0, map: 0, mapTotal: 0 };
   missed = [];
   renderTestQuestion();
@@ -1510,6 +1726,7 @@ function afterTestAnswer(correct, item) {
     if (item.type === "spell") subScore.spell++; else subScore.map++;
   } else {
     missed.push(item);
+    queueRetry(item);
   }
 }
 
@@ -1519,9 +1736,11 @@ function renderTestResults() {
   var grade = pct >= 90 ? "A" : pct >= 80 ? "B" : pct >= 70 ? "C" : pct >= 60 ? "D" : "F";
   var gradeColor = pct >= 80 ? "#38a169" : pct >= 60 ? "#dd6b20" : "#e53e3e";
   if (score === total && total > 0) { soundVictory(); burstConfetti(46); }
+  var newBest = recordBestRound(score, total);
 
   renderResultsScreen({
     title: (roundLabel === "Quick Round" ? "Quick Round Results" : "Full Test Results"),
+    newBest: newBest,
     score: score,
     total: total,
     grade: grade,
@@ -1556,10 +1775,22 @@ function renderResultsScreen(cfg) {
   }
   var gradeHTML = cfg.grade ? '<div class="grade" style="color:' + cfg.gradeColor + '">Grade: ' + cfg.grade + '</div>' : "";
   var subLineHTML = cfg.subLine ? '<div class="sub-scores"><span>' + cfg.subLine + '</span></div>' : "";
-  var message = pct === 100 ? "Perfect score! You know your states! 🎉" :
+  /* Never scold. Even a low score names something that went right. */
+  var message = pct === 100 ? "Perfect round! You know your states! 🎉" :
                 pct >= 80 ? "Great job! Almost there." :
-                pct >= 50 ? "Good start &mdash; keep practicing the ones you missed." :
-                "Keep practicing! Try Explore mode to review.";
+                pct >= 50 ? "Nice work &mdash; you got " + cfg.score + " right!" :
+                "You got " + cfg.score + " right. Every round makes the next one easier 💪";
+
+  var data = loadData();
+  var prof = data.activeProfile ? data.profiles[data.activeProfile] : null;
+  var bestHTML = "";
+  if (prof) {
+    var bits = [];
+    if (cfg.newBest) bits.push('<span class="new-best">🌟 New best for ' + cfg.total + ' questions!</span>');
+    else if (prof.bestRound && prof.bestRound.total === cfg.total) bits.push('Best for ' + cfg.total + ': ' + prof.bestRound.score + '/' + cfg.total);
+    if (prof.bestStreak) bits.push('Best streak: 🔥 ' + prof.bestStreak);
+    if (bits.length) bestHTML = '<div class="best-line">' + bits.join(' &middot; ') + '</div>';
+  }
 
   app.innerHTML =
     '<h1>' + cfg.title + '</h1>' +
@@ -1569,9 +1800,11 @@ function renderResultsScreen(cfg) {
       gradeHTML +
       subLineHTML +
       '<div class="message">' + message + '</div>' +
+      bestHTML +
     '</div>' +
     missedHTML +
     '<div class="btn-row">' +
+      '<button class="btn-restart" id="playMore">Play 5 more</button>' +
       (cfg.missed.length > 0 ? '<button class="btn-retry-missed" id="retryMissed">Retry Missed (' + cfg.missed.length + ')</button>' : '') +
       '<button class="btn-restart" id="restart">Try Again</button>' +
       '<button class="btn-home" id="toMenu">Back to Menu</button>' +
@@ -1580,6 +1813,8 @@ function renderResultsScreen(cfg) {
   if (cfg.missed.length > 0) {
     document.getElementById("retryMissed").addEventListener("click", cfg.onRetryMissed);
   }
+  // Momentum: another short round without going back to the menu first.
+  document.getElementById("playMore").addEventListener("click", function() { startQuickRound(5); });
   document.getElementById("restart").addEventListener("click", cfg.onRestart);
   document.getElementById("toMenu").addEventListener("click", showMenu);
 }
