@@ -122,6 +122,15 @@
   .switch-link { background: none; border: none; padding: 0; font: inherit; color: #667eea; text-decoration: underline; cursor: pointer; }
   .profile-pick .card-icon { font-size: 2.2rem; }
 
+  /* Avatar picker */
+  .avatar-grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 8px; }
+  .avatar-option {
+    width: 64px; height: 64px; font-size: 1.9rem; line-height: 1; border-radius: 16px;
+    border: 2px solid #e2e8f0; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .avatar-option:hover { border-color: #667eea; background: #f7f8ff; }
+  .avatar-option.current { border-color: #667eea; background: #eef0ff; box-shadow: 0 0 0 2px #667eea inset; }
+
   /* Sync code */
   .sync-code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.95rem;
@@ -198,13 +207,23 @@ function normalize(s) {
 var STORAGE_KEY = "usStatesRoadTrip";
 var PLAYER_NAMES = ["Luke", "Samantha"];
 var PLAYER_ICONS = { Luke: "👦", Samantha: "👧" };
+var AVATAR_OPTIONS = [
+  { e: "🦸", l: "Superhero" }, { e: "🦸‍♀️", l: "Superhero" }, { e: "🥷", l: "Ninja" }, { e: "🧙", l: "Wizard" },
+  { e: "🐉", l: "Dragon" }, { e: "🦖", l: "Dinosaur" }, { e: "🦁", l: "Lion" }, { e: "🐯", l: "Tiger" },
+  { e: "🦄", l: "Unicorn" }, { e: "🐺", l: "Wolf" }, { e: "🦊", l: "Fox" }, { e: "🐶", l: "Dog" },
+  { e: "🐱", l: "Cat" }, { e: "🚀", l: "Rocket" }, { e: "⚡", l: "Lightning" }, { e: "🔥", l: "Fire" },
+  { e: "🌟", l: "Star" }, { e: "🏄", l: "Surfer" }, { e: "🎸", l: "Rockstar" }, { e: "⚽", l: "Soccer ball" }
+];
 var MASTERY_STREAK = 3;   // correct answers in a row to master a state
 var BOSS_MIN_WRONG = 2;   // misses before a state can become a boss
 var BOSS_COUNT = 3;       // max active bosses at once
 var BOSS_HP = 3;
 
 function emptyProfile() {
-  return { stateStats: {}, masteredOrder: [], weekKey: "", weekMastered: 0, bossesDefeated: 0 };
+  return { stateStats: {}, masteredOrder: [], weekKey: "", weekMastered: 0, bossesDefeated: 0, avatar: null };
+}
+function avatarFor(name, p) {
+  return (p && p.avatar) || PLAYER_ICONS[name] || "🙋";
 }
 /* In-memory cache, kept in sync with localStorage. If localStorage is
    unavailable (Safari Private Browsing throws on every write) or a write
@@ -301,7 +320,7 @@ function encodeProfile(name, p) {
     if (st.wrong > 0) wrong[c] = st.wrong;
     if (!st.mastered && st.streak > 0) streak[c] = st.streak;
   });
-  var json = JSON.stringify({ n: name, m: p.masteredOrder, w: wrong, s: streak, wk: p.weekKey, wc: p.weekMastered, b: p.bossesDefeated });
+  var json = JSON.stringify({ n: name, m: p.masteredOrder, w: wrong, s: streak, wk: p.weekKey, wc: p.weekMastered, b: p.bossesDefeated, a: p.avatar || "" });
   var b64 = btoa(unescape(encodeURIComponent(json))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   return "ST1-" + b64;
 }
@@ -317,6 +336,7 @@ function decodeProfile(code) {
   p.weekKey = payload.wk || "";
   p.weekMastered = payload.wc || 0;
   p.bossesDefeated = payload.b || 0;
+  p.avatar = payload.a || null;
   p.masteredOrder.forEach(function(c) {
     p.stateStats[c] = { streak: MASTERY_STREAK, correct: MASTERY_STREAK, wrong: 0, mastered: true };
   });
@@ -355,6 +375,7 @@ function mergeProfiles(a, b) {
   out.weekKey = wk;
   out.weekMastered = Math.max(aw, bw);
   out.bossesDefeated = Math.max(a.bossesDefeated || 0, b.bossesDefeated || 0);
+  out.avatar = a.avatar || b.avatar || null;
   return out;
 }
 
@@ -411,13 +432,14 @@ function wireZoomToggle(wrapId) {
 
 /* ── PROFILE PICKER ── */
 function showProfilePicker() {
+  var data = loadData();
   app.innerHTML =
     '<h1>🗺️ 50 States Challenge</h1>' +
     '<p class="subtitle">Who&rsquo;s playing?</p>' +
     '<div class="menu-cards">' +
       PLAYER_NAMES.map(function(name) {
         return '<button type="button" class="menu-card profile-pick" data-name="' + esc(name) + '">' +
-          '<div class="card-icon">' + (PLAYER_ICONS[name] || "🙋") + '</div>' +
+          '<div class="card-icon">' + avatarFor(name, data.profiles[name]) + '</div>' +
           '<h2>' + esc(name) + '</h2>' +
         '</button>';
       }).join("") +
@@ -426,10 +448,42 @@ function showProfilePicker() {
 
   app.querySelectorAll(".profile-pick").forEach(function(btn) {
     btn.addEventListener("click", function() {
-      setActiveProfile(btn.dataset.name);
-      showMenu();
+      var name = btn.dataset.name;
+      setActiveProfile(name);
+      var d = loadData();
+      if (!d.profiles[name].avatar) showAvatarPicker(showMenu);
+      else showMenu();
     });
   });
+}
+
+/* ── AVATAR PICKER ── */
+function showAvatarPicker(onDone) {
+  var data = loadData();
+  var activeName = data.activeProfile;
+  var current = data.profiles[activeName].avatar;
+
+  app.innerHTML =
+    '<h1>🎨 Pick Your Avatar</h1>' +
+    '<p class="subtitle">' + esc(activeName) + ', choose a cool avatar!</p>' +
+    '<div class="prompt-card">' +
+      '<div class="avatar-grid">' +
+        AVATAR_OPTIONS.map(function(opt) {
+          return '<button type="button" class="avatar-option' + (opt.e === current ? ' current' : '') + '" data-emoji="' + esc(opt.e) + '" aria-label="' + esc(opt.l) + '">' + opt.e + '</button>';
+        }).join("") +
+      '</div>' +
+    '</div>' +
+    '<div class="btn-row"><button class="btn-home" id="toMenu">' + (current ? "Back to Menu" : "Skip for now") + '</button></div>';
+
+  app.querySelectorAll(".avatar-option").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      var d = loadData();
+      d.profiles[d.activeProfile].avatar = btn.dataset.emoji;
+      saveData(d);
+      onDone();
+    });
+  });
+  document.getElementById("toMenu").addEventListener("click", onDone);
 }
 
 /* ── MENU ── */
@@ -444,8 +498,9 @@ function showMenu() {
   var bossCount = getBossStates(p).length;
 
   app.innerHTML =
-    '<div class="player-strip">Playing as <strong>' + esc(activeName) + '</strong> &middot; ' +
+    '<div class="player-strip">' + avatarFor(activeName, p) + ' Playing as <strong>' + esc(activeName) + '</strong> &middot; ' +
       '<button type="button" class="switch-link" id="switchProfile">Switch player</button> &middot; ' +
+      '<button type="button" class="switch-link" id="changeAvatar">Change avatar</button> &middot; ' +
       '<button type="button" class="switch-link" id="syncDevices">Sync devices</button></div>' +
     '<h1>🗺️ 50 States Challenge</h1>' +
     '<p class="subtitle">Learn to spell every state and find it on the map!</p>' +
@@ -495,6 +550,7 @@ function showMenu() {
     '<a class="back-link" href="./">&larr; Back to Study Hub</a>';
 
   document.getElementById("switchProfile").addEventListener("click", showProfilePicker);
+  document.getElementById("changeAvatar").addEventListener("click", function() { showAvatarPicker(showMenu); });
   document.getElementById("syncDevices").addEventListener("click", showSyncScreen);
 
   app.querySelectorAll(".menu-card").forEach(function(card) {
@@ -520,7 +576,7 @@ function showTrophyCase() {
     var bosses = p.bossesDefeated || 0;
     var isActive = data.activeProfile === name;
     return '<div class="trophy-card' + (isActive ? ' active-player' : '') + '">' +
-      '<div class="trophy-name">' + esc(name) + (isActive ? ' <span class="you-tag">you</span>' : '') + '</div>' +
+      '<div class="trophy-name">' + avatarFor(name, p) + ' ' + esc(name) + (isActive ? ' <span class="you-tag">you</span>' : '') + '</div>' +
       '<div class="trophy-stat"><span class="trophy-num">' + mastered + '</span>/50 states mastered</div>' +
       '<div class="trophy-stat"><span class="trophy-num">' + weekly + '</span> mastered this week</div>' +
       '<div class="trophy-stat"><span class="trophy-num">' + bosses + '</span> bosses defeated</div>' +
