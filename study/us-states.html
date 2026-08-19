@@ -192,6 +192,50 @@
   /* Quick Round / resume cards */
   .badge-quick { background: #b04a12; }
   .badge-resume { background: #2c7a7b; }
+
+  /* Fat invisible tap targets for the states too small to hit with a fingertip.
+     Rendered on top of the visible map, smallest last so the tiniest state wins
+     where neighbours overlap. */
+  path.state-hit { fill: transparent; stroke: transparent; stroke-width: 7; stroke-linejoin: round; cursor: pointer; }
+
+  /* Immediate touch feedback: :active is unreliable on SVG in iOS Safari, so a
+     class is toggled from touchstart instead. */
+  path.state.pressed { fill: #7f9cf5; }
+
+  path.state.pop { animation: state-pop 420ms ease-out; }
+  path.state.shake { animation: state-shake 380ms ease-in-out; }
+  @keyframes state-pop {
+    0%   { transform: scale(1); }
+    45%  { transform: scale(1.14); }
+    100% { transform: scale(1); }
+  }
+  @keyframes state-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-3px); }
+    45% { transform: translateX(3px); }
+    70% { transform: translateX(-2px); }
+  }
+  /* Scale/translate an SVG path about its own centre rather than the origin. */
+  path.state.pop, path.state.shake { transform-box: fill-box; transform-origin: center; }
+
+  .streak-pill { font-weight: 700; color: #b04a12; }
+  .mastery-pips { text-align: center; font-size: 0.9rem; color: #5a6678; margin-top: 2px; min-height: 20px; }
+  .mastery-pips strong { color: #b04a12; }
+
+  @media (prefers-reduced-motion: reduce) {
+    path.state.pop, path.state.shake { animation: none; }
+  }
+
+  /* Thumb zone: on a phone the advance control sits at the bottom of the
+     screen instead of wherever the page happens to have scrolled to. */
+  @media (max-width: 640px) {
+    body { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+    .next-btn.thumb {
+      position: fixed; left: 12px; right: 12px; width: auto; margin: 0;
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      box-shadow: 0 6px 20px rgba(0,0,0,0.22); z-index: 40; padding: 16px 22px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -328,6 +372,88 @@ function celebrate(correct, justMastered) {
   if (justMastered) { soundMastery(); burstConfetti(30); }
   else if (correct) soundCorrect();
   else soundWrong();
+}
+
+/* ── ANSWER FEEL (streak, animation, auto-advance) ── */
+var streakCount = 0;
+var autoAdvanceTimer = null;
+var AUTO_ADVANCE_MS = 750;
+
+function bumpStreak(correct) {
+  streakCount = correct ? streakCount + 1 : 0;
+  return streakCount;
+}
+function streakHTML() {
+  if (streakCount < 2) return "";
+  return '<span class="streak-pill">🔥 ' + streakCount + ' in a row</span>';
+}
+
+/* Pop a state on a right answer, shake it on a wrong one. */
+function animateState(mapId, code, correct) {
+  var el = document.querySelector('#' + mapId + ' path.state[data-code="' + code + '"]');
+  if (!el) return;
+  var cls = correct ? "pop" : "shake";
+  el.classList.remove(cls);
+  void el.offsetWidth;   // restart the animation if the class is still applied
+  el.classList.add(cls);
+}
+
+/* "⭐⭐○ — one more to master!" so the 3-in-a-row rule is visible while playing. */
+function masteryPipsHTML(code, justMastered) {
+  var data = loadData();
+  if (!data.activeProfile) return "";
+  var st = data.profiles[data.activeProfile].stateStats[code];
+  if (!st) return "";
+  var name = (byCode(code) || {}).name || "";
+  if (justMastered || st.mastered) return '<strong>🎉 ' + esc(name.toUpperCase()) + ' MASTERED!</strong>';
+  var done = Math.min(st.streak, MASTERY_STREAK);
+  var pips = "";
+  for (var i = 0; i < MASTERY_STREAK; i++) pips += (i < done ? "⭐" : "○");
+  var left = MASTERY_STREAK - done;
+  return esc(name) + " " + pips + (done > 0 ? " &mdash; " + left + " more to master" : "");
+}
+
+/* Correct answers advance on their own, so a round is not
+   answer → tap Next → answer → tap Next. Wrong answers never auto-advance:
+   the learner needs to look at the right answer first. */
+function cancelAutoAdvance() {
+  if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = null; }
+}
+function scheduleAutoAdvance(fn) {
+  cancelAutoAdvance();
+  autoAdvanceTimer = setTimeout(function() { autoAdvanceTimer = null; fn(); }, AUTO_ADVANCE_MS);
+}
+
+/* Shared "Next" button: fixed to the thumb zone on phones, and safe to press
+   while an auto-advance is pending (the timer is cancelled, never doubled). */
+function makeNextButton(label, onAdvance) {
+  var btn = document.createElement("button");
+  btn.className = "next-btn thumb";
+  btn.textContent = label;
+  var used = false;
+  var go = function() {
+    if (used) return;
+    used = true;
+    cancelAutoAdvance();
+    onAdvance();
+  };
+  btn.addEventListener("click", go);
+  return { el: btn, go: go };
+}
+
+/* Immediate press feedback on touch; iOS Safari does not reliably fire :active
+   on SVG paths. */
+function wireTouchFeedback(mapId) {
+  var wrap = document.getElementById(mapId);
+  if (!wrap) return;
+  wrap.addEventListener("touchstart", function(e) {
+    var t = e.target;
+    if (!t || !t.dataset || !t.dataset.code) return;
+    var visible = wrap.querySelector('path.state[data-code="' + t.dataset.code + '"]');
+    if (!visible || !visible.classList.contains("interactive")) return;
+    visible.classList.add("pressed");
+    setTimeout(function() { visible.classList.remove("pressed"); }, 220);
+  }, { passive: true });
 }
 
 /* ── PROGRESS DATA (profiles, mastery, road trip, bosses) ── */
@@ -468,6 +594,8 @@ function snapshotRound() {
   };
 }
 function resumeSavedRound() {
+  cancelAutoAdvance();
+  streakCount = 0;
   var r = getSavedRound();
   if (!r) { showMenu(); return; }
   mode = r.mode; roundLabel = r.label || ""; queue = r.queue; qIndex = r.qIndex;
@@ -583,6 +711,15 @@ function buildMapSVG(opts) {
     var title = opts.showTitles ? ("<title>" + esc(s.name) + "</title>") : "";
     parts.push('<path class="' + cls + '" data-code="' + s.code + '" d="' + s.d + '">' + title + '</path>');
   }
+  /* Fingertip targets for the smallest states, painted last so they sit above
+     the map. Ordered largest-first so the smallest state ends up topmost and
+     wins where two tiny neighbours' targets overlap. */
+  if (opts.interactive) {
+    smallStatesBySizeDesc().forEach(function(code) {
+      var st = byCode(code);
+      if (st) parts.push('<path class="state-hit" data-code="' + code + '" d="' + st.d + '"></path>');
+    });
+  }
   parts.push('</svg>');
   return parts.join("");
 }
@@ -603,7 +740,15 @@ function mapWrapHTML(svgHTML, id) {
 var MAP_VIEWBOX = { x: 174, y: 100, w: 959, h: 593 };
 var STATE_BBOX = null;
 var SMALL_STATE_CODES = null;
+var SMALL_STATE_ORDER = null;
 var SMALL_STATE_COUNT = 15;
+/* Enlarged tap targets are deliberately given to a smaller set than the zoom
+   inset. A fat target steals area from its neighbours, so it is worth it only
+   for the very smallest states: measured across the northeast, covering the
+   smallest 8 at this stroke width keeps Rhode Island's full reach while
+   leaving Massachusetts and Pennsylvania far more of their own area than
+   covering all 15 did. */
+var HIT_TARGET_COUNT = 8;
 function ensureStateBBoxes() {
   if (STATE_BBOX) return;
   STATE_BBOX = {};
@@ -662,11 +807,20 @@ function ensureStateBBoxes() {
   var entries = Object.keys(areas).map(function(c) { return { code: c, area: areas[c] }; });
   entries.sort(function(a, b) { return a.area - b.area; });
   SMALL_STATE_CODES = {};
+  SMALL_STATE_ORDER = [];
   entries.slice(0, SMALL_STATE_COUNT).forEach(function(e) { SMALL_STATE_CODES[e.code] = true; });
+  // Largest of the small states first: painted in this order, the smallest
+  // ends up on top and wins any overlap between neighbouring tap targets.
+  SMALL_STATE_ORDER = entries.slice(0, SMALL_STATE_COUNT).map(function(e) { return e.code; }).reverse();
 }
 function isSmallState(code) {
   ensureStateBBoxes();
   return !!SMALL_STATE_CODES[code];
+}
+function smallStatesBySizeDesc() {
+  ensureStateBBoxes();
+  var order = SMALL_STATE_ORDER || [];
+  return order.slice(Math.max(0, order.length - HIT_TARGET_COUNT));  // the smallest N, largest of them first
 }
 /* A tight viewBox centered on one state, padded generously so its
    neighbors stay visible for orientation, with a floor so an ultra-tiny
@@ -768,6 +922,7 @@ function showAvatarPicker(onDone) {
 
 /* ── MENU ── */
 function showMenu() {
+  cancelAutoAdvance();
   var data = loadData();
   if (!data.activeProfile) { showProfilePicker(); return; }
   var activeName = data.activeProfile;
@@ -974,6 +1129,8 @@ function showSyncScreen() {
 /* ── BOSS BATTLES ── */
 var bossQueue = [];
 function startBossBattle() {
+  cancelAutoAdvance();
+  streakCount = 0;
   var data = loadData();
   var p = data.profiles[data.activeProfile];
   var bosses = getBossStates(p);
@@ -1026,7 +1183,9 @@ function renderBossQuestion() {
     input.disabled = true;
     var fb = document.getElementById("feedback");
     var mres = recordAnswer(s.code, correct);
+    bumpStreak(correct);
     celebrate(correct, mres.justMastered);
+    animateState("bossMap", s.code, correct);
     if (correct) {
       boss.hp--;
       if (boss.hp <= 0) {
@@ -1041,11 +1200,11 @@ function renderBossQuestion() {
       fb.className = "feedback wrong-fb";
       fb.textContent = "Missed! It's spelled: " + s.name;
     }
-    var btn = document.createElement("button");
-    btn.className = "next-btn";
-    btn.textContent = "Continue →";
-    btn.addEventListener("click", renderBossQuestion);
-    fb.parentNode.insertBefore(btn, fb.nextSibling);
+    if (boss.hp <= 0 && correct) burstConfetti(38);
+
+    var next = makeNextButton("Continue →", renderBossQuestion);
+    fb.parentNode.insertBefore(next.el, fb.nextSibling);
+    if (correct) scheduleAutoAdvance(next.go);
   });
 }
 
@@ -1096,7 +1255,8 @@ function showExplore() {
       '<div class="state-spell">' + esc(s.name.toUpperCase().split("").join(" ")) + '</div>';
   }
 
-  document.getElementById("exploreMap").querySelectorAll("path.state").forEach(function(p) {
+  wireTouchFeedback("exploreMap");
+  document.getElementById("exploreMap").querySelectorAll("path.state, path.state-hit").forEach(function(p) {
     p.addEventListener("click", function() { selectState(p.dataset.code); });
   });
   document.querySelectorAll(".state-chip").forEach(function(c) {
@@ -1107,6 +1267,8 @@ function showExplore() {
 
 /* ── SPELL / MAP PRACTICE (shared queue engine) ── */
 function startQueue(m, pool, label) {
+  cancelAutoAdvance();
+  streakCount = 0;
   mode = m;
   roundLabel = label || "";
   queue = shuffle(pool);
@@ -1119,6 +1281,8 @@ function startQueue(m, pool, label) {
 
 /* 10 questions, mixed spelling and map, aimed at this profile's weak states. */
 function startQuickRound() {
+  cancelAutoAdvance();
+  streakCount = 0;
   var data = loadData();
   var picks = quickRoundStates(data.profiles[data.activeProfile], QUICK_ROUND_SIZE);
   mode = "test";
@@ -1184,7 +1348,7 @@ function renderSpellQuestion(item, onDone) {
   app.innerHTML =
     '<h1>' + (roundLabel ? '⚡ ' + esc(roundLabel) : '✏️ Spelling Practice') + '</h1>' +
     '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
-    '<div class="score-line"><span>Question ' + (qIndex + 1) + ' of ' + queue.length + '</span><span>Score: ' + score + '</span></div>' +
+    '<div class="score-line"><span>Question ' + (qIndex + 1) + ' of ' + queue.length + '</span><span>' + streakHTML() + ' Score: ' + score + '</span></div>' +
     mapWrapHTML(svg, "qMap") +
     '<div class="prompt-card">' +
       '<div class="prompt-label">Type the name of the highlighted state</div>' +
@@ -1193,7 +1357,8 @@ function renderSpellQuestion(item, onDone) {
         '<button type="submit">Check</button>' +
       '</form>' +
     '</div>' +
-    '<div class="feedback" id="feedback"></div>';
+    '<div class="feedback" id="feedback"></div>' +
+    '<div class="mastery-pips" id="masteryPips"></div>';
 
   var input = document.getElementById("spellInput");
   input.focus();
@@ -1206,9 +1371,11 @@ function renderSpellQuestion(item, onDone) {
     var correct = normalize(input.value) === normalize(s.name);
     input.disabled = true;
     var fb = document.getElementById("feedback");
-    var pathEl = document.querySelector('#qMap path[data-code="' + s.code + '"]');
+    var pathEl = document.querySelector('#qMap path.state[data-code="' + s.code + '"]');
     var mres = recordAnswer(s.code, correct);
+    bumpStreak(correct);
     celebrate(correct, mres.justMastered);
+    animateState("qMap", s.code, correct);
     if (correct) {
       fb.className = "feedback correct-fb";
       fb.textContent = "✓ Correct! " + s.name + (mres.justMastered ? " — 🌟 State mastered!" : "");
@@ -1218,15 +1385,15 @@ function renderSpellQuestion(item, onDone) {
       fb.textContent = "The correct spelling is: " + s.name;
       if (pathEl) pathEl.classList.add("wrong");
     }
-    var btn = document.createElement("button");
-    btn.className = "next-btn";
-    btn.textContent = qIndex + 1 >= queue.length ? "See Results" : "Next →";
-    btn.addEventListener("click", function() {
+    document.getElementById("masteryPips").innerHTML = masteryPipsHTML(s.code, mres.justMastered);
+
+    var next = makeNextButton(qIndex + 1 >= queue.length ? "See Results" : "Next →", function() {
       qIndex++;
       onDone(correct, item);
       advanceQuestion();
     });
-    fb.parentNode.insertBefore(btn, fb.nextSibling);
+    fb.parentNode.insertBefore(next.el, fb.nextSibling);
+    if (correct) scheduleAutoAdvance(next.go);
   });
 }
 
@@ -1241,7 +1408,7 @@ function renderMapQuestion(item, onDone) {
   app.innerHTML =
     '<h1>' + (roundLabel ? '⚡ ' + esc(roundLabel) : '📍 Map Practice') + '</h1>' +
     '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
-    '<div class="score-line"><span>Question ' + (qIndex + 1) + ' of ' + queue.length + '</span><span>Score: ' + score + '</span></div>' +
+    '<div class="score-line"><span>Question ' + (qIndex + 1) + ' of ' + queue.length + '</span><span>' + streakHTML() + ' Score: ' + score + '</span></div>' +
     '<div class="prompt-card">' +
       '<div class="prompt-label">Click on the map</div>' +
       '<div class="prompt-text">' + esc(s.name) + '</div>' +
@@ -1251,14 +1418,17 @@ function renderMapQuestion(item, onDone) {
     (small ? '' : zoomControlsHTML()) +
     (small ? '<div class="inset-label">Whole country (for reference)</div>' : '') +
     mapWrapHTML(svg, "qMap") +
-    '<div class="feedback" id="feedback"></div>';
+    '<div class="feedback" id="feedback"></div>' +
+    '<div class="mastery-pips" id="masteryPips"></div>';
 
   if (!small) wireZoomToggle("qMap");
 
   var answered = false;
   var mapIds = small ? ["qMapInset", "qMap"] : ["qMap"];
   mapIds.forEach(function(mapId) {
-    document.getElementById(mapId).querySelectorAll("path.state").forEach(function(p) {
+    wireTouchFeedback(mapId);
+    // Both the visible state and its enlarged fingertip target answer the question.
+    document.getElementById(mapId).querySelectorAll("path.state, path.state-hit").forEach(function(p) {
       p.addEventListener("click", function() {
         if (answered) return;
         answered = true;
@@ -1266,15 +1436,19 @@ function renderMapQuestion(item, onDone) {
         var correct = clicked === s.code;
         var fb = document.getElementById("feedback");
         var mres = recordAnswer(s.code, correct);
+        bumpStreak(correct);
         celebrate(correct, mres.justMastered);
         mapIds.forEach(function(id) {
-          var match = document.querySelector('#' + id + ' path[data-code="' + clicked + '"]');
+          var match = document.querySelector('#' + id + ' path.state[data-code="' + clicked + '"]');
           if (match) match.classList.add(correct ? "correct" : "wrong");
           if (!correct) {
-            var target = document.querySelector('#' + id + ' path[data-code="' + s.code + '"]');
+            var target = document.querySelector('#' + id + ' path.state[data-code="' + s.code + '"]');
             if (target) target.classList.add("reveal");
           }
           document.querySelectorAll('#' + id + ' path.state').forEach(function(el) { el.classList.remove("interactive"); });
+          // Retire the fat tap targets too, so a second tap cannot land on one.
+          document.querySelectorAll('#' + id + ' path.state-hit').forEach(function(el) { el.remove(); });
+          animateState(id, clicked, correct);
         });
         if (correct) {
           fb.className = "feedback correct-fb";
@@ -1283,15 +1457,15 @@ function renderMapQuestion(item, onDone) {
           fb.className = "feedback wrong-fb";
           fb.textContent = "Not quite. " + s.name + " is highlighted in orange.";
         }
-        var btn = document.createElement("button");
-        btn.className = "next-btn";
-        btn.textContent = qIndex + 1 >= queue.length ? "See Results" : "Next →";
-        btn.addEventListener("click", function() {
+        document.getElementById("masteryPips").innerHTML = masteryPipsHTML(s.code, mres.justMastered);
+
+        var next = makeNextButton(qIndex + 1 >= queue.length ? "See Results" : "Next →", function() {
           qIndex++;
           onDone(correct, item);
           advanceQuestion();
         });
-        fb.parentNode.insertBefore(btn, fb.nextSibling);
+        fb.parentNode.insertBefore(next.el, fb.nextSibling);
+        if (correct) scheduleAutoAdvance(next.go);
       });
     });
   });
@@ -1299,6 +1473,8 @@ function renderMapQuestion(item, onDone) {
 
 /* ── FULL TEST (mixed) ── */
 function startTest() {
+  cancelAutoAdvance();
+  streakCount = 0;
   mode = "test";
   roundLabel = "";
   var pool = shuffle(STATES.slice());
