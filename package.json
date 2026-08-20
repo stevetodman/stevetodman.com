@@ -6,8 +6,10 @@
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "test:steven-os": "node --test tests/steven-os.test.mjs",
+    "test:platform": "node --test tests/platform-policy.test.mjs",
     "test:phs": "node --test tests/phs-scenarios.test.mjs",
     "test:bp": "node --test tests/bp-calculator.test.mjs",
+    "test:kawasaki": "node --test tests/kawasaki-academy.test.mjs",
     "test:hypertension": "node --test tests/hypertension-academy.test.mjs",
     "test:cardiovascular-risk": "node --test tests/cardiovascular-risk-academy.test.mjs",
     "test:aortopathy": "node --test tests/aortopathy-academy.test.mjs",
