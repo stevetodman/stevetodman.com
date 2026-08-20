@@ -1,6 +1,6 @@
 ---
 status: active
-next: Finish and validate the platform-hardening PR, then perform the Cloudflare dist/Access cutover and production verification; after that run the real two-device StudyHub save acceptance test
+next: Validate PR #37 and fix any branch regressions; then complete Cloudflare issue #38, search de-indexing issue #40, and StudyHub live acceptance issue #39
 ---
 
 # CLAUDE.md
@@ -25,9 +25,12 @@ The site is intentionally **direct-link only** for now. Do not make it search-en
 Required controls:
 
 - `_headers`: `X-Robots-Tag: noindex, nofollow, noarchive` site-wide.
-- `robots.txt`: `User-agent: *` + `Disallow: /`.
+- `robots.txt`: public pages stay crawlable so Google/Bing can observe `noindex` and remove already-discovered URLs. Do **not** use `Disallow: /` as the indexing control.
 - no `sitemap.xml` while the noindex policy is active.
 - PREVIEW and INTERNAL pages remain noindex even if the public-site policy changes later.
+- INTERNAL pages require Cloudflare Access/equivalent protection; `noindex` is not authentication.
+
+The site already had indexed results before this policy was introduced. Issue #40 tracks removal/verification in Google and Bing after the response header is live.
 
 Do not add SEO-oriented sitemap/indexing changes by default.
 
@@ -177,7 +180,7 @@ CI is intentionally non-omitting: later suites use `if: ${{ !cancelled() }}` so 
 
 Never derive a quiz's expected answer from the same DOM that is being tested. A Boss Battle once displayed the answer on screen and still passed because the test scraped that displayed answer. Expected answers must come from independent fixture/domain data.
 
-Kawasaki's new browser test follows this rule explicitly.
+Kawasaki's browser regression follows this rule explicitly.
 
 ## StudyHub cloud save
 
@@ -192,7 +195,7 @@ StudyHub intentionally has **no email/password sign-in**.
 - the Edge Function/database source lives under `study/supabase/` and is excluded from Pages;
 - the database migration is versioned at `study/supabase/migrations/20260819_create_studyhub_saves.sql` with RLS on and browser-role grants revoked.
 
-The remaining real-world acceptance gate is documented in `study/CLOUD_SAVE_ACCEPTANCE.md` and must be run on two real devices.
+The remaining real-world acceptance gate is documented in `study/CLOUD_SAVE_ACCEPTANCE.md` and tracked in issue #39.
 
 ## Analytics/privacy
 
@@ -240,14 +243,15 @@ Detailed pre-consolidation history remains available in git history (the prior v
 
 ### Active program
 
-**Branch:** `agent/platform-hardening-master-plan`
+**Branch:** `agent/platform-hardening-master-plan`  
+**PR:** #37 — draft, active validation
 
-Goal: convert the large collection of good projects into a coherent, maintained platform while keeping the entire site out of search-engine indexes for now.
+Goal: convert the large collection of good projects into a coherent, maintained platform while keeping the entire site out of search-engine results for now.
 
 ### Repo-side work already implemented on this branch
 
-- `MASTER_PLAN.md` with interruption-safe resume protocol and phase checklist.
-- global noindex + security headers, crawler disallow, custom 404, security.txt.
+- `MASTER_PLAN.md` with interruption-safe resume protocol and synchronized phase checklist.
+- global noindex + security headers, crawlable robots policy, custom 404, and security.txt.
 - canonical deployment catalog with PRODUCTION / PREVIEW / INTERNAL / SOURCE_ONLY classes.
 - deterministic `npm run build` -> `dist/` that strips source-only/backend material.
 - live `npm run verify:production` and manual Production Verification workflow.
@@ -261,31 +265,49 @@ Goal: convert the large collection of good projects into a coherent, maintained 
 - StudyHub database migration with RLS/browser grants locked down in source control.
 - real-device StudyHub cloud-save acceptance checklist.
 - privacy-first analytics policy and disabled-by-default custom-event schema/helper.
+- PR triage; PR #2 closed as superseded by #3.
+
+### Durable external/manual gates
+
+- **#38** — Cloudflare `npm run build` / `dist` cutover + Access for `/admin/*`, `/steven-os/*`, `/cardiohospital/*` + production verifier.
+- **#39** — live StudyHub migration verification, edge rate limiting/monitoring, and two-device/offline acceptance.
+- **#40** — remove already-indexed stevetodman.com URLs from Google/Bing after live noindex deployment.
+
+### Current PR #37 validation findings
+
+The first broadened Actions run proved the new workflow is no longer hiding suites:
+
+- platform policy: passed;
+- Steven OS core: passed;
+- PHS behavior: passed;
+- PHS v18 audit/responsive regression: passed (the old tablet-overflow baseline note is stale and should not be carried forward);
+- clinical validation: passed;
+- BP calculator: passed;
+- Kawasaki: passed;
+- hypertension: passed;
+- cardiovascular-risk: passed;
+- aortopathy: passed;
+- genetics of CHD: passed;
+- Myocarditis: failed;
+- PALS: failed;
+- PedCardSurg: failed;
+- smoke/accessibility were still running when later branch updates restarted CI.
+
+Myocarditis, PALS, and PedCardSurg application files were not changed by this platform branch. Verify their failures against clean/current `main` and fix genuinely broken tests/product behavior, but do not remove the suites from CI just to make the job green. PedCardSurg had a previously observed full-suite WebP timing flake; Myocarditis had prior failures. PALS is newly surfaced by honest CI and must be investigated rather than assumed baseline.
 
 ### Next gates, in order
 
-1. **Open/validate this branch as a PR and fix any new CI failures caused by the broader honest coverage.** Do not hide newly surfaced failures by removing suites.
-2. **Merge the repo-side platform PR when its new changes are clean or any remaining failures are proven pre-existing baseline.**
-3. **Cloudflare Pages cutover:** set build command `npm run build` and output directory `dist`.
-4. **Cloudflare Access:** verify `/admin/*`, `/steven-os/*`, and `/cardiohospital/*` are not anonymously readable. Use Access or remove an internal route from deployment.
-5. Optional but recommended: enable Cloudflare Web Analytics for aggregate usage/performance measurement.
-6. Run the **Production verification** workflow; do not schedule it automatically until the first live pass is green.
-7. **StudyHub:** apply/verify the versioned migration in the live Supabase project, configure service/edge rate limiting + error monitoring, then complete `study/CLOUD_SAVE_ACCEPTANCE.md` on two real devices.
-8. Only after the platform is stable: observe Pin Sprint/States play before adding more Road Trip/region/mystery mechanics.
+1. Finish the remaining repo-side items in `MASTER_PLAN.md` (shared static platform primitives + lightweight local “Continue learning”), then let the newest PR #37 CI run to completion.
+2. Investigate Myocarditis/PALS/PedCardSurg failures against clean `main`; fix real defects or document reproducible pre-existing baseline with evidence.
+3. Mark PR #37 ready/merge when branch-introduced changes are clean and any remaining unrelated baseline is explicitly evidenced.
+4. Complete Cloudflare issue #38 and run production verification.
+5. Complete search-result removal issue #40.
+6. Complete StudyHub issue #39.
+7. Only after the platform is stable: observe Pin Sprint/States play before adding more Road Trip/region/mystery mechanics.
 
 ### External-tool limitation
 
-No Cloudflare Pages or Supabase management plugin is connected in the current agent environment. The repository-side configuration and verification are implemented, but the live Cloudflare build/output/Access switches and live Supabase administrative settings cannot be changed from this environment. Do not claim they are active until production verification proves them.
-
-### Known pre-existing browser-test baseline
-
-Historically observed on clean `main` before this platform program:
-
-- `myocarditis-academy` — learning interactions / mastery assessment failures;
-- `phs-v18-audit-remediation` — tablet horizontal overflow / responsive time-budget failure;
-- `pedcardsurg-academy` — WebP assertion timing flake under full-suite load, while standalone passed.
-
-Because CI now runs later suites even after failures, distinguish a true regression from these known baseline items. Do not treat “known” as permission to ignore a new failure in the same suite.
+No Cloudflare Pages or Supabase management plugin is connected in the current agent environment. The repository-side configuration and verification are implemented, but the live Cloudflare build/output/Access switches and live Supabase administrative settings cannot be changed from this environment. Do not claim they are active until production verification/acceptance proves them.
 
 ### Separate repository task
 
