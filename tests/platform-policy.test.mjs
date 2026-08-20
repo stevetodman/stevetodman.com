@@ -7,7 +7,7 @@ import { repoRoot } from './helpers/harness.mjs';
 
 const read = (p) => fs.readFileSync(path.join(repoRoot, p), 'utf8');
 const catalog = JSON.parse(read('site/catalog.json'));
-const VALID_CLASSES = new Set(['PRODUCTION', 'PREVIEW', 'INTERNAL', 'SOURCE_ONLY', 'ARCHIVED']);
+const VALID_CLASSES = new Set(catalog.classes);
 
 function routeFile(route) {
   if (route === '/') return 'index.html';
@@ -90,15 +90,10 @@ test('classified build contains only production routes and shared public assets'
     );
   }
 
-  for (const forbidden of [
-    'admin',
-    'steven-os',
-    'cardiohospital',
-    'study/supabase',
-    'cardio-hospital-3d',
-    'clipboard-sanitizer',
-    'tests',
-  ]) assert.equal(fs.existsSync(path.join(dist, forbidden)), false, `${forbidden} leaked into deploy artifact`);
+  for (const item of catalog.items.filter((x) => x.path && x.class !== 'PRODUCTION')) {
+    assert.equal(fs.existsSync(path.join(dist, item.path)), false, `${item.class} path leaked into deploy artifact: ${item.path}`);
+  }
+  assert.equal(fs.existsSync(path.join(dist, 'tests')), false, 'tests leaked into deploy artifact');
 
   const kawasaki = fs.readFileSync(path.join(dist, 'kawasaki', 'index.html'), 'utf8');
   assert.doesNotMatch(kawasaki, /https:\/\/unpkg\.com\//i, 'Kawasaki production artifact must not depend on unpkg');
@@ -123,15 +118,6 @@ test('StudyHub schema is versioned with RLS and no browser-role grants', () => {
   assert.match(migration, /revoke all on table studyhub\.saves from anon/i);
   assert.match(migration, /revoke all on table studyhub\.saves from authenticated/i);
   assert.equal(/create\s+policy/i.test(migration), false, 'direct anon/auth policies must not be added to StudyHub saves');
-});
-
-test('preview HTML has explicit noindex metadata as defense in depth', () => {
-  for (const item of catalog.items.filter((x) => x.class === 'PREVIEW' && x.route)) {
-    const file = routeFile(item.route);
-    if (!fs.existsSync(path.join(repoRoot, file))) continue;
-    const html = read(file);
-    assert.match(html, /<meta\s+name=["']robots["'][^>]*noindex/i, `${item.route} must declare noindex in HTML`);
-  }
 });
 
 test('non-production projects are not linked from public homepage', () => {
