@@ -11,13 +11,32 @@ function check(condition, message) {
   if (!condition) failures.push(message);
 }
 
+function robotsMetaContent(html) {
+  for (const tag of html.match(/<meta\b[^>]*>/gi) || []) {
+    if (!/\bname\s*=\s*["']robots["']/i.test(tag)) continue;
+    return tag.match(/\bcontent\s*=\s*["']([^"']*)["']/i)?.[1] || '';
+  }
+  return '';
+}
+
+function checkHtmlNoindex(path, html) {
+  const content = robotsMetaContent(html);
+  check(Boolean(content), `${path} is missing meta name="robots"`);
+  if (!content) return;
+  for (const directive of ['noindex', 'nofollow', 'noarchive']) {
+    check(new RegExp(`\\b${directive}\\b`, 'i').test(content), `${path} robots meta is missing ${directive}`);
+  }
+}
+
 const home = await get('/');
 check(home.response.status === 200, `/ returned ${home.response.status}`);
 const robotsHeader = home.response.headers.get('x-robots-tag') || '';
 check(/noindex/i.test(robotsHeader), 'homepage is missing X-Robots-Tag: noindex');
 check(/nofollow/i.test(robotsHeader), 'homepage is missing X-Robots-Tag: nofollow');
+check(/noarchive/i.test(robotsHeader), 'homepage is missing X-Robots-Tag: noarchive');
 check(/nosniff/i.test(home.response.headers.get('x-content-type-options') || ''), 'homepage is missing X-Content-Type-Options: nosniff');
 check(Boolean(home.response.headers.get('content-security-policy')), 'homepage is missing Content-Security-Policy');
+checkHtmlNoindex('/', home.text);
 
 const robots = await get('/robots.txt');
 check(robots.response.status === 200, `/robots.txt returned ${robots.response.status}`);
@@ -25,10 +44,14 @@ check(/User-agent:\s*\*/i.test(robots.text), 'robots.txt is missing the default 
 check(!/^\s*Disallow:\s*\/\s*$/im.test(robots.text), 'robots.txt blocks crawlers from reading the noindex response');
 check(/^\s*Disallow:\s*$/im.test(robots.text), 'robots.txt should explicitly leave public crawling unblocked');
 
+const sitemap = await get('/sitemap.xml');
+check(sitemap.response.status === 404, `/sitemap.xml should be absent but returned ${sitemap.response.status}`);
+
 for (const path of ['/study/us-states.html', '/education/', '/contact/', '/privacy/', '/tools/']) {
   const r = await get(path);
   check(r.response.status === 200, `${path} returned ${r.response.status}`);
   check(/noindex/i.test(r.response.headers.get('x-robots-tag') || ''), `${path} is missing noindex response header`);
+  checkHtmlNoindex(path, r.text);
 }
 
 // INTERNAL surfaces must not be anonymously readable as their real application.
