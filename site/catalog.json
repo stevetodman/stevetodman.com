@@ -7,6 +7,8 @@
     {"id":"home","title":"Steve Todman, MD","route":"/","class":"PRODUCTION","audience":"all","category":"home","smoke":true},
     {"id":"education","title":"Resident Education","route":"/education/","class":"PRODUCTION","audience":"residents","category":"education","smoke":true},
     {"id":"about","title":"About","route":"/about/","class":"PRODUCTION","audience":"all","category":"about","smoke":true},
+    {"id":"contact","title":"Contact","route":"/contact/","class":"PRODUCTION","audience":"all","category":"about","smoke":true},
+    {"id":"privacy","title":"Privacy","route":"/privacy/","class":"PRODUCTION","audience":"all","category":"about","smoke":true},
     {"id":"search","title":"Site Search","route":"/search/","class":"PRODUCTION","audience":"all","category":"navigation","smoke":true},
 
     {"id":"tools","title":"Clinical Tools","route":"/tools/","class":"PRODUCTION","audience":"clinicians","category":"clinical-tools","smoke":true},
