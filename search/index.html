@@ -9,14 +9,17 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="/site/platform.css">
   <style>
-    *{box-sizing:border-box}body{margin:0;background:#f7f9fc;color:#172033;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}.wrap{width:min(840px,calc(100% - 32px));margin:0 auto}.hero{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:40px 0 30px}.hero a{color:#9ee7e3}.hero h1{margin:14px 0 6px;font-size:clamp(2rem,7vw,3.5rem)}.hero p{margin:0;color:#dbe6f3}.search{padding:28px 0 50px}label{display:block;font-weight:750;margin-bottom:8px}input{width:100%;font:inherit;font-size:1.05rem;padding:14px 15px;border:1px solid #bac8da;border-radius:12px;background:#fff}input:focus{border-color:#008b87}.meta{margin:12px 0 20px;color:#627189;font-size:.88rem}.results{display:grid;gap:12px}.result{display:block;background:#fff;border:1px solid #dbe3ef;border-radius:14px;padding:17px;text-decoration:none;color:inherit}.result:hover{border-color:#8eb3d9;transform:translateY(-1px)}.result strong{display:block;margin-bottom:5px}.result span{color:#617087;font-size:.86rem;text-transform:capitalize}.empty{padding:20px;background:#fff;border:1px dashed #b8c6d8;border-radius:14px;color:#617087}
+    *{box-sizing:border-box}body{margin:0;background:#f7f9fc;color:#172033;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}.wrap{width:min(840px,calc(100% - 32px));margin:0 auto}.hero{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:40px 0 30px}.hero a{color:#9ee7e3}.hero h1{margin:14px 0 6px;font-size:clamp(2rem,7vw,3.5rem)}.hero p{margin:0;color:#dbe6f3}.search{padding:28px 0 50px}.search-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}.search-form label{grid-column:1/-1;display:block;font-weight:750}.search-form input{width:100%;font:inherit;font-size:1.05rem;padding:14px 15px;border:1px solid #bac8da;border-radius:12px;background:#fff}.search-form input:focus{border-color:#008b87}.search-form button{font:inherit;font-weight:800;padding:14px 18px;border:0;border-radius:12px;background:#173f67;color:#fff;cursor:pointer}.meta{margin:12px 0 20px;color:#627189;font-size:.88rem}.results{display:grid;gap:12px}.result{display:block;background:#fff;border:1px solid #dbe3ef;border-radius:14px;padding:17px;text-decoration:none;color:inherit}.result:hover{border-color:#8eb3d9;transform:translateY(-1px)}.result strong{display:block;margin-bottom:5px}.result span{color:#617087;font-size:.86rem;text-transform:capitalize}.empty{padding:20px;background:#fff;border:1px dashed #b8c6d8;border-radius:14px;color:#617087}.search-form button:focus-visible,.search-form input:focus-visible{outline:3px solid #008b87;outline-offset:2px}@media(max-width:520px){.search-form{grid-template-columns:1fr}.search-form label{grid-column:auto}.search-form button{width:100%}}
   </style>
 </head>
 <body>
   <header class="hero"><div class="wrap platform-wrap"><a href="/">← Home</a><h1>Search this site</h1><p>Search titles and production-page content locally in your browser. Search engines are intentionally instructed not to index the site.</p></div></header>
   <main class="search"><div class="wrap platform-wrap">
-    <label for="query">Find a project or topic</label>
-    <input id="query" type="search" autocomplete="off" placeholder="Try coarctation, IVIG, hypertension, states…">
+    <form id="search-form" class="search-form" action="/search/" method="get" role="search">
+      <label for="query">Find a project or topic</label>
+      <input id="query" name="q" type="search" autocomplete="off" placeholder="Try coarctation, IVIG, hypertension, states…">
+      <button type="submit">Search</button>
+    </form>
     <div class="meta" id="meta" aria-live="polite">Loading local search index…</div>
     <div class="results" id="results"></div>
   </div></main>
@@ -24,12 +27,24 @@
   <script type="module">
     import { rankSearch, normalizeSearchTokens } from './search.js';
 
+    const searchForm = document.getElementById('search-form');
     const query = document.getElementById('query');
     const results = document.getElementById('results');
     const meta = document.getElementById('meta');
     let items = [];
     let sourceLabel = 'production pages';
     const esc = (s='') => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+    query.value = new URLSearchParams(location.search).get('q') || '';
+
+    function syncUrl(){
+      const params = new URLSearchParams(location.search);
+      const q = query.value.trim();
+      if (q) params.set('q', q);
+      else params.delete('q');
+      const suffix = params.toString();
+      history.replaceState(null, '', `${location.pathname}${suffix ? `?${suffix}` : ''}`);
+    }
 
     function contentOnlyMatch(item, q) {
       const tokens = normalizeSearchTokens(q);
@@ -81,7 +96,16 @@
       meta.textContent='Local search unavailable.';
       results.innerHTML='<div class="empty">Use the homepage navigation while search is unavailable.</div>';
     });
-    query.addEventListener('input', render);
+    query.addEventListener('input', () => {
+      syncUrl();
+      render();
+    });
+    searchForm.addEventListener('submit', event => {
+      event.preventDefault();
+      syncUrl();
+      render();
+      query.focus();
+    });
   </script>
 </body>
 </html>
