@@ -15,7 +15,6 @@
     {"id":"bp-calculator","title":"Pediatric BP Percentile Calculator","route":"/tools/bp-percentile-calculator.html","class":"PRODUCTION","audience":"clinicians","category":"clinical-tools","smoke":true},
     {"id":"bp-validation","title":"BP Calculator Validation","route":"/tools/bp-calculator-validation.html","class":"PRODUCTION","audience":"clinicians","category":"clinical-tools","smoke":true},
     {"id":"abpm-preview","title":"Pediatric ABPM Pathway Preview","route":"/tools/pediatric-abpm-pathway-preview.html","class":"PREVIEW","audience":"clinicians","category":"clinical-tools","smoke":false},
-    {"id":"bp-preview","title":"BP Calculator Preview","route":"/tools/bp-percentile-calculator-preview.html","class":"PREVIEW","audience":"clinicians","category":"clinical-tools","smoke":false},
 
     {"id":"phs","title":"Pediatric Hospital Simulator","route":"/phs/","class":"PRODUCTION","audience":"residents","category":"simulation","smoke":true},
     {"id":"newbornscreen","title":"Newborn CCHD Screening","route":"/newbornscreen/","class":"PRODUCTION","audience":"residents","category":"education","smoke":true},
