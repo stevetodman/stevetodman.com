@@ -35,6 +35,7 @@ test('search index contains only classified production pages', () => {
     .filter(item => item.class === 'PRODUCTION' && item.route && item.id !== 'search')
     .map(item => item.route)
     .sort();
+  assert.equal(data.schemaVersion, 2);
   assert.equal(data.searchPolicy, 'noindex');
   assert.deepEqual(data.items.map(item => item.route).sort(), expected);
   assert.equal(data.items.some(item => item.route.startsWith('/admin/')), false);
@@ -53,6 +54,14 @@ test('body-only clinical terms are discoverable, not just catalog metadata', () 
 
   const multiTerm = rankSearch(data.items, 'aortic fluoroquinolones').map(result => result.item.id);
   assert.ok(multiTerm.includes('aortopathy'), 'multi-term body search should require and find both concepts');
+});
+
+test('search results carry concise page descriptions from production metadata', () => {
+  const { data } = built;
+  const aortopathy = data.items.find(item => item.id === 'aortopathy');
+  assert.ok(aortopathy);
+  assert.match(aortopathy.description, /recognizing, evaluating, counseling, and referring children with aortopathy/i);
+  assert.ok(data.items.some(item => item.description.length > 0), 'expected production descriptions in the search index');
 });
 
 test('search index is compact enough to remain a lightweight static asset', () => {

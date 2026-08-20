@@ -31,6 +31,13 @@ function decodeEntities(text) {
     .replace(/&mdash;|&ndash;/gi, ' ');
 }
 
+function metaDescription(html) {
+  const tag = html.match(/<meta\b(?=[^>]*\bname=["']description["'])[^>]*>/i)?.[0];
+  if (!tag) return '';
+  const content = tag.match(/\bcontent=(["'])(.*?)\1/i)?.[2] || '';
+  return decodeEntities(content).replace(/\s+/g, ' ').trim();
+}
+
 function searchableTerms(html) {
   const text = decodeEntities(
     html
@@ -61,13 +68,14 @@ for (const item of catalog.items) {
     route: item.route,
     category: item.category,
     audience: item.audience,
+    description: metaDescription(html),
     terms: searchableTerms(html),
   });
 }
 
 items.sort((a, b) => a.title.localeCompare(b.title));
 const output = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   generatedFrom: sourceRoot === defaultSourceRoot ? 'classified-production-html' : 'test-source-html',
   searchPolicy: 'noindex',
   items,
