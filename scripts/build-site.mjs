@@ -15,6 +15,9 @@ const copy = (src, dest) => {
   mkdir(path.dirname(to));
   fs.cpSync(from, to, { recursive: true });
 };
+const routeArtifact = (route) => route === '/'
+  ? 'index.html'
+  : route.replace(/^\/+|\/+$/g, '');
 
 rm(dist);
 mkdir(dist);
@@ -31,12 +34,11 @@ for (const file of [
   'site/learning-progress.js',
 ]) copy(file);
 
-// Copy each deployable top-level route root once. SOURCE_ONLY/ARCHIVED items
-// never enter the artifact. INTERNAL routes remain deployable because they are
-// intended to sit behind Cloudflare Access, not disappear from the product.
+// Copy only production and internal top-level route roots. PREVIEW, SOURCE_ONLY,
+// and ARCHIVED content is source material, not a deployable product surface.
 const routeRoots = new Set();
 for (const item of catalog.items) {
-  if (!item.route || ['SOURCE_ONLY', 'ARCHIVED'].includes(item.class)) continue;
+  if (!item.route || !['PRODUCTION', 'INTERNAL'].includes(item.class)) continue;
   if (item.route === '/') continue;
   routeRoots.add(item.route.replace(/^\//, '').split('/')[0]);
 }
@@ -45,6 +47,12 @@ for (const routeRoot of routeRoots) copy(routeRoot);
 // Strip repository/backend content that happens to live under a deployable root.
 for (const item of catalog.items.filter((x) => x.class === 'SOURCE_ONLY' && x.path)) {
   rm(path.join(dist, item.path));
+}
+
+// A preview may share a top-level directory with production content (for example,
+// /tools/). Remove every preview artifact explicitly after the shared root copy.
+for (const item of catalog.items.filter((x) => x.class === 'PREVIEW' && x.route)) {
+  rm(path.join(dist, routeArtifact(item.route)));
 }
 
 // Kawasaki started life as a visualization export and still carries three
@@ -98,6 +106,15 @@ function walk(dir) {
   }
 }
 walk(dist);
+
+// Classification is enforced by the build itself: preview pages must never
+// survive into the deployment artifact.
+for (const item of catalog.items.filter((x) => x.class === 'PREVIEW' && x.route)) {
+  const artifact = routeArtifact(item.route);
+  if (fs.existsSync(path.join(dist, artifact))) {
+    throw new Error(`PREVIEW route leaked into dist: ${item.route}`);
+  }
+}
 
 // Search privacy is a deployment invariant, not merely a Cloudflare-header
 // assumption. Some legacy source pages predate the direct-link-only policy and
