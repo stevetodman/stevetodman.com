@@ -105,12 +105,17 @@ describe('page conventions', () => {
 });
 
 describe('no external network dependencies', () => {
-  // A CLAUDE.md rule, and the practical reason the Math Lab silently lost its
-  // fonts: the only cross-origin request on the site was also the only one that
-  // could fail.
+  // Production pages should be self-contained. A source-only exception is
+  // permitted only when it is explicitly documented and the classified-build
+  // policy tests prove the deployed artifact removes that dependency.
   for (const pagePath of SITE_PAGES) {
     test(pagePath, async () => {
       const r = await inspect(pagePath);
+      if (excepts(pagePath, 'externalSubresources')) {
+        assert.ok(r.externalSubresources.length > 0,
+          `${pagePath} documents an externalSubresources exception but no external resource was found`);
+        return;
+      }
       assert.deepEqual(r.externalSubresources, [],
         `external subresources must be self-hosted: ${r.externalSubresources.join(', ')}`);
     });
