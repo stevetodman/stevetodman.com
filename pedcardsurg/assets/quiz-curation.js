@@ -153,6 +153,15 @@
     };
   }
 
+  const norwoodOutflow=byId(13);
+  if(norwoodOutflow){
+    norwoodOutflow.o[2]='Create a restrictive atrial septum to limit atrial-level mixing';
+    norwoodOutflow.wrong={
+      ...(norwoodOutflow.wrong||{}),
+      2:'In Norwood physiology, unobstructed atrial mixing and egress are essential. A restrictive atrial septum can impair pulmonary venous return and worsen hemodynamics rather than create systemic outflow.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
