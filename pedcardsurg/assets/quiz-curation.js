@@ -212,6 +212,17 @@
     };
   }
 
+  const transannularPatch=byId(5);
+  if(transannularPatch){
+    transannularPatch.o[1]='Progressive aortic root dilation with aortic regurgitation related to the native aortic override';
+    transannularPatch.o[2]='Residual or recurrent RVOT obstruction with pressure-loaded right ventricular hypertrophy';
+    transannularPatch.wrong={
+      ...(transannularPatch.wrong||{}),
+      1:'Aortic root dilation and aortic regurgitation can occur in repaired TOF and merit surveillance, but they are not the characteristic direct tradeoff of making the pulmonary annulus incompetent with a transannular patch.',
+      2:'Residual or recurrent RVOT obstruction is a relevant postoperative concern, but a successful transannular patch is specifically used to relieve obstruction. Its characteristic late consequence is pulmonary regurgitation with RV volume loading.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
