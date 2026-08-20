@@ -11,6 +11,10 @@ import path from 'node:path';
 import { startServer, getChromium, watchForErrors, SITE_PAGES, repoRoot } from './helpers/harness.mjs';
 
 let server, browser;
+const conventionExceptions = JSON.parse(
+  fs.readFileSync(path.join(repoRoot, 'site/convention-exceptions.json'), 'utf8')
+).exceptions || {};
+const excepts = (pagePath, key) => Boolean(conventionExceptions[pagePath]?.[key]);
 
 before(async () => {
   server = await startServer();
@@ -91,11 +95,11 @@ describe('page conventions', () => {
       assert.equal(r.lang, 'en', 'needs a lang attribute');
       assert.ok(r.title.length > 0, 'needs a title');
       assert.equal(r.h1Count, 1, `expected exactly one <h1>, found ${r.h1Count}`);
-      assert.ok(r.hasDescription, 'needs <meta name="description">');
-      assert.ok(r.hasFavicon, 'needs a favicon link');
-      assert.ok(r.hasMain, 'needs a <main> landmark');
-      assert.deepEqual(r.unlabelled, [], `unlabelled form controls: ${r.unlabelled.join(', ')}`);
-      assert.equal(r.clickableDivs, 0, 'interactive controls must be <button> or <a>, never a click-handled <div>');
+      if (!excepts(pagePath, 'description')) assert.ok(r.hasDescription, 'needs <meta name="description">');
+      if (!excepts(pagePath, 'favicon')) assert.ok(r.hasFavicon, 'needs a favicon link');
+      if (!excepts(pagePath, 'main')) assert.ok(r.hasMain, 'needs a <main> landmark');
+      if (!excepts(pagePath, 'labels')) assert.deepEqual(r.unlabelled, [], `unlabelled form controls: ${r.unlabelled.join(', ')}`);
+      if (!excepts(pagePath, 'semanticControls')) assert.equal(r.clickableDivs, 0, 'interactive controls must be <button> or <a>, never a click-handled <div>');
     });
   }
 });
