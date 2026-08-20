@@ -7,100 +7,29 @@
 <title>Clinical Tools | Steve Todman, MD</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      min-height: 100vh;
-      color: #fff;
-      padding: 24px;
-    }
-
-    .container {
-      max-width: 700px;
-      margin: 0 auto;
-      padding-top: 40px;
-    }
-
-    .back-link {
-      color: #00cec9;
-      text-decoration: none;
-      font-size: 0.9rem;
-      display: inline-block;
-      margin-bottom: 24px;
-    }
-
-    .back-link:hover {
-      text-decoration: underline;
-    }
-
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 8px;
-    }
-
-    .subtitle {
-      font-size: 1rem;
-      opacity: 0.7;
-      margin-bottom: 32px;
-    }
-
-    .tool-card {
-      background: #1e3a5f;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 16px;
-      text-decoration: none;
-      color: #fff;
-      display: block;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .tool-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(0, 184, 148, 0.2);
-    }
-
-    .tool-title {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .tool-desc {
-      font-size: 0.9rem;
-      opacity: 0.8;
-      line-height: 1.4;
-    }
-
-    .tag {
-      display: inline-block;
-      background: rgba(0, 184, 148, 0.28);
-      color: #ffffff;
-      padding: 4px 10px;
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 12px;
-      font-size: 0.75rem;
-      margin-top: 10px;
-    }
-
-    .tag.validated {
-      background: rgba(46, 204, 113, 0.28);
-      color: #ffffff;
-    }
-      a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px solid #00cec9; outline-offset: 2px; }
-</style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: #fff; padding: 24px; }
+    .container { max-width: 700px; margin: 0 auto; padding-top: 40px; }
+    .back-link { color: #00cec9; text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 24px; }
+    .back-link:hover { text-decoration: underline; }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    .subtitle { font-size: 1rem; opacity: 0.7; margin-bottom: 32px; }
+    .tool-card { background: #1e3a5f; border-radius: 16px; padding: 20px; margin-bottom: 16px; text-decoration: none; color: #fff; display: block; transition: transform 0.2s, box-shadow 0.2s; }
+    .tool-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0, 184, 148, 0.2); }
+    .tool-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; }
+    .tool-desc { font-size: 0.9rem; opacity: 0.8; line-height: 1.4; }
+    .tag { display: inline-block; background: rgba(0, 184, 148, 0.28); color: #ffffff; padding: 4px 10px; border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; font-size: 0.75rem; margin-top: 10px; }
+    .tag.validated { background: rgba(46, 204, 113, 0.28); color: #ffffff; }
+    .site-footer { margin-top: 32px; padding: 20px 0 8px; border-top: 1px solid rgba(255,255,255,0.16); color: rgba(255,255,255,0.68); font-size: 0.85rem; }
+    .site-footer a { color: #7ee8e3; }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px solid #00cec9; outline-offset: 2px; }
+  </style>
 </head>
 <body>
 <main>
   <div class="container">
     <a href="/" class="back-link">← Back to Home</a>
-    
+
     <h1>🩺 Clinical Tools</h1>
     <p class="subtitle">Pediatric cardiology calculators and references</p>
 
@@ -110,12 +39,19 @@
       <span class="tag validated">AAP 2017 • 1,904 checks</span>
     </a>
 
+    <a href="bp-calculator-validation.html" class="tool-card">
+      <div class="tool-title">✅ BP Calculator Validation Report</div>
+      <div class="tool-desc">Published acceptance criteria, reference-table comparisons, browser-test coverage, known limits, and reproducibility details for the BP calculator.</div>
+      <span class="tag validated">Methods &amp; limits</span>
+    </a>
+
     <a href="pediatric-abpm-pathway-preview.html" class="tool-card">
       <div class="tool-title">📈 Pediatric ABPM Pathway <span style="font-size:0.75rem;opacity:0.7">(preview)</span></div>
       <div class="tool-desc">Ambulatory blood pressure monitoring report-summary pathway. Work in progress — not for clinical use.</div>
       <span class="tag">Preview</span>
     </a>
 
+    <footer class="site-footer"><a href="/about/">About</a> · <a href="/education/">Education</a> · <a href="/privacy/">Privacy</a> · <a href="/search/">Search</a></footer>
   </div>
 </main>
 </body>
