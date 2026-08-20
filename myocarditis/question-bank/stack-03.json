@@ -201,26 +201,26 @@
       "evidence":[{"claim":"Refractory low cardiac output and end-organ compromise in pediatric myocarditis should prompt early MCS/ECMO consideration and transfer.","source_id":"AHA_PALS_2025"},{"claim":"Fulminant myocarditis requires early recognition of progressive shock and multiorgan failure.","source_id":"AHA_FULMINANT_2020"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
-      "id":"MYO-030","status":"draft-medical-review","age":"14 years","age_group":"adolescent","domain":"acute management","concept":"ECMO advanced-content boundary","learning_objective":"Recognize an ECMO complication that requires specialist management without testing general pediatricians on procedural technique.","cognitive_level":"multi-step","difficulty":3,
-      "stem":"A 14-year-old with fulminant myocarditis is already on VA-ECMO at a tertiary cardiac center. Echocardiography now shows progressive left-heart distention and pulmonary edema with poor aortic-valve opening. Which statement is most appropriate for a general-pediatrics board-level understanding?",
+      "id":"MYO-030","status":"draft-medical-review","age":"12 years","age_group":"child","domain":"complications","concept":"intracardiac thrombus","learning_objective":"Recognize a newly detected LV thrombus in myocarditis as a clinically important thromboembolic complication requiring a specialist antithrombotic plan rather than passive observation or indiscriminate prophylaxis.","cognitive_level":"application","difficulty":2,
+      "stem":"A 12-year-old hospitalized with myocarditis has severe LV systolic dysfunction. Repeat echocardiography identifies a new mobile LV apical thrombus. There is no active bleeding and no clinical embolic event. What is the best next principle?",
       "options":[
-        {"id":"specialist_unloading","text":"This is an advanced mechanical-support problem that may require left-heart unloading/decompression by the ECMO/cardiac team"},
-        {"id":"fluid_bolus","text":"The appropriate response is unrestricted rapid fluid loading to increase LV filling further"},
-        {"id":"ignore","text":"LV distention is an expected harmless effect of VA-ECMO and needs no reassessment"},
-        {"id":"exercise","text":"Passive exercise is the preferred method to open the aortic valve"},
-        {"id":"discharge","text":"Improved systemic perfusion on ECMO permits discharge despite pulmonary edema"}
+        {"id":"specialist_antithrombotic","text":"Treat the thrombus as a clinically important embolic risk and obtain an urgent pediatric cardiology/hematology-directed anticoagulation and follow-up imaging plan"},
+        {"id":"observe_recovery","text":"Repeat echocardiography after ventricular function recovers without antithrombotic treatment because myocarditis-related thrombi usually resolve with improved ejection fraction"},
+        {"id":"aspirin_only","text":"Use antiplatelet therapy alone because an intracardiac thrombus is primarily a platelet disorder"},
+        {"id":"thrombolysis_now","text":"Give systemic thrombolysis immediately despite the absence of embolism or another thrombolytic indication"},
+        {"id":"prophylaxis_all","text":"Use the finding to establish routine full anticoagulation for every child with myocarditis and reduced ejection fraction, even when no thrombus is present"}
       ],
-      "correct_option_id":"specialist_unloading",
-      "rationale":"VA-ECMO can increase LV afterload and produce left-heart distention, pulmonary edema, and poor native ejection. The general pediatrician should recognize the complication and need for specialist mechanical-support management; procedural selection is subspecialty care.",
+      "correct_option_id":"specialist_antithrombotic",
+      "rationale":"Intracardiac thrombus is a recognized complication of pediatric myocarditis and creates potential systemic embolic risk. A documented LV thrombus warrants prompt specialist-directed antithrombotic management and interval imaging; pediatric drug choice and duration should be individualized because pediatric myocarditis-specific evidence is limited.",
       "option_explanations":{
-        "specialist_unloading":"Correct. The core educational target is recognition and escalation, not choosing a specific venting technique.",
-        "fluid_bolus":"Additional volume can worsen left-sided distention and pulmonary edema. Fluid may be needed in other ECMO states, but not as an automatic response to an already distended left heart.",
-        "ignore":"Persistent LV distention can increase wall stress and thrombotic/pulmonary complications and therefore requires expert reassessment.",
-        "exercise":"Exercise is irrelevant and unsafe in this critically ill mechanically supported patient.",
-        "discharge":"ECMO is intensive life support; ongoing pulmonary edema and poor LV ejection require tertiary inpatient management."
+        "specialist_antithrombotic":"Correct. The important distinction is between treating an established thrombus and giving indiscriminate prophylactic anticoagulation. The regimen should account for thrombus features, ventricular function, bleeding risk, age, and follow-up imaging.",
+        "observe_recovery":"Improving ventricular function may reduce stasis, but an already documented mobile thrombus carries embolic risk during the waiting period. Observation alone is not the appropriate default once thrombus is confirmed.",
+        "aspirin_only":"Antiplatelet therapy and anticoagulation address different thrombotic mechanisms. Aspirin alone is not a substitute for a specialist anticoagulation strategy for an established LV thrombus.",
+        "thrombolysis_now":"Thrombolysis has major bleeding risk and is not the routine response to an incidentally detected LV thrombus without embolic or hemodynamic indications. More aggressive intervention is reserved for selected high-risk situations.",
+        "prophylaxis_all":"A confirmed thrombus changes management, but that does not justify universal full anticoagulation for every child with ventricular dysfunction. Prophylaxis requires individualized risk-benefit assessment."
       },
-      "board_pearl":"For ABP-level learning, recognize VA-ECMO LV distention as a specialist escalation problem; do not memorize a venting procedure.",
-      "evidence":[{"claim":"Left-heart decompression is a recognized advanced management issue in pediatric myocarditis/DCM supported with VA-ECMO.","source_id":"ECMO_PED_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
+      "board_pearl":"A visible LV thrombus is not merely a marker of severe dysfunction—it is a new embolic-risk problem that needs its own management plan.",
+      "evidence":[{"claim":"Echocardiography in pediatric myocarditis can identify intracardiac thrombus as a complication of ventricular dysfunction.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"An AHA scientific statement on established LV thrombus supports anticoagulation with individualized bleeding-risk and imaging assessment; this is adult evidence used only as an overlay because pediatric myocarditis-specific treatment data are limited.","source_id":"AHA_LV_THROMBUS_2022"}],"last_medical_review":null,"requires_sme_review":true
     }
   ]
 }
