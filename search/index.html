@@ -48,21 +48,30 @@
       }).join('') : '<div class="empty">No matching production pages.</div>';
     }
 
+    async function loadCatalog(){
+      const response = await fetch('/site/catalog.json',{cache:'no-store'});
+      if (!response.ok) throw new Error(`catalog ${response.status}`);
+      const data = await response.json();
+      items = (data.items||[])
+        .filter(item => item.class==='PRODUCTION' && item.route && item.id!=='search')
+        .map(item => ({...item, terms: normalizeSearchTokens([item.title,item.category,item.audience,item.route].join(' '))}));
+      sourceLabel = 'catalog fallback';
+    }
+
     async function load(){
-      try {
-        const response = await fetch('/site/search-index.json',{cache:'no-store'});
-        if (!response.ok) throw new Error(`search index ${response.status}`);
-        const data = await response.json();
-        items = data.items || [];
-        sourceLabel = 'full local content index';
-      } catch {
-        const response = await fetch('/site/catalog.json',{cache:'no-store'});
-        if (!response.ok) throw new Error(`catalog ${response.status}`);
-        const data = await response.json();
-        items = (data.items||[])
-          .filter(item => item.class==='PRODUCTION' && item.route && item.id!=='search')
-          .map(item => ({...item, terms: normalizeSearchTokens([item.title,item.category,item.audience,item.route].join(' '))}));
-        sourceLabel = 'catalog fallback';
+      const localDevelopment = ['localhost','127.0.0.1','::1'].includes(location.hostname);
+      if (localDevelopment) {
+        await loadCatalog();
+      } else {
+        try {
+          const response = await fetch('/site/search-index.json',{cache:'no-store'});
+          if (!response.ok) throw new Error(`search index ${response.status}`);
+          const data = await response.json();
+          items = data.items || [];
+          sourceLabel = 'full local content index';
+        } catch {
+          await loadCatalog();
+        }
       }
       render();
       query.focus();
