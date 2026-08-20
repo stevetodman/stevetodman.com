@@ -15,12 +15,13 @@ function routeFile(route) {
   return route.slice(1);
 }
 
-test('site-wide search privacy policy is explicit and redundant', () => {
+test('site-wide search privacy policy lets crawlers observe noindex', () => {
   const headers = read('_headers');
   const robots = read('robots.txt');
   assert.match(headers, /X-Robots-Tag:\s*noindex, nofollow, noarchive/i);
   assert.match(robots, /User-agent:\s*\*/i);
-  assert.match(robots, /Disallow:\s*\//i);
+  assert.doesNotMatch(robots, /^\s*Disallow:\s*\/\s*$/im, 'public site must remain crawlable so noindex can be observed');
+  assert.match(robots, /^\s*Disallow:\s*$/im, 'robots.txt should explicitly leave crawling unblocked');
   assert.equal(fs.existsSync(path.join(repoRoot, 'sitemap.xml')), false, 'sitemap must stay absent while noindex policy is active');
 });
 
