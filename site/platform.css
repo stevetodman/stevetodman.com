@@ -1,0 +1,63 @@
+:root {
+  --platform-ink: #172033;
+  --platform-muted: #526176;
+  --platform-line: #dbe3ef;
+  --platform-surface: #ffffff;
+  --platform-canvas: #f7f9fc;
+  --platform-link: #1c568e;
+  --platform-focus: #00a9a5;
+  --platform-dark-a: #1a1a2e;
+  --platform-dark-b: #16213e;
+}
+
+.platform-wrap {
+  width: min(100% - 32px, 1060px);
+  margin-inline: auto;
+}
+
+.platform-focus:focus-visible,
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--platform-focus);
+  outline-offset: 3px;
+}
+
+.platform-footer {
+  border-top: 1px solid var(--platform-line);
+  padding: 24px 0 40px;
+  color: #607086;
+  font-size: .9rem;
+}
+
+.platform-footer a {
+  color: var(--platform-link);
+}
+
+.platform-card {
+  background: var(--platform-surface);
+  border: 1px solid var(--platform-line);
+  border-radius: 16px;
+}
+
+.platform-note {
+  background: #eef5ff;
+  border-left: 4px solid #2b6cb0;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.platform-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
