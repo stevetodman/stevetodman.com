@@ -69,26 +69,26 @@
       "evidence":[{"claim":"Normal ECG, echocardiogram, or troponin testing does not reliably rule out myocarditis when clinical suspicion is high.","source_id":"ACC_MYOCARDITIS_2024"},{"claim":"Pediatric myocarditis diagnosis relies on integrated clinical and diagnostic information.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
-      "id":"MYO-014","status":"draft-medical-review","age":"9 years","age_group":"child","domain":"diagnosis","concept":"echocardiography role","learning_objective":"Use echocardiography for structural and functional assessment without treating it as an etiologic proof test.","cognitive_level":"recognition","difficulty":1,
-      "stem":"A 9-year-old with suspected myocarditis undergoes transthoracic echocardiography. Which statement best describes the test's role?",
+      "id":"MYO-014","status":"draft-medical-review","age":"9 years","age_group":"child","domain":"diagnosis","concept":"echocardiography role","learning_objective":"Interpret a normal echocardiogram in a child with otherwise convincing myocardial injury without using preserved global function as a false rule-out for myocarditis or electrical risk.","cognitive_level":"application","difficulty":1,
+      "stem":"A 9-year-old develops chest pain after a viral syndrome. Troponin is elevated and the ECG shows new ST-T abnormalities. Echocardiography confirms normal coronary origins, no significant effusion, and preserved biventricular systolic function. Which interpretation of the echocardiogram is most appropriate?",
       "options":[
-        {"id":"echo_role","text":"It assesses ventricular function, chamber size, valves, effusion, thrombus, hemodynamic effects, and structural alternatives, but its findings are not pathognomonic for myocarditis"},
-        {"id":"echo_pathogen","text":"It identifies the viral pathogen causing myocarditis"},
-        {"id":"echo_rules_out","text":"A normal echocardiogram completely excludes myocarditis"},
-        {"id":"echo_replaces_ecg","text":"It makes rhythm monitoring unnecessary"},
-        {"id":"echo_biopsy","text":"It provides the same histologic information as endomyocardial biopsy"}
+        {"id":"echo_role","text":"It is reassuring against major pump failure and important structural mimics, but preserved function does not exclude myocarditis or eliminate the need to assess residual electrical and tissue-level risk"},
+        {"id":"echo_rules_out","text":"Preserved biventricular function makes myocarditis unlikely enough that the troponin and ECG abnormalities can be treated as nonspecific if symptoms improve"},
+        {"id":"pericarditis_only","text":"A normal ejection fraction converts the diagnosis to isolated pericarditis even when objective myocardial injury and ECG abnormalities are present"},
+        {"id":"cmr_unnecessary","text":"Once coronary origins and ventricular function are normal on echocardiography, further tissue characterization adds little to diagnostic confidence or risk assessment"},
+        {"id":"low_risk_outpatient","text":"Normal systolic function establishes a low-risk phenotype in which rhythm surveillance is unnecessary unless syncope or sustained tachycardia later develops"}
       ],
       "correct_option_id":"echo_role",
-      "rationale":"Echo is the practical first-line tool for cardiac structure and function, but myocarditis has variable and nonspecific echocardiographic findings. Tissue characterization and etiologic questions require other modalities.",
+      "rationale":"Echocardiography answers urgent structural and functional questions but is not a rule-out test for myocardial inflammation. This child has objective myocardial injury and electrical abnormalities despite preserved global function; the normal echo lowers concern for major pump failure and structural alternatives while leaving myocarditis and electrical/tissue risk clinically relevant.",
       "option_explanations":{
-        "echo_role":"Correct. This is why echo remains central in both initial and serial assessment.",
-        "echo_pathogen":"Echo cannot establish infectious etiology. Pathogen evaluation requires microbiologic or tissue testing when clinically indicated.",
-        "echo_rules_out":"Some myocarditis presentations have preserved global function, so normal echo findings do not fully exclude the disease. A normal study is more reassuring when the rest of the clinical evaluation is also low risk.",
-        "echo_replaces_ecg":"Mechanical and electrical assessment are complementary. Telemetry or ambulatory monitoring is required when intermittent arrhythmia is a concern.",
-        "echo_biopsy":"Echo is noninvasive imaging and does not reveal histologic inflammatory subtype. EMB is reserved for selected situations where tissue information could change management."
+        "echo_role":"Correct. Preserved ventricular function is favorable hemodynamic information, but myocarditis can present without global systolic dysfunction. Risk assessment still integrates symptoms, biomarkers, ECG/rhythm findings, and tissue characterization when clinically appropriate.",
+        "echo_rules_out":"A normal echo should modify severity assessment, not erase objective myocardial injury. Elevated troponin and new ECG abnormalities require reconciliation rather than being dismissed solely because ejection fraction is preserved.",
+        "pericarditis_only":"Myopericardial syndromes are defined by the full phenotype. Preserved EF does not convert myocardial injury into isolated pericarditis when troponin and ECG findings support myocardial involvement.",
+        "cmr_unnecessary":"CMR can add tissue characterization and help distinguish active inflammation, residual injury, and competing mechanisms. It is not mandatory in every child, but a normal echo does not make it intrinsically uninformative.",
+        "low_risk_outpatient":"Mechanical stability and electrical stability are separate domains. Preserved EF does not guarantee absence of clinically relevant arrhythmia, so rhythm surveillance should be based on the broader presentation rather than ejection fraction alone."
       },
-      "board_pearl":"Echo answers 'How is the heart functioning and structured?'—not 'What exact inflammatory subtype is present?'.",
-      "evidence":[{"claim":"Echocardiography is important for ventricular function and structural assessment but is not specific for myocarditis.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"TTE is central to pediatric acute heart-failure assessment and serial reassessment.","source_id":"AHA_PED_ADHF_2026"}],"last_medical_review":null,"requires_sme_review":true
+      "board_pearl":"A normal echocardiogram can be mechanically reassuring without being diagnostically exculpatory.",
+      "evidence":[{"claim":"Echocardiography is important for ventricular function and structural assessment but is not specific for myocarditis.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"Pediatric myocarditis can present with preserved ventricular systolic function despite objective myocardial injury.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
       "id":"MYO-015","status":"draft-medical-review","age":"12 years","age_group":"child","domain":"diagnosis","concept":"endomyocardial biopsy selection","learning_objective":"Identify a high-risk scenario in which EMB may change diagnosis-directed therapy rather than using biopsy routinely.","cognitive_level":"multi-step","difficulty":3,
