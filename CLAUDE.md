@@ -44,7 +44,7 @@ Required behavior:
 
 Every meaningful surface belongs in `site/catalog.json`:
 
-- `PRODUCTION` — user-facing and deployed; covered by production smoke where appropriate.
+- `PRODUCTION` — user-facing, deployed, and automatically covered by site smoke.
 - `PREVIEW` — development/test surface retained in source, not deployed.
 - `INTERNAL` — private/internal source, not deployed to public Pages.
 - `SOURCE_ONLY` — repository/backend/developer source, never shipped in Pages.
@@ -52,11 +52,10 @@ Every meaningful surface belongs in `site/catalog.json`:
 
 When adding a user-facing page:
 
-1. classify it;
-2. add PRODUCTION pages to smoke coverage as appropriate;
-3. add behavioral tests for meaningful interaction or clinical logic;
-4. register clinical modules in `clinical/content-registry.json`;
-5. never hide an omission by silently removing a route from coverage.
+1. classify it as `PRODUCTION` only when it is ready for deployment and automatic smoke coverage;
+2. add behavioral tests for meaningful interaction or clinical logic;
+3. register clinical modules in `clinical/content-registry.json`;
+4. never hide an omission by weakening route coverage.
 
 ## Production build boundary
 
