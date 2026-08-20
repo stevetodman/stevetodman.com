@@ -34,24 +34,24 @@ for (const file of [
   'site/learning-progress.js',
 ]) copy(file);
 
-// Copy only production and internal top-level route roots. PREVIEW, SOURCE_ONLY,
-// and ARCHIVED content is source material, not a deployable product surface.
+// Pages is the public production surface. Only PRODUCTION route roots belong in
+// the artifact; preview, internal, source-only, and archived work stays in source.
 const routeRoots = new Set();
 for (const item of catalog.items) {
-  if (!item.route || !['PRODUCTION', 'INTERNAL'].includes(item.class)) continue;
+  if (!item.route || item.class !== 'PRODUCTION') continue;
   if (item.route === '/') continue;
   routeRoots.add(item.route.replace(/^\//, '').split('/')[0]);
 }
 for (const routeRoot of routeRoots) copy(routeRoot);
 
-// Strip repository/backend content that happens to live under a deployable root.
+// Strip repository/backend content that happens to live under a production root.
 for (const item of catalog.items.filter((x) => x.class === 'SOURCE_ONLY' && x.path)) {
   rm(path.join(dist, item.path));
 }
 
-// A preview may share a top-level directory with production content (for example,
-// /tools/). Remove every preview artifact explicitly after the shared root copy.
-for (const item of catalog.items.filter((x) => x.class === 'PREVIEW' && x.route)) {
+// A non-production route may share a top-level directory with production content
+// (for example, /tools/ previews). Remove every such route explicitly after copy.
+for (const item of catalog.items.filter((x) => x.route && x.class !== 'PRODUCTION')) {
   rm(path.join(dist, routeArtifact(item.route)));
 }
 
@@ -76,27 +76,6 @@ if (fs.existsSync(kawasakiHtml)) {
   fs.writeFileSync(kawasakiHtml, html);
 }
 
-// Steven OS is an INTERNAL static control surface. Keep only the files required
-// by the browser; do not publish its Edge Functions, SQL, scripts, or README.
-const stevenOs = path.join(dist, 'steven-os');
-if (fs.existsSync(stevenOs)) {
-  for (const entry of fs.readdirSync(stevenOs)) {
-    if (!['index.html', 'clinical-review.html', 'app.js', 'config.js', 'styles.css', 'lib', 'state'].includes(entry)) {
-      rm(path.join(stevenOs, entry));
-    }
-  }
-  const lib = path.join(stevenOs, 'lib');
-  if (fs.existsSync(lib)) {
-    for (const entry of fs.readdirSync(lib)) {
-      if (entry !== 'policy-engine.mjs') rm(path.join(lib, entry));
-    }
-  }
-}
-
-// Never ship local overrides or examples that could be mistaken for runtime config.
-rm(path.join(dist, 'steven-os/config.local.js.example'));
-rm(path.join(dist, 'steven-os/config.local.js'));
-
 const files = [];
 function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -107,12 +86,12 @@ function walk(dir) {
 }
 walk(dist);
 
-// Classification is enforced by the build itself: preview pages must never
-// survive into the deployment artifact.
-for (const item of catalog.items.filter((x) => x.class === 'PREVIEW' && x.route)) {
+// Classification is enforced by the build itself: no cataloged non-production
+// route may survive into the deployment artifact.
+for (const item of catalog.items.filter((x) => x.route && x.class !== 'PRODUCTION')) {
   const artifact = routeArtifact(item.route);
   if (fs.existsSync(path.join(dist, artifact))) {
-    throw new Error(`PREVIEW route leaked into dist: ${item.route}`);
+    throw new Error(`${item.class} route leaked into dist: ${item.route}`);
   }
 }
 
