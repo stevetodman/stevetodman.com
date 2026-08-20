@@ -23,6 +23,7 @@ const MIME = {
   '.png': 'image/png',
   '.pdf': 'application/pdf',
   '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  '.txt': 'text/plain; charset=utf-8',
 };
 
 /** Serve repoRoot on an ephemeral port. Returns { origin, close }. */
@@ -77,9 +78,15 @@ export async function getChromium() {
   throw new Error(`Playwright not found. Tried:\n  ${errors.join('\n  ')}`);
 }
 
-/** Every page that should be reachable and healthy. */
+/**
+ * Every PRODUCTION page that should be reachable and healthy.
+ * Keep this in lock-step with site/catalog.json; platform-policy.test.mjs enforces it.
+ */
 export const SITE_PAGES = [
   '/',
+  '/education/',
+  '/about/',
+  '/search/',
   '/tools/',
   '/tools/bp-percentile-calculator.html',
   '/tools/bp-calculator-validation.html',
@@ -97,6 +104,7 @@ export const SITE_PAGES = [
   '/study/100-fact-club.html',
   '/math/',
   '/newbornscreen/',
+  '/kawasaki/',
   '/hypertension/',
   '/cardiovascular-risk/',
   '/aortopathy/',
@@ -105,8 +113,6 @@ export const SITE_PAGES = [
   '/genetics-chd/',
   '/pedcardsurg/',
   '/phs/',
-  '/admin/',
-  '/admin/clinic-resources/',
 ];
 
 /** Collects console errors, page errors and failed requests for a page. */
