@@ -182,6 +182,21 @@
     };
   }
 
+  const aorticStenosis=byId(38);
+  if(aorticStenosis){
+    aorticStenosis.o=[
+      'Valvar stenosis may undergo balloon valvuloplasty, whereas a discrete subaortic membrane usually needs surgical resection',
+      'Balloon dilation is the preferred initial treatment for either lesion because postoperative recurrence is uncommon',
+      'Surgical valve replacement is indicated for either lesion because both obstructions arise at the aortic valve',
+      'Subaortic membrane can be observed long term because it rarely progresses or recurs after surgical resection'
+    ];
+    aorticStenosis.wrong={
+      1:'Balloon valvuloplasty is often useful for congenital valvar aortic stenosis, but a discrete subaortic membrane is an anatomic subvalvar obstruction that generally requires surgical resection. Recurrence after membrane resection is a recognized concern.',
+      2:'A discrete subaortic membrane lies below an otherwise separate aortic valve. Valve replacement is not its usual treatment; resection targets the subvalvar obstruction.',
+      3:'Subaortic membrane may progress and can recur after resection, so longitudinal surveillance is important rather than simple observation.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
