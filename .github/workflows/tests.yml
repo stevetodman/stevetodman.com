@@ -8,6 +8,7 @@ on:
       - 'phs/**'
       - 'steven-os/**'
       - 'tests/**'
+      - 'scripts/**'
       - 'tools/**'
       - 'cooking/**'
       - 'study/**'
@@ -43,6 +44,7 @@ on:
       - 'phs/**'
       - 'steven-os/**'
       - 'tests/**'
+      - 'scripts/**'
       - 'tools/**'
       - 'cooking/**'
       - 'study/**'
@@ -129,7 +131,7 @@ jobs:
           node-version: '22'
 
       - name: Install test dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
@@ -138,11 +140,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          find phs/v17 steven-os study tools genetics-chd pedcardsurg hypertension cardiovascular-risk aortopathy myocarditis pals newbornscreen tests \
+          find phs/v17 steven-os study tools genetics-chd pedcardsurg hypertension cardiovascular-risk aortopathy myocarditis pals newbornscreen tests site scripts \
             -type f \( -name '*.js' -o -name '*.mjs' \) -print0 \
             | xargs -0 -n1 node --check
 
       - name: Verify case package integrity
+        if: ${{ !cancelled() }}
         run: npm run test:integrity
 
       - name: Simulator behaviour
