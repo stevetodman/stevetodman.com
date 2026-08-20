@@ -36,3 +36,21 @@ test('large production images belong to a documented provenance family', () => {
   }
   assert.deepEqual(missing, [], `large production images missing provenance family:\n${missing.join('\n')}`);
 });
+
+test('StudyHub map provenance keeps its recovered attribution chain visible', () => {
+  const mapFamily = provenance.families.find((x) => x.pathPrefix === 'study/us-states.html');
+  assert.ok(mapFamily, '50 States map provenance family must be recorded');
+  assert.match(mapFamily.license, /CC BY-SA 4\.0/i);
+  assert.match(mapFamily.redistribution, /study\/ATTRIBUTIONS\.md/);
+
+  const attributionPath = path.join(repoRoot, 'study/ATTRIBUTIONS.md');
+  assert.equal(fs.existsSync(attributionPath), true, 'StudyHub attribution notice must exist');
+  const attribution = fs.readFileSync(attributionPath, 'utf8');
+  assert.match(attribution, /WebsiteBeaver/);
+  assert.match(attribution, /Wikimedia Commons/);
+  assert.match(attribution, /creativecommons\.org\/licenses\/by-sa\/4\.0\//);
+  assert.match(attribution, /Ali Zifan, JCRules, Magog the Ogre, Nizolan & Spesh531/);
+
+  const studyIndex = fs.readFileSync(path.join(repoRoot, 'study/index.html'), 'utf8');
+  assert.match(studyIndex, /href=["']ATTRIBUTIONS\.md["']/i, 'Study Hub must link to the map attribution notice');
+});
