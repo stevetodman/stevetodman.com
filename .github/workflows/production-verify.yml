@@ -25,7 +25,7 @@ jobs:
           node-version: '22'
       - name: Verify live deployment policy
         env:
-          SITE_ORIGIN: ${{ inputs.origin || 'https://stevetodman.com' }}
+          SITE_ORIGIN: ${{ github.event.inputs.origin || 'https://stevetodman.com' }}
         run: |
           for attempt in 1 2 3 4 5 6; do
             npm run verify:production && exit 0
