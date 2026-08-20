@@ -54,19 +54,13 @@ for (const path of ['/study/us-states.html', '/education/', '/contact/', '/priva
   checkHtmlNoindex(path, r.text);
 }
 
-// INTERNAL surfaces must not be anonymously readable as their real application.
-for (const [path, marker] of [
-  ['/admin/', '<h1>Admin</h1>'],
-  ['/steven-os/', '<h1>Steven OS</h1>'],
-  ['/cardiohospital/', 'Cardio Hospital — 3D Development Preview'],
-]) {
-  const r = await get(path);
-  const exposed = r.response.status === 200 && r.text.includes(marker);
-  check(!exposed, `${path} is anonymously serving its internal application; Cloudflare Access/exclusion is not effective`);
-}
-
-// SOURCE_ONLY paths must not exist in the classified deploy artifact once Pages uses dist/.
+// Pages is production-only. PREVIEW, INTERNAL, and SOURCE_ONLY surfaces must be absent.
 for (const path of [
+  '/tools/pediatric-abpm-pathway-preview.html',
+  '/tools/bp-percentile-calculator-preview.html',
+  '/admin/',
+  '/steven-os/',
+  '/cardiohospital/',
   '/cardio-hospital-3d/',
   '/clipboard-sanitizer/',
   '/study/supabase/functions/studyhub-save/index.ts',
