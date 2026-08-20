@@ -7,7 +7,9 @@ import { spawn } from 'node:child_process';
 import { repoRoot } from './helpers/harness.mjs';
 
 const catalog = JSON.parse(fs.readFileSync(path.join(repoRoot, 'site/catalog.json'), 'utf8'));
-const PUBLIC_HTML_PATHS = new Set(['/', '/study/us-states.html', '/education/', '/contact/', '/privacy/', '/tools/']);
+const PUBLIC_HTML_PATHS = new Set(
+  catalog.items.filter((item) => item.route && item.class === 'PRODUCTION').map((item) => item.route)
+);
 const EXCLUDED_PATHS = new Set([
   ...catalog.items.filter((item) => item.route && item.class !== 'PRODUCTION').map((item) => item.route),
   ...catalog.items.filter((item) => item.path && item.class === 'SOURCE_ONLY')
@@ -20,11 +22,11 @@ const HEADERS = {
   'content-security-policy': "default-src 'self'",
 };
 
-async function startFixture({ missingMetaPath = '', sitemapStatus = 404, exposedPath = '' } = {}) {
+async function startFixture({ missingMetaPath = '', missingPublicPath = '', sitemapStatus = 404, exposedPath = '' } = {}) {
   const server = http.createServer((request, response) => {
     const pathname = new URL(request.url, 'http://fixture.invalid').pathname;
 
-    if (PUBLIC_HTML_PATHS.has(pathname) || pathname === exposedPath) {
+    if ((PUBLIC_HTML_PATHS.has(pathname) && pathname !== missingPublicPath) || pathname === exposedPath) {
       response.writeHead(200, { ...HEADERS, 'content-type': 'text/html; charset=utf-8' });
       response.end(pathname === missingMetaPath ? '<html><head></head><body>ok</body></html>' : HTML);
       return;
@@ -88,6 +90,16 @@ test('production verifier accepts the intended live deployment policy', async (t
   const result = await runVerifier(fixture.origin);
   assert.equal(result.code, 0, result.stderr);
   assert.match(result.stdout, /Production verification passed/);
+});
+
+test('production verifier rejects a cataloged production route that is missing', async (t) => {
+  const missingPublicPath = [...PUBLIC_HTML_PATHS].find((route) => route !== '/');
+  assert.ok(missingPublicPath, 'expected at least one cataloged production path beyond home');
+  const fixture = await startFixture({ missingPublicPath });
+  t.after(fixture.close);
+  const result = await runVerifier(fixture.origin);
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, new RegExp(`${missingPublicPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} returned 404`));
 });
 
 test('production verifier rejects deployed HTML without robots meta defense', async (t) => {
