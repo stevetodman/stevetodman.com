@@ -214,7 +214,7 @@
 
   const transannularPatch=byId(5);
   if(transannularPatch){
-    transannularPatch.o[1]='Progressive aortic root dilation with aortic regurgitation related to the native aortic override';
+    transannularPatch.o[1]='Aortic root dilation with progressive aortic regurgitation after repaired TOF';
     transannularPatch.o[2]='Residual or recurrent RVOT obstruction with pressure-loaded right ventricular hypertrophy';
     transannularPatch.wrong={
       ...(transannularPatch.wrong||{}),
