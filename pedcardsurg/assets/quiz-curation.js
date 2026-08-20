@@ -243,6 +243,21 @@
     };
   }
 
+  const persistentStridor=byId(27);
+  if(persistentStridor){
+    persistentStridor.o=[
+      'Persistent tracheobronchomalacia from chronic preoperative compression',
+      'Postoperative vocal-cord paresis causing extrathoracic airway obstruction',
+      'Subglottic stenosis after prolonged endotracheal intubation',
+      'Aspiration-related airway inflammation from postoperative swallowing dysfunction'
+    ];
+    persistentStridor.wrong={
+      1:'Vocal-cord paresis can cause stridor after thoracic surgery and should be considered when the clinical pattern suggests glottic dysfunction. It is not the characteristic reason symptoms persist after long-standing vascular compression has been relieved.',
+      2:'Subglottic stenosis is an important airway consideration after prolonged intubation, but chronic tracheobronchomalacia is the more characteristic explanation when stridor persists after successful vascular-ring division.',
+      3:'Aspiration can aggravate respiratory symptoms, especially with swallowing dysfunction, but it does not explain the chronic dynamic airway weakness produced by preoperative vascular compression.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
