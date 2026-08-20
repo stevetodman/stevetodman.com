@@ -157,7 +157,7 @@ jobs:
     timeout-minutes: 15
     strategy:
       fail-fast: false
-      max-parallel: 6
+      max-parallel: 7
       matrix:
         include:
           - name: Simulator tests
@@ -170,8 +170,10 @@ jobs:
             command: npm run test:hypertension && npm run test:cardiovascular-risk && npm run test:aortopathy
           - name: Genetics and surgery academies
             command: npm run test:genetics-chd && npm run test:pedcardsurg
-          - name: Site quality
-            command: npm run test:smoke && npm run test:a11y
+          - name: Site smoke
+            command: npm run test:smoke
+          - name: Accessibility
+            command: npm run test:a11y
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
