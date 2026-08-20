@@ -1,0 +1,43 @@
+{
+  "AHA_MYOCARDITIS_2021": {
+    "title": "Diagnosis and Management of Myocarditis in Children: A Scientific Statement From the American Heart Association",
+    "authors": "Law YM, Lal AK, Chen S, et al.",
+    "journal": "Circulation",
+    "year": 2021,
+    "doi": "10.1161/CIR.0000000000001001",
+    "use": ["diagnosis", "echocardiography", "CMR", "arrhythmias", "triage", "advanced support", "follow-up", "exercise restriction"]
+  },
+  "AHA_FULMINANT_2020": {
+    "title": "Recognition and Initial Management of Fulminant Myocarditis: A Scientific Statement From the American Heart Association",
+    "authors": "Kociol RD, Cooper LT Jr, Fang JC, et al.",
+    "journal": "Circulation",
+    "year": 2020,
+    "doi": "10.1161/CIR.0000000000000745",
+    "use": ["fulminant myocarditis", "cardiogenic shock", "arrhythmia", "mechanical circulatory support", "endomyocardial biopsy"]
+  },
+  "PEDIATRIC_MYOCARDITIS_REVIEW_2020": {
+    "title": "Diagnosis, Evaluation, and Treatment of Myocarditis in Children",
+    "authors": "Putschoegl A, Auerbach SR",
+    "journal": "Pediatric Clinics of North America",
+    "year": 2020,
+    "use": ["clinical recognition", "biomarkers", "ECG", "echocardiography", "CMR"]
+  },
+  "PED_CMR_GUIDANCE": {
+    "title": "Guidelines for cardiovascular magnetic resonance imaging in pediatric congenital and acquired heart disease",
+    "use": ["CMR tissue characterization", "myocardial edema", "late gadolinium enhancement", "ischemic vs nonischemic injury"]
+  },
+  "PED_ARRHYTHMIA_OUTCOMES": {
+    "title": "Usefulness of arrhythmias as predictors of death and resource utilization in children with myocarditis",
+    "authors": "Anderson BR, et al.",
+    "journal": "American Journal of Cardiology",
+    "year": 2014,
+    "use": ["tachyarrhythmia risk", "prognosis"]
+  },
+  "ECMO_REGISTRY_PED_MYOCARDITIS": {
+    "title": "Extracorporeal membrane oxygenation for the support of infants, children, and young adults with acute myocarditis: a review of the ELSO registry",
+    "authors": "Rajagopal S, et al.",
+    "journal": "Critical Care Medicine",
+    "year": 2010,
+    "use": ["ECMO", "refractory cardiogenic shock", "bridge to recovery or transplantation"]
+  }
+}
