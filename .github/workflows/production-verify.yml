@@ -1,6 +1,9 @@
 name: Production verification
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       origin:
@@ -14,7 +17,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,5 +25,12 @@ jobs:
           node-version: '22'
       - name: Verify live deployment policy
         env:
-          SITE_ORIGIN: ${{ inputs.origin }}
-        run: npm run verify:production
+          SITE_ORIGIN: ${{ github.event.inputs.origin || 'https://stevetodman.com' }}
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            npm run verify:production && exit 0
+            if [ "$attempt" -eq 6 ]; then
+              exit 1
+            fi
+            sleep 20
+          done
