@@ -21,7 +21,9 @@ check(Boolean(home.response.headers.get('content-security-policy')), 'homepage i
 
 const robots = await get('/robots.txt');
 check(robots.response.status === 200, `/robots.txt returned ${robots.response.status}`);
-check(/User-agent:\s*\*/i.test(robots.text) && /Disallow:\s*\//i.test(robots.text), 'robots.txt does not disallow crawling');
+check(/User-agent:\s*\*/i.test(robots.text), 'robots.txt is missing the default user-agent group');
+check(!/^\s*Disallow:\s*\/\s*$/im.test(robots.text), 'robots.txt blocks crawlers from reading the noindex response');
+check(/^\s*Disallow:\s*$/im.test(robots.text), 'robots.txt should explicitly leave public crawling unblocked');
 
 for (const path of ['/study/us-states.html', '/education/', '/contact/', '/privacy/', '/tools/']) {
   const r = await get(path);
