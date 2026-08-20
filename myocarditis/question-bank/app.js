@@ -24,6 +24,14 @@
     return copy;
   }
 
+  function shuffledDifferent(items, previousItems = []) {
+    const next = shuffled(items);
+    const repeatedOrder = previousItems.length === next.length
+      && next.every((item, index) => item.id === previousItems[index].id);
+    if (repeatedOrder && next.length > 1) next.push(next.shift());
+    return next;
+  }
+
   function el(tag, options = {}) {
     const node = document.createElement(tag);
     if (options.className) node.className = options.className;
@@ -187,7 +195,11 @@
 
     const retry = el('button', { className: 'button button-secondary', type: 'button', text: 'Retake with reshuffled choices' });
     retry.addEventListener('click', () => {
-      session.questions = session.stack.questions.map(question => ({ question, displayOptions: shuffled(question.options) }));
+      const previousOrders = new Map(session.questions.map(({ question, displayOptions }) => [question.id, displayOptions]));
+      session.questions = session.stack.questions.map(question => ({
+        question,
+        displayOptions: shuffledDifferent(question.options, previousOrders.get(question.id))
+      }));
       session.graded = false;
       renderExam();
     });
