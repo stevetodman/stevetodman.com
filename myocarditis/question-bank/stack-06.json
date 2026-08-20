@@ -3,26 +3,26 @@
   "focus": "recovery, follow-up, sports, recurrence, and integration",
   "questions": [
     {
-      "id":"MYO-051","status":"draft-medical-review","age":"15 years","age_group":"adolescent","domain":"follow-up","concept":"multidomain recovery","learning_objective":"Assess recovery using symptoms, ventricular function, rhythm, biomarkers, and tissue/inflammation context rather than a single variable.","cognitive_level":"recognition","difficulty":1,
-      "stem":"A 15-year-old is recovering from myocarditis. Which statement best describes a sound follow-up assessment?",
+      "id":"MYO-051","status":"draft-medical-review","age":"15 years","age_group":"adolescent","domain":"follow-up","concept":"active inflammation despite mechanical recovery","learning_objective":"Distinguish recovery of ventricular function from full clinical remission when myocardial injury or active inflammatory findings remain abnormal.","cognitive_level":"application","difficulty":1,
+      "stem":"A 15-year-old is asymptomatic several weeks after myocarditis. LV systolic function has normalized and ambulatory monitoring shows no significant arrhythmia, but troponin remains above the reference range and follow-up CMR still shows myocardial edema. Which interpretation is most appropriate?",
       "options":[
-        {"id":"multidomain","text":"Recovery should integrate symptoms, ventricular function, rhythm assessment, biomarkers, and imaging/tissue findings as appropriate to the phenotype"},
-        {"id":"ef_only","text":"Normal ejection fraction alone proves complete recovery"},
-        {"id":"troponin_only","text":"Normal troponin alone proves complete recovery"},
-        {"id":"symptoms_only","text":"Feeling well alone is sufficient for discharge from cardiology follow-up"},
-        {"id":"cxr_only","text":"A normal chest radiograph is the definitive recovery test"}
+        {"id":"incomplete_remission","text":"Mechanical and electrical recovery are encouraging, but persistent myocardial injury and edema mean full clinical remission has not yet been demonstrated"},
+        {"id":"mechanical_clearance","text":"Normal ejection fraction and reassuring rhythm monitoring establish complete recovery; persistent troponin elevation and edema can be treated as expected lagging findings"},
+        {"id":"biomarker_controls","text":"Persistent troponin elevation proves that ventricular function will deteriorate again, so the normal echocardiogram and rhythm assessment should be considered temporarily misleading"},
+        {"id":"edema_equals_scar","text":"Persistent CMR edema should be interpreted the same as stable residual scar because neither finding reflects ongoing inflammatory activity once symptoms resolve"},
+        {"id":"rhythm_overrides","text":"Absence of clinically significant arrhythmia is sufficient to establish remission even if objective myocardial injury and inflammatory imaging abnormalities persist"}
       ],
-      "correct_option_id":"multidomain",
-      "rationale":"Myocarditis can recover unevenly across symptoms, pump function, inflammation, scar, and electrical stability. Follow-up therefore needs a multiparametric assessment tailored to the initial severity and residual abnormalities.",
+      "correct_option_id":"incomplete_remission",
+      "rationale":"Myocarditis recovery can be discordant across mechanical function, electrical stability, biomarkers, and tissue inflammation. Normal ventricular function and reassuring rhythm testing are favorable, but persistent troponin elevation and CMR edema remain evidence that active myocardial injury/inflammation has not fully resolved. Follow-up and activity decisions should therefore remain multiparametric rather than being based on the recovered ejection fraction alone.",
       "option_explanations":{
-        "multidomain":"Correct. This approach reduces the risk of clearing a patient while another clinically important domain remains abnormal.",
-        "ef_only":"EF can normalize despite persistent LGE, symptoms, or arrhythmia. It is necessary information but not a complete recovery definition.",
-        "troponin_only":"Troponin may normalize before tissue or electrical recovery and is not a stand-alone clearance test.",
-        "symptoms_only":"Patients can feel well despite residual ventricular or rhythm abnormalities. Symptoms are one domain, not the whole assessment.",
-        "cxr_only":"Radiography does not directly assess myocardial inflammation or arrhythmia risk and is not the definitive follow-up test."
+        "incomplete_remission":"Correct. Clinical remission requires resolution across the domains that remain relevant to the individual phenotype; recovery of pump function does not erase ongoing injury or active inflammatory imaging findings.",
+        "mechanical_clearance":"Normalization of EF is an important milestone, and reassuring rhythm testing lowers electrical concern, but neither makes persistent myocardial injury or edema clinically irrelevant. Those unresolved domains still require follow-up.",
+        "biomarker_controls":"Persistent troponin indicates ongoing myocardial injury but is not a deterministic predictor that ventricular dysfunction must recur. It should be interpreted with symptoms, function, rhythm, and imaging rather than allowed to overrule every other domain.",
+        "edema_equals_scar":"Edema is a marker of active inflammatory tissue change, whereas residual LGE without edema may represent healed injury or fibrosis. Conflating the two loses an important distinction in recovery assessment.",
+        "rhythm_overrides":"A reassuring rhythm assessment addresses one major risk domain, but active myocardial injury and inflammation remain relevant to remission and activity decisions even when arrhythmia is absent."
       },
-      "board_pearl":"Recovery from myocarditis is a matrix, not a single number.",
-      "evidence":[{"claim":"Myocarditis follow-up includes clinical assessment, rhythm evaluation, ventricular imaging, biomarkers, and CMR depending on severity and phenotype.","source_id":"ESC_IMPS_2025"},{"claim":"Pediatric myocarditis follow-up and exercise decisions require assessment beyond symptoms alone.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
+      "board_pearl":"A recovered ejection fraction can coexist with an unrecovered myocardium; remission is a multidomain judgment.",
+      "evidence":[{"claim":"Myocarditis follow-up and clinical remission assessment integrate symptoms, biomarkers, ECG/rhythm testing, ventricular imaging, and CMR evidence of active inflammation.","source_id":"ESC_IMPS_2025"},{"claim":"Pediatric myocarditis outcomes and exercise decisions require assessment beyond ventricular function alone.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
       "id":"MYO-052","status":"draft-medical-review","age":"14 years","age_group":"adolescent","domain":"follow-up","concept":"persistent LGE","learning_objective":"Interpret persistent LGE as potentially relevant residual injury/scar without overstating pediatric prognostic certainty.","cognitive_level":"application","difficulty":2,
