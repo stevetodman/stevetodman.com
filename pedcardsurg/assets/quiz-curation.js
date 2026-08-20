@@ -73,6 +73,21 @@
     };
   }
 
+  const pdaLigation=byId(36);
+  if(pdaLigation){
+    pdaLigation.o=[
+      'When closure is indicated but catheter/medical strategies are unsuitable or unsuccessful',
+      'For a hemodynamically significant PDA with anatomy readily amenable to transcatheter device closure and no contraindication to catheter therapy',
+      'For a duct-dependent congenital lesion before another reliable source of systemic or pulmonary blood flow has been established',
+      'For a small, hemodynamically insignificant PDA solely because a continuous murmur is audible'
+    ];
+    pdaLigation.wrong={
+      1:'When device closure is anatomically feasible and there is no reason to avoid a catheter approach, transcatheter closure is generally favored over surgery. Surgical ligation is reserved for selected circumstances.',
+      2:'In duct-dependent circulation, the PDA may be essential for systemic or pulmonary blood flow. Closing it before definitive stabilization or repair can cause rapid cardiovascular collapse.',
+      3:'The presence of a murmur alone does not establish that surgery is needed. Decisions about PDA closure consider hemodynamic effect, anatomy, patient population, and the suitability of less invasive options.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
