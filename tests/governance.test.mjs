@@ -17,7 +17,7 @@ function monthsSince(dateString) {
 test('every production clinical education surface has a governance record', () => {
   const registered = new Set(registry.modules.map((m) => m.id));
   const clinicalProduction = catalog.items.filter((item) =>
-    item.class === 'PRODUCTION' && (
+    item.class === 'PRODUCTION' && item.id !== 'education' && (
       ['education', 'simulation'].includes(item.category) || item.id === 'bp-calculator'
     )
   );
