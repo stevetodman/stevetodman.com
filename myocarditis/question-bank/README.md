@@ -1,27 +1,27 @@
 # Pediatric Myocarditis ABP Question Bank
 
-This directory contains the **v2 editorial draft** of the pediatric myocarditis board-review database generated from `../ABP_QUESTION_BANK_PROMPT.md` and rebuilt after a full medical/item-writing critique.
+This directory contains the **v2.1 editorial draft** of the pediatric myocarditis board-review database generated from `../ABP_QUESTION_BANK_PROMPT.md` and rebuilt after a full medical/item-writing critique.
 
-It is deliberately **not marked complete or published**. The core bank now contains **60 questions in six 10-question stacks** (`MYO-001` through `MYO-060`). Repetitive stacks 7–10 from v1 were retired rather than preserved to satisfy an arbitrary question count.
+It is deliberately **not marked complete or published**. The core bank contains **60 questions in six 10-question stacks** (`MYO-001` through `MYO-060`). Repetitive stacks 7–10 from v1 were retired rather than preserved to satisfy an arbitrary question count.
 
 ## Current status
 
 - Manifest status: `editorial-review-required`
 - Independent pediatric cardiology / ABP-style SME review: pending
 - Human item-writer review: pending
-- Automated structural/browser validation: included in `tests/`
+- Automated structural/browser validation: configured in `tests/` and CI; the current revision still requires a verified CI result before publication
 - Psychometric validation: not performed
 - Production merge: not appropriate until the review state is explicitly advanced
 
 ## Files
 
 - `manifest.json` — bank metadata, review state, schema, blueprint, and rendering rules
-- `sources.json` — evidence registry with population scope and verification date
+- `sources.json` — evidence registry with source type, population, jurisdiction, primary-vs-overlay role, identifiers where verified, and verification date
 - `stack-01.json` — recognition and close differentials
 - `stack-02.json` — diagnostic testing and tissue characterization
-- `stack-03.json` — heart failure, shock, disposition, and mechanical support
+- `stack-03.json` — heart failure, shock, disposition, complications, and mechanical support principles
 - `stack-04.json` — arrhythmias and electrical instability
-- `stack-05.json` — etiology, immunotherapy, and systemic mimics
+- `stack-05.json` — etiology, immunotherapy, genetics, and systemic mimics
 - `stack-06.json` — recovery, follow-up, sports, recurrence, and integration
 - `index.html`, `app.js`, `styles.css` — database-backed self-study renderer
 
@@ -57,28 +57,38 @@ After submission, display:
 1. learner answer and correct displayed answer
 2. overall rationale
 3. explanation for **every** option
-4. board pearl
-5. tested concept and learning objective context
-6. difficulty/cognitive level
+4. learning objective
+5. board pearl
+6. tested concept, difficulty, and cognitive level
 7. claim-level evidence mapping
 
 ## Item-writing rules
 
-The v2 bank enforces these editorial principles:
+The v2.1 bank enforces these editorial principles:
 
 - clinically competitive distractors rather than unrelated throwaway choices
 - distinct learning objectives rather than superficial age/wording variants of the same question
 - general-pediatrics decisions prioritized over fellowship-level procedural trivia
 - explicit uncertainty when evidence is observational, evolving, or population-dependent
 - current terminology, including the distinction between **myopericarditis** and **perimyocarditis**
-- current-source context for return-to-sport recommendations rather than a timeless calendar-only rule
+- the current US competitive-athlete myocarditis framework, including phenotype-specific return timing rather than a universal 3–6-month rule
 - full option explanations intended to teach why an answer is tempting, why it is or is not best, and when it would become appropriate
 
 ## Evidence model
 
-Each question has an `evidence` array containing a concise claim and a `source_id`. Source IDs resolve in `sources.json`, which records the source's population scope and role.
+Each question has an `evidence` array containing a concise claim and a `source_id`. Source IDs resolve in `sources.json`.
 
-Pediatric sources are preferred for pediatric claims. Adult guidance such as the 2024 ACC myocarditis pathway is explicitly labeled as an adult **overlay** rather than silently treated as pediatric primary evidence.
+The source registry now records:
+
+- source type
+- population scope
+- jurisdiction
+- primary pediatric evidence versus adult/general overlay
+- DOI/PMID when verified and appropriate
+- clinical role in the bank
+- `last_verified`
+
+Pediatric sources are preferred for pediatric claims. Adult/general guidance is explicitly labeled as an **overlay** rather than silently treated as pediatric primary evidence. For example, the LV-thrombus statement is used only for the general principle of managing an established thrombus; pediatric medication choice and duration remain specialist-dependent.
 
 ## Validation
 
@@ -90,19 +100,26 @@ Pediatric sources are preferred for pediatric claims. Adult guidance such as the
 - no legacy `answer: "A"`-style fields
 - every `correct_option_id` resolves
 - every option has an explanation
-- every evidence source resolves
-- no digit-only superficial duplicate stems
-- banned throwaway-distractor vocabulary absent
+- every evidence source resolves and placeholder-style source IDs are rejected
+- all questions remain explicitly SME-gated with no completed medical-review date
+- no superficial duplicate stems or normalized learning objectives
+- prior throwaway-distractor vocabulary absent
+- advanced ECMO unloading mechanics absent from core learner targets
 - difficulty distribution within editorial tolerance
-- adult guidance labeled as an overlay
+- source provenance/population/jurisdiction/overlay metadata present
 
 `tests/myocarditis-question-bank-ui.test.mjs` checks that the browser renderer:
 
-- loads the v2 manifest and all six stacks
+- loads the v2.1 manifest and all six stacks
 - renders 10 questions with five choices each
-- keeps grading content out of the visible question cards until submission
+- keeps grading content and learning objectives concealed until submission
+- blocks incomplete submissions
 - uses stable option IDs rather than A–E as stored values
-- can grade a complete stack correctly after option randomization
+- grades a complete stack correctly after option randomization
+- maps wrong semantic option IDs back to the correct displayed learner/correct A–E labels
+- reveals full explanations and learning objectives only after grading
+
+The dedicated workflow runs these checks for relevant feature-branch/main pushes and pull requests.
 
 ## Publication rule
 
