@@ -79,27 +79,27 @@
       "age_group": "adolescent",
       "domain": "recognition",
       "concept": "chest-pain phenotype",
-      "learning_objective": "Recognize a clinically suspected myocarditis phenotype despite preserved global systolic function.",
+      "learning_objective": "Recognize a myocarditis-type chest-pain phenotype with preserved global systolic function while discriminating it from close cardiac alternatives.",
       "cognitive_level": "recognition",
       "difficulty": 1,
-      "stem": "A 15-year-old develops acute chest pain and palpitations several days after a viral syndrome. Troponin is elevated, ECG shows new ST-T abnormalities, and echocardiography shows normal coronary origins and preserved left ventricular ejection fraction. Which diagnosis should remain high on the differential?",
+      "stem": "A 15-year-old develops acute chest pain and palpitations several days after a viral syndrome. Troponin is elevated, ECG shows new ST-T abnormalities, and echocardiography shows normal coronary origins, no ventricular hypertrophy, and preserved LV systolic function. Which diagnosis best fits the current presentation?",
       "options": [
         {"id":"myocarditis_preserved_ef","text":"Acute myocarditis with preserved global systolic function"},
-        {"id":"costochondritis","text":"Costochondritis as the sole diagnosis"},
-        {"id":"asthma","text":"Exercise-induced bronchoconstriction"},
-        {"id":"hcm","text":"Hypertrophic cardiomyopathy"},
-        {"id":"panic","text":"Panic disorder with incidental troponin elevation"}
+        {"id":"myopericarditis","text":"Predominantly acute pericarditis with minor myocardial involvement (myopericarditis)"},
+        {"id":"coronary_ischemia","text":"Coronary ischemic injury from an anomalous or acquired coronary process"},
+        {"id":"arrhythmogenic_cm","text":"An inherited arrhythmogenic cardiomyopathy presenting with an inflammatory episode"},
+        {"id":"hcm_injury","text":"Hypertrophic cardiomyopathy with secondary myocardial injury"}
       ],
       "correct_option_id": "myocarditis_preserved_ef",
-      "rationale": "Myocarditis can present with chest pain, myocardial injury markers, and ECG abnormalities even when global ventricular systolic function is preserved. Normal ejection fraction does not exclude active myocardial inflammation.",
+      "rationale": "The acute postviral course, objective myocardial injury, and new ECG abnormalities support myocarditis even though global systolic function is preserved. The alternatives are clinically relevant, but the stem lacks the predominant pericarditic syndrome, coronary/anatomic evidence, hypertrophy, or inherited/chronic phenotype that would make them more likely.",
       "option_explanations": {
-        "myocarditis_preserved_ef": "Correct. The combination of compatible symptoms, troponin elevation, and new ECG changes supports clinically suspected myocarditis even without reduced EF.",
-        "costochondritis": "Musculoskeletal pain is common in adolescents and can follow viral illness, but it does not explain myocardial injury and new ECG abnormalities. It would be more likely with reproducible chest-wall tenderness and reassuring cardiac testing.",
-        "asthma": "Exercise-related chest tightness may suggest bronchoconstriction, but asthma does not account for troponin elevation or new myocardial ECG changes. Pulmonary testing is appropriate only after cardiac causes are adequately addressed.",
-        "hcm": "HCM can cause chest pain, palpitations, and arrhythmia risk, but the acute postviral injury pattern and absence of hypertrophy make it less likely. Family history and imaging would become decisive if hypertrophy or inherited disease clues appeared.",
-        "panic": "Anxiety can amplify chest symptoms and palpitations, but it should not be used to explain objective myocardial injury. A psychiatric explanation becomes reasonable only after pathologic cardiac findings have been reconciled."
+        "myocarditis_preserved_ef": "Correct. Pediatric myocarditis can present primarily with chest pain, troponin elevation, and ECG changes before global pump function becomes abnormal; preserved EF therefore modifies severity assessment but does not exclude myocardial inflammation.",
+        "myopericarditis": "Myopericarditis is a real competing inflammatory diagnosis when pericarditic features predominate, such as positional pleuritic pain, diffuse pericarditic ECG changes, rub, or effusion. Those features are not provided here, so a myocarditis-type myocardial injury phenotype is the better fit.",
+        "coronary_ischemia": "Coronary ischemia must be considered in an adolescent with chest pain, troponin elevation, and ECG changes, particularly when symptoms are exertional or injury follows a vascular territory. Normal coronary origins are reassuring but do not replace clinical judgment if other ischemic clues emerge.",
+        "arrhythmogenic_cm": "Inherited arrhythmogenic cardiomyopathy can produce myocarditis-like inflammatory episodes and ventricular arrhythmias. It becomes more compelling with recurrent episodes, a malignant family history, characteristic scar/structural abnormalities, or persistent electrical disease beyond the acute illness.",
+        "hcm_injury": "HCM can cause chest pain, ischemia, and arrhythmia risk, but the absence of ventricular hypertrophy and the acute postviral injury pattern make it less likely in this vignette. Family history and evolving imaging findings would change that assessment."
       },
-      "board_pearl": "Preserved ejection fraction does not rule out myocarditis; tissue injury and electrical risk may exist before global pump failure.",
+      "board_pearl": "Preserved EF does not rule out myocarditis; in chest-pain presentations, the differential should remain cardiac rather than collapsing to benign noncardiac explanations.",
       "evidence": [
         {"claim":"Myocarditis can present with chest pain and myocardial injury without severe ventricular dysfunction.","source_id":"AHA_MYOCARDITIS_2021"},
         {"claim":"Normal common testing does not rule out myocarditis when clinical suspicion remains high.","source_id":"ACC_MYOCARDITIS_2024"}
