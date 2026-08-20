@@ -201,7 +201,7 @@
   if(doubleAorticArch){
     doubleAorticArch.o=[
       'Divide the non-dominant arch segment completing the ring and release airway/esophageal compression',
-      'Resect the dominant arch segment and reconstruct the remaining arch as the sole systemic outflow pathway',
+      'Resect the dominant arch and rely on the remaining arch for systemic outflow',
       'Perform posterior aortopexy as the initial operation without dividing either arch segment',
       'Place an endovascular stent across one arch segment to enlarge the vascular ring'
     ];
