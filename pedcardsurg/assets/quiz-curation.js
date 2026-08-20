@@ -15,6 +15,25 @@
     };
   }
 
+  const truncusReintervention=byId(12);
+  if(truncusReintervention){
+    Object.assign(truncusReintervention,{
+      o:[
+        'The fixed-size RV–PA conduit can become relatively small as the child grows and may degenerate; truncal-valve and branch-pulmonary-artery disease can also evolve',
+        'Routine coronary-artery reimplantation at neonatal truncus repair predisposes survivors to progressive coronary ostial stenosis',
+        'VSD closure after truncus repair leaves an obligatory residual left-to-right shunt that predictably worsens with growth',
+        'The embryologic failure of conotruncal septation commonly recurs and reopens the repaired truncal defect'
+      ],
+      a:0,
+      e:'Later procedures are common because the RV–PA conduit does not grow and can stenose or become insufficient. Truncal-valve regurgitation and branch-pulmonary-artery stenosis may also progress, so even an excellent neonatal result requires lifelong surveillance.'
+    });
+    truncusReintervention.wrong={
+      1:'Coronary transfer is a key part of an arterial switch operation, not routine truncus arteriosus repair. Coronary ostial stenosis is therefore not the usual mechanism driving later procedures after truncus repair.',
+      2:'A well-repaired VSD should not leave an obligatory residual shunt. A residual VSD can occur, but it is not an expected consequence that progressively worsens with somatic growth.',
+      3:'The developmental error that produces truncus arteriosus does not recur after surgical repair. Late procedures address acquired or residual structural problems, especially the RV–PA conduit, truncal valve, or branch pulmonary arteries.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
