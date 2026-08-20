@@ -44,7 +44,7 @@
     {"id":"admin","title":"Admin","route":"/admin/","class":"INTERNAL","audience":"owner","category":"internal","smoke":false,"protection":"cloudflare-access"},
     {"id":"clinic-resources","title":"Clinic Resources","route":"/admin/clinic-resources/","class":"INTERNAL","audience":"owner","category":"internal","smoke":false,"protection":"cloudflare-access"},
     {"id":"steven-os","title":"Steven OS","route":"/steven-os/","class":"INTERNAL","audience":"owner","category":"internal","smoke":false,"protection":"cloudflare-access-or-exclude"},
-    {"id":"cardiohospital","title":"Cardio Hospital Legacy Web Build","route":"/cardiohospital/","class":"PREVIEW","audience":"internal-review","category":"preview","smoke":false},
+    {"id":"cardiohospital","title":"Cardio Hospital Legacy Web Build","route":"/cardiohospital/","class":"INTERNAL","audience":"internal-review","category":"internal","smoke":false,"protection":"cloudflare-access-or-exclude"},
 
     {"id":"cardio-hospital-3d-source","title":"Cardio Hospital 3D Source","path":"cardio-hospital-3d/","class":"SOURCE_ONLY","audience":"developers","category":"source","smoke":false},
     {"id":"clipboard-sanitizer-source","title":"Clipboard Sanitizer Source","path":"clipboard-sanitizer/","class":"SOURCE_ONLY","audience":"developers","category":"source","smoke":false},
