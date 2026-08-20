@@ -18,13 +18,17 @@ Do not switch the output directory until `npm run test:platform` passes on the b
 
 ## Search-engine privacy
 
-Current policy is intentionally **no indexing**.
+Current policy is intentionally **no indexing** while retaining direct-link access.
 
 The generated artifact includes:
 
 - `_headers` with `X-Robots-Tag: noindex, nofollow, noarchive` site-wide;
-- `robots.txt` with `Disallow: /`;
+- `robots.txt` that leaves public crawling unblocked so search engines can read the noindex header;
 - no `sitemap.xml`.
+
+Do **not** use `robots.txt: Disallow /` as the indexing control. A crawler blocked by robots cannot observe the `noindex` directive, and an already-discovered URL can remain visible in search results. Keep the public pages crawlable while noindex is active.
+
+The site already had indexed URLs before this policy was added. After deployment, complete issue #40 to accelerate/verify removal in Google and Bing.
 
 Do not add a sitemap or remove the noindex policy until Steve explicitly decides to make the site discoverable.
 
@@ -94,7 +98,7 @@ or trigger the **Production verification** GitHub workflow.
 It must verify:
 
 1. global noindex/security headers;
-2. crawler disallow;
+2. crawler access remains compatible with the noindex directive;
 3. public canonical routes return 200;
 4. internal routes are not anonymously readable;
 5. SOURCE_ONLY routes return 404;
