@@ -3,25 +3,25 @@
   "focus": "diagnostic testing and tissue characterization",
   "questions": [
     {
-      "id":"MYO-011","status":"draft-medical-review","age":"7 years","age_group":"child","domain":"diagnosis","concept":"initial multimodal evaluation","learning_objective":"Select an initial evaluation that assesses myocardial injury, rhythm, structure/function, and competing diagnoses without treating one test as definitive.","cognitive_level":"application","difficulty":2,
-      "stem":"A 7-year-old has persistent tachycardia, exercise intolerance, hepatomegaly, and a gallop after a viral syndrome. Which initial cardiac evaluation is most appropriate?",
+      "id":"MYO-011","status":"draft-medical-review","age":"7 years","age_group":"child","domain":"diagnosis","concept":"initial multimodal evaluation","learning_objective":"Select an initial evaluation that establishes myocardial injury, electrical risk, ventricular function, and important structural alternatives without allowing one reassuring test to close the case.","cognitive_level":"application","difficulty":2,
+      "stem":"A 7-year-old has persistent tachycardia, new exercise intolerance, hepatomegaly, and a gallop several days after a febrile respiratory illness. Blood pressure and oxygen saturation are currently normal. Which initial cardiac evaluation best defines both the likelihood and severity of myocarditis while checking important alternatives?",
       "options":[
-        {"id":"multimodal","text":"ECG, cardiac injury/heart-failure biomarkers, echocardiography, and rhythm/hemodynamic monitoring guided by severity"},
-        {"id":"troponin_only","text":"Troponin alone, with no further cardiac testing if it is normal"},
-        {"id":"cmr_first","text":"Immediate CMR before bedside assessment or echocardiography"},
-        {"id":"emb_all","text":"Endomyocardial biopsy as the first test in every suspected case"},
-        {"id":"cxr_only","text":"Chest radiography alone because cardiomegaly confirms myocarditis"}
+        {"id":"multimodal","text":"Obtain a 12-lead ECG, cardiac injury and heart-failure biomarkers, transthoracic echocardiography, and rhythm/hemodynamic monitoring matched to the clinical severity"},
+        {"id":"ecg_troponin_gate","text":"Obtain an ECG and troponin first; if both are reassuring, defer echocardiography and rhythm monitoring unless symptoms progress"},
+        {"id":"echo_cxr_gate","text":"Obtain echocardiography and chest radiography first; if global systolic function is preserved, defer biomarkers and rhythm surveillance"},
+        {"id":"cmr_first","text":"Proceed directly to CMR for tissue characterization before obtaining bedside echocardiography or establishing rhythm surveillance"},
+        {"id":"viral_plus_troponin","text":"Use a respiratory viral panel plus serial troponin to establish the cause and severity, adding cardiac imaging only if either result is strongly abnormal"}
       ],
       "correct_option_id":"multimodal",
-      "rationale":"Myocarditis is diagnosed by integrating the clinical phenotype with electrical, biomarker, and imaging data. ECG/troponin/echo are useful but none is a universal stand-alone rule-in or rule-out test.",
+      "rationale":"The phenotype is concerning despite normal blood pressure and oxygen saturation. Initial evaluation should sample complementary domains: ECG/rhythm for electrical instability, biomarkers for injury and hemodynamic stress, and echocardiography for ventricular function, hemodynamics, and structural alternatives. No single common test is sufficiently comprehensive to act as a gatekeeper in a clinically concerning child.",
       "option_explanations":{
-        "multimodal":"Correct. This approach evaluates electrical risk, myocardial injury, ventricular function, congestion, and structural alternatives while allowing monitoring intensity to match clinical severity.",
-        "troponin_only":"Troponin is useful because myocardial injury is common, but a normal value cannot by itself close a high-suspicion case. Troponin-only evaluation is appropriate only as one component of a broader low-risk assessment, not as a rule-out strategy.",
-        "cmr_first":"CMR adds tissue characterization, but it should not displace bedside stabilization or the practical first-line information from ECG and echocardiography. It becomes especially useful once the child is stable enough and the result will clarify diagnosis or risk.",
-        "emb_all":"EMB can identify histologic subtypes and specific etiologies, but routine biopsy of every suspected case is neither necessary nor the modern default. It becomes more valuable in high-risk or diagnostically uncertain disease when tissue could change therapy.",
-        "cxr_only":"Chest radiography may show cardiomegaly or pulmonary edema, but these findings are nonspecific and do not establish myocardial inflammation. It is supportive, not definitive."
+        "multimodal":"Correct. This approach defines electrical, injury, pump, congestion, and structural domains early, allowing subsequent CMR, EMB, or other testing to be selected according to the initial phenotype and trajectory.",
+        "ecg_troponin_gate":"ECG and troponin are useful early tests, but both can be initially nondiagnostic in pediatric myocarditis. In this child, hepatomegaly and a gallop already justify direct assessment of ventricular function and appropriate monitoring rather than using two reassuring tests as a stop rule.",
+        "echo_cxr_gate":"Echo is central and chest radiography can support the heart-failure assessment, but preserved global systolic function does not eliminate myocardial injury or electrical risk. Biomarkers and rhythm assessment remain complementary when the clinical phenotype is concerning.",
+        "cmr_first":"CMR is valuable for tissue characterization once the child is stable and the result will clarify diagnosis or risk. It should not displace the rapid bedside information provided by ECG, monitoring, and echocardiography during the initial assessment.",
+        "viral_plus_troponin":"A respiratory pathogen can provide context but does not prove myocardial causality, and troponin alone does not define ventricular performance or electrical risk. Imaging and rhythm assessment should not be contingent on those tests becoming markedly abnormal."
       },
-      "board_pearl":"Myocarditis is a synthesis diagnosis: no single common initial test should be allowed to overrule a compelling phenotype.",
+      "board_pearl":"Build the myocarditis diagnosis across complementary domains; do not let one reassuring snapshot test become a gatekeeper.",
       "evidence":[{"claim":"Pediatric myocarditis diagnosis integrates clinical, laboratory, ECG, echocardiographic, CMR, and selected biopsy data.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
@@ -113,26 +113,26 @@
       "evidence":[{"claim":"EMB is used selectively to identify myocarditis etiologies or histologic subtypes with management implications and to evaluate mimics.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"High-risk myocarditis is a setting in which EMB may be particularly important.","source_id":"ESC_IMPS_2025"},{"claim":"Contemporary registry data support the continued diagnostic utility of EMB in pediatric and adult myocarditis, while CMR sensitivity can be lower in children with biopsy-proven disease.","source_id":"EMB_REGISTRY_2024"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
-      "id":"MYO-016","status":"draft-medical-review","age":"13 years","age_group":"adolescent","domain":"diagnosis","concept":"peripheral viral testing","learning_objective":"Avoid assigning myocardial causality from a positive respiratory viral test alone.","cognitive_level":"application","difficulty":2,
-      "stem":"A 13-year-old with clinically suspected myocarditis has a positive nasopharyngeal PCR for a common respiratory virus. Which interpretation is most accurate?",
+      "id":"MYO-016","status":"draft-medical-review","age":"13 years","age_group":"adolescent","domain":"diagnosis","concept":"peripheral viral testing","learning_objective":"Interpret a positive peripheral viral test as etiologic context rather than proof of myocardial causality, and keep cardiac risk assessment separate from pathogen attribution.","cognitive_level":"application","difficulty":2,
+      "stem":"A 13-year-old has chest pain, elevated troponin, new ST-T abnormalities, and CMR findings compatible with myocarditis. A nasopharyngeal PCR is positive for a common respiratory virus, and the team proposes documenting 'virus-proven myocarditis' and narrowing the remaining evaluation on that basis. Which interpretation is most accurate?",
       "options":[
-        {"id":"context_not_causality","text":"The result supports a recent/concurrent infection but does not by itself prove that the detected virus caused the myocardial inflammation"},
-        {"id":"proves_myocardial","text":"The positive respiratory PCR proves viral invasion of the myocardium"},
-        {"id":"excludes_immune","text":"The result excludes immune-mediated or noninfectious causes"},
-        {"id":"predicts_benign","text":"The identified virus predicts a benign course and removes the need for risk stratification"},
-        {"id":"replaces_cardiac_tests","text":"The viral result makes ECG, echocardiography, and cardiac biomarkers unnecessary"}
+        {"id":"context_not_causality","text":"The respiratory PCR supports a recent or concurrent infection but does not prove myocardial causality; severity and follow-up should still be driven by the cardiac phenotype"},
+        {"id":"cmr_plus_pcr_proves","text":"CMR evidence of inflammation plus a positive respiratory PCR is sufficient to establish that the detected virus directly infected the myocardium"},
+        {"id":"positive_ends_etiology","text":"Once a respiratory virus is detected, medication exposures, systemic inflammatory disease, and inherited cardiomyopathy clues no longer need etiologic consideration"},
+        {"id":"viral_predicts_course","text":"Identifying the respiratory virus meaningfully predicts a benign recovery trajectory and can reduce rhythm or ventricular surveillance if initial function is preserved"},
+        {"id":"peripheral_equals_tissue","text":"Peripheral viral detection provides the same etiologic information as myocardial tissue testing and therefore makes selected EMB-based molecular evaluation redundant"}
       ],
       "correct_option_id":"context_not_causality",
-      "rationale":"Detection of a virus in a peripheral specimen can provide epidemiologic and clinical context, but it does not establish myocardial infection or prove causality. Myocarditis remains a clinicopathologic diagnosis.",
+      "rationale":"A peripheral respiratory PCR documents infection at that site, not direct infection of the myocardium. It may identify a plausible trigger, but causal attribution remains uncertain and should not narrow risk stratification, follow-up, or the search for treatment-relevant alternatives when the phenotype suggests them.",
       "option_explanations":{
-        "context_not_causality":"Correct. Association between a respiratory infection and myocarditis is clinically useful, but the pathogen detected outside the heart may be incidental or only a trigger.",
-        "proves_myocardial":"Direct myocardial infection is a tissue-level claim that a respiratory swab cannot establish. Myocardial PCR or histologic evaluation is reserved for selected scenarios in which that information matters.",
-        "excludes_immune":"Viral infection can trigger immune-mediated injury, and noninfectious etiologies can coexist. A positive PCR does not narrow mechanism to one pathway.",
-        "predicts_benign":"Severity is defined by clinical trajectory, ventricular function, perfusion, and arrhythmia rather than by the mere presence of a respiratory pathogen.",
-        "replaces_cardiac_tests":"The viral result does not assess pump function, rhythm, or myocardial injury. Cardiac evaluation remains necessary when the phenotype is concerning."
+        "context_not_causality":"Correct. The viral result is useful context, but cardiac severity is defined by symptoms, ventricular function, perfusion, rhythm, biomarkers, and imaging rather than by the identity of a virus detected outside the heart.",
+        "cmr_plus_pcr_proves":"CMR can support myocardial inflammation and a respiratory swab can document infection, but the two findings do not establish that the detected virus is present in or directly causing injury to the myocardium. Association is not equivalent to tissue-level causation.",
+        "positive_ends_etiology":"A positive respiratory test does not exclude drug-associated, immune-mediated, systemic inflammatory, or inherited myocardial disease. Those alternatives become especially important when exposure history, recurrence, systemic findings, or family history point elsewhere.",
+        "viral_predicts_course":"Clinical trajectory and residual electrical/mechanical abnormalities determine prognosis and surveillance needs. The presence of a common respiratory virus does not by itself justify de-escalating risk assessment.",
+        "peripheral_equals_tissue":"Peripheral and myocardial testing answer different questions. Tissue testing is selective, but when it is justified by a high-risk or treatment-relevant phenotype, a nasopharyngeal PCR is not a substitute for histologic or myocardial molecular information."
       },
-      "board_pearl":"A positive respiratory PCR can support context; it cannot prove what is happening inside the myocardium.",
-      "evidence":[{"claim":"Peripheral pathogen detection does not establish a causative myocardial infection and should be interpreted in the full diagnostic context.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
+      "board_pearl":"A virus detected in the airway can be a trigger, a bystander, or both; do not promote it to myocardial causality without stronger evidence.",
+      "evidence":[{"claim":"Peripheral pathogen detection does not establish a causative myocardial infection and should be interpreted in the full diagnostic context.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"Pediatric data show that viruses detected in peripheral specimens may represent etiologic agents or innocent bystanders rather than proven myocardial infection.","source_id":"PED_MYO_VIRAL_PCR_2022"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
       "id":"MYO-017","status":"draft-medical-review","age":"11 years","age_group":"child","domain":"diagnosis","concept":"troponin versus natriuretic peptide","learning_objective":"Interpret biomarkers as complementary signals of injury and hemodynamic stress rather than interchangeable diagnostic tests.","cognitive_level":"application","difficulty":2,
