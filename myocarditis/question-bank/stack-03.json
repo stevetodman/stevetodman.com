@@ -7,19 +7,19 @@
       "stem":"A 2-year-old with suspected myocarditis is hypotensive with cool extremities and delayed capillary refill. Examination also shows hepatomegaly and pulmonary crackles; echocardiography shows severely depressed LV function. A sepsis pathway proposes repeated rapid crystalloid boluses. What is the best response?",
       "options":[
         {"id":"cautious_reassess","text":"Define preload and congestion, use only cautious reassessed fluid if truly needed, and escalate cardiogenic-shock support"},
-        {"id":"repeat_bolus","text":"Give repeated large rapid boluses until the blood pressure normalizes"},
-        {"id":"no_support","text":"Withhold all circulatory support until myocarditis is biopsy confirmed"},
-        {"id":"oral_fluids","text":"Replace the IV resuscitation plan with unrestricted oral hydration"},
-        {"id":"diuretic_only","text":"Give diuretic therapy alone and ignore poor perfusion because pulmonary congestion is present"}
+        {"id":"protocol_bolus","text":"Continue the protocolized rapid-bolus sequence because hypotension should be treated as preload deficiency until blood pressure improves"},
+        {"id":"diuresis_first","text":"Prioritize aggressive decongestion first and defer support of cardiac output until pulmonary crackles and hepatomegaly improve"},
+        {"id":"vasopressor_only","text":"Treat the blood pressure with vasopressor support alone without reassessing preload, contractility, or the degree of congestion"},
+        {"id":"fluid_by_bp","text":"Give serial small fluid challenges based mainly on the blood-pressure response, continuing them even if pulmonary congestion increases"}
       ],
       "correct_option_id":"cautious_reassess",
-      "rationale":"The child has both low output and congestion, making pump failure—not simple volume depletion—the dominant physiology. Additional fluid can worsen filling pressures and pulmonary edema; management requires reassessment and hemodynamic support tailored to the phenotype.",
+      "rationale":"The child has both low output and congestion, making pump failure—not simple volume depletion—the dominant physiology. Additional fluid can worsen filling pressures and pulmonary edema; management requires reassessment and hemodynamic support tailored to preload, congestion, perfusion, pressure, and ventricular function.",
       "option_explanations":{
-        "cautious_reassess":"Correct. Small amounts of fluid may occasionally be appropriate if preload is inadequate, but the default in congested cardiogenic shock is not repeated empiric volume loading.",
-        "repeat_bolus":"Tempting because pediatric shock pathways often start with fluid, but the demonstrated congestion and severe LV dysfunction make repeated large boluses potentially harmful. Aggressive fluid is more appropriate when true hypovolemia is the dominant physiology and congestion is absent.",
-        "no_support":"Etiologic certainty should not delay shock treatment. Biopsy is selective and can occur only after immediate perfusion threats are addressed.",
-        "oral_fluids":"Oral hydration cannot correct cardiogenic shock and may worsen congestion. It is appropriate only in stable patients with uncomplicated volume depletion and intact cardiac reserve.",
-        "diuretic_only":"Congestion matters, but this child also has shock and poor systemic perfusion. Decongestion must be integrated with support of cardiac output and blood pressure rather than treated in isolation."
+        "cautious_reassess":"Correct. Small amounts of fluid may occasionally be appropriate if preload is inadequate, but the default in congested cardiogenic shock is not repeated empiric volume loading; circulation support must match the physiology.",
+        "protocol_bolus":"Tempting because pediatric shock pathways often begin with fluid, but severe LV dysfunction plus pulmonary/systemic congestion makes repeated rapid loading potentially harmful. Protocols must yield to the observed hemodynamic phenotype.",
+        "diuresis_first":"Decongestion may be necessary, but the child is also hypotensive and poorly perfused. Diuresis cannot be treated as a prerequisite before supporting cardiac output and blood pressure in shock.",
+        "vasopressor_only":"Vascular tone may need support, but cardiogenic shock is not a blood-pressure number alone. Contractility, preload, congestion, and end-organ perfusion still determine whether a vasopressor, inotrope, or combined strategy is appropriate.",
+        "fluid_by_bp":"A transient blood-pressure response does not establish that additional volume is safe. Worsening crackles or venous congestion signals rising filling pressures and should stop reflexive fluid escalation."
       },
       "board_pearl":"Before giving fluid in shock, ask whether the child is empty—or failing to pump.",
       "evidence":[{"claim":"Pediatric acute decompensated heart failure management requires assessment of congestion and perfusion before fluid decisions.","source_id":"AHA_PED_ADHF_2026"},{"claim":"Fulminant myocarditis can cause cardiogenic shock requiring urgent hemodynamic support.","source_id":"AHA_FULMINANT_2020"}],"last_medical_review":null,"requires_sme_review":true
@@ -29,19 +29,19 @@
       "stem":"A 9-year-old with fulminant myocarditis has persistent low cardiac output despite careful preload optimization. Which general vasoactive principle is most appropriate?",
       "options":[
         {"id":"phenotype_support","text":"Select inotropic and/or vasopressor support according to the child's blood pressure, systemic vascular tone, perfusion, and ventricular function"},
-        {"id":"one_drug","text":"Use the same single vasoactive drug in every child with myocarditis regardless of hemodynamics"},
-        {"id":"fluids_replace","text":"Avoid vasoactive agents and continue escalating fluids until perfusion improves"},
-        {"id":"wait_biopsy","text":"Do not support blood pressure or contractility until biopsy confirms myocarditis"},
-        {"id":"rate_only","text":"Treat the heart rate alone because perfusion will normalize automatically"}
+        {"id":"inotrope_for_all","text":"Use an inotrope as the default for every low-output myocarditis phenotype even when marked vasodilation and hypotension are the dominant circulatory problem"},
+        {"id":"vasopressor_for_all","text":"Use a vasopressor as the default whenever blood pressure is low, even when severe contractile failure and high vascular resistance dominate the physiology"},
+        {"id":"ef_only","text":"Choose vasoactive therapy from the ejection fraction alone and do not let systemic vascular tone or end-organ perfusion alter the selection"},
+        {"id":"more_fluid_first","text":"Require additional volume loading before vasoactive support whenever cardiac output remains low, despite prior preload optimization and congestion assessment"}
       ],
       "correct_option_id":"phenotype_support",
-      "rationale":"There is no one-size-fits-all vasoactive regimen for pediatric myocarditis. Support should match the hemodynamic phenotype: contractility, blood pressure, systemic vascular tone, and end-organ perfusion.",
+      "rationale":"There is no one-size-fits-all vasoactive regimen for pediatric myocarditis. Support should match the hemodynamic phenotype: contractility, blood pressure, systemic vascular tone, congestion, and end-organ perfusion.",
       "option_explanations":{
         "phenotype_support":"Correct. Hemodynamic phenotype drives whether the child needs more contractile support, vascular tone support, or both, with repeated reassessment.",
-        "one_drug":"A universal agent ignores major differences between hypotensive, vasoconstricted, vasodilated, or relatively normotensive low-output states. Specific drug selection belongs to critical-care/cardiology management based on the phenotype.",
-        "fluids_replace":"Fluids cannot correct severe pump failure and may worsen congestion. They are useful only when preload is genuinely inadequate.",
-        "wait_biopsy":"Shock treatment cannot wait for pathology. Diagnostic clarification and physiologic support proceed in parallel.",
-        "rate_only":"Heart rate can be compensatory or pathologic, but cardiac output depends on more than rate. Treating a number without the hemodynamic mechanism can worsen the child."
+        "inotrope_for_all":"Inotropic support can be central when contractility is the limiting problem, but a markedly vasodilated hypotensive phenotype may also require vascular-tone support. One class does not fit every shock state.",
+        "vasopressor_for_all":"A vasopressor can restore vascular tone in selected hypotensive states, but excessive afterload may worsen output when severe pump failure and vasoconstriction dominate. Blood pressure alone is not enough to select therapy.",
+        "ef_only":"EF describes global systolic performance but does not define vascular tone, filling conditions, or adequacy of organ perfusion. Vasoactive selection requires the whole hemodynamic profile.",
+        "more_fluid_first":"Once preload has been carefully assessed and optimized, continued volume loading can worsen congestion without restoring contractility. Persistent low output should prompt phenotype-directed circulatory support."
       },
       "board_pearl":"In myocarditis shock, treat hemodynamics—not a favorite vasoactive drug.",
       "evidence":[{"claim":"Pediatric ADHF/cardiogenic shock management is hemodynamically individualized and evidence for one universal vasoactive regimen is limited.","source_id":"AHA_PED_ADHF_2026"},{"claim":"Fulminant myocarditis may require inotropic/vasopressor and mechanical circulatory support.","source_id":"AHA_FULMINANT_2020"}],"last_medical_review":null,"requires_sme_review":true
@@ -51,19 +51,19 @@
       "stem":"A 6-year-old with severe myocarditis has worsening pulmonary edema, fatigue, and hypoxemia while blood pressure is falling and perfusion is poor. Which approach to respiratory support is best?",
       "options":[
         {"id":"coordinated_airway","text":"Escalate respiratory support as needed while planning induction and positive-pressure ventilation as a high-risk hemodynamic event with cardiac/critical-care support"},
-        {"id":"avoid_vent","text":"Avoid all positive-pressure ventilation because it is absolutely contraindicated in myocarditis"},
-        {"id":"sedate_only","text":"Give deep sedation without a coordinated airway or circulatory plan"},
-        {"id":"wait_cmr","text":"Delay treatment of respiratory failure until CMR defines the extent of inflammation"},
-        {"id":"exercise","text":"Encourage ambulation to recruit lung volume and improve oxygenation"}
+        {"id":"delay_positive_pressure","text":"Delay positive-pressure support as long as possible because its preload effects are more dangerous than progressive respiratory fatigue in severe myocarditis"},
+        {"id":"intubate_unprepared","text":"Intubate immediately for pulmonary edema without first coordinating vasoactive, monitoring, and rescue-circulation readiness because the airway problem takes priority"},
+        {"id":"sedation_bridge","text":"Use deep sedation to reduce metabolic demand as the main bridge while postponing a decision about definitive respiratory and circulatory support"},
+        {"id":"decongest_before_airway","text":"Require substantial diuresis before escalating respiratory support even though hypoxemia, fatigue, hypotension, and poor perfusion are worsening"}
       ],
       "correct_option_id":"coordinated_airway",
-      "rationale":"Respiratory failure must be treated, but induction and positive pressure can alter venous return, vascular resistance, and blood pressure in a child with little cardiac reserve. Airway and circulatory planning should occur together.",
+      "rationale":"Respiratory failure must be treated, but induction and positive pressure can alter venous return, vascular resistance, and blood pressure in a child with little cardiac reserve. Airway and circulatory planning should occur together rather than one being delayed for the other.",
       "option_explanations":{
         "coordinated_airway":"Correct. The point is not to avoid ventilation but to anticipate cardiovascular collapse and ensure monitoring, vasoactive support, skilled airway personnel, and advanced-support readiness.",
-        "avoid_vent":"Positive-pressure ventilation is not absolutely contraindicated; untreated respiratory failure is dangerous. Avoidance becomes harmful when the child can no longer maintain oxygenation or ventilation.",
-        "sedate_only":"Sedation can reduce sympathetic tone and blood pressure and should not be given as a substitute for definitive respiratory/hemodynamic management. It belongs within a deliberate airway plan when needed.",
-        "wait_cmr":"Advanced imaging must never delay stabilization of respiratory or circulatory failure.",
-        "exercise":"Active myocarditis with respiratory failure and shock is incompatible with exercise; exertion would increase metabolic demand and risk."
+        "delay_positive_pressure":"Positive pressure can affect preload, but untreated respiratory fatigue and hypoxemia are also dangerous. Worsening failure should trigger coordinated escalation rather than avoidance of needed ventilation.",
+        "intubate_unprepared":"The child may indeed need intubation, but induction can abruptly reduce sympathetic tone and alter preload/afterload. Proceeding without hemodynamic preparation can precipitate cardiovascular collapse.",
+        "sedation_bridge":"Sedation may be part of a deliberate airway strategy, but by itself it can reduce sympathetic support without correcting respiratory failure or low output. It is not a substitute for definitive planning.",
+        "decongest_before_airway":"Decongestion can help pulmonary edema, but a child with worsening hypoxemia, fatigue, hypotension, and poor perfusion cannot wait for diuresis to work before respiratory and circulatory rescue is addressed."
       },
       "board_pearl":"In severe myocarditis, an airway intervention is also a cardiovascular intervention.",
       "evidence":[{"claim":"Pediatric acute heart failure can rapidly progress and requires coordinated management of respiratory and circulatory failure.","source_id":"AHA_PED_ADHF_2026"},{"claim":"Fulminant myocarditis requires anticipatory multidisciplinary critical-care management.","source_id":"AHA_FULMINANT_2020"}],"last_medical_review":null,"requires_sme_review":true
@@ -73,19 +73,19 @@
       "stem":"An 8-year-old with suspected myocarditis has worsening biventricular function, rising lactate, oliguria, and increasing vasoactive needs at a hospital without pediatric mechanical circulatory support. What is the best systems-level decision?",
       "options":[
         {"id":"transfer_now","text":"Activate transfer to a pediatric ECMO/MCS-capable cardiac center while stabilization continues"},
-        {"id":"wait_arrest","text":"Wait until cardiac arrest occurs because transfer is only indicated after conventional support fails completely"},
-        {"id":"ward","text":"Continue care on a general ward because myocarditis often recovers spontaneously"},
-        {"id":"outpatient","text":"Arrange next-day pediatric cardiology follow-up if the oxygen saturation remains normal"},
-        {"id":"biopsy_before","text":"Require local biopsy confirmation before discussing transfer"}
+        {"id":"maximize_local_first","text":"Continue escalating conventional support locally until another major organ-support threshold is reached, then request transfer if the child remains unstable"},
+        {"id":"nearest_picu","text":"Transfer to the nearest general PICU even if it lacks pediatric MCS capability because the shortest transport time should override likely resource needs"},
+        {"id":"biopsy_before","text":"Complete local endomyocardial biopsy first so the receiving center has a definitive etiologic diagnosis before accepting transfer"},
+        {"id":"wait_for_arrest_risk","text":"Defer transfer while a pulse and spontaneous ventilation are maintained because transport risk outweighs benefit until arrest becomes imminent"}
       ],
       "correct_option_id":"transfer_now",
-      "rationale":"Progressive low-output shock and end-organ dysfunction in myocarditis are pre-arrest findings. Pediatric resuscitation guidance recommends early ICU/advanced-center escalation and transfer when refractory low output may require ECMO/MCS.",
+      "rationale":"Progressive low-output shock and end-organ dysfunction in myocarditis are pre-arrest findings. Pediatric resuscitation guidance supports early ICU/advanced-center escalation and transfer when refractory low output may require ECMO/MCS.",
       "option_explanations":{
-        "transfer_now":"Correct. Transfer logistics are safer and more useful before refractory shock becomes arrest or multiorgan failure.",
-        "wait_arrest":"Waiting for arrest sacrifices the window for planned transport and advanced support. ECPR may be reasonable in arrest, but prevention of arrest is preferable.",
-        "ward":"Spontaneous recovery occurs, but this child is deteriorating and needs resources a general ward cannot provide.",
-        "outpatient":"Normal oxygen saturation does not exclude low cardiac output. Oliguria, lactate rise, and escalating support are incompatible with outpatient management.",
-        "biopsy_before":"Tissue diagnosis can matter, but transfer and stabilization should not be delayed for a local invasive procedure when the child may need MCS."
+        "transfer_now":"Correct. Transfer logistics are safer and more useful before refractory shock becomes arrest or multiorgan failure, while stabilization continues in parallel.",
+        "maximize_local_first":"The current trajectory already shows failure of conventional support. Waiting for another threshold can convert a planned transfer into a rescue transport after further organ injury.",
+        "nearest_picu":"A nearby PICU may be appropriate for many unstable children, but this child is specifically progressing toward a resource the current and proposed facility lack. Destination capability should match the anticipated rescue need when transport can be arranged safely.",
+        "biopsy_before":"Tissue diagnosis can matter in high-risk myocarditis, but a local invasive procedure should not delay transfer when the child may need MCS and advanced cardiac expertise.",
+        "wait_for_arrest_risk":"Maintaining a pulse does not make the trajectory safe. Rising lactate, oliguria, biventricular dysfunction, and increasing vasoactive needs are precisely the pre-arrest findings that favor earlier escalation."
       },
       "board_pearl":"Transfer for myocarditis should be triggered by trajectory—not by cardiac arrest.",
       "evidence":[{"claim":"Early transfer to a center with ECMO/MCS capability is reasonable in pediatric myocarditis/cardiomyopathy with refractory low cardiac output.","source_id":"AHA_PALS_2025"},{"claim":"Anticipatory transfer to advanced pediatric cardiovascular care is central to myocarditis management.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
@@ -95,21 +95,21 @@
       "stem":"A 10-year-old with fulminant myocarditis remains in refractory low-output shock despite intensive medical therapy and is placed on VA-ECMO. Which counseling statement is most accurate?",
       "options":[
         {"id":"bridge_recovery","text":"Temporary mechanical support may preserve end-organ perfusion while native myocardial function recovers; some children will still require durable support or transplantation"},
-        {"id":"transplant_all","text":"VA-ECMO means heart transplantation is inevitable"},
-        {"id":"recovery_impossible","text":"Severe shock makes meaningful ventricular recovery impossible"},
-        {"id":"no_followup","text":"If ventricular function recovers on ECMO, no later cardiac follow-up is needed"},
-        {"id":"no_arrhythmia","text":"Mechanical support removes the risk of ventricular arrhythmias"}
+        {"id":"bridge_transplant","text":"VA-ECMO should be described primarily as a bridge to transplantation because severe enough myocarditis to require MCS rarely recovers native function"},
+        {"id":"delay_advanced_planning","text":"Because fulminant myocarditis often recovers, transplant or durable-support planning should be deferred until prolonged ECMO has already failed"},
+        {"id":"support_echo_equals_recovery","text":"Normalization of ventricular dimensions or ejection while on full ECMO support is sufficient to conclude that durable native recovery has occurred"},
+        {"id":"decannulation_ends_risk","text":"Successful decannulation establishes complete recovery, so later rhythm and myocardial surveillance can be substantially reduced"}
       ],
       "correct_option_id":"bridge_recovery",
-      "rationale":"Fulminant myocarditis can show substantial native myocardial recovery when circulation is supported through the acute phase. MCS is often a bridge to recovery, but outcomes vary and some children require VAD or transplant.",
+      "rationale":"Fulminant myocarditis can show substantial native myocardial recovery when circulation is supported through the acute phase. MCS is often a bridge to recovery, but outcomes vary and advanced heart-failure teams simultaneously reassess for durable support or transplantation when recovery is inadequate.",
       "option_explanations":{
-        "bridge_recovery":"Correct. This is the central rationale for early temporary support in a potentially reversible inflammatory cardiomyopathy.",
-        "transplant_all":"Some children require transplantation, but many recover native function. Transplant becomes necessary when recovery is inadequate or other factors dictate durable support.",
-        "recovery_impossible":"Severe initial presentation does not preclude recovery; pediatric ECMO cohorts document rapid and durable recovery in many survivors.",
-        "no_followup":"Recovery from the acute shock phase does not erase residual scar, rhythm risk, or recurrence concerns. Longitudinal cardiology follow-up remains important.",
-        "no_arrhythmia":"ECMO supports circulation but does not eliminate myocardial electrical instability. Rhythm monitoring continues during support."
+        "bridge_recovery":"Correct. This is the central rationale for early temporary support in a potentially reversible inflammatory cardiomyopathy while preserving options if recovery is incomplete.",
+        "bridge_transplant":"Some children require transplantation, but pediatric fulminant-myocarditis cohorts demonstrate meaningful native recovery. Presenting transplant as the expected endpoint overstates the prognostic certainty.",
+        "delay_advanced_planning":"Potential reversibility does not justify postponing contingency planning. Advanced teams can support recovery while simultaneously evaluating whether durable support or transplant may become necessary.",
+        "support_echo_equals_recovery":"Mechanical support changes loading conditions, so apparent ventricular improvement while fully supported must be interpreted with weaning physiology and the broader recovery trajectory rather than a single supported echocardiogram.",
+        "decannulation_ends_risk":"Decannulation is a major recovery milestone but does not erase residual scar, rhythm risk, or recurrence concerns. Longitudinal cardiology follow-up remains important."
       },
-      "board_pearl":"Fulminant myocarditis can be both catastrophically ill and highly recoverable—MCS buys time for that recovery.",
+      "board_pearl":"Fulminant myocarditis can be both catastrophically ill and highly recoverable—MCS buys time for recovery while preserving advanced options.",
       "evidence":[{"claim":"ECMO/MCS can benefit children with myocarditis/cardiomyopathy and refractory low cardiac output.","source_id":"AHA_PALS_2025"},{"claim":"Contemporary pediatric fulminant myocarditis ECMO cohorts demonstrate substantial transplant-free myocardial recovery among survivors.","source_id":"ECMO_PED_OUTCOMES_2024"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
@@ -139,19 +139,19 @@
       "stem":"A 5-year-old with myocarditis has tachypnea, hepatomegaly, and pulmonary congestion but is alert, normotensive, warm, and has preserved urine output. Which principle best fits the immediate management?",
       "options":[
         {"id":"decongest_monitor","text":"Treat congestion and monitor closely for deterioration rather than reflexively giving large fluid boluses or shock-level vasoactive therapy"},
-        {"id":"shock_vasoactive","text":"Treat as refractory cardiogenic shock solely because pulmonary edema is present"},
-        {"id":"large_fluid","text":"Give repeated large rapid crystalloid boluses because all tachycardia implies volume depletion"},
-        {"id":"discharge","text":"Discharge because warm extremities exclude significant heart failure"},
-        {"id":"exercise","text":"Use exercise to improve ventricular conditioning during the active illness"}
+        {"id":"fluid_challenge","text":"Give a fluid challenge for the tachycardia and poor oral intake before treating congestion, despite the pulmonary and systemic volume-overload findings"},
+        {"id":"shock_vasoactive","text":"Start shock-level vasoactive support because pulmonary edema in myocarditis should be treated as evidence of inadequate systemic perfusion"},
+        {"id":"outpatient_diuresis","text":"Use outpatient oral decongestive therapy because warm extremities and preserved urine output make inpatient deterioration unlikely"},
+        {"id":"no_treatment_until_cmr","text":"Defer treatment of congestion until CMR confirms active myocarditis so heart-failure therapy does not obscure the diagnosis"}
       ],
       "correct_option_id":"decongest_monitor",
       "rationale":"The child is congested but not currently showing shock physiology. Management intensity should match the hemodynamic phenotype, with decongestive/supportive heart-failure care and close monitoring because myocarditis can evolve rapidly.",
       "option_explanations":{
         "decongest_monitor":"Correct. Congestion and perfusion are separate axes; a warm, perfused child does not need shock treatment solely because fluid overload is present.",
-        "shock_vasoactive":"Vasoactive support is appropriate when cardiac output or blood pressure is inadequate. Pulmonary congestion alone does not prove refractory shock.",
-        "large_fluid":"The child is already congested, making repeated fluid loading physiologically mismatched. Fluids belong in true preload deficiency, not indiscriminately in every tachycardic child.",
-        "discharge":"Warm perfusion is reassuring but does not erase active myocarditis with pulmonary and systemic congestion. Ongoing monitoring and treatment are still needed.",
-        "exercise":"Exercise is restricted during active myocarditis and is not a decongestive therapy."
+        "fluid_challenge":"Poor intake can tempt volume replacement, but pulmonary congestion and hepatomegaly indicate elevated filling pressures. Fluid should be reserved for evidence of true preload deficiency rather than given for tachycardia alone.",
+        "shock_vasoactive":"Vasoactive support is appropriate when cardiac output or blood pressure is inadequate. Pulmonary congestion alone does not establish shock in a warm, normotensive child with preserved urine output.",
+        "outpatient_diuresis":"Warm perfusion is reassuring, but active myocarditis with pulmonary/systemic congestion can evolve rapidly. The current phenotype still warrants monitored heart-failure management rather than routine outpatient treatment.",
+        "no_treatment_until_cmr":"CMR can refine diagnosis and tissue characterization, but clinically important congestion should be treated while diagnostic evaluation proceeds rather than waiting for advanced imaging."
       },
       "board_pearl":"Separate congestion from perfusion: a child can be 'wet and warm' without being in shock.",
       "evidence":[{"claim":"Pediatric acute decompensated heart failure is managed by defining congestion and perfusion and matching treatment intensity to the phenotype.","source_id":"AHA_PED_ADHF_2026"}],"last_medical_review":null,"requires_sme_review":true
@@ -161,19 +161,19 @@
       "stem":"An 11-year-old with suspected myocarditis has moderate LV dysfunction and newly recognized RV dysfunction with worsening hepatomegaly. Why does the RV finding matter?",
       "options":[
         {"id":"greater_extent","text":"It suggests more extensive pump involvement and can increase concern for hemodynamic deterioration"},
-        {"id":"rules_out","text":"RV dysfunction rules out myocarditis because myocarditis affects only the LV"},
-        {"id":"proves_pe","text":"RV dysfunction proves pulmonary embolism"},
-        {"id":"no_change","text":"RV function has no bearing on monitoring or risk if the LV ejection fraction is known"},
-        {"id":"athlete","text":"RV dysfunction is expected physiologic remodeling in all active children"}
+        {"id":"preload_only","text":"Interpret the RV dysfunction primarily as evidence of inadequate preload and give volume before changing the severity assessment"},
+        {"id":"pe_primary","text":"Treat pulmonary embolism as the default explanation for new RV dysfunction before integrating the simultaneous LV dysfunction and myocarditis phenotype"},
+        {"id":"lv_drives_all","text":"Base monitoring and transfer decisions on LV function alone because RV systolic performance adds little once LV dysfunction is documented"},
+        {"id":"congestion_only","text":"Use the RV finding only to explain hepatomegaly and venous congestion, without allowing it to influence concern about systemic output or deterioration"}
       ],
       "correct_option_id":"greater_extent",
       "rationale":"Myocarditis can involve both ventricles. Biventricular dysfunction reflects broader myocardial involvement and should heighten attention to congestion, perfusion, and advanced-support needs.",
       "option_explanations":{
         "greater_extent":"Correct. RV performance contributes materially to cardiac output and systemic venous congestion and should be integrated into severity assessment.",
-        "rules_out":"Myocarditis is not an LV-only disease; RV involvement is recognized.",
-        "proves_pe":"Pulmonary embolism can cause RV dysfunction, but RV dysfunction alone is not diagnostic. PE becomes more likely with compatible risk factors and pulmonary vascular findings.",
-        "no_change":"Ignoring the RV can underestimate severity, especially when systemic congestion is worsening.",
-        "athlete":"Physiologic athletic remodeling is not synonymous with pathologic RV systolic dysfunction in an acutely ill child."
+        "preload_only":"RV dysfunction can worsen with unfavorable loading conditions, but in a child with simultaneous LV dysfunction and worsening systemic congestion it should not be presumed to reflect simple volume deficiency.",
+        "pe_primary":"Pulmonary embolism remains a differential diagnosis for acute RV dysfunction when risk factors and pulmonary vascular findings support it, but biventricular dysfunction in an established myocarditis phenotype is not enough to make PE the default mechanism.",
+        "lv_drives_all":"Ignoring the RV can underestimate the severity of biventricular pump failure and systemic venous congestion, both of which can affect output and escalation decisions.",
+        "congestion_only":"RV failure contributes to venous congestion but can also reduce effective LV filling and systemic output. Its significance is hemodynamic, not merely descriptive."
       },
       "board_pearl":"Assess both ventricles; right-sided failure can be central to the myocarditis phenotype and disposition.",
       "evidence":[{"claim":"Pediatric myocarditis may cause biventricular dysfunction and advanced heart failure.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"Biventricular dysfunction is a higher-risk feature in contemporary myocarditis risk assessment.","source_id":"ACC_MYOCARDITIS_2024"}],"last_medical_review":null,"requires_sme_review":true
