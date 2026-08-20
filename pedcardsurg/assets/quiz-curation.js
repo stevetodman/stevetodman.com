@@ -34,6 +34,15 @@
     };
   }
 
+  const atrialSwitch=byId(42);
+  if(atrialSwitch){
+    atrialSwitch.o[2]='The tricuspid valve remains a low-pressure pulmonary atrioventricular valve, so progressive tricuspid regurgitation is not a major late concern';
+    atrialSwitch.wrong={
+      ...(atrialSwitch.wrong||{}),
+      2:'After an atrial switch, the morphologic RV is the systemic ventricle and its tricuspid valve is the systemic atrioventricular valve. Systemic tricuspid regurgitation is an important late complication, not a trivial low-pressure lesion.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
