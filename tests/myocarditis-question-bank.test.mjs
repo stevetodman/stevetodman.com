@@ -126,6 +126,19 @@ describe('item-writing quality gates', () => {
     assert.ok(pct(3) >= 15 && pct(3) <= 30, `Level 3 mix ${pct(3)}% outside tolerance`);
   });
 
+  test('keeps cognitive-level mix broadly aligned with the reasoning blueprint', () => {
+    const allowed = ['recognition', 'application', 'multi-step'];
+    const counts = Object.fromEntries(allowed.map(level => [level, 0]));
+    for (const question of questions) {
+      assert.ok(allowed.includes(question.cognitive_level), `${question.id} has invalid cognitive level ${question.cognitive_level}`);
+      counts[question.cognitive_level] += 1;
+    }
+    const pct = level => counts[level] / questions.length * 100;
+    assert.ok(pct('recognition') >= 5 && pct('recognition') <= 20, `Recognition mix ${pct('recognition')}% outside editorial tolerance`);
+    assert.ok(pct('application') >= 45 && pct('application') <= 75, `Application mix ${pct('application')}% outside editorial tolerance`);
+    assert.ok(pct('multi-step') >= 15 && pct('multi-step') <= 40, `Multi-step mix ${pct('multi-step')}% outside editorial tolerance`);
+  });
+
   test('prevents legacy answer-position bias by construction', () => {
     for (const question of questions) {
       assert.ok(!/^[A-E]$/.test(question.correct_option_id), `${question.id} stores a display letter as the answer`);
