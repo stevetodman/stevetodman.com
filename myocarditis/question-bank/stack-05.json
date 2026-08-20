@@ -65,7 +65,7 @@
         "steroids_equiv":"Steroid effects differ by subtype and evidence is heterogeneous. Some specific immune-mediated histologies have stronger rationale for immunosuppression than idiopathic cases.",
         "replaces_support":"Immunomodulation never substitutes for management of heart failure, shock, or arrhythmia. Physiologic support remains foundational."
       },
-      "board_pearl":"When evidence is observational and heterogeneous, the board-safe answer is often to state the uncertainty rather than invent a universal regimen.",
+      "board_pearl":"When pediatric comparative evidence is observational and heterogeneous, describe the uncertainty explicitly rather than presenting a universal regimen.",
       "evidence":[{"claim":"The AHA pediatric myocarditis statement notes common use of IVIG despite limited evidence supporting routine efficacy.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"A 2026 pediatric network meta-analysis found signals of benefit for IVIG but called for high-quality randomized trials.","source_id":"IVIG_META_2026"},{"claim":"A 2026 PHIS observational analysis found associations between IVIG-containing strategies and lower mortality but cannot establish causality.","source_id":"IVIG_PHIS_2026"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
@@ -95,19 +95,19 @@
       "stem":"A 15-year-old develops chest pain, ventricular dysfunction, eosinophilia, fever, and a diffuse rash shortly after starting a new medication. He deteriorates with ventricular arrhythmia and shock. Which etiologic concern should be prioritized?",
       "options":[
         {"id":"eosinophilic","text":"Drug-associated eosinophilic/hypersensitivity myocarditis, with urgent specialist evaluation and consideration of EMB because subtype-directed treatment may matter"},
-        {"id":"routine_viral","text":"Assume routine viral myocarditis and ignore the medication exposure and eosinophilia"},
-        {"id":"isolated_allergy","text":"Simple cutaneous drug allergy that cannot involve the heart"},
-        {"id":"athletic","text":"Physiologic athletic remodeling"},
-        {"id":"costochondritis","text":"Costochondritis with incidental ventricular dysfunction"}
+        {"id":"routine_viral","text":"A recent upper-respiratory illness is sufficient to favor routine viral myocarditis over the new medication exposure and eosinophilia"},
+        {"id":"isolated_allergy","text":"Interpret the rash and eosinophilia as an isolated drug eruption while treating the cardiac findings as a separate unexplained cardiomyopathy"},
+        {"id":"viral_without_tissue","text":"Defer etiologic reassessment because severe myocarditis should be managed identically regardless of whether a treatment-responsive histologic subtype is present"},
+        {"id":"support_only","text":"Provide shock and arrhythmia support but do not reconsider the offending medication or a mechanism-directed diagnosis"}
       ],
       "correct_option_id":"eosinophilic",
       "rationale":"A new drug exposure, eosinophilia, systemic hypersensitivity features, and severe myocardial disease raise concern for eosinophilic myocarditis. In high-risk disease, tissue diagnosis may identify a subtype for which immunosuppression and withdrawal of the trigger have treatment implications.",
       "option_explanations":{
         "eosinophilic":"Correct. This pattern is precisely why exposure history, differential count, and selective EMB can be care-changing in myocarditis.",
-        "routine_viral":"Viral myocarditis remains possible, but ignoring strong drug/hypersensitivity clues would miss an etiologic pathway with different treatment implications.",
-        "isolated_allergy":"Drug hypersensitivity can be systemic and may involve the myocardium; severe ventricular dysfunction and arrhythmia cannot be explained as a skin-only reaction.",
-        "athletic":"Physiologic remodeling does not cause acute rash, eosinophilia, shock, and ventricular arrhythmia.",
-        "costochondritis":"Chest-wall inflammation cannot explain objective ventricular dysfunction or systemic hypersensitivity findings."
+        "routine_viral":"A viral prodrome is common and can coexist, which makes this tempting, but the medication timing plus eosinophilia and rash are treatment-relevant clues that should not be overridden by an antecedent respiratory illness.",
+        "isolated_allergy":"Drug hypersensitivity can be systemic and may involve the myocardium. Treating the skin and cardiac findings as unrelated would miss a unifying mechanism when severe ventricular dysfunction and arrhythmia are present.",
+        "viral_without_tissue":"Supportive care is urgent in every severe phenotype, but high-risk disease with a plausible treatment-responsive subtype is exactly where selective tissue diagnosis can alter disease-directed therapy.",
+        "support_only":"Physiologic support remains essential, yet it does not replace removal of a suspected trigger or evaluation for a mechanism that may change treatment."
       },
       "board_pearl":"In myocarditis, eosinophilia plus a new drug is not background noise—it may identify a treatment-relevant subtype.",
       "evidence":[{"claim":"Eosinophilic and drug-associated myocarditis are specific etiologic forms for which histology and mechanism can direct treatment.","source_id":"ESC_IMPS_2025"},{"claim":"High-risk myocarditis with a potentially treatment-relevant subtype is a setting where EMB can be important.","source_id":"AHA_FULMINANT_2020"}],"last_medical_review":null,"requires_sme_review":true
@@ -117,88 +117,88 @@
       "stem":"A 10-year-old with a known systemic autoimmune disease develops chest pain, elevated troponin, ventricular ectopy, and new LV dysfunction during a multisystem inflammatory flare. Which etiologic interpretation is most appropriate?",
       "options":[
         {"id":"autoimmune_myocarditis","text":"Consider myocarditis as cardiac involvement of the underlying immune-mediated disease and coordinate disease-specific evaluation with cardiology/rheumatology"},
-        {"id":"must_viral","text":"Assume the myocarditis is viral because viral disease is the only pediatric cause"},
-        {"id":"autoimmune_excludes","text":"A preexisting autoimmune diagnosis excludes myocarditis"},
-        {"id":"troponin_ignore","text":"Ignore the cardiac abnormalities because systemic inflammation can raise troponin without consequence"},
-        {"id":"exercise","text":"Use exercise testing during the flare to determine whether symptoms are inflammatory"}
+        {"id":"viral_trigger","text":"Prioritize an unrelated viral myocarditis solely because respiratory infections remain common in children"},
+        {"id":"stress_cardiomyopathy","text":"Attribute the dysfunction to stress-related cardiomyopathy without integrating the active systemic inflammatory flare"},
+        {"id":"nonspecific_troponin","text":"Treat the troponin rise as nonspecific systemic inflammation despite the simultaneous ventricular ectopy and new LV dysfunction"},
+        {"id":"defer_mechanism","text":"Treat the cardiac phenotype but postpone consideration of autoimmune cardiac involvement until the systemic flare has completely resolved"}
       ],
       "correct_option_id":"autoimmune_myocarditis",
       "rationale":"Systemic immune-mediated diseases can involve the myocardium and pericardium. The underlying disease may change both etiologic evaluation and treatment, so the autoimmune context should be integrated rather than ignored.",
       "option_explanations":{
         "autoimmune_myocarditis":"Correct. The multisystem flare and objective myocardial injury make immune-mediated cardiac involvement a meaningful working diagnosis.",
-        "must_viral":"Viral causes are common but not exclusive, and the known systemic inflammatory disease is directly relevant to mechanism.",
-        "autoimmune_excludes":"Autoimmune disease can increase, not eliminate, the possibility of myocarditis.",
-        "troponin_ignore":"Troponin can be nonspecific, but ventricular ectopy and new LV dysfunction show clinically significant cardiac involvement requiring evaluation.",
-        "exercise":"Exercise is inappropriate during active inflammatory myocardial disease and cannot safely distinguish etiologies."
+        "viral_trigger":"Viral myocarditis remains a competing diagnosis, but a known systemic autoimmune disease flaring at the same time materially raises the probability of immune-mediated cardiac involvement and may change therapy.",
+        "stress_cardiomyopathy":"Stress cardiomyopathy can mimic myocarditis, but choosing it without reconciling the inflammatory flare, troponin rise, and ventricular ectopy would be premature diagnostic closure.",
+        "nonspecific_troponin":"Troponin can be nonspecific in systemic illness, but the simultaneous ventricular ectopy and new LV dysfunction make clinically important myocardial involvement difficult to dismiss.",
+        "defer_mechanism":"Stabilization comes first, but etiologic assessment should proceed in parallel when mechanism could alter treatment; waiting for the systemic flare to end may lose useful diagnostic information."
       },
       "board_pearl":"When myocarditis appears during a systemic inflammatory flare, ask whether the heart is another involved organ.",
       "evidence":[{"claim":"Systemic inflammatory and autoimmune diseases can cause myocarditis/pericardial involvement and may require etiology-specific management.","source_id":"ESC_IMPS_2025"},{"claim":"Noninfectious etiologies are part of the pediatric myocarditis differential.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
-      "id":"MYO-047","status":"draft-medical-review","age":"13 years","age_group":"adolescent","domain":"etiology","concept":"recurrent myocarditis and genetic predisposition","learning_objective":"Escalate evaluation for genetic/immune predisposition when clinically confirmed myocarditis recurs.","cognitive_level":"application","difficulty":2,
-      "stem":"A 13-year-old has a second well-documented episode of myocarditis after complete apparent recovery from the first. Which additional consideration becomes more important than after a single isolated episode?",
+      "id":"MYO-047","status":"draft-medical-review","age":"13 years","age_group":"adolescent","domain":"etiology","concept":"recurrent myocarditis and genetic predisposition","learning_objective":"Use recurrent myocarditis as a trigger to reassess for an inherited cardiomyopathy substrate rather than repeatedly assign an unspecified viral cause.","cognitive_level":"multi-step","difficulty":3,
+      "stem":"A 13-year-old has a second well-documented episode of myocarditis after apparent recovery from the first. Between episodes, ventricular function was normal. There is no known family history of cardiomyopathy. Which additional etiologic step is most appropriate?",
       "options":[
-        {"id":"genetic_immune","text":"Evaluation for an underlying genetic cardiomyopathy or immune predisposition"},
-        {"id":"same_virus","text":"Assume the same virus caused both episodes and no further etiologic evaluation is useful"},
-        {"id":"no_followup","text":"Stop cardiology follow-up between episodes because function normalized previously"},
-        {"id":"sports_now","text":"Immediate competitive-sports clearance because recovery occurred after the first episode"},
-        {"id":"tonsils","text":"Routine tonsillectomy as standard prevention of recurrent myocarditis"}
+        {"id":"genetic_reassessment","text":"Revisit the pedigree and phenotype with pediatric cardiology and consider cardiomyopathy-focused genetic counseling/testing because recurrent inflammatory episodes can be the presenting pattern of inherited cardiomyopathy"},
+        {"id":"repeat_viral_panel","text":"Repeat broad respiratory and stool viral panels and regard any positive result as sufficient proof of the myocardial cause"},
+        {"id":"genetics_only_dcm","text":"Reserve genetic evaluation for children who already have persistent dilated cardiomyopathy, because normal function between episodes excludes an inherited substrate"},
+        {"id":"immune_panel_first","text":"Use a broad nonspecific immune panel as the primary explanation for recurrence before reassessing the cardiac phenotype or family history"},
+        {"id":"single_event_framework","text":"Manage the second episode exactly like a first isolated event and do not let recurrence change the etiologic differential"}
       ],
-      "correct_option_id":"genetic_immune",
-      "rationale":"Recurrence changes the pretest probability of an underlying predisposition, including inherited cardiomyopathy genes or immune mechanisms. It should trigger specialist etiologic reassessment rather than repeated attribution to an unspecified virus.",
+      "correct_option_id":"genetic_reassessment",
+      "rationale":"Recurrent myocarditis-like inflammatory episodes can occur in inherited cardiomyopathies, particularly arrhythmogenic phenotypes. Pediatric studies have identified cardiomyopathy-associated pathogenic variants in children initially labeled with myocarditis. Recurrence should therefore prompt renewed pedigree/phenotype assessment and consideration of genetics, while avoiding the claim that every recurrent case is genetic.",
       "option_explanations":{
-        "genetic_immune":"Correct. Recurrent inflammatory phenotypes can overlap genetic cardiomyopathy and merit a deeper pedigree/genetic and immune evaluation.",
-        "same_virus":"Repeated viral triggers are possible, but assuming identical causation without investigation risks missing an inherited or immune substrate.",
-        "no_followup":"Normalization of EF after one episode does not eliminate recurrence or residual electrical/tissue risk.",
-        "sports_now":"Recurrent myocarditis increases the need for careful recovery assessment, not automatic clearance.",
-        "tonsils":"Tonsillectomy is not a standard myocarditis-prevention strategy without a separate ENT indication."
+        "genetic_reassessment":"Correct. Recurrence changes the prior probability of an underlying myocardial substrate even when ventricular function normalizes between episodes; testing remains phenotype- and counseling-dependent rather than automatic proof of causation.",
+        "repeat_viral_panel":"Peripheral viral detection may support a recent infection but does not by itself prove myocardial infection, and repeating that strategy alone can miss an inherited substrate.",
+        "genetics_only_dcm":"Pediatric desmosomal and other cardiomyopathies can present with inflammatory episodes before persistent structural dysfunction becomes obvious, so normal interval EF does not eliminate the genetic differential.",
+        "immune_panel_first":"Immune mechanisms remain possible, but an unfocused immune panel is not a substitute for revisiting the recurrent cardiac phenotype, pedigree, and inherited cardiomyopathy differential.",
+        "single_event_framework":"A second confirmed episode is new diagnostic information. Treating recurrence as if it had no etiologic significance risks repeatedly assigning an unproven viral explanation."
       },
-      "board_pearl":"Recurrence is a diagnostic clue: look for the substrate, not just the next trigger.",
-      "evidence":[{"claim":"Genetic predisposition is increasingly recognized in myocarditis and should be considered in recurrent/familial presentations.","source_id":"ACC_MYOCARDITIS_2024"},{"claim":"The 2025 ESC framework includes genetic testing when indicated in myocarditis/inflammatory cardiomyopathy.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
+      "board_pearl":"Recurrence is a substrate clue: revisit inherited cardiomyopathy even when the ventricle looked normal between episodes.",
+      "evidence":[{"claim":"Pediatric myocarditis can be associated with pathogenic cardiomyopathy variants, particularly in higher-risk phenotypes.","source_id":"PED_MYO_GENETICS_2021"},{"claim":"Pediatric arrhythmogenic cardiomyopathy, including DSP disease, can initially present with a myocarditis-like inflammatory phenotype.","source_id":"PED_DSP_2024"},{"claim":"Current ESC myocarditis guidance incorporates genetic testing when the phenotype or history indicates an inherited substrate.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
       "id":"MYO-048","status":"draft-medical-review","age":"16 years","age_group":"adolescent","domain":"etiology","concept":"family history and genetics","learning_objective":"Use a family history of cardiomyopathy/sudden death to broaden evaluation beyond an isolated viral explanation even after a first myocarditis episode.","cognitive_level":"application","difficulty":2,
       "stem":"A 16-year-old has a first episode of clinically confirmed myocarditis. His mother has dilated cardiomyopathy and an uncle died suddenly at age 35. Which next consideration is most appropriate after acute stabilization?",
       "options":[
-        {"id":"genetic_counsel","text":"Obtain a detailed pedigree and consider cardiomyopathy-focused genetic counseling/testing with cardiology"},
-        {"id":"viral_only","text":"Do no further etiologic evaluation because a preceding viral illness proves a sporadic viral cause"},
-        {"id":"family_irrelevant","text":"Ignore the family history because genetic cardiomyopathy and myocarditis never overlap"},
-        {"id":"screen_only_if_recurrence","text":"Wait for a second episode before documenting the family history"},
-        {"id":"no_relative_eval","text":"Assume relatives never require evaluation if the adolescent's EF normalizes"}
+        {"id":"genetic_counsel","text":"Obtain a detailed three-generation pedigree and consider cardiomyopathy-focused genetic counseling/testing with pediatric cardiology"},
+        {"id":"viral_only","text":"Treat the preceding viral illness as sufficient evidence of a sporadic viral cause and defer inherited-cardiomyopathy assessment unless ventricular dysfunction persists"},
+        {"id":"relative_screen_only","text":"Screen the mother again but avoid evaluating the adolescent genetically because the current presentation was inflammatory rather than a classic cardiomyopathy phenotype"},
+        {"id":"wait_recurrence","text":"Document the family history but wait for recurrent myocarditis or a second relative with sudden death before considering genetic counseling"},
+        {"id":"cmr_substitute","text":"Use a normal follow-up ejection fraction or improving CMR as a substitute for pedigree-based inherited-disease assessment"}
       ],
       "correct_option_id":"genetic_counsel",
-      "rationale":"A strong family history of cardiomyopathy and premature sudden death raises concern for genetic susceptibility or an inflammatory presentation superimposed on inherited cardiomyopathy. Pedigree and genetics can affect the patient and family.",
+      "rationale":"A strong family history of cardiomyopathy and premature sudden death raises concern for genetic susceptibility or an inflammatory presentation superimposed on inherited cardiomyopathy. Pediatric myocarditis/DCM cohorts demonstrate meaningful enrichment of cardiomyopathy-associated variants, so pedigree and genetics can affect both the patient and relatives.",
       "option_explanations":{
-        "genetic_counsel":"Correct. Genetics does not replace the myocarditis diagnosis; it addresses why this patient may be susceptible and whether relatives are at risk.",
-        "viral_only":"A viral prodrome is common and does not erase a malignant pedigree. It may be a trigger rather than the entire explanation.",
-        "family_irrelevant":"Inflammatory and inherited cardiomyopathy phenotypes can overlap; this false separation would miss important risk information.",
-        "screen_only_if_recurrence":"Recurrence is one trigger for deeper evaluation, but a strong family history is already sufficient reason to investigate the substrate.",
-        "no_relative_eval":"Family implications depend on the genetic/clinical findings and should be addressed through cardiology/genetic counseling rather than assumed away after EF recovery."
+        "genetic_counsel":"Correct. Genetics does not negate the myocarditis diagnosis; it asks whether an inherited myocardial substrate contributed and whether relatives may need targeted evaluation.",
+        "viral_only":"A preceding viral illness can be a trigger and is common in children. It does not erase a first-degree family history of DCM plus premature sudden death.",
+        "relative_screen_only":"Family evaluation is important, but the affected adolescent is also informative for genetic testing. Myocarditis-like presentations and inherited cardiomyopathy are not mutually exclusive.",
+        "wait_recurrence":"Recurrence would add evidence, but the current pedigree is already clinically meaningful. Delaying counseling risks missing actionable information for the proband and family.",
+        "cmr_substitute":"Mechanical or tissue recovery can coexist with an inherited predisposition. Imaging describes phenotype; it cannot substitute for pedigree and genetic assessment when the family history is high risk."
       },
       "board_pearl":"A viral prodrome does not cancel a malignant pedigree.",
-      "evidence":[{"claim":"Contemporary myocarditis guidance emphasizes genetic predisposition, family history, and genetic counseling/testing.","source_id":"ACC_MYOCARDITIS_2024"},{"claim":"Genetic testing is incorporated into the 2025 ESC myocarditis diagnostic framework when indicated.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
+      "evidence":[{"claim":"Pathogenic or likely pathogenic cardiomyopathy variants are enriched in pediatric myocarditis with a DCM phenotype compared with heart-healthy controls.","source_id":"PED_MYO_GENETICS_2026"},{"claim":"Pediatric biopsy-proven myocarditis cohorts have identified cardiomyopathy-associated pathogenic variants, supporting phenotype-directed genetic evaluation.","source_id":"PED_MYO_GENETICS_2021"},{"claim":"Current ESC guidance incorporates genetics when myocarditis overlaps a suspected inherited cardiomyopathy phenotype.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
-      "id":"MYO-049","status":"draft-medical-review","age":"7 years","age_group":"child","domain":"therapy","concept":"etiology-specific anti-infective therapy","learning_objective":"Treat a proven actionable infection in parallel with cardiac supportive care rather than expect anti-infective therapy to replace management of heart failure or arrhythmia.","cognitive_level":"application","difficulty":2,
-      "stem":"A 7-year-old with myocarditis is found to have a specific active infection for which disease-directed antimicrobial therapy is indicated. The child also has LV dysfunction and ventricular ectopy. Which principle is best?",
+      "id":"MYO-049","status":"draft-medical-review","age":"7 years","age_group":"child","domain":"etiology","concept":"peripheral viral PCR interpretation","learning_objective":"Interpret a positive respiratory viral PCR as evidence of a concurrent/recent infection rather than proof that the same virus is infecting the myocardium.","cognitive_level":"application","difficulty":2,
+      "stem":"A 7-year-old has a clinical and CMR-supported diagnosis of myocarditis after several days of cough and fever. A nasopharyngeal multiplex PCR is positive for a common respiratory virus. Which interpretation is most accurate?",
       "options":[
-        {"id":"parallel_treatment","text":"Treat the identified infection while continuing appropriate management of ventricular dysfunction, rhythm risk, and perfusion"},
-        {"id":"infection_only","text":"Stop cardiac monitoring because antimicrobial therapy makes arrhythmia risk disappear immediately"},
-        {"id":"support_only","text":"Ignore an actionable infection because all myocarditis treatment is purely supportive"},
-        {"id":"delay_support","text":"Delay heart-failure treatment until the infection has been eradicated"},
-        {"id":"assume_cure","text":"Assume the antimicrobial will reverse severe pump failure immediately"}
+        {"id":"indirect_support","text":"The result supports a concurrent or recent respiratory infection but does not by itself prove that this virus is the cause of myocardial inflammation"},
+        {"id":"proves_myocardium","text":"The respiratory PCR proves active infection of cardiomyocytes by the same virus, so no further etiologic reasoning is needed"},
+        {"id":"directs_immunosuppression","text":"A positive respiratory PCR establishes that immunosuppression is contraindicated in every myocarditis phenotype regardless of histology or severity"},
+        {"id":"directs_antiviral","text":"The respiratory PCR automatically establishes an indication for myocarditis-specific antiviral treatment even when no effective pathogen-directed therapy exists"},
+        {"id":"excludes_genetics","text":"Identification of a respiratory virus excludes an inherited cardiomyopathy substrate even if the child later has recurrent inflammatory episodes or a concerning pedigree"}
       ],
-      "correct_option_id":"parallel_treatment",
-      "rationale":"When an etiologic infection has a validated specific treatment, cause-directed therapy complements rather than replaces management of the cardiac phenotype. Shock, heart failure, and arrhythmias still require direct supportive treatment.",
+      "correct_option_id":"indirect_support",
+      "rationale":"Common respiratory infections are frequent in children, so a positive upper-airway PCR can identify a plausible trigger without establishing myocardial infection or causality. Etiologic attribution should remain integrated with the phenotype, timing, alternative causes, and—when clinically indicated—myocardial tissue testing.",
       "option_explanations":{
-        "parallel_treatment":"Correct. Etiology and physiology are treated in parallel.",
-        "infection_only":"Even effective antimicrobial treatment does not immediately eliminate myocardial electrical instability or restore ventricular function.",
-        "support_only":"Many myocarditis cases have no proven specific therapy, but an actionable identified infection should not be ignored when treatment is indicated for that infection.",
-        "delay_support":"Cardiac deterioration can progress quickly; physiologic support must not wait for microbiologic response.",
-        "assume_cure":"Etiology-directed therapy may prevent further injury or treat systemic infection, but established myocardial dysfunction can persist and requires ongoing cardiac management."
+        "indirect_support":"Correct. Peripheral respiratory PCR is useful context and can guide treatment of the respiratory infection when independently indicated, but it is not equivalent to detecting a pathogen in myocardium.",
+        "proves_myocardium":"The same respiratory illness may have triggered the myocardial syndrome, but upper-airway viral nucleic acid is indirect evidence. Pediatric reviews explicitly distinguish respiratory/stool PCR from myocardial tissue PCR.",
+        "directs_immunosuppression":"Immunosuppression decisions depend on myocarditis subtype, severity, and evidence for active myocardial infection when that distinction is relevant; a respiratory swab alone is not a universal veto.",
+        "directs_antiviral":"Some identified infections have their own treatment indications, but a positive multiplex respiratory result does not create a myocarditis-specific antiviral indication when effective disease-directed therapy is absent.",
+        "excludes_genetics":"Environmental triggers and inherited myocardial susceptibility can coexist. A positive respiratory test should not erase recurrence, family history, or other clues to a genetic cardiomyopathy."
       },
-      "board_pearl":"Treat the cause when it is actionable, but never stop treating the physiology.",
-      "evidence":[{"claim":"Current myocarditis guidance distinguishes supportive therapy from etiology-directed treatment for selected specific causes.","source_id":"ESC_IMPS_2025"},{"claim":"Pediatric myocarditis management remains driven by heart failure, arrhythmia, and shock severity while etiology is evaluated.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
+      "board_pearl":"A respiratory PCR can identify a trigger; it does not establish the myocardial mechanism.",
+      "evidence":[{"claim":"A positive respiratory or stool viral PCR provides indirect support for infection but is not a replacement for myocardial tissue PCR in establishing myocardial infection.","source_id":"PED_MYO_REVIEW_2025"},{"claim":"Peripheral viral testing has limited specificity for myocardial causation and should be interpreted with the full myocarditis phenotype.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
       "id":"MYO-050","status":"draft-medical-review","age":"12 years","age_group":"child","domain":"therapy","concept":"biopsy-directed treatment","learning_objective":"Understand why identifying a specific histologic subtype can be more care-changing than simply confirming nonspecific myocarditis.","cognitive_level":"multi-step","difficulty":3,
