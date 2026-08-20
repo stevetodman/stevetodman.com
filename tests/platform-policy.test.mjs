@@ -15,6 +15,16 @@ function routeFile(route) {
   return route.slice(1);
 }
 
+function walkFiles(dir) {
+  const files = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, entry.name);
+    if (entry.isDirectory()) files.push(...walkFiles(p));
+    else files.push(p);
+  }
+  return files;
+}
+
 test('site-wide search privacy policy lets crawlers observe noindex', () => {
   const headers = read('_headers');
   const robots = read('robots.txt');
@@ -77,6 +87,15 @@ test('classified build excludes repository/backend source and includes shared pl
   assert.doesNotMatch(kawasaki, /https:\/\/unpkg\.com\//i, 'Kawasaki production artifact must not depend on unpkg');
   assert.doesNotMatch(kawasaki, /id=["']codex-visualization-(?:floating-ui-core|floating-ui-dom|lucide)["']/i,
     'optional visualization CDN loaders must be stripped from production');
+
+  for (const file of walkFiles(dist).filter((p) => p.endsWith('.html'))) {
+    const html = fs.readFileSync(file, 'utf8');
+    const relative = path.relative(dist, file);
+    assert.match(html, /<meta\b(?=[^>]*\bname=["']robots["'])[^>]*\bnoindex\b[^>]*>/i,
+      `${relative} must carry HTML noindex defense in depth`);
+    assert.doesNotMatch(html, /<meta\b(?=[^>]*\bname=["']robots["'])[^>]*\bcontent=["'][^"']*\bindex\b/i,
+      `${relative} must not explicitly opt into indexing`);
+  }
 });
 
 test('StudyHub schema is versioned with RLS and no browser-role grants', () => {
