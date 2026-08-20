@@ -6,6 +6,15 @@
 
   const byId=id=>questions.find(question=>question.id===id);
 
+  const ebsteinRepair=byId(28);
+  if(ebsteinRepair){
+    ebsteinRepair.wrong={
+      1:'The Lecompte maneuver is used during an arterial switch operation to bring the pulmonary arteries anterior to the aorta; it does not reconstruct the tricuspid valve.',
+      2:'The Warden procedure repairs selected partial anomalous pulmonary venous return patterns involving the superior vena cava; it is not an Ebstein valve repair.',
+      3:'The Damus–Kaye–Stansel procedure connects the pulmonary root to the aorta in selected single-ventricle or systemic-outflow-obstruction pathways; it does not repair the tricuspid valve.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
