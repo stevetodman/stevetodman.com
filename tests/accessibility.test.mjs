@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { startServer, getChromium } from './helpers/harness.mjs';
 
 let server, browser, axeSource;
-const PAGES = ['/', '/education/', '/about/', '/search/', '/tools/', '/study/'];
+const PAGES = ['/', '/education/', '/about/', '/contact/', '/privacy/', '/search/', '/tools/', '/study/'];
 
 before(async () => {
   server = await startServer();
