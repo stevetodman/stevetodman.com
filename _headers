@@ -14,6 +14,14 @@
   Cache-Control: no-store
   X-Robots-Tag: noindex, nofollow, noarchive
 
-/tools/*preview*
+/cardiohospital/*
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/tools/pediatric-abpm-pathway-preview.html
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/tools/bp-percentile-calculator-preview.html
   Cache-Control: no-store
   X-Robots-Tag: noindex, nofollow, noarchive
