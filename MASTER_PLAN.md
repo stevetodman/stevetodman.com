@@ -1,6 +1,6 @@
 # stevetodman.com Platform Master Plan
 
-Status: ACTIVE — repo implementation in PR #37; live cutover/manual acceptance still pending
+Status: REPO IMPLEMENTATION COMPLETE — PR #37 validated; live cutover/manual acceptance still pending
 Owner: Steve Todman
 Created: 2026-08-19
 Updated: 2026-08-19
@@ -26,8 +26,14 @@ If work is interrupted, resume in this order:
 1. Read this file.
 2. Read the current Handoff in `CLAUDE.md`.
 3. Check PR #37 and issues #38–#42.
-4. Continue the first unchecked item in **Execution checklist**.
-5. Never reopen completed work unless CI or a regression demonstrates a problem.
+4. If PR #37 is not merged, preserve its validated scope and do not reopen completed repo work without a failing test/regression.
+5. After PR #37 lands, continue the first unchecked **external/manual** item below, starting with issue #38.
+
+## Current checkpoint
+
+PR #37's final code validation passed the complete GitHub Actions matrix: platform policy, Steven OS core, JavaScript syntax/integrity, simulator suites, BP, Kawasaki, hypertension, cardiovascular prevention, aortopathy, Myocarditis, PALS, genetics, PedCardSurg, full site smoke/Pin Sprint/Continue Learning, and shared-platform accessibility.
+
+The repo-side platform program is therefore complete. Remaining unchecked work requires live Cloudflare/Supabase/search-console access, real-device acceptance, evidence gathering, or post-merge PR cleanup; do not fabricate completion of those gates.
 
 ## Goals
 
@@ -55,7 +61,7 @@ If work is interrupted, resume in this order:
 
 ### Phase 1 — CI correctness
 
-- [x] Expand workflow path triggers to every production module.
+- [x] Expand workflow path triggers to every production module and platform scripts.
 - [x] Run every existing dedicated behavioural suite in CI.
 - [x] Add Kawasaki to the smoke inventory.
 - [x] Add a Kawasaki behavioural regression suite with independent expected-answer data.
@@ -63,7 +69,8 @@ If work is interrupted, resume in this order:
 - [x] Add static deployment-policy checks (noindex, catalog, build boundary, StudyHub migration).
 - [x] Add post-deploy verification script/workflow for production headers/routes/Access/source exclusion.
 - [x] Make the Kawasaki deploy artifact self-contained by stripping its optional legacy CDN loaders during `npm run build`, with a production-artifact invariant in platform tests.
-- [ ] Finish PR #37 CI review and fix any regressions introduced by this branch; document pre-existing failures rather than hiding them.
+- [x] Fix/validate newly exposed Myocarditis, PALS, PedCardSurg, Continue Learning, and Pin Sprint test failures rather than hiding their suites.
+- [x] Complete PR #37 code validation with every Actions job/suite green.
 
 ### Phase 2 — Information architecture
 
