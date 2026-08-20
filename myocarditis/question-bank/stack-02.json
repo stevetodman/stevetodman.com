@@ -1,15 +1,226 @@
 {
   "stack": 2,
+  "focus": "diagnostic testing and tissue characterization",
   "questions": [
-    {"id":"MYO-011","age":"2 months","concept":"Diagnosis","difficulty":2,"stem":"A 2-month-old infant has poor feeding, tachypnea, diaphoresis with feeds, and fewer wet diapers for 2 days. He had diarrhea 1 week ago. Heart rate is 172/min, respiratory rate 58/min, and temperature 37.1°C. Examination shows a gallop, hepatomegaly, and cool feet. Which finding most strongly argues against uncomplicated bronchiolitis and toward cardiac disease?","options":{"A":"Recent viral symptoms","B":"Tachypnea","C":"Hepatomegaly with a gallop rhythm","D":"Age younger than 3 months","E":"Decreased oral intake"},"answer":"C","rationale":"Hepatomegaly plus a gallop is a classic pediatric heart-failure combination and is not explained by uncomplicated bronchiolitis.","option_explanations":{"A":"Viral symptoms occur in both bronchiolitis and myocarditis.","B":"Tachypnea is nonspecific.","C":"Correct. Systemic venous congestion and an abnormal cardiac exam point to heart failure.","D":"Young age increases risk from many illnesses but is not specific.","E":"Poor intake is common in both respiratory and cardiac disease."},"board_pearl":"Hepatomegaly is an important heart-failure clue in infants with respiratory symptoms.","sources":["AHA_MYOCARDITIS_2021"]},
-    {"id":"MYO-012","age":"9 years","concept":"Biomarkers","difficulty":2,"stem":"A 9-year-old girl has fatigue, dyspnea, and chest discomfort after a viral illness. Troponin is elevated and BNP is markedly elevated. Which interpretation is most accurate?","options":{"A":"The tests prove a specific viral etiology","B":"The combination supports myocardial injury and hemodynamic stress but is not diagnostic by itself","C":"A high BNP excludes pericardial involvement","D":"Troponin elevation establishes a need for coronary angiography","E":"Normal creatine kinase would exclude myocarditis"},"answer":"B","rationale":"Troponin supports myocardial injury and BNP/NT-proBNP supports cardiac wall stress/heart failure, but neither is specific enough to independently establish cause.","option_explanations":{"A":"Biomarkers do not identify the pathogen.","B":"Correct. They strengthen the clinical case but must be interpreted with ECG, imaging, and examination.","C":"BNP does not rule out pericardial inflammation.","D":"Troponin elevation in a child has multiple causes and does not automatically mandate angiography.","E":"CK is not sufficiently sensitive to exclude myocarditis."},"board_pearl":"Use cardiac biomarkers as supportive evidence, not as stand-alone diagnostic proof.","sources":["PEDIATRIC_MYOCARDITIS_REVIEW_2020","AHA_MYOCARDITIS_2021"]},
-    {"id":"MYO-013","age":"11 years","concept":"Disposition","difficulty":2,"stem":"An 11-year-old boy has suspected myocarditis with elevated troponin and mild LV systolic dysfunction. Blood pressure is normal, but telemetry shows frequent ventricular premature beats. Which disposition is most appropriate?","options":{"A":"Discharge with primary-care follow-up","B":"Observation at home with activity restriction","C":"Admission with continuous cardiac monitoring","D":"Outpatient Holter monitor only","E":"Routine follow-up in 6 months"},"answer":"C","rationale":"Myocarditis can deteriorate rapidly and ventricular ectopy indicates electrical instability that warrants inpatient monitoring.","option_explanations":{"A":"Does not provide adequate rhythm surveillance.","B":"Home observation is unsafe given myocardial dysfunction and ventricular ectopy.","C":"Correct. Continuous monitoring allows prompt recognition of malignant arrhythmias or worsening function.","D":"A Holter may be useful later but does not substitute for acute inpatient monitoring.","E":"Follow-up that remote ignores current risk."},"board_pearl":"Electrical instability is a reason to monitor suspected myocarditis closely even when blood pressure is initially normal.","sources":["AHA_MYOCARDITIS_2021","PED_ARRHYTHMIA_OUTCOMES"]},
-    {"id":"MYO-014","age":"6 years","concept":"Hemodynamics","difficulty":2,"stem":"A 6-year-old child with myocarditis has cool extremities, delayed capillary refill, narrow pulse pressure, hepatomegaly, and pulmonary crackles. Which physiologic abnormality best explains the overall picture?","options":{"A":"Excessive systemic cardiac output","B":"Reduced myocardial contractility causing low cardiac output and congestion","C":"Primary pulmonary vasodilation","D":"Isolated right-to-left intracardiac shunting","E":"Increased erythropoietin production"},"answer":"B","rationale":"Depressed contractility lowers forward output while elevating filling pressures, producing poor perfusion and systemic/pulmonary congestion.","option_explanations":{"A":"The clinical signs indicate low, not high, output.","B":"Correct. It integrates the perfusion and congestion findings.","C":"Pulmonary vasodilation does not explain systemic low output.","D":"No structural shunt is described.","E":"Erythropoietin is unrelated to the acute hemodynamics."},"board_pearl":"Myocarditis can cause simultaneous low forward flow and backward congestion.","sources":["AHA_MYOCARDITIS_2021"]},
-    {"id":"MYO-015","age":"17 years","concept":"Differential diagnosis","difficulty":3,"stem":"A 17-year-old boy has chest pain after a viral syndrome. Troponin is elevated. ECG shows focal ST elevation. Echocardiography shows a regional wall-motion abnormality but no coronary origin abnormality. Which test is most useful to distinguish inflammatory myocardial injury from an ischemic pattern?","options":{"A":"Cardiac MRI","B":"Repeat throat culture","C":"Pulmonary function testing","D":"EEG","E":"Abdominal ultrasound"},"answer":"A","rationale":"CMR can distinguish typical nonischemic myocarditis patterns from subendocardial or territorial ischemic injury.","option_explanations":{"A":"Correct. Tissue characterization and injury distribution directly address the differential.","B":"Does not characterize myocardial injury.","C":"Does not explain troponin elevation and ST changes.","D":"No neurologic syndrome is described.","E":"Not relevant to the myocardial differential."},"board_pearl":"Regional ECG or echo abnormalities do not exclude myocarditis; CMR can clarify tissue pattern.","sources":["PED_CMR_GUIDANCE"]},
-    {"id":"MYO-016","age":"10 years","concept":"Endomyocardial biopsy","difficulty":3,"stem":"A 10-year-old child develops rapidly progressive heart failure, hypotension, sustained ventricular arrhythmias, and worsening end-organ perfusion despite intensive support. Which circumstance most strongly increases the potential value of endomyocardial biopsy?","options":{"A":"Mild isolated chest pain with normal function","B":"A stable child whose symptoms are resolving","C":"Fulminant unexplained heart failure in which a specific histologic diagnosis could alter therapy","D":"Any elevated troponin value","E":"A normal ECG after a viral illness"},"answer":"C","rationale":"Biopsy is not routine for every suspected case, but it becomes more relevant in fulminant or refractory presentations when identifying entities such as giant-cell or eosinophilic myocarditis could change treatment.","option_explanations":{"A":"The procedural risk is not justified in a mild stable presentation.","B":"Resolving disease usually does not require invasive tissue diagnosis.","C":"Correct. Severe refractory disease with possible treatment-changing histology is a classic high-value scenario.","D":"Troponin elevation alone is insufficient indication.","E":"A normal ECG does not create a biopsy indication."},"board_pearl":"Biopsy has greatest value when the result could change management in severe or atypical disease.","sources":["AHA_FULMINANT_2020","AHA_MYOCARDITIS_2021"]},
-    {"id":"MYO-017","age":"7 months","concept":"Differential diagnosis","difficulty":2,"stem":"A 7-month-old infant with tachypnea and poor feeding receives two fluid boluses for presumed dehydration. He becomes more tachypneic and develops crackles and hepatomegaly. Which diagnosis should rise most sharply on the differential?","options":{"A":"Simple gastroenteritis","B":"Acute myocardial dysfunction with heart failure","C":"Croup","D":"Foreign-body aspiration","E":"Iron deficiency anemia"},"answer":"B","rationale":"Worsening respiratory distress after volume expansion plus crackles and hepatomegaly suggests limited cardiac reserve with congestion rather than simple dehydration.","option_explanations":{"A":"Would not explain new pulmonary/systemic congestion after fluids.","B":"Correct. Fluid intolerance is a clue to pump dysfunction.","C":"Croup causes upper-airway findings, not hepatomegaly.","D":"Aspiration would not cause systemic venous congestion.","E":"Anemia may cause tachycardia but not acute volume-sensitive heart failure findings."},"board_pearl":"Clinical worsening after fluid can reveal occult myocardial dysfunction.","sources":["AHA_MYOCARDITIS_2021"]},
-    {"id":"MYO-018","age":"14 years","concept":"Etiology","difficulty":2,"stem":"A 14-year-old girl with acute myocarditis has no evidence of bacterial infection, autoimmune disease, toxin exposure, or structural heart disease. Which etiologic principle is most appropriate for general pediatric practice?","options":{"A":"A viral or postinfectious cause is common, but the exact pathogen often remains unproven","B":"Myocarditis is almost always bacterial in children","C":"A negative respiratory viral panel excludes infectious myocarditis","D":"Every case requires myocardial viral PCR before treatment","E":"The diagnosis is invalid unless a pathogen is identified"},"answer":"A","rationale":"Viral-associated or postinfectious disease is common in children, but pathogen identification is often incomplete and is not required for a clinical diagnosis.","option_explanations":{"A":"Correct. This reflects the usual diagnostic reality.","B":"Bacterial causes are much less common.","C":"A respiratory panel samples a different compartment and cannot exclude myocarditis.","D":"Myocardial PCR requires biopsy and is not routine in every case.","E":"Myocarditis can be diagnosed clinically or by CMR without pathogen proof."},"board_pearl":"Do not confuse failure to identify a virus with failure to diagnose myocarditis.","sources":["AHA_MYOCARDITIS_2021"]},
-    {"id":"MYO-019","age":"5 years","concept":"Arrhythmia","difficulty":2,"stem":"A 5-year-old child with myocarditis develops new second-degree AV block on telemetry but remains perfusing adequately. What is the best interpretation?","options":{"A":"The conduction abnormality is unrelated because myocarditis affects only contractility","B":"Conduction disease can occur in myocarditis and warrants continued close monitoring","C":"The child can be discharged if troponin is falling","D":"This finding proves congenital complete heart block","E":"The rhythm eliminates the possibility of ventricular arrhythmias"},"answer":"B","rationale":"Myocardial inflammation can involve the conduction system, producing AV conduction abnormalities that may progress and require monitoring.","option_explanations":{"A":"Myocarditis can affect both mechanical and electrical function.","B":"Correct. AV block is a recognized manifestation.","C":"A falling biomarker does not negate electrical risk.","D":"New-onset block in this context is acquired until proven otherwise.","E":"Different arrhythmias can coexist during myocarditis."},"board_pearl":"Myocarditis is an electrical disease as well as a pump disease.","sources":["AHA_MYOCARDITIS_2021"]},
-    {"id":"MYO-020","age":"16 years","concept":"Prognosis","difficulty":2,"stem":"A 16-year-old girl had myocarditis with depressed LV function that normalized before discharge. Which follow-up statement is most appropriate?","options":{"A":"Normalization of ejection fraction eliminates the need for cardiology follow-up","B":"Persistent risk assessment is still needed because arrhythmia or residual myocardial injury may outlast symptom and function recovery","C":"Only pulmonary follow-up is needed","D":"A normal echocardiogram proves there is no residual myocardial scar","E":"She may return to competitive sport immediately"},"answer":"B","rationale":"Clinical and functional recovery is encouraging but does not automatically exclude residual inflammation, scar, or arrhythmic risk.","option_explanations":{"A":"Follow-up remains important after acute myocarditis.","B":"Correct. Recovery is multidimensional, not defined by EF alone.","C":"The primary follow-up is cardiac.","D":"Echocardiography cannot characterize scar like CMR.","E":"Return to sport requires structured reassessment after an appropriate restriction period."},"board_pearl":"Normal EF is not synonymous with complete biologic or electrical recovery.","sources":["AHA_MYOCARDITIS_2021","PED_CMR_GUIDANCE"]}
+    {
+      "id":"MYO-011","status":"draft-medical-review","age":"7 years","age_group":"child","domain":"diagnosis","concept":"initial multimodal evaluation","learning_objective":"Select an initial evaluation that assesses myocardial injury, rhythm, structure/function, and competing diagnoses without treating one test as definitive.","cognitive_level":"application","difficulty":2,
+      "stem":"A 7-year-old has persistent tachycardia, exercise intolerance, hepatomegaly, and a gallop after a viral syndrome. Which initial cardiac evaluation is most appropriate?",
+      "options":[
+        {"id":"multimodal","text":"ECG, cardiac injury/heart-failure biomarkers, echocardiography, and rhythm/hemodynamic monitoring guided by severity"},
+        {"id":"troponin_only","text":"Troponin alone, with no further cardiac testing if it is normal"},
+        {"id":"cmr_first","text":"Immediate CMR before bedside assessment or echocardiography"},
+        {"id":"emb_all","text":"Endomyocardial biopsy as the first test in every suspected case"},
+        {"id":"cxr_only","text":"Chest radiography alone because cardiomegaly confirms myocarditis"}
+      ],
+      "correct_option_id":"multimodal",
+      "rationale":"Myocarditis is diagnosed by integrating the clinical phenotype with electrical, biomarker, and imaging data. ECG/troponin/echo are useful but none is a universal stand-alone rule-in or rule-out test.",
+      "option_explanations":{
+        "multimodal":"Correct. This approach evaluates electrical risk, myocardial injury, ventricular function, congestion, and structural alternatives while allowing monitoring intensity to match clinical severity.",
+        "troponin_only":"Troponin is useful because myocardial injury is common, but a normal value cannot by itself close a high-suspicion case. Troponin-only evaluation is appropriate only as one component of a broader low-risk assessment, not as a rule-out strategy.",
+        "cmr_first":"CMR adds tissue characterization, but it should not displace bedside stabilization or the practical first-line information from ECG and echocardiography. It becomes especially useful once the child is stable enough and the result will clarify diagnosis or risk.",
+        "emb_all":"EMB can identify histologic subtypes and specific etiologies, but routine biopsy of every suspected case is neither necessary nor the modern default. It becomes more valuable in high-risk or diagnostically uncertain disease when tissue could change therapy.",
+        "cxr_only":"Chest radiography may show cardiomegaly or pulmonary edema, but these findings are nonspecific and do not establish myocardial inflammation. It is supportive, not definitive."
+      },
+      "board_pearl":"Myocarditis is a synthesis diagnosis: no single common initial test should be allowed to overrule a compelling phenotype.",
+      "evidence":[{"claim":"Pediatric myocarditis diagnosis integrates clinical, laboratory, ECG, echocardiographic, CMR, and selected biopsy data.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-012","status":"draft-medical-review","age":"14 years","age_group":"adolescent","domain":"diagnosis","concept":"updated Lake Louise criteria","learning_objective":"Interpret the updated CMR tissue framework using T2-based edema and T1-based injury domains.","cognitive_level":"application","difficulty":2,
+      "stem":"A hemodynamically stable 14-year-old with suspected myocarditis undergoes CMR. The study shows elevated myocardial T2 and patchy subepicardial late gadolinium enhancement. Which interpretation is most accurate?",
+      "options":[
+        {"id":"two_domains","text":"A T2-based edema marker and a T1-based injury marker are both present, strongly supporting active myocardial inflammation in the clinical context"},
+        {"id":"lge_mandatory","text":"LGE alone is the only CMR feature required to diagnose active myocarditis"},
+        {"id":"three_bucket","text":"T2, native T1, and LGE are three independent required buckets and all three must be positive"},
+        {"id":"ischemic","text":"Subepicardial LGE establishes a coronary-territory myocardial infarction"},
+        {"id":"echo_replacement","text":"A positive CMR makes echocardiographic assessment of ventricular function unnecessary"}
+      ],
+      "correct_option_id":"two_domains",
+      "rationale":"The updated Lake Louise framework pairs evidence of edema from a T2-based marker with myocardial injury from a T1-based marker such as native T1, extracellular volume, or nonischemic LGE. Both domains increase specificity for active inflammation.",
+      "option_explanations":{
+        "two_domains":"Correct. T2 abnormality supplies the edema domain; nonischemic LGE supplies the T1-based injury domain.",
+        "lge_mandatory":"LGE is an important T1-based injury marker but is not the only possible T1-based criterion, and a single positive domain is less specific for active inflammation. LGE alone may still be clinically meaningful, especially as residual scar, but it does not reproduce the full two-domain framework.",
+        "three_bucket":"This reflects the obsolete mental model that T2, T1, and LGE are separate mandatory categories. Updated criteria group LGE within the T1-based injury domain; the aim is one T2-based and one T1-based marker.",
+        "ischemic":"Coronary infarction classically involves the subendocardium in a vascular territory. Patchy subepicardial injury is more characteristic of nonischemic myocarditis.",
+        "echo_replacement":"CMR and echocardiography answer overlapping but different practical questions. Echo remains useful for rapid and serial assessment of ventricular function, hemodynamics, effusion, valves, thrombus, and structural alternatives."
+      },
+      "board_pearl":"Updated Lake Louise thinking is 1 T2-based edema domain + 1 T1-based injury domain—not three independent boxes.",
+      "evidence":[{"claim":"Updated Lake Louise criteria use at least one T2-based marker plus at least one T1-based marker for stronger CMR evidence of active myocardial inflammation.","source_id":"FERREIRA_LLC_2018"},{"claim":"The 2025 ESC framework classifies two-domain CMR as proven and a single-domain result as less specific/uncertain in the appropriate clinical context.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-013","status":"draft-medical-review","age":"4 years","age_group":"child","domain":"diagnosis","concept":"normal troponin/ECG do not exclude","learning_objective":"Continue evaluation when a high-suspicion clinical phenotype conflicts with initially reassuring ECG or troponin.","cognitive_level":"application","difficulty":2,
+      "stem":"A 4-year-old has persistent unexplained tachycardia, poor feeding, hepatomegaly, and cool extremities. The first ECG shows sinus tachycardia without ST-T changes and the initial troponin is within the laboratory reference range. What is the best next step?",
+      "options":[
+        {"id":"continue_eval","text":"Continue cardiac evaluation with echocardiography and appropriate monitoring because the phenotype remains concerning"},
+        {"id":"rule_out","text":"Exclude myocarditis because both ECG and troponin are reassuring"},
+        {"id":"fluid_only","text":"Treat as dehydration with repeated large-volume boluses without cardiac imaging"},
+        {"id":"exercise_test","text":"Arrange an exercise stress test to prove the tachycardia is physiologic"},
+        {"id":"outpatient_only","text":"Defer all cardiac testing to routine outpatient follow-up"}
+      ],
+      "correct_option_id":"continue_eval",
+      "rationale":"Normal initial ECG or troponin cannot by themselves exclude myocarditis or acute heart failure. The bedside evidence of congestion and poor perfusion warrants echocardiographic assessment and monitoring.",
+      "option_explanations":{
+        "continue_eval":"Correct. The clinical phenotype carries enough pretest concern that ventricular function and structural causes still need evaluation.",
+        "rule_out":"A normal ECG and troponin lower concern in some contexts, but neither has sufficient sensitivity to overrule hepatomegaly, poor perfusion, and persistent disproportionate tachycardia. They are more reassuring when the clinical phenotype is also low risk.",
+        "fluid_only":"Dehydration can produce tachycardia and poor perfusion, but hepatomegaly raises concern for congestion. Fluids should be guided by physiology rather than assumed hypovolemia.",
+        "exercise_test":"Exercise testing is not appropriate during suspected active myocardial disease and does not address the immediate question of ventricular function or perfusion.",
+        "outpatient_only":"Routine outpatient follow-up is appropriate for low-risk presentations after dangerous cardiac pathology has been reasonably excluded, not for a child with ongoing low-output/congestive findings."
+      },
+      "board_pearl":"A normal snapshot test should not defeat a high-risk bedside phenotype.",
+      "evidence":[{"claim":"Normal ECG, echocardiogram, or troponin testing does not reliably rule out myocarditis when clinical suspicion is high.","source_id":"ACC_MYOCARDITIS_2024"},{"claim":"Pediatric myocarditis diagnosis relies on integrated clinical and diagnostic information.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-014","status":"draft-medical-review","age":"9 years","age_group":"child","domain":"diagnosis","concept":"echocardiography role","learning_objective":"Use echocardiography for structural and functional assessment without treating it as an etiologic proof test.","cognitive_level":"recognition","difficulty":1,
+      "stem":"A 9-year-old with suspected myocarditis undergoes transthoracic echocardiography. Which statement best describes the test's role?",
+      "options":[
+        {"id":"echo_role","text":"It assesses ventricular function, chamber size, valves, effusion, thrombus, hemodynamic effects, and structural alternatives, but its findings are not pathognomonic for myocarditis"},
+        {"id":"echo_pathogen","text":"It identifies the viral pathogen causing myocarditis"},
+        {"id":"echo_rules_out","text":"A normal echocardiogram completely excludes myocarditis"},
+        {"id":"echo_replaces_ecg","text":"It makes rhythm monitoring unnecessary"},
+        {"id":"echo_biopsy","text":"It provides the same histologic information as endomyocardial biopsy"}
+      ],
+      "correct_option_id":"echo_role",
+      "rationale":"Echo is the practical first-line tool for cardiac structure and function, but myocarditis has variable and nonspecific echocardiographic findings. Tissue characterization and etiologic questions require other modalities.",
+      "option_explanations":{
+        "echo_role":"Correct. This is why echo remains central in both initial and serial assessment.",
+        "echo_pathogen":"Echo cannot establish infectious etiology. Pathogen evaluation requires microbiologic or tissue testing when clinically indicated.",
+        "echo_rules_out":"Some myocarditis presentations have preserved global function, so normal echo findings do not fully exclude the disease. A normal study is more reassuring when the rest of the clinical evaluation is also low risk.",
+        "echo_replaces_ecg":"Mechanical and electrical assessment are complementary. Telemetry or ambulatory monitoring is required when intermittent arrhythmia is a concern.",
+        "echo_biopsy":"Echo is noninvasive imaging and does not reveal histologic inflammatory subtype. EMB is reserved for selected situations where tissue information could change management."
+      },
+      "board_pearl":"Echo answers 'How is the heart functioning and structured?'—not 'What exact inflammatory subtype is present?'.",
+      "evidence":[{"claim":"Echocardiography is important for ventricular function and structural assessment but is not specific for myocarditis.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"TTE is central to pediatric acute heart-failure assessment and serial reassessment.","source_id":"AHA_PED_ADHF_2026"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-015","status":"draft-medical-review","age":"12 years","age_group":"child","domain":"diagnosis","concept":"endomyocardial biopsy selection","learning_objective":"Identify a high-risk scenario in which EMB may change diagnosis-directed therapy rather than using biopsy routinely.","cognitive_level":"multi-step","difficulty":3,
+      "stem":"A 12-year-old with suspected myocarditis develops rapidly progressive biventricular failure, recurrent ventricular tachycardia, and high-grade AV block despite intensive support. CMR is nondiagnostic. Which diagnostic strategy is most appropriate once the child is stabilized at an advanced cardiac center?",
+      "options":[
+        {"id":"emb_selected","text":"Consider early endomyocardial biopsy because a specific histologic subtype or mimic could alter treatment"},
+        {"id":"no_tissue","text":"Avoid biopsy under all circumstances because CMR has replaced tissue diagnosis"},
+        {"id":"biopsy_everyone","text":"Biopsy is required in every clinically suspected pediatric myocarditis case"},
+        {"id":"repeat_troponin_only","text":"Use serial troponin alone to determine the inflammatory subtype"},
+        {"id":"wait_recovery","text":"Wait for spontaneous recovery before deciding whether diagnostic clarification matters"}
+      ],
+      "correct_option_id":"emb_selected",
+      "rationale":"Severe, rapidly progressive disease with electrical instability raises concern for histologic subtypes such as giant-cell or eosinophilic myocarditis and for mimics in which tissue diagnosis can change therapy. EMB remains selective rather than routine.",
+      "option_explanations":{
+        "emb_selected":"Correct. In high-risk myocarditis, the diagnostic yield is valuable when histology, immunohistochemistry, or molecular analysis could trigger etiology-specific treatment.",
+        "no_tissue":"CMR is transformative but does not eliminate EMB. Tissue remains important in selected high-risk disease or when CMR is inconclusive and a treatable subtype is plausible.",
+        "biopsy_everyone":"Routine biopsy of every child exposes patients to invasive risk without sufficient added value in uncomplicated presentations. It is most appropriate when the answer could change treatment or resolve a high-stakes diagnostic uncertainty.",
+        "repeat_troponin_only":"Troponin tracks myocardial injury but cannot identify giant-cell, eosinophilic, or other histologic subtypes. Serial biomarkers can complement, not replace, tissue when subtype matters.",
+        "wait_recovery":"Spontaneous improvement is possible in myocarditis, but this child is already high risk. Delaying subtype clarification may lose an opportunity for disease-specific therapy."
+      },
+      "board_pearl":"Biopsy is not a routine myocarditis test; it becomes valuable when the tissue result can change treatment in a high-risk child.",
+      "evidence":[{"claim":"EMB is used selectively to identify myocarditis etiologies or histologic subtypes with management implications and to evaluate mimics.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"High-risk myocarditis is a setting in which EMB may be particularly important.","source_id":"ESC_IMPS_2025"},{"claim":"Contemporary registry data support the continued diagnostic utility of EMB in pediatric and adult myocarditis, while CMR sensitivity can be lower in children with biopsy-proven disease.","source_id":"EMB_REGISTRY_2024"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-016","status":"draft-medical-review","age":"13 years","age_group":"adolescent","domain":"diagnosis","concept":"peripheral viral testing","learning_objective":"Avoid assigning myocardial causality from a positive respiratory viral test alone.","cognitive_level":"application","difficulty":2,
+      "stem":"A 13-year-old with clinically suspected myocarditis has a positive nasopharyngeal PCR for a common respiratory virus. Which interpretation is most accurate?",
+      "options":[
+        {"id":"context_not_causality","text":"The result supports a recent/concurrent infection but does not by itself prove that the detected virus caused the myocardial inflammation"},
+        {"id":"proves_myocardial","text":"The positive respiratory PCR proves viral invasion of the myocardium"},
+        {"id":"excludes_immune","text":"The result excludes immune-mediated or noninfectious causes"},
+        {"id":"predicts_benign","text":"The identified virus predicts a benign course and removes the need for risk stratification"},
+        {"id":"replaces_cardiac_tests","text":"The viral result makes ECG, echocardiography, and cardiac biomarkers unnecessary"}
+      ],
+      "correct_option_id":"context_not_causality",
+      "rationale":"Detection of a virus in a peripheral specimen can provide epidemiologic and clinical context, but it does not establish myocardial infection or prove causality. Myocarditis remains a clinicopathologic diagnosis.",
+      "option_explanations":{
+        "context_not_causality":"Correct. Association between a respiratory infection and myocarditis is clinically useful, but the pathogen detected outside the heart may be incidental or only a trigger.",
+        "proves_myocardial":"Direct myocardial infection is a tissue-level claim that a respiratory swab cannot establish. Myocardial PCR or histologic evaluation is reserved for selected scenarios in which that information matters.",
+        "excludes_immune":"Viral infection can trigger immune-mediated injury, and noninfectious etiologies can coexist. A positive PCR does not narrow mechanism to one pathway.",
+        "predicts_benign":"Severity is defined by clinical trajectory, ventricular function, perfusion, and arrhythmia rather than by the mere presence of a respiratory pathogen.",
+        "replaces_cardiac_tests":"The viral result does not assess pump function, rhythm, or myocardial injury. Cardiac evaluation remains necessary when the phenotype is concerning."
+      },
+      "board_pearl":"A positive respiratory PCR can support context; it cannot prove what is happening inside the myocardium.",
+      "evidence":[{"claim":"Peripheral pathogen detection does not establish a causative myocardial infection and should be interpreted in the full diagnostic context.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-017","status":"draft-medical-review","age":"11 years","age_group":"child","domain":"diagnosis","concept":"troponin versus natriuretic peptide","learning_objective":"Interpret biomarkers as complementary signals of injury and hemodynamic stress rather than interchangeable diagnostic tests.","cognitive_level":"application","difficulty":2,
+      "stem":"An 11-year-old with suspected myocarditis has a high troponin concentration but only mild symptoms; another child has a modest troponin elevation with severe ventricular dysfunction, hepatomegaly, and shock. Which principle best explains the difference?",
+      "options":[
+        {"id":"biomarker_context","text":"Troponin reflects myocardial injury but does not by itself quantify the degree of pump failure or hemodynamic instability"},
+        {"id":"troponin_equals_ef","text":"Troponin concentration directly determines ejection fraction"},
+        {"id":"troponin_prognosis","text":"The child with the higher troponin necessarily has the worse hemodynamic state"},
+        {"id":"bnp_specific","text":"A natriuretic peptide is specific for myocarditis and establishes the cause of heart failure"},
+        {"id":"normalizes_recovery","text":"Once troponin falls, ventricular and electrical recovery are proven"}
+      ],
+      "correct_option_id":"biomarker_context",
+      "rationale":"Biomarkers answer different questions. Troponin indicates myocardial injury, while ventricular function, congestion, perfusion, rhythm, and natriuretic peptides contribute to assessment of heart-failure severity. Neither biomarker alone defines the whole syndrome.",
+      "option_explanations":{
+        "biomarker_context":"Correct. Severity and disposition must follow the clinical/hemodynamic phenotype rather than a single laboratory number.",
+        "troponin_equals_ef":"Myocardial injury burden and global systolic function can diverge. Troponin should not be used as a surrogate ejection fraction.",
+        "troponin_prognosis":"Higher troponin can mark more injury but does not automatically mean worse perfusion or pump failure at that moment. Prognosis is multidimensional.",
+        "bnp_specific":"Natriuretic peptides support recognition and severity assessment of heart failure but are not myocarditis-specific. They can rise in many cardiac and systemic conditions.",
+        "normalizes_recovery":"Biomarkers, function, symptoms, CMR findings, and arrhythmia risk can recover on different timelines. A falling troponin is reassuring but not sufficient for complete clearance."
+      },
+      "board_pearl":"Trend the patient, not just the troponin: injury, pump function, congestion, and electrical risk are separate domains.",
+      "evidence":[{"claim":"Troponin and heart-failure biomarkers are components of myocarditis assessment but must be integrated with clinical and imaging findings.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"Pediatric acute heart-failure severity assessment requires hemodynamic and end-organ evaluation beyond biomarkers alone.","source_id":"AHA_PED_ADHF_2026"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-018","status":"draft-medical-review","age":"16 years","age_group":"adolescent","domain":"diagnosis","concept":"ischemic versus nonischemic CMR injury","learning_objective":"Use LGE distribution to distinguish a myocarditis-type nonischemic pattern from coronary-territory infarction.","cognitive_level":"application","difficulty":2,
+      "stem":"A 16-year-old with chest pain and elevated troponin undergoes CMR. Which late gadolinium enhancement pattern is more characteristic of ischemic infarction than myocarditis?",
+      "options":[
+        {"id":"subendocardial_territorial","text":"Subendocardial enhancement following a coronary vascular territory"},
+        {"id":"subepicardial_patchy","text":"Patchy subepicardial enhancement outside a coronary distribution"},
+        {"id":"midwall_nonischemic","text":"Mid-wall nonischemic enhancement"},
+        {"id":"edema_nonterritorial","text":"Myocardial edema with nonterritorial injury"},
+        {"id":"patchy_inferolateral","text":"Patchy inferolateral subepicardial injury"}
+      ],
+      "correct_option_id":"subendocardial_territorial",
+      "rationale":"Ischemic injury characteristically begins in the subendocardium and follows a vascular territory. Myocarditis more often produces subepicardial, mid-wall, or patchy noncoronary injury patterns.",
+      "option_explanations":{
+        "subendocardial_territorial":"Correct. This distribution should trigger evaluation for a coronary/ischemic mechanism rather than being reflexively labeled myocarditis.",
+        "subepicardial_patchy":"This is a classic nonischemic inflammatory pattern and therefore supports myocarditis in the appropriate clinical setting.",
+        "midwall_nonischemic":"Mid-wall enhancement is nonischemic and can occur in inflammatory or cardiomyopathic disease; it does not have the typical coronary-territory pattern of infarction.",
+        "edema_nonterritorial":"Nonterritorial edema supports inflammatory injury when paired with compatible clinical and T1-based findings.",
+        "patchy_inferolateral":"Inferolateral subepicardial LGE is a commonly described myocarditis pattern, though no distribution is perfectly specific."
+      },
+      "board_pearl":"With CMR, distribution matters: subendocardial territorial injury suggests ischemia; patchy subepicardial/noncoronary injury favors myocarditis.",
+      "evidence":[{"claim":"Pediatric CMR can distinguish ischemic subendocardial coronary-territory injury from typical nonischemic myocarditis patterns.","source_id":"PED_CMR_GUIDANCE"},{"claim":"CMR tissue characterization is central to modern myocarditis evaluation.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-019","status":"draft-medical-review","age":"6 years","age_group":"child","domain":"diagnosis","concept":"intracardiac thrombus evaluation","learning_objective":"Choose echocardiography to assess thrombus and valvar/hemodynamic complications in a child with severe ventricular dysfunction.","cognitive_level":"application","difficulty":2,
+      "stem":"A 6-year-old with suspected myocarditis has severe LV systolic dysfunction and new embolic-appearing neurologic symptoms. Which cardiac study should be prioritized to evaluate for an intracardiac thrombus and concurrent hemodynamic complications?",
+      "options":[
+        {"id":"echo","text":"Focused transthoracic echocardiography with careful assessment for intracardiac thrombus and ventricular/valvar function"},
+        {"id":"cmr_delayed","text":"Delay all cardiac imaging until elective outpatient CMR"},
+        {"id":"ecg_only","text":"Repeat 12-lead ECG as the sole cardiac study"},
+        {"id":"cxr","text":"Chest radiography because it directly visualizes ventricular thrombus"},
+        {"id":"emb","text":"Endomyocardial biopsy because it is the first-line test for intracardiac thrombus"}
+      ],
+      "correct_option_id":"echo",
+      "rationale":"Echocardiography is immediately accessible and directly evaluates ventricular function, chamber abnormalities, valves, effusion, and intracardiac thrombus. Neurologic evaluation must also proceed urgently, but the cardiac source question is best addressed by echo first.",
+      "option_explanations":{
+        "echo":"Correct. Severe ventricular dysfunction creates a setting in which thrombus and associated hemodynamic complications must be assessed promptly.",
+        "cmr_delayed":"CMR may later add tissue characterization and can sometimes contribute to thrombus assessment, but delaying readily available echocardiography is inappropriate when an embolic complication is suspected.",
+        "ecg_only":"ECG is important for rhythm and conduction disease but cannot exclude intracardiac thrombus or quantify ventricular function.",
+        "cxr":"Radiography can show cardiomegaly or pulmonary congestion, not intracardiac thrombus directly.",
+        "emb":"Biopsy answers histologic questions in selected myocarditis cases; it is not a first-line method for detecting chamber thrombus."
+      },
+      "board_pearl":"When severe LV dysfunction creates an embolic concern, echo is the fastest cardiac test for the source and the surrounding hemodynamics.",
+      "evidence":[{"claim":"Echocardiography is central to evaluating ventricular function and structural/hemodynamic complications in pediatric myocarditis/acute heart failure.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"Pediatric ADHF assessment relies on echocardiographic definition of anatomy, function, and complications.","source_id":"AHA_PED_ADHF_2026"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-020","status":"draft-medical-review","age":"2 years","age_group":"child","domain":"diagnosis","concept":"CMR limitations in young/high-risk children","learning_objective":"Recognize that a nondiagnostic or negative CMR cannot always overrule a high-risk pediatric phenotype and may increase the value of other modalities or EMB.","cognitive_level":"multi-step","difficulty":3,
+      "stem":"A 2-year-old with severe new ventricular dysfunction, high-grade AV block, and shock has a technically limited CMR that does not fulfill both updated Lake Louise domains. Which conclusion is most appropriate?",
+      "options":[
+        {"id":"integrate_high_risk","text":"Do not reject myocarditis solely on the CMR; integrate the clinical syndrome and consider whether EMB or other testing could identify a treatment-relevant subtype"},
+        {"id":"cmr_rules_out","text":"The nondiagnostic CMR definitively excludes myocarditis"},
+        {"id":"no_more_tests","text":"Stop cardiac diagnostic evaluation because CMR is the accepted final test"},
+        {"id":"viral_panel","text":"Use a respiratory viral panel as the definitive replacement for CMR"},
+        {"id":"wait_months","text":"Wait several months before further diagnostic decisions even though the child is unstable"}
+      ],
+      "correct_option_id":"integrate_high_risk",
+      "rationale":"CMR performance and feasibility have pediatric limitations, particularly in young or critically ill children. A high-risk syndrome with conduction disease and shock should not be dismissed by an incomplete/nondiagnostic study; EMB may be valuable if identifying a specific histology would change therapy.",
+      "option_explanations":{
+        "integrate_high_risk":"Correct. Modern diagnosis is multimodal, and pediatric registry data show CMR can be less sensitive in biopsy-proven disease than clinicians might assume.",
+        "cmr_rules_out":"A technically limited or single-domain CMR is not equivalent to definitive rejection of a clinically high-risk syndrome. Negative CMR is more reassuring when image quality is adequate and the pretest clinical suspicion is low.",
+        "no_more_tests":"CMR is a major diagnostic tool but not an absolute arbiter. Electrical instability and shock demand continued diagnostic and therapeutic escalation.",
+        "viral_panel":"Peripheral viral detection cannot establish myocardial histology or causality. It can support context but not replace cardiac evaluation.",
+        "wait_months":"Longitudinal follow-up is appropriate after stabilization, but acute high-risk disease requires decisions now because a treatment-relevant subtype may be present."
+      },
+      "board_pearl":"In a critically ill child, a nondiagnostic CMR is a limitation of the evidence—not proof that the myocardium is normal.",
+      "evidence":[{"claim":"CMR is valuable in pediatric myocarditis but must be integrated with the clinical syndrome and has pediatric limitations.","source_id":"PED_CMR_GUIDANCE"},{"claim":"In registry data, CMR using Lake Louise criteria was less sensitive in children with biopsy-proven myocarditis than in adults.","source_id":"EMB_REGISTRY_2024"},{"claim":"High-risk myocarditis may warrant EMB to identify specific histology or etiologies.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
+    }
   ]
 }
