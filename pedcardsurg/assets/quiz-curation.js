@@ -123,6 +123,21 @@
     };
   }
 
+  const septalMyectomy=byId(39);
+  if(septalMyectomy){
+    septalMyectomy.o=[
+      'Dynamic LV outflow tract obstruction from hypertrophied septal myocardium',
+      'Fixed valvar aortic stenosis caused by commissural fusion at the aortic valve',
+      'Primary mitral regurgitation from leaflet prolapse without septal obstruction',
+      'Diastolic dysfunction from diffuse myocardial fibrosis without a significant LVOT gradient'
+    ];
+    septalMyectomy.wrong={
+      1:'Myectomy removes septal muscle and does not treat fixed valvar aortic stenosis. Valvar disease requires valve-directed evaluation and treatment.',
+      2:'When mitral regurgitation is caused by primary leaflet prolapse without obstructive septal anatomy, valve repair rather than septal myectomy addresses the lesion.',
+      3:'Myectomy relieves dynamic LVOT obstruction; it does not reverse diffuse fibrosis or treat nonobstructive diastolic dysfunction in the absence of a meaningful gradient.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
