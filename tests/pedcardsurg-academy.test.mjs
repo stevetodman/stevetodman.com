@@ -13,15 +13,4 @@ before(async () => {
 
 after(async () => {
   await browser?.close();
-  await server?.close();
-});
-
-async function openModule(viewport = { width: 1180, height: 900 }) {
-  const page = await browser.newPage({ viewport });
-  const errors = watchForErrors(page);
-  await page.goto(server.origin + '/pedcardsurg/', { waitUntil: 'networkidle' });
-  return { page, errors };
-}
-
-async function expectAtlasImage(page, pattern) {
-  const image
+  await
