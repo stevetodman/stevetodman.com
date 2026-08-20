@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "exceptions": {
+    "/kawasaki/": {
+      "description": "Legacy visualization-style single-file academy does not yet include a meta description.",
+      "favicon": "Legacy visualization-style single-file academy does not yet include a favicon link."
+    }
+  }
+}
