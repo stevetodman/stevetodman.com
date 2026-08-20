@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "searchPolicy": "noindex",
-  "updated": "2026-08-19",
+  "updated": "2026-08-20",
   "classes": ["PRODUCTION", "PREVIEW", "INTERNAL", "SOURCE_ONLY", "ARCHIVED"],
   "items": [
     {"id":"home","title":"Steve Todman, MD","route":"/","class":"PRODUCTION","audience":"all","category":"home","smoke":true},
@@ -43,10 +43,10 @@
     {"id":"ribeye","title":"Ribeye Timer","route":"/cooking/ribeye-timer.html","class":"PRODUCTION","audience":"family","category":"personal","smoke":true},
     {"id":"ribs","title":"Ribs Timer","route":"/cooking/ribs-timer.html","class":"PRODUCTION","audience":"family","category":"personal","smoke":true},
 
-    {"id":"admin","title":"Admin","route":"/admin/","class":"INTERNAL","audience":"owner","category":"internal","smoke":false,"protection":"cloudflare-access"},
-    {"id":"clinic-resources","title":"Clinic Resources","route":"/admin/clinic-resources/","class":"INTERNAL","audience":"owner","category":"internal","smoke":false,"protection":"cloudflare-access"},
-    {"id":"steven-os","title":"Steven OS","route":"/steven-os/","class":"INTERNAL","audience":"owner","category":"internal","smoke":false,"protection":"cloudflare-access-or-exclude"},
-    {"id":"cardiohospital","title":"Cardio Hospital Legacy Web Build","route":"/cardiohospital/","class":"INTERNAL","audience":"internal-review","category":"internal","smoke":false,"protection":"cloudflare-access-or-exclude"},
+    {"id":"admin","title":"Admin","route":"/admin/","class":"INTERNAL","audience":"owner","category":"internal","smoke":false},
+    {"id":"clinic-resources","title":"Clinic Resources","route":"/admin/clinic-resources/","class":"INTERNAL","audience":"owner","category":"internal","smoke":false},
+    {"id":"steven-os","title":"Steven OS","route":"/steven-os/","class":"INTERNAL","audience":"owner","category":"internal","smoke":false},
+    {"id":"cardiohospital","title":"Cardio Hospital Legacy Web Build","route":"/cardiohospital/","class":"INTERNAL","audience":"internal-review","category":"internal","smoke":false},
 
     {"id":"cardio-hospital-3d-source","title":"Cardio Hospital 3D Source","path":"cardio-hospital-3d/","class":"SOURCE_ONLY","audience":"developers","category":"source","smoke":false},
     {"id":"clipboard-sanitizer-source","title":"Clipboard Sanitizer Source","path":"clipboard-sanitizer/","class":"SOURCE_ONLY","audience":"developers","category":"source","smoke":false},
