@@ -52,13 +52,17 @@ test('catalog has valid unique classifications and existing routes', () => {
   }
 });
 
-test('classified build excludes repository/backend source', () => {
+test('classified build excludes repository/backend source and includes shared platform assets', () => {
   execFileSync(process.execPath, ['scripts/build-site.mjs'], { cwd: repoRoot, stdio: 'pipe' });
   const dist = path.join(repoRoot, 'dist');
-  assert.ok(fs.existsSync(path.join(dist, 'index.html')));
-  assert.ok(fs.existsSync(path.join(dist, '_headers')));
-  assert.ok(fs.existsSync(path.join(dist, 'site/catalog.json')));
-  assert.ok(fs.existsSync(path.join(dist, 'steven-os/index.html')), 'internal control surface remains deployable behind Access');
+  for (const required of [
+    'index.html',
+    '_headers',
+    'site/catalog.json',
+    'site/platform.css',
+    'site/learning-progress.js',
+    'steven-os/index.html',
+  ]) assert.ok(fs.existsSync(path.join(dist, required)), `required deploy asset missing: ${required}`);
   for (const forbidden of [
     'study/supabase',
     'cardio-hospital-3d',
