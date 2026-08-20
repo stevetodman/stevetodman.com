@@ -15,6 +15,9 @@ const copy = (src, dest) => {
   mkdir(path.dirname(to));
   fs.cpSync(from, to, { recursive: true });
 };
+const routeArtifact = (route) => route === '/'
+  ? 'index.html'
+  : route.replace(/^\/+|\/+$/g, '');
 
 rm(dist);
 mkdir(dist);
@@ -26,25 +29,39 @@ copy('.well-known');
 // Public platform assets are copied explicitly; site/ also contains planning and
 // governance files that do not need to ship to browsers.
 for (const file of [
-  'site/catalog.json',
   'site/platform.css',
   'site/learning-progress.js',
 ]) copy(file);
 
-// Copy each deployable top-level route root once. SOURCE_ONLY/ARCHIVED items
-// never enter the artifact. INTERNAL routes remain deployable because they are
-// intended to sit behind Cloudflare Access, not disappear from the product.
+// Publish only the production subset of the catalog. Search uses this as its
+// development/fallback index; non-production route names do not belong in Pages.
+const publicCatalog = {
+  ...catalog,
+  classes: ['PRODUCTION'],
+  items: catalog.items.filter((item) => item.class === 'PRODUCTION'),
+};
+mkdir(path.join(dist, 'site'));
+fs.writeFileSync(path.join(dist, 'site/catalog.json'), `${JSON.stringify(publicCatalog, null, 2)}\n`);
+
+// Pages is the public production surface. Only PRODUCTION route roots belong in
+// the artifact; preview, internal, source-only, and archived work stays in source.
 const routeRoots = new Set();
 for (const item of catalog.items) {
-  if (!item.route || ['SOURCE_ONLY', 'ARCHIVED'].includes(item.class)) continue;
+  if (!item.route || item.class !== 'PRODUCTION') continue;
   if (item.route === '/') continue;
   routeRoots.add(item.route.replace(/^\//, '').split('/')[0]);
 }
 for (const routeRoot of routeRoots) copy(routeRoot);
 
-// Strip repository/backend content that happens to live under a deployable root.
+// Strip repository/backend content that happens to live under a production root.
 for (const item of catalog.items.filter((x) => x.class === 'SOURCE_ONLY' && x.path)) {
   rm(path.join(dist, item.path));
+}
+
+// A non-production route may share a top-level directory with production content
+// (for example, /tools/ previews). Remove every such route explicitly after copy.
+for (const item of catalog.items.filter((x) => x.route && x.class !== 'PRODUCTION')) {
+  rm(path.join(dist, routeArtifact(item.route)));
 }
 
 // Kawasaki started life as a visualization export and still carries three
@@ -68,27 +85,6 @@ if (fs.existsSync(kawasakiHtml)) {
   fs.writeFileSync(kawasakiHtml, html);
 }
 
-// Steven OS is an INTERNAL static control surface. Keep only the files required
-// by the browser; do not publish its Edge Functions, SQL, scripts, or README.
-const stevenOs = path.join(dist, 'steven-os');
-if (fs.existsSync(stevenOs)) {
-  for (const entry of fs.readdirSync(stevenOs)) {
-    if (!['index.html', 'clinical-review.html', 'app.js', 'config.js', 'styles.css', 'lib', 'state'].includes(entry)) {
-      rm(path.join(stevenOs, entry));
-    }
-  }
-  const lib = path.join(stevenOs, 'lib');
-  if (fs.existsSync(lib)) {
-    for (const entry of fs.readdirSync(lib)) {
-      if (entry !== 'policy-engine.mjs') rm(path.join(lib, entry));
-    }
-  }
-}
-
-// Never ship local overrides or examples that could be mistaken for runtime config.
-rm(path.join(dist, 'steven-os/config.local.js.example'));
-rm(path.join(dist, 'steven-os/config.local.js'));
-
 const files = [];
 function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -98,6 +94,15 @@ function walk(dir) {
   }
 }
 walk(dist);
+
+// Classification is enforced by the build itself: no cataloged non-production
+// route may survive into the deployment artifact.
+for (const item of catalog.items.filter((x) => x.route && x.class !== 'PRODUCTION')) {
+  const artifact = routeArtifact(item.route);
+  if (fs.existsSync(path.join(dist, artifact))) {
+    throw new Error(`${item.class} route leaked into dist: ${item.route}`);
+  }
+}
 
 // Search privacy is a deployment invariant, not merely a Cloudflare-header
 // assumption. Some legacy source pages predate the direct-link-only policy and

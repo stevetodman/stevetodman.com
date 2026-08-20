@@ -5,8 +5,12 @@ import { spawn } from 'node:child_process';
 import { repoRoot } from './helpers/harness.mjs';
 
 const PUBLIC_HTML_PATHS = new Set(['/', '/study/us-states.html', '/education/', '/contact/', '/privacy/', '/tools/']);
-const INTERNAL_PATHS = new Set(['/admin/', '/steven-os/', '/cardiohospital/']);
-const SOURCE_ONLY_PATHS = new Set([
+const EXCLUDED_PATHS = new Set([
+  '/tools/pediatric-abpm-pathway-preview.html',
+  '/tools/bp-percentile-calculator-preview.html',
+  '/admin/',
+  '/steven-os/',
+  '/cardiohospital/',
   '/cardio-hospital-3d/',
   '/clipboard-sanitizer/',
   '/study/supabase/functions/studyhub-save/index.ts',
@@ -41,13 +45,7 @@ async function startFixture({ missingMetaPath = '', sitemapStatus = 404 } = {}) 
       return;
     }
 
-    if (INTERNAL_PATHS.has(pathname)) {
-      response.writeHead(403, { 'content-type': 'text/plain; charset=utf-8' });
-      response.end('Access denied');
-      return;
-    }
-
-    if (SOURCE_ONLY_PATHS.has(pathname) || pathname === '/__definitely-not-a-real-route__') {
+    if (EXCLUDED_PATHS.has(pathname) || pathname === '/__definitely-not-a-real-route__') {
       response.writeHead(404, { 'content-type': 'text/html; charset=utf-8' });
       response.end('Page not found');
       return;

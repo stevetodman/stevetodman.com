@@ -1,164 +1,138 @@
 # stevetodman.com Platform Master Plan
 
-Status: REPOSITORY PROGRAM COMPLETE — live/external acceptance and evidence gaps remain
+Status: REPOSITORY PLATFORM HEALTHY — external/live evidence gaps remain
 Owner: Steve Todman
 Created: 2026-08-19
-Updated: 2026-08-19
+Updated: 2026-08-20
+
+## Operating principles
+
+Use first principles. Delete unnecessary requirements and processes before optimizing them. Prefer native browser/Node capabilities, small diffs, independent parallel work, measured bottlenecks, and explicit deployment boundaries.
+
+Clinical accuracy, privacy, accessibility, provenance, and regression protection remain hard constraints.
 
 ## Non-negotiable deployment policy
 
-The site should remain accessible by direct URL but **not discoverable in search engines** until Steve explicitly changes this policy.
+The site remains accessible by direct URL but **not discoverable in search engines** until Steve explicitly changes that policy.
 
-Current repository controls:
+Cloudflare Pages publishes generated `dist/`, not the repository root.
 
-- site-wide `X-Robots-Tag: noindex, nofollow, noarchive` in `_headers`;
-- every HTML document emitted to `dist/` is normalized to `meta robots=noindex,nofollow,noarchive`;
-- public crawling remains allowed so Google/Bing can observe `noindex` and remove already-known URLs;
-- no sitemap while this policy is active;
-- INTERNAL routes require Cloudflare Access/equivalent authentication.
+The deployment rule is now simple:
 
-Do not replace this with `robots.txt: Disallow: /`; that can prevent crawlers from seeing the noindex directive.
+- `PRODUCTION` routes are deployable to Pages.
+- `PREVIEW`, `INTERNAL`, `SOURCE_ONLY`, and `ARCHIVED` content stays out of Pages.
+- `_headers` sends `X-Robots-Tag: noindex, nofollow, noarchive` site-wide.
+- every deployed HTML document also receives matching robots metadata;
+- public crawling stays allowed so Google/Bing can observe `noindex`;
+- no sitemap is published while direct-link-only mode is active.
+
+This means the public Pages deployment does **not** need Cloudflare Access for `/admin`, `/steven-os`, or `/cardiohospital`; those routes are excluded instead.
 
 ## Resume here
 
-If work is interrupted:
-
 1. Read this file.
-2. Read `CLAUDE.md`.
-3. Read `DEPLOYMENT.md` for the live Cloudflare boundary.
-4. Resume the first unfinished item in **Remaining gates**, in order.
-5. Check the corresponding GitHub issue before changing state; do not infer live completion from repository files.
+2. Read `CLAUDE.md` and `DEPLOYMENT.md`.
+3. Check active PRs/issues before changing state.
+4. Resume the first unfinished external gate below.
+5. Never infer live completion from repository files alone.
 
-## Repository program — completed
+## Repository platform — completed
 
-The repository-side platform consolidation is merged to `main`.
+### Deployment and safety
 
-### Foundation
-
-- [x] Classified deployment catalog: PRODUCTION / PREVIEW / INTERNAL / SOURCE_ONLY / ARCHIVED.
-- [x] Deterministic `npm run build` -> `dist/`; SOURCE_ONLY/backend material excluded.
-- [x] Site-wide noindex/security headers.
-- [x] HTML-level noindex defense in depth for every deployed document.
-- [x] Custom 404 and `/.well-known/security.txt`.
+- [x] Catalog classifications for PRODUCTION / PREVIEW / INTERNAL / SOURCE_ONLY / ARCHIVED.
+- [x] Deterministic `npm run build` -> `dist/`.
+- [x] Pages artifact restricted to PRODUCTION routes.
+- [x] Preview/internal/backend/source-only material excluded from Pages.
+- [x] Site-wide response noindex plus HTML noindex defense in depth.
 - [x] No sitemap while direct-link-only policy is active.
-- [x] Production verification script/workflow exists.
+- [x] Custom 404 and `/.well-known/security.txt`.
+- [x] Production verifier checks public routes, noindex/security controls, non-production absence, and custom 404 behavior.
 
-### CI and product quality
+### CI and quality
 
-- [x] Workflow triggers cover every production module plus platform/search/scripts/docs.
-- [x] Every existing dedicated clinical/academy suite runs in CI.
-- [x] Kawasaki has independent behavioral coverage and production CDN stripping.
-- [x] Smoke inventory is checked against the production catalog.
-- [x] Accessibility scans cover shared platform surfaces.
-- [x] Static performance budgets are enforced.
-- [x] Pin Sprint irregular-SVG pointer test is hardened.
-- [x] PHS 768x1024 status-bar overflow is fixed and regression-tested.
-- [x] `package-lock.json` is committed from a GitHub-generated artifact and CI uses `npm ci`.
+- [x] Browser suites split into independent parallel jobs.
+- [x] Accessibility and site smoke run independently.
+- [x] Site-smoke page/mobile/StudyHub checks use bounded native Node test concurrency.
+- [x] All dedicated simulator/calculator/academy suites remain covered.
+- [x] Smoke inventory is checked against the PRODUCTION catalog.
+- [x] Performance, provenance, governance, syntax, and integrity checks remain enforced.
 
 ### Information architecture
 
-- [x] Homepage reorganized around flagship work, resident education, clinical tools, and family/personal projects.
-- [x] `/education/` hub added.
-- [x] `/about/`, `/contact/`, `/privacy/`, `/search/` added.
-- [x] Local-only Continue Learning added for resident education.
-- [x] Static full-content search generated from PRODUCTION HTML only.
-- [x] Shared static platform UI primitives added without a framework rewrite.
-- [x] Homepage copy corrected so it does not promise a nonexistent QTc tool.
+- [x] Curated homepage and resident-education hub.
+- [x] About, Contact, Privacy, Search, and custom 404 surfaces.
+- [x] Homepage search with shareable `/search/?q=...` queries.
+- [x] Search results include page descriptions.
+- [x] Clinical Tools exposes BP calculator validation evidence.
+- [x] Homepage correction link goes directly to the structured correction form.
+- [x] 404 page provides Search and Contact recovery paths.
 
-### Clinical governance
+### Clinical governance and provenance
 
-- [x] `clinical/content-registry.json` added and enforced.
-- [x] Clinical curriculum map added.
-- [x] Content-correction issue flow added.
-- [x] Documented review dates recorded only where evidence exists.
-- [x] Aortopathy, Genetics of CHD, PALS, and PedCardSurg evidence-backed review metadata added; hypertension was already documented.
-- [x] Unknown clinical review dates remain unknown rather than backfilled.
+- [x] `clinical/content-registry.json` lifecycle governance.
+- [x] Curriculum map and correction workflow.
+- [x] Evidence-backed review metadata recorded only where supported.
+- [x] StudyHub map/icon provenance and attribution chain documented.
+- [ ] CHD surgical-atlas creator/source/license/permission remains unresolved (#41).
+- [ ] Six clinical modules still need real review evidence (#42).
 
-### Security/deployment hygiene
+### StudyHub reproducibility
 
-- [x] Security headers versioned.
-- [x] INTERNAL/SOURCE_ONLY deployment intent represented in code and tests.
-- [x] `admin/`, `steven-os/`, and legacy `cardiohospital/` classified INTERNAL.
-- [x] `cardio-hospital-3d/`, `clipboard-sanitizer/`, StudyHub backend source classified/excluded as SOURCE_ONLY.
-- [x] Production verifier checks internal access expectations, source-only absence, noindex/security headers, robots behavior, and sitemap absence.
+- [x] Versioned cloud-save migration with RLS/browser-role restrictions.
+- [x] Two-device/offline acceptance checklist.
+- [x] Privacy-safe event vocabulary defined; custom telemetry remains disabled pending an approved endpoint/retention policy.
 
-### StudyHub/backend reproducibility
+## Recent merged checkpoints
 
-- [x] Cloud-save database migration/versioned schema source added with RLS and browser-role grants revoked.
-- [x] Real-device cloud-save acceptance checklist added.
-- [x] Privacy-safe analytics/event vocabulary defined; custom behavioral telemetry remains disabled pending an approved first-party endpoint/retention policy.
-- [x] 50 States/Pin Sprint map source chain recovered; StudyHub map-derived material conservatively treated as CC BY-SA-derived and `study/ATTRIBUTIONS.md` added.
-
-### Repository hygiene
-
-- [x] #2 superseded ABPM PR closed.
-- [x] Cardio Hospital/Steven OS/BP/ABPM long-lived PRs reassessed and documented rather than mass-closed.
-- [x] Stale giant session-log handoff replaced with concise operating documentation.
-
-## Merged implementation checkpoints
-
-- #37 platform foundation -> `44457d1`
-- #45 Pin Sprint SVG test hardening -> `8fe0dda`
-- #51 PHS tablet overflow -> `75d98b2`
-- #44 clinical review metadata -> `646761c`
-- #47 deployment HTML noindex -> `236d992`
-- #48 full-content search -> `2bb5caf`
-- #43 asset provenance/StudyHub attribution -> `d95b4dc`
-- #50 deterministic npm lockfile / `npm ci` -> `593ccdb`
-
-The final rebased #43 and #50 validation runs were fully green across platform policy, Steven OS, syntax/integrity, PHS, all clinical suites, complete smoke, and accessibility.
+- #54 — search-result descriptions.
+- #55 — parallel CI matrix.
+- #56 — BP validation surfaced from Clinical Tools.
+- #57 — split site-smoke/accessibility CI critical path.
+- #58 — bounded concurrency inside site smoke.
+- #59 — complete homepage footer/correction routing.
+- #60 — better 404 recovery navigation.
 
 ## Remaining gates — execute in this order
 
-### 1. #38 — Cloudflare classified-deploy and Access cutover
+### 1. #38 — Live Pages cutover verification
 
-Repository work is complete; live control-plane evidence is still required.
+Repository code should make the live setup minimal:
 
-- [ ] Cloudflare Pages build command = `npm run build`.
+- [ ] Build command = `npm run build`.
 - [ ] Output directory = `dist`.
 - [ ] Production branch = `main`.
-- [ ] `/admin/*` protected by Cloudflare Access.
-- [ ] `/steven-os/*` protected by Cloudflare Access or excluded.
-- [ ] `/cardiohospital/*` protected by Cloudflare Access or excluded.
-- [ ] SOURCE_ONLY paths absent from production.
-- [ ] Live responses carry `X-Robots-Tag: noindex, nofollow, noarchive` plus security headers.
-- [ ] `robots.txt` permits public recrawling for noindex processing.
+- [ ] PREVIEW, INTERNAL, and SOURCE_ONLY routes return 404.
+- [ ] Live responses carry version-controlled noindex/security headers.
+- [ ] `robots.txt` permits recrawling for noindex processing.
 - [ ] No sitemap is published.
 - [ ] `npm run verify:production` / Production verification workflow passes against the live site.
-- [ ] Decide whether to schedule production verification after the first live green pass.
-- [ ] Optional: enable privacy-preserving Cloudflare Web Analytics if desired.
+
+No Access policy is required for the main Pages deployment because INTERNAL routes are excluded.
 
 ### 2. #40 — Remove existing Google/Bing results
 
 Start only after #38 proves the live noindex response.
 
-- [ ] Confirm homepage and known indexed routes expose live noindex.
-- [ ] Use Google Search Console removal/inspection tools as appropriate.
-- [ ] Use Bing Webmaster removal/blocking tools as appropriate.
-- [ ] Recheck public search until stevetodman.com content no longer surfaces.
-- [ ] Keep public crawling enabled while noindex is being processed.
+- [ ] Use Google Search Console tools as appropriate.
+- [ ] Use Bing Webmaster tools as appropriate.
+- [ ] Recheck public search until site content no longer surfaces.
+- [ ] Keep public crawling enabled while noindex is processed.
 
-### 3. #39 — StudyHub live cloud-save acceptance and abuse controls
+### 3. #39 — StudyHub live cloud-save acceptance
 
-- [ ] Apply/verify `study/supabase/migrations/20260819_create_studyhub_saves.sql` in the live Supabase project.
-- [ ] Verify `studyhub.saves` RLS and absence of direct `public`/`anon`/`authenticated` CRUD access.
-- [ ] Verify the deployed `studyhub-save` Edge Function is the intended app path.
-- [ ] Configure appropriate edge/service rate limiting and 5xx/error monitoring without CAPTCHA/login friction.
-- [ ] Run every step in `study/CLOUD_SAVE_ACCEPTANCE.md`: device A -> private share link -> device B -> bidirectional sync -> offline union merge.
-- [ ] Verify the token fragment is scrubbed after adoption and never paste the token into public logs/issues.
+- [ ] Apply/verify the live migration and RLS/browser-role restrictions.
+- [ ] Verify the deployed Edge Function is the intended application path.
+- [ ] Add appropriate rate limiting and error monitoring without CAPTCHA/login friction.
+- [ ] Run the complete two-device/offline merge acceptance sequence.
+- [ ] Never paste the family token into public logs/issues.
 
 ### 4. #41 — CHD surgical-atlas provenance
 
-StudyHub map/icon provenance is materially resolved. The remaining gap is the CHD atlas.
-
-- [ ] Identify creator/upstream source for the PNG masters.
-- [ ] Determine whether each master is original, commissioned, generated, licensed, or derived.
-- [ ] Recover permission/license/attribution requirements.
-- [ ] If evidence cannot be established before broader public redistribution, replace with clearly owned/licensed material.
+- [ ] Recover creator/upstream source and permission/license evidence.
+- [ ] If evidence cannot be established before broader redistribution, replace the images with clearly owned/licensed material.
 
 ### 5. #42 — Clinical review evidence
-
-Documented review evidence exists for hypertension, Aortopathy, Genetics of CHD, PALS, and PedCardSurg.
 
 Still unresolved:
 
@@ -169,25 +143,22 @@ Still unresolved:
 - [ ] cardiovascular prevention/dyslipidemia
 - [ ] Myocarditis
 
-For each: perform or recover the real review, record date/scope/source set, and record review level only when the source supports it. Never use commit dates or passing tests as clinical sign-off.
+Do not use commit dates or passing software tests as clinical sign-off.
 
-## Longer-term backlog — not part of the current platform completion gate
+## Longer-term backlog
 
-- Observe actual StudyHub/Pin Sprint replay/frustration behavior before adding more mechanics.
-- Consider activating the already-defined first-party custom-event vocabulary only after approving an endpoint, retention policy, and privacy constraints.
-- Reconcile Cardio Hospital PR #27 deliberately; preserve current platform workflow/handoff and existing workstation/human gates.
-- Rebase/retest Steven OS PR #28 against current INTERNAL/classified deployment policy.
-- Treat BP PR #1 and ABPM PR #3 as stale clinical branches requiring selective porting/re-review, not ordinary merges.
-- Do not mass-close #19/#20/#22/#23/#24; they remain evidence-bearing Cardio Hospital work until deliberately superseded/incorporated.
+- Observe actual StudyHub replay/frustration behavior before adding mechanics.
+- Activate custom analytics only after endpoint, retention, and privacy decisions.
+- Reconcile Cardio Hospital PR #27 deliberately.
+- Rebase/retest Steven OS PR #28 against the production-only Pages boundary.
+- Treat old BP/ABPM branches as selective-port/re-review candidates, not ordinary merges.
 
-## Definition of done for this program
+## Definition of done
 
-Repository implementation is done. The overall platform program is complete only when:
+The repository implementation is healthy. The broader program is complete when:
 
-1. live Cloudflare classified deployment and Access checks pass;
-2. public search engines no longer surface site content while the direct-link-only policy is active;
-3. StudyHub live backend + two-device/offline acceptance passes;
-4. CHD atlas provenance/permission is established or those assets are replaced before broader redistribution;
-5. the six unresolved clinical modules have evidence-backed review records.
-
-Until then, `status` remains active and the first unfinished gate above is the resume point.
+1. live Pages production-only deployment verification passes;
+2. search-engine results disappear while noindex remains active;
+3. StudyHub live backend/device acceptance passes;
+4. CHD atlas provenance is established or assets are replaced;
+5. all unresolved clinical modules have evidence-backed review records.

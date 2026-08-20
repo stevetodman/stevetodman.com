@@ -15,6 +15,11 @@ function routeFile(route) {
   return route.slice(1);
 }
 
+function routeArtifact(route) {
+  if (route === '/') return 'index.html';
+  return route.replace(/^\/+|\/+$/g, '');
+}
+
 function walkFiles(dir) {
   const files = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -62,7 +67,7 @@ test('catalog has valid unique classifications and existing routes', () => {
   }
 });
 
-test('classified build excludes repository/backend source and includes shared platform assets', () => {
+test('classified build contains only production routes and shared public assets', () => {
   execFileSync(process.execPath, ['scripts/build-site.mjs'], { cwd: repoRoot, stdio: 'pipe' });
   const dist = path.join(repoRoot, 'dist');
   for (const required of [
@@ -71,15 +76,27 @@ test('classified build excludes repository/backend source and includes shared pl
     'site/catalog.json',
     'site/platform.css',
     'site/learning-progress.js',
-    'steven-os/index.html',
   ]) assert.ok(fs.existsSync(path.join(dist, required)), `required deploy asset missing: ${required}`);
+
+  const deployedCatalog = JSON.parse(fs.readFileSync(path.join(dist, 'site/catalog.json'), 'utf8'));
+  assert.deepEqual(deployedCatalog.classes, ['PRODUCTION'], 'public catalog should expose only the production class');
+  assert.ok(deployedCatalog.items.every((item) => item.class === 'PRODUCTION'), 'public catalog leaked non-production metadata');
+
+  for (const item of catalog.items.filter((x) => x.route && x.class !== 'PRODUCTION')) {
+    assert.equal(
+      fs.existsSync(path.join(dist, routeArtifact(item.route))),
+      false,
+      `${item.class} route leaked into deploy artifact: ${item.route}`
+    );
+  }
+
   for (const forbidden of [
+    'admin',
+    'steven-os',
+    'cardiohospital',
     'study/supabase',
     'cardio-hospital-3d',
     'clipboard-sanitizer',
-    'steven-os/supabase',
-    'steven-os/scripts',
-    'steven-os/schema.sql',
     'tests',
   ]) assert.equal(fs.existsSync(path.join(dist, forbidden)), false, `${forbidden} leaked into deploy artifact`);
 
@@ -125,9 +142,9 @@ test('preview HTML has explicit noindex metadata as defense in depth', () => {
   }
 });
 
-test('internal/source-only projects are not linked from public homepage', () => {
+test('non-production projects are not linked from public homepage', () => {
   const home = read('index.html');
-  for (const item of catalog.items.filter((x) => ['INTERNAL', 'SOURCE_ONLY'].includes(x.class))) {
+  for (const item of catalog.items.filter((x) => x.class !== 'PRODUCTION')) {
     if (item.route) assert.equal(home.includes(`href="${item.route}"`), false, `homepage exposes ${item.route}`);
   }
 });

@@ -4,7 +4,7 @@
 
 Cloudflare Pages should publish the **generated `dist/` artifact**, not the repository root.
 
-Repository source can contain tests, migrations, backend functions, developer tools, and experimental projects. `scripts/build-site.mjs` is the deployment boundary that copies only classified deployable content and removes SOURCE_ONLY paths.
+Repository source can contain tests, migrations, backend functions, developer tools, previews, and internal projects. `scripts/build-site.mjs` is the deployment boundary: only catalog items classified `PRODUCTION` reach Pages. `PREVIEW`, `INTERNAL`, `SOURCE_ONLY`, and `ARCHIVED` material stays in source unless it is explicitly promoted.
 
 ## Cloudflare Pages settings
 
@@ -32,29 +32,33 @@ The site already had indexed URLs before this policy was added. After deployment
 
 Do not add a sitemap or remove the noindex policy until Steve explicitly decides to make the site discoverable.
 
-## Internal routes
+## Non-production routes
 
-These routes are classified INTERNAL and must not be anonymously readable:
+Pages is deliberately **production-only**. Routes classified `PREVIEW` or `INTERNAL` are not copied into `dist/` and should return 404 on the public site.
 
+Examples include:
+
+- `/tools/pediatric-abpm-pathway-preview.html`
+- `/tools/bp-percentile-calculator-preview.html`
 - `/admin/*`
 - `/steven-os/*`
 - `/cardiohospital/*`
 
-Preferred control: Cloudflare Access policies covering each route/prefix. If an internal route no longer needs browser access, exclude it from the deployment instead.
+This removes the need for Cloudflare Access on the main Pages deployment. If an internal tool later needs remote browser access, give it a separate authenticated deployment or deliberately promote/reclassify it after reviewing the exposure boundary.
 
-`noindex` is not authentication.
+`noindex` is not authentication; exclusion is the control.
 
 ## Source-only material
 
-The `dist/` build must exclude at least:
+The `dist/` build must also exclude repository/backend material such as:
 
 - `cardio-hospital-3d/`
 - `clipboard-sanitizer/`
 - `study/supabase/`
-- Steven OS backend functions/SQL/scripts
+- Steven OS source/backend files
 - repository tests
 
-`npm run test:platform` builds `dist/` and fails if these paths leak into the artifact.
+`npm run test:platform` builds `dist/` and fails if non-production routes or source-only paths leak into the artifact.
 
 ## Security headers
 
@@ -87,7 +91,7 @@ Operational requirement: apply edge/service rate limiting and error monitoring w
 
 ## Cutover verification
 
-After Cloudflare settings deploy `dist/` and Access rules are active, run:
+After Cloudflare settings deploy `dist/`, run:
 
 ```sh
 npm run verify:production
@@ -102,7 +106,7 @@ It must verify:
 3. crawler access remains compatible with the noindex directive;
 4. no `/sitemap.xml` is published while direct-link-only mode is active;
 5. public canonical routes return 200;
-6. internal routes are not anonymously readable;
+6. PREVIEW and INTERNAL routes return 404;
 7. SOURCE_ONLY routes return 404;
 8. custom 404 behavior works.
 
@@ -113,6 +117,6 @@ Do not schedule the production verifier automatically until the initial cutover 
 If the `dist/` deployment exposes a regression:
 
 1. use the prior known-good Pages deployment for immediate rollback;
-2. keep the classified-build settings in place unless the build boundary itself is the defect;
+2. keep the production-only build boundary in place unless the boundary itself is the defect;
 3. fix the branch and re-run platform/behavior tests;
 4. re-run production verification after redeploy.
