@@ -22,7 +22,14 @@ mkdir(dist);
 // Root-level static control files.
 for (const file of ['index.html', '404.html', 'robots.txt', '_headers']) copy(file);
 copy('.well-known');
-copy('site/catalog.json');
+
+// Public platform assets are copied explicitly; site/ also contains planning and
+// governance files that do not need to ship to browsers.
+for (const file of [
+  'site/catalog.json',
+  'site/platform.css',
+  'site/learning-progress.js',
+]) copy(file);
 
 // Copy each deployable top-level route root once. SOURCE_ONLY/ARCHIVED items
 // never enter the artifact. INTERNAL routes remain deployable because they are
