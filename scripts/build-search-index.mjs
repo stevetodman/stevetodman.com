@@ -3,10 +3,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const dist = path.join(root, 'dist');
+const defaultSourceRoot = path.join(root, 'dist');
+const sourceRoot = path.resolve(process.env.SEARCH_INDEX_SOURCE_ROOT || defaultSourceRoot);
+const target = path.resolve(process.env.SEARCH_INDEX_OUTPUT || path.join(defaultSourceRoot, 'site', 'search-index.json'));
 const catalog = JSON.parse(fs.readFileSync(path.join(root, 'site/catalog.json'), 'utf8'));
 
-if (!fs.existsSync(dist)) throw new Error('dist/ is missing; run scripts/build-site.mjs first');
+if (!fs.existsSync(sourceRoot)) {
+  throw new Error(`search-index source root missing: ${sourceRoot}`);
+}
 
 function routeFile(route) {
   if (route === '/') return 'index.html';
@@ -48,8 +52,8 @@ const items = [];
 for (const item of catalog.items) {
   if (item.class !== 'PRODUCTION' || !item.route || item.id === 'search') continue;
   const relative = routeFile(item.route);
-  const file = path.join(dist, relative);
-  if (!fs.existsSync(file)) throw new Error(`search-index production route missing from dist: ${item.route}`);
+  const file = path.join(sourceRoot, relative);
+  if (!fs.existsSync(file)) throw new Error(`search-index production route missing from source root: ${item.route}`);
   const html = fs.readFileSync(file, 'utf8');
   items.push({
     id: item.id,
@@ -64,12 +68,11 @@ for (const item of catalog.items) {
 items.sort((a, b) => a.title.localeCompare(b.title));
 const output = {
   schemaVersion: 1,
-  generatedFrom: 'classified-production-html',
+  generatedFrom: sourceRoot === defaultSourceRoot ? 'classified-production-html' : 'test-source-html',
   searchPolicy: 'noindex',
   items,
 };
 
-const target = path.join(dist, 'site', 'search-index.json');
 fs.mkdirSync(path.dirname(target), { recursive: true });
 fs.writeFileSync(target, `${JSON.stringify(output)}\n`);
 console.log(`Indexed ${items.length} production pages into ${path.relative(root, target)}`);
