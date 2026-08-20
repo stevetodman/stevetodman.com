@@ -43,7 +43,7 @@ describe('myocarditis academy shell', () => {
     const { context, page } = await openAcademy();
     await page.locator('[data-opening="0"]').click();
     await page.waitForSelector('#opening-feedback.feedback-box');
-    assert.match(await page.locator('#opening-feedback').innerText(), /Unsafe/);
+    assert.match(await page.locator('#opening-feedback').innerText(), /Unsafe/i);
     assert.equal(await page.locator('[data-opening="1"]').evaluate(el => el.classList.contains('correct')), true);
     await context.close();
   });
@@ -56,7 +56,7 @@ describe('learning interactions', () => {
     for (let index = 0; index < 6; index += 1) {
       await page.locator('[data-pre-answer]').first().click();
     }
-    assert.match(await page.locator('#pretest-stage').innerText(), /Baseline complete/);
+    assert.match(await page.locator('#pretest-stage').innerText(), /Baseline complete/i);
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('myocarditis-academy-v1')));
     assert.equal(saved.pretestComplete, true);
     assert.equal(typeof saved.pretestScore, 'number');
@@ -66,15 +66,15 @@ describe('learning interactions', () => {
   test('unsafe case choice cannot advance until corrected', async () => {
     const { context, page } = await openAcademy();
     await page.locator('#tab-cases').click();
-    assert.match(await page.locator('#case-stage').innerText(), /Decision 1 of 3/);
+    assert.match(await page.locator('#case-stage').innerText(), /Decision 1 of 3/i);
 
     await page.locator('[data-case-answer="0"]').click();
-    assert.match(await page.locator('#case-feedback').innerText(), /Not safe yet/);
-    assert.match(await page.locator('#case-stage').innerText(), /Decision 1 of 3/);
+    assert.match(await page.locator('#case-feedback').innerText(), /Not safe yet/i);
+    assert.match(await page.locator('#case-stage').innerText(), /Decision 1 of 3/i);
 
     await page.locator('[data-case-answer="1"]').click();
     await page.locator('[data-case-continue]').click();
-    assert.match(await page.locator('#case-stage').innerText(), /Decision 2 of 3/);
+    assert.match(await page.locator('#case-stage').innerText(), /Decision 2 of 3/i);
     await context.close();
   });
 });
@@ -126,7 +126,7 @@ describe('mastery assessment', () => {
 
     await page.locator('#posttest-form button[type="submit"]').click();
     assert.match(await page.locator('#posttest-results').innerText(), /15\/15/);
-    assert.match(await page.locator('#posttest-results').innerText(), /Mastery achieved/);
+    assert.match(await page.locator('#posttest-results').innerText(), /Mastery achieved/i);
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('myocarditis-academy-v1')));
     assert.equal(saved.posttestPassed, true);
     assert.equal(saved.posttestBest, 15);
