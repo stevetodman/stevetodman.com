@@ -2,7 +2,7 @@
 
 Personal website, pediatric cardiology education, clinical tools, simulations, and family learning projects. Deployed via Cloudflare Pages.
 
-> **Current visibility policy:** direct links work, but search-engine indexing is intentionally disabled. The site sends a global `noindex` response header, `robots.txt` disallows crawling, and no sitemap is published.
+> **Current visibility policy:** direct links work, but search-engine indexing is intentionally disabled. The site sends a global `X-Robots-Tag: noindex, nofollow, noarchive` response header and publishes no sitemap. Public pages remain crawlable so search engines can actually observe the `noindex` directive and remove already-discovered URLs.
 
 ## Start here
 
@@ -81,7 +81,7 @@ After deployment/configuration changes:
 npm run verify:production
 ```
 
-This checks noindex/security headers, crawler policy, internal-route protection, source-only exclusion, and custom 404 behavior against the live site.
+This checks noindex/security headers, crawler/noindex compatibility, internal-route protection, source-only exclusion, and custom 404 behavior against the live site.
 
 ## Clinical content maintenance
 
