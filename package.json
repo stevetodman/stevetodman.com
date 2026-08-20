@@ -8,7 +8,8 @@
     "verify:production": "node scripts/verify-production.mjs",
     "test": "node --test tests/*.test.mjs",
     "test:steven-os": "node --test tests/steven-os.test.mjs",
-    "test:platform": "node --test tests/platform-policy.test.mjs",
+    "test:platform": "node --test tests/platform-policy.test.mjs tests/governance.test.mjs tests/asset-provenance.test.mjs tests/performance-budget.test.mjs",
+    "test:a11y": "node --test tests/accessibility.test.mjs",
     "test:phs": "node --test tests/phs-scenarios.test.mjs",
     "test:bp": "node --test tests/bp-calculator.test.mjs",
     "test:kawasaki": "node --test tests/kawasaki-academy.test.mjs",
@@ -23,6 +24,7 @@
     "test:integrity": "node phs/v17/tests/integrity.mjs"
   },
   "devDependencies": {
+    "axe-core": "4.13.0",
     "playwright": "^1.56.1"
   }
 }
