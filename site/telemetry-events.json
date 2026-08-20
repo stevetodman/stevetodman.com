@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "status": "disabled-until-endpoint-approved",
+  "allowedProperties": [
+    "module",
+    "mode",
+    "resultBand",
+    "questionCount",
+    "replay",
+    "deviceClass"
+  ],
+  "forbiddenProperties": [
+    "name",
+    "email",
+    "freeText",
+    "patientData",
+    "familyToken",
+    "fullUrl",
+    "queryString",
+    "ipAddress",
+    "userAgent"
+  ],
+  "events": [
+    {"name":"academy_opened","purpose":"Understand which resident modules are used."},
+    {"name":"academy_quiz_completed","purpose":"Measure completion and broad performance bands without storing answer text."},
+    {"name":"case_completed","purpose":"Measure completion of interactive cases."},
+    {"name":"study_round_completed","purpose":"Measure whether StudyHub rounds are being completed."},
+    {"name":"pin_sprint_replayed","purpose":"Measure whether Pin Sprint leads to another round."},
+    {"name":"correction_clicked","purpose":"Measure use of the correction/reporting path."}
+  ]
+}
