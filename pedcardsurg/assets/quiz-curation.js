@@ -223,6 +223,26 @@
     };
   }
 
+  const interruptedArch=byId(29);
+  if(interruptedArch){
+    Object.assign(interruptedArch,{
+      q:'Which genetic diagnosis should strongly be considered in interrupted aortic arch type B?',
+      o:[
+        '22q11.2 deletion syndrome',
+        'Turner syndrome',
+        'Williams syndrome',
+        'Marfan syndrome'
+      ],
+      a:0,
+      e:'Interrupted aortic arch type B is strongly associated with 22q11.2 deletion syndrome. Evaluation should also consider calcium, immune, palate, and other extracardiac findings when clinically appropriate.'
+    });
+    interruptedArch.wrong={
+      1:'Turner syndrome is associated with left-sided lesions such as coarctation and bicuspid aortic valve, but it is not the classic association for interrupted aortic arch type B.',
+      2:'Williams syndrome is classically associated with supravalvar aortic stenosis and peripheral pulmonary stenosis rather than interrupted aortic arch type B.',
+      3:'Marfan syndrome predisposes to aortic-root dilation and dissection, not the characteristic neonatal arch interruption associated with 22q11.2 deletion.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
