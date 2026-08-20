@@ -10,6 +10,10 @@
   --platform-dark-b: #16213e;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .platform-wrap {
   width: min(100% - 32px, 1060px);
   margin-inline: auto;
