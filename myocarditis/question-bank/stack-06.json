@@ -50,45 +50,45 @@
       "id":"MYO-053","status":"draft-medical-review","age":"16 years","age_group":"adolescent","domain":"sports","concept":"return-to-sport criteria","learning_objective":"Require clinical remission and rhythm/function reassessment before return to strenuous/competitive exercise after myocarditis.","cognitive_level":"application","difficulty":2,
       "stem":"A 16-year-old competitive runner wants to resume full training after myocarditis. Which finding set is most appropriate before considering return to strenuous competition?",
       "options":[
-        {"id":"recovery_set","text":"Clinical remission with recovered ventricular function, no important ongoing myocardial injury/inflammation, and no clinically significant arrhythmia on appropriate rhythm/exercise assessment"},
-        {"id":"symptoms_only","text":"No chest pain for one week, regardless of cardiac testing"},
-        {"id":"ef_only","text":"Normal resting ejection fraction regardless of ventricular ectopy or biomarkers"},
-        {"id":"troponin_only","text":"Normal troponin regardless of persistent dysfunction or arrhythmia"},
-        {"id":"time_only","text":"Completion of a calendar interval alone, even if recovery testing remains abnormal"}
+        {"id":"recovery_set","text":"Clinical remission with recovered ventricular function as applicable, resolution of active myocardial injury/inflammation, and no clinically significant arrhythmia on appropriate ambulatory/exercise assessment"},
+        {"id":"symptom_time","text":"Complete symptom resolution plus completion of the minimum time interval, without rhythm testing because the athlete feels normal"},
+        {"id":"normal_ef","text":"Normal resting ejection fraction even if exercise testing still produces complex ventricular ectopy"},
+        {"id":"normal_troponin","text":"Normal troponin and inflammatory markers even if ventricular function or rhythm remains abnormal"},
+        {"id":"cmr_only","text":"Resolution of CMR edema alone without integrating symptoms, function, or arrhythmia assessment"}
       ],
       "correct_option_id":"recovery_set",
-      "rationale":"Sports clearance after myocarditis should be based on evidence of clinical recovery across inflammation/injury, ventricular function, and arrhythmia risk. Time restrictions are used in guidance, but a calendar interval alone cannot override persistent abnormalities.",
+      "rationale":"Current sports-participation guidance is phenotype-based but consistently requires resolution of active disease and clinically important arrhythmia before competition. Time thresholds differ according to the initial ventricular phenotype, so a single normal test or elapsed interval cannot substitute for multidomain recovery.",
       "option_explanations":{
-        "recovery_set":"Correct. This captures the central common ground across pediatric AHA and more recent international/ACC frameworks.",
-        "symptoms_only":"Symptoms can resolve before electrical or tissue recovery. Symptom freedom is necessary but insufficient.",
-        "ef_only":"Normal EF does not neutralize ventricular arrhythmia or ongoing myocardial injury.",
-        "troponin_only":"A normal injury marker is reassuring but cannot substitute for function and rhythm reassessment.",
-        "time_only":"Traditional guidance uses time-based restriction, while newer guidance increasingly individualizes remission. In either model, persistent abnormal testing prevents clearance regardless of elapsed time."
+        "recovery_set":"Correct. Current US athlete guidance combines symptom resolution, recovery of ventricular function when it was reduced, resolution of active inflammation/edema, and absence of clinically relevant arrhythmias on ambulatory and exercise testing.",
+        "symptom_time":"Symptoms and time matter, but competitive clearance still requires objective recovery assessment; current US guidance specifically incorporates arrhythmia testing and inflammation/edema resolution.",
+        "normal_ef":"Normal mechanical function does not neutralize complex exercise-induced ventricular arrhythmia, which remains a reason to defer routine clearance.",
+        "normal_troponin":"Biomarker normalization is reassuring but cannot substitute for ventricular and rhythm assessment when those domains remain abnormal.",
+        "cmr_only":"CMR helps assess active inflammation and scar, but sports decisions integrate the full clinical, functional, and electrical phenotype rather than a single imaging result."
       },
-      "board_pearl":"Return to play is a recovery decision, not simply a countdown.",
-      "evidence":[{"claim":"Pediatric AHA guidance recommends exercise restriction and rhythm/exercise reassessment before return to competitive athletics after myocarditis.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"The 2025 ESC guideline emphasizes individualized clinical remission with symptoms, biomarkers, rhythm, and imaging rather than a rigid time definition alone.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
+      "board_pearl":"Return to competition requires recovery across the domains that create exercise risk—not merely a normal EF or a finished countdown.",
+      "evidence":[{"claim":"Current US competitive-athlete guidance requires resolution of active myocarditis and clinically relevant arrhythmias before return, with additional phenotype-specific recovery criteria.","source_id":"AHA_ACC_SPORTS_2025"},{"claim":"The 2025 ESC guideline emphasizes individualized clinical remission with symptoms, biomarkers, rhythm, and imaging.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
       "id":"MYO-054","status":"draft-medical-review","age":"15 years","age_group":"adolescent","domain":"sports","concept":"exercise-induced ventricular ectopy","learning_objective":"Defer sports clearance when clinically significant ventricular arrhythmia persists despite normalized symptoms and EF.","cognitive_level":"application","difficulty":2,
       "stem":"A 15-year-old is asymptomatic months after myocarditis and has normal LV function, but exercise testing produces frequent complex ventricular ectopy. What is the best recommendation?",
       "options":[
         {"id":"defer_sports","text":"Defer competitive sports and continue cardiology/rhythm evaluation"},
-        {"id":"clear_ef","text":"Clear immediately because EF is normal"},
-        {"id":"clear_symptoms","text":"Clear because the adolescent feels well"},
-        {"id":"ignore_exercise","text":"Ignore the exercise-induced ectopy if the resting ECG is normal"},
-        {"id":"exercise_treatment","text":"Increase training intensity to suppress the ectopy through conditioning"}
+        {"id":"clear_if_cmr","text":"Clear if follow-up CMR shows no edema, because rhythm abnormalities no longer influence the decision once inflammation has resolved"},
+        {"id":"clear_if_ef","text":"Clear if resting ejection fraction is normal, while arranging ambulatory rhythm testing after return to competition"},
+        {"id":"limited_competition","text":"Allow competition below maximal intensity because exercise-induced ventricular ectopy is relevant only at peak effort"},
+        {"id":"condition_through","text":"Increase supervised training intensity first to determine whether conditioning suppresses the ectopy"}
       ],
       "correct_option_id":"defer_sports",
-      "rationale":"Complex exercise-induced ventricular ectopy indicates persistent electrical risk and is incompatible with routine competitive-sports clearance after myocarditis, even when symptoms and global systolic function have normalized.",
+      "rationale":"Clinically significant ventricular arrhythmia during exercise represents unresolved electrical risk and is incompatible with routine competitive-sports clearance after myocarditis, even when symptoms, global systolic function, and other recovery domains are reassuring.",
       "option_explanations":{
-        "defer_sports":"Correct. The unresolved recovery domain is rhythm, and it controls the clearance decision until adequately evaluated.",
-        "clear_ef":"EF does not measure arrhythmia risk; electrical recovery can lag mechanical recovery.",
-        "clear_symptoms":"Symptom resolution is reassuring but does not neutralize an objectively abnormal exercise rhythm response.",
-        "ignore_exercise":"Exercise testing is specifically useful because it may reveal arrhythmia not present at rest.",
-        "exercise_treatment":"Intense exercise is not therapy for potentially pathologic ventricular ectopy after myocarditis and may increase risk."
+        "defer_sports":"Correct. Current athlete guidance requires absence of clinically relevant arrhythmias on ambulatory monitoring and exercise testing before routine return after myocarditis.",
+        "clear_if_cmr":"Resolution of edema is important but does not erase an objectively abnormal exercise rhythm response; electrical recovery remains an independent clearance domain.",
+        "clear_if_ef":"Normal EF documents mechanical recovery but does not establish electrical safety. The abnormal exercise test should be resolved or appropriately risk-stratified before competition resumes.",
+        "limited_competition":"Complex ventricular ectopy provoked by exercise is a risk signal rather than a simple intensity threshold that can be bypassed by competing less hard.",
+        "condition_through":"Higher-intensity exercise is not a treatment for potentially pathologic ventricular ectopy after myocarditis and should not be used as an unsupervised provocation strategy."
       },
       "board_pearl":"The last abnormal recovery domain can determine sports clearance—even when everything else looks normal.",
-      "evidence":[{"claim":"Absence of clinically significant arrhythmia on Holter/exercise assessment is part of return-to-sport evaluation after myocarditis.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"Persistent ventricular arrhythmia is an important risk marker in myocarditis follow-up.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
+      "evidence":[{"claim":"Current US competitive-athlete guidance requires absence of clinically relevant arrhythmias on ambulatory ECG monitoring and exercise testing before return after myocarditis.","source_id":"AHA_ACC_SPORTS_2025"},{"claim":"Persistent ventricular arrhythmia remains an important risk marker in myocarditis follow-up.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
       "id":"MYO-055","status":"draft-medical-review","age":"10 years","age_group":"child","domain":"follow-up","concept":"persistent LV dysfunction","learning_objective":"Continue longitudinal heart-failure/cardiomyopathy management when ventricular dysfunction persists after the acute myocarditis phase.","cognitive_level":"application","difficulty":2,
@@ -176,29 +176,29 @@
         "symptoms":"Symptoms are important but can underestimate silent electrical or imaging abnormalities."
       },
       "board_pearl":"Follow-up testing should mirror the domains that were dangerous during the acute illness.",
-      "evidence":[{"claim":"Myocarditis follow-up includes clinical assessment, ECG/Holter, exercise testing when appropriate, echocardiography, biomarkers, and CMR according to risk and prior findings.","source_id":"ESC_IMPS_2025"},{"claim":"Pediatric myocarditis return-to-activity assessment includes Holter and exercise testing in athletes.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
+      "evidence":[{"claim":"Myocarditis follow-up includes clinical assessment, ECG/Holter, exercise testing when appropriate, echocardiography, biomarkers, and CMR according to risk and prior findings.","source_id":"ESC_IMPS_2025"},{"claim":"Current US athlete guidance incorporates ambulatory rhythm monitoring and exercise testing before return after myocarditis.","source_id":"AHA_ACC_SPORTS_2025"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
-      "id":"MYO-059","status":"draft-medical-review","age":"16 years","age_group":"adolescent","domain":"sports","concept":"guideline context","learning_objective":"Avoid answering return-to-sport questions with a calendar interval alone when current guidance requires recovery criteria and recommendations differ by document/population.","cognitive_level":"multi-step","difficulty":3,
-      "stem":"A 16-year-old asks, 'Exactly how many months after myocarditis am I automatically safe to compete again?' Which response best reflects guideline-based reasoning?",
+      "id":"MYO-059","status":"draft-medical-review","age":"16 years","age_group":"adolescent","domain":"sports","concept":"phenotype-specific return timing","learning_objective":"Apply the current US competitive-athlete myocarditis framework in which return timing differs according to whether LV systolic function was reduced or preserved at diagnosis and is never determined by time alone.","cognitive_level":"multi-step","difficulty":3,
+      "stem":"Two 16-year-old competitive athletes are recovering from myocarditis. Athlete 1 had reduced LV systolic function at diagnosis. Athlete 2 had preserved LV function throughout. Both are now asymptomatic. Which statement best reflects current US competitive-sports guidance?",
       "options":[
-        {"id":"guideline_context","text":"No calendar interval by itself guarantees safety; US pediatric guidance has traditionally used a months-long restriction and reassessment, while newer international guidance emphasizes individualized clinical remission, so recovery testing and local pediatric cardiology guidance determine clearance"},
-        {"id":"one_month_all","text":"Every child is automatically safe after exactly one month"},
-        {"id":"six_month_all","text":"Every child is automatically safe at exactly six months even with persistent arrhythmia or dysfunction"},
-        {"id":"ef_immediate","text":"Normal EF permits immediate return regardless of time, biomarkers, CMR, or rhythm"},
-        {"id":"never","text":"Any history of myocarditis permanently prohibits competitive sports"}
+        {"id":"phenotype_timing","text":"The pathways differ: reduced-LV-function myocarditis generally requires at least 3 symptom-free months plus normalized LV function, resolved inflammation/edema, and no clinically relevant arrhythmias; selected preserved-LV-function athletes may be considered as early as 4–6 weeks after complete symptom resolution if active inflammation has resolved and rhythm testing is reassuring"},
+        {"id":"three_month_all","text":"Both athletes require exactly 3 months away from competition because initial ventricular phenotype no longer affects return timing once symptoms resolve"},
+        {"id":"six_month_all","text":"Both athletes require exactly 6 months away from competition even if all recovery testing is normal, because the current US guidance retains one fixed interval for every myocarditis phenotype"},
+        {"id":"preserved_immediate","text":"Athlete 2 can return immediately after symptoms stop because preserved LV function eliminates the need to document resolution of inflammation or clinically relevant arrhythmia"},
+        {"id":"normal_testing_erases_time","text":"Athlete 1 can return as soon as testing normalizes even if less than 3 months have passed, because recovery testing entirely replaces the minimum symptom-free interval after reduced-LV-function myocarditis"}
       ],
-      "correct_option_id":"guideline_context",
-      "rationale":"Traditional US pediatric guidance has used a 3-to-6-month framework with reassessment, whereas newer international guidance increasingly individualizes return based on clinical remission. The common safety principle is that elapsed time cannot override persistent symptoms, injury, dysfunction, inflammation, or arrhythmia.",
+      "correct_option_id":"phenotype_timing",
+      "rationale":"The 2025 AHA/ACC competitive-athlete statement moved away from one universal myocarditis interval. Athletes who had reduced LV function have a ≥3-month symptom-free framework plus objective recovery criteria; selected athletes with preserved LV function can be considered at 4–6 weeks after complete symptom resolution if inflammation/edema has resolved and clinically relevant arrhythmias are absent. Neither pathway makes elapsed time alone sufficient for clearance.",
       "option_explanations":{
-        "guideline_context":"Correct. This avoids mixing guideline eras and populations while preserving the clinically important recovery criteria.",
-        "one_month_all":"A universal one-month rule is not supported for pediatric myocarditis and ignores phenotype severity and residual abnormalities.",
-        "six_month_all":"A months-long interval has been used in prior guidance, but six months does not automatically clear a patient with persistent VT, LV dysfunction, or active inflammation.",
-        "ef_immediate":"Mechanical recovery alone cannot establish electrical or inflammatory recovery.",
-        "never":"Many patients ultimately return to activity after appropriate recovery and risk assessment; lifelong prohibition is not universal."
+        "phenotype_timing":"Correct. The current US framework explicitly separates reduced- and preserved-LV-function myocarditis while retaining objective inflammation and rhythm criteria before return.",
+        "three_month_all":"Three months is relevant to the reduced-LV-function pathway, but current guidance does not impose that same minimum interval on every preserved-LV-function athlete.",
+        "six_month_all":"Older recommendations often used a broad 3–6-month restriction. Current US athlete guidance is more phenotype-specific rather than a universal six-month rule.",
+        "preserved_immediate":"Preserved EF lowers one risk dimension but does not eliminate active inflammation or arrhythmic risk. The preserved-function pathway still requires complete symptom resolution plus objective inflammation and rhythm criteria.",
+        "normal_testing_erases_time":"For an athlete whose LV function was reduced at diagnosis, current US guidance retains a period of at least 3 months without symptoms in addition to recovery of function, inflammation, and rhythm—not testing alone."
       },
-      "board_pearl":"When guidelines evolve, anchor to the shared safety criteria and state which population/document supplies any time interval.",
-      "evidence":[{"claim":"The AHA pediatric statement summarizes return-to-competition guidance using a 3-to-6-month restriction with rhythm/exercise reassessment.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"The 2025 ESC guideline emphasizes individualized return after clinical remission rather than relying exclusively on fixed time definitions.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
+      "board_pearl":"Current US sports guidance asks two questions before the clock: was LV function reduced, and has inflammatory/electrical recovery actually occurred?",
+      "evidence":[{"claim":"The 2025 AHA/ACC competitive-athlete statement allows phenotype-specific return after myocarditis: at least 3 symptom-free months when LV function was reduced, versus possible consideration at 4–6 weeks after complete symptom resolution when LV function was preserved, provided inflammation and clinically relevant arrhythmias have resolved.","source_id":"AHA_ACC_SPORTS_2025"},{"claim":"The 2025 ESC guideline also favors individualized clinical remission rather than a single fixed restriction interval.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
       "id":"MYO-060","status":"draft-medical-review","age":"11 years","age_group":"child","domain":"integration","concept":"discharge readiness after complicated myocarditis","learning_objective":"Integrate hemodynamic, electrical, functional, and follow-up readiness before discharge rather than use symptom improvement alone.","cognitive_level":"multi-step","difficulty":3,
