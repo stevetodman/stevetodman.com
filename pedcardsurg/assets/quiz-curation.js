@@ -58,6 +58,21 @@
     };
   }
 
+  const yasuiOperation=byId(21);
+  if(yasuiOperation){
+    yasuiOperation.o=[
+      'A Rastelli repair that routes LV output through the VSD directly to the native aorta and uses an RV–PA conduit',
+      'Biventricular LVOT bypass using VSD-to-pulmonary-root/neoaortic pathway plus RV-PA conduit in suitable anatomy',
+      'A Norwood-based single-ventricle pathway that creates a neoaorta and supplies pulmonary blood flow with a shunt or RV–PA conduit',
+      'A Ross–Konno operation using a pulmonary autograft and aortoventriculoplasty to enlarge the native LVOT'
+    ];
+    yasuiOperation.wrong={
+      0:'Rastelli directs LV blood through the VSD to the native aorta. Yasui instead bypasses a critically small or atretic native LVOT by directing LV output to the pulmonary root/neoaorta pathway.',
+      2:'Norwood is a single-ventricle palliation pathway. Yasui is selected when anatomy permits preservation of a biventricular circulation despite severe LVOT obstruction.',
+      3:'Ross–Konno enlarges the native LVOT and replaces the aortic root with a pulmonary autograft. Yasui creates an alternate systemic outflow pathway and includes RV–PA reconstruction.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
