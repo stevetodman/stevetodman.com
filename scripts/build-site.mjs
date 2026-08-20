@@ -29,10 +29,19 @@ copy('.well-known');
 // Public platform assets are copied explicitly; site/ also contains planning and
 // governance files that do not need to ship to browsers.
 for (const file of [
-  'site/catalog.json',
   'site/platform.css',
   'site/learning-progress.js',
 ]) copy(file);
+
+// Publish only the production subset of the catalog. Search uses this as its
+// development/fallback index; non-production route names do not belong in Pages.
+const publicCatalog = {
+  ...catalog,
+  classes: ['PRODUCTION'],
+  items: catalog.items.filter((item) => item.class === 'PRODUCTION'),
+};
+mkdir(path.join(dist, 'site'));
+fs.writeFileSync(path.join(dist, 'site/catalog.json'), `${JSON.stringify(publicCatalog, null, 2)}\n`);
 
 // Pages is the public production surface. Only PRODUCTION route roots belong in
 // the artifact; preview, internal, source-only, and archived work stays in source.
