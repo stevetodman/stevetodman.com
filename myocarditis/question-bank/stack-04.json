@@ -47,26 +47,26 @@
       "evidence":[{"claim":"Rapid defibrillation is the priority for pediatric cardiac arrest with VF/pulseless VT.","source_id":"AHA_PALS_2025"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
-      "id":"MYO-033","status":"draft-medical-review","age":"8 years","age_group":"child","domain":"arrhythmia","concept":"high-grade AV block","learning_objective":"Recognize symptomatic complete heart block in myocarditis as a critical conduction complication requiring ICU management and possible pacing.","cognitive_level":"application","difficulty":2,
-      "stem":"An 8-year-old with myocarditis develops complete AV block with dizziness, hypotension, and poor perfusion despite correction of hypoxia and other reversible contributors. Which response is most appropriate?",
+      "id":"MYO-033","status":"draft-medical-review","age":"8 years","age_group":"child","domain":"arrhythmia","concept":"high-grade AV block","learning_objective":"Apply the pediatric bradycardia sequence to complete AV block with cardiopulmonary compromise, including reversible-cause correction, resuscitative medications/CPR when indicated, and pacing preparation.","cognitive_level":"multi-step","difficulty":3,
+      "stem":"An 8-year-old with myocarditis develops complete AV block with dizziness, hypotension, and poor perfusion. Hypoxia and other immediately reversible contributors have been addressed, but the bradycardia and cardiopulmonary compromise persist. Which management sequence best matches current pediatric resuscitation principles?",
       "options":[
-        {"id":"brady_escalate","text":"Treat as symptomatic bradycardia/conduction failure with immediate resuscitation support, ICU escalation, and consideration of emergency pacing"},
-        {"id":"benign_block","text":"Observe because complete heart block is a benign expected stage of myocarditis"},
-        {"id":"sports","text":"Use light exercise to raise the ventricular rate"},
-        {"id":"discharge","text":"Discharge if troponin is falling"},
-        {"id":"cmr_wait","text":"Delay treatment until CMR confirms conduction-system inflammation"}
+        {"id":"pals_brady_sequence","text":"Continue airway/oxygenation support and monitoring, treat the primary AV block with atropine when appropriate, give epinephrine and start CPR if the bradycardic low-output state meets resuscitation criteria, and prepare emergency pacing if compromise persists"},
+        {"id":"pacing_only","text":"Proceed directly to pacing as the only intervention and omit bradycardia resuscitation medications or CPR even if perfusion worsens"},
+        {"id":"atropine_endpoint","text":"Give atropine, but if complete block and poor perfusion persist, defer further intervention while waiting to see whether the inflammatory block resolves spontaneously"},
+        {"id":"permanent_first","text":"Delay acute stabilization while arranging a permanent pacemaker because transient pacing has no role in myocarditis-related complete heart block"},
+        {"id":"biomarker_strategy","text":"Base escalation primarily on the troponin trend and withhold rhythm-directed intervention if the myocardial injury marker is falling"}
       ],
-      "correct_option_id":"brady_escalate",
-      "rationale":"High-grade AV block with cardiopulmonary compromise is an emergency. Pediatric resuscitation guidance supports bradycardia management and allows emergency transcutaneous pacing for complete heart block unresponsive to initial resuscitative measures.",
+      "correct_option_id":"pals_brady_sequence",
+      "rationale":"Complete AV block with cardiopulmonary compromise is a bradycardia emergency. Current pediatric resuscitation guidance combines correction of reversible contributors with atropine for primary AV conduction block, epinephrine and CPR when compromise persists and resuscitation criteria are met, and emergency pacing for refractory complete heart block.",
       "option_explanations":{
-        "brady_escalate":"Correct. The key is the combination of conduction block and poor perfusion, not the myocarditis label alone.",
-        "benign_block":"AV block can be transient in myocarditis, but symptomatic complete block can progress to arrest and is not safe for observation without active management.",
-        "sports":"Exercise is contraindicated during active myocarditis and cannot safely substitute for pacing or resuscitative care.",
-        "discharge":"A falling injury marker does not eliminate immediate conduction risk. Disposition is driven by rhythm and perfusion.",
-        "cmr_wait":"Imaging can clarify inflammation but cannot delay management of symptomatic bradycardia."
+        "pals_brady_sequence":"Correct. Management is sequential and physiology-driven: support oxygenation/ventilation, address reversible causes, treat persistent compromised bradycardia, and escalate to pacing when complete block remains refractory.",
+        "pacing_only":"Pacing may become necessary, but a child with ongoing cardiopulmonary compromise still needs simultaneous bradycardia resuscitation. Pacing is not a reason to omit support of airway, circulation, or CPR when indicated.",
+        "atropine_endpoint":"Atropine can improve AV conduction in primary block, but persistent hypotension and poor perfusion require continued resuscitation rather than passive observation. Transient inflammatory block can recover, yet the child must remain perfused while recovery is awaited.",
+        "permanent_first":"Some persistent high-grade block ultimately requires permanent pacing, but the immediate problem is unstable bradycardia. Temporary emergency pacing is specifically useful as a bridge when acute complete block does not respond to initial measures.",
+        "biomarker_strategy":"Troponin reflects myocardial injury, not adequacy of AV conduction or perfusion. A falling troponin cannot override symptomatic complete heart block."
       },
-      "board_pearl":"In myocarditis, complete AV block plus poor perfusion is a bradycardia emergency, not merely a diagnostic clue.",
-      "evidence":[{"claim":"Pediatric myocarditis with heart block is a high-risk pre-arrest condition requiring ICU monitoring and therapy.","source_id":"AHA_PALS_2025"},{"claim":"Emergency pacing may be considered for complete heart block with cardiopulmonary compromise unresponsive to initial resuscitation.","source_id":"AHA_PALS_2025"}],"last_medical_review":null,"requires_sme_review":true
+      "board_pearl":"In myocarditis-related complete heart block, treat the perfusing rhythm you have now while you determine whether conduction will recover later.",
+      "evidence":[{"claim":"For pediatric bradycardia with cardiopulmonary compromise due to primary AV block, atropine is recommended after reversible contributors such as hypoxia are addressed; persistent compromise may require epinephrine and CPR according to the bradycardia algorithm.","source_id":"AHA_PALS_2025"},{"claim":"Emergency transcutaneous pacing may be considered for complete heart block with cardiopulmonary compromise unresponsive to initial resuscitative measures.","source_id":"AHA_PALS_2025"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
       "id":"MYO-034","status":"draft-medical-review","age":"7 years","age_group":"child","domain":"arrhythmia","concept":"nonsustained ventricular tachycardia","learning_objective":"Treat documented NSVT in active myocarditis as meaningful electrical instability even if the child is asymptomatic during the run.","cognitive_level":"application","difficulty":2,
