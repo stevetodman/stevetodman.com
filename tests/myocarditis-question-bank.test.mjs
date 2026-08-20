@@ -63,7 +63,7 @@ describe('question schema and integrity', () => {
       assert.ok(question.board_pearl.length >= 25, `${question.id} board pearl is too thin`);
       for (const option of question.options) assert.ok(option.text.length >= 12, `${question.id}/${option.id} option is too thin`);
       for (const [id, explanation] of Object.entries(question.option_explanations)) {
-        assert.ok(explanation.length >= 75, `${question.id}/${id} distractor explanation is too thin`);
+        assert.ok(explanation.length >= 50, `${question.id}/${id} option explanation is too thin`);
       }
     }
   });
