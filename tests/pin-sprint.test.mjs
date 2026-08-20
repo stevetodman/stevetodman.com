@@ -43,13 +43,37 @@ function currentRoundState(page) {
 }
 
 async function tapCode(page, code) {
-  // The visible state path is the topmost clickable surface over the state
-  // itself. Tiny-state .pin-hit overlays extend the tappable area around the
-  // outline, but their transparent center intentionally lets the visible state
-  // receive the click. Test the same topmost target a finger hits on the shape.
-  const visible = page.locator(`#pinMap path.state[data-code="${code}"]`);
-  if (await visible.count()) await visible.click();
-  else await page.locator(`#pinMap path.pin-hit[data-code="${code}"]`).click();
+  // locator.click() uses an element's bounding-box center. That point can fall
+  // outside irregular SVG geometry (Florida is a reliable example), causing
+  // the parent <svg> to receive the click even though the state is visible.
+  // Find a coordinate the browser itself resolves to this state's visible path
+  // or enlarged tiny-state hit target, then send a real pointer click there.
+  const point = await page.evaluate(targetCode => {
+    const candidates = [
+      ...document.querySelectorAll(`#pinMap path.state[data-code="${targetCode}"], #pinMap path.pin-hit[data-code="${targetCode}"]`),
+    ];
+
+    for (const candidate of candidates) {
+      const rect = candidate.getBoundingClientRect();
+      if (!rect.width || !rect.height) continue;
+
+      // Sample interior grid points rather than assuming the bounding-box
+      // center is painted. Avoid exact edges to reduce antialiasing ambiguity.
+      for (let yi = 1; yi <= 9; yi += 1) {
+        for (let xi = 1; xi <= 9; xi += 1) {
+          const x = rect.left + (rect.width * xi) / 10;
+          const y = rect.top + (rect.height * yi) / 10;
+          const hit = document.elementFromPoint(x, y);
+          const stateHit = hit?.closest?.('#pinMap path.state, #pinMap path.pin-hit');
+          if (stateHit?.dataset.code === targetCode) return { x, y };
+        }
+      }
+    }
+    return null;
+  }, code);
+
+  assert.ok(point, `could not find a painted/tappable point for ${code}`);
+  await page.mouse.click(point.x, point.y);
 }
 
 describe('Pin Sprint', () => {
