@@ -4,17 +4,18 @@
     {
       "pathPrefix": "pedcardsurg/assets/chd-atlas/",
       "description": "CHD surgical atlas full-resolution PNG masters and web-optimized WebP derivatives.",
-      "status": "source-form-and-derivative-recorded-creator-license-unknown",
-      "source": "Repository history records the atlas as supplied full-resolution PNG surgical illustrations. The supplying party, original creator, and upstream source are not identified.",
-      "creator": "unknown",
-      "license": "unknown",
-      "redistribution": "Do not infer permission from repository presence or the repository code license. Broader redistribution remains blocked on creator/source/license evidence.",
+      "status": "project-generated-ai-assisted-provenance-recorded",
+      "source": "Project-generated AI-assisted surgical illustrations created specifically for the PedCardSurg educational module under the direction of Steven Todman, MD. The public provenance record intentionally does not identify the specific generation service.",
+      "creator": "Steven Todman, MD — human-directed generation, selection, clinical review, and project integration.",
+      "license": "Project-controlled educational assets. This record does not claim exclusive copyright in any purely AI-generated expressive elements; reuse remains subject to applicable law and the terms governing the generation workflow at the time of creation.",
+      "redistribution": "May be redistributed as project educational assets where otherwise permitted. Preserve this provenance record and do not represent the illustrations as wholly hand-drawn or as third-party licensed surgical artwork.",
       "derivatives": "The WebP files are web-optimized derivatives of the corresponding PNG masters. Repository history explicitly records regeneration of a WebP derivative after the complete AV canal PNG was edited/replaced.",
       "evidence": [
+        "Project owner statement recorded August 20, 2026: the CHD atlas illustrations were created with an AI image-generation workflow for this project.",
         "commit 55a58d3f603f8baad5b739a0aa775a81ebafff91: describes ten supplied full-resolution PNGs plus web-optimized WebP versions",
         "commit 908d415153bcce0ccf2ba85ebe4be58384ddd79e: explicitly records regeneration of the complete AV canal WebP derivative after PNG cleanup/replacement"
       ],
-      "notes": "Creator/source identity, permission/license, and attribution requirements remain unknown and must not be guessed."
+      "notes": "The specific generation vendor/service is intentionally omitted from the public provenance record. No third-party source artwork or separate external license is documented in the repository; if such source material is later identified, update this record before relying on it for redistribution."
     },
     {
       "pathPrefix": "study/us-states.html",
