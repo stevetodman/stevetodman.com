@@ -1,385 +1,292 @@
 ---
 status: active
-next: Verify StudyHub cloud save on a real iPhone (see Handoff), then decide on the Road Trip redesign
+next: Finish and validate the platform-hardening PR, then perform the Cloudflare dist/Access cutover and production verification; after that run the real two-device StudyHub save acceptance test
 ---
 
 # CLAUDE.md
 
-This is Steve Todman's personal website deployed via Cloudflare Pages.
+This is Steve Todman's personal website and education/tool repository, deployed with Cloudflare Pages.
 
-## Project Structure
+## Read first
 
-```
-stevetodman.com/
-├── index.html                    # Homepage
-├── admin/                        # Password-protected via Cloudflare Access
-│   ├── index.html                # Admin landing page
-│   └── clinic-resources/
-│       ├── index.html            # Clinic resources listing
-│       └── files/
-│           ├── peds-htn-intake-v4.pdf
-│           ├── bp-family-handout.docx
-│           ├── peds-dyslipidemia-intake-v3.pdf
-│           └── peds-syncope-intake-v2.pdf
-├── phs/                          # Pediatric Hospital Simulator (stevetodman.com/phs)
-│   ├── index.html                # Canonical hosted entrypoint (loads v17/ only)
-│   ├── README.md
-│   └── v17/                      # Current declarative educational platform
-│       ├── cases/                # Objective-linked manifest + patient case files
-│       ├── tests/integrity.mjs   # Dependency and cross-reference audit (runs in CI)
-│       └── schema.json           # Assembled-case authoring schema
-├── math/                         # Math Lab: Fractions (stevetodman.com/math)
-│   ├── index.html
-│   └── assets/                   # app.js, styles.css, favicon.svg
-├── newbornscreen/                # Interactive 2025 AAP CCHD screening module
-│   └── index.html                # Resident teaching, algorithm, and 17-question quiz
-├── hypertension/                 # Pediatric hypertension and ABPM resident academy
-│   ├── index.html                # Layered lesson, office pathway, ABPM lab, cases, quiz
-│   └── assets/                   # Local styles and interaction logic
-├── cardiovascular-risk/          # Cardiovascular prevention and dyslipidemia academy
-│   └── index.html                # Age rail, lipid tools, current overlays, reference tables, cases
-├── aortopathy/                   # Pediatric aortopathy resident academy
-│   ├── index.html                # Layered lesson, pathways, condition atlas, cases, pre/post testing
-│   └── assets/                   # Local styles and interaction logic
-├── genetics-chd/                 # Genetics of congenital heart disease resident academy
-│   ├── index.html                # Action pathway, pattern atlas, genomic workbench, cases, assessment, quick reference
-│   └── assets/                   # Local styles and interaction logic
-├── myocarditis/                  # Pediatric myocarditis resident academy
-│   ├── index.html                # Recognition, diagnosis, stabilization, treatment, cases, assessment
-│   └── assets/                   # Local styles and interaction logic
-├── pals/                         # 2025 PALS resident mastery lab
-│   └── index.html                # 10 high-acuity cases, 64 questions, explanations, analytics
-├── pedcardsurg/                  # CHD surgical atlas and resident visual education module
-│   ├── index.html                # Primary atlas, PTED library, eponyms, assessment
-│   └── assets/chd-atlas/         # Nine supplied full-resolution PNGs plus web-optimized WebP versions
-├── clipboard-sanitizer/          # Standalone shell utilities (not deployed)
-├── .github/workflows/            # phs-v17-integrity.yml, update-cooking-index.yml
-├── study/                        # Kids' Study Hub (stevetodman.com/study)
-│   ├── index.html                # Study Hub landing page
-│   ├── us-states.html            # 50 States Challenge: spelling + map location practice/test
-│   ├── us-states.webmanifest     # Add-to-Home-Screen manifest for the states app
-│   ├── icons/                    # PNG app icons (iOS apple-touch-icon + manifest/maskable)
-│   ├── supabase/functions/       # studyhub-save Edge Function (cloud save; deployed to the clintel project)
-│   ├── greek-vocab-quiz.html     # Ancient Greece vocabulary + chapter review
-│   ├── fract-vocab-quiz.html     # Root words: fract, frag, frail
-│   ├── topic-e-quiz.html         # Eureka Math G4M5 Topic E fractions quiz
-│   ├── math-facts.html           # Multiplication speed drill
-│   └── 100-fact-club.html        # 100 Fact Club sprint training + challenge
-├── cooking/
-│   ├── index.html                # Cooking timers listing
-│   ├── ahi-tuna-timer.html
-│   ├── ribeye-timer.html
-│   └── ribs-timer.html
-└── tools/
-    ├── index.html                # Tools listing
-    ├── bp-percentile-calculator.html # AAP pediatric BP calculator + interactive curves
-    ├── bp-growth-lms.js          # Official monthly CDC length/stature LMS values
-    └── bp-calculator-validation.html # Public validation and known-limits report
+For any nontrivial work, read these in order:
+
+1. **`MASTER_PLAN.md`** — active roadmap, completed/pending work, and interruption-safe resume protocol.
+2. **`DEPLOYMENT.md`** — Cloudflare Pages build boundary, Access requirements, and live verification.
+3. **`site/catalog.json`** — canonical deployment class for every surface.
+4. This file — stable repository conventions plus the current handoff.
+
+If an older issue/history note conflicts with `MASTER_PLAN.md` or the current Handoff below, the master plan/current handoff wins.
+
+## Non-negotiable current visibility policy
+
+The site is intentionally **direct-link only** for now. Do not make it search-engine discoverable unless Steve explicitly asks.
+
+Required controls:
+
+- `_headers`: `X-Robots-Tag: noindex, nofollow, noarchive` site-wide.
+- `robots.txt`: `User-agent: *` + `Disallow: /`.
+- no `sitemap.xml` while the noindex policy is active.
+- PREVIEW and INTERNAL pages remain noindex even if the public-site policy changes later.
+
+Do not add SEO-oriented sitemap/indexing changes by default.
+
+## Deployment classes
+
+Every meaningful top-level surface belongs in `site/catalog.json` as exactly one of:
+
+- **PRODUCTION** — intentionally user-facing; must be in production smoke coverage.
+- **PREVIEW** — direct-link test/preview, visibly labeled, noindex.
+- **INTERNAL** — requires Cloudflare Access or equivalent protection; noindex is not authentication.
+- **SOURCE_ONLY** — repository source that must not ship in the Pages artifact.
+- **ARCHIVED** — retained for history, not deployed/navigation-visible.
+
+When adding a user-facing page:
+
+1. classify it in `site/catalog.json`;
+2. if PRODUCTION + `smoke:true`, add it to `SITE_PAGES` in `tests/helpers/harness.mjs`;
+3. add a behavioral test when the page has meaningful interaction or clinical logic;
+4. add clinical content to `clinical/content-registry.json` when applicable;
+5. do not bypass a failing catalog/smoke parity test with an undocumented omission.
+
+## Production build boundary
+
+The repository root is **not** the intended Pages artifact.
+
+```sh
+npm run build
 ```
 
-## Adding a New Cooking Timer
+generates `dist/`. Cloudflare Pages should use:
 
-When asked to create a cooking timer:
+- build command: `npm run build`
+- output directory: `dist`
+- production branch: `main`
 
-1. **Extract from recipe**: steps, times, ingredients, equipment, doneness cues
-2. **Create timer HTML** in cooking/[recipe-name]-timer.html
-3. **Update** cooking/index.html to include the new timer card
-4. **Do NOT** include any Claude/AI credits in the files
+The classified build excludes backend/developer/source-only material, including StudyHub Edge Function source, `cardio-hospital-3d/`, `clipboard-sanitizer/`, Steven OS backend code, and tests.
 
-### Timer Features to Include
+See `DEPLOYMENT.md` before changing Cloudflare settings.
 
-- Audio alerts (Web Audio API triple beep)
-- Wake lock support
-- Browser notifications
-- localStorage persistence
-- Progress bar
-- Elapsed/remaining time display
-- Estimated finish time
-- Manual step completion checkboxes
-- Phase tags (Prep/Cook/Finish)
-- Doneness cues where applicable
-- Print-friendly CSS
-- Mobile responsive
-- Safety warnings for high-heat recipes
-- **Pause/Resume** functionality
-- **Go Back** button to return to previous step
-- **Skip to Next** button
-- **Time adjustment** buttons (-30s/+30s or -1m/+1m for longer recipes)
-- **Step remaining time** countdown display
-- **Step progress bar** within current step
-- **Step durations** shown in timeline
+## High-level project structure
 
-### Timer HTML Template Structure
+### Platform/navigation
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>[Recipe] Timer</title>
-  <!-- Dark theme, mobile-first CSS -->
-</head>
-<body>
-  <!-- Recipe title and credit -->
-  <!-- Progress bar -->
-  <!-- Start button / Timer display -->
-  <!-- Current step section with remaining time -->
-  <!-- Step controls (Back, Pause, Time adjust, Skip) -->
-  <!-- Upcoming steps -->
-  <!-- Equipment section -->
-  <!-- Ingredients section -->
-  <!-- Full timeline with checkboxes and durations -->
-</body>
-</html>
-```
+- `/` — curated homepage
+- `/education/` — resident-education hub
+- `/about/` — verified-facts About page
+- `/contact/` — correction/security/contact routing; never a patient communication channel
+- `/privacy/` — privacy and StudyHub cloud-save explanation
+- `/search/` — local catalog search; does not make content search-engine discoverable
+- `site/` — catalog, analytics policy/event schema, performance budgets, provenance metadata
+- `clinical/` — clinical review registry + curriculum coverage map
 
-### Timer Card Format (for cooking/index.html)
+### Clinical education/tools
 
-```html
-<a href="[recipe]-timer.html" class="timer-card">
-  <div class="timer-title">[emoji] [Recipe Name]</div>
-  <div class="timer-meta">[Source] • [Show/Book]</div>
-  <span class="timer-time">~[duration]</span>
-</a>
-```
+- `phs/` — Pediatric Hospital Simulator, current runtime under `phs/v17/`
+- `tools/` — BP calculator + explicitly labeled preview tools
+- `newbornscreen/`
+- `kawasaki/`
+- `hypertension/`
+- `cardiovascular-risk/`
+- `aortopathy/`
+- `genetics-chd/`
+- `myocarditis/`
+- `pals/`
+- `pedcardsurg/`
 
-## Adding Clinic Resources
+### Family/personal
 
-Clinic intake forms and patient education materials go in `/admin/clinic-resources/`:
+- `study/` — Study Hub, 50 States Challenge, Pin Sprint, vocab/fractions/math drills
+- `math/` — Math Lab
+- `cooking/` — persistent recipe timers
 
-1. **Add PDF/DOCX** to `admin/clinic-resources/files/`
-2. **Update** `admin/clinic-resources/index.html` with new resource card
-3. Group by condition (Hypertension, Dyslipidemia, Syncope, etc.)
+### Internal/source-only
 
-### Resource Card Format
-
-```html
-<h2>[Condition]</h2>
-
-<div class="resource-card">
-    <h3>[emoji] [Form Name] <span class="badge">v[X.X]</span></h3>
-    <p>[Brief description of form contents]</p>
-    <a href="files/[filename].pdf" class="download-btn" download>
-        <svg>...</svg>
-        Download PDF
-    </a>
-    <div class="file-info">PDF • [X] pages • Print double-sided</div>
-</div>
-```
-
-## Adding a Study Tool (study/)
-
-Kids' study tools for 4th grade — vocab quizzes, math quizzes, and drills. Live at stevetodman.com/study, linked from the homepage.
-
-### Design patterns
-
-- Single-file HTML, no build step, no external dependencies
-- Light theme: `#f0f4f8` background, white cards with `border-radius: 16px`
-- Purple gradient (`#667eea` → `#764ba2`) for vocab/academic quizzes
-- Orange gradient (`#ed8936` → `#dd6b20`) for math/speed tools
-- All internal links use relative paths (e.g., `href="./"` for back to hub)
-- String concatenation for HTML building (not template literals)
-
-### Quiz structure
-
-- Menu → mode selection (Flashcards, Quiz, Full Test, etc.)
-- Shuffled questions with multiple choice
-- Immediate feedback with explanations
-- Results screen with retry-missed option
-- "Back to Study Hub" link on every page
-
-### When adding a new tool
-
-1. Create `study/[tool-name].html`
-2. Update `study/index.html` with a new card (use `badge-purple` for quizzes, `badge-orange` for drills)
-3. Update this CLAUDE.md project structure
-4. Verify all math answers computationally before deploying
+- `admin/` — INTERNAL; Cloudflare Access required
+- `steven-os/` — INTERNAL control plane; Access or exclude
+- `cardiohospital/` — INTERNAL legacy development preview; Access or exclude
+- `cardio-hospital-3d/` — SOURCE_ONLY
+- `clipboard-sanitizer/` — SOURCE_ONLY
+- `study/supabase/` — SOURCE_ONLY backend source/migrations; deployed separately from Pages
 
 ## Page conventions
 
-Every page should have:
+Unless an explicit temporary exception is recorded in `site/convention-exceptions.json`, every PRODUCTION page should have:
 
-- `<meta name="description">` and a favicon link
-- exactly one `<h1>`
-- `<label for="...">` on every input, or an `aria-label` where a visible label would be redundant
-- a visible `:focus-visible` outline on all interactive elements
-- interactive controls built from `<button>`/`<a>`, never `<div onclick>`
-- text contrast of at least 4.5:1 (3:1 for large text)
-- no external network dependencies — no CDN fonts, scripts, or stylesheets.
-  **One deliberate exception**: `study/us-states.html` makes a runtime `fetch`
-  to the StudyHub cloud-save Edge Function. It loads no external subresource,
-  and the page is fully playable with the request failing or blocked —
-  localStorage is the source of truth and the network is fire-and-forget.
+- `<meta name="description">`;
+- favicon link;
+- exactly one `<h1>`;
+- `<main>` landmark;
+- associated labels / ARIA labels for inputs;
+- visible `:focus-visible` treatment;
+- interactive controls built from semantic `<button>` / `<a>`, not click-handled `<div>`;
+- text contrast at least 4.5:1 for normal text (3:1 for large text);
+- no unapproved external subresources;
+- mobile layout without document-level horizontal overflow.
+
+The generic smoke suite enforces these conventions. If a legacy page cannot satisfy one immediately, document the smallest exact exception rather than removing it from smoke coverage.
+
+## Clinical content governance
+
+`clinical/content-registry.json` is the source of truth for clinical-content lifecycle metadata.
+
+Rules:
+
+- never invent review dates or clinical sign-off;
+- if review metadata is unknown, record it as unknown / `needs-review-record`;
+- documented review dates are checked for staleness by CI;
+- new clinical modules require target learner, source/provenance plan, behavioral testing, catalog entry, and registry entry before PRODUCTION promotion;
+- prefer maintaining/integrating current content over opportunistically adding more modules;
+- use `clinical/CURRICULUM_MAP.md` before proposing a new academy.
+
+Corrections use `.github/ISSUE_TEMPLATE/content-correction.yml`. Never put PHI, patient-identifying information, credentials, or StudyHub family tokens in a public issue.
 
 ## Testing
 
-Behavioural tests live in `tests/` and run in a real browser. They exist because
-`phs/v17/tests/integrity.mjs` validates structure only — it passed clean while
-blood pressure rendered as `NaN`, the simulator's mastery standard was
-unreachable, and the BP calculator contradicted its own displayed thresholds.
+Install:
 
 ```sh
-npm install && npx playwright install --with-deps chromium
-npm test              # all suites (~35s)
-npm run test:phs      # simulator behaviour and score calibration
-npm run test:bp       # BP calculator correctness
-npm run test:cardiovascular-risk # prevention academy interactions and 2026 lipid logic
-npm run test:aortopathy # aortopathy cases, pathways, and mastery scoring
-npm run test:myocarditis # myocarditis navigation, cases, scoring, and content safeguards
-npm run test:pals      # PALS case navigation, scoring, accessibility, and clinical-content safeguards
-npm run test:genetics-chd # genetic CHD pathways, cases, mastery scoring, and clinical safeguards
-npm run test:smoke    # page conventions, links, mobile, keyboard access
+npm install
+npx playwright install --with-deps chromium
 ```
 
-Run `npm test` before pushing anything that touches `phs/`, `tools/`, or
-`study/`. CI runs the same suites on every push and pull request.
+Important commands:
 
-When adding a page, add it to `SITE_PAGES` in `tests/helpers/harness.mjs` — it is
-then automatically checked against the page conventions above. See
-`tests/README.md`.
+```sh
+npm test
+npm run test:platform
+npm run test:smoke
+npm run test:a11y
+npm run test:phs
+npm run test:bp
+npm run test:kawasaki
+npm run test:hypertension
+npm run test:cardiovascular-risk
+npm run test:aortopathy
+npm run test:myocarditis
+npm run test:pals
+npm run test:genetics-chd
+npm run test:pedcardsurg
+npm run build
+npm run verify:production
+```
 
-## Deployment
+CI is intentionally non-omitting: later suites use `if: ${{ !cancelled() }}` so a failure in an earlier academy does not silently skip smoke/accessibility coverage. The job should still fail overall when a suite fails.
 
-- Push to main branch auto-deploys to Cloudflare Pages
-- Live at: https://stevetodman.com
-- Admin section protected by Cloudflare Access (email-based auth)
+### Test-design rule worth preserving
 
-## Style Guide
+Never derive a quiz's expected answer from the same DOM that is being tested. A Boss Battle once displayed the answer on screen and still passed because the test scraped that displayed answer. Expected answers must come from independent fixture/domain data.
 
-- Dark theme: #1a1a2e to #16213e gradient (homepage, cooking timers)
-- Light theme: #f8fafc background (clinic resources)
-- Kids theme: #f0f4f8 background, white cards (study/)
-- Accent color: #00cec9 (teal — homepage/cooking)
-- Alert color: #e94560 (coral red — homepage/cooking)
-- Quiz accent: #667eea purple (study/ vocab), #ed8936 orange (study/ math)
-- Font: system fonts (-apple-system, BlinkMacSystemFont, etc.)
-- No external dependencies (single-file HTML)
+Kawasaki's new browser test follows this rule explicitly.
 
----
+## StudyHub cloud save
 
-## Session Protocol
+StudyHub intentionally has **no email/password sign-in**.
 
-At the end of each work session, Claude will:
-1. Update `next:` in frontmatter with the next logical step
-2. Append to History below with what was done and why
+- localStorage is the immediate/offline source of truth;
+- a high-entropy family token is the cross-device credential;
+- only its SHA-256-derived hash is stored server-side;
+- the private pairing token travels in the URL fragment and should be removed after adoption;
+- cloud merge is monotonic/union-oriented so two offline devices should not erase each other's progress;
+- in-progress rounds/recent adaptive windows remain device-local;
+- the Edge Function/database source lives under `study/supabase/` and is excluded from Pages;
+- the database migration is versioned at `study/supabase/migrations/20260819_create_studyhub_saves.sql` with RLS on and browser-role grants revoked.
+
+The remaining real-world acceptance gate is documented in `study/CLOUD_SAVE_ACCEPTANCE.md` and must be run on two real devices.
+
+## Analytics/privacy
+
+Preferred aggregate measurement is Cloudflare Web Analytics, if enabled in the Pages dashboard.
+
+Do not add Google Analytics, advertising pixels, cross-site learner tracking, or a tag manager.
+
+`site/telemetry.js` and `site/telemetry-events.json` define a future first-party custom-event contract, but it is **disabled by default** until a same-origin endpoint, retention policy, and privacy constraints are explicitly approved. Do not send names, email, free text, patient data, family tokens, full URLs/query strings, IP addresses, or raw user agents.
+
+## Cooking timers
+
+When adding a timer:
+
+1. extract real recipe steps/times/ingredients/equipment/doneness cues;
+2. create `cooking/[recipe]-timer.html`;
+3. update the cooking index/template workflow;
+4. preserve wake lock, audio alerts, browser notification support, localStorage resume, pause/back/skip, time adjustment, step progress, estimated finish, print/mobile behavior, and safety warnings where relevant;
+5. do not add AI/Claude credits to the page.
+
+## Clinic resources
+
+Clinic forms/materials live under `admin/clinic-resources/` and are INTERNAL.
+
+When adding a file:
+
+1. add the PDF/DOCX to `admin/clinic-resources/files/`;
+2. add/update the resource card;
+3. verify the Cloudflare Access production check still blocks anonymous access.
+
+## Session protocol
+
+At the end of every substantive session:
+
+1. update `MASTER_PLAN.md` checkboxes so done work is actually marked done;
+2. update the `next:` frontmatter above;
+3. update **Handoff** below with only current work — remove resolved items rather than accumulating them forever;
+4. if a manual/external action remains, create a durable GitHub issue/checklist or document it in `DEPLOYMENT.md` / `study/CLOUD_SAVE_ACCEPTANCE.md`;
+5. ensure the active branch/PR is named in the handoff.
+
+Detailed pre-consolidation history remains available in git history (the prior verbose `CLAUDE.md` blob is `5701cd40f79cd4196df6d6399a869652f5c75355`). Do not recreate a giant chronological log here.
 
 ---
 
 ## Handoff — read this first (2026-08-19)
 
-The last several sessions were all on `study/us-states.html` (50 States Challenge),
-driven by the two kids actually using it. Everything below is **merged and live**
-unless marked otherwise.
+### Active program
 
-### Open threads, most important first
+**Branch:** `agent/platform-hardening-master-plan`
 
-1. **🔴 `clintel` Supabase project has RLS disabled on all 10 `public` tables.**
-   `users`, `profiles`, `briefs` (169 rows), `brief_items` (495), `tracked_trials`
-   (192), `seen_items` (502), `pipeline_runs`, `faers_*` — all fully exposed to the
-   `anon`/`authenticated` roles. Anyone with that project's anon key can read or
-   modify every row. Pre-existing, surfaced to the user, and **deliberately not
-   fixed**: enabling RLS without policies blocks all access and would break the
-   pipeline writing those rows. Needs a policy set matching how clintel actually
-   reads/writes. StudyHub's own table is unaffected — it is in a separate
-   `studyhub` schema with grants revoked and RLS on.
+Goal: convert the large collection of good projects into a coherent, maintained platform while keeping the entire site out of search-engine indexes for now.
 
-2. **🟡 Cloud save has never talked to the live Edge Function.** This sandbox's
-   proxy blocks direct HTTPS to `supabase.co`, so the client was verified only
-   against a mock implementing the same contract, plus the real merge code run
-   directly in Node (12 assertions). The function *is* deployed to clintel
-   (`studyhub-save`, `verify_jwt: false` — the family token is the credential).
-   **First real-device open is the outstanding check**: play on one phone, use
-   "Use on another device", open the link on a second device, confirm progress
-   crosses and nothing is lost.
+### Repo-side work already implemented on this branch
 
-3. **🟡 CI has not been running the smoke suite.** In `.github/workflows/tests.yml`
-   the `pedcardsurg` step runs *before* "Site conventions and smoke", and the
-   shell is `bash -e`, so when pedcardsurg fails the smoke step is **skipped**.
-   Smoke has therefore been green-by-omission on every recent PR. It was run
-   locally every time (117/117), but CI should be reordered or made
-   non-fail-fast so it actually covers it.
+- `MASTER_PLAN.md` with interruption-safe resume protocol and phase checklist.
+- global noindex + security headers, crawler disallow, custom 404, security.txt.
+- canonical deployment catalog with PRODUCTION / PREVIEW / INTERNAL / SOURCE_ONLY classes.
+- deterministic `npm run build` -> `dist/` that strips source-only/backend material.
+- live `npm run verify:production` and manual Production Verification workflow.
+- homepage reorganization; `/education/`, `/about/`, `/contact/`, `/privacy/`, `/search/`.
+- clinical content registry + curriculum map + correction issue form.
+- CI path-trigger expansion and execution of every existing clinical behavioral suite.
+- Kawasaki browser regression suite with independent expected-answer fixture.
+- shared-platform axe accessibility baseline.
+- performance budgets and asset-provenance enforcement.
+- weekly external-link rot checker.
+- StudyHub database migration with RLS/browser grants locked down in source control.
+- real-device StudyHub cloud-save acceptance checklist.
+- privacy-first analytics policy and disabled-by-default custom-event schema/helper.
 
-4. **🟢 Watch whether the anti-discouragement changes actually help Samantha.**
-   Round difficulty now adapts to rolling accuracy (see History). If she is still
-   getting discouraged, the knobs are `roundMix()` and `quickRoundSize()` in
-   `study/us-states.html`.
+### Next gates, in order
 
-5. **🟢 Road Trip redesign — agreed as a good direction, not built.** The idea:
-   make the trip *the* game rather than a quiz with rewards bolted on. Every state
-   starts gray and "comes alive" when mastered; boss battles become mid-round
-   "roadblocks" instead of a separate menu; a sticker/passport collection screen.
-   Deferred as too big for now: the drag-and-drop place-the-state mini-game, 50
-   authored state personalities, and multi-variant "mystery stops". Note the
-   redesign was explicitly judged **not** to be what fixes a discouraged kid —
-   difficulty mix and comparison framing were.
+1. **Open/validate this branch as a PR and fix any new CI failures caused by the broader honest coverage.** Do not hide newly surfaced failures by removing suites.
+2. **Merge the repo-side platform PR when its new changes are clean or any remaining failures are proven pre-existing baseline.**
+3. **Cloudflare Pages cutover:** set build command `npm run build` and output directory `dist`.
+4. **Cloudflare Access:** verify `/admin/*`, `/steven-os/*`, and `/cardiohospital/*` are not anonymously readable. Use Access or remove an internal route from deployment.
+5. Optional but recommended: enable Cloudflare Web Analytics for aggregate usage/performance measurement.
+6. Run the **Production verification** workflow; do not schedule it automatically until the first live pass is green.
+7. **StudyHub:** apply/verify the versioned migration in the live Supabase project, configure service/edge rate limiting + error monitoring, then complete `study/CLOUD_SAVE_ACCEPTANCE.md` on two real devices.
+8. Only after the platform is stable: observe Pin Sprint/States play before adding more Road Trip/region/mystery mechanics.
 
-6. **🟢 Ideas raised and not yet built:** region mini-rounds ("Northeast Sprint —
-   5 states"), state-of-the-day, occasional mystery/silhouette question, "which do
-   you want next?" choice questions, speed bonus without a visible timer,
-   perfect-round badge.
+### External-tool limitation
 
-### Known-failing tests — do not chase these
+No Cloudflare Pages or Supabase management plugin is connected in the current agent environment. The repository-side configuration and verification are implemented, but the live Cloudflare build/output/Access switches and live Supabase administrative settings cannot be changed from this environment. Do not claim they are active until production verification proves them.
 
-These fail on **clean `origin/main`**, verified by stashing changes and re-running.
-Treat this as the baseline; only investigate something *outside* this list:
+### Known pre-existing browser-test baseline
 
-- `myocarditis-academy` — "learning interactions", "mastery assessment"
-- `phs-v18-audit-remediation` — "tablet layout does not overflow horizontally"
-  (`959px > 768px`); also "hard time budget and responsive layout"
-- `pedcardsurg-academy` — WebP image assertion. **Passes 6/6 standalone**; only
-  fails under full-suite load. Timing flake, not a content problem.
+Historically observed on clean `main` before this platform program:
 
-### Running the tests in this environment
+- `myocarditis-academy` — learning interactions / mastery assessment failures;
+- `phs-v18-audit-remediation` — tablet horizontal overflow / responsive time-budget failure;
+- `pedcardsurg-academy` — WebP assertion timing flake under full-suite load, while standalone passed.
 
-Playwright's own browser download is blocked, but a Chromium is pre-installed.
-The harness honours an override, so use:
+Because CI now runs later suites even after failures, distinguish a true regression from these known baseline items. Do not treat “known” as permission to ignore a new failure in the same suite.
 
-```sh
-PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome npm test
-```
+### Separate repository task
 
-Without it every browser suite fails with "Executable doesn't exist".
-
-### One testing lesson worth keeping
-
-A Boss Battle bug shipped where the banner printed the state's name directly above
-the box asking the child to spell it. It survived because the verification script
-**read the answer out of the DOM** to answer the question — so a UI that displayed
-the answer passed. Derive expected answers from the data model, never from the
-page. There is now a check asserting the answer appears nowhere on screen (visible
-text, `title`/`aria-label`/`placeholder`, SVG `<title>`) before answering.
-
----
-
-## History
-
-<!-- Claude appends here. Most recent first. -->
-- **2026-08-19**: Added StudyHub cloud save for study/us-states.html. Progress now survives a lost phone and follows the kids between devices, with no login: a random per-family token is generated on first play and kept in localStorage, and only its SHA-256 is stored server-side. Sharing to a second device puts that token in the URL **fragment** (`#k=`), never the query string, so it never reaches a server log; the receiving device adopts it and immediately scrubs it from the URL and history. localStorage remains the source of truth and cloud writes are debounced and fire-and-forget, so the quiz never blocks on the network and stays fully playable offline (status reads "⚠️ Saved on this device only"). The existing ST1- code remains as the no-network fallback. **Conflicts are merged, never last-writer-wins**: two children on two devices, both offline, is the normal case and there is no adult to arbitrate, so the Edge Function unions mastered states and takes the max of counters — verified order-independent and idempotent. Hosted in the **clintel** Supabase project in its own `studyhub` schema with `anon`/`authenticated` revoked and RLS enabled as defence in depth; the browser never receives a Supabase key of any kind, and the function is written to touch nothing outside that schema. Note: clintel's pre-existing `public` tables still have RLS disabled (flagged to the user, left for them to address deliberately, since enabling it without policies would break their running pipeline).
-- **2026-08-19**: Fixed a Boss Battle bug where the banner printed the state's name directly above the input box that asked the learner to spell it — the answer was on screen. The banner now reads "👑 Boss State" and the target is identified only by the highlighted map (same as Spelling Practice); the name is revealed after answering. Root cause of it going unnoticed: the verification script *scraped the answer out of the DOM* (`.boss-name`) to answer the question, so a UI that displays the answer still passed. The script now reads the expected answer from the data model, and a dedicated check asserts the state name appears nowhere in visible text, `title`/`aria-label`/`placeholder` attributes, or SVG `<title>` tooltips before answering — for both Spelling Practice and Boss Battles.
-- **2026-08-19**: **Anti-discouragement pass on study/us-states.html**, prompted by one of the kids getting discouraged. Three mechanics added in earlier sessions turned out to work against whichever child is struggling, and all three were fixed: (1) `quickRoundStates()` sorted *most-missed first*, so every Quick Round was 10 questions of that child's worst states — a guaranteed wall. Rounds are now a deliberate mix whose composition adapts to the profile's rolling recent accuracy (`p.recent`, last 12 answers): under 50% accuracy gives ~70% already-mastered states and shortens the round to 5, over 90% gives ~10% familiar and keeps 10. The round also deliberately opens on a mastered state so it starts with a win. No difficulty setting is exposed — labelling a child "easy" is its own discouragement. (2) The Trophy Case rendered "X is leading this week 🏆", which is demoralising for whichever sibling is behind; replaced with per-child personal bests (best streak, best round) and a neutral headline. (3) Mastery streaks reset to 0 on any miss, making progress feel erased; now decays by one (Leitner-style), and a mastered state stays mastered. Also added near-miss recovery (a missed state returns 3-4 questions later, once per round, and answering it earns "💪 Got it this time!"), supportive wrong-answer copy, one safely-checkable fact per state shown after ~25% of correct answers (with a longer auto-advance delay so it can be read), streak-milestone celebrations at 5/10/20, and a "Play 5 more" button on the results screen for momentum.
-- **2026-08-19**: Answer-feel pass on study/us-states.html: correct answers now auto-advance after 750ms (wrong ones never do — the learner needs to see the answer first), the answered state pops on correct and shakes on wrong, a 🔥 streak appears in the score line, and mastery progress is shown inline (`Colorado ⭐⭐○ — 1 more to master` → `🎉 COLORADO MASTERED!`). The Next button is fixed to the thumb zone under 640px. Tapping Next while an auto-advance is pending cancels the timer rather than double-advancing. Added enlarged invisible tap targets (`path.state-hit`) for the smallest states, painted smallest-last so the tiniest wins any overlap, with `touchstart` press feedback since iOS Safari does not fire `:active` reliably on SVG. **Calibrated empirically rather than guessed**: fat targets steal area from neighbours, so stroke width and set size were swept and measured (fraction of each state's own interior still hitting itself). Width dominates; the chosen 8 states @ stroke 7 keeps Rhode Island's full reach while lifting Massachusetts 64%→73% and Pennsylvania 88%→97% versus 15 @ stroke 9. Tap-target count is deliberately decoupled from `SMALL_STATE_COUNT` (still 15) because the zoom inset and the fat targets solve different problems. Note: giving the fat target only to the current question's answer was rejected — it would give the answer away.
-- **2026-08-19**: **Fixed a pre-existing Full Test bug found while adding the below**: both question renderers are shared by the practice queue and the graded test, but their "Next" buttons hardcoded `renderQueueQuestion()`. So after question 1 a Full Test silently fell out of the test flow — every later question rendered as a *map* question regardless of its planned type, the spelling/map subscores never accumulated, and the run ended on "Map Results" with no A–F grade at all. Verified against the deployed version before fixing. Added `advanceQuestion()`, which routes back to whichever flow started the round.
-- **2026-08-19**: iPhone engagement/friction pass on study/us-states.html: (1) **Quick Round** — a 10-question mixed round targeting states the profile hasn't mastered (ranked most-missed → least-practised → unseen), since a 50-question pass is a long sit on a phone; (2) **Resume** — the active round is snapshotted after every answer into the profile, so closing the tab mid-round no longer discards it (snapshot is taken *before* `renderTestQuestion` increments its per-question totals, so resuming re-runs that increment exactly once); the round is device-local and deliberately excluded from the sync code; (3) **Add to Home Screen** — `us-states.webmanifest` plus real PNG icons in `study/icons/` (iOS ignores data: URIs and SVG for `apple-touch-icon`), rendered from the app's own map artwork, with `viewport-fit=cover` and `env(safe-area-inset-*)` padding so full-screen launch clears the notch/home indicator; (4) **Sound + confetti** — Web Audio chimes for correct/wrong/mastery/perfect-round and a CSS confetti burst, with a persisted mute toggle in the player strip. Audio context is created on first tap and resumed per play (iOS requires a gesture); confetti is suppressed under `prefers-reduced-motion`. No haptics: Safari on iOS does not support the Vibration API. Added `.webmanifest` to the test harness MIME map so the local server matches production.
-- **2026-08-19**: Fixed "hard to click the smaller states" in Map Practice on study/us-states.html. The old fix only auto-zoomed a hardcoded 9-state "Northeast" list, so anything else small (Hawaii, etc.) got no help. Replaced it with a data-driven approach: rasterizes every state's actual filled pixel area on an offscreen canvas (bounding-box area alone is misleading — a spread-out state like Hawaii has a huge bbox around mostly open water) to find the 15 hardest-to-tap states, then auto-zooms tightly on whichever one is the target using native `getBBox()`. For multi-part states (Hawaii's islands), frames on the single largest connected landmass rather than the whole spread, since any tap within the state still counts as correct — this alone made the zoom ~10x tighter (biggest island went from ~1.2% to ~12.8% of the visible frame). Also bumped interactive-map stroke width slightly for extra tap-target padding everywhere.
-- **2026-08-19**: Added an avatar picker to study/us-states.html: 20 emoji options (superheroes, animals, dragons, etc., each with an aria-label). A brand-new profile is routed to the picker right after the name is chosen ("Skip for now" falls back to the existing gendered default icon); "Change avatar" on the menu strip reopens it anytime. The chosen avatar now shows in the player strip, the profile-pick cards, and the Family Trophy Case, and travels through the cross-device Sync Code.
-- **2026-08-19**: Fixed the reported "clicking Luke freezes on iPhone" bug in study/us-states.html: `loadData()`/`saveData()` re-read from `localStorage` on every call with no fallback, so if a write silently failed (confirmed by simulating Safari Private Browsing, which throws on every `localStorage` write) the profile pick never stuck and the app bounced straight back to the picker — reading as a freeze. Added an in-memory `memCache` so the current session stays consistent even when persistence fails. Also gave Luke and Samantha distinct, correctly-gendered profile icons (both used the same ambiguous 🙋 before), dropped the unnecessary 50 `<title>` elements from the road-trip map, and added a global `window.onerror` handler so any future JS error shows a visible "Restart" screen instead of looking frozen.
-- **2026-08-19**: Added a cross-device "Sync Code" to study/us-states.html: a copy-pasteable code (no account, no server) that packs one profile's mastered states, boss/wrong counts, and weekly trophy stats, decoded and merged (never overwritten) into the other device's local progress. Chose this over a hosted backend after Supabase's free-tier project limit (2 active) was already used by other projects on the account. Also fixed a real cross-page horizontal-scroll bug on mobile: `<body>`'s flex child (`<main>`) had no `min-width: 0`, so it refused to shrink below its content's intrinsic width once any long unspaced string (the sync code) or a flex-basis:0 text input was on screen — added `main { min-width: 0; }` and `min-width: 0` on `.spell-form input`, which was already silently overflowing at phone widths in Spelling/Map/Boss/Full Test before this fix (undetected because the smoke suite only checks each tool's landing screen, not interaction states).
-- **2026-08-19**: Added gamification to study/us-states.html: per-kid profiles (Luke/Samantha, localStorage), a "road trip" progress map on the menu that colors in states after 3 correct answers in a row, a Family Trophy Case comparing weekly mastery + boss defeats between the two profiles, and Boss Battles (HP-based spelling duels against each kid's most-missed states). Updated the site-smoke keyboard-operability check to tolerate a chained `.menu-card` screen (profile picker → mode menu) generically, not just for this tool.
-- **2026-08-18**: Created study/us-states.html: 50 States Challenge (Explore map, Spelling Practice, Map Practice, Full Test with grade + spell/map subscores). Uses an inline SVG map (50 state paths extracted from a public-domain state-boundary dataset, embedded directly &mdash; no external map dependency), plus a zoomed Northeast inset in Map Practice so small New England states stay tappable on phone screens. Added Study Hub card. First-day-of-5th-grade study tool per user request.
-- 2026-08-13: Replaced the complete AV canal plate with a new immutable clean asset containing only the operative illustration and preoperative echo; removed the postoperative echo, superior atrial fold artifacts, and the obsolete source images so the blue numbered callouts and arrows cannot reappear through stale PNG/WebP selection. Bumped the PedCardSurg asset bundle version and updated regression coverage.
-- 2026-08-13: Removed the three blue numbered callouts and their leader arrows from the complete AV canal surgical plate, regenerated its WebP derivative, and versioned both the image URLs and PedCardSurg asset bundle to prevent stale artwork from persisting in browser/CDN caches.
-- 2026-08-13: Added explicit versioned asset URLs to `/pedcardsurg/` after a mixed-cache deployment served the updated nine-plate HTML with the old ten-plate Atlas JavaScript. This forces browsers and the CDN to load the corrected complete AV canal, Norwood, and BT-shunt mappings together.
-- 2026-08-13: Corrected three user-identified CHD Atlas plates to Norwood stage I reconstruction, complete atrioventricular canal repair, and classic Blalock–Taussig shunt; deleted the rejected anomalous branch PA plate; and removed the Visual Surgery Lab, Key Lesions table, and Outcomes/STAT section. Updated navigation, counts, homepage discovery copy, and browser regression coverage for the nine-plate Atlas.
-- 2026-08-13: Added ten supplied high-resolution congenital-heart surgical illustrations to `/pedcardsurg/` as the primary CHD Surgical Atlas, with clinically reviewed titles, flow transformations, interpretation checkpoints, full-resolution PNG access, WebP delivery, responsive/mobile behavior, homepage discovery, and automated atlas interaction/asset checks. Preserved the existing simplified before/after schematics as secondary flow-teaching tools.
-- 2026-08-12: Expanded `/genetics-chd/` with an optional point-of-care genomic workbench covering GeneReviews, OMIM, ClinGen validity/dosage, ClinVar, gnomAD, HPO, DECIPHER, Orphanet, and Face2Gene; added a six-question report-interrogation workflow, worked examples, rapid-genome and emerging-omics boundaries, and three new assessment items. Updated the RASopathy-HCM section to reflect the selected retrospective 2025 MEK-inhibitor cohort while preserving its off-label, nonrandomized, expert-center status; posttest is now 18 questions.
-- 2026-08-12: Rebuilt the uploaded genetics-of-congenital-heart-disease resource at /genetics-chd/, replacing inaccurate universal testing ladders, fixed recurrence percentages, inflated 22q11.2 associations, cfDNA diagnostic language, VUS overinterpretation, and experimental-therapy emphasis. Added a resident action pathway, high-yield pattern table, immediate extracardiac safety bundles, results/counseling guardrails, 5 branching cases, diagnostic pretest, 15-question 80%-to-pass posttest, printable reference, primary-source provenance through 2026, homepage discovery, and browser regression coverage.
-- 2026-08-12: Rebuilt the uploaded pediatric myocarditis resource as `/myocarditis/`, correcting the Lake Louise criteria, return-to-sport timing, post-IVIG vaccine guidance, antithrombotic overclaims, and treatment certainty. Added action-focused recognition/diagnosis/stabilization lessons, 5 branching cases, a diagnostic pretest, 15-question 80%-to-pass posttest, printable reference, primary-source provenance, homepage discovery, and browser regression coverage.
-- 2026-08-12: Added the PALS 2025 Resident Mastery Lab at `/pals/` with 10 high-acuity cases, 64 retrieval-based questions, hidden-on-start algorithm references, immediate explanations, accessibility improvements, primary-source citations, performance analytics, homepage discovery, and automated clinical-content safeguards.
-- 2026-08-12: Added the Pediatric Aortopathy Resident Academy at `/aortopathy/`, anchored to the 2024 AHA scientific statement and updated with primary pediatric Marfan, vEDS, sports-participation, and 2026 Loeys-Dietz guidance. Added evidence-strength labels, resident action pathways, syndrome-specific deep dives, 5 branching cases, diagnostic pretest, 15-question 80%-to-pass posttest, printable quick reference, homepage discovery, and browser regression coverage.
-- 2026-08-12: Added the guideline-based Pediatric Hypertension & ABPM Resident Academy at `/hypertension/`, reconciling the 2017 AAP office-BP guideline with the 2022 AHA ABPM update. Added an office timing pathway, threshold-aware ABPM lab, 5 branching cases, 26-question domain-scored quiz, printable quick reference, primary-source provenance, homepage discovery, and automated interaction tests.
-- 2026-08-12: Replaced the hero's misleading static pills with working, keyboard-accessible links to the AAP report, screening technique, failed-screen response, and interactive quiz.
-- 2026-08-12: Added a homepage project card linking directly to the newborn CCHD screening module so visitors can discover it from the main site.
-- 2026-08-12: Added the interactive 2025 AAP newborn CCHD pulse-oximetry screening module at `/newbornscreen/`, including the updated algorithm, bedside response guidance, and a 17-question quiz. Added it to site-wide smoke-test coverage.
-- 2026-08-03: Advanced the BP calculator to version 3.1 with years/months-first age entry, DOB alternative, simultaneous accessible validation, 2–3-reading auto-averaging, drift-free cm/ft+in toggles with local preference, new-patient clearing, explicit threshold deltas, normal-equivalent BP z-scores, clinical-threshold chart mode, direct labels and line patterns, and dark-mode coverage. Expanded the browser regression suite for each workflow.
-- 2026-08-03: Rebuilt the pediatric BP calculator with monthly CDC growth references, exact AAP reading categories and drivers, category-specific follow-up, interactive age curves, copy/print support, a screening table, public validation documentation, and exhaustive 1,904-cell browser regression coverage.
-- **2026-02-27**: Renamed english/ → twins/ → study/. Study tools live at stevetodman.com/study/. Added Study Hub card to homework-tracker (~/Desktop/twins/homework-tracker/src/hub.ts) — CSS class `.study` + card HTML added. NOT YET DEPLOYED — need to run `npm run deploy` in homework-tracker project.
-- **2026-02-27**: Created fract-vocab-quiz.html, topic-e-quiz.html (Eureka Math G4M5 Topic E), 100-fact-club.html. Updated index.html with all cards. All math answers verified computationally.
+The ClinTel public-schema RLS issue is a separate `stevetodman/clintel` security task. It was audited before this site-wide program and should be resumed separately; do not mix its migration into this repository.
