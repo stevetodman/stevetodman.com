@@ -92,7 +92,7 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Deployment, privacy, and catalog policy
+      - name: Deployment, privacy, governance, provenance, and budgets
         run: npm run test:platform
 
   steven_os:
@@ -114,7 +114,7 @@ jobs:
   behaviour:
     name: Behavioural tests
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 40
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -192,3 +192,7 @@ jobs:
       - name: Site conventions and smoke
         if: ${{ !cancelled() }}
         run: npm run test:smoke
+
+      - name: Shared platform accessibility
+        if: ${{ !cancelled() }}
+        run: npm run test:a11y
