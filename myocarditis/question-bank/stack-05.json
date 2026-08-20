@@ -1,15 +1,226 @@
 {
   "stack": 5,
+  "focus": "etiology, immunotherapy, and systemic mimics",
   "questions": [
-    {"id":"MYO-041","age":"6 weeks","concept":"Recognition","difficulty":2,"stem":"A 6-week-old infant is evaluated twice for poor feeding and tachypnea. At the second visit, heart rate is 184/min despite being afebrile and calm. There is mild hepatomegaly and a gallop. Which feature should most strongly prompt evaluation for myocarditis rather than attributing the tachycardia to a viral illness?","options":{"A":"Persistent tachycardia out of proportion to fever or agitation","B":"Age younger than 2 months","C":"Mild nasal congestion","D":"One episode of emesis","E":"Normal oxygen saturation"},"answer":"A","rationale":"Persistent disproportionate tachycardia is a classic warning sign, especially when paired with gallop and hepatomegaly.","option_explanations":{"A":"Correct. It should trigger reconsideration of a purely respiratory or febrile diagnosis.","B":"Young age increases vulnerability but is not specific.","C":"Nasal congestion is common and nonspecific.","D":"Emesis is nonspecific.","E":"Normal oxygen saturation does not exclude cardiac failure."},"board_pearl":"An afebrile infant with persistent marked tachycardia deserves a cardiac explanation until proven otherwise.","sources":["AHA_MYOCARDITIS_2021"]},
-    {"id":"MYO-042","age":"11 years","concept":"Differential diagnosis","difficulty":3,"stem":"An 11-year-old has chest pain, fever, elevated troponin, and mild LV dysfunction. Blood cultures grow Staphylococcus aureus and echocardiography shows a new valvar vegetation. Which diagnosis should take priority over presumed isolated viral myocarditis?","options":{"A":"Infective endocarditis with myocardial involvement or secondary dysfunction","B":"Simple costochondritis","C":"Exercise-induced asthma","D":"Isolated viral pericarditis","E":"Normal adolescent variant"},"answer":"A","rationale":"A bloodstream pathogen plus vegetation establishes a different primary infectious cardiac diagnosis that can produce myocardial dysfunction.","option_explanations":{"A":"Correct. The microbiologic and echocardiographic findings define the key process.","B":"Does not explain bacteremia or cardiac findings.","C":"Does not explain troponin or vegetation.","D":"Does not explain vegetation and bacteremia.","E":"These are pathologic findings."},"board_pearl":"Do not let an elevated troponin force all cardiac inflammation into the myocarditis label.","sources":["AHA_MYOCARDITIS_2021"]},
-    {"id":"MYO-043","age":"14 years","concept":"Diagnostic testing","difficulty":2,"stem":"A 14-year-old with suspected myocarditis has chest pain and palpitations. Which test is most useful for detecting intermittent arrhythmias during the acute hospitalization?","options":{"A":"Continuous telemetry","B":"Single chest radiograph","C":"Serum electrolytes alone","D":"Pulmonary function testing","E":"Abdominal CT"},"answer":"A","rationale":"Continuous telemetry provides ongoing rhythm surveillance and can detect episodic atrial, ventricular, or conduction abnormalities.","option_explanations":{"A":"Correct. Intermittent electrical instability may be missed on a single ECG.","B":"Does not monitor rhythm.","C":"Electrolytes may identify contributors but do not detect the arrhythmia itself.","D":"Not a rhythm test.","E":"Unrelated."},"board_pearl":"A normal snapshot ECG does not substitute for rhythm monitoring in a patient at ongoing electrical risk.","sources":["AHA_MYOCARDITIS_2021"]},
-    {"id":"MYO-044","age":"2 years","concept":"Management","difficulty":3,"stem":"A 2-year-old with suspected myocarditis has pulmonary edema, hepatomegaly, and poor perfusion. A clinician proposes another 20 mL/kg rapid fluid bolus because the child is tachycardic. What is the best response?","options":{"A":"Give the bolus because tachycardia proves hypovolemia","B":"Reassess volume status and cardiac output before additional fluid because excess preload may worsen congestion","C":"Give two boluses simultaneously","D":"Replace all fluids orally instead","E":"Ignore the perfusion findings until troponin returns"},"answer":"B","rationale":"Tachycardia is not synonymous with hypovolemia. In myocardial dysfunction with pulmonary/systemic congestion, additional rapid fluid can worsen heart failure.","option_explanations":{"A":"Incorrect physiologic assumption.","B":"Correct. Fluid decisions must follow the hemodynamic phenotype.","C":"Increases risk of decompensation.","D":"Oral fluid does not solve cardiogenic shock and may still worsen congestion.","E":"Treatment should not wait for biomarkers."},"board_pearl":"Before giving fluid in shock, ask whether the problem is preload depletion or pump failure.","sources":["AHA_MYOCARDITIS_2021","AHA_FULMINANT_2020"]},
-    {"id":"MYO-045","age":"12 years","concept":"Imaging","difficulty":2,"stem":"A 12-year-old with suspected myocarditis has an echocardiogram showing a small pericardial effusion, mild LV dilation, and depressed systolic function. Which statement is most accurate?","options":{"A":"These findings are compatible with myocarditis but are not individually specific","B":"A pericardial effusion excludes myocardial disease","C":"LV dysfunction proves congenital cardiomyopathy","D":"The echo determines the viral pathogen","E":"A normal coronary origin means myocarditis is impossible"},"answer":"A","rationale":"Echo abnormalities in myocarditis are variable and supportive rather than pathognomonic.","option_explanations":{"A":"Correct. Echo should be integrated with the clinical picture and other testing.","B":"Pericardial and myocardial inflammation can coexist.","C":"LV dysfunction has many acquired and congenital causes.","D":"Echo cannot identify etiology.","E":"Normal coronary origins help exclude a mimic but do not exclude myocarditis."},"board_pearl":"Echo is essential for function and anatomy, not for proving etiology.","sources":["AHA_MYOCARDITIS_2021"]},
-    {"id":"MYO-046","age":"16 years","concept":"Differential diagnosis","difficulty":3,"stem":"A 16-year-old endurance athlete has sinus bradycardia at baseline and mild LV enlargement but no symptoms, normal troponin, normal systolic function, and no recent illness. Which diagnosis is more likely than myocarditis?","options":{"A":"Physiologic athletic remodeling","B":"Fulminant myocarditis","C":"Acute cardiogenic shock","D":"Acute pericarditis","E":"ALCAPA"},"answer":"A","rationale":"Asymptomatic athletic remodeling with preserved function and no inflammatory evidence is more likely than acute myocarditis.","option_explanations":{"A":"Correct. The phenotype is chronic, physiologic, and noninflammatory.","B":"Fulminant myocarditis causes severe acute illness.","C":"No shock findings are present.","D":"No chest pain or pericarditic findings are present.","E":"ALCAPA presents in infancy and would not fit this benign athletic phenotype."},"board_pearl":"Context matters: chamber size alone is not myocardial inflammation.","sources":["AHA_MYOCARDITIS_2021"]},
-    {"id":"MYO-047","age":"8 years","concept":"Escalation","difficulty":2,"stem":"An 8-year-old with myocarditis develops worsening respiratory distress and pulmonary edema with declining mental status. Which principle is most appropriate regarding respiratory support?","options":{"A":"Escalate oxygenation/ventilatory support as needed while recognizing the hemodynamic consequences of positive pressure","B":"Avoid all respiratory support because it masks tachypnea","C":"Use exercise to improve ventilation","D":"Wait for CMR before treating hypoxemia","E":"Give sedatives alone"},"answer":"A","rationale":"Respiratory failure should be treated promptly, but ventilation in cardiogenic shock requires careful hemodynamic management because induction and positive pressure can affect preload and afterload.","option_explanations":{"A":"Correct. Airway/ventilation and circulation must be managed together.","B":"Untreated respiratory failure is dangerous.","C":"Exercise is contraindicated.","D":"Imaging should not delay stabilization.","E":"Sedation without adequate airway/hemodynamic planning can worsen instability."},"board_pearl":"In severe myocarditis, airway decisions are cardiovascular decisions too.","sources":["AHA_FULMINANT_2020"]},
-    {"id":"MYO-048","age":"13 years","concept":"Prognosis","difficulty":2,"stem":"Which acute feature in a child with myocarditis should increase concern for a complicated hospital course?","options":{"A":"Clinically significant tachyarrhythmia","B":"Isolated rhinorrhea","C":"Normal blood pressure with no symptoms","D":"Remote history of otitis media","E":"Mild acne"},"answer":"A","rationale":"Clinically significant arrhythmias in pediatric myocarditis are associated with greater morbidity and mortality and indicate electrical instability.","option_explanations":{"A":"Correct. Tachyarrhythmia is a meaningful adverse-risk marker.","B":"Nonspecific viral symptom.","C":"Reassuring rather than adverse.","D":"Unrelated.","E":"Unrelated."},"board_pearl":"The presence of arrhythmia changes risk stratification even before severe pump failure develops.","sources":["PED_ARRHYTHMIA_OUTCOMES"]},
-    {"id":"MYO-049","age":"5 years","concept":"Etiology","difficulty":2,"stem":"A 5-year-old with a systemic autoimmune disorder develops chest pain, elevated troponin, and LV dysfunction. What is the most appropriate etiologic approach?","options":{"A":"Consider myocarditis as a manifestation of the underlying inflammatory disease","B":"Assume all childhood myocarditis is viral","C":"Exclude myocarditis because the child has a known diagnosis","D":"Ignore the autoimmune history","E":"Diagnose congenital heart disease without imaging"},"answer":"A","rationale":"Myocarditis can be immune-mediated and may occur as part of systemic inflammatory disease.","option_explanations":{"A":"Correct. Etiology should be linked to the clinical context.","B":"Viral causes are common but not exclusive.","C":"A known autoimmune disease can increase rather than eliminate suspicion.","D":"The history may directly inform cause and treatment.","E":"No structural evidence is supplied."},"board_pearl":"Always ask whether myocarditis is primary or part of a systemic inflammatory process.","sources":["AHA_MYOCARDITIS_2021"]},
-    {"id":"MYO-050","age":"15 years","concept":"Follow-up","difficulty":2,"stem":"A 15-year-old with prior myocarditis has persistent late gadolinium enhancement on follow-up CMR despite normalized LV function. Which statement is most appropriate?","options":{"A":"Residual myocardial scar may have prognostic and arrhythmic relevance and should be interpreted by cardiology","B":"Persistent LGE proves active bacterial infection","C":"LGE is always benign once EF normalizes","D":"No rhythm surveillance is ever needed","E":"The finding is unrelated to prior myocarditis"},"answer":"A","rationale":"LGE can reflect residual myocardial injury/scar and may remain relevant to risk assessment even after functional recovery.","option_explanations":{"A":"Correct. Tissue recovery and functional recovery are not identical.","B":"LGE is not specific for bacterial infection.","C":"Persistent scar should not automatically be dismissed.","D":"Rhythm assessment may be important depending on the clinical context.","E":"It can be a residual marker of the prior inflammatory injury."},"board_pearl":"Follow-up after myocarditis should consider function, symptoms, rhythm, and tissue injury—not EF alone.","sources":["PED_CMR_GUIDANCE","AHA_MYOCARDITIS_2021"]}
+    {
+      "id":"MYO-041","status":"draft-medical-review","age":"9 years","age_group":"child","domain":"etiology","concept":"broad etiologic differential","learning_objective":"Avoid assuming all pediatric myocarditis is caused by a routine viral infection.","cognitive_level":"recognition","difficulty":1,
+      "stem":"Which statement about the cause of myocarditis in children is most accurate?",
+      "options":[
+        {"id":"broad_causes","text":"Viral illness is common, but infectious, immune-mediated, systemic inflammatory, drug-associated, and other causes must be considered in context"},
+        {"id":"all_viral","text":"All pediatric myocarditis is caused by direct viral infection of cardiomyocytes"},
+        {"id":"no_immune","text":"Immune-mediated myocarditis does not occur in children"},
+        {"id":"drug_excludes","text":"A temporal relationship to a new medication makes myocarditis impossible"},
+        {"id":"pathogen_required","text":"Myocarditis cannot be diagnosed unless a specific pathogen is identified"}
+      ],
+      "correct_option_id":"broad_causes",
+      "rationale":"Viruses are common triggers, but pediatric myocarditis has diverse infectious and noninfectious etiologies. Etiology matters because selected immune-mediated, drug-related, or specific infectious forms may alter treatment.",
+      "option_explanations":{
+        "broad_causes":"Correct. The etiologic differential should follow exposure history, systemic disease, laboratory clues, imaging, and selected tissue testing.",
+        "all_viral":"Viral triggers are common but do not account for all cases, and direct myocardial viral infection is not proven by a preceding viral syndrome alone.",
+        "no_immune":"Autoimmune and other immune-mediated mechanisms are recognized and can be clinically important when disease-specific immunomodulation is considered.",
+        "drug_excludes":"New medications can be relevant exposures rather than exclusions, particularly when hypersensitivity/eosinophilia or an immune-mediated adverse effect is plausible.",
+        "pathogen_required":"Many clinically valid myocarditis cases have no identified pathogen. Diagnostic confidence derives from the integrated cardiac syndrome, not mandatory pathogen discovery."
+      },
+      "board_pearl":"'Postviral' is a context, not an etiologic proof; always ask whether the cause would change treatment.",
+      "evidence":[{"claim":"Pediatric myocarditis has diverse infectious and noninfectious etiologies despite viral causes being common.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"The 2025 ESC framework distinguishes multiple specific myocarditis etiologies with different treatment implications.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-042","status":"draft-medical-review","age":"6 years","age_group":"child","domain":"etiology","concept":"etiologic uncertainty","learning_objective":"Maintain a myocarditis diagnosis when no pathogen is identified if clinical/imaging evidence remains convincing.","cognitive_level":"application","difficulty":2,
+      "stem":"A 6-year-old has a clinically and CMR-supported diagnosis of myocarditis, but an appropriate infectious evaluation does not identify a pathogen. Which interpretation is best?",
+      "options":[
+        {"id":"diagnosis_valid","text":"The myocarditis diagnosis can remain valid; failure to identify a pathogen does not exclude myocardial inflammation"},
+        {"id":"exclude","text":"Myocarditis is excluded because a pathogen is required"},
+        {"id":"prove_autoimmune","text":"Negative pathogen testing proves an autoimmune cause"},
+        {"id":"congenital","text":"The child must instead have congenital heart disease"},
+        {"id":"stop_followup","text":"Etiologic uncertainty means cardiac follow-up has no value"}
+      ],
+      "correct_option_id":"diagnosis_valid",
+      "rationale":"Clinical myocarditis often lacks a proven infectious cause. Negative pathogen testing neither invalidates the cardiac diagnosis nor proves a specific noninfectious mechanism.",
+      "option_explanations":{
+        "diagnosis_valid":"Correct. Diagnostic and etiologic certainty are separate questions.",
+        "exclude":"Modern myocarditis diagnosis can be clinical/CMR-supported or biopsy-proven without identifying a pathogen.",
+        "prove_autoimmune":"Negative infectious testing broadens the differential but does not establish autoimmunity. Autoimmune attribution needs disease-specific evidence.",
+        "congenital":"Congenital structural disease should be excluded when appropriate, but negative pathogen testing does not point automatically to it.",
+        "stop_followup":"Follow-up is determined by the myocardial syndrome and residual risk, not whether the inciting cause was identified."
+      },
+      "board_pearl":"Do not confuse 'cause unknown' with 'diagnosis unproven'.",
+      "evidence":[{"claim":"Pediatric myocarditis can be clinically/CMR diagnosed without identification of a causative pathogen.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-043","status":"draft-medical-review","age":"8 years","age_group":"child","domain":"therapy","concept":"IVIG evidence","learning_objective":"Describe IVIG as commonly used but not a universally proven regimen for idiopathic pediatric acute myocarditis.","cognitive_level":"multi-step","difficulty":3,
+      "stem":"An 8-year-old has acute non-COVID myocarditis with LV dysfunction but is now hemodynamically stable. The team asks whether IVIG should be presented to the family as proven mandatory therapy for every child with this diagnosis. Which statement is most defensible?",
+      "options":[
+        {"id":"ivig_uncertain","text":"IVIG is commonly used and newer observational/meta-analytic data suggest possible benefit, but the evidence remains insufficient to present it as a universally proven mandatory regimen"},
+        {"id":"ivig_mandatory","text":"IVIG is established by definitive pediatric randomized trials as mandatory for every case"},
+        {"id":"ivig_never","text":"IVIG has been proven harmful and should never be used in pediatric myocarditis"},
+        {"id":"steroids_equiv","text":"IVIG and corticosteroids have definitively equivalent benefit in all pediatric myocarditis subtypes"},
+        {"id":"replaces_support","text":"If IVIG is used, heart-failure and rhythm management are no longer necessary"}
+      ],
+      "correct_option_id":"ivig_uncertain",
+      "rationale":"IVIG use is common in pediatric myocarditis and contemporary observational/meta-analytic studies report favorable associations, but randomized pediatric evidence remains limited and treatment practice varies. It should not be represented as a universally proven regimen.",
+      "option_explanations":{
+        "ivig_uncertain":"Correct. This framing acknowledges both current signals of potential benefit and the limitations of the evidence base.",
+        "ivig_mandatory":"There is no definitive pediatric randomized evidence establishing mandatory IVIG for every phenotype and etiology. Some centers use it routinely; others individualize.",
+        "ivig_never":"Existing evidence does not support a blanket prohibition. The issue is uncertainty of comparative benefit, not proven universal harm.",
+        "steroids_equiv":"Steroid effects differ by subtype and evidence is heterogeneous. Some specific immune-mediated histologies have stronger rationale for immunosuppression than idiopathic cases.",
+        "replaces_support":"Immunomodulation never substitutes for management of heart failure, shock, or arrhythmia. Physiologic support remains foundational."
+      },
+      "board_pearl":"When evidence is observational and heterogeneous, the board-safe answer is often to state the uncertainty rather than invent a universal regimen.",
+      "evidence":[{"claim":"The AHA pediatric myocarditis statement notes common use of IVIG despite limited evidence supporting routine efficacy.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"A 2026 pediatric network meta-analysis found signals of benefit for IVIG but called for high-quality randomized trials.","source_id":"IVIG_META_2026"},{"claim":"A 2026 PHIS observational analysis found associations between IVIG-containing strategies and lower mortality but cannot establish causality.","source_id":"IVIG_PHIS_2026"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-044","status":"draft-medical-review","age":"12 years","age_group":"child","domain":"therapy","concept":"corticosteroid selection","learning_objective":"Reserve a strong steroid recommendation for defined immune-mediated/histologic indications rather than assume routine benefit in undifferentiated myocarditis.","cognitive_level":"application","difficulty":2,
+      "stem":"Which pediatric myocarditis scenario provides the strongest rationale for corticosteroid/immunosuppressive therapy rather than routine empiric steroid use for an undifferentiated case?",
+      "options":[
+        {"id":"immune_histology","text":"A defined immune-mediated or biopsy-directed inflammatory subtype in which immunosuppression is part of disease-specific management"},
+        {"id":"every_case","text":"Every child with troponin elevation after a viral illness"},
+        {"id":"normal_heart","text":"An asymptomatic child with normal cardiac testing and no evidence of myocarditis"},
+        {"id":"bacterial_sepsis","text":"Uncomplicated bacterial sepsis with no evidence of immune-mediated myocarditis"},
+        {"id":"sports","text":"An athlete who has recovered and only wants faster sports clearance"}
+      ],
+      "correct_option_id":"immune_histology",
+      "rationale":"Routine corticosteroid efficacy in undifferentiated pediatric myocarditis remains uncertain, whereas selected immune-mediated or specific histologic subtypes can have clear disease-specific immunosuppressive strategies.",
+      "option_explanations":{
+        "immune_histology":"Correct. This is where identifying the mechanism or tissue subtype can materially change therapy.",
+        "every_case":"Troponin elevation after a viral illness does not define a steroid-responsive mechanism. Empiric immunosuppression for every child would ignore etiologic uncertainty.",
+        "normal_heart":"Without evidence of myocarditis there is no disease target for immunosuppression.",
+        "bacterial_sepsis":"Steroids may have separate critical-care indications in some shock states, but bacterial sepsis without myocarditis is not a rationale for myocarditis-directed immunosuppression.",
+        "sports":"Immunosuppression should not be used simply to accelerate return to sports; clearance depends on true clinical recovery."
+      },
+      "board_pearl":"Immunosuppression is strongest when the mechanism is defined—not when the diagnosis is merely 'postviral myocarditis'.",
+      "evidence":[{"claim":"Routine immunotherapy evidence in pediatric myocarditis is limited, while specific immune-mediated/histologic forms may warrant immunosuppression.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"Current ESC guidance provides etiology-specific immunosuppressive strategies for selected myocarditis subtypes.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-045","status":"draft-medical-review","age":"15 years","age_group":"adolescent","domain":"etiology","concept":"eosinophilic/hypersensitivity myocarditis","learning_objective":"Recognize drug exposure plus eosinophilia/systemic hypersensitivity as a clue to eosinophilic myocarditis that may make EMB and disease-specific therapy important.","cognitive_level":"multi-step","difficulty":3,
+      "stem":"A 15-year-old develops chest pain, ventricular dysfunction, eosinophilia, fever, and a diffuse rash shortly after starting a new medication. He deteriorates with ventricular arrhythmia and shock. Which etiologic concern should be prioritized?",
+      "options":[
+        {"id":"eosinophilic","text":"Drug-associated eosinophilic/hypersensitivity myocarditis, with urgent specialist evaluation and consideration of EMB because subtype-directed treatment may matter"},
+        {"id":"routine_viral","text":"Assume routine viral myocarditis and ignore the medication exposure and eosinophilia"},
+        {"id":"isolated_allergy","text":"Simple cutaneous drug allergy that cannot involve the heart"},
+        {"id":"athletic","text":"Physiologic athletic remodeling"},
+        {"id":"costochondritis","text":"Costochondritis with incidental ventricular dysfunction"}
+      ],
+      "correct_option_id":"eosinophilic",
+      "rationale":"A new drug exposure, eosinophilia, systemic hypersensitivity features, and severe myocardial disease raise concern for eosinophilic myocarditis. In high-risk disease, tissue diagnosis may identify a subtype for which immunosuppression and withdrawal of the trigger have treatment implications.",
+      "option_explanations":{
+        "eosinophilic":"Correct. This pattern is precisely why exposure history, differential count, and selective EMB can be care-changing in myocarditis.",
+        "routine_viral":"Viral myocarditis remains possible, but ignoring strong drug/hypersensitivity clues would miss an etiologic pathway with different treatment implications.",
+        "isolated_allergy":"Drug hypersensitivity can be systemic and may involve the myocardium; severe ventricular dysfunction and arrhythmia cannot be explained as a skin-only reaction.",
+        "athletic":"Physiologic remodeling does not cause acute rash, eosinophilia, shock, and ventricular arrhythmia.",
+        "costochondritis":"Chest-wall inflammation cannot explain objective ventricular dysfunction or systemic hypersensitivity findings."
+      },
+      "board_pearl":"In myocarditis, eosinophilia plus a new drug is not background noise—it may identify a treatment-relevant subtype.",
+      "evidence":[{"claim":"Eosinophilic and drug-associated myocarditis are specific etiologic forms for which histology and mechanism can direct treatment.","source_id":"ESC_IMPS_2025"},{"claim":"High-risk myocarditis with a potentially treatment-relevant subtype is a setting where EMB can be important.","source_id":"AHA_FULMINANT_2020"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-046","status":"draft-medical-review","age":"10 years","age_group":"child","domain":"etiology","concept":"systemic autoimmune disease","learning_objective":"Recognize myocarditis as possible cardiac involvement of a systemic inflammatory/autoimmune disorder rather than force a viral label.","cognitive_level":"application","difficulty":2,
+      "stem":"A 10-year-old with a known systemic autoimmune disease develops chest pain, elevated troponin, ventricular ectopy, and new LV dysfunction during a multisystem inflammatory flare. Which etiologic interpretation is most appropriate?",
+      "options":[
+        {"id":"autoimmune_myocarditis","text":"Consider myocarditis as cardiac involvement of the underlying immune-mediated disease and coordinate disease-specific evaluation with cardiology/rheumatology"},
+        {"id":"must_viral","text":"Assume the myocarditis is viral because viral disease is the only pediatric cause"},
+        {"id":"autoimmune_excludes","text":"A preexisting autoimmune diagnosis excludes myocarditis"},
+        {"id":"troponin_ignore","text":"Ignore the cardiac abnormalities because systemic inflammation can raise troponin without consequence"},
+        {"id":"exercise","text":"Use exercise testing during the flare to determine whether symptoms are inflammatory"}
+      ],
+      "correct_option_id":"autoimmune_myocarditis",
+      "rationale":"Systemic immune-mediated diseases can involve the myocardium and pericardium. The underlying disease may change both etiologic evaluation and treatment, so the autoimmune context should be integrated rather than ignored.",
+      "option_explanations":{
+        "autoimmune_myocarditis":"Correct. The multisystem flare and objective myocardial injury make immune-mediated cardiac involvement a meaningful working diagnosis.",
+        "must_viral":"Viral causes are common but not exclusive, and the known systemic inflammatory disease is directly relevant to mechanism.",
+        "autoimmune_excludes":"Autoimmune disease can increase, not eliminate, the possibility of myocarditis.",
+        "troponin_ignore":"Troponin can be nonspecific, but ventricular ectopy and new LV dysfunction show clinically significant cardiac involvement requiring evaluation.",
+        "exercise":"Exercise is inappropriate during active inflammatory myocardial disease and cannot safely distinguish etiologies."
+      },
+      "board_pearl":"When myocarditis appears during a systemic inflammatory flare, ask whether the heart is another involved organ.",
+      "evidence":[{"claim":"Systemic inflammatory and autoimmune diseases can cause myocarditis/pericardial involvement and may require etiology-specific management.","source_id":"ESC_IMPS_2025"},{"claim":"Noninfectious etiologies are part of the pediatric myocarditis differential.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-047","status":"draft-medical-review","age":"13 years","age_group":"adolescent","domain":"etiology","concept":"recurrent myocarditis and genetic predisposition","learning_objective":"Escalate evaluation for genetic/immune predisposition when clinically confirmed myocarditis recurs.","cognitive_level":"application","difficulty":2,
+      "stem":"A 13-year-old has a second well-documented episode of myocarditis after complete apparent recovery from the first. Which additional consideration becomes more important than after a single isolated episode?",
+      "options":[
+        {"id":"genetic_immune","text":"Evaluation for an underlying genetic cardiomyopathy or immune predisposition"},
+        {"id":"same_virus","text":"Assume the same virus caused both episodes and no further etiologic evaluation is useful"},
+        {"id":"no_followup","text":"Stop cardiology follow-up between episodes because function normalized previously"},
+        {"id":"sports_now","text":"Immediate competitive-sports clearance because recovery occurred after the first episode"},
+        {"id":"tonsils","text":"Routine tonsillectomy as standard prevention of recurrent myocarditis"}
+      ],
+      "correct_option_id":"genetic_immune",
+      "rationale":"Recurrence changes the pretest probability of an underlying predisposition, including inherited cardiomyopathy genes or immune mechanisms. It should trigger specialist etiologic reassessment rather than repeated attribution to an unspecified virus.",
+      "option_explanations":{
+        "genetic_immune":"Correct. Recurrent inflammatory phenotypes can overlap genetic cardiomyopathy and merit a deeper pedigree/genetic and immune evaluation.",
+        "same_virus":"Repeated viral triggers are possible, but assuming identical causation without investigation risks missing an inherited or immune substrate.",
+        "no_followup":"Normalization of EF after one episode does not eliminate recurrence or residual electrical/tissue risk.",
+        "sports_now":"Recurrent myocarditis increases the need for careful recovery assessment, not automatic clearance.",
+        "tonsils":"Tonsillectomy is not a standard myocarditis-prevention strategy without a separate ENT indication."
+      },
+      "board_pearl":"Recurrence is a diagnostic clue: look for the substrate, not just the next trigger.",
+      "evidence":[{"claim":"Genetic predisposition is increasingly recognized in myocarditis and should be considered in recurrent/familial presentations.","source_id":"ACC_MYOCARDITIS_2024"},{"claim":"The 2025 ESC framework includes genetic testing when indicated in myocarditis/inflammatory cardiomyopathy.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-048","status":"draft-medical-review","age":"16 years","age_group":"adolescent","domain":"etiology","concept":"family history and genetics","learning_objective":"Use a family history of cardiomyopathy/sudden death to broaden evaluation beyond an isolated viral explanation even after a first myocarditis episode.","cognitive_level":"application","difficulty":2,
+      "stem":"A 16-year-old has a first episode of clinically confirmed myocarditis. His mother has dilated cardiomyopathy and an uncle died suddenly at age 35. Which next consideration is most appropriate after acute stabilization?",
+      "options":[
+        {"id":"genetic_counsel","text":"Obtain a detailed pedigree and consider cardiomyopathy-focused genetic counseling/testing with cardiology"},
+        {"id":"viral_only","text":"Do no further etiologic evaluation because a preceding viral illness proves a sporadic viral cause"},
+        {"id":"family_irrelevant","text":"Ignore the family history because genetic cardiomyopathy and myocarditis never overlap"},
+        {"id":"screen_only_if_recurrence","text":"Wait for a second episode before documenting the family history"},
+        {"id":"no_relative_eval","text":"Assume relatives never require evaluation if the adolescent's EF normalizes"}
+      ],
+      "correct_option_id":"genetic_counsel",
+      "rationale":"A strong family history of cardiomyopathy and premature sudden death raises concern for genetic susceptibility or an inflammatory presentation superimposed on inherited cardiomyopathy. Pedigree and genetics can affect the patient and family.",
+      "option_explanations":{
+        "genetic_counsel":"Correct. Genetics does not replace the myocarditis diagnosis; it addresses why this patient may be susceptible and whether relatives are at risk.",
+        "viral_only":"A viral prodrome is common and does not erase a malignant pedigree. It may be a trigger rather than the entire explanation.",
+        "family_irrelevant":"Inflammatory and inherited cardiomyopathy phenotypes can overlap; this false separation would miss important risk information.",
+        "screen_only_if_recurrence":"Recurrence is one trigger for deeper evaluation, but a strong family history is already sufficient reason to investigate the substrate.",
+        "no_relative_eval":"Family implications depend on the genetic/clinical findings and should be addressed through cardiology/genetic counseling rather than assumed away after EF recovery."
+      },
+      "board_pearl":"A viral prodrome does not cancel a malignant pedigree.",
+      "evidence":[{"claim":"Contemporary myocarditis guidance emphasizes genetic predisposition, family history, and genetic counseling/testing.","source_id":"ACC_MYOCARDITIS_2024"},{"claim":"Genetic testing is incorporated into the 2025 ESC myocarditis diagnostic framework when indicated.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-049","status":"draft-medical-review","age":"7 years","age_group":"child","domain":"therapy","concept":"etiology-specific anti-infective therapy","learning_objective":"Treat a proven actionable infection in parallel with cardiac supportive care rather than expect anti-infective therapy to replace management of heart failure or arrhythmia.","cognitive_level":"application","difficulty":2,
+      "stem":"A 7-year-old with myocarditis is found to have a specific active infection for which disease-directed antimicrobial therapy is indicated. The child also has LV dysfunction and ventricular ectopy. Which principle is best?",
+      "options":[
+        {"id":"parallel_treatment","text":"Treat the identified infection while continuing appropriate management of ventricular dysfunction, rhythm risk, and perfusion"},
+        {"id":"infection_only","text":"Stop cardiac monitoring because antimicrobial therapy makes arrhythmia risk disappear immediately"},
+        {"id":"support_only","text":"Ignore an actionable infection because all myocarditis treatment is purely supportive"},
+        {"id":"delay_support","text":"Delay heart-failure treatment until the infection has been eradicated"},
+        {"id":"assume_cure","text":"Assume the antimicrobial will reverse severe pump failure immediately"}
+      ],
+      "correct_option_id":"parallel_treatment",
+      "rationale":"When an etiologic infection has a validated specific treatment, cause-directed therapy complements rather than replaces management of the cardiac phenotype. Shock, heart failure, and arrhythmias still require direct supportive treatment.",
+      "option_explanations":{
+        "parallel_treatment":"Correct. Etiology and physiology are treated in parallel.",
+        "infection_only":"Even effective antimicrobial treatment does not immediately eliminate myocardial electrical instability or restore ventricular function.",
+        "support_only":"Many myocarditis cases have no proven specific therapy, but an actionable identified infection should not be ignored when treatment is indicated for that infection.",
+        "delay_support":"Cardiac deterioration can progress quickly; physiologic support must not wait for microbiologic response.",
+        "assume_cure":"Etiology-directed therapy may prevent further injury or treat systemic infection, but established myocardial dysfunction can persist and requires ongoing cardiac management."
+      },
+      "board_pearl":"Treat the cause when it is actionable, but never stop treating the physiology.",
+      "evidence":[{"claim":"Current myocarditis guidance distinguishes supportive therapy from etiology-directed treatment for selected specific causes.","source_id":"ESC_IMPS_2025"},{"claim":"Pediatric myocarditis management remains driven by heart failure, arrhythmia, and shock severity while etiology is evaluated.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
+    },
+    {
+      "id":"MYO-050","status":"draft-medical-review","age":"12 years","age_group":"child","domain":"therapy","concept":"biopsy-directed treatment","learning_objective":"Understand why identifying a specific histologic subtype can be more care-changing than simply confirming nonspecific myocarditis.","cognitive_level":"multi-step","difficulty":3,
+      "stem":"A 12-year-old with rapidly progressive myocarditis undergoes EMB at an advanced center because of shock, ventricular arrhythmias, and conduction disease. Why can the tissue result be especially valuable in this setting?",
+      "options":[
+        {"id":"subtype_changes","text":"It can identify a specific histologic/etiologic subtype for which immunosuppression or other disease-directed therapy differs from routine supportive management"},
+        {"id":"severity_number","text":"It provides an exact numeric prognosis that makes clinical follow-up unnecessary"},
+        {"id":"viral_swab","text":"It is equivalent to a respiratory viral swab and adds no other information"},
+        {"id":"all_same","text":"All myocarditis histologies are treated identically, so subtype is irrelevant"},
+        {"id":"replace_support","text":"A tissue diagnosis eliminates the need for MCS, rhythm treatment, or heart-failure support"}
+      ],
+      "correct_option_id":"subtype_changes",
+      "rationale":"The main value of EMB in high-risk disease is not simply to add the word 'biopsy-proven.' Histology, immunohistochemistry, and molecular evaluation can identify specific forms such as eosinophilic or giant-cell myocarditis in which disease-directed therapy and prognosis differ.",
+      "option_explanations":{
+        "subtype_changes":"Correct. This is the clinically meaningful reason to accept the procedural burden of biopsy in selected high-risk cases.",
+        "severity_number":"Biopsy informs diagnosis and sometimes prognosis, but it does not replace longitudinal clinical assessment or provide deterministic outcome prediction.",
+        "viral_swab":"Tissue can reveal inflammatory cell type, necrosis, immunohistochemical patterns, and selected molecular findings that peripheral respiratory testing cannot provide.",
+        "all_same":"Specific myocarditis histologies have different natural histories and treatment approaches; assuming all are identical undermines the purpose of tissue diagnosis.",
+        "replace_support":"Disease-specific therapy works alongside, not instead of, management of shock, arrhythmia, and heart failure."
+      },
+      "board_pearl":"In fulminant disease, the biopsy question is not merely 'Is there myocarditis?' but 'Is there a subtype I can treat differently?'.",
+      "evidence":[{"claim":"EMB can identify treatment-relevant histologic subtypes in high-risk myocarditis.","source_id":"AHA_FULMINANT_2020"},{"claim":"The 2025 ESC guideline gives subtype-specific myocarditis treatment pathways informed by histology/etiology.","source_id":"ESC_IMPS_2025"},{"claim":"Contemporary registry data support EMB's continued diagnostic role in pediatric myocarditis.","source_id":"EMB_REGISTRY_2024"}],"last_medical_review":null,"requires_sme_review":true
+    }
   ]
 }
