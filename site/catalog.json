@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "searchPolicy": "noindex",
+  "updated": "2026-08-19",
+  "classes": ["PRODUCTION", "PREVIEW", "INTERNAL", "SOURCE_ONLY", "ARCHIVED"],
+  "items": [
+    {"id":"home","title":"Steve Todman, MD","route":"/","class":"PRODUCTION","audience":"all","category":"home","smoke":true},
+    {"id":"education","title":"Resident Education","route":"/education/","class":"PRODUCTION","audience":"residents","category":"education","smoke":true},
+    {"id":"about","title":"About","route":"/about/","class":"PRODUCTION","audience":"all","category":"about","smoke":true},
+    {"id":"search","title":"Site Search","route":"/search/","class":"PRODUCTION","audience":"all","category":"navigation","smoke":true},
+
+    {"id":"tools","title":"Clinical Tools","route":"/tools/","class":"PRODUCTION","audience":"clinicians","category":"clinical-tools","smoke":true},
+    {"id":"bp-calculator","title":"Pediatric BP Percentile Calculator","route":"/tools/bp-percentile-calculator.html","class":"PRODUCTION","audience":"clinicians","category":"clinical-tools","smoke":true},
+    {"id":"bp-validation","title":"BP Calculator Validation","route":"/tools/bp-calculator-validation.html","class":"PRODUCTION","audience":"clinicians","category":"clinical-tools","smoke":true},
+    {"id":"abpm-preview","title":"Pediatric ABPM Pathway Preview","route":"/tools/pediatric-abpm-pathway-preview.html","class":"PREVIEW","audience":"clinicians","category":"clinical-tools","smoke":false},
+    {"id":"bp-preview","title":"BP Calculator Preview","route":"/tools/bp-percentile-calculator-preview.html","class":"PREVIEW","audience":"clinicians","category":"clinical-tools","smoke":false},
+
+    {"id":"phs","title":"Pediatric Hospital Simulator","route":"/phs/","class":"PRODUCTION","audience":"residents","category":"simulation","smoke":true},
+    {"id":"newbornscreen","title":"Newborn CCHD Screening","route":"/newbornscreen/","class":"PRODUCTION","audience":"residents","category":"education","smoke":true},
+    {"id":"kawasaki","title":"Kawasaki Disease Resident Academy","route":"/kawasaki/","class":"PRODUCTION","audience":"residents","category":"education","smoke":true},
+    {"id":"hypertension","title":"Pediatric Hypertension & ABPM Academy","route":"/hypertension/","class":"PRODUCTION","audience":"residents","category":"education","smoke":true},
+    {"id":"cardiovascular-risk","title":"Cardiovascular Prevention & Dyslipidemia Academy","route":"/cardiovascular-risk/","class":"PRODUCTION","audience":"residents","category":"education","smoke":true},
+    {"id":"aortopathy","title":"Pediatric Aortopathy Resident Academy","route":"/aortopathy/","class":"PRODUCTION","audience":"residents","category":"education","smoke":true},
+    {"id":"genetics-chd","title":"Genetics of Congenital Heart Disease","route":"/genetics-chd/","class":"PRODUCTION","audience":"residents","category":"education","smoke":true},
+    {"id":"myocarditis","title":"Pediatric Myocarditis Resident Academy","route":"/myocarditis/","class":"PRODUCTION","audience":"residents","category":"education","smoke":true},
+    {"id":"pals","title":"PALS 2025 Resident Mastery Lab","route":"/pals/","class":"PRODUCTION","audience":"residents","category":"education","smoke":true},
+    {"id":"pedcardsurg","title":"CHD Surgical Atlas","route":"/pedcardsurg/","class":"PRODUCTION","audience":"residents","category":"education","smoke":true},
+
+    {"id":"study","title":"Study Hub","route":"/study/","class":"PRODUCTION","audience":"family","category":"family","smoke":true},
+    {"id":"states","title":"50 States Challenge","route":"/study/us-states.html","class":"PRODUCTION","audience":"family","category":"family","smoke":true},
+    {"id":"pin-sprint","title":"Pin Sprint","route":"/study/pin-sprint.html","class":"PRODUCTION","audience":"family","category":"family","smoke":true},
+    {"id":"greek-vocab","title":"Ancient Greece Vocabulary","route":"/study/greek-vocab-quiz.html","class":"PRODUCTION","audience":"family","category":"family","smoke":true},
+    {"id":"fract-vocab","title":"Fraction Root Vocabulary","route":"/study/fract-vocab-quiz.html","class":"PRODUCTION","audience":"family","category":"family","smoke":true},
+    {"id":"topic-e","title":"Fractions Topic E Quiz","route":"/study/topic-e-quiz.html","class":"PRODUCTION","audience":"family","category":"family","smoke":true},
+    {"id":"math-facts","title":"Math Facts","route":"/study/math-facts.html","class":"PRODUCTION","audience":"family","category":"family","smoke":true},
+    {"id":"fact-club","title":"100 Fact Club","route":"/study/100-fact-club.html","class":"PRODUCTION","audience":"family","category":"family","smoke":true},
+    {"id":"math","title":"Math Lab: Fractions","route":"/math/","class":"PRODUCTION","audience":"family","category":"family","smoke":true},
+
+    {"id":"cooking","title":"Cooking Timers","route":"/cooking/","class":"PRODUCTION","audience":"family","category":"personal","smoke":true},
+    {"id":"ahi-tuna","title":"Ahi Tuna Timer","route":"/cooking/ahi-tuna-timer.html","class":"PRODUCTION","audience":"family","category":"personal","smoke":true},
+    {"id":"ribeye","title":"Ribeye Timer","route":"/cooking/ribeye-timer.html","class":"PRODUCTION","audience":"family","category":"personal","smoke":true},
+    {"id":"ribs","title":"Ribs Timer","route":"/cooking/ribs-timer.html","class":"PRODUCTION","audience":"family","category":"personal","smoke":true},
+
+    {"id":"admin","title":"Admin","route":"/admin/","class":"INTERNAL","audience":"owner","category":"internal","smoke":false,"protection":"cloudflare-access"},
+    {"id":"clinic-resources","title":"Clinic Resources","route":"/admin/clinic-resources/","class":"INTERNAL","audience":"owner","category":"internal","smoke":false,"protection":"cloudflare-access"},
+    {"id":"steven-os","title":"Steven OS","route":"/steven-os/","class":"INTERNAL","audience":"owner","category":"internal","smoke":false,"protection":"cloudflare-access-or-exclude"},
+    {"id":"cardiohospital","title":"Cardio Hospital Legacy Web Build","route":"/cardiohospital/","class":"PREVIEW","audience":"internal-review","category":"preview","smoke":false},
+
+    {"id":"cardio-hospital-3d-source","title":"Cardio Hospital 3D Source","path":"cardio-hospital-3d/","class":"SOURCE_ONLY","audience":"developers","category":"source","smoke":false},
+    {"id":"clipboard-sanitizer-source","title":"Clipboard Sanitizer Source","path":"clipboard-sanitizer/","class":"SOURCE_ONLY","audience":"developers","category":"source","smoke":false},
+    {"id":"studyhub-function-source","title":"StudyHub Edge Function Source","path":"study/supabase/","class":"SOURCE_ONLY","audience":"developers","category":"source","smoke":false}
+  ]
+}
