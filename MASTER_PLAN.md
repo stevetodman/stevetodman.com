@@ -25,7 +25,7 @@ If work is interrupted, resume in this order:
 
 1. Read this file.
 2. Read the current Handoff in `CLAUDE.md`.
-3. Check PR #37 and issues #38–#40.
+3. Check PR #37 and issues #38–#42.
 4. Continue the first unchecked item in **Execution checklist**.
 5. Never reopen completed work unless CI or a regression demonstrates a problem.
 
@@ -62,6 +62,7 @@ If work is interrupted, resume in this order:
 - [x] Keep later suites running after earlier failures while preserving overall job failure.
 - [x] Add static deployment-policy checks (noindex, catalog, build boundary, StudyHub migration).
 - [x] Add post-deploy verification script/workflow for production headers/routes/Access/source exclusion.
+- [x] Make the Kawasaki deploy artifact self-contained by stripping its optional legacy CDN loaders during `npm run build`, with a production-artifact invariant in platform tests.
 - [ ] Finish PR #37 CI review and fix any regressions introduced by this branch; document pre-existing failures rather than hiding them.
 
 ### Phase 2 — Information architecture
@@ -74,7 +75,7 @@ If work is interrupted, resume in this order:
 - [x] Add `/search/` static local catalog search.
 - [x] Add useful footer/correction links on the new platform surfaces.
 - [x] Correct homepage copy that claimed a QTc tool before one exists.
-- [ ] Add a lightweight local-only “continue learning” experience across resident modules without requiring an account.
+- [x] Add a lightweight local-only “Continue learning” experience across resident modules without requiring an account.
 
 ### Phase 3 — Clinical governance
 
@@ -83,7 +84,7 @@ If work is interrupted, resume in this order:
 - [x] Add CI freshness/schema checks without inventing missing review dates.
 - [x] Add a curriculum map showing covered domains and explicit candidate gaps.
 - [x] Add a structured “Report a correction” issue form with PHI warning and safety-impact field.
-- [ ] Fill missing review-date/provenance records only when actual review evidence is available; never backfill by assumption.
+- [ ] Fill missing review-date/provenance records only when actual review evidence is available; never backfill by assumption (issue #42).
 
 ### Phase 4 — Security and deployment hygiene
 
@@ -106,8 +107,8 @@ If work is interrupted, resume in this order:
 - [x] Add performance budgets and asset-size checks.
 - [x] Add scheduled external-link rot checking.
 - [x] Add asset/source attribution registry that records unknown provenance as unknown rather than guessing.
-- [ ] Extract genuinely shared static platform UI primitives and use them on the new platform shell pages; do not rewrite the site in React/Next.
-- [ ] Complete missing source/license records for large asset families when source evidence is available.
+- [x] Extract genuinely shared static platform UI primitives and use them on the new platform shell pages; do not rewrite the site in React/Next.
+- [ ] Complete missing source/license records for large asset families when source evidence is available (issue #41).
 
 ### Phase 6 — StudyHub acceptance and platform integration
 
