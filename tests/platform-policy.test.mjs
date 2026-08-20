@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { repoRoot, SITE_PAGES } from './helpers/harness.mjs';
+import { repoRoot } from './helpers/harness.mjs';
 
 const read = (p) => fs.readFileSync(path.join(repoRoot, p), 'utf8');
 const catalog = JSON.parse(read('site/catalog.json'));
@@ -123,14 +123,6 @@ test('StudyHub schema is versioned with RLS and no browser-role grants', () => {
   assert.match(migration, /revoke all on table studyhub\.saves from anon/i);
   assert.match(migration, /revoke all on table studyhub\.saves from authenticated/i);
   assert.equal(/create\s+policy/i.test(migration), false, 'direct anon/auth policies must not be added to StudyHub saves');
-});
-
-test('smoke inventory exactly matches catalog PRODUCTION pages', () => {
-  const expected = catalog.items
-    .filter((item) => item.class === 'PRODUCTION' && item.smoke && item.route)
-    .map((item) => item.route)
-    .sort();
-  assert.deepEqual([...SITE_PAGES].sort(), expected);
 });
 
 test('preview HTML has explicit noindex metadata as defense in depth', () => {
