@@ -88,6 +88,26 @@
     };
   }
 
+  const coarctationSurveillance=byId(7);
+  if(coarctationSurveillance){
+    Object.assign(coarctationSurveillance,{
+      q:'After coarctation repair, which coexisting or late aortic concern warrants lifelong surveillance?',
+      o:[
+        'A congenital bicuspid aortic valve, if present, with potential valve dysfunction and ascending-aortic dilation',
+        'Isolated tricuspid atresia as an expected late complication of arch repair',
+        'ALCAPA developing in nearly every patient after coarctation repair',
+        'Obligate total anomalous pulmonary venous return after the repaired arch'
+      ],
+      a:0,
+      e:'A bicuspid aortic valve is congenital—not acquired after repair—and commonly coexists with coarctation. If present, its valve function and associated aortopathy require longitudinal surveillance; repaired coarctation also warrants ongoing arch and blood-pressure follow-up.'
+    });
+    coarctationSurveillance.wrong={
+      1:'Tricuspid atresia is a distinct congenital lesion and is not an expected late consequence of coarctation repair.',
+      2:'ALCAPA is a separate congenital coronary anomaly. It does not develop as a typical late complication after coarctation repair.',
+      3:'TAPVR is a separate congenital pulmonary venous anomaly, not an obligatory finding after repair of coarctation.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
