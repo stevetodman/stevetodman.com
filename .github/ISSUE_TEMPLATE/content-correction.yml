@@ -1,0 +1,60 @@
+name: Content correction
+about: Report a factual, source, accessibility, or interaction problem
+labels:
+  - correction
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for errors or stale content. Do not include patient information or other sensitive data.
+  - type: input
+    id: page
+    attributes:
+      label: Page or module
+      description: Paste the stevetodman.com path or module name.
+      placeholder: /hypertension/
+    validations:
+      required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: Problem type
+      options:
+        - Clinical factual/content issue
+        - Source or guideline may be outdated
+        - Broken interaction or calculation
+        - Accessibility problem
+        - Typo or unclear wording
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong?
+      description: Describe the smallest reproducible problem. Do not include PHI.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Supporting source or reproduction steps
+      description: For clinical corrections, prefer primary guidance or peer-reviewed evidence. For software issues, list the steps to reproduce.
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Potential impact
+      options:
+        - Cosmetic / wording only
+        - Learning experience affected
+        - Could change clinical interpretation
+        - Safety-critical / urgent review
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I did not include patient-identifying or other sensitive information.
+          required: true
