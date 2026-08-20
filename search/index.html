@@ -13,30 +13,74 @@
   </style>
 </head>
 <body>
-  <header class="hero"><div class="wrap platform-wrap"><a href="/">← Home</a><h1>Search this site</h1><p>This searches the local production catalog only. Search engines are intentionally instructed not to index the site.</p></div></header>
+  <header class="hero"><div class="wrap platform-wrap"><a href="/">← Home</a><h1>Search this site</h1><p>Search titles and production-page content locally in your browser. Search engines are intentionally instructed not to index the site.</p></div></header>
   <main class="search"><div class="wrap platform-wrap">
     <label for="query">Find a project or topic</label>
-    <input id="query" type="search" autocomplete="off" placeholder="Try hypertension, states, surgery, PALS…">
-    <div class="meta" id="meta" aria-live="polite">Loading catalog…</div>
+    <input id="query" type="search" autocomplete="off" placeholder="Try coarctation, IVIG, hypertension, states…">
+    <div class="meta" id="meta" aria-live="polite">Loading local search index…</div>
     <div class="results" id="results"></div>
   </div></main>
   <footer class="platform-footer"><div class="wrap platform-wrap"><a href="/about/">About</a> · <a href="/contact/">Contact</a> · <a href="/privacy/">Privacy</a></div></footer>
-  <script>
+  <script type="module">
+    import { rankSearch, normalizeSearchTokens } from './search.js';
+
     const query = document.getElementById('query');
     const results = document.getElementById('results');
     const meta = document.getElementById('meta');
     let items = [];
+    let sourceLabel = 'production pages';
     const esc = (s='') => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    function render(){
-      const q = query.value.trim().toLowerCase();
-      const shown = items.filter(item => !q || [item.title,item.category,item.audience,item.route].join(' ').toLowerCase().includes(q));
-      meta.textContent = `${shown.length} result${shown.length===1?'':'s'}${q ? ` for “${query.value.trim()}”` : ''}`;
-      results.innerHTML = shown.length ? shown.map(item => `<a class="result platform-card" href="${esc(item.route)}"><strong>${esc(item.title)}</strong><span>${esc(item.category)} · ${esc(item.audience)}</span></a>`).join('') : '<div class="empty">No matching production pages.</div>';
+
+    function contentOnlyMatch(item, q) {
+      const tokens = normalizeSearchTokens(q);
+      if (!tokens.length) return false;
+      const metaText = normalizeSearchTokens([item.title,item.category,item.audience,item.route].join(' ')).join(' ');
+      return tokens.some(token => !metaText.includes(token) && Array.isArray(item.terms) && item.terms.includes(token));
     }
-    fetch('/site/catalog.json',{cache:'no-store'})
-      .then(r => { if(!r.ok) throw new Error(`catalog ${r.status}`); return r.json(); })
-      .then(data => { items = (data.items||[]).filter(item => item.class==='PRODUCTION' && item.route && item.id!=='search'); render(); query.focus(); })
-      .catch(() => { meta.textContent='Search catalog unavailable.'; results.innerHTML='<div class="empty">Use the homepage navigation while the catalog is unavailable.</div>'; });
+
+    function render(){
+      const q = query.value.trim();
+      const ranked = rankSearch(items, q).slice(0, 50);
+      meta.textContent = `${ranked.length} result${ranked.length===1?'':'s'}${q ? ` for “${q}”` : ''} · ${sourceLabel}`;
+      results.innerHTML = ranked.length ? ranked.map(({item}) => {
+        const kind = contentOnlyMatch(item, q) ? ' · page-content match' : '';
+        return `<a class="result platform-card" href="${esc(item.route)}"><strong>${esc(item.title)}</strong><span>${esc(item.category)} · ${esc(item.audience)}${kind}</span></a>`;
+      }).join('') : '<div class="empty">No matching production pages.</div>';
+    }
+
+    async function loadCatalog(){
+      const response = await fetch('/site/catalog.json',{cache:'no-store'});
+      if (!response.ok) throw new Error(`catalog ${response.status}`);
+      const data = await response.json();
+      items = (data.items||[])
+        .filter(item => item.class==='PRODUCTION' && item.route && item.id!=='search')
+        .map(item => ({...item, terms: normalizeSearchTokens([item.title,item.category,item.audience,item.route].join(' '))}));
+      sourceLabel = 'catalog fallback';
+    }
+
+    async function load(){
+      const localDevelopment = ['localhost','127.0.0.1','::1'].includes(location.hostname);
+      if (localDevelopment) {
+        await loadCatalog();
+      } else {
+        try {
+          const response = await fetch('/site/search-index.json',{cache:'no-store'});
+          if (!response.ok) throw new Error(`search index ${response.status}`);
+          const data = await response.json();
+          items = data.items || [];
+          sourceLabel = 'full local content index';
+        } catch {
+          await loadCatalog();
+        }
+      }
+      render();
+      query.focus();
+    }
+
+    load().catch(() => {
+      meta.textContent='Local search unavailable.';
+      results.innerHTML='<div class="empty">Use the homepage navigation while search is unavailable.</div>';
+    });
     query.addEventListener('input', render);
   </script>
 </body>
