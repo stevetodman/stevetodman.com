@@ -164,6 +164,7 @@
         explanations.append(detail);
       });
       feedback.append(explanations);
+      feedback.append(el('p', { className: 'bank-objective', text: `Learning objective: ${question.learning_objective}` }));
       feedback.append(el('p', { className: 'bank-pearl', text: `Board pearl: ${question.board_pearl}` }));
       feedback.append(el('p', { className: 'bank-meta', text: `${question.concept} · Difficulty ${question.difficulty} · ${question.cognitive_level}` }));
 
