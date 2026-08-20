@@ -1,5 +1,14 @@
+import fs from 'node:fs';
+
 const ORIGIN = process.env.SITE_ORIGIN || 'https://stevetodman.com';
+const catalog = JSON.parse(fs.readFileSync(new URL('../site/catalog.json', import.meta.url), 'utf8'));
 const failures = [];
+
+const excludedPaths = [
+  ...catalog.items.filter((item) => item.route && item.class !== 'PRODUCTION').map((item) => item.route),
+  ...catalog.items.filter((item) => item.path && item.class === 'SOURCE_ONLY')
+    .map((item) => `/${item.path.replace(/^\/+|\/+$/g, '')}/`),
+];
 
 async function get(path, options = {}) {
   const response = await fetch(ORIGIN + path, { redirect: 'manual', ...options });
@@ -54,18 +63,9 @@ for (const path of ['/study/us-states.html', '/education/', '/contact/', '/priva
   checkHtmlNoindex(path, r.text);
 }
 
-// Pages is production-only. PREVIEW, INTERNAL, and SOURCE_ONLY surfaces must be absent.
-for (const path of [
-  '/tools/pediatric-abpm-pathway-preview.html',
-  '/tools/bp-percentile-calculator-preview.html',
-  '/admin/',
-  '/steven-os/',
-  '/cardiohospital/',
-  '/cardio-hospital-3d/',
-  '/clipboard-sanitizer/',
-  '/study/supabase/functions/studyhub-save/index.ts',
-  '/steven-os/schema.sql',
-]) {
+// The source catalog owns the non-production boundary; the verifier should not
+// maintain a second route list that can drift from it.
+for (const path of new Set(excludedPaths)) {
   const r = await get(path);
   check(r.response.status === 404, `${path} should be absent from production but returned ${r.response.status}`);
 }
