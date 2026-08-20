@@ -8,6 +8,7 @@ on:
     paths:
       - 'myocarditis/question-bank/**'
       - 'tests/myocarditis-question-bank*.test.mjs'
+      - 'tests/helpers/**'
       - '.github/workflows/myocarditis-question-bank.yml'
       - 'package.json'
       - 'package-lock.json'
@@ -15,6 +16,7 @@ on:
     paths:
       - 'myocarditis/question-bank/**'
       - 'tests/myocarditis-question-bank*.test.mjs'
+      - 'tests/helpers/**'
       - '.github/workflows/myocarditis-question-bank.yml'
       - 'package.json'
       - 'package-lock.json'
