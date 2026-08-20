@@ -1,6 +1,6 @@
 {
   "title": "ABP-Style Pediatric Myocarditis Question Bank",
-  "version": "2.0.0-draft",
+  "version": "2.1.0-draft",
   "status": "editorial-review-required",
   "question_count": 60,
   "stack_size": 10,
@@ -14,7 +14,7 @@
   "review": {
     "medical_review": "pending independent pediatric cardiology/board-review SME review",
     "item_writer_review": "AI editorial rebuild completed; human item-writer review pending",
-    "technical_validation": "automated validator required before publication",
+    "technical_validation": "automated schema/UI validation configured; current revision requires CI verification before publication",
     "psychometric_validation": "not performed",
     "publication_rule": "Do not mark published or merge to production solely on automated review."
   },
