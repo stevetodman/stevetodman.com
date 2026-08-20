@@ -48,19 +48,26 @@
   },
   "FERREIRA_LLC_2018": {
     "title": "Cardiovascular Magnetic Resonance in Nonischemic Myocardial Inflammation: Expert Recommendations",
-    "authors": "Ferreira VM, Schulz-Menger J, Holmvang G, et al.",
+    "authors": "Ferreira VM, Schulz-Menger J, Holmvang G, Kramer CM, Carbone I, Sechtem U, Kindermann I, Gutberlet M, Cooper LT, Liu P, Friedrich MG",
     "journal": "Journal of the American College of Cardiology",
     "year": 2018,
-    "role": "updated Lake Louise CMR criteria",
+    "doi": "10.1016/j.jacc.2018.09.072",
+    "pmid": "30545455",
     "population": "predominantly adult; diagnostic framework used with pediatric-specific caution",
+    "role": "updated Lake Louise CMR criteria",
     "last_verified": "2026-08-20"
   },
   "PED_CMR_GUIDANCE": {
-    "title": "Guidelines for cardiovascular magnetic resonance imaging in pediatric congenital and acquired heart disease",
+    "title": "Society for Cardiovascular Magnetic Resonance/European Society of Cardiovascular Imaging/American Society of Echocardiography/Society for Pediatric Radiology/North American Society for Cardiovascular Imaging Guidelines for the Use of Cardiac Magnetic Resonance in Pediatric Congenital and Acquired Heart Disease: Endorsed by The American Heart Association",
+    "authors": "Fogel MA, Anwar S, Broberg C, Browne L, Chung T, Johnson T, Muthurangu V, Taylor M, Valsangiacomo-Buechel E, Wilhelm C",
+    "organization": "SCMR; EACVI; ASE; SPR; NASCI; endorsed by AHA",
+    "journal": "Circulation: Cardiovascular Imaging",
+    "year": 2022,
+    "doi": "10.1161/CIRCIMAGING.122.014415",
+    "pmid": "35727874",
     "population": "pediatric",
     "role": "pediatric CMR indications, tissue characterization, pediatric limitations, ischemic vs nonischemic injury",
-    "last_verified": "2026-08-20",
-    "note": "Bibliographic metadata requires final human source-library normalization before publication."
+    "last_verified": "2026-08-20"
   },
   "ESC_IMPS_2025": {
     "title": "2025 ESC Guidelines for the management of myocarditis and pericarditis",
