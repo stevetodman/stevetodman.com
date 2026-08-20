@@ -11,6 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const siteCatalog = JSON.parse(fs.readFileSync(path.join(repoRoot, 'site/catalog.json'), 'utf8'));
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -78,44 +79,10 @@ export async function getChromium() {
   throw new Error(`Playwright not found. Tried:\n  ${errors.join('\n  ')}`);
 }
 
-/**
- * Every PRODUCTION page that should be reachable and healthy.
- * Keep this in lock-step with site/catalog.json; platform-policy.test.mjs enforces it.
- */
-export const SITE_PAGES = [
-  '/',
-  '/education/',
-  '/about/',
-  '/contact/',
-  '/privacy/',
-  '/search/',
-  '/tools/',
-  '/tools/bp-percentile-calculator.html',
-  '/tools/bp-calculator-validation.html',
-  '/cooking/',
-  '/cooking/ahi-tuna-timer.html',
-  '/cooking/ribeye-timer.html',
-  '/cooking/ribs-timer.html',
-  '/study/',
-  '/study/us-states.html',
-  '/study/pin-sprint.html',
-  '/study/greek-vocab-quiz.html',
-  '/study/fract-vocab-quiz.html',
-  '/study/topic-e-quiz.html',
-  '/study/math-facts.html',
-  '/study/100-fact-club.html',
-  '/math/',
-  '/newbornscreen/',
-  '/kawasaki/',
-  '/hypertension/',
-  '/cardiovascular-risk/',
-  '/aortopathy/',
-  '/myocarditis/',
-  '/pals/',
-  '/genetics-chd/',
-  '/pedcardsurg/',
-  '/phs/',
-];
+/** Every cataloged PRODUCTION page opted into smoke coverage. */
+export const SITE_PAGES = siteCatalog.items
+  .filter((item) => item.class === 'PRODUCTION' && item.smoke && item.route)
+  .map((item) => item.route);
 
 /** Collects console errors, page errors and failed requests for a page. */
 export function watchForErrors(page) {
