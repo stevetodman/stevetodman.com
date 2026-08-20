@@ -3,3 +3,6 @@
 # Test tooling
 node_modules/
 package-lock.json
+
+# Generated deploy artifact
+/dist/
