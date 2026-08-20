@@ -20,7 +20,7 @@
     "test:pals": "node --test tests/pals-academy.test.mjs",
     "test:genetics-chd": "node --test tests/genetics-chd-academy.test.mjs",
     "test:pedcardsurg": "node --test tests/pedcardsurg-academy.test.mjs",
-    "test:smoke": "node --test tests/site-smoke.test.mjs tests/pin-sprint.test.mjs",
+    "test:smoke": "node --test tests/site-smoke.test.mjs tests/pin-sprint.test.mjs tests/education-platform.test.mjs",
     "test:integrity": "node phs/v17/tests/integrity.mjs"
   },
   "devDependencies": {
