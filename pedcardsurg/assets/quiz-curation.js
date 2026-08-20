@@ -162,6 +162,26 @@
     };
   }
 
+  const wardenProcedure=byId(11);
+  if(wardenProcedure){
+    Object.assign(wardenProcedure,{
+      q:'Which pulmonary venous anatomy is most appropriately repaired with a Warden procedure rather than a standard TAPVR repair?',
+      o:[
+        'Right upper pulmonary veins entering the high SVC with a superior sinus venosus ASD',
+        'All pulmonary veins joining a supracardiac confluence that drains through a vertical vein',
+        'All pulmonary veins draining to the coronary sinus through a common venous confluence',
+        'An isolated left upper pulmonary vein draining to the innominate vein without SVC involvement'
+      ],
+      a:0,
+      e:'The Warden procedure is designed for PAPVR entering the high SVC, usually with a superior sinus venosus ASD. It baffles anomalous pulmonary venous flow to the left atrium while reconnecting the SVC to the right atrial appendage. TAPVR instead requires connection of the pulmonary venous confluence to the left atrium.'
+    });
+    wardenProcedure.wrong={
+      1:'This is supracardiac TAPVR. Repair connects the common pulmonary venous confluence to the left atrium and addresses the vertical-vein pathway; a Warden procedure is not the standard repair.',
+      2:'This is cardiac TAPVR draining through the coronary sinus. The surgical goal is to establish normal pulmonary venous drainage to the left atrium, not to perform a high-SVC Warden repair.',
+      3:'This is a left-sided PAPVR pattern without high-SVC involvement. It may require another tailored repair strategy, but it does not evoke the classic Warden anatomy.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
