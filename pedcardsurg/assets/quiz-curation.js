@@ -197,6 +197,21 @@
     };
   }
 
+  const doubleAorticArch=byId(26);
+  if(doubleAorticArch){
+    doubleAorticArch.o=[
+      'Divide the non-dominant arch segment completing the ring and release airway/esophageal compression',
+      'Resect the dominant arch segment and reconstruct the remaining arch as the sole systemic outflow pathway',
+      'Perform posterior aortopexy as the initial operation without dividing either arch segment',
+      'Place an endovascular stent across one arch segment to enlarge the vascular ring'
+    ];
+    doubleAorticArch.wrong={
+      1:'The dominant arch supplies the primary systemic pathway and is usually preserved. Dividing the non-dominant arch breaks the ring while maintaining reliable systemic perfusion.',
+      2:'Posterior aortopexy can be considered for selected persistent airway compression or tracheobronchomalacia, but it does not by itself divide the vascular ring formed by a double aortic arch.',
+      3:'A double aortic arch is an external vascular ring rather than a focal intraluminal stenosis. Standard repair releases compression by surgical division of the non-dominant arch.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
