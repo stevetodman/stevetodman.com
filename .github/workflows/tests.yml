@@ -38,6 +38,11 @@ on:
       - 'index.html'
       - 'package.json'
       - 'package-lock.json'
+      - 'README.md'
+      - 'MASTER_PLAN.md'
+      - 'CLAUDE.md'
+      - 'DEPLOYMENT.md'
+      - 'PR_TRIAGE.md'
       - '.github/workflows/tests.yml'
   pull_request:
     paths:
@@ -74,6 +79,11 @@ on:
       - 'index.html'
       - 'package.json'
       - 'package-lock.json'
+      - 'README.md'
+      - 'MASTER_PLAN.md'
+      - 'CLAUDE.md'
+      - 'DEPLOYMENT.md'
+      - 'PR_TRIAGE.md'
       - '.github/workflows/tests.yml'
   workflow_dispatch:
 
