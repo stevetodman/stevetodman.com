@@ -108,6 +108,21 @@
     };
   }
 
+  const completeAvsd=byId(3);
+  if(completeAvsd){
+    completeAvsd.o=[
+      'A common atrioventricular junction with a shared atrioventricular valve',
+      'Separate atrioventricular junctions with independent mitral and tricuspid valves',
+      'A malaligned ventricular septum with aortic override and infundibular narrowing',
+      'Pulmonary venous return joining an atrial confluence before reaching the left atrium'
+    ];
+    completeAvsd.wrong={
+      1:'Separate atrioventricular junctions with distinct mitral and tricuspid valves describe the usual valve anatomy in an isolated ASD plus VSD, not complete AVSD.',
+      2:'Malalignment VSD, aortic override, and infundibular narrowing are the defining anatomic features of tetralogy of Fallot.',
+      3:'An extracardiac pulmonary venous confluence before left-atrial entry is characteristic of total anomalous pulmonary venous return.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
