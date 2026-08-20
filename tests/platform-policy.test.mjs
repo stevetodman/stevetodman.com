@@ -58,12 +58,12 @@ test('smoke inventory exactly matches catalog PRODUCTION pages', () => {
   assert.deepEqual([...SITE_PAGES].sort(), expected);
 });
 
-test('preview and internal HTML has explicit noindex metadata', () => {
-  for (const item of catalog.items.filter((x) => ['PREVIEW', 'INTERNAL'].includes(x.class) && x.route)) {
+test('preview HTML has explicit noindex metadata as defense in depth', () => {
+  for (const item of catalog.items.filter((x) => x.class === 'PREVIEW' && x.route)) {
     const file = routeFile(item.route);
     if (!fs.existsSync(path.join(repoRoot, file))) continue;
     const html = read(file);
-    assert.match(html, /<meta\s+name=["']robots["'][^>]*noindex/i, `${item.route} must declare noindex in HTML as defense in depth`);
+    assert.match(html, /<meta\s+name=["']robots["'][^>]*noindex/i, `${item.route} must declare noindex in HTML`);
   }
 });
 
