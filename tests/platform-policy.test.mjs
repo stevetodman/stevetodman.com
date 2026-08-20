@@ -72,6 +72,11 @@ test('classified build excludes repository/backend source and includes shared pl
     'steven-os/schema.sql',
     'tests',
   ]) assert.equal(fs.existsSync(path.join(dist, forbidden)), false, `${forbidden} leaked into deploy artifact`);
+
+  const kawasaki = fs.readFileSync(path.join(dist, 'kawasaki', 'index.html'), 'utf8');
+  assert.doesNotMatch(kawasaki, /https:\/\/unpkg\.com\//i, 'Kawasaki production artifact must not depend on unpkg');
+  assert.doesNotMatch(kawasaki, /id=["']codex-visualization-(?:floating-ui-core|floating-ui-dom|lucide)["']/i,
+    'optional visualization CDN loaders must be stripped from production');
 });
 
 test('StudyHub schema is versioned with RLS and no browser-role grants', () => {
