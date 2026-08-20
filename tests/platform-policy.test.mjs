@@ -69,6 +69,16 @@ test('classified build excludes repository/backend source', () => {
   ]) assert.equal(fs.existsSync(path.join(dist, forbidden)), false, `${forbidden} leaked into deploy artifact`);
 });
 
+test('StudyHub schema is versioned with RLS and no browser-role grants', () => {
+  const migration = read('study/supabase/migrations/20260819_create_studyhub_saves.sql');
+  assert.match(migration, /alter table studyhub\.saves enable row level security/i);
+  assert.match(migration, /revoke all on schema studyhub from anon/i);
+  assert.match(migration, /revoke all on schema studyhub from authenticated/i);
+  assert.match(migration, /revoke all on table studyhub\.saves from anon/i);
+  assert.match(migration, /revoke all on table studyhub\.saves from authenticated/i);
+  assert.equal(/create\s+policy/i.test(migration), false, 'direct anon/auth policies must not be added to StudyHub saves');
+});
+
 test('smoke inventory exactly matches catalog PRODUCTION pages', () => {
   const expected = catalog.items
     .filter((item) => item.class === 'PRODUCTION' && item.smoke && item.route)
