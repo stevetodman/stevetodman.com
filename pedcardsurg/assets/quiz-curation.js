@@ -138,6 +138,21 @@
     };
   }
 
+  const criticalCoarctation=byId(6);
+  if(criticalCoarctation){
+    criticalCoarctation.o=[
+      'Treat presumed sepsis with fluid boluses and defer prostaglandin until diagnostic studies are complete',
+      'Begin prostaglandin E1 to maintain ductal patency while preparing definitive arch repair',
+      'Perform balloon atrial septostomy to improve interatrial mixing and systemic oxygen delivery',
+      'Administer indomethacin to reduce ductal flow and limit pulmonary overcirculation'
+    ];
+    criticalCoarctation.wrong={
+      0:'Sepsis evaluation and cautious resuscitation may be appropriate, but a critically ill neonate with suspected ductal-dependent systemic flow should receive prostaglandin without waiting for a complete diagnostic workup.',
+      2:'Balloon atrial septostomy is used to improve mixing in selected lesions such as d-TGA. It does not restore lower-body systemic flow across a critically obstructed arch.',
+      3:'Indomethacin promotes ductal constriction. In critical coarctation, the ductus may supply essential systemic blood flow, so it should be maintained rather than closed.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
