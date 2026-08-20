@@ -7,20 +7,24 @@
   <meta name="description" content="Privacy practices for stevetodman.com and StudyHub.">
   <title>Privacy | Steve Todman, MD</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
-  <style>*{box-sizing:border-box}body{margin:0;background:#f7f9fc;color:#172033;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.68}.wrap{width:min(800px,calc(100% - 32px));margin:0 auto}.hero{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:44px 0}.hero a{color:#9ee7e3}.hero h1{font-size:clamp(2.2rem,7vw,3.7rem);margin:16px 0 5px}.content{padding:36px 0 56px}.content h2{margin-top:30px}.content p,.content li{color:#3d4b60}.note{background:#eef5ff;border-left:4px solid #2b6cb0;padding:14px 16px;border-radius:10px}.footer{border-top:1px solid #dbe3ef;padding:22px 0 36px;color:#607086}.footer a{color:#234f84}a:focus-visible{outline:3px solid #00a9a5;outline-offset:3px}</style>
+  <link rel="stylesheet" href="/site/platform.css">
+  <style>*{box-sizing:border-box}body{margin:0;background:#f7f9fc;color:#172033;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.68}.wrap{width:min(800px,calc(100% - 32px));margin:0 auto}.hero{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:44px 0}.hero a{color:#9ee7e3}.hero h1{font-size:clamp(2.2rem,7vw,3.7rem);margin:16px 0 5px}.content{padding:36px 0 56px}.content h2{margin-top:30px}.content p,.content li{color:#3d4b60}.note{background:#eef5ff;border-left:4px solid #2b6cb0;padding:14px 16px;border-radius:10px}.footer{border-top:1px solid #dbe3ef;padding:22px 0 36px;color:#607086}.footer a{color:#234f84}</style>
 </head>
 <body>
-<header class="hero"><div class="wrap"><a href="/">← Home</a><h1>Privacy</h1><p>Minimal collection by design.</p></div></header>
-<main class="content"><div class="wrap">
+<header class="hero"><div class="wrap platform-wrap"><a href="/">← Home</a><h1>Privacy</h1><p>Minimal collection by design.</p></div></header>
+<main class="content"><div class="wrap platform-wrap">
   <h2>Search visibility</h2>
-  <p>The site is intentionally configured not to be indexed by search engines. Direct links still work.</p>
+  <p>The site is intentionally configured not to be indexed by search engines. Direct links still work. Public pages remain crawlable only so search engines can observe the site's <code>noindex</code> response and remove already-discovered URLs.</p>
 
   <h2>Accounts and advertising</h2>
   <p>The public educational pages do not require a user account. The site does not include advertising pixels or an advertising network.</p>
 
   <h2>StudyHub</h2>
   <p>StudyHub stores game progress locally in the browser. Cross-device save uses a high-entropy family token held by the participating devices; the server stores a hash of that token rather than the plaintext token. There is no email/password sign-in for the family save.</p>
-  <p class="note"><strong>Keep private share links private.</strong> Whoever has the family sync token can access that family save. Do not post a StudyHub share link in a public issue or message.</p>
+  <p class="note platform-note"><strong>Keep private share links private.</strong> Whoever has the family sync token can access that family save. Do not post a StudyHub share link in a public issue or message.</p>
+
+  <h2>Resident learning progress</h2>
+  <p>The resident-education hub can remember the last module selected so a learner can continue later. That value stays in browser localStorage and contains only the module route, module title, and save time. It is not a user account and is not sent to a server.</p>
 
   <h2>Analytics</h2>
   <p>The repository defines a privacy-first analytics policy. Cloudflare Web Analytics may be enabled for aggregate page/performance measurement. Custom behavioral events are disabled unless a same-origin endpoint, retention policy, and constrained event schema are explicitly approved.</p>
@@ -31,6 +35,6 @@
   <h2>Internal areas</h2>
   <p>Administrative/control-plane routes are classified separately from public content and are intended to require Cloudflare Access or deployment exclusion.</p>
 </div></main>
-<footer class="footer"><div class="wrap"><a href="/about/">About</a> · <a href="/contact/">Contact</a> · <a href="/search/">Search this site</a></div></footer>
+<footer class="footer platform-footer"><div class="wrap platform-wrap"><a href="/about/">About</a> · <a href="/contact/">Contact</a> · <a href="/search/">Search this site</a></div></footer>
 </body>
 </html>
