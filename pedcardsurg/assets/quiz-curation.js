@@ -43,6 +43,21 @@
     };
   }
 
+  const rossProcedure=byId(23);
+  if(rossProcedure){
+    rossProcedure.o=[
+      'The patient’s pulmonary autograft',
+      'A cryopreserved pulmonary homograft',
+      'A mechanical prosthetic aortic valve',
+      'A stented bioprosthetic aortic valve'
+    ];
+    rossProcedure.wrong={
+      1:'A pulmonary homograft commonly reconstructs the RV outflow tract after the native pulmonary root has been moved. It does not become the new aortic valve in a Ross procedure.',
+      2:'A mechanical prosthesis is an alternative form of aortic valve replacement, but implanting one is not a Ross procedure.',
+      3:'A stented bioprosthesis is also an alternative aortic valve replacement strategy, not the defining autograft transfer of a Ross procedure.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
