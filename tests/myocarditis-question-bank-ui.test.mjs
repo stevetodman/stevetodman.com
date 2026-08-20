@@ -25,6 +25,13 @@ async function openBank() {
   return { context, page, errors };
 }
 
+async function answerFirstDisplayedOptionForEveryQuestion(page) {
+  const questions = page.locator('.bank-question');
+  for (let index = 0; index < await questions.count(); index += 1) {
+    await questions.nth(index).locator('input[type="radio"]').first().check();
+  }
+}
+
 describe('database-backed myocarditis question bank', () => {
   test('loads the editorial manifest and six core stacks', async () => {
     const { context, page, errors } = await openBank();
@@ -123,6 +130,42 @@ describe('database-backed myocarditis question bank', () => {
       await firstFieldset.locator('.bank-result-line').innerText(),
       `Incorrect — you chose ${selectedLetter}; the best answer is ${correctLetter}.`
     );
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  test('retake hides prior feedback and guarantees a different displayed option order', async () => {
+    const { context, page, errors } = await openBank();
+    await page.locator('#start-stack').click();
+    const firstQuestion = page.locator('.bank-question').first();
+    const before = await firstQuestion.locator('input[type="radio"]').evaluateAll(nodes => nodes.map(node => node.value));
+
+    await answerFirstDisplayedOptionForEveryQuestion(page);
+    await page.locator('#bank-form button[type="submit"]').click();
+    assert.equal(await page.locator('.bank-feedback').count(), 10);
+    await page.getByRole('button', { name: 'Retake with reshuffled choices' }).click();
+
+    const after = await page.locator('.bank-question').first().locator('input[type="radio"]').evaluateAll(nodes => nodes.map(node => node.value));
+    assert.notDeepEqual(after, before);
+    assert.equal(await page.locator('.bank-feedback').count(), 0);
+    assert.equal(await page.locator('.bank-objective').count(), 0);
+    assert.equal(await page.locator('.bank-question input:disabled').count(), 0);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  test('load next stack advances the selector and renders the next ten-question stack', async () => {
+    const { context, page, errors } = await openBank();
+    await page.locator('#stack-select').selectOption('stack-01.json');
+    await page.locator('#start-stack').click();
+    await answerFirstDisplayedOptionForEveryQuestion(page);
+    await page.locator('#bank-form button[type="submit"]').click();
+    await page.getByRole('button', { name: 'Load next stack' }).click();
+
+    await page.locator('.bank-stack-heading .kicker').filter({ hasText: 'Stack 2' }).waitFor();
+    assert.equal(await page.locator('#stack-select').inputValue(), 'stack-02.json');
+    assert.equal(await page.locator('.bank-question').count(), 10);
+    assert.equal(await page.locator('.bank-feedback').count(), 0);
     assert.deepEqual(errors, []);
     await context.close();
   });
