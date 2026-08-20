@@ -99,6 +99,27 @@ function walk(dir) {
 }
 walk(dist);
 
+// Search privacy is a deployment invariant, not merely a Cloudflare-header
+// assumption. Some legacy source pages predate the direct-link-only policy and
+// still carry explicit `index,follow` metadata. Normalize every deployable HTML
+// document to noindex in dist/ so a missing/misapplied response header cannot
+// silently opt a page into indexing. The X-Robots-Tag remains the primary
+// site-wide control; this is defense in depth.
+const noindexMeta = '<meta name="robots" content="noindex, nofollow, noarchive">';
+const robotsMeta = /<meta\b(?=[^>]*\bname=["']robots["'])[^>]*>/i;
+for (const relative of files.filter((file) => file.endsWith('.html'))) {
+  const file = path.join(dist, relative);
+  let html = fs.readFileSync(file, 'utf8');
+  if (robotsMeta.test(html)) {
+    html = html.replace(robotsMeta, noindexMeta);
+  } else {
+    const withMeta = html.replace(/<head(?:\s[^>]*)?>/i, (head) => `${head}\n${noindexMeta}`);
+    if (withMeta === html) throw new Error(`HTML document missing <head>; cannot enforce noindex: ${relative}`);
+    html = withMeta;
+  }
+  fs.writeFileSync(file, html);
+}
+
 const forbidden = catalog.items.filter((x) => x.class === 'SOURCE_ONLY' && x.path).map((x) => x.path.replace(/\/$/, ''));
 for (const prefix of forbidden) {
   if (files.some((f) => f === prefix || f.startsWith(prefix + '/'))) throw new Error(`SOURCE_ONLY path leaked into dist: ${prefix}`);
