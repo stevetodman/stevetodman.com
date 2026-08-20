@@ -1,6 +1,6 @@
 ---
 status: active
-next: Validate PR #37 and fix any branch regressions; then complete Cloudflare issue #38, search de-indexing issue #40, and StudyHub live acceptance issue #39
+next: Merge PR #37 when authorized; then complete Cloudflare issue #38, search de-indexing issue #40, StudyHub live acceptance issue #39, and evidence issues #41-#42
 ---
 
 # CLAUDE.md
@@ -30,9 +30,7 @@ Required controls:
 - PREVIEW and INTERNAL pages remain noindex even if the public-site policy changes later.
 - INTERNAL pages require Cloudflare Access/equivalent protection; `noindex` is not authentication.
 
-The site already had indexed results before this policy was introduced. Issue #40 tracks removal/verification in Google and Bing after the response header is live.
-
-Do not add SEO-oriented sitemap/indexing changes by default.
+The site had indexed results before this policy was introduced. Issue #40 tracks removal/verification after the noindex response header is live.
 
 ## Deployment classes
 
@@ -66,7 +64,7 @@ generates `dist/`. Cloudflare Pages should use:
 - output directory: `dist`
 - production branch: `main`
 
-The classified build excludes backend/developer/source-only material, including StudyHub Edge Function source, `cardio-hospital-3d/`, `clipboard-sanitizer/`, Steven OS backend code, and tests.
+The classified build excludes backend/developer/source-only material, including StudyHub Edge Function source, `cardio-hospital-3d/`, `clipboard-sanitizer/`, Steven OS backend code, and tests. Kawasaki's optional legacy CDN visualization loaders are also stripped from the production artifact and protected by a platform-policy test.
 
 See `DEPLOYMENT.md` before changing Cloudflare settings.
 
@@ -75,12 +73,12 @@ See `DEPLOYMENT.md` before changing Cloudflare settings.
 ### Platform/navigation
 
 - `/` — curated homepage
-- `/education/` — resident-education hub
+- `/education/` — resident-education hub with local-only Continue Learning
 - `/about/` — verified-facts About page
 - `/contact/` — correction/security/contact routing; never a patient communication channel
 - `/privacy/` — privacy and StudyHub cloud-save explanation
 - `/search/` — local catalog search; does not make content search-engine discoverable
-- `site/` — catalog, analytics policy/event schema, performance budgets, provenance metadata
+- `site/` — catalog, shared platform assets, analytics policy/event schema, performance budgets, provenance metadata
 - `clinical/` — clinical review registry + curriculum coverage map
 
 ### Clinical education/tools
@@ -153,6 +151,8 @@ npm install
 npx playwright install --with-deps chromium
 ```
 
+The lockfile is not currently synchronized closely enough for CI to use `npm ci`; do not switch CI to `npm ci` until package metadata is deliberately reconciled and validated.
+
 Important commands:
 
 ```sh
@@ -174,13 +174,13 @@ npm run build
 npm run verify:production
 ```
 
-CI is intentionally non-omitting: later suites use `if: ${{ !cancelled() }}` so a failure in an earlier academy does not silently skip smoke/accessibility coverage. The job should still fail overall when a suite fails.
+CI is intentionally non-omitting: later suites use `if: ${{ !cancelled() }}` so a failure in an earlier academy does not silently skip smoke/accessibility coverage. The job still fails overall when a suite fails. JavaScript syntax checking includes platform `site/` and `scripts/` code, and `scripts/**` changes trigger CI.
 
-### Test-design rule worth preserving
+### Test-design rules worth preserving
 
-Never derive a quiz's expected answer from the same DOM that is being tested. A Boss Battle once displayed the answer on screen and still passed because the test scraped that displayed answer. Expected answers must come from independent fixture/domain data.
-
-Kawasaki's browser regression follows this rule explicitly.
+- Never derive a quiz's expected answer from the same DOM that is being tested. Expected answers must come from independent fixture/domain data.
+- For asynchronously loaded images, wait for the expected `currentSrc`, `complete`, and nonzero `naturalWidth` rather than asserting immediately after a UI click.
+- For layered SVG/touch targets, exercise the actual topmost finger target; do not force-click a transparent lower overlay that real pointer hit-testing would not receive.
 
 ## StudyHub cloud save
 
@@ -235,6 +235,8 @@ At the end of every substantive session:
 4. if a manual/external action remains, create a durable GitHub issue/checklist or document it in `DEPLOYMENT.md` / `study/CLOUD_SAVE_ACCEPTANCE.md`;
 5. ensure the active branch/PR is named in the handoff.
 
+For large-file recovery or surgery, prefer Git blob/tree commits over whole-file replacement when connector output may truncate. A prior interrupted whole-file write truncated the PedCardSurg test; it was recovered by pointing the branch tree at the exact intact blob before applying the intended small test change.
+
 Detailed pre-consolidation history remains available in git history (the prior verbose `CLAUDE.md` blob is `5701cd40f79cd4196df6d6399a869652f5c75355`). Do not recreate a giant chronological log here.
 
 ---
@@ -244,70 +246,59 @@ Detailed pre-consolidation history remains available in git history (the prior v
 ### Active program
 
 **Branch:** `agent/platform-hardening-master-plan`  
-**PR:** #37 — draft, active validation
+**PR:** #37 — repo-side implementation complete; validated green; merge requires Steve's explicit authorization
 
-Goal: convert the large collection of good projects into a coherent, maintained platform while keeping the entire site out of search-engine results for now.
+Goal: convert the collection of projects into a coherent, maintained platform while keeping the site out of search-engine results for now.
 
-### Repo-side work already implemented on this branch
+### Validated repo-side state
 
-- `MASTER_PLAN.md` with interruption-safe resume protocol and synchronized phase checklist.
+The final full GitHub Actions code-validation run passed all three jobs and every invoked suite:
+
+- platform deployment/privacy/governance/provenance/performance policy;
+- Steven OS policy/routing;
+- dependency install, JavaScript syntax, and case integrity;
+- PHS behavior, responsive/audit regression, and clinical validation;
+- BP calculator;
+- Kawasaki;
+- hypertension;
+- cardiovascular prevention;
+- aortopathy;
+- Myocarditis;
+- PALS;
+- genetics of CHD;
+- PedCardSurg;
+- full site conventions/smoke including StudyHub Pin Sprint and local Continue Learning;
+- shared-platform accessibility.
+
+Do not reintroduce old handoff notes that Myocarditis/PALS/PedCardSurg are failing; those issues were resolved/robustly tested during PR #37 validation.
+
+### Repo-side work delivered in PR #37
+
+- `MASTER_PLAN.md` with interruption-safe resume protocol.
 - global noindex + security headers, crawlable robots policy, custom 404, and security.txt.
-- canonical deployment catalog with PRODUCTION / PREVIEW / INTERNAL / SOURCE_ONLY classes.
-- deterministic `npm run build` -> `dist/` that strips source-only/backend material.
-- live `npm run verify:production` and manual Production Verification workflow.
-- homepage reorganization; `/education/`, `/about/`, `/contact/`, `/privacy/`, `/search/`.
-- clinical content registry + curriculum map + correction issue form.
-- CI path-trigger expansion and execution of every existing clinical behavioral suite.
-- Kawasaki browser regression suite with independent expected-answer fixture.
-- shared-platform axe accessibility baseline.
-- performance budgets and asset-provenance enforcement.
-- weekly external-link rot checker.
-- StudyHub database migration with RLS/browser grants locked down in source control.
-- real-device StudyHub cloud-save acceptance checklist.
-- privacy-first analytics policy and disabled-by-default custom-event schema/helper.
-- PR triage; PR #2 closed as superseded by #3.
+- canonical deployment catalog and deterministic classified `dist/` build.
+- production verifier/workflow.
+- curated homepage plus `/education/`, `/about/`, `/contact/`, `/privacy/`, `/search/`.
+- local-only Continue Learning.
+- clinical content registry, curriculum map, correction issue form, freshness checks.
+- complete CI path/suite coverage, Kawasaki regression, smoke/accessibility, performance budgets, provenance checks, weekly link checking.
+- StudyHub schema migration with RLS/browser-role revocation and real-device cloud-save acceptance checklist.
+- privacy-first analytics policy with custom telemetry disabled by default.
+- PR triage and stale-handoff cleanup.
 
-### Durable external/manual gates
+### Durable remaining gates — do these after PR #37 lands
 
-- **#38** — Cloudflare `npm run build` / `dist` cutover + Access for `/admin/*`, `/steven-os/*`, `/cardiohospital/*` + production verifier.
-- **#39** — live StudyHub migration verification, edge rate limiting/monitoring, and two-device/offline acceptance.
-- **#40** — remove already-indexed stevetodman.com URLs from Google/Bing after live noindex deployment.
-
-### Current PR #37 validation findings
-
-The first broadened Actions run proved the new workflow is no longer hiding suites:
-
-- platform policy: passed;
-- Steven OS core: passed;
-- PHS behavior: passed;
-- PHS v18 audit/responsive regression: passed (the old tablet-overflow baseline note is stale and should not be carried forward);
-- clinical validation: passed;
-- BP calculator: passed;
-- Kawasaki: passed;
-- hypertension: passed;
-- cardiovascular-risk: passed;
-- aortopathy: passed;
-- genetics of CHD: passed;
-- Myocarditis: failed;
-- PALS: failed;
-- PedCardSurg: failed;
-- smoke/accessibility were still running when later branch updates restarted CI.
-
-Myocarditis, PALS, and PedCardSurg application files were not changed by this platform branch. Verify their failures against clean/current `main` and fix genuinely broken tests/product behavior, but do not remove the suites from CI just to make the job green. PedCardSurg had a previously observed full-suite WebP timing flake; Myocarditis had prior failures. PALS is newly surfaced by honest CI and must be investigated rather than assumed baseline.
-
-### Next gates, in order
-
-1. Finish the remaining repo-side items in `MASTER_PLAN.md` (shared static platform primitives + lightweight local “Continue learning”), then let the newest PR #37 CI run to completion.
-2. Investigate Myocarditis/PALS/PedCardSurg failures against clean `main`; fix real defects or document reproducible pre-existing baseline with evidence.
-3. Mark PR #37 ready/merge when branch-introduced changes are clean and any remaining unrelated baseline is explicitly evidenced.
-4. Complete Cloudflare issue #38 and run production verification.
-5. Complete search-result removal issue #40.
-6. Complete StudyHub issue #39.
-7. Only after the platform is stable: observe Pin Sprint/States play before adding more Road Trip/region/mystery mechanics.
+1. **#38 Cloudflare cutover** — set Pages build command to `npm run build`, output to `dist`, protect `/admin/*`, `/steven-os/*`, `/cardiohospital/*` with Access, then run production verification.
+2. **#40 Search removal** — once global live `noindex` is verified, remove/verify already-indexed stevetodman.com results in Google/Bing. Keep public crawling allowed; do not add `Disallow: /`.
+3. **#39 StudyHub live acceptance** — verify/apply live migration and endpoint controls, rate limiting/monitoring, then perform phone A -> share link -> phone B -> bidirectional/offline acceptance.
+4. **#41 Asset provenance** — fill unknown source/license records only from real evidence.
+5. **#42 Clinical review metadata** — fill review dates/sign-off only from real evidence.
+6. After #37 lands, reassess/rebase the long-lived Cardio Hospital PR stack using `PR_TRIAGE.md`.
+7. After platform/live gates are stable, observe Pin Sprint/States play before adding more Road Trip/region/mystery mechanics.
 
 ### External-tool limitation
 
-No Cloudflare Pages or Supabase management plugin is connected in the current agent environment. The repository-side configuration and verification are implemented, but the live Cloudflare build/output/Access switches and live Supabase administrative settings cannot be changed from this environment. Do not claim they are active until production verification/acceptance proves them.
+No Cloudflare Pages or Supabase management plugin is connected in the current agent environment. Repository configuration/verification is implemented, but live Cloudflare build/output/Access switches and live Supabase administrative settings cannot be claimed active until production verification/acceptance proves them.
 
 ### Separate repository task
 
