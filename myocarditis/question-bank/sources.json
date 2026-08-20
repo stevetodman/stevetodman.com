@@ -2,42 +2,155 @@
   "AHA_MYOCARDITIS_2021": {
     "title": "Diagnosis and Management of Myocarditis in Children: A Scientific Statement From the American Heart Association",
     "authors": "Law YM, Lal AK, Chen S, et al.",
+    "organization": "American Heart Association",
     "journal": "Circulation",
     "year": 2021,
     "doi": "10.1161/CIR.0000000000001001",
-    "use": ["diagnosis", "echocardiography", "CMR", "arrhythmias", "triage", "advanced support", "follow-up", "exercise restriction"]
+    "pmid": "34229446",
+    "population": "pediatric",
+    "role": "primary pediatric myocarditis anchor",
+    "last_verified": "2026-08-20"
+  },
+  "AHA_PALS_2025": {
+    "title": "Part 8: Pediatric Advanced Life Support: 2025 American Heart Association and American Academy of Pediatrics Guidelines for Cardiopulmonary Resuscitation and Emergency Cardiovascular Care",
+    "authors": "Lasa JJ, Dhillon GS, Duff JP, et al.",
+    "organization": "American Heart Association; American Academy of Pediatrics",
+    "journal": "Circulation",
+    "year": 2025,
+    "doi": "10.1161/CIR.0000000000001368",
+    "pmid": "41122885",
+    "population": "pediatric",
+    "role": "acute arrhythmia, myocarditis/cardiomyopathy pre-arrest recognition, ICU transfer, ECMO/MCS",
+    "last_verified": "2026-08-20"
+  },
+  "AHA_PED_ADHF_2026": {
+    "title": "Evaluation and Management of the Child With Acute Decompensated Heart Failure: A Scientific Statement From the American Heart Association",
+    "authors": "Cabrera AG, Price JF, Hong BJ, et al.",
+    "organization": "American Heart Association",
+    "journal": "Circulation",
+    "year": 2026,
+    "doi": "10.1161/CIR.0000000000001428",
+    "pmid": "41937629",
+    "population": "pediatric",
+    "role": "acute heart failure assessment, hemodynamic phenotyping, escalation and discharge planning",
+    "last_verified": "2026-08-20"
   },
   "AHA_FULMINANT_2020": {
     "title": "Recognition and Initial Management of Fulminant Myocarditis: A Scientific Statement From the American Heart Association",
     "authors": "Kociol RD, Cooper LT Jr, Fang JC, et al.",
+    "organization": "American Heart Association",
     "journal": "Circulation",
     "year": 2020,
     "doi": "10.1161/CIR.0000000000000745",
-    "use": ["fulminant myocarditis", "cardiogenic shock", "arrhythmia", "mechanical circulatory support", "endomyocardial biopsy"]
+    "population": "predominantly adult with principles relevant to advanced pediatric care",
+    "role": "fulminant myocarditis, cardiogenic shock, EMB, advanced-center transfer and MCS",
+    "last_verified": "2026-08-20"
   },
-  "PEDIATRIC_MYOCARDITIS_REVIEW_2020": {
-    "title": "Diagnosis, Evaluation, and Treatment of Myocarditis in Children",
-    "authors": "Putschoegl A, Auerbach SR",
-    "journal": "Pediatric Clinics of North America",
-    "year": 2020,
-    "use": ["clinical recognition", "biomarkers", "ECG", "echocardiography", "CMR"]
+  "FERREIRA_LLC_2018": {
+    "title": "Cardiovascular Magnetic Resonance in Nonischemic Myocardial Inflammation: Expert Recommendations",
+    "authors": "Ferreira VM, Schulz-Menger J, Holmvang G, et al.",
+    "journal": "Journal of the American College of Cardiology",
+    "year": 2018,
+    "role": "updated Lake Louise CMR criteria",
+    "population": "predominantly adult; diagnostic framework used with pediatric-specific caution",
+    "last_verified": "2026-08-20"
   },
   "PED_CMR_GUIDANCE": {
     "title": "Guidelines for cardiovascular magnetic resonance imaging in pediatric congenital and acquired heart disease",
-    "use": ["CMR tissue characterization", "myocardial edema", "late gadolinium enhancement", "ischemic vs nonischemic injury"]
+    "population": "pediatric",
+    "role": "pediatric CMR indications, tissue characterization, pediatric limitations, ischemic vs nonischemic injury",
+    "last_verified": "2026-08-20",
+    "note": "Bibliographic metadata requires final human source-library normalization before publication."
+  },
+  "ESC_IMPS_2025": {
+    "title": "2025 ESC Guidelines for the management of myocarditis and pericarditis",
+    "authors": "Schulz-Menger J, Collini V, Groschel J, et al.",
+    "organization": "European Society of Cardiology; endorsed by AEPC and EACTS",
+    "journal": "European Heart Journal",
+    "year": 2025,
+    "doi": "10.1093/eurheartj/ehaf192",
+    "population": "adult and pediatric-relevant; AEPC-endorsed",
+    "role": "current terminology, CMR, EMB, follow-up, physical activity, specific etiologies",
+    "last_verified": "2026-08-20"
+  },
+  "ACC_MYOCARDITIS_2024": {
+    "title": "2024 ACC Expert Consensus Decision Pathway on Strategies and Criteria for the Diagnosis and Management of Myocarditis",
+    "authors": "Drazner MH, Bozkurt B, Cooper LT, et al.",
+    "organization": "American College of Cardiology",
+    "journal": "Journal of the American College of Cardiology",
+    "year": 2025,
+    "doi": "10.1016/j.jacc.2024.10.080",
+    "pmid": "39665703",
+    "population": "adult",
+    "role": "contemporary adult overlay only: phenotype, risk, genetics, longitudinal follow-up",
+    "last_verified": "2026-08-20"
+  },
+  "ALCAPA_PATEL_2017": {
+    "title": "Echocardiographic Diagnosis, Surgical Treatment, and Outcomes of Anomalous Left Coronary Artery from the Pulmonary Artery",
+    "authors": "Patel S, et al.",
+    "journal": "Journal of the American Society of Echocardiography",
+    "year": 2017,
+    "population": "pediatric",
+    "role": "ALCAPA presentation, including later childhood presentation, and echocardiographic clues",
+    "last_verified": "2026-08-20"
   },
   "PED_ARRHYTHMIA_OUTCOMES": {
     "title": "Usefulness of arrhythmias as predictors of death and resource utilization in children with myocarditis",
     "authors": "Anderson BR, et al.",
     "journal": "American Journal of Cardiology",
     "year": 2014,
-    "use": ["tachyarrhythmia risk", "prognosis"]
+    "population": "pediatric",
+    "role": "arrhythmia risk and resource utilization",
+    "last_verified": "2026-08-20"
   },
-  "ECMO_REGISTRY_PED_MYOCARDITIS": {
-    "title": "Extracorporeal membrane oxygenation for the support of infants, children, and young adults with acute myocarditis: a review of the ELSO registry",
-    "authors": "Rajagopal S, et al.",
-    "journal": "Critical Care Medicine",
-    "year": 2010,
-    "use": ["ECMO", "refractory cardiogenic shock", "bridge to recovery or transplantation"]
+  "EMB_REGISTRY_2024": {
+    "title": "Endomyocardial biopsy: safety and prognostic utility in paediatric and adult myocarditis in the ESC EURObservational Research Programme Cardiomyopathy and Myocarditis Long-Term Registry",
+    "authors": "Caforio ALP, et al.",
+    "journal": "European Heart Journal",
+    "year": 2024,
+    "population": "adult and pediatric registry",
+    "role": "EMB safety, pediatric CMR limitations, biopsy-proven disease",
+    "last_verified": "2026-08-20"
+  },
+  "ECMO_PED_MYOCARDITIS_2021": {
+    "title": "Left Heart Decompression on Veno-Arterial Extracorporeal Membrane Oxygenation in Children With Dilated Cardiomyopathy and Myocarditis: An Extracorporeal Life Support Organization Registry Review",
+    "authors": "Choudhury TA, Ofori-Amanfo G, Choi J, et al.",
+    "journal": "Pediatric Critical Care Medicine",
+    "year": 2021,
+    "doi": "10.1097/PCC.0000000000002775",
+    "pmid": "34054118",
+    "population": "pediatric",
+    "role": "ECMO and left-heart decompression evidence; advanced-content reference rather than core ABP procedural target",
+    "last_verified": "2026-08-20"
+  },
+  "ECMO_PED_OUTCOMES_2024": {
+    "title": "Contemporary Outcomes of Children With Acute Fulminant Myocarditis Supported With Peripheral Extracorporeal Membrane Oxygenation",
+    "authors": "Kobayashi RL, et al.",
+    "journal": "ASAIO Journal",
+    "year": 2024,
+    "doi": "10.1097/MAT.0000000000002103",
+    "population": "pediatric",
+    "role": "bridge-to-recovery and contemporary fulminant myocarditis ECMO outcomes",
+    "last_verified": "2026-08-20"
+  },
+  "IVIG_META_2026": {
+    "title": "Effect of intravenous immunoglobulin and steroids in acute myocarditis in children: a systematic review and network meta-analysis",
+    "authors": "Thai TBT, Kang YN, Nguyen HS, et al.",
+    "journal": "Pediatric Research",
+    "year": 2026,
+    "doi": "10.1038/s41390-025-04655-0",
+    "pmid": "41667850",
+    "population": "pediatric",
+    "role": "evolving observational/meta-analytic IVIG and steroid evidence; does not establish a universal regimen",
+    "last_verified": "2026-08-20"
+  },
+  "IVIG_PHIS_2026": {
+    "title": "Comparative Effectiveness of Intravenous Immunoglobulin vs Steroids in the Treatment of Pediatric Acute (non-COVID) Myocarditis",
+    "authors": "Kanyo I, et al.",
+    "journal": "The Journal of Pediatrics",
+    "year": 2026,
+    "population": "pediatric observational cohort",
+    "role": "contemporary comparative effectiveness signal; residual confounding limits causal claims",
+    "last_verified": "2026-08-20"
   }
 }
