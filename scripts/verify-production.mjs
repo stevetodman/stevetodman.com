@@ -23,14 +23,18 @@ const robots = await get('/robots.txt');
 check(robots.response.status === 200, `/robots.txt returned ${robots.response.status}`);
 check(/User-agent:\s*\*/i.test(robots.text) && /Disallow:\s*\//i.test(robots.text), 'robots.txt does not disallow crawling');
 
-for (const path of ['/study/us-states.html', '/education/', '/tools/']) {
+for (const path of ['/study/us-states.html', '/education/', '/contact/', '/privacy/', '/tools/']) {
   const r = await get(path);
   check(r.response.status === 200, `${path} returned ${r.response.status}`);
   check(/noindex/i.test(r.response.headers.get('x-robots-tag') || ''), `${path} is missing noindex response header`);
 }
 
 // INTERNAL surfaces must not be anonymously readable as their real application.
-for (const [path, marker] of [['/admin/', '<h1>Admin</h1>'], ['/steven-os/', '<h1>Steven OS</h1>']]) {
+for (const [path, marker] of [
+  ['/admin/', '<h1>Admin</h1>'],
+  ['/steven-os/', '<h1>Steven OS</h1>'],
+  ['/cardiohospital/', 'Cardio Hospital — 3D Development Preview'],
+]) {
   const r = await get(path);
   const exposed = r.response.status === 200 && r.text.includes(marker);
   check(!exposed, `${path} is anonymously serving its internal application; Cloudflare Access/exclusion is not effective`);
