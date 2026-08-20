@@ -97,12 +97,14 @@ or trigger the **Production verification** GitHub workflow.
 
 It must verify:
 
-1. global noindex/security headers;
-2. crawler access remains compatible with the noindex directive;
-3. public canonical routes return 200;
-4. internal routes are not anonymously readable;
-5. SOURCE_ONLY routes return 404;
-6. custom 404 behavior works.
+1. global `X-Robots-Tag: noindex, nofollow, noarchive` and security headers;
+2. deployed public HTML carries `meta name="robots"` with `noindex`, `nofollow`, and `noarchive`;
+3. crawler access remains compatible with the noindex directive;
+4. no `/sitemap.xml` is published while direct-link-only mode is active;
+5. public canonical routes return 200;
+6. internal routes are not anonymously readable;
+7. SOURCE_ONLY routes return 404;
+8. custom 404 behavior works.
 
 Do not schedule the production verifier automatically until the initial cutover passes.
 
