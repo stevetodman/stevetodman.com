@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "families": [
+    {
+      "pathPrefix": "pedcardsurg/assets/chd-atlas/",
+      "description": "CHD surgical atlas full-resolution PNGs and web-optimized WebP derivatives.",
+      "status": "needs-source-and-license-record",
+      "notes": "Do not infer a license from repository presence. Record source/creator and permitted use before external redistribution beyond the current site."
+    },
+    {
+      "pathPrefix": "study/icons/",
+      "description": "StudyHub / 50 States application icons.",
+      "status": "needs-generation-provenance-record",
+      "notes": "Record how the icon artwork was generated or derived before external redistribution."
+    },
+    {
+      "pathPrefix": "math/assets/favicon.svg",
+      "description": "Math Lab favicon.",
+      "status": "repository-asset",
+      "notes": "Small local UI asset; source provenance should remain with project documentation if replaced."
+    }
+  ],
+  "policy": "New production binary/image asset families must be added here. Unknown provenance is recorded as unknown rather than guessed."
+}
