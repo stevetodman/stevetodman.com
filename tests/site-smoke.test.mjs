@@ -78,7 +78,7 @@ async function inspectPage(pagePath, viewport) {
   return { status: response?.status(), errors: [...new Set(errors)], ...info };
 }
 
-describe('every page loads cleanly', () => {
+describe('every page loads cleanly', { concurrency: 6 }, () => {
   for (const pagePath of SITE_PAGES) {
     test(pagePath, async () => {
       const r = await inspect(pagePath);
@@ -138,7 +138,7 @@ describe('internal links resolve', () => {
   });
 });
 
-describe('mobile layout', () => {
+describe('mobile layout', { concurrency: 6 }, () => {
   for (const pagePath of SITE_PAGES) {
     test(`${pagePath} does not scroll horizontally at 375px`, async () => {
       const r = await inspect(pagePath, { width: 375, height: 812 });
@@ -148,7 +148,7 @@ describe('mobile layout', () => {
   }
 });
 
-describe('study tools are keyboard operable', () => {
+describe('study tools are keyboard operable', { concurrency: 4 }, () => {
   // Regression: mode selection used click-handled <div>s, so the entry screen of
   // every quiz had zero tabbable elements and was unusable without a mouse.
   const tools = SITE_PAGES.filter(p => p.startsWith('/study/') && p.endsWith('.html'));
