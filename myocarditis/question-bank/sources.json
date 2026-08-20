@@ -293,5 +293,33 @@
     "primary_or_overlay": "primary",
     "role": "interpretation of peripheral viral PCR as etiologic context with unresolved causality rather than proof of myocardial infection",
     "last_verified": "2026-08-20"
+  },
+  "MIS_C_US_2021": {
+    "title": "Trends in Geographic and Temporal Distribution of US Children With Multisystem Inflammatory Syndrome During the COVID-19 Pandemic",
+    "authors": "Belay ED, Abrams J, Oster ME, et al.",
+    "journal": "JAMA Pediatrics",
+    "year": 2021,
+    "doi": "10.1001/jamapediatrics.2021.0630",
+    "pmid": "33821923",
+    "source_type": "US surveillance cohort",
+    "population": "pediatric",
+    "jurisdiction": "United States",
+    "primary_or_overlay": "primary",
+    "role": "MIS-C postinfectious timing, multisystem phenotype, shock, and cardiac involvement",
+    "last_verified": "2026-08-20"
+  },
+  "MIS_C_DIFFERENTIAL_2022": {
+    "title": "Distinguishing Multisystem Inflammatory Syndrome in Children From COVID-19, Kawasaki Disease and Toxic Shock Syndrome",
+    "authors": "Godfred-Cato S, Abrams JY, Balachandran N, et al.",
+    "journal": "The Pediatric Infectious Disease Journal",
+    "year": 2022,
+    "doi": "10.1097/INF.0000000000003449",
+    "pmid": "35093995",
+    "source_type": "observational comparative study",
+    "population": "pediatric",
+    "jurisdiction": "United States",
+    "primary_or_overlay": "primary",
+    "role": "differential diagnosis of MIS-C versus acute COVID-19, Kawasaki disease, and toxic shock syndrome",
+    "last_verified": "2026-08-20"
   }
 }
