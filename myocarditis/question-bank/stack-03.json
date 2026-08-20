@@ -113,25 +113,25 @@
       "evidence":[{"claim":"ECMO/MCS can benefit children with myocarditis/cardiomyopathy and refractory low cardiac output.","source_id":"AHA_PALS_2025"},{"claim":"Contemporary pediatric fulminant myocarditis ECMO cohorts demonstrate substantial transplant-free myocardial recovery among survivors.","source_id":"ECMO_PED_OUTCOMES_2024"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
-      "id":"MYO-026","status":"draft-medical-review","age":"13 years","age_group":"adolescent","domain":"disposition","concept":"pre-arrest myocarditis","learning_objective":"Recognize arrhythmia, heart block, low output, and organ failure as pre-arrest features that justify ICU escalation even before frank arrest.","cognitive_level":"recognition","difficulty":1,
-      "stem":"Which new finding in a hospitalized 13-year-old with myocarditis most clearly indicates a pre-arrest state requiring immediate ICU-level escalation?",
+      "id":"MYO-026","status":"draft-medical-review","age":"13 years","age_group":"adolescent","domain":"disposition","concept":"pre-arrest myocarditis","learning_objective":"Recognize combined electrical instability and low-output/end-organ findings as a pre-arrest myocarditis phenotype requiring immediate ICU-level escalation.","cognitive_level":"recognition","difficulty":1,
+      "stem":"A hospitalized 13-year-old with myocarditis has several new findings during serial reassessment. Which finding most clearly represents a pre-arrest phenotype requiring immediate ICU-level escalation?",
       "options":[
-        {"id":"high_grade_block_low_output","text":"New high-grade AV block with hypotension and signs of low cardiac output"},
-        {"id":"mild_chest_pain","text":"Mild improving chest discomfort with stable vital signs"},
-        {"id":"normal_appetite","text":"Return of normal appetite"},
-        {"id":"isolated_rhinorrhea","text":"Persistent rhinorrhea after the antecedent viral illness"},
-        {"id":"stable_sinus","text":"Stable sinus rhythm with improving ventricular function"}
+        {"id":"high_grade_block_low_output","text":"New high-grade AV block with hypotension, cool extremities, and falling urine output"},
+        {"id":"isolated_pvcs","text":"Increasing isolated premature ventricular complexes while blood pressure, perfusion, and ventricular function remain stable"},
+        {"id":"troponin_rise_stable","text":"A rising troponin concentration with unchanged ventricular function, sinus rhythm, and preserved systemic perfusion"},
+        {"id":"persistent_chest_pain","text":"Persistent chest pain with preserved ventricular function, stable blood pressure, and no sustained arrhythmia"},
+        {"id":"mild_lv_dysfunction","text":"Mild LV systolic dysfunction with warm extremities, normal mentation, and preserved urine output"}
       ],
       "correct_option_id":"high_grade_block_low_output",
-      "rationale":"Pediatric resuscitation guidance identifies heart block, ventricular arrhythmia, low cardiac output, respiratory support needs, and organ failure in myocarditis as high-risk pre-arrest features.",
+      "rationale":"Myocarditis becomes a pre-arrest emergency when electrical instability converges with inadequate cardiac output or end-organ perfusion. High-grade AV block plus hypotension, cool perfusion, and oliguria indicates simultaneous rhythm and circulatory failure and warrants immediate ICU-level escalation. The other findings remain clinically important but do not, as presented, demonstrate the same degree of imminent physiologic collapse.",
       "option_explanations":{
-        "high_grade_block_low_output":"Correct. Electrical and hemodynamic instability together create an immediate risk of progression to cardiac arrest.",
-        "mild_chest_pain":"Chest pain is important but does not by itself define pre-arrest physiology when hemodynamics and rhythm are stable.",
-        "normal_appetite":"Improving general symptoms are reassuring but do not independently determine cardiac risk.",
-        "isolated_rhinorrhea":"This may reflect the preceding infection and is not an acute cardiac instability marker.",
-        "stable_sinus":"Stable rhythm with improving function describes recovery rather than impending arrest."
+        "high_grade_block_low_output":"Correct. High-grade conduction disease coupled with hypotension and deteriorating end-organ perfusion is a high-risk myocarditis phenotype that can progress rapidly to cardiac arrest and requires immediate monitored escalation.",
+        "isolated_pvcs":"Increasing ventricular ectopy deserves reassessment and continued monitoring, but isolated PVCs without hemodynamic deterioration or worsening ventricular function do not carry the same immediate pre-arrest physiology as high-grade block with low output.",
+        "troponin_rise_stable":"A rising injury marker can indicate ongoing myocardial damage and may change diagnostic or follow-up decisions, but troponin magnitude alone does not establish imminent circulatory collapse when function, rhythm, and perfusion remain stable.",
+        "persistent_chest_pain":"Persistent pain requires evaluation for ongoing inflammation, ischemic mimics, or pericardial involvement, but stable hemodynamics and absence of sustained arrhythmia make it less immediately pre-arrest than combined conduction and low-output deterioration.",
+        "mild_lv_dysfunction":"Mild systolic dysfunction is clinically meaningful and warrants monitoring, but preserved mentation, warm perfusion, and urine output indicate compensated physiology rather than the clearest pre-arrest state in this comparison."
       },
-      "board_pearl":"In myocarditis, heart block or ventricular arrhythmia plus low output should be treated as pre-arrest physiology.",
+      "board_pearl":"The pre-arrest signal is convergence: dangerous rhythm or conduction disease plus failing perfusion—not simply an abnormal test in isolation.",
       "evidence":[{"claim":"Arrhythmias, heart block, ST changes, low cardiac output, invasive ventilation needs, and organ failure are high-risk/pre-arrest findings in pediatric myocarditis.","source_id":"AHA_PALS_2025"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
