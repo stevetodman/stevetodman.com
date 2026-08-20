@@ -3,47 +3,47 @@
   "focus": "arrhythmias and electrical instability",
   "questions": [
     {
-      "id":"MYO-031","status":"draft-medical-review","age":"13 years","age_group":"adolescent","domain":"arrhythmia","concept":"unstable wide-complex tachycardia","learning_objective":"Prioritize synchronized cardioversion for wide-complex tachycardia with a pulse and cardiopulmonary compromise.","cognitive_level":"application","difficulty":2,
-      "stem":"A 13-year-old hospitalized with myocarditis develops a regular wide-complex tachycardia. He has a pulse but is hypotensive, confused, and poorly perfused. What is the most appropriate immediate rhythm treatment?",
+      "id":"MYO-031","status":"draft-medical-review","age":"13 years","age_group":"adolescent","domain":"arrhythmia","concept":"unstable wide-complex tachycardia","learning_objective":"Prioritize synchronized cardioversion when myocarditis produces wide-complex tachycardia with a pulse and cardiopulmonary compromise, rather than delaying electrical stabilization for rhythm refinement or drug therapy.","cognitive_level":"application","difficulty":2,
+      "stem":"A 13-year-old hospitalized with myocarditis develops a regular monomorphic wide-complex tachycardia. A pulse is present, but the child becomes hypotensive, confused, and poorly perfused. Which immediate rhythm strategy is most appropriate?",
       "options":[
-        {"id":"sync_cardio","text":"Urgent synchronized cardioversion while resuscitation and expert support continue"},
-        {"id":"observe","text":"Observation because ventricular tachycardia is often transient in myocarditis"},
-        {"id":"adenosine_any","text":"Give adenosine first regardless of rhythm regularity or hemodynamic compromise"},
-        {"id":"oral_beta","text":"Start an oral beta-blocker and reassess later"},
-        {"id":"wait_cmr","text":"Obtain CMR before treating the rhythm"}
+        {"id":"sync_cardio","text":"Perform urgent synchronized cardioversion while airway, perfusion, and expert rhythm support continue in parallel"},
+        {"id":"antiarrhythmic_first","text":"Use an intravenous antiarrhythmic as the first intervention because the rhythm is monomorphic, reserving cardioversion for failure of drug therapy"},
+        {"id":"adenosine_first","text":"Give a diagnostic adenosine trial first because the rhythm is regular and monomorphic, then cardiovert only if it proves ventricular in origin"},
+        {"id":"diagnose_first","text":"Obtain a complete 12-lead rhythm diagnosis before electrical treatment because distinguishing VT from SVT with aberrancy determines whether cardioversion is appropriate"},
+        {"id":"unsync_defib","text":"Use unsynchronized defibrillation immediately because any wide-complex tachycardia in myocarditis should be treated as a shockable arrest rhythm"}
       ],
       "correct_option_id":"sync_cardio",
-      "rationale":"Wide-complex tachycardia with a pulse plus hypotension, altered mental status, or shock is an unstable tachyarrhythmia. Pediatric advanced life support prioritizes synchronized cardioversion rather than delayed pharmacologic or diagnostic maneuvers.",
+      "rationale":"The myocarditis substrate makes ventricular tachycardia plausible, but the decisive feature is cardiopulmonary compromise with a pulse. In pediatric wide-complex tachycardia, hypotension, altered mental status, and poor perfusion require prompt synchronized cardioversion; rhythm refinement and drug selection should not delay electrical stabilization.",
       "option_explanations":{
-        "sync_cardio":"Correct. Cardiopulmonary compromise changes the priority from rhythm diagnosis refinement to immediate electrical stabilization.",
-        "observe":"Nonsustained asymptomatic ectopy may sometimes be monitored, but sustained wide-complex tachycardia with shock is immediately dangerous.",
-        "adenosine_any":"Adenosine can have a diagnostic/therapeutic role in selected regular monomorphic wide-complex tachycardia without compromise, but unstable patients need synchronized cardioversion. Irregular wide-complex rhythms are particularly unsafe for indiscriminate adenosine use.",
-        "oral_beta":"Oral therapy is too slow for an unstable rhythm and may worsen hemodynamics depending on the context.",
-        "wait_cmr":"Imaging must not delay treatment of a life-threatening arrhythmia."
+        "sync_cardio":"Correct. The child has a pulse but is hemodynamically unstable, so synchronized cardioversion addresses the immediate electrical threat while the myocarditis-related pump and arrhythmic substrate are managed concurrently.",
+        "antiarrhythmic_first":"Antiarrhythmic drugs can be appropriate for selected hemodynamically tolerated wide-complex tachycardias, but this child has already crossed into cardiopulmonary compromise. Drug therapy should not postpone synchronized cardioversion.",
+        "adenosine_first":"Adenosine can have a diagnostic or therapeutic role in selected stable regular monomorphic wide-complex rhythms, but hypotension, confusion, and poor perfusion remove the stability window for a diagnostic trial.",
+        "diagnose_first":"A 12-lead tracing and expert rhythm review are useful when time permits, but the distinction between VT and SVT with aberrancy should not delay treatment of an unstable tachyarrhythmia with a pulse.",
+        "unsync_defib":"Unsynchronized defibrillation is used for pulseless VT or VF. This child still has a pulse, so synchronization is important to avoid delivering energy during a vulnerable repolarization phase."
       },
-      "board_pearl":"In pediatric wide-complex tachycardia, hemodynamic stability determines urgency: compromise means synchronized cardioversion.",
+      "board_pearl":"In myocarditis-associated wide-complex tachycardia, the pulse and perfusion state determine the first electrical action: unstable with a pulse means synchronized cardioversion.",
       "evidence":[{"claim":"Pediatric wide-complex tachycardia with cardiopulmonary compromise should be treated with synchronized cardioversion.","source_id":"AHA_PALS_2025"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
-      "id":"MYO-032","status":"draft-medical-review","age":"10 years","age_group":"child","domain":"arrhythmia","concept":"pulseless VT/VF","learning_objective":"Prioritize defibrillation and high-quality CPR when myocarditis deteriorates to a shockable cardiac-arrest rhythm.","cognitive_level":"recognition","difficulty":1,
-      "stem":"A 10-year-old with fulminant myocarditis suddenly becomes unresponsive and pulseless. The monitor shows ventricular fibrillation. What is the immediate priority?",
+      "id":"MYO-032","status":"draft-medical-review","age":"10 years","age_group":"child","domain":"arrhythmia","concept":"pulseless VT/VF","learning_objective":"Distinguish myocarditis-associated shockable cardiac arrest from tachycardia with a pulse and prioritize defibrillation plus high-quality CPR before later arrest medications or diagnostic procedures.","cognitive_level":"recognition","difficulty":1,
+      "stem":"A 10-year-old with fulminant myocarditis suddenly becomes unresponsive and pulseless. The monitor shows ventricular fibrillation. Which action has the highest immediate priority?",
       "options":[
-        {"id":"defib_cpr","text":"Rapid defibrillation with high-quality CPR according to pediatric cardiac-arrest care"},
-        {"id":"amio_first","text":"Give an antiarrhythmic medication before the first shock"},
-        {"id":"echo_first","text":"Perform a complete echocardiogram before starting CPR"},
-        {"id":"biopsy_first","text":"Confirm myocarditis by biopsy before treating the arrest"},
-        {"id":"sync_cardio","text":"Use synchronized cardioversion because all ventricular rhythms should be synchronized"}
+        {"id":"defib_cpr","text":"Begin high-quality CPR and deliver prompt unsynchronized defibrillation for the shockable arrest rhythm"},
+        {"id":"epinephrine_first","text":"Give epinephrine before the first shock because myocarditis-related arrest usually reflects severe pump failure as well as arrhythmia"},
+        {"id":"antiarrhythmic_first","text":"Administer amiodarone or lidocaine before the first shock because the ventricular arrhythmia arose from inflamed myocardium"},
+        {"id":"sync_cardio","text":"Use synchronized cardioversion because the rhythm is ventricular and electrical therapy should remain synchronized whenever possible"},
+        {"id":"airway_first","text":"Secure an advanced airway before the first shock because hypoxemia and acidosis may be contributing to the ventricular fibrillation"}
       ],
       "correct_option_id":"defib_cpr",
-      "rationale":"VF and pulseless VT are shockable pediatric cardiac-arrest rhythms. Rapid defibrillation and high-quality CPR are the priority; myocarditis is the underlying cause, not a reason to delay standard resuscitation.",
+      "rationale":"Fulminant myocarditis can deteriorate abruptly to ventricular fibrillation or pulseless VT. Once the child is pulseless, the immediate problem is a shockable cardiac arrest: high-quality CPR and prompt defibrillation take priority. Myocarditis explains the substrate and may affect later escalation, but it does not move medications, airway procedures, or diagnostic work ahead of the first shock.",
       "option_explanations":{
-        "defib_cpr":"Correct. Defibrillation is the definitive immediate treatment for VF/pulseless VT, with high-quality CPR minimizing no-flow time.",
-        "amio_first":"Antiarrhythmics can be used in refractory shockable arrest, but they do not replace the priority of early defibrillation and CPR.",
-        "echo_first":"Point-of-care echo may help identify reversible causes during arrest if it does not interrupt compressions, but it must not delay CPR or defibrillation.",
-        "biopsy_first":"Etiologic confirmation has no role before treating cardiac arrest.",
-        "sync_cardio":"Synchronized cardioversion is used for unstable tachycardia with a pulse. VF/pulseless VT requires unsynchronized defibrillation."
+        "defib_cpr":"Correct. Ventricular fibrillation and pulseless VT require immediate arrest care centered on CPR and defibrillation, with minimal interruption of compressions.",
+        "epinephrine_first":"Epinephrine is part of pediatric cardiac-arrest care, but an initial shockable rhythm should not have the first defibrillation delayed while epinephrine is given. The rhythm-specific priority is prompt shock delivery with CPR.",
+        "antiarrhythmic_first":"Amiodarone or lidocaine may be used for refractory shockable arrest, but they are not substitutes for the first defibrillation attempt. Inflamed myocardium does not change that sequencing principle.",
+        "sync_cardio":"Synchronized cardioversion is appropriate for unstable tachycardia when a pulse remains present. VF is disorganized and pulseless, so unsynchronized defibrillation is required.",
+        "airway_first":"Oxygenation and ventilation matter during resuscitation, but advanced-airway placement should not delay CPR or prompt treatment of a shockable rhythm. Airway management proceeds without sacrificing defibrillation timing or compression quality."
       },
-      "board_pearl":"Myocarditis changes the cause of arrest—not the first priorities of treating VF/pulseless VT.",
+      "board_pearl":"Myocarditis changes the substrate and the need for advanced rescue planning; once VF or pulseless VT occurs, the first priorities remain CPR and prompt defibrillation.",
       "evidence":[{"claim":"Rapid defibrillation is the priority for pediatric cardiac arrest with VF/pulseless VT.","source_id":"AHA_PALS_2025"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
