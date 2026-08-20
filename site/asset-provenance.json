@@ -15,7 +15,7 @@
         "commit 55a58d3f603f8baad5b739a0aa775a81ebafff91: describes ten supplied full-resolution PNGs plus web-optimized WebP versions",
         "commit 908d415153bcce0ccf2ba85ebe4be58384ddd79e: explicitly records regeneration of the complete AV canal WebP derivative after PNG cleanup/replacement"
       ],
-      "notes": "The specific generation vendor/service is intentionally omitted from the public provenance record. No third-party source artwork or separate external license is documented in the repository; if such source material is later identified, update this record before relying on it for redistribution.">
+      "notes": "The specific generation vendor/service is intentionally omitted from the public provenance record. No third-party source artwork or separate external license is documented in the repository; if such source material is later identified, update this record before relying on it for redistribution."
     },
     {
       "pathPrefix": "study/us-states.html",
