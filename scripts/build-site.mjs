@@ -47,6 +47,27 @@ for (const item of catalog.items.filter((x) => x.class === 'SOURCE_ONLY' && x.pa
   rm(path.join(dist, item.path));
 }
 
+// Kawasaki started life as a visualization export and still carries three
+// optional CDN loaders for tooltips/icons. The academy itself does not require
+// them: the inline runtimes already no-op when FloatingUIDOM/lucide are absent.
+// Keep source history intact, but make the production artifact self-contained.
+const kawasakiHtml = path.join(dist, 'kawasaki', 'index.html');
+if (fs.existsSync(kawasakiHtml)) {
+  let html = fs.readFileSync(kawasakiHtml, 'utf8');
+  for (const id of [
+    'codex-visualization-floating-ui-core',
+    'codex-visualization-floating-ui-dom',
+    'codex-visualization-lucide',
+  ]) {
+    html = html.replace(new RegExp(`\\s*<script id=["']${id}["'][^>]*><\\/script>`, 'g'), '');
+  }
+  html = html.replace(
+    '<i data-lucide="printer" aria-hidden="true"></i>',
+    '<span aria-hidden="true">🖨</span>'
+  );
+  fs.writeFileSync(kawasakiHtml, html);
+}
+
 // Steven OS is an INTERNAL static control surface. Keep only the files required
 // by the browser; do not publish its Edge Functions, SQL, scripts, or README.
 const stevenOs = path.join(dist, 'steven-os');
