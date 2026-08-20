@@ -127,10 +127,10 @@ jobs:
       - name: Steven OS policy and routing
         run: npm run test:steven-os
 
-  behaviour:
-    name: Behavioural tests
+  syntax_integrity:
+    name: Syntax and integrity
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 5
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -139,12 +139,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - name: Install test dependencies
-        run: npm ci --no-audit --no-fund
-
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
 
       - name: Check JavaScript syntax
         shell: bash
@@ -155,61 +149,44 @@ jobs:
             | xargs -0 -n1 node --check
 
       - name: Verify case package integrity
-        if: ${{ !cancelled() }}
         run: npm run test:integrity
 
-      - name: Simulator behaviour
-        if: ${{ !cancelled() }}
-        run: npm run test:phs
+  browser_tests:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        include:
+          - name: Simulator tests
+            command: npm run test:phs && node --test tests/phs-v18-audit-remediation.test.mjs && node --test tests/phs-clinical-validation.test.mjs
+          - name: BP calculator tests
+            command: npm run test:bp
+          - name: Acute-care academies
+            command: npm run test:kawasaki && npm run test:myocarditis && npm run test:pals
+          - name: Prevention academies
+            command: npm run test:hypertension && npm run test:cardiovascular-risk && npm run test:aortopathy
+          - name: Genetics and surgery academies
+            command: npm run test:genetics-chd && npm run test:pedcardsurg
+          - name: Site quality
+            command: npm run test:smoke && npm run test:a11y
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-      - name: UI-only audit remediation regression
-        if: ${{ !cancelled() }}
-        run: node --test tests/phs-v18-audit-remediation.test.mjs
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
 
-      - name: Clinical validation regression
-        if: ${{ !cancelled() }}
-        run: node --test tests/phs-clinical-validation.test.mjs
+      - name: Install test dependencies
+        run: npm ci --no-audit --no-fund
 
-      - name: BP calculator correctness
-        if: ${{ !cancelled() }}
-        run: npm run test:bp
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
 
-      - name: Kawasaki academy
-        if: ${{ !cancelled() }}
-        run: npm run test:kawasaki
-
-      - name: Hypertension academy
-        if: ${{ !cancelled() }}
-        run: npm run test:hypertension
-
-      - name: Cardiovascular prevention academy
-        if: ${{ !cancelled() }}
-        run: npm run test:cardiovascular-risk
-
-      - name: Aortopathy academy
-        if: ${{ !cancelled() }}
-        run: npm run test:aortopathy
-
-      - name: Myocarditis academy
-        if: ${{ !cancelled() }}
-        run: npm run test:myocarditis
-
-      - name: PALS academy
-        if: ${{ !cancelled() }}
-        run: npm run test:pals
-
-      - name: Genetics of CHD academy
-        if: ${{ !cancelled() }}
-        run: npm run test:genetics-chd
-
-      - name: PedCardSurg academy
-        if: ${{ !cancelled() }}
-        run: npm run test:pedcardsurg
-
-      - name: Site conventions and smoke
-        if: ${{ !cancelled() }}
-        run: npm run test:smoke
-
-      - name: Shared platform accessibility
-        if: ${{ !cancelled() }}
-        run: npm run test:a11y
+      - name: Run ${{ matrix.name }}
+        run: ${{ matrix.command }}
