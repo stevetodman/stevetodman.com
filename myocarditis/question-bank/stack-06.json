@@ -29,22 +29,22 @@
       "stem":"A 14-year-old is asymptomatic after myocarditis and LV systolic function has normalized, but follow-up CMR still shows residual late gadolinium enhancement without clear active edema. Which interpretation is best?",
       "options":[
         {"id":"lge_relevant","text":"Residual LGE may represent persistent myocardial injury/scar and can contribute to arrhythmic risk assessment, but its individual prognostic meaning in children should be interpreted with the full clinical picture"},
-        {"id":"active_infection","text":"Persistent LGE proves ongoing active viral infection"},
-        {"id":"always_benign","text":"LGE becomes irrelevant once ejection fraction normalizes"},
-        {"id":"automatic_icd","text":"Any persistent LGE automatically requires an implanted defibrillator"},
-        {"id":"no_rhythm","text":"Rhythm surveillance is unnecessary when EF is normal"}
+        {"id":"resolved_without_edema","text":"Because active edema has resolved, the remaining LGE can be omitted from risk assessment if global systolic function is normal"},
+        {"id":"restrict_until_gone","text":"Continue complete exercise restriction until every area of LGE disappears on CMR, regardless of normal function, symptoms, and rhythm testing"},
+        {"id":"icd_from_lge","text":"Use persistent LGE alone as sufficient evidence to move directly to a primary-prevention defibrillator strategy despite normal function and no documented ventricular arrhythmia"},
+        {"id":"rhythm_erases_lge","text":"If ambulatory monitoring and exercise testing are reassuring, residual LGE no longer contributes to longitudinal surveillance decisions"}
       ],
       "correct_option_id":"lge_relevant",
       "rationale":"LGE can persist after acute inflammation as residual injury/fibrosis and is associated with arrhythmic risk in broader myocarditis data. Pediatric outcome data are less complete, so LGE should inform—not independently dictate—risk decisions.",
       "option_explanations":{
-        "lge_relevant":"Correct. It preserves the clinically relevant signal while respecting pediatric evidence limitations.",
-        "active_infection":"LGE is a tissue-injury/scar marker, not a microbiologic test and does not prove ongoing viral replication.",
-        "always_benign":"Normal EF does not erase scar substrate or automatically make LGE clinically irrelevant.",
-        "automatic_icd":"Device decisions depend on arrhythmia history, ventricular function, scar extent/location, active inflammation, genetics, and specialist assessment; LGE alone is not a universal pediatric ICD rule.",
-        "no_rhythm":"Persistent scar may justify continued rhythm assessment depending on the phenotype even when global function is normal."
+        "lge_relevant":"Correct. It preserves the clinically relevant scar signal while respecting pediatric evidence limitations and integrating it with function and rhythm.",
+        "resolved_without_edema":"Resolution of edema suggests active inflammation has improved, but residual LGE may represent scar and can remain relevant to arrhythmic risk even when EF is normal.",
+        "restrict_until_gone":"Persistent LGE may not disappear even after clinical recovery. Contemporary sports guidance can permit selected patients with residual LGE when ventricular function and rhythm assessment are reassuring, so LGE persistence is not a universal indefinite restriction rule.",
+        "icd_from_lge":"LGE contributes to risk assessment, but pediatric device decisions require integration of ventricular function, arrhythmia history, scar pattern, genetics, and the broader phenotype rather than LGE alone.",
+        "rhythm_erases_lge":"Reassuring rhythm testing is important and may support activity decisions, but it does not make scar information meaningless. Residual LGE can still inform longitudinal surveillance."
       },
       "board_pearl":"Persistent LGE can outlast active inflammation; treat it as a risk signal, not a deterministic pediatric prognosis.",
-      "evidence":[{"claim":"Persistent LGE after myocarditis can represent an arrhythmogenic substrate and contributes to risk stratification.","source_id":"ESC_IMPS_2025"},{"claim":"Pediatric CMR outcome data remain more limited than adult data and should be interpreted cautiously.","source_id":"PED_CMR_GUIDANCE"}],"last_medical_review":null,"requires_sme_review":true
+      "evidence":[{"claim":"Persistent LGE after myocarditis can represent an arrhythmogenic substrate and contributes to risk stratification.","source_id":"ESC_IMPS_2025"},{"claim":"Pediatric CMR outcome data remain more limited than adult data and should be interpreted cautiously.","source_id":"PED_CMR_GUIDANCE"},{"claim":"Current US athlete guidance permits selected asymptomatic athletes with persistent LGE to participate when LV function and rhythm assessment are reassuring, with longitudinal surveillance.","source_id":"AHA_ACC_SPORTS_2025"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
       "id":"MYO-053","status":"draft-medical-review","age":"16 years","age_group":"adolescent","domain":"sports","concept":"return-to-sport criteria","learning_objective":"Require clinical remission and rhythm/function reassessment before return to strenuous/competitive exercise after myocarditis.","cognitive_level":"application","difficulty":2,
@@ -95,19 +95,19 @@
       "stem":"A 10-year-old is clinically improved after myocarditis but has persistent mild-to-moderate LV systolic dysfunction at follow-up. Which interpretation is most appropriate?",
       "options":[
         {"id":"ongoing_cm_follow","text":"Persistent dysfunction requires ongoing cardiology/heart-failure follow-up and may represent residual or evolving inflammatory/dilated cardiomyopathy"},
-        {"id":"diagnosis_wrong","text":"Persistent dysfunction proves the original myocarditis diagnosis was incorrect"},
-        {"id":"normal_variant","text":"Reduced systolic function is a normal pediatric recovery variant requiring no follow-up"},
-        {"id":"sports_auto","text":"Competitive sports should resume automatically once symptoms resolve"},
-        {"id":"no_imaging","text":"Further imaging is unnecessary because the acute infection has passed"}
+        {"id":"symptom_based_stop","text":"Because the child feels better, stop heart-failure surveillance now and repeat cardiac testing only if congestion or exercise intolerance returns"},
+        {"id":"cmr_only_follow","text":"Shift follow-up entirely to CMR tissue characterization because serial ventricular-function assessment adds little once the acute diagnosis is established"},
+        {"id":"reclassify_genetic","text":"Reclassify the case as inherited dilated cardiomyopathy solely because dysfunction persists and discard the prior myocarditis diagnosis"},
+        {"id":"sports_if_no_va","text":"Permit competitive sports if ambulatory monitoring shows no ventricular arrhythmia, despite persistent systolic dysfunction"}
       ],
       "correct_option_id":"ongoing_cm_follow",
-      "rationale":"Myocarditis can resolve completely, leave persistent dysfunction, or evolve into an inflammatory/dilated cardiomyopathy phenotype. Residual LV dysfunction therefore warrants ongoing guideline-directed specialist management and surveillance.",
+      "rationale":"Myocarditis can resolve completely, leave persistent dysfunction, or evolve into an inflammatory/dilated cardiomyopathy phenotype. Residual LV dysfunction therefore warrants ongoing specialist heart-failure management and surveillance rather than being explained by symptoms, imaging modality, or etiology alone.",
       "option_explanations":{
-        "ongoing_cm_follow":"Correct. The chronic cardiac phenotype—not the disappearance of the trigger—now drives management.",
-        "diagnosis_wrong":"Persistent dysfunction is a recognized myocarditis outcome and does not retrospectively disprove the acute inflammatory episode.",
-        "normal_variant":"Reduced systolic function is pathologic and cannot be dismissed as a normal recovery variant.",
-        "sports_auto":"Persistent ventricular dysfunction is a reason for continued restriction and individualized reassessment, not automatic clearance.",
-        "no_imaging":"Serial imaging is needed to document recovery, stability, or progression when ventricular function remains abnormal."
+        "ongoing_cm_follow":"Correct. The chronic cardiac phenotype—not the disappearance of the trigger—now drives management and serial reassessment.",
+        "symptom_based_stop":"Symptoms can improve before ventricular function normalizes. Persistent systolic dysfunction itself remains a reason for longitudinal heart-failure follow-up even when the child feels well.",
+        "cmr_only_follow":"CMR can add tissue characterization, but serial echocardiographic/functional assessment remains central when LV systolic dysfunction persists. The modalities are complementary rather than interchangeable.",
+        "reclassify_genetic":"An inherited substrate should be considered when the phenotype or pedigree supports it, but persistent dysfunction is also a recognized outcome of myocarditis and does not by itself invalidate the inflammatory diagnosis.",
+        "sports_if_no_va":"Reassuring rhythm testing addresses one risk domain, but persistent ventricular dysfunction remains relevant to activity decisions and requires individualized cardiology assessment."
       },
       "board_pearl":"Persistent dysfunction after myocarditis is not the end of the story—it may become a chronic cardiomyopathy problem.",
       "evidence":[{"claim":"Pediatric myocarditis outcomes range from complete recovery to persistent dysfunction and chronic heart failure/cardiomyopathy.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"Pediatric ADHF requires longitudinal management and discharge/follow-up planning when ventricular dysfunction persists.","source_id":"AHA_PED_ADHF_2026"}],"last_medical_review":null,"requires_sme_review":true
@@ -117,19 +117,19 @@
       "stem":"A 14-year-old has normal LV ejection fraction after myocarditis but still develops exertional dyspnea and palpitations. What is the best approach?",
       "options":[
         {"id":"reassess","text":"Reassess for residual cardiac dysfunction, arrhythmia, ongoing inflammation/scar, and noncardiac causes before activity clearance"},
-        {"id":"deconditioning","text":"Assume deconditioning without further evaluation because EF is normal"},
-        {"id":"anxiety","text":"Attribute symptoms to anxiety automatically"},
-        {"id":"clear","text":"Clear for unrestricted sports because EF is normal"},
-        {"id":"troponin_only","text":"Check only troponin and ignore symptoms if it is normal"}
+        {"id":"rehab_first","text":"Treat deconditioning as the working diagnosis and begin graded rehabilitation before repeating cardiac assessment unless symptoms worsen"},
+        {"id":"rhythm_only","text":"Obtain ambulatory rhythm monitoring alone and clear activity if it is reassuring, without reassessing other cardiac or noncardiac causes"},
+        {"id":"cmr_only","text":"Repeat CMR as the sole recovery test and attribute persistent symptoms to noncardiac causes if active edema has resolved"},
+        {"id":"pulmonary_only","text":"Evaluate only for exercise-induced bronchoconstriction because normalization of EF excludes clinically important residual cardiac disease"}
       ],
       "correct_option_id":"reassess",
       "rationale":"Persistent exertional symptoms after myocarditis require explanation. EF may normalize while arrhythmia, subtle dysfunction, tissue injury, deconditioning, pulmonary disease, or other causes persist.",
       "option_explanations":{
         "reassess":"Correct. The appropriate response is broad reassessment rather than diagnostic closure on one recovered parameter.",
-        "deconditioning":"Deconditioning is plausible after activity restriction but should be a conclusion after important cardiac causes have been reassessed.",
-        "anxiety":"Anxiety can coexist with recovery but should not be used to dismiss exertional cardiac symptoms without evaluation.",
-        "clear":"Normal EF alone is not sufficient when exertional symptoms remain unexplained.",
-        "troponin_only":"Normal troponin does not exclude arrhythmia or residual scar and cannot substitute for symptom-directed evaluation."
+        "rehab_first":"Deconditioning is plausible after activity restriction, but it should be established after important residual cardiac causes have been reassessed rather than assumed before that evaluation.",
+        "rhythm_only":"Rhythm evaluation is important for palpitations but does not assess residual tissue injury, exercise hemodynamics, or noncardiac causes of dyspnea. A single normal domain should not close the case.",
+        "cmr_only":"CMR can assess edema and scar but does not replace direct rhythm, functional, and symptom-directed assessment. Absence of edema cannot by itself explain persistent exertional symptoms.",
+        "pulmonary_only":"Pulmonary causes remain in the differential, but normal EF does not exclude arrhythmia, subtle myocardial dysfunction, or residual scar after myocarditis."
       },
       "board_pearl":"Normal EF narrows the problem; it does not explain persistent symptoms.",
       "evidence":[{"claim":"Myocarditis follow-up should integrate symptoms with rhythm, imaging, and other clinical data before exercise clearance.","source_id":"ESC_IMPS_2025"},{"claim":"Pediatric myocarditis recovery assessment includes function and rhythm rather than EF alone.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
@@ -139,41 +139,41 @@
       "stem":"A 7-year-old survived fulminant myocarditis requiring VA-ECMO and had ventricular tachycardia during the admission. Ventricular function later normalizes. Which follow-up principle is best?",
       "options":[
         {"id":"longitudinal_highrisk","text":"Continue longitudinal cardiology follow-up with rhythm and imaging surveillance tailored to the prior complicated phenotype"},
-        {"id":"discharge_forever","text":"Discharge permanently from cardiac follow-up because EF normalized"},
-        {"id":"symptoms_only","text":"Repeat testing only if the family reports chest pain"},
-        {"id":"no_rhythm","text":"Rhythm surveillance is unnecessary once ECMO is discontinued"},
-        {"id":"sports_immediate","text":"Full athletic participation is appropriate immediately after EF recovery"}
+        {"id":"echo_centered","text":"Use serial echocardiography as the main follow-up strategy and add rhythm surveillance only if ventricular dysfunction recurs"},
+        {"id":"symptom_triggered","text":"Transition to symptom-triggered reassessment once EF normalizes because prior ECMO and VT no longer affect residual risk"},
+        {"id":"single_normal_set","text":"After one reassuring post-recovery CMR and ambulatory monitor, follow the child like an uncomplicated chest-pain phenotype regardless of initial severity"},
+        {"id":"sports_after_est","text":"Allow unrestricted sports after a reassuring exercise test even if the broader longitudinal surveillance plan has not yet been established"}
       ],
       "correct_option_id":"longitudinal_highrisk",
       "rationale":"A complicated presentation involving MCS and ventricular arrhythmia carries greater residual risk than an uncomplicated phenotype. Functional recovery is favorable but does not eliminate the need for longer-term rhythm and structural/tissue surveillance.",
       "option_explanations":{
         "longitudinal_highrisk":"Correct. Initial severity and residual findings should determine the intensity and duration of follow-up.",
-        "discharge_forever":"Normal EF is encouraging but does not erase the prior malignant electrical/hemodynamic phenotype.",
-        "symptoms_only":"Asymptomatic arrhythmia or residual scar can occur, so symptom-triggered testing alone is insufficient in a previously complicated case.",
-        "no_rhythm":"Prior ventricular tachycardia specifically supports continued rhythm surveillance during recovery.",
-        "sports_immediate":"Sports return requires a structured recovery assessment and is not based on EF normalization alone."
+        "echo_centered":"Echo documents mechanical recovery, but prior ventricular tachycardia supplies an independent reason for rhythm surveillance even after EF normalizes.",
+        "symptom_triggered":"Asymptomatic arrhythmia or residual scar can persist after clinical recovery, so the prior malignant hemodynamic/electrical phenotype should continue to shape surveillance.",
+        "single_normal_set":"A reassuring post-recovery assessment is valuable, but one normal testing cycle does not automatically make a previously fulminant arrhythmic presentation equivalent to an uncomplicated phenotype.",
+        "sports_after_est":"Exercise testing is one component of recovery assessment. A child who required ECMO and had VT needs an integrated longitudinal plan rather than a single-test clearance strategy."
       },
       "board_pearl":"The initial severity phenotype should follow the patient into the follow-up plan.",
       "evidence":[{"claim":"Complicated myocarditis requires structured follow-up with clinical, rhythm, and imaging reassessment.","source_id":"ESC_IMPS_2025"},{"claim":"Pediatric fulminant myocarditis survivors can recover ventricular function after ECMO but require ongoing cardiac care.","source_id":"ECMO_PED_OUTCOMES_2024"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
-      "id":"MYO-058","status":"draft-medical-review","age":"13 years","age_group":"adolescent","domain":"follow-up","concept":"follow-up test selection","learning_objective":"Select a follow-up battery that measures mechanical, electrical, and tissue recovery rather than repeating only the acute diagnostic marker.","cognitive_level":"multi-step","difficulty":3,
+      "id":"MYO-058","status":"draft-medical-review","age":"13 years","age_group":"adolescent","domain":"follow-up","concept":"follow-up test selection","learning_objective":"Select a follow-up battery that measures mechanical, electrical, and tissue recovery rather than repeating only the acute diagnostic marker.","cognitive_level":"multi-step","difficulty":2,
       "stem":"A 13-year-old is several months out from myocarditis with an initially arrhythmic presentation. Which combination best addresses the major residual cardiac risks before higher-intensity activity?",
       "options":[
         {"id":"full_reassessment","text":"Clinical assessment plus ECG/rhythm monitoring, ventricular imaging, exercise assessment when appropriate, and CMR/biomarkers guided by the initial phenotype and prior abnormalities"},
-        {"id":"troponin","text":"Troponin alone"},
-        {"id":"cxr","text":"Chest radiograph alone"},
-        {"id":"echo_only","text":"Echocardiography alone regardless of prior arrhythmia or CMR abnormalities"},
-        {"id":"symptoms","text":"Symptom questionnaire alone"}
+        {"id":"echo_holter","text":"Echocardiography plus ambulatory monitoring only, without revisiting exercise-provoked rhythm or prior tissue abnormalities"},
+        {"id":"cmr_echo","text":"CMR plus echocardiography only, treating reassuring structural and tissue findings as sufficient without direct rhythm or exercise assessment"},
+        {"id":"exercise_ecg","text":"Exercise testing with ECG alone, using a reassuring exercise rhythm response to substitute for repeat ventricular or tissue assessment"},
+        {"id":"biomarker_gate","text":"Repeat troponin and natriuretic peptide first and expand the recovery evaluation only if one remains abnormal"}
       ],
       "correct_option_id":"full_reassessment",
-      "rationale":"Mechanical function, rhythm, active injury/inflammation, and scar can evolve independently. Follow-up after an arrhythmic myocarditis phenotype should assess those domains rather than repeat a single acute marker.",
+      "rationale":"Mechanical function, rhythm, active injury/inflammation, and scar can evolve independently. Follow-up after an arrhythmic myocarditis phenotype should assess those domains rather than let one normal modality substitute for the others.",
       "option_explanations":{
-        "full_reassessment":"Correct. The exact test set is individualized, but this combination covers the principal residual risks.",
-        "troponin":"Troponin does not assess ventricular function, exercise-provoked arrhythmia, or residual scar.",
-        "cxr":"Radiography may be useful for pulmonary congestion in selected contexts but is not a comprehensive myocarditis-recovery tool.",
-        "echo_only":"Echo is essential for function but cannot replace rhythm evaluation or tissue characterization when those were abnormal initially.",
-        "symptoms":"Symptoms are important but can underestimate silent electrical or imaging abnormalities."
+        "full_reassessment":"Correct. The exact test set is individualized, but this combination covers the principal residual risks generated by an initially arrhythmic presentation.",
+        "echo_holter":"Echo and ambulatory monitoring cover major mechanical and electrical domains, but an initially arrhythmic athlete may also need exercise-provoked rhythm assessment and follow-up of prior tissue abnormalities when those findings were clinically important.",
+        "cmr_echo":"Imaging can document ventricular function, inflammation, and scar but cannot replace direct assessment for intermittent or exercise-provoked arrhythmia.",
+        "exercise_ecg":"A reassuring exercise study is useful but does not establish recovery of ventricular function or tissue abnormalities that were important during the acute illness.",
+        "biomarker_gate":"Biomarkers can normalize while scar, dysfunction, or arrhythmia persists. They should guide rather than gate the rest of a phenotype-directed recovery assessment."
       },
       "board_pearl":"Follow-up testing should mirror the domains that were dangerous during the acute illness.",
       "evidence":[{"claim":"Myocarditis follow-up includes clinical assessment, ECG/Holter, exercise testing when appropriate, echocardiography, biomarkers, and CMR according to risk and prior findings.","source_id":"ESC_IMPS_2025"},{"claim":"Current US athlete guidance incorporates ambulatory rhythm monitoring and exercise testing before return after myocarditis.","source_id":"AHA_ACC_SPORTS_2025"}],"last_medical_review":null,"requires_sme_review":true
@@ -205,21 +205,21 @@
       "stem":"An 11-year-old was admitted with myocarditis, moderate LV dysfunction, and nonsustained VT. Symptoms have improved and the child is asking to go home. Which discharge principle is safest?",
       "options":[
         {"id":"discharge_integrated","text":"Discharge should follow demonstrated clinical/hemodynamic stability, an acceptable rhythm plan, a defined ventricular-function trajectory, medication/family education as applicable, and arranged cardiology follow-up with activity restrictions"},
-        {"id":"symptoms_enough","text":"Discharge as soon as chest pain resolves regardless of rhythm or ventricular function"},
-        {"id":"troponin_enough","text":"Discharge once troponin begins to fall even if ventricular tachycardia recurs"},
-        {"id":"spo2_enough","text":"Discharge if oxygen saturation is normal despite persistent poor perfusion"},
-        {"id":"no_followup","text":"No cardiology follow-up is needed if the child can walk normally at discharge"}
+        {"id":"rhythm_gate","text":"Once telemetry has been quiet and the child feels well, discharge can proceed even if the ventricular-function trajectory and outpatient heart-failure plan remain undefined"},
+        {"id":"function_gate","text":"If LV function is improving on serial imaging, discharge can proceed before the rhythm plan is finalized because nonsustained VT was not associated with syncope"},
+        {"id":"normalize_before_home","text":"Keep the child hospitalized until LV systolic function and every cardiac biomarker have fully normalized, even if physiology, rhythm, education, and follow-up are otherwise stable"},
+        {"id":"biomarker_gate","text":"Use normalization of troponin as the principal discharge requirement and defer detailed activity and follow-up planning until the first outpatient visit"}
       ],
       "correct_option_id":"discharge_integrated",
-      "rationale":"Safe discharge after myocarditis—especially an arrhythmic, ventricular-dysfunction presentation—requires more than symptom improvement. The child needs stable physiology, a clear rhythm and ventricular assessment, education, restrictions, and a longitudinal follow-up plan.",
+      "rationale":"Safe discharge after myocarditis—especially an arrhythmic, ventricular-dysfunction presentation—requires more than symptom improvement or a single normal domain. The child needs stable physiology, an acceptable rhythm strategy, a defined ventricular trajectory, education, restrictions, and structured follow-up; complete normalization of every abnormality is not necessarily required before discharge.",
       "option_explanations":{
-        "discharge_integrated":"Correct. It translates the multidomain nature of myocarditis into a practical disposition decision.",
-        "symptoms_enough":"Chest symptoms can resolve while ventricular dysfunction or arrhythmia persists; symptom relief alone is insufficient.",
-        "troponin_enough":"A falling biomarker does not neutralize recurrent VT or persistent pump failure.",
-        "spo2_enough":"Pulse oximetry does not measure systemic cardiac output or electrical stability.",
-        "no_followup":"Functional appearance at discharge does not eliminate recurrence, residual dysfunction, or sports/activity considerations."
+        "discharge_integrated":"Correct. It translates the multidomain nature of myocarditis into a practical disposition decision and permits outpatient recovery only after the safety plan is coherent.",
+        "rhythm_gate":"A quiet period on telemetry is reassuring, but persistent ventricular dysfunction still requires a defined management trajectory and discharge plan rather than being deferred to routine follow-up.",
+        "function_gate":"Improving ventricular function is favorable, but prior NSVT remains an independent disposition issue. Rhythm stability and follow-up planning should be resolved before discharge.",
+        "normalize_before_home":"Some children can safely continue recovery as outpatients before EF or biomarkers are completely normal if they are otherwise stable and have an appropriate management and follow-up plan. Requiring universal complete normalization can prolong hospitalization without defining the actual safety criteria.",
+        "biomarker_gate":"Troponin trend is only one recovery domain and cannot replace rhythm, function, education, activity restrictions, and follow-up planning."
       },
-      "board_pearl":"Discharge myocarditis only when the physiology, rhythm, function, education, and follow-up plan are all ready—not when one symptom improves.",
+      "board_pearl":"Discharge myocarditis only when the physiology, rhythm, function, education, and follow-up plan are all ready—not when one symptom or test improves.",
       "evidence":[{"claim":"Pediatric acute decompensated heart failure discharge planning requires clinical stability, education, and structured follow-up.","source_id":"AHA_PED_ADHF_2026"},{"claim":"Myocarditis follow-up requires longitudinal assessment of function, rhythm, and activity readiness.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
     }
   ]
