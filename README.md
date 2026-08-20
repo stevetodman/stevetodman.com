@@ -1,37 +1,88 @@
 # stevetodman.com
 
-Personal website and tools. Deployed via Cloudflare Pages.
+Personal website, pediatric cardiology education, clinical tools, simulations, and family learning projects. Deployed via Cloudflare Pages.
 
-## Contents
+> **Current visibility policy:** direct links work, but search-engine indexing is intentionally disabled. The site sends a global `X-Robots-Tag: noindex, nofollow, noarchive` response header and publishes no sitemap. Public pages remain crawlable so search engines can actually observe the `noindex` directive and remove already-discovered URLs.
 
-- **Pediatric Hospital Simulator** (`/phs/`) - Night-shift simulation for residents: prioritization, diagnostic reasoning, stabilization under uncertainty, and safe handoff, with an objective-linked debrief
-- **Clinical Tools** (`/tools/`) - BP percentile calculator (AAP 2017 guidelines), pediatric ABPM pathway preview
-- **Pediatric Hypertension & ABPM Academy** (`/hypertension/`) - Layered resident curriculum, office algorithms, ABPM interpretation lab, branching cases, and board-style assessment
-- **Cardiovascular Prevention & Dyslipidemia Academy** (`/cardiovascular-risk/`) - Age-driven preventive schedule, current lipid screening and FH treatment logic, legacy-guideline context, decision tools, and eight applied cases
-- **PedCardSurg CHD Surgical Atlas** (`/pedcardsurg/`) - Nine high-resolution primary surgical diagrams, 55 PTED visual topics with a legacy-source guardrail, 26 decoded eponyms, and a 44-question mastery assessment
-- **PALS 2025 Resident Mastery Lab** (`/pals/`) - Ten high-acuity cases and 64 retrieval-based questions with immediate guideline-cited explanations and performance analytics
-- **Pediatric Myocarditis Resident Academy** (`/myocarditis/`) - Recognition, diagnostic confidence, pediatric acute-HF stabilization, evidence-calibrated therapy, branching cases, and mastery assessment
-- **Kawasaki Disease Resident Academy** (`/kawasaki/`) - Diagnosis, treatment, coronary risk, branching cases, and board-style assessment
-- **Newborn CCHD Screening** (`/newbornscreen/`) - Updated AAP screening algorithm, bedside response guidance, and interactive quiz
-- **Study Hub** (`/study/`) - Vocabulary quizzes, fraction practice, and timed multiplication drills
-- **Math Lab** (`/math/`) - Fractions practice with tape diagrams and number lines
-- **Cooking Timers** (`/cooking/`) - Step-by-step recipe timers with audio alerts
-- **Clinic Resources** (`/admin/`) - Intake forms for HTN, dyslipidemia, syncope (password-protected)
+## Start here
+
+- [`MASTER_PLAN.md`](MASTER_PLAN.md) — active platform roadmap and interruption-safe resume protocol
+- [`DEPLOYMENT.md`](DEPLOYMENT.md) — classified Pages build, Access requirements, and production verification
+- [`site/catalog.json`](site/catalog.json) — canonical PRODUCTION / PREVIEW / INTERNAL / SOURCE_ONLY classification
+- [`clinical/content-registry.json`](clinical/content-registry.json) — clinical content provenance/review lifecycle
+- [`CLAUDE.md`](CLAUDE.md) — repository conventions and session handoff
+
+## Public structure
+
+- **Resident Education** (`/education/`) — curated hub for pediatric cardiology academies and simulations
+- **Pediatric Hospital Simulator** (`/phs/`) — night-shift prioritization, reasoning, stabilization, and handoff simulation
+- **Clinical Tools** (`/tools/`) — pediatric BP calculator plus explicitly labeled preview tools
+- **CHD Surgical Atlas** (`/pedcardsurg/`) — surgical diagrams, operative reasoning, PTED visual topics, eponyms, and mastery assessment
+- **PALS 2025 Resident Mastery Lab** (`/pals/`) — high-acuity cases and retrieval-based assessment
+- **Hypertension / ABPM, cardiovascular prevention, Kawasaki, myocarditis, aortopathy, genetics, CCHD screening** — resident academies linked from `/education/`
+- **Study Hub** (`/study/`) — states, vocabulary, fractions, and math-fact practice
+- **Math Lab** (`/math/`) — visual fraction practice
+- **Cooking Timers** (`/cooking/`) — persistent step-by-step recipe timers
+- **About / Contact / Privacy / local Search** — platform support pages
+
+Internal and source-only material is deliberately classified separately; see `site/catalog.json`.
 
 ## Development
 
-Push to `main` branch auto-deploys to Cloudflare Pages.
-
-### Tests
+Install test tooling:
 
 ```sh
-npm install && npx playwright install --with-deps chromium
+npm install
+npx playwright install --with-deps chromium
+```
+
+Run all tests:
+
+```sh
 npm test
+```
+
+Useful focused checks:
+
+```sh
+npm run test:platform
+npm run test:smoke
+npm run test:a11y
+npm run test:phs
+npm run test:bp
+npm run test:kawasaki
 npm run test:pedcardsurg
 ```
 
-Behavioural tests drive real pages in a real browser — simulator physiology and
-scoring, BP calculator correctness, module interactions, mobile layout, and site-wide conventions. See
-[tests/README.md](tests/README.md).
+Behavioral tests drive real pages in Chromium and cover simulator physiology/scoring, clinical calculators, academy interactions, quiz behavior, mobile layout, site conventions, platform classification, security/privacy policy, accessibility baseline, asset provenance, and performance budgets. See [`tests/README.md`](tests/README.md).
 
-See [CLAUDE.md](CLAUDE.md) for project structure and conventions.
+## Build
+
+The repository root is **not** the intended production artifact. Build the classified site:
+
+```sh
+npm run build
+```
+
+This generates `dist/` and excludes backend/source-only material such as StudyHub Edge Function source, Cardio Hospital source trees, developer utilities, and tests.
+
+Cloudflare Pages should use:
+
+- build command: `npm run build`
+- output directory: `dist`
+
+See [`DEPLOYMENT.md`](DEPLOYMENT.md) before changing production settings.
+
+## Production verification
+
+After deployment/configuration changes:
+
+```sh
+npm run verify:production
+```
+
+This checks noindex/security headers, crawler/noindex compatibility, internal-route protection, source-only exclusion, and custom 404 behavior against the live site.
+
+## Clinical content maintenance
+
+Clinical modules are tracked in `clinical/content-registry.json`. Unknown review dates remain explicitly unknown; do not invent review/sign-off metadata. The repository also contains a curriculum coverage map and a structured correction issue form.

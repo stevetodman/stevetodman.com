@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="description" content="Search the intentionally non-indexed content on stevetodman.com.">
+  <title>Search | Steve Todman, MD</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/site/platform.css">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f7f9fc;color:#172033;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}.wrap{width:min(840px,calc(100% - 32px));margin:0 auto}.hero{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:40px 0 30px}.hero a{color:#9ee7e3}.hero h1{margin:14px 0 6px;font-size:clamp(2rem,7vw,3.5rem)}.hero p{margin:0;color:#dbe6f3}.search{padding:28px 0 50px}label{display:block;font-weight:750;margin-bottom:8px}input{width:100%;font:inherit;font-size:1.05rem;padding:14px 15px;border:1px solid #bac8da;border-radius:12px;background:#fff}input:focus{border-color:#008b87}.meta{margin:12px 0 20px;color:#627189;font-size:.88rem}.results{display:grid;gap:12px}.result{display:block;background:#fff;border:1px solid #dbe3ef;border-radius:14px;padding:17px;text-decoration:none;color:inherit}.result:hover{border-color:#8eb3d9;transform:translateY(-1px)}.result strong{display:block;margin-bottom:5px}.result span{color:#617087;font-size:.86rem;text-transform:capitalize}.empty{padding:20px;background:#fff;border:1px dashed #b8c6d8;border-radius:14px;color:#617087}
+  </style>
+</head>
+<body>
+  <header class="hero"><div class="wrap platform-wrap"><a href="/">← Home</a><h1>Search this site</h1><p>This searches the local production catalog only. Search engines are intentionally instructed not to index the site.</p></div></header>
+  <main class="search"><div class="wrap platform-wrap">
+    <label for="query">Find a project or topic</label>
+    <input id="query" type="search" autocomplete="off" placeholder="Try hypertension, states, surgery, PALS…">
+    <div class="meta" id="meta" aria-live="polite">Loading catalog…</div>
+    <div class="results" id="results"></div>
+  </div></main>
+  <footer class="platform-footer"><div class="wrap platform-wrap"><a href="/about/">About</a> · <a href="/contact/">Contact</a> · <a href="/privacy/">Privacy</a></div></footer>
+  <script>
+    const query = document.getElementById('query');
+    const results = document.getElementById('results');
+    const meta = document.getElementById('meta');
+    let items = [];
+    const esc = (s='') => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function render(){
+      const q = query.value.trim().toLowerCase();
+      const shown = items.filter(item => !q || [item.title,item.category,item.audience,item.route].join(' ').toLowerCase().includes(q));
+      meta.textContent = `${shown.length} result${shown.length===1?'':'s'}${q ? ` for “${query.value.trim()}”` : ''}`;
+      results.innerHTML = shown.length ? shown.map(item => `<a class="result platform-card" href="${esc(item.route)}"><strong>${esc(item.title)}</strong><span>${esc(item.category)} · ${esc(item.audience)}</span></a>`).join('') : '<div class="empty">No matching production pages.</div>';
+    }
+    fetch('/site/catalog.json',{cache:'no-store'})
+      .then(r => { if(!r.ok) throw new Error(`catalog ${r.status}`); return r.json(); })
+      .then(data => { items = (data.items||[]).filter(item => item.class==='PRODUCTION' && item.route && item.id!=='search'); render(); query.focus(); })
+      .catch(() => { meta.textContent='Search catalog unavailable.'; results.innerHTML='<div class="empty">Use the homepage navigation while the catalog is unavailable.</div>'; });
+    query.addEventListener('input', render);
+  </script>
+</body>
+</html>

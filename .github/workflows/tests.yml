@@ -8,32 +8,82 @@ on:
       - 'phs/**'
       - 'steven-os/**'
       - 'tests/**'
+      - 'scripts/**'
       - 'tools/**'
       - 'cooking/**'
       - 'study/**'
+      - 'math/**'
       - 'admin/**'
-      - 'genetics-chd/**'
-      - 'pedcardsurg/**'
       - 'newbornscreen/**'
+      - 'kawasaki/**'
+      - 'hypertension/**'
+      - 'cardiovascular-risk/**'
+      - 'aortopathy/**'
+      - 'genetics-chd/**'
+      - 'myocarditis/**'
+      - 'pals/**'
+      - 'pedcardsurg/**'
+      - 'cardiohospital/**'
+      - 'about/**'
+      - 'contact/**'
+      - 'privacy/**'
+      - 'education/**'
+      - 'search/**'
+      - 'site/**'
+      - 'clinical/**'
+      - '.well-known/**'
+      - '_headers'
+      - 'robots.txt'
+      - '404.html'
       - 'index.html'
       - 'package.json'
       - 'package-lock.json'
+      - 'README.md'
+      - 'MASTER_PLAN.md'
+      - 'CLAUDE.md'
+      - 'DEPLOYMENT.md'
+      - 'PR_TRIAGE.md'
       - '.github/workflows/tests.yml'
   pull_request:
     paths:
       - 'phs/**'
       - 'steven-os/**'
       - 'tests/**'
+      - 'scripts/**'
       - 'tools/**'
       - 'cooking/**'
       - 'study/**'
+      - 'math/**'
       - 'admin/**'
-      - 'genetics-chd/**'
-      - 'pedcardsurg/**'
       - 'newbornscreen/**'
+      - 'kawasaki/**'
+      - 'hypertension/**'
+      - 'cardiovascular-risk/**'
+      - 'aortopathy/**'
+      - 'genetics-chd/**'
+      - 'myocarditis/**'
+      - 'pals/**'
+      - 'pedcardsurg/**'
+      - 'cardiohospital/**'
+      - 'about/**'
+      - 'contact/**'
+      - 'privacy/**'
+      - 'education/**'
+      - 'search/**'
+      - 'site/**'
+      - 'clinical/**'
+      - '.well-known/**'
+      - '_headers'
+      - 'robots.txt'
+      - '404.html'
       - 'index.html'
       - 'package.json'
       - 'package-lock.json'
+      - 'README.md'
+      - 'MASTER_PLAN.md'
+      - 'CLAUDE.md'
+      - 'DEPLOYMENT.md'
+      - 'PR_TRIAGE.md'
       - '.github/workflows/tests.yml'
   workflow_dispatch:
 
@@ -45,6 +95,22 @@ permissions:
   contents: read
 
 jobs:
+  platform_policy:
+    name: Platform policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Deployment, privacy, governance, provenance, and budgets
+        run: npm run test:platform
+
   steven_os:
     name: Steven OS core
     runs-on: ubuntu-latest
@@ -64,7 +130,7 @@ jobs:
   behaviour:
     name: Behavioural tests
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -84,31 +150,66 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in phs/v17/*.js genetics-chd/assets/*.js pedcardsurg/assets/*.js tests/*.mjs tests/helpers/*.mjs steven-os/lib/*.mjs; do
-            node --check "$file"
-          done
+          find phs/v17 steven-os study tools genetics-chd pedcardsurg hypertension cardiovascular-risk aortopathy myocarditis pals newbornscreen tests site scripts \
+            -type f \( -name '*.js' -o -name '*.mjs' \) -print0 \
+            | xargs -0 -n1 node --check
 
       - name: Verify case package integrity
+        if: ${{ !cancelled() }}
         run: npm run test:integrity
 
       - name: Simulator behaviour
+        if: ${{ !cancelled() }}
         run: npm run test:phs
 
       - name: UI-only audit remediation regression
+        if: ${{ !cancelled() }}
         run: node --test tests/phs-v18-audit-remediation.test.mjs
 
       - name: Clinical validation regression
+        if: ${{ !cancelled() }}
         run: node --test tests/phs-clinical-validation.test.mjs
 
       - name: BP calculator correctness
+        if: ${{ !cancelled() }}
         run: npm run test:bp
 
+      - name: Kawasaki academy
+        if: ${{ !cancelled() }}
+        run: npm run test:kawasaki
+
+      - name: Hypertension academy
+        if: ${{ !cancelled() }}
+        run: npm run test:hypertension
+
+      - name: Cardiovascular prevention academy
+        if: ${{ !cancelled() }}
+        run: npm run test:cardiovascular-risk
+
+      - name: Aortopathy academy
+        if: ${{ !cancelled() }}
+        run: npm run test:aortopathy
+
+      - name: Myocarditis academy
+        if: ${{ !cancelled() }}
+        run: npm run test:myocarditis
+
+      - name: PALS academy
+        if: ${{ !cancelled() }}
+        run: npm run test:pals
+
       - name: Genetics of CHD academy
+        if: ${{ !cancelled() }}
         run: npm run test:genetics-chd
 
       - name: PedCardSurg academy
+        if: ${{ !cancelled() }}
         run: npm run test:pedcardsurg
 
       - name: Site conventions and smoke
         if: ${{ !cancelled() }}
         run: npm run test:smoke
+
+      - name: Shared platform accessibility
+        if: ${{ !cancelled() }}
+        run: npm run test:a11y

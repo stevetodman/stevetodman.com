@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "exceptions": {
+    "/kawasaki/": {
+      "description": "Legacy visualization-style single-file academy does not yet include a meta description.",
+      "favicon": "Legacy visualization-style single-file academy does not yet include a favicon link.",
+      "externalSubresources": "Source export still contains optional Floating UI/Lucide CDN loaders; scripts/build-site.mjs strips them and platform-policy.test.mjs verifies the production artifact is self-contained."
+    }
+  }
+}

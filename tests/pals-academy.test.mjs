@@ -84,7 +84,7 @@ describe('PALS 2025 resident mastery lab', () => {
     assert.equal(await page.locator('a.skip-link').count(), 1);
     await page.goto(server.origin + '/', { waitUntil: 'networkidle' });
     assert.equal(await page.locator('a[href="/pals/"]').count(), 1);
-    assert.match(await page.textContent('a[href="/pals/"]'), /PALS 2025 Resident Mastery Lab/);
+    assert.match(await page.textContent('a[href="/pals/"]'), /PALS 2025 Mastery Lab/);
     assert.deepEqual(errors, []);
     await context.close();
   });

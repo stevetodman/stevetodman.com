@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "budgets": {
+    "htmlBytes": 275000,
+    "javascriptBytes": 160000,
+    "cssBytes": 110000,
+    "imageBytes": 2000000
+  },
+  "notes": [
+    "These are per-file guardrails, not claims about Core Web Vitals.",
+    "Large source/master assets should stay out of the production artifact when an optimized derivative exists.",
+    "Tighten budgets after production measurements are captured."
+  ]
+}

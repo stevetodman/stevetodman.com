@@ -23,6 +23,21 @@ async function openModule(viewport = { width: 1180, height: 900 }) {
   return { page, errors };
 }
 
+async function expectAtlasImage(page, filename) {
+  await page.waitForFunction(expected => {
+    const image = document.querySelector('#atlasViewer img');
+    return Boolean(
+      image &&
+      image.complete &&
+      image.naturalWidth > 0 &&
+      image.currentSrc &&
+      image.currentSrc.endsWith(expected)
+    );
+  }, filename);
+  const currentSrc = await page.locator('#atlasViewer img').evaluate(el => el.currentSrc);
+  assert.ok(currentSrc.endsWith(filename), `expected atlas image ${filename}, got ${currentSrc || '(empty currentSrc)'}`);
+}
+
 describe('PedCardSurg congenital surgery academy', () => {
   test('loads the complete 9/55/26/44 atlas and curriculum without runtime errors', async () => {
     const { page, errors } = await openModule();
@@ -39,19 +54,19 @@ describe('PedCardSurg congenital surgery academy', () => {
     const { page, errors } = await openModule();
     const image = page.locator('#atlasViewer img');
     assert.match(await image.getAttribute('alt'), /patent ductus arteriosus/i);
-    assert.match(await image.evaluate(el => el.currentSrc), /pda-ligation-division\.webp$/);
+    await expectAtlasImage(page, 'pda-ligation-division.webp');
 
     await page.getByRole('button', { name: /Norwood stage I reconstruction/ }).click();
     assert.match(await page.locator('#atlasViewer h3').textContent(), /Norwood stage I reconstruction/);
-    assert.match(await image.evaluate(el => el.currentSrc), /norwood-stage-1-reconstruction\.webp$/);
+    await expectAtlasImage(page, 'norwood-stage-1-reconstruction.webp');
 
     await page.getByRole('button', { name: /Complete atrioventricular canal repair/ }).click();
-    assert.match(await image.evaluate(el => el.currentSrc), /complete-av-canal-repair-clean\.webp$/);
+    await expectAtlasImage(page, 'complete-av-canal-repair-clean.webp');
     assert.doesNotMatch(await image.getAttribute('alt'), /postoperative echocardiogram/i);
     assert.match(await page.locator('#atlasViewer').textContent(), /not an isolated ASD closure/i);
 
     await page.getByRole('button', { name: /Classic Blalock–Taussig shunt/ }).click();
-    assert.match(await image.evaluate(el => el.currentSrc), /classic-blalock-taussig-shunt\.webp$/);
+    await expectAtlasImage(page, 'classic-blalock-taussig-shunt.webp');
     assert.match(await page.locator('#atlasViewer').textContent(), /subclavian artery/i);
 
     const atlasDir = path.join(repoRoot, 'pedcardsurg', 'assets', 'chd-atlas');

@@ -43,9 +43,13 @@ function currentRoundState(page) {
 }
 
 async function tapCode(page, code) {
-  const fatTarget = page.locator(`#pinMap path.pin-hit[data-code="${code}"]`);
-  if (await fatTarget.count()) await fatTarget.click();
-  else await page.locator(`#pinMap path.state[data-code="${code}"]`).click();
+  // The visible state path is the topmost clickable surface over the state
+  // itself. Tiny-state .pin-hit overlays extend the tappable area around the
+  // outline, but their transparent center intentionally lets the visible state
+  // receive the click. Test the same topmost target a finger hits on the shape.
+  const visible = page.locator(`#pinMap path.state[data-code="${code}"]`);
+  if (await visible.count()) await visible.click();
+  else await page.locator(`#pinMap path.pin-hit[data-code="${code}"]`).click();
 }
 
 describe('Pin Sprint', () => {

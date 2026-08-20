@@ -4,10 +4,15 @@
   "type": "module",
   "description": "Personal website and tools. Static site; this manifest exists only to pin the test tooling.",
   "scripts": {
+    "build": "node scripts/build-site.mjs",
+    "verify:production": "node scripts/verify-production.mjs",
     "test": "node --test tests/*.test.mjs",
     "test:steven-os": "node --test tests/steven-os.test.mjs",
+    "test:platform": "node --test tests/platform-policy.test.mjs tests/governance.test.mjs tests/asset-provenance.test.mjs tests/performance-budget.test.mjs",
+    "test:a11y": "node --test tests/accessibility.test.mjs",
     "test:phs": "node --test tests/phs-scenarios.test.mjs",
     "test:bp": "node --test tests/bp-calculator.test.mjs",
+    "test:kawasaki": "node --test tests/kawasaki-academy.test.mjs",
     "test:hypertension": "node --test tests/hypertension-academy.test.mjs",
     "test:cardiovascular-risk": "node --test tests/cardiovascular-risk-academy.test.mjs",
     "test:aortopathy": "node --test tests/aortopathy-academy.test.mjs",
@@ -15,10 +20,11 @@
     "test:pals": "node --test tests/pals-academy.test.mjs",
     "test:genetics-chd": "node --test tests/genetics-chd-academy.test.mjs",
     "test:pedcardsurg": "node --test tests/pedcardsurg-academy.test.mjs",
-    "test:smoke": "node --test tests/site-smoke.test.mjs tests/pin-sprint.test.mjs",
+    "test:smoke": "node --test tests/site-smoke.test.mjs tests/pin-sprint.test.mjs tests/education-platform.test.mjs",
     "test:integrity": "node phs/v17/tests/integrity.mjs"
   },
   "devDependencies": {
+    "axe-core": "4.13.0",
     "playwright": "^1.56.1"
   }
 }

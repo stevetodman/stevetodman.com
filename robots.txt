@@ -1,0 +1,5 @@
+# Public pages intentionally remain crawlable so search engines can observe the
+# site-wide X-Robots-Tag: noindex directive and remove already-discovered URLs.
+# Crawling is not permission to index.
+User-agent: *
+Disallow:
