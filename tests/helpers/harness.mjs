@@ -79,9 +79,9 @@ export async function getChromium() {
   throw new Error(`Playwright not found. Tried:\n  ${errors.join('\n  ')}`);
 }
 
-/** Every cataloged PRODUCTION page opted into smoke coverage. */
+/** Every cataloged PRODUCTION route is smoke-tested. */
 export const SITE_PAGES = siteCatalog.items
-  .filter((item) => item.class === 'PRODUCTION' && item.smoke && item.route)
+  .filter((item) => item.class === 'PRODUCTION' && item.route)
   .map((item) => item.route);
 
 /** Collects console errors, page errors and failed requests for a page. */
