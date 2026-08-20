@@ -73,19 +73,19 @@
       "stem":"A 7-year-old with myocarditis has a brief run of nonsustained ventricular tachycardia on telemetry but denies symptoms. Ventricular function is mildly depressed. What is the best interpretation?",
       "options":[
         {"id":"electrical_instability","text":"It is evidence of electrical instability and supports continued monitored care and risk assessment"},
-        {"id":"ignore","text":"It can be ignored because there was no syncope"},
-        {"id":"sports","text":"It is compatible with immediate sports clearance because it was nonsustained"},
-        {"id":"artifact_assume","text":"All nonsustained ventricular tachycardia in children should be assumed to be artifact"},
-        {"id":"pericarditis_only","text":"It proves isolated pericarditis rather than myocardial disease"}
+        {"id":"routine_floor","text":"Because the run was asymptomatic and self-terminated, continue the same low-acuity plan without changing rhythm surveillance or risk assessment"},
+        {"id":"antiarrhythmic_now","text":"Start chronic antiarrhythmic therapy solely because one brief NSVT run occurred, before defining recurrent burden or hemodynamic effect"},
+        {"id":"artifact_default","text":"Treat the event as telemetry artifact unless a second identical episode is captured, even though the stored tracing is consistent with ventricular tachycardia"},
+        {"id":"early_clearance","text":"Use absence of syncope during the run as evidence that early return to strenuous activity will be reasonable once resting EF normalizes"}
       ],
       "correct_option_id":"electrical_instability",
-      "rationale":"Ventricular tachyarrhythmia is clinically significant in myocarditis even without symptoms and is associated with greater morbidity/resource use. The finding changes monitoring and follow-up risk assessment.",
+      "rationale":"Ventricular tachyarrhythmia is clinically significant in myocarditis even without symptoms and is associated with greater morbidity/resource use. The finding changes monitoring and follow-up risk assessment, but it does not by itself mandate one chronic antiarrhythmic strategy.",
       "option_explanations":{
-        "electrical_instability":"Correct. Absence of symptoms during a short run does not make ventricular tachycardia benign in an inflamed myocardium.",
-        "ignore":"Syncope would increase concern further, but asymptomatic VT still represents an important electrical complication.",
-        "sports":"Documented ventricular arrhythmia during active or recovering myocarditis argues against routine clearance until adequately reassessed.",
-        "artifact_assume":"Telemetry artifact is possible and strips should be reviewed, but true documented NSVT cannot be dismissed categorically.",
-        "pericarditis_only":"Ventricular tachycardia points to myocardial electrical involvement, not isolated pericardial inflammation."
+        "electrical_instability":"Correct. Absence of symptoms during a short run does not make ventricular tachycardia benign in an inflamed myocardium; the finding should alter monitoring and risk assessment.",
+        "routine_floor":"A self-terminating asymptomatic episode is less immediately unstable than sustained VT with shock, but true NSVT still supplies new electrical-risk information. Low-acuity observation without reassessment would under-react to the finding.",
+        "antiarrhythmic_now":"Antiarrhythmic therapy may be appropriate for recurrent or clinically important ventricular arrhythmia, but one brief run should first be interpreted in the context of burden, ventricular function, hemodynamics, and specialist rhythm assessment.",
+        "artifact_default":"Artifact is an important competing explanation for unusual telemetry, but the stem specifies a documented run. Once the tracing is verified as VT, it should not be dismissed until a recurrence occurs.",
+        "early_clearance":"Syncope would increase concern, but absence of syncope does not establish electrical recovery. Return to strenuous activity after myocarditis depends on broader rhythm and recovery assessment."
       },
       "board_pearl":"Asymptomatic ventricular tachycardia is still ventricular tachycardia; symptoms do not define electrical risk.",
       "evidence":[{"claim":"Arrhythmias in pediatric myocarditis are associated with worse outcomes and greater resource utilization.","source_id":"PED_ARRHYTHMIA_OUTCOMES"},{"claim":"Ventricular arrhythmia is a high-risk feature in pediatric myocarditis.","source_id":"AHA_PALS_2025"}],"last_medical_review":null,"requires_sme_review":true
@@ -95,19 +95,19 @@
       "stem":"An 11-year-old with suspected myocarditis has an episode of syncope. A resting ECG obtained afterward is unchanged from admission. Which next evaluation most directly addresses a dangerous intermittent cause?",
       "options":[
         {"id":"rhythm_monitor","text":"Review continuous telemetry and obtain appropriate ambulatory/prolonged rhythm monitoring if needed"},
-        {"id":"assume_vagal","text":"Assume vasovagal syncope because the post-event ECG is unchanged"},
-        {"id":"repeat_cxr","text":"Repeat chest radiography as the primary syncope test"},
-        {"id":"stop_monitor","text":"Stop cardiac monitoring because the ECG is normal between events"},
-        {"id":"exercise_now","text":"Perform immediate maximal exercise testing during active myocarditis"}
+        {"id":"repeat_echo","text":"Repeat echocardiography first and stop the syncope workup if ventricular systolic function is unchanged"},
+        {"id":"cmr_first","text":"Prioritize repeat tissue-characterization CMR before reviewing telemetry because scar burden is the most direct test for a transient rhythm event"},
+        {"id":"orthostatic_only","text":"Complete an orthostatic/vasovagal evaluation and regard a compatible history as sufficient despite the active myocarditis context"},
+        {"id":"ep_study","text":"Proceed directly to an invasive electrophysiology study before attempting to capture spontaneous intermittent rhythm abnormalities"}
       ],
       "correct_option_id":"rhythm_monitor",
       "rationale":"Intermittent tachy- or bradyarrhythmias may not appear on a resting ECG. Syncope in myocarditis is a high-risk symptom and warrants rhythm-focused evaluation and continued monitoring.",
       "option_explanations":{
         "rhythm_monitor":"Correct. Continuous or prolonged monitoring is designed to capture transient electrical events missed by a snapshot ECG.",
-        "assume_vagal":"Vasovagal syncope is common, but known/suspected myocarditis raises pretest concern for arrhythmia. A benign label should follow, not precede, adequate cardiac assessment.",
-        "repeat_cxr":"Radiography may evaluate congestion but does not diagnose intermittent arrhythmia.",
-        "stop_monitor":"A normal between-event ECG does not guarantee electrical stability.",
-        "exercise_now":"Exercise testing can be valuable later in recovery but is inappropriate as an acute provocation test during active myocarditis."
+        "repeat_echo":"Echo is useful for ventricular function and hemodynamics, but unchanged systolic function does not exclude intermittent tachy- or bradyarrhythmia as the cause of syncope.",
+        "cmr_first":"CMR can identify inflammation or scar that contributes to risk, but it does not directly capture a transient rhythm event. Rhythm review is the more direct next test for this question.",
+        "orthostatic_only":"Vasovagal syncope remains common in children, but active myocarditis raises the pretest probability of a cardiac rhythm cause. A benign mechanism should not be accepted without adequate cardiac assessment.",
+        "ep_study":"Invasive electrophysiology can be useful in selected arrhythmia problems, but spontaneous monitoring is less invasive and directly suited to detecting intermittent events before an invasive strategy is chosen."
       },
       "board_pearl":"Syncope plus myocarditis is an intermittent-arrhythmia problem until an adequate rhythm evaluation says otherwise.",
       "evidence":[{"claim":"Arrhythmic presentations including syncope are recognized myocarditis phenotypes and require risk stratification.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"Myocarditis with arrhythmia or heart block warrants early ICU monitoring and therapy.","source_id":"AHA_PALS_2025"}],"last_medical_review":null,"requires_sme_review":true
@@ -117,21 +117,21 @@
       "stem":"A 6-year-old with myocarditis has a regular monomorphic wide-complex tachycardia but remains alert, normotensive, and well perfused. Which general next-step principle is most appropriate?",
       "options":[
         {"id":"expert_stable_wct","text":"Obtain expert consultation and define the rhythm before choosing antiarrhythmic therapy; selected regular monomorphic rhythms may allow diagnostic/therapeutic adenosine under appropriate monitoring"},
-        {"id":"sync_all","text":"Immediately perform synchronized cardioversion in every wide-complex rhythm even without cardiopulmonary compromise"},
-        {"id":"drug_stack","text":"Give multiple antiarrhythmic drugs sequentially without specialist input"},
-        {"id":"adenosine_irregular","text":"Use adenosine for any wide-complex tachycardia, including irregular rhythms"},
-        {"id":"ignore","text":"Ignore the rhythm because blood pressure is currently normal"}
+        {"id":"cardioversion_now","text":"Perform synchronized cardioversion immediately despite preserved perfusion, before using the stability window for expert rhythm assessment"},
+        {"id":"empiric_amio","text":"Begin empiric antiarrhythmic infusion before expert consultation because myocarditis makes ventricular tachycardia the presumed mechanism"},
+        {"id":"adenosine_mandatory","text":"Treat adenosine as the mandatory first step for every regular monomorphic wide-complex rhythm, independent of expert rhythm review"},
+        {"id":"svt_assumption","text":"Presume supraventricular tachycardia with aberrancy because the child is stable and manage it as a narrow-complex SVT pathway"}
       ],
       "correct_option_id":"expert_stable_wct",
       "rationale":"Stable pediatric wide-complex tachycardia has several possible mechanisms, and antiarrhythmic therapy can be proarrhythmic. Current pediatric guidance prioritizes expert consultation; adenosine may be useful only in selected regular monomorphic rhythms.",
       "option_explanations":{
         "expert_stable_wct":"Correct. Stability creates time for rhythm clarification and expert-guided therapy while the child remains closely monitored.",
-        "sync_all":"Cardioversion is clearly indicated when cardiopulmonary compromise is present. In a stable child, expert rhythm assessment can guide a less reflexive approach.",
-        "drug_stack":"Multiple antiarrhythmics can increase proarrhythmic and hemodynamic risk, especially in cardiomyopathy. Specialist-guided selection is preferred.",
-        "adenosine_irregular":"Adenosine should not be used indiscriminately in irregular wide-complex tachycardia because dangerous pre-excited rhythms are possible. Its role is limited to selected regular monomorphic cases.",
-        "ignore":"Normal blood pressure does not make WCT benign; continued monitoring and expert evaluation are required."
+        "cardioversion_now":"Synchronized cardioversion is appropriate when cardiopulmonary compromise is present and may be needed if stability deteriorates. In a currently stable child, expert rhythm assessment can guide a less reflexive approach.",
+        "empiric_amio":"Ventricular tachycardia is a serious possibility, but stable wide-complex tachycardia can have several mechanisms and antiarrhythmics can carry hemodynamic/proarrhythmic risk. Expert-guided selection is preferred.",
+        "adenosine_mandatory":"Adenosine can be useful in selected regular monomorphic wide-complex tachycardia, but it is not a universal first step and should be used within an appropriately monitored expert-informed pathway.",
+        "svt_assumption":"SVT with aberrancy is a legitimate differential, but hemodynamic stability does not establish the mechanism. Treating a wide-complex rhythm as proven SVT before defining it can lead to inappropriate therapy."
       },
-      "board_pearl":"Stable wide-complex tachycardia buys time for expert rhythm definition—not permission to ignore it or stack drugs.",
+      "board_pearl":"Stable wide-complex tachycardia buys time for expert rhythm definition—not for premature certainty about the mechanism.",
       "evidence":[{"claim":"For pediatric wide-complex tachycardia without cardiopulmonary compromise, expert consultation is recommended before antiarrhythmic agents; adenosine may be useful when the rhythm is regular and monomorphic.","source_id":"AHA_PALS_2025"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
@@ -139,19 +139,19 @@
       "stem":"A 15-year-old recovering from myocarditis has normal LV ejection fraction but frequent ventricular ectopy on ambulatory monitoring. Which interpretation is best?",
       "options":[
         {"id":"rhythm_independent","text":"Mechanical recovery and electrical recovery are distinct; the ectopy requires continued cardiology assessment"},
-        {"id":"ef_cures","text":"Normal EF proves complete cardiac recovery and makes the ectopy irrelevant"},
-        {"id":"troponin_only","text":"The ectopy matters only if troponin is still elevated"},
-        {"id":"athlete_normal","text":"Frequent ventricular ectopy is automatically a benign athletic finding in adolescents"},
-        {"id":"no_monitor","text":"Ambulatory monitoring should be stopped once echocardiography normalizes"}
+        {"id":"cmr_controls","text":"If follow-up CMR shows resolution of edema, the frequent ectopy can be considered clinically unimportant despite its persistence"},
+        {"id":"symptom_controls","text":"If the adolescent denies palpitations or syncope, normal EF is sufficient to treat the ambulatory ectopy as a benign recovery finding"},
+        {"id":"troponin_controls","text":"Repeat troponin should determine whether the ectopy matters; a normal value would establish electrical recovery"},
+        {"id":"exercise_after_clear","text":"Sports clearance can precede additional rhythm assessment because exercise testing after return will reveal whether the ectopy is clinically important"}
       ],
       "correct_option_id":"rhythm_independent",
       "rationale":"Myocarditis recovery is multidimensional. Ventricular function can normalize while scar or electrical instability persists, so rhythm findings remain clinically relevant.",
       "option_explanations":{
         "rhythm_independent":"Correct. Function, symptoms, biomarkers, tissue findings, and rhythm do not necessarily recover at the same pace.",
-        "ef_cures":"EF is an important recovery measure but does not capture arrhythmia substrate or active tissue injury.",
-        "troponin_only":"Troponin may normalize even when electrical risk remains. Rhythm findings should be interpreted directly rather than conditionally on a biomarker.",
-        "athlete_normal":"Some ectopy can be benign, but frequent or complex ventricular ectopy after myocarditis requires disease-specific assessment before it is labeled physiologic.",
-        "no_monitor":"Rhythm monitoring is specifically useful in myocarditis follow-up when arrhythmic risk persists."
+        "cmr_controls":"Resolution of active edema is reassuring, but CMR and rhythm monitoring measure different recovery domains. Persistent frequent ectopy still requires direct electrical risk assessment.",
+        "symptom_controls":"Absence of palpitations or syncope lowers symptomatic burden but does not make objectively frequent ventricular ectopy benign after myocarditis.",
+        "troponin_controls":"Troponin reflects myocardial injury rather than rhythm stability. It may normalize while an arrhythmogenic substrate or ventricular ectopy persists.",
+        "exercise_after_clear":"Exercise testing can be part of recovery assessment, but clinically important rhythm stability should be established before routine competitive clearance rather than tested only after return."
       },
       "board_pearl":"A normal EF is not an electrical clearance test.",
       "evidence":[{"claim":"Arrhythmia surveillance is part of myocarditis follow-up and return-to-activity assessment.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"Persistent arrhythmic risk can remain after the acute inflammatory phase.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
@@ -161,19 +161,19 @@
       "stem":"A 12-year-old with myocarditis has a falling troponin concentration but intermittent second-degree/high-grade AV block continues on telemetry. What is the best management implication?",
       "options":[
         {"id":"continue_monitor","text":"Continue monitored care because biomarker improvement does not establish electrical recovery"},
-        {"id":"discharge_troponin","text":"Discharge because falling troponin proves the myocardium is electrically stable"},
-        {"id":"stop_telemetry","text":"Stop telemetry to avoid overdiagnosing transient conduction findings"},
-        {"id":"sports","text":"Begin graded sports participation to test the conduction system"},
-        {"id":"ignore_block","text":"Treat only symptoms and ignore asymptomatic high-grade conduction abnormalities"}
+        {"id":"ambulatory_discharge","text":"If blood pressure is currently normal between episodes, discharge with ambulatory monitoring and let the outpatient rhythm burden determine whether high-grade block matters"},
+        {"id":"cmr_decides","text":"Use repeat CMR to decide whether telemetry can stop; absence of active edema would establish that the conduction abnormality is low risk"},
+        {"id":"pacing_all","text":"Place temporary pacing support for every intermittent high-grade block episode regardless of ventricular rate, symptoms, or perfusion"},
+        {"id":"troponin_threshold","text":"Continue telemetry only until troponin reaches the laboratory reference range, then de-escalate even if intermittent high-grade block remains"}
       ],
       "correct_option_id":"continue_monitor",
       "rationale":"Biomarkers and conduction-system recovery can follow different timelines. Persistent high-grade block remains a high-risk electrical finding even if the injury marker is improving.",
       "option_explanations":{
-        "continue_monitor":"Correct. The active management problem is now electrical stability, not simply biomarker direction.",
-        "discharge_troponin":"Troponin decline is encouraging but cannot substitute for rhythm stability and adequate perfusion.",
-        "stop_telemetry":"Telemetry is precisely how intermittent conduction disease is recognized; stopping it would discard clinically relevant information.",
-        "sports":"Exercise is restricted during active/recent myocarditis and is not a diagnostic stress test for unstable conduction disease.",
-        "ignore_block":"High-grade AV block can deteriorate even when symptoms are intermittent; it warrants specialist evaluation and monitored care."
+        "continue_monitor":"Correct. The active management problem is electrical stability, not simply biomarker direction.",
+        "ambulatory_discharge":"Ambulatory monitoring is useful in selected stable follow-up settings, but persistent high-grade AV block during active myocarditis is a high-risk finding that warrants monitored specialist care before discharge decisions.",
+        "cmr_decides":"CMR can clarify inflammation and scar but cannot substitute for direct rhythm assessment. Conduction instability may persist despite improvement in tissue markers.",
+        "pacing_all":"Emergency pacing is considered when clinically significant bradycardia or complete block causes compromise and does not respond to initial measures. Intermittent block does not make pacing automatic in every circumstance.",
+        "troponin_threshold":"A biomarker threshold cannot establish electrical recovery. High-grade block remains clinically relevant even when myocardial-injury markers improve or normalize."
       },
       "board_pearl":"Do not let a better laboratory trend cancel an abnormal rhythm strip.",
       "evidence":[{"claim":"Pediatric myocarditis with heart block warrants high-acuity monitoring and therapy.","source_id":"AHA_PALS_2025"}],"last_medical_review":null,"requires_sme_review":true
@@ -183,19 +183,19 @@
       "stem":"A 14-year-old with myocarditis has preserved LV systolic function but develops palpitations, near-syncope, and polymorphic ventricular tachycardia on telemetry. Which interpretation is most important?",
       "options":[
         {"id":"life_threatening","text":"This is potentially life-threatening electrical instability requiring urgent escalation regardless of preserved EF"},
-        {"id":"benign_ef","text":"Preserved EF makes the rhythm low risk"},
-        {"id":"pericarditis","text":"The rhythm proves isolated pericarditis"},
-        {"id":"resolved","text":"The rhythm indicates that myocarditis has resolved"},
-        {"id":"outpatient","text":"Outpatient rhythm follow-up is sufficient because the child still has a pulse"}
+        {"id":"cmr_first","text":"Preserved EF allows CMR-based scar characterization to precede urgent rhythm escalation because global pump function is intact"},
+        {"id":"antiarrhythmic_outpatient","text":"If the episode self-terminates, begin outpatient antiarrhythmic planning and reassess the rhythm burden after discharge"},
+        {"id":"exercise_provocation","text":"Use monitored exercise testing to determine whether the polymorphic rhythm is reproducible before labeling it high risk"},
+        {"id":"ef_reassuring","text":"Normal global systolic function substantially lowers the immediate importance of the rhythm unless sustained hypotension develops"}
       ],
       "correct_option_id":"life_threatening",
       "rationale":"Malignant ventricular arrhythmia can occur without severe global pump dysfunction. The immediate risk is electrical, and preserved EF does not protect against deterioration to cardiac arrest.",
       "option_explanations":{
         "life_threatening":"Correct. Near-syncope plus polymorphic VT is an acute escalation trigger.",
-        "benign_ef":"EF measures global systolic performance and cannot exclude a dangerous arrhythmogenic substrate.",
-        "pericarditis":"Polymorphic VT signifies myocardial electrical involvement, not isolated pericardial inflammation.",
-        "resolved":"A new malignant arrhythmia is evidence of ongoing risk, not resolution.",
-        "outpatient":"A pulse does not make a malignant rhythm safe for outpatient management, especially with near-syncope."
+        "cmr_first":"CMR can contribute to later substrate assessment, but a malignant ventricular rhythm with near-syncope requires immediate electrical stabilization and monitoring rather than delayed escalation for imaging.",
+        "antiarrhythmic_outpatient":"Self-termination does not make polymorphic VT with near-syncope an outpatient problem. Acute monitoring and specialist management are required before longer-term drug decisions.",
+        "exercise_provocation":"Exercise testing may be useful during recovery in selected patients, but deliberately provoking a malignant rhythm during active myocarditis is not the next step.",
+        "ef_reassuring":"EF measures global systolic performance and cannot exclude dangerous electrical instability. The rhythm is high risk even before sustained hypotension appears."
       },
       "board_pearl":"Myocarditis can be electrically malignant even when the echocardiogram looks mechanically reassuring.",
       "evidence":[{"claim":"Ventricular arrhythmias are major high-risk complications of pediatric myocarditis.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"Arrhythmias in pediatric myocarditis are associated with increased morbidity/resource utilization.","source_id":"PED_ARRHYTHMIA_OUTCOMES"}],"last_medical_review":null,"requires_sme_review":true
@@ -205,19 +205,19 @@
       "stem":"A 9-year-old with myocarditis has recurrent ventricular tachycardia despite initial rhythm treatment. Between episodes, ventricular function is severely depressed, lactate is rising, urine output is falling, and vasoactive needs are increasing. Which strategic response is best?",
       "options":[
         {"id":"combined_escalation","text":"Treat the child as having combined electrical and pump instability and activate advanced heart-failure/MCS-level escalation now"},
-        {"id":"rhythm_only","text":"Focus only on suppressing the arrhythmia because circulation will recover once the rhythm is controlled"},
-        {"id":"pump_only","text":"Ignore the ventricular tachycardia and treat only ejection fraction"},
-        {"id":"wait_arrest","text":"Delay MCS-center involvement until cardiac arrest occurs"},
-        {"id":"etiology_delay","text":"Suspend escalation until a viral or biopsy diagnosis is finalized"}
+        {"id":"rhythm_sequence","text":"Prioritize serial rhythm-suppression strategies first and reassess the low-output trajectory only after sustained rhythm control is achieved"},
+        {"id":"local_threshold","text":"Continue the current local ICU plan until another major vasoactive or organ-support threshold is crossed before involving an MCS-capable center"},
+        {"id":"airway_threshold","text":"Defer advanced-center escalation until invasive ventilation or cardiac arrest occurs, because those events establish failure of conventional therapy"},
+        {"id":"biopsy_before_mcs","text":"Obtain definitive local biopsy-based etiologic classification before activating MCS-level transfer so disease-specific therapy can be chosen first"}
       ],
       "correct_option_id":"combined_escalation",
       "rationale":"Recurrent malignant arrhythmia plus refractory low output is a high-risk pre-arrest myocarditis phenotype. Rhythm management, perfusion support, and advanced-center/MCS planning must occur in parallel.",
       "option_explanations":{
         "combined_escalation":"Correct. Electrical and mechanical instability amplify each other and should be managed as one deteriorating syndrome.",
-        "rhythm_only":"Termination of VT may improve output, but severe underlying pump failure and organ hypoperfusion remain independent threats.",
-        "pump_only":"Ventricular tachycardia can itself cause arrest and worsen output; it cannot be ignored because EF is severely depressed.",
-        "wait_arrest":"Current pediatric guidance favors early transfer/MCS consideration before arrest in refractory low output.",
-        "etiology_delay":"Etiologic clarification may affect disease-specific therapy but should not delay stabilization or advanced-support planning."
+        "rhythm_sequence":"Termination of VT may improve output, but severe ventricular dysfunction and worsening end-organ perfusion are independent threats. Waiting for complete rhythm control before escalating circulation support can lose the pre-arrest window.",
+        "local_threshold":"Rising lactate, oliguria, severe dysfunction, recurrent VT, and increasing vasoactive needs already demonstrate a failing trajectory. Advanced-center involvement should occur before an arbitrary additional threshold is crossed.",
+        "airway_threshold":"Invasive ventilation and arrest are late markers of deterioration, not prerequisites for transfer. Current pediatric guidance favors early MCS-capable-center escalation in refractory low output.",
+        "biopsy_before_mcs":"Tissue diagnosis can change disease-specific treatment in selected high-risk myocarditis, but it should not delay stabilization or transfer when the child is developing refractory electrical and pump failure."
       },
       "board_pearl":"When myocarditis is both electrically and mechanically unstable, escalation must address both domains simultaneously.",
       "evidence":[{"claim":"Pediatric myocarditis with arrhythmia and refractory low cardiac output is a pre-arrest state in which early ICU and MCS-capable-center escalation is recommended/reasonable.","source_id":"AHA_PALS_2025"},{"claim":"Fulminant myocarditis may require early mechanical circulatory support to prevent irreversible organ injury.","source_id":"AHA_FULMINANT_2020"}],"last_medical_review":null,"requires_sme_review":true
