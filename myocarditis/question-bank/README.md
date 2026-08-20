@@ -31,6 +31,8 @@ The database does **not** store a canonical answer letter.
 
 Each option has a stable semantic `id`, and each question stores `correct_option_id`. The browser shuffles option objects at render time and only then assigns displayed `A`–`E` labels. Grading and explanations are mapped from stable option IDs, so there is no raw all-A/all-B answer-position pattern to conceal.
 
+On retake, choices are reshuffled again. If randomization happens to reproduce the exact prior order for a question, the renderer rotates that order once so the retry is visibly different while preserving semantic-ID grading.
+
 This design prevents the v1 failure mode in which later stacks had highly biased canonical answer positions.
 
 ## Exam-mode rendering
@@ -118,8 +120,10 @@ Pediatric sources are preferred for pediatric claims. Adult/general guidance is 
 - grades a complete stack correctly after option randomization
 - maps wrong semantic option IDs back to the correct displayed learner/correct A–E labels
 - reveals full explanations and learning objectives only after grading
+- guarantees a visibly different option order on retake and hides prior feedback again
+- advances to the next declared stack and renders a fresh 10-question exam state
 
-The dedicated workflow runs these checks for relevant feature-branch/main pushes and pull requests.
+The dedicated workflow runs these checks for relevant feature-branch/main pushes and pull requests. Changes to the shared test harness also trigger the workflow.
 
 ## Publication rule
 
