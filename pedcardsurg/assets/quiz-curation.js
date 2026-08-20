@@ -258,6 +258,86 @@
     };
   }
 
+  const arterialSwitch=byId(8);
+  if(arterialSwitch){
+    arterialSwitch.o=[
+      'Coronary artery transfer to the neoaorta',
+      'Create a right ventricle-to-pulmonary artery conduit for pulmonary blood flow',
+      'Construct an atrial baffle to redirect systemic and pulmonary venous return',
+      'Perform the Lecompte maneuver to position the pulmonary arteries anteriorly'
+    ];
+    arterialSwitch.wrong={
+      1:'An RV-to-PA conduit is a component of repairs such as Rastelli, not a standard arterial switch. The arterial switch establishes pulmonary outflow by reconnecting the great arteries.',
+      2:'An atrial baffle is the defining rerouting step of Mustard or Senning repair. Arterial switch repair instead restores ventriculoarterial concordance.',
+      3:'The Lecompte maneuver is commonly part of an arterial switch, but coronary transfer is the technically defining step because coronary perfusion depends on precise button mobilization and reimplantation.'
+    };
+  }
+
+  const glennReturn=byId(16);
+  if(glennReturn){
+    Object.assign(glennReturn,{
+      q:'After a bidirectional Glenn but before Fontan completion, which major caval return still reaches the heart?',
+      o:[
+        'Superior vena caval return',
+        'Inferior vena caval return',
+        'Innominate venous return',
+        'Azygos venous return entering the SVC'
+      ],
+      a:1,
+      e:'A bidirectional Glenn routes SVC blood directly to the pulmonary arteries. IVC and hepatic venous return still reaches the heart until Fontan completion.'
+    });
+    glennReturn.wrong={
+      0:'SVC return is the flow redirected directly to the branch pulmonary arteries by the bidirectional Glenn.',
+      2:'Innominate venous return drains into the SVC and therefore follows the Glenn pathway to the pulmonary arteries.',
+      3:'Azygos venous return entering the SVC follows the SVC/Glenn pathway rather than remaining connected to the heart.'
+    };
+  }
+
+  const fontanPvr=byId(17);
+  if(fontanPvr){
+    fontanPvr.o=[
+      'Elevated PVR is offset by stronger systemic ventricular contraction, preserving transpulmonary flow',
+      'Pulmonary flow is largely passive, so elevated PVR directly impedes venous return and preload',
+      'Systemic venous pressure can be raised indefinitely to preserve Fontan preload despite high PVR',
+      'Pulmonary vasodilator response is irrelevant once the cavopulmonary connection is established'
+    ];
+    fontanPvr.wrong={
+      0:'The systemic ventricle is not a subpulmonary pump. It cannot simply overcome high pulmonary vascular resistance to maintain passive transpulmonary flow.',
+      2:'Higher systemic venous pressure has important consequences and cannot indefinitely compensate for elevated PVR. Adequate Fontan flow depends on a low-resistance pulmonary circuit.',
+      3:'Pulmonary vascular tone remains central to Fontan physiology; a favorable pulmonary vascular bed is necessary for venous return and ventricular preload.'
+    };
+  }
+
+  const bttShunt=byId(19);
+  if(bttShunt){
+    bttShunt.o=[
+      'Augment pulmonary blood flow from a systemic artery',
+      'Provide systemic outflow by bypassing a severely obstructed aortic arch',
+      'Reduce pulmonary blood flow in a patient with excessive pulmonary overcirculation',
+      'Establish passive cavopulmonary flow from the superior vena cava'
+    ];
+    bttShunt.wrong={
+      1:'Systemic outflow reconstruction for severe arch obstruction is addressed with procedures such as Norwood or arch repair, not a systemic-to-pulmonary BTT shunt.',
+      2:'Pulmonary artery banding is used to restrict excessive pulmonary blood flow. A BTT shunt does the opposite by augmenting pulmonary blood flow.',
+      3:'A bidirectional Glenn creates a cavopulmonary connection from the SVC. A BTT shunt instead supplies pulmonary flow from a systemic artery.'
+    };
+  }
+
+  const dorvPlanning=byId(40);
+  if(dorvPlanning){
+    dorvPlanning.o=[
+      'VSD location, great artery relationship, outflow obstruction, and ventricular adequacy determine the repair',
+      'A fixed intracardiac baffle to the aorta is used regardless of ventricular or coronary anatomy',
+      'An arterial switch alone corrects DORV even when no suitable LV-to-aorta pathway exists',
+      'Single-ventricle palliation is reserved only for postoperative complications rather than primary anatomy'
+    ];
+    dorvPlanning.wrong={
+      1:'An intracardiac baffle is feasible only in selected DORV anatomy. VSD position, ventricular relationships, AV-valve anatomy, and coronary anatomy can make other strategies necessary.',
+      2:'Some DORV variants are suitable for arterial switch, but it is not a universal solution. The feasibility of routing LV output and the overall anatomy determine the operation.',
+      3:'Single-ventricle palliation may be the primary strategy when ventricular adequacy or intracardiac anatomy precludes a safe biventricular repair.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
