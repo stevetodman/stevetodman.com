@@ -78,6 +78,10 @@ test('classified build contains only production routes and shared public assets'
     'site/learning-progress.js',
   ]) assert.ok(fs.existsSync(path.join(dist, required)), `required deploy asset missing: ${required}`);
 
+  const deployedCatalog = JSON.parse(fs.readFileSync(path.join(dist, 'site/catalog.json'), 'utf8'));
+  assert.deepEqual(deployedCatalog.classes, ['PRODUCTION'], 'public catalog should expose only the production class');
+  assert.ok(deployedCatalog.items.every((item) => item.class === 'PRODUCTION'), 'public catalog leaked non-production metadata');
+
   for (const item of catalog.items.filter((x) => x.route && x.class !== 'PRODUCTION')) {
     assert.equal(
       fs.existsSync(path.join(dist, routeArtifact(item.route))),
