@@ -162,6 +162,182 @@
     };
   }
 
+  const wardenProcedure=byId(11);
+  if(wardenProcedure){
+    Object.assign(wardenProcedure,{
+      q:'Which pulmonary venous anatomy is most appropriately repaired with a Warden procedure rather than a standard TAPVR repair?',
+      o:[
+        'Right upper pulmonary veins entering the high SVC with a superior sinus venosus ASD',
+        'All pulmonary veins joining a supracardiac confluence that drains through a vertical vein',
+        'All pulmonary veins draining to the coronary sinus through a common venous confluence',
+        'An isolated left upper pulmonary vein draining to the innominate vein without SVC involvement'
+      ],
+      a:0,
+      e:'The Warden procedure is designed for PAPVR entering the high SVC, usually with a superior sinus venosus ASD. It baffles anomalous pulmonary venous flow to the left atrium while reconnecting the SVC to the right atrial appendage. TAPVR instead requires connection of the pulmonary venous confluence to the left atrium.'
+    });
+    wardenProcedure.wrong={
+      1:'This is supracardiac TAPVR. Repair connects the common pulmonary venous confluence to the left atrium and addresses the vertical-vein pathway; a Warden procedure is not the standard repair.',
+      2:'This is cardiac TAPVR draining through the coronary sinus. The surgical goal is to establish normal pulmonary venous drainage to the left atrium, not to perform a high-SVC Warden repair.',
+      3:'This is a left-sided PAPVR pattern without high-SVC involvement. It may require another tailored repair strategy, but it does not evoke the classic Warden anatomy.'
+    };
+  }
+
+  const aorticStenosis=byId(38);
+  if(aorticStenosis){
+    aorticStenosis.o=[
+      'Valvar stenosis may undergo balloon valvuloplasty, whereas a discrete subaortic membrane usually needs surgical resection',
+      'Balloon dilation is the preferred initial treatment for either lesion because postoperative recurrence is uncommon',
+      'Surgical valve replacement is indicated for either lesion because both obstructions arise at the aortic valve',
+      'Subaortic membrane can be observed long term because it rarely progresses or recurs after surgical resection'
+    ];
+    aorticStenosis.wrong={
+      1:'Balloon valvuloplasty is often useful for congenital valvar aortic stenosis, but a discrete subaortic membrane is an anatomic subvalvar obstruction that generally requires surgical resection. Recurrence after membrane resection is a recognized concern.',
+      2:'A discrete subaortic membrane lies below an otherwise separate aortic valve. Valve replacement is not its usual treatment; resection targets the subvalvar obstruction.',
+      3:'Subaortic membrane may progress and can recur after resection, so longitudinal surveillance is important rather than simple observation.'
+    };
+  }
+
+  const doubleAorticArch=byId(26);
+  if(doubleAorticArch){
+    doubleAorticArch.o=[
+      'Divide the non-dominant arch segment completing the ring and release airway/esophageal compression',
+      'Resect the dominant arch and rely on the remaining arch for systemic outflow',
+      'Perform posterior aortopexy as the initial operation without dividing either arch segment',
+      'Place an endovascular stent across one arch segment to enlarge the vascular ring'
+    ];
+    doubleAorticArch.wrong={
+      1:'The dominant arch supplies the primary systemic pathway and is usually preserved. Dividing the non-dominant arch breaks the ring while maintaining reliable systemic perfusion.',
+      2:'Posterior aortopexy can be considered for selected persistent airway compression or tracheobronchomalacia, but it does not by itself divide the vascular ring formed by a double aortic arch.',
+      3:'A double aortic arch is an external vascular ring rather than a focal intraluminal stenosis. Standard repair releases compression by surgical division of the non-dominant arch.'
+    };
+  }
+
+  const transannularPatch=byId(5);
+  if(transannularPatch){
+    transannularPatch.o[1]='Aortic root dilation with progressive aortic regurgitation after repaired TOF';
+    transannularPatch.o[2]='Residual or recurrent RVOT obstruction with pressure-loaded right ventricular hypertrophy';
+    transannularPatch.wrong={
+      ...(transannularPatch.wrong||{}),
+      1:'Aortic root dilation and aortic regurgitation can occur in repaired TOF and merit surveillance, but they are not the characteristic direct tradeoff of making the pulmonary annulus incompetent with a transannular patch.',
+      2:'Residual or recurrent RVOT obstruction is a relevant postoperative concern, but a successful transannular patch is specifically used to relieve obstruction. Its characteristic late consequence is pulmonary regurgitation with RV volume loading.'
+    };
+  }
+
+  const interruptedArch=byId(29);
+  if(interruptedArch){
+    Object.assign(interruptedArch,{
+      q:'Which genetic diagnosis should strongly be considered in interrupted aortic arch type B?',
+      o:[
+        '22q11.2 deletion syndrome',
+        'Turner syndrome',
+        'Williams syndrome',
+        'Marfan syndrome'
+      ],
+      a:0,
+      e:'Interrupted aortic arch type B is strongly associated with 22q11.2 deletion syndrome. Evaluation should also consider calcium, immune, palate, and other extracardiac findings when clinically appropriate.'
+    });
+    interruptedArch.wrong={
+      1:'Turner syndrome is associated with left-sided lesions such as coarctation and bicuspid aortic valve, but it is not the classic association for interrupted aortic arch type B.',
+      2:'Williams syndrome is classically associated with supravalvar aortic stenosis and peripheral pulmonary stenosis rather than interrupted aortic arch type B.',
+      3:'Marfan syndrome predisposes to aortic-root dilation and dissection, not the characteristic neonatal arch interruption associated with 22q11.2 deletion.'
+    };
+  }
+
+  const persistentStridor=byId(27);
+  if(persistentStridor){
+    persistentStridor.o=[
+      'Persistent tracheobronchomalacia from chronic preoperative compression',
+      'Postoperative vocal-cord paresis causing extrathoracic airway obstruction',
+      'Subglottic stenosis after prolonged endotracheal intubation',
+      'Aspiration-related airway inflammation from postoperative swallowing dysfunction'
+    ];
+    persistentStridor.wrong={
+      1:'Vocal-cord paresis can cause stridor after thoracic surgery and should be considered when the clinical pattern suggests glottic dysfunction. It is not the characteristic reason symptoms persist after long-standing vascular compression has been relieved.',
+      2:'Subglottic stenosis is an important airway consideration after prolonged intubation, but chronic tracheobronchomalacia is the more characteristic explanation when stridor persists after successful vascular-ring division.',
+      3:'Aspiration can aggravate respiratory symptoms, especially with swallowing dysfunction, but it does not explain the chronic dynamic airway weakness produced by preoperative vascular compression.'
+    };
+  }
+
+  const arterialSwitch=byId(8);
+  if(arterialSwitch){
+    arterialSwitch.o=[
+      'Coronary artery transfer to the neoaorta',
+      'Create a right ventricle-to-pulmonary artery conduit for pulmonary blood flow',
+      'Construct an atrial baffle to redirect systemic and pulmonary venous return',
+      'Perform the Lecompte maneuver to position the pulmonary arteries anteriorly'
+    ];
+    arterialSwitch.wrong={
+      1:'An RV-to-PA conduit is a component of repairs such as Rastelli, not a standard arterial switch. The arterial switch establishes pulmonary outflow by reconnecting the great arteries.',
+      2:'An atrial baffle is the defining rerouting step of Mustard or Senning repair. Arterial switch repair instead restores ventriculoarterial concordance.',
+      3:'The Lecompte maneuver is commonly part of an arterial switch, but coronary transfer is the technically defining step because coronary perfusion depends on precise button mobilization and reimplantation.'
+    };
+  }
+
+  const glennReturn=byId(16);
+  if(glennReturn){
+    Object.assign(glennReturn,{
+      q:'After a bidirectional Glenn but before Fontan completion, which major caval return still reaches the heart?',
+      o:[
+        'Superior vena caval return',
+        'Inferior vena caval return',
+        'Innominate venous return',
+        'Azygos venous return entering the SVC'
+      ],
+      a:1,
+      e:'A bidirectional Glenn routes SVC blood directly to the pulmonary arteries. IVC and hepatic venous return still reaches the heart until Fontan completion.'
+    });
+    glennReturn.wrong={
+      0:'SVC return is the flow redirected directly to the branch pulmonary arteries by the bidirectional Glenn.',
+      2:'Innominate venous return drains into the SVC and therefore follows the Glenn pathway to the pulmonary arteries.',
+      3:'Azygos venous return entering the SVC follows the SVC/Glenn pathway rather than remaining connected to the heart.'
+    };
+  }
+
+  const fontanPvr=byId(17);
+  if(fontanPvr){
+    fontanPvr.o=[
+      'Elevated PVR is offset by stronger systemic ventricular contraction, preserving transpulmonary flow',
+      'Pulmonary flow is largely passive, so elevated PVR directly impedes venous return and preload',
+      'Systemic venous pressure can be raised indefinitely to preserve Fontan preload despite high PVR',
+      'Pulmonary vasodilator response is irrelevant once the cavopulmonary connection is established'
+    ];
+    fontanPvr.wrong={
+      0:'The systemic ventricle is not a subpulmonary pump. It cannot simply overcome high pulmonary vascular resistance to maintain passive transpulmonary flow.',
+      2:'Higher systemic venous pressure has important consequences and cannot indefinitely compensate for elevated PVR. Adequate Fontan flow depends on a low-resistance pulmonary circuit.',
+      3:'Pulmonary vascular tone remains central to Fontan physiology; a favorable pulmonary vascular bed is necessary for venous return and ventricular preload.'
+    };
+  }
+
+  const bttShunt=byId(19);
+  if(bttShunt){
+    bttShunt.o=[
+      'Augment pulmonary blood flow from a systemic artery',
+      'Provide systemic outflow by bypassing a severely obstructed aortic arch',
+      'Reduce pulmonary blood flow in a patient with excessive pulmonary overcirculation',
+      'Establish passive cavopulmonary flow from the superior vena cava'
+    ];
+    bttShunt.wrong={
+      1:'Systemic outflow reconstruction for severe arch obstruction is addressed with procedures such as Norwood or arch repair, not a systemic-to-pulmonary BTT shunt.',
+      2:'Pulmonary artery banding is used to restrict excessive pulmonary blood flow. A BTT shunt does the opposite by augmenting pulmonary blood flow.',
+      3:'A bidirectional Glenn creates a cavopulmonary connection from the SVC. A BTT shunt instead supplies pulmonary flow from a systemic artery.'
+    };
+  }
+
+  const dorvPlanning=byId(40);
+  if(dorvPlanning){
+    dorvPlanning.o=[
+      'VSD location, great artery relationship, outflow obstruction, and ventricular adequacy determine the repair',
+      'A fixed intracardiac baffle to the aorta is used regardless of ventricular or coronary anatomy',
+      'An arterial switch alone corrects DORV even when no suitable LV-to-aorta pathway exists',
+      'Single-ventricle palliation is reserved only for postoperative complications rather than primary anatomy'
+    ];
+    dorvPlanning.wrong={
+      1:'An intracardiac baffle is feasible only in selected DORV anatomy. VSD position, ventricular relationships, AV-valve anatomy, and coronary anatomy can make other strategies necessary.',
+      2:'Some DORV variants are suitable for arterial switch, but it is not a universal solution. The feasibility of routing LV output and the overall anatomy determine the operation.',
+      3:'Single-ventricle palliation may be the primary strategy when ventricular adequacy or intracardiac anatomy precludes a safe biventricular repair.'
+    };
+  }
+
   const tofObjectives=byId(4);
   if(tofObjectives){
     tofObjectives.o=[
