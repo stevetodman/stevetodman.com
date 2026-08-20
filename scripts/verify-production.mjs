@@ -4,6 +4,9 @@ const ORIGIN = process.env.SITE_ORIGIN || 'https://stevetodman.com';
 const catalog = JSON.parse(fs.readFileSync(new URL('../site/catalog.json', import.meta.url), 'utf8'));
 const failures = [];
 
+const productionPaths = catalog.items
+  .filter((item) => item.route && item.class === 'PRODUCTION')
+  .map((item) => item.route);
 const excludedPaths = [
   ...catalog.items.filter((item) => item.route && item.class !== 'PRODUCTION').map((item) => item.route),
   ...catalog.items.filter((item) => item.path && item.class === 'SOURCE_ONLY')
@@ -56,15 +59,14 @@ check(/^\s*Disallow:\s*$/im.test(robots.text), 'robots.txt should explicitly lea
 const sitemap = await get('/sitemap.xml');
 check(sitemap.response.status === 404, `/sitemap.xml should be absent but returned ${sitemap.response.status}`);
 
-for (const path of ['/study/us-states.html', '/education/', '/contact/', '/privacy/', '/tools/']) {
+// The source catalog owns both sides of the live deployment contract.
+for (const path of productionPaths.filter((path) => path !== '/')) {
   const r = await get(path);
   check(r.response.status === 200, `${path} returned ${r.response.status}`);
   check(/noindex/i.test(r.response.headers.get('x-robots-tag') || ''), `${path} is missing noindex response header`);
   checkHtmlNoindex(path, r.text);
 }
 
-// The source catalog owns the non-production boundary; the verifier should not
-// maintain a second route list that can drift from it.
 for (const path of new Set(excludedPaths)) {
   const r = await get(path);
   check(r.response.status === 404, `${path} should be absent from production but returned ${r.response.status}`);
