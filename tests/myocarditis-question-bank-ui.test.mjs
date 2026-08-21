@@ -25,6 +25,12 @@ async function openBank() {
   return { context, page, errors };
 }
 
+async function startSelectedStack(page) {
+  await page.locator('#start-stack').click();
+  await page.locator('.bank-question').nth(9).waitFor();
+  assert.equal(await page.locator('.bank-question').count(), 10);
+}
+
 async function answerFirstDisplayedOptionForEveryQuestion(page) {
   const questions = page.locator('.bank-question');
   for (let index = 0; index < await questions.count(); index += 1) {
@@ -49,7 +55,7 @@ describe('database-backed myocarditis question bank', () => {
 
     for (const value of values) {
       await page.locator('#stack-select').selectOption(value);
-      await page.locator('#start-stack').click();
+      await startSelectedStack(page);
       assert.equal(await page.locator('.bank-question').count(), 10, `${value} did not render ten questions`);
       assert.equal(await page.locator('.bank-question').first().locator('input[type="radio"]').count(), 5);
       const optionValues = await page.locator('.bank-question').first().locator('input[type="radio"]').evaluateAll(nodes => nodes.map(node => node.value));
@@ -62,7 +68,7 @@ describe('database-backed myocarditis question bank', () => {
 
   test('keeps grading content and learning objectives concealed during exam mode', async () => {
     const { context, page, errors } = await openBank();
-    await page.locator('#start-stack').click();
+    await startSelectedStack(page);
     assert.equal(await page.locator('.bank-question').count(), 10);
     assert.equal(await page.locator('.bank-feedback').count(), 0);
     assert.equal(await page.locator('.bank-objective').count(), 0);
@@ -73,7 +79,7 @@ describe('database-backed myocarditis question bank', () => {
 
   test('blocks grading until every question has an answer', async () => {
     const { context, page, errors } = await openBank();
-    await page.locator('#start-stack').click();
+    await startSelectedStack(page);
     await page.locator('#bank-form button[type="submit"]').click();
     assert.match(await page.locator('#bank-message').innerText(), /Answer all 10 questions before grading\. 10 remaining\./i);
     assert.equal(await page.locator('.bank-feedback').count(), 0);
@@ -85,7 +91,7 @@ describe('database-backed myocarditis question bank', () => {
     const stack = JSON.parse(fs.readFileSync(path.join(repoRoot, 'myocarditis', 'question-bank', 'stack-01.json'), 'utf8'));
     const answers = new Map(stack.questions.map(question => [question.id, question.correct_option_id]));
     const { context, page, errors } = await openBank();
-    await page.locator('#start-stack').click();
+    await startSelectedStack(page);
 
     for (const [questionId, optionId] of answers) {
       await page.locator(`[data-question-id="${questionId}"] input[value="${optionId}"]`).check();
@@ -108,7 +114,7 @@ describe('database-backed myocarditis question bank', () => {
     assert.ok(incorrect);
 
     const { context, page, errors } = await openBank();
-    await page.locator('#start-stack').click();
+    await startSelectedStack(page);
 
     const firstFieldset = page.locator(`[data-question-id="${first.id}"]`);
     const selectedInput = firstFieldset.locator(`input[value="${incorrect.id}"]`);
@@ -136,7 +142,7 @@ describe('database-backed myocarditis question bank', () => {
 
   test('retake hides prior feedback and guarantees a different displayed option order', async () => {
     const { context, page, errors } = await openBank();
-    await page.locator('#start-stack').click();
+    await startSelectedStack(page);
     const firstQuestion = page.locator('.bank-question').first();
     const before = await firstQuestion.locator('input[type="radio"]').evaluateAll(nodes => nodes.map(node => node.value));
 
@@ -157,7 +163,7 @@ describe('database-backed myocarditis question bank', () => {
   test('load next stack advances the selector and renders the next ten-question stack', async () => {
     const { context, page, errors } = await openBank();
     await page.locator('#stack-select').selectOption('stack-01.json');
-    await page.locator('#start-stack').click();
+    await startSelectedStack(page);
     await answerFirstDisplayedOptionForEveryQuestion(page);
     await page.locator('#bank-form button[type="submit"]').click();
     await page.getByRole('button', { name: 'Load next stack' }).click();
