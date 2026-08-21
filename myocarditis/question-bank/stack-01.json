@@ -260,7 +260,7 @@
         {"id":"septic_secondary_injury","text":"Distributive septic shock with secondary myocardial injury marker elevation"},
         {"id":"fulminant_myocarditis","text":"Fulminant myocarditis causing primary cardiogenic shock"},
         {"id":"perimyocarditis","text":"Perimyocarditis"},
-        {"id":"alcapa","text":"ALCAPA"},
+        {"id":"alcapa","text":"Anomalous left coronary artery from the pulmonary artery (ALCAPA)"},
         {"id":"dcm","text":"Chronic dilated cardiomyopathy"}
       ],
       "correct_option_id": "septic_secondary_injury",
