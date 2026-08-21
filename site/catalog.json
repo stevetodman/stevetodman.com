@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "searchPolicy": "noindex",
-  "updated": "2026-08-20",
+  "updated": "2026-08-21",
   "classes": ["PRODUCTION", "PREVIEW", "INTERNAL", "SOURCE_ONLY", "ARCHIVED"],
   "items": [
     {"id":"home","title":"Steve Todman, MD","route":"/","class":"PRODUCTION","audience":"all","category":"home"},
@@ -24,6 +24,7 @@
     {"id":"aortopathy","title":"Pediatric Aortopathy Resident Academy","route":"/aortopathy/","class":"PRODUCTION","audience":"residents","category":"education"},
     {"id":"genetics-chd","title":"Genetics of Congenital Heart Disease","route":"/genetics-chd/","class":"PRODUCTION","audience":"residents","category":"education"},
     {"id":"myocarditis","title":"Pediatric Myocarditis Resident Academy","route":"/myocarditis/","class":"PRODUCTION","audience":"residents","category":"education"},
+    {"id":"myocarditis-evidence-workbench","title":"Myocarditis Evidence Workbench","route":"/myocarditis/evidence-workbench/","class":"PRODUCTION","audience":"owner","category":"clinical-tools"},
     {"id":"pals","title":"PALS 2025 Resident Mastery Lab","route":"/pals/","class":"PRODUCTION","audience":"residents","category":"education"},
     {"id":"pedcardsurg","title":"CHD Surgical Atlas","route":"/pedcardsurg/","class":"PRODUCTION","audience":"residents","category":"education"},
 
