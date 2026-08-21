@@ -1,0 +1,146 @@
+name: Import myocarditis v3.1 seed
+
+on:
+  push:
+    branches:
+      - content/myocarditis-bank-v3-1
+    paths:
+      - 'myocarditis/question-bank/.v31-import/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: myocarditis-v31-seed-import
+  cancel-in-progress: true
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Wait until all payload parts exist
+        id: ready
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir='myocarditis/question-bank/.v31-import'
+          missing=0
+          for part in 00 01 02 03 04; do
+            if [[ ! -f "$dir/part-$part.b64" ]]; then
+              echo "Missing part-$part.b64"
+              missing=1
+            fi
+          done
+          if [[ "$missing" -eq 1 ]]; then
+            echo 'ready=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'ready=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Reconstruct and verify seed
+        if: steps.ready.outputs.ready == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir='myocarditis/question-bank/.v31-import'
+          cat "$dir"/part-*.b64 > /tmp/v31-package.b64
+          base64 --decode /tmp/v31-package.b64 > /tmp/v31-package.tar.gz
+          echo 'ce2851650cc2dc893be10e568773e8299ad22840205fb8894115274fdb7c467d  /tmp/v31-package.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/v31-package.tar.gz -C myocarditis/question-bank
+
+          python3 - <<'PY'
+          import glob, json, re, statistics, sys
+          from collections import Counter
+          base='myocarditis/question-bank'
+          sources=json.load(open(f'{base}/sources.json'))
+          manifest=json.load(open(f'{base}/manifest.json'))
+          questions=[]
+          for path in sorted(glob.glob(f'{base}/stack-*.json')):
+              data=json.load(open(path))
+              if data.get('stack') in range(1,7):
+                  questions.extend(data['questions'])
+          errors=[]
+          warnings=[]
+          required={'id','status','age','age_group','domain','concept','learning_objective','cognitive_level','difficulty','stem','options','correct_option_id','rationale','option_explanations','board_pearl','evidence','last_medical_review','requires_sme_review'}
+          ids=[q['id'] for q in questions]
+          expected=[f'MYO-{i:03d}' for i in range(1,61)]
+          if ids != expected: errors.append('IDs are not exactly MYO-001..MYO-060 in order')
+          if len(questions) != 60: errors.append(f'expected 60 questions, found {len(questions)}')
+          if manifest.get('question_count') != 60: errors.append('manifest question_count != 60')
+          qualifier=re.compile(r'\b(even if|even when|even though|despite|regardless|solely|no longer)\b',re.I)
+          key_hits=distractor_hits=0
+          key_n=distractor_n=0
+          for q in questions:
+              if set(q) != required: errors.append(f"{q.get('id')} schema mismatch")
+              opts=q.get('options',[])
+              if len(opts) != 5: errors.append(f"{q['id']} does not have 5 options")
+              option_ids=[o['id'] for o in opts]
+              if len(set(option_ids)) != 5: errors.append(f"{q['id']} duplicate option ids")
+              if q.get('correct_option_id') not in option_ids: errors.append(f"{q['id']} bad correct_option_id")
+              if set(q.get('option_explanations',{})) != set(option_ids): errors.append(f"{q['id']} explanation mismatch")
+              if not q.get('evidence'): errors.append(f"{q['id']} missing evidence")
+              for e in q.get('evidence',[]):
+                  if e['source_id'] not in sources: errors.append(f"{q['id']} unresolved source {e['source_id']}")
+              lengths=[]
+              key_len=None
+              for o in opts:
+                  hit=bool(qualifier.search(o['text']))
+                  if o['id'] == q['correct_option_id']:
+                      key_n += 1
+                      key_hits += int(hit)
+                      key_len=len(o['text'])
+                  else:
+                      distractor_n += 1
+                      distractor_hits += int(hit)
+                      lengths.append(len(o['text']))
+              if lengths and key_len and key_len > statistics.mean(lengths)*1.6:
+                  warnings.append(f"{q['id']} keyed option is >60% longer than mean distractor")
+          if key_hits or distractor_hits:
+              warnings.append(f'qualifier cue markers remain: keys={key_hits}/{key_n}, distractors={distractor_hits}/{distractor_n}')
+          age=Counter(q['age_group'] for q in questions)
+          if age.get('neonate',0) < 2 or age.get('infant',0) < 6:
+              errors.append(f'age floor not met: {dict(age)}')
+          used={e['source_id'] for q in questions for e in q['evidence']}
+          unused=set(sources)-used
+          if unused: warnings.append('unused sources: '+', '.join(sorted(unused)))
+          if warnings:
+              print('\n'.join('WARNING: '+w for w in warnings))
+          if errors or warnings:
+              print('\n'.join('ERROR: '+e for e in errors))
+              sys.exit(1)
+          print('v3.1 seed validation passed')
+          print('age distribution:',dict(age))
+          print('sources used:',len(used),'of',len(sources))
+          PY
+
+      - name: Run repository question-bank tests
+        if: steps.ready.outputs.ready == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/myocarditis-question-bank.test.mjs
+
+      - name: Commit validated seed and remove temporary importer
+        if: steps.ready.outputs.ready == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- \
+            myocarditis/question-bank/manifest.json \
+            myocarditis/question-bank/sources.json \
+            myocarditis/question-bank/stack-01.json \
+            myocarditis/question-bank/stack-02.json \
+            myocarditis/question-bank/stack-03.json \
+            myocarditis/question-bank/stack-04.json \
+            myocarditis/question-bank/stack-05.json \
+            myocarditis/question-bank/stack-06.json
+          git rm -r -- myocarditis/question-bank/.v31-import .github/workflows/import-myocarditis-v31-seed.yml
+          git commit -m 'Rebuild 60-item myocarditis seed as v3.1' \
+            -m 'Integrate the evidence-hardened, adversarially validated 60-item seed. Preserve draft medical-review and item-writer review gates.'
+          git push origin HEAD:content/myocarditis-bank-v3-1
