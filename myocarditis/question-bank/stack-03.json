@@ -179,25 +179,25 @@
       "evidence":[{"claim":"Pediatric myocarditis may cause biventricular dysfunction and advanced heart failure.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"Biventricular dysfunction is a higher-risk feature in contemporary myocarditis risk assessment.","source_id":"ACC_MYOCARDITIS_2024"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
-      "id":"MYO-029","status":"draft-medical-review","age":"4 years","age_group":"child","domain":"acute management","concept":"end-organ trends","learning_objective":"Use serial perfusion and end-organ trends to detect failed conventional support before arrest.","cognitive_level":"application","difficulty":2,
-      "stem":"A 4-year-old with myocarditis and depressed ventricular function is receiving intensive care. Which trend most strongly indicates that current support is failing and escalation should accelerate?",
+      "id":"MYO-029","status":"draft-medical-review","age":"4 years","age_group":"child","domain":"acute management","concept":"end-organ trends","learning_objective":"Prioritize worsening perfusion and end-organ trajectories over superficially reassuring inflammatory or injury-marker trends when deciding whether conventional support is failing.","cognitive_level":"application","difficulty":2,
+      "stem":"A 4-year-old with fulminant myocarditis and depressed ventricular function is receiving vasoactive support. Over serial reassessments, fever resolves and troponin falls, but urine output declines, lactate rises, the child becomes more lethargic, and hepatic and renal injury markers worsen. Blood pressure remains measurable on increasing support. Which interpretation is most appropriate?",
       "options":[
-        {"id":"organ_failure","text":"Progressive oliguria, rising lactate, worsening mental status, and hepatic/renal injury"},
-        {"id":"troponin_fall","text":"Falling troponin with stable perfusion"},
-        {"id":"fever_resolves","text":"Resolution of the antecedent fever"},
-        {"id":"appetite","text":"Poor appetite without hemodynamic change"},
-        {"id":"normal_spo2","text":"Normal oxygen saturation despite unchanged low-output findings"}
+        {"id":"organ_failure","text":"The circulation is failing despite superficially reassuring inflammatory/injury trends; escalation of advanced heart-failure and MCS planning should accelerate"},
+        {"id":"troponin_controls","text":"The falling troponin indicates that myocardial injury is resolving, so the organ abnormalities are more likely secondary effects of critical illness than evidence of worsening cardiac output"},
+        {"id":"bp_controls","text":"A maintained blood pressure on vasoactive therapy indicates adequate systemic perfusion, so escalation can wait unless hypotension becomes refractory"},
+        {"id":"echo_threshold","text":"Defer advanced escalation until repeat echocardiography demonstrates further decline in ejection fraction because end-organ markers are too nonspecific to establish failed cardiac support"},
+        {"id":"sequential_drug_first","text":"Continue serial adjustment of conventional vasoactive therapy before activating MCS-level planning because the child has not developed malignant arrhythmia or cardiac arrest"}
       ],
       "correct_option_id":"organ_failure",
-      "rationale":"Progressive end-organ injury signals sustained inadequate perfusion and a shrinking window for safe escalation. Serial physiology is more important than isolated improvement in fever or a myocardial biomarker.",
+      "rationale":"Progressive oliguria, rising lactate, worsening mentation, and hepatic/renal injury demonstrate inadequate end-organ perfusion even when fever and troponin improve and a blood pressure can still be maintained pharmacologically. In fulminant myocarditis, organ failure and refractory low output are pre-arrest signals; advanced-center/MCS planning should not wait for a lower ejection fraction, refractory hypotension, malignant arrhythmia, or cardiac arrest.",
       "option_explanations":{
-        "organ_failure":"Correct. End-organ dysfunction is evidence that low cardiac output is no longer being adequately compensated.",
-        "troponin_fall":"A falling injury marker is encouraging but does not prove adequate perfusion or pump recovery. It would be reassuring only if hemodynamics and organ function also improve.",
-        "fever_resolves":"Inflammatory symptoms can resolve while cardiac failure worsens; fever trajectory is not a sufficient marker of circulatory recovery.",
-        "appetite":"Poor appetite is nonspecific and much less important than objective deterioration in perfusion and organ function.",
-        "normal_spo2":"Pulse oximetry can remain normal in cardiogenic shock; it does not measure systemic blood flow."
+        "organ_failure":"Correct. Serial organ-perfusion trends answer the clinically urgent question: whether current circulation support is delivering enough flow. The trajectory shows that it is not, despite improvement in less decisive markers.",
+        "troponin_controls":"Troponin reflects myocardial injury rather than adequacy of systemic blood flow. Injury-marker improvement can coexist with persistent or worsening pump failure, so it cannot override progressive oliguria, hyperlactatemia, encephalopathy, or organ injury.",
+        "bp_controls":"Blood pressure is only one component of hemodynamics and may be maintained by increasing vasoactive support while cardiac output and tissue perfusion deteriorate. Organ dysfunction can therefore precede refractory hypotension.",
+        "echo_threshold":"Repeat echocardiography is useful, but ejection fraction is not the sole escalation trigger. A child can have persistently severe dysfunction with progressively inadequate output; worsening lactate, urine output, mentation, and organ function already demonstrate a failing trajectory.",
+        "sequential_drug_first":"Conventional vasoactive optimization continues, but it should occur in parallel with MCS-level escalation when end-organ perfusion is worsening. Arrhythmia or arrest is not a prerequisite for recognizing refractory low output."
       },
-      "board_pearl":"Do not wait for arrest: rising lactate and organ injury mean the circulation is already failing.",
+      "board_pearl":"In fulminant myocarditis, a falling troponin can coexist with a failing circulation; follow the organs that depend on cardiac output.",
       "evidence":[{"claim":"Refractory low cardiac output and end-organ compromise in pediatric myocarditis should prompt early MCS/ECMO consideration and transfer.","source_id":"AHA_PALS_2025"},{"claim":"Fulminant myocarditis requires early recognition of progressive shock and multiorgan failure.","source_id":"AHA_FULMINANT_2020"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
