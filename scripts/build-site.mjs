@@ -22,29 +22,25 @@ const routeArtifact = (route) => route === '/'
 rm(dist);
 mkdir(dist);
 
-// Root-level static control files.
 for (const file of ['index.html', '404.html', 'robots.txt', '_headers']) copy(file);
 copy('.well-known');
 
-// Public platform assets are copied explicitly; site/ also contains planning and
-// governance files that do not need to ship to browsers.
 for (const file of [
   'site/platform.css',
   'site/learning-progress.js',
 ]) copy(file);
 
-// Publish only the production subset of the catalog. Search uses this as its
-// development/fallback index; non-production route names do not belong in Pages.
+// Browser-facing catalog contains only production routes that are intentionally
+// discoverable. Hidden direct-link production routes still deploy and are
+// verified, but do not appear in navigation/search surfaces.
 const publicCatalog = {
   ...catalog,
   classes: ['PRODUCTION'],
-  items: catalog.items.filter((item) => item.class === 'PRODUCTION'),
+  items: catalog.items.filter((item) => item.class === 'PRODUCTION' && item.discoverable !== false),
 };
 mkdir(path.join(dist, 'site'));
 fs.writeFileSync(path.join(dist, 'site/catalog.json'), `${JSON.stringify(publicCatalog, null, 2)}\n`);
 
-// Pages is the public production surface. Only PRODUCTION route roots belong in
-// the artifact; preview, internal, source-only, and archived work stays in source.
 const routeRoots = new Set();
 for (const item of catalog.items) {
   if (!item.route || item.class !== 'PRODUCTION') continue;
@@ -53,21 +49,14 @@ for (const item of catalog.items) {
 }
 for (const routeRoot of routeRoots) copy(routeRoot);
 
-// Strip repository/backend content that happens to live under a production root.
 for (const item of catalog.items.filter((x) => x.class === 'SOURCE_ONLY' && x.path)) {
   rm(path.join(dist, item.path));
 }
 
-// A non-production route may share a top-level directory with production content
-// (for example, /tools/ previews). Remove every such route explicitly after copy.
 for (const item of catalog.items.filter((x) => x.route && x.class !== 'PRODUCTION')) {
   rm(path.join(dist, routeArtifact(item.route)));
 }
 
-// Kawasaki started life as a visualization export and still carries three
-// optional CDN loaders for tooltips/icons. The academy itself does not require
-// them: the inline runtimes already no-op when FloatingUIDOM/lucide are absent.
-// Keep source history intact, but make the production artifact self-contained.
 const kawasakiHtml = path.join(dist, 'kawasaki', 'index.html');
 if (fs.existsSync(kawasakiHtml)) {
   let html = fs.readFileSync(kawasakiHtml, 'utf8');
@@ -95,8 +84,6 @@ function walk(dir) {
 }
 walk(dist);
 
-// Classification is enforced by the build itself: no cataloged non-production
-// route may survive into the deployment artifact.
 for (const item of catalog.items.filter((x) => x.route && x.class !== 'PRODUCTION')) {
   const artifact = routeArtifact(item.route);
   if (fs.existsSync(path.join(dist, artifact))) {
@@ -104,12 +91,6 @@ for (const item of catalog.items.filter((x) => x.route && x.class !== 'PRODUCTIO
   }
 }
 
-// Search privacy is a deployment invariant, not merely a Cloudflare-header
-// assumption. Some legacy source pages predate the direct-link-only policy and
-// still carry explicit `index,follow` metadata. Normalize every deployable HTML
-// document to noindex in dist/ so a missing/misapplied response header cannot
-// silently opt a page into indexing. The X-Robots-Tag remains the primary
-// site-wide control; this is defense in depth.
 const noindexMeta = '<meta name="robots" content="noindex, nofollow, noarchive">';
 const robotsMeta = /<meta\b(?=[^>]*\bname=["']robots["'])[^>]*>/i;
 for (const relative of files.filter((file) => file.endsWith('.html'))) {
