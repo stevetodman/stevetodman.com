@@ -9,7 +9,7 @@ It is deliberately **not marked complete or published**. The core bank contains 
 - Manifest status: `editorial-review-required`
 - Independent pediatric cardiology / ABP-style SME review: pending
 - Human item-writer review: pending
-- Automated structural/browser validation: configured in `tests/` and CI; the current revision still requires a verified CI result before publication
+- Automated structural/browser validation: the dedicated myocarditis workflow has a verified green run on draft PR #77 (16/16 schema/editorial tests and 8/8 browser/UI tests); any subsequent content, renderer, or validation-harness revision must pass again before publication
 - Psychometric validation: not performed
 - Production merge: not appropriate until the review state is explicitly advanced
 
