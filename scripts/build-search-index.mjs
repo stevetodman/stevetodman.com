@@ -57,7 +57,7 @@ function searchableTerms(html) {
 
 const items = [];
 for (const item of catalog.items) {
-  if (item.class !== 'PRODUCTION' || !item.route || item.id === 'search') continue;
+  if (item.class !== 'PRODUCTION' || item.discoverable === false || !item.route || item.id === 'search') continue;
   const relative = routeFile(item.route);
   const file = path.join(sourceRoot, relative);
   if (!fs.existsSync(file)) throw new Error(`search-index production route missing from source root: ${item.route}`);

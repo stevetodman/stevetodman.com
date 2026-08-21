@@ -40,6 +40,19 @@ function checkHtmlNoindex(path, html) {
   }
 }
 
+// Detect the most dangerous deployment error first: serving the repository root
+// instead of the classified dist/ artifact. Internal/source routes exist in source
+// by design, but must never be public. Fail immediately with one actionable error.
+for (const sentinel of ['/admin/', '/steven-os/', '/cardiohospital/']) {
+  const r = await get(sentinel);
+  if (r.response.status === 200) {
+    console.error('Production verification failed: live host appears to be serving the repository root or another unclassified artifact instead of dist/.');
+    console.error(`- ${sentinel} returned 200 but is classified INTERNAL and must be absent from production.`);
+    console.error('- Verify hosting settings: production branch main, build command npm run build, output directory dist.');
+    process.exit(1);
+  }
+}
+
 const home = await get('/');
 check(home.response.status === 200, `/ returned ${home.response.status}`);
 const robotsHeader = home.response.headers.get('x-robots-tag') || '';
@@ -59,7 +72,6 @@ check(/^\s*Disallow:\s*$/im.test(robots.text), 'robots.txt should explicitly lea
 const sitemap = await get('/sitemap.xml');
 check(sitemap.response.status === 404, `/sitemap.xml should be absent but returned ${sitemap.response.status}`);
 
-// The source catalog owns both sides of the live deployment contract.
 for (const path of productionPaths.filter((path) => path !== '/')) {
   const r = await get(path);
   check(r.response.status === 200, `${path} returned ${r.response.status}`);
