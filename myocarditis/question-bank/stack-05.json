@@ -201,26 +201,26 @@
       "evidence":[{"claim":"US MIS-C cohorts show a delayed post-SARS-CoV-2 syndrome with frequent gastrointestinal and mucocutaneous manifestations, shock, and cardiac dysfunction.","source_id":"MIS_C_US_2021"},{"claim":"Comparative pediatric data distinguish MIS-C from acute COVID-19, Kawasaki disease, and toxic shock by greater cardiac involvement, inflammation, lymphopenia, and thrombocytopenia.","source_id":"MIS_C_DIFFERENTIAL_2022"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
-      "id":"MYO-050","status":"draft-medical-review","age":"12 years","age_group":"child","domain":"therapy","concept":"biopsy-directed treatment","learning_objective":"Understand why identifying a specific histologic subtype can be more care-changing than simply confirming nonspecific myocarditis.","cognitive_level":"multi-step","difficulty":3,
-      "stem":"A 12-year-old with rapidly progressive myocarditis undergoes EMB at an advanced center because of shock, ventricular arrhythmias, and conduction disease. Why can the tissue result be especially valuable in this setting?",
+      "id":"MYO-050","status":"draft-medical-review","age":"12 years","age_group":"child","domain":"therapy","concept":"biopsy-directed treatment","learning_objective":"Interpret why a treatment-relevant histologic result can change management in fulminant myocarditis after the decision to perform EMB has already been made.","cognitive_level":"multi-step","difficulty":3,
+      "stem":"A 12-year-old with rapidly progressive myocarditis, cardiogenic shock, recurrent ventricular arrhythmias, and high-grade AV block undergoes EMB at an advanced center. The question is no longer whether to biopsy, but what information from the biopsy could most directly change disease-specific treatment. Which result would be most clinically consequential?",
       "options":[
-        {"id":"subtype_changes","text":"It can identify a specific histologic/etiologic subtype for which immunosuppression or other disease-directed therapy differs from routine supportive management"},
-        {"id":"severity_number","text":"It provides an exact numeric prognosis that makes clinical follow-up unnecessary"},
-        {"id":"viral_swab","text":"It is equivalent to a respiratory viral swab and adds no other information"},
-        {"id":"all_same","text":"All myocarditis histologies are treated identically, so subtype is irrelevant"},
-        {"id":"replace_support","text":"A tissue diagnosis eliminates the need for MCS, rhythm treatment, or heart-failure support"}
+        {"id":"specific_subtype","text":"Identification of a specific inflammatory subtype such as eosinophilic or giant-cell myocarditis that supports a distinct immunosuppressive or trigger-directed strategy"},
+        {"id":"lymphocytic_only","text":"Confirmation of nonspecific lymphocytic inflammation without additional etiologic or molecular information, because any histologic proof of myocarditis mandates the same immunosuppressive regimen"},
+        {"id":"viral_peripheral_match","text":"Detection of the same common respiratory virus found on a nasopharyngeal swab, because matching peripheral and myocardial viral tests by itself proves that antiviral therapy will improve cardiac outcomes"},
+        {"id":"fibrosis_severity","text":"Quantification of fibrosis alone, because scar burden should determine the immediate immunotherapy regimen independently of inflammatory subtype, viral context, or hemodynamic support needs"},
+        {"id":"biopsy_replaces_support","text":"Any biopsy result that confirms myocarditis, because tissue confirmation allows vasoactive, rhythm, and mechanical-circulatory support to be de-escalated while disease-specific therapy takes effect"}
       ],
-      "correct_option_id":"subtype_changes",
-      "rationale":"The main value of EMB in high-risk disease is not simply to add the word 'biopsy-proven.' Histology, immunohistochemistry, and molecular evaluation can identify specific forms such as eosinophilic or giant-cell myocarditis in which disease-directed therapy and prognosis differ.",
+      "correct_option_id":"specific_subtype",
+      "rationale":"In high-risk myocarditis, EMB is most care-changing when histology, immunohistochemistry, and molecular testing identify a mechanism that alters therapy—for example eosinophilic or giant-cell myocarditis, selected immune-mediated disease, or another specific treatable process. Merely proving nonspecific inflammation does not create one universal immunosuppressive regimen, and tissue diagnosis never replaces support of shock or malignant arrhythmia.",
       "option_explanations":{
-        "subtype_changes":"Correct. This is the clinically meaningful reason to accept the procedural burden of biopsy in selected high-risk cases.",
-        "severity_number":"Biopsy informs diagnosis and sometimes prognosis, but it does not replace longitudinal clinical assessment or provide deterministic outcome prediction.",
-        "viral_swab":"Tissue can reveal inflammatory cell type, necrosis, immunohistochemical patterns, and selected molecular findings that peripheral respiratory testing cannot provide.",
-        "all_same":"Specific myocarditis histologies have different natural histories and treatment approaches; assuming all are identical undermines the purpose of tissue diagnosis.",
-        "replace_support":"Disease-specific therapy works alongside, not instead of, management of shock, arrhythmia, and heart failure."
+        "specific_subtype":"Correct. The major therapeutic value of biopsy in this setting is mechanistic classification: some histologic subtypes have disease-specific immunosuppressive or trigger-directed management that differs from undifferentiated myocarditis.",
+        "lymphocytic_only":"Lymphocytic inflammation can confirm myocardial inflammation, but it does not mean every child should receive the same immunosuppressive regimen. Etiology, molecular findings, severity, and the evidence limitations of routine immunotherapy still matter.",
+        "viral_peripheral_match":"A peripheral respiratory virus may be incidental, and even myocardial viral detection requires interpretation with histology and clinical context. Matching tests do not automatically establish that antiviral treatment will improve myocarditis outcomes.",
+        "fibrosis_severity":"Fibrosis can inform prognosis and later arrhythmic risk, but it is not by itself a mechanism-specific acute-treatment prescription. Immediate therapy still depends on the inflammatory subtype, etiology, physiology, and concurrent shock/arrhythmia management.",
+        "biopsy_replaces_support":"Disease-specific therapy works in parallel with support of circulation and rhythm. A diagnostic label does not permit de-escalation of life-sustaining therapy while the child remains hemodynamically or electrically unstable."
       },
-      "board_pearl":"In fulminant disease, the biopsy question is not merely 'Is there myocarditis?' but 'Is there a subtype I can treat differently?'.",
-      "evidence":[{"claim":"EMB can identify treatment-relevant histologic subtypes in high-risk myocarditis.","source_id":"AHA_FULMINANT_2020"},{"claim":"The 2025 ESC guideline gives subtype-specific myocarditis treatment pathways informed by histology/etiology.","source_id":"ESC_IMPS_2025"},{"claim":"Contemporary registry data support EMB's continued diagnostic role in pediatric myocarditis.","source_id":"EMB_REGISTRY_2024"}],"last_medical_review":null,"requires_sme_review":true
+      "board_pearl":"After EMB is chosen, the high-yield question is not simply 'Did it prove myocarditis?' but 'Did it reveal a mechanism that changes treatment?'.",
+      "evidence":[{"claim":"EMB can identify treatment-relevant histologic subtypes in high-risk myocarditis.","source_id":"AHA_FULMINANT_2020"},{"claim":"The 2025 ESC guideline gives subtype-specific myocarditis treatment pathways informed by histology and etiology.","source_id":"ESC_IMPS_2025"},{"claim":"Contemporary pediatric registry data support EMB as a source of histologic and molecular information that can inform management in severe myocarditis.","source_id":"EMB_REGISTRY_2024"}],"last_medical_review":null,"requires_sme_review":true
     }
   ]
 }
