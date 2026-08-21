@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Database-backed ABP-style pediatric myocarditis question bank for editorial review and self-study.">
+  <title>Pediatric Myocarditis Question Bank</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#bank-main">Skip to question bank</a>
+  <header class="hero bank-hero">
+    <div class="hero-inner">
+      <a class="home-link" href="../">&larr; Back to Pediatric Myocarditis Academy</a>
+      <p class="eyebrow">ABP-style self-study database</p>
+      <h1>Pediatric Myocarditis Question Bank</h1>
+      <p class="hero-lead">Six 10-question stacks. Choices are randomized at render time; explanations and evidence appear only after grading.</p>
+      <div class="hero-meta" role="group" aria-label="Question bank status">
+        <span id="bank-version">Loading manifest…</span>
+        <span id="bank-status">Editorial review required</span>
+        <span>Self-study only</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell bank-shell" id="bank-main">
+    <section class="card bank-controls" aria-labelledby="bank-heading">
+      <div>
+        <p class="kicker">Core bank</p>
+        <h2 id="bank-heading">Choose a 10-question stack</h2>
+        <p id="bank-summary">Loading question-bank metadata…</p>
+      </div>
+      <div class="bank-control-row">
+        <label for="stack-select">Stack</label>
+        <select id="stack-select" disabled></select>
+        <button class="button" type="button" id="start-stack" disabled>Start stack</button>
+      </div>
+      <p class="note">Answer concealment is a browser self-study feature, not a secure examination system. The database remains marked for independent medical and item-writer review.</p>
+    </section>
+
+    <section id="bank-stage" aria-live="polite"></section>
+  </main>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+name: Myocarditis question bank validation
+
+on:
+  push:
+    branches:
+      - main
+      - content/myocarditis-abp-prompt-v2
+    paths:
+      - 'myocarditis/question-bank/**'
+      - 'tests/myocarditis-question-bank*.test.mjs'
+      - 'tests/helpers/**'
+      - '.github/workflows/myocarditis-question-bank.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    paths:
+      - 'myocarditis/question-bank/**'
+      - 'tests/myocarditis-question-bank*.test.mjs'
+      - 'tests/helpers/**'
+      - '.github/workflows/myocarditis-question-bank.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out revision
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install test dependencies
+        run: npm ci
+
+      - name: Validate question-bank schema and editorial gates
+        run: node --test tests/myocarditis-question-bank.test.mjs
+
+      - name: Install Chromium for browser validation
+        run: npx playwright install --with-deps chromium
+
+      - name: Validate database-backed question-bank UI
+        run: node --test tests/myocarditis-question-bank-ui.test.mjs

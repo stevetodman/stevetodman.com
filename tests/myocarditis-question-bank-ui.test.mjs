@@ -1,0 +1,178 @@
+import { test, before, after, describe } from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { startServer, getChromium, watchForErrors, repoRoot } from './helpers/harness.mjs';
+
+let server, browser;
+
+before(async () => {
+  server = await startServer();
+  browser = await (await getChromium()).launch();
+});
+
+after(async () => {
+  await browser?.close();
+  await server?.close();
+});
+
+async function openBank() {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const page = await context.newPage();
+  const errors = watchForErrors(page);
+  const response = await page.goto(server.origin + '/myocarditis/question-bank/', { waitUntil: 'networkidle' });
+  assert.equal(response.status(), 200);
+  return { context, page, errors };
+}
+
+async function startSelectedStack(page) {
+  await page.locator('#start-stack').click();
+  await page.locator('.bank-question').nth(9).waitFor();
+  assert.equal(await page.locator('.bank-question').count(), 10);
+}
+
+async function answerFirstDisplayedOptionForEveryQuestion(page) {
+  const questions = page.locator('.bank-question');
+  for (let index = 0; index < await questions.count(); index += 1) {
+    await questions.nth(index).locator('input[type="radio"]').first().check();
+  }
+}
+
+describe('database-backed myocarditis question bank', () => {
+  test('loads the editorial manifest and six core stacks', async () => {
+    const { context, page, errors } = await openBank();
+    assert.match(await page.locator('#bank-version').innerText(), /2\.1\.0-draft/i);
+    assert.match(await page.locator('#bank-status').innerText(), /editorial review required/i);
+    assert.equal(await page.locator('#stack-select option').count(), 6);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  test('every declared stack loads ten semantic-id questions', async () => {
+    const { context, page, errors } = await openBank();
+    const values = await page.locator('#stack-select option').evaluateAll(options => options.map(option => option.value));
+    assert.equal(values.length, 6);
+
+    for (const value of values) {
+      await page.locator('#stack-select').selectOption(value);
+      await startSelectedStack(page);
+      assert.equal(await page.locator('.bank-question').count(), 10, `${value} did not render ten questions`);
+      assert.equal(await page.locator('.bank-question').first().locator('input[type="radio"]').count(), 5);
+      const optionValues = await page.locator('.bank-question').first().locator('input[type="radio"]').evaluateAll(nodes => nodes.map(node => node.value));
+      assert.equal(optionValues.every(optionValue => !/^[A-E]$/.test(optionValue)), true, `${value} exposed display letters as semantic ids`);
+    }
+
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  test('keeps grading content and learning objectives concealed during exam mode', async () => {
+    const { context, page, errors } = await openBank();
+    await startSelectedStack(page);
+    assert.equal(await page.locator('.bank-question').count(), 10);
+    assert.equal(await page.locator('.bank-feedback').count(), 0);
+    assert.equal(await page.locator('.bank-objective').count(), 0);
+    assert.equal(await page.locator('.bank-pearl').count(), 0);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  test('blocks grading until every question has an answer', async () => {
+    const { context, page, errors } = await openBank();
+    await startSelectedStack(page);
+    await page.locator('#bank-form button[type="submit"]').click();
+    assert.match(await page.locator('#bank-message').innerText(), /Answer all 10 questions before grading\. 10 remaining\./i);
+    assert.equal(await page.locator('.bank-feedback').count(), 0);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  test('grades against stable option ids and reveals complete explanations and objectives only afterward', async () => {
+    const stack = JSON.parse(fs.readFileSync(path.join(repoRoot, 'myocarditis', 'question-bank', 'stack-01.json'), 'utf8'));
+    const answers = new Map(stack.questions.map(question => [question.id, question.correct_option_id]));
+    const { context, page, errors } = await openBank();
+    await startSelectedStack(page);
+
+    for (const [questionId, optionId] of answers) {
+      await page.locator(`[data-question-id="${questionId}"] input[value="${optionId}"]`).check();
+    }
+    await page.locator('#bank-form button[type="submit"]').click();
+    assert.match(await page.locator('#bank-score h2').innerText(), /10\/10/);
+    assert.equal(await page.locator('.bank-feedback').count(), 10);
+    assert.equal(await page.locator('.bank-objective').count(), 10);
+    assert.equal(await page.locator('.bank-pearl').count(), 10);
+    assert.match(await page.locator('.bank-objective').first().innerText(), /^Learning objective:/i);
+    assert.equal(await page.locator('.bank-question').first().locator('.bank-explanations details').count(), 5);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  test('remaps displayed letters correctly when a semantic-id answer is wrong', async () => {
+    const stack = JSON.parse(fs.readFileSync(path.join(repoRoot, 'myocarditis', 'question-bank', 'stack-01.json'), 'utf8'));
+    const first = stack.questions[0];
+    const incorrect = first.options.find(option => option.id !== first.correct_option_id);
+    assert.ok(incorrect);
+
+    const { context, page, errors } = await openBank();
+    await startSelectedStack(page);
+
+    const firstFieldset = page.locator(`[data-question-id="${first.id}"]`);
+    const selectedInput = firstFieldset.locator(`input[value="${incorrect.id}"]`);
+    const correctInput = firstFieldset.locator(`input[value="${first.correct_option_id}"]`);
+    const selectedLetter = await selectedInput.getAttribute('data-display-letter');
+    const correctLetter = await correctInput.getAttribute('data-display-letter');
+    assert.ok(selectedLetter);
+    assert.ok(correctLetter);
+    assert.notEqual(selectedLetter, correctLetter);
+    await selectedInput.check();
+
+    for (const question of stack.questions.slice(1)) {
+      await page.locator(`[data-question-id="${question.id}"] input[value="${question.correct_option_id}"]`).check();
+    }
+
+    await page.locator('#bank-form button[type="submit"]').click();
+    assert.match(await page.locator('#bank-score h2').innerText(), /9\/10/);
+    assert.equal(
+      await firstFieldset.locator('.bank-result-line').innerText(),
+      `Incorrect — you chose ${selectedLetter}; the best answer is ${correctLetter}.`
+    );
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  test('retake hides prior feedback and guarantees a different displayed option order', async () => {
+    const { context, page, errors } = await openBank();
+    await startSelectedStack(page);
+    const firstQuestion = page.locator('.bank-question').first();
+    const before = await firstQuestion.locator('input[type="radio"]').evaluateAll(nodes => nodes.map(node => node.value));
+
+    await answerFirstDisplayedOptionForEveryQuestion(page);
+    await page.locator('#bank-form button[type="submit"]').click();
+    assert.equal(await page.locator('.bank-feedback').count(), 10);
+    await page.getByRole('button', { name: 'Retake with reshuffled choices' }).click();
+
+    const after = await page.locator('.bank-question').first().locator('input[type="radio"]').evaluateAll(nodes => nodes.map(node => node.value));
+    assert.notDeepEqual(after, before);
+    assert.equal(await page.locator('.bank-feedback').count(), 0);
+    assert.equal(await page.locator('.bank-objective').count(), 0);
+    assert.equal(await page.locator('.bank-question input:disabled').count(), 0);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  test('load next stack advances the selector and renders the next ten-question stack', async () => {
+    const { context, page, errors } = await openBank();
+    await page.locator('#stack-select').selectOption('stack-01.json');
+    await startSelectedStack(page);
+    await answerFirstDisplayedOptionForEveryQuestion(page);
+    await page.locator('#bank-form button[type="submit"]').click();
+    await page.getByRole('button', { name: 'Load next stack' }).click();
+
+    await page.locator('.bank-stack-heading .kicker').filter({ hasText: 'Stack 2' }).waitFor();
+    assert.equal(await page.locator('#stack-select').inputValue(), 'stack-02.json');
+    assert.equal(await page.locator('.bank-question').count(), 10);
+    assert.equal(await page.locator('.bank-feedback').count(), 0);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+});

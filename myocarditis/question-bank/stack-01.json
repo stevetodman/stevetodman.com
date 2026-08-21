@@ -1,0 +1,354 @@
+{
+  "stack": 1,
+  "focus": "recognition and close differentials",
+  "questions": [
+    {
+      "id": "MYO-001",
+      "status": "draft-medical-review",
+      "age": "5 months",
+      "age_group": "infant",
+      "domain": "recognition",
+      "concept": "heart-failure phenotype hidden in respiratory illness",
+      "learning_objective": "Recognize infant myocarditis/acute heart failure when respiratory symptoms coexist with systemic venous congestion and poor perfusion.",
+      "cognitive_level": "application",
+      "difficulty": 2,
+      "stem": "A 5-month-old has 3 days of cough, poor feeding, and increased work of breathing after a viral upper respiratory illness. Heart rate is 178/min and oxygen saturation is 95% on room air. Examination shows cool extremities, a gallop rhythm, hepatomegaly, and diffuse crackles. Chest radiograph shows cardiomegaly with interstitial pulmonary opacities. Which diagnosis best unifies the findings?",
+      "options": [
+        {"id":"bronchiolitis","text":"Bronchiolitis with dehydration"},
+        {"id":"pneumonia","text":"Bacterial pneumonia with sepsis"},
+        {"id":"myocarditis_hf","text":"Acute myocarditis presenting with heart failure"},
+        {"id":"svt_cm","text":"Tachycardia-induced cardiomyopathy from incessant supraventricular tachycardia"},
+        {"id":"large_vsd","text":"Previously unrecognized large ventricular septal defect with pulmonary overcirculation"}
+      ],
+      "correct_option_id": "myocarditis_hf",
+      "rationale": "The respiratory symptoms are accompanied by a cardiac failure phenotype: gallop, hepatomegaly, cardiomegaly, pulmonary congestion, and impaired peripheral perfusion. In an infant after a viral syndrome, acute myocarditis is a leading unifying diagnosis while structural and rhythm causes remain important alternatives.",
+      "option_explanations": {
+        "bronchiolitis": "Tempting because cough, crackles, tachypnea, and a viral prodrome fit bronchiolitis. It is not the best answer because bronchiolitis alone does not explain a gallop, hepatomegaly, cardiomegaly, and cool systemic perfusion. Bronchiolitis would be more likely if the cardiac examination, perfusion, and cardiac silhouette were reassuring.",
+        "pneumonia": "Tempting because infection can produce tachycardia, respiratory distress, and poor feeding. The diffuse congestion plus gallop and hepatomegaly point more strongly to pump failure than focal bacterial lung disease. Pneumonia/sepsis remains important if there is a convincing infectious source and distributive physiology.",
+        "myocarditis_hf": "Correct. The combination of congestion and low-output findings after a viral illness is a classic pediatric myocarditis presentation, although definitive diagnostic confidence requires integration of ECG, biomarkers, echocardiography, and sometimes CMR or biopsy.",
+        "svt_cm": "A real alternative because incessant SVT can cause infant heart failure and cardiomyopathy. The stem does not provide the fixed rapid tachyarrhythmia or abrupt rhythm behavior needed to make it more likely than myocarditis. It should move up the differential if ECG or telemetry demonstrates an incessant supraventricular tachycardia.",
+        "large_vsd": "A large VSD can cause infant tachypnea, feeding difficulty, hepatomegaly, and pulmonary overcirculation. The abrupt postviral deterioration with poor perfusion and no previously described murmur/structural lesion favors acquired myocardial dysfunction. Echocardiography is needed to exclude this and other structural causes."
+      },
+      "board_pearl": "In a respiratory-looking infant, hepatomegaly plus a gallop and poor perfusion should redirect the evaluation toward heart failure.",
+      "evidence": [
+        {"claim":"Pediatric myocarditis may present with acute heart failure, arrhythmia, or cardiogenic shock and can mimic common childhood illness.","source_id":"AHA_MYOCARDITIS_2021"},
+        {"claim":"Children with acute decompensated heart failure require physiology-based assessment of congestion and perfusion.","source_id":"AHA_PED_ADHF_2026"}
+      ],
+      "last_medical_review": null,
+      "requires_sme_review": true
+    },
+    {
+      "id": "MYO-002",
+      "status": "draft-medical-review",
+      "age": "3 years",
+      "age_group": "child",
+      "domain": "recognition",
+      "concept": "gastrointestinal presentation of low cardiac output",
+      "learning_objective": "Identify abdominal and gastrointestinal symptoms as possible manifestations of pediatric heart failure when cardiac examination and perfusion are abnormal.",
+      "cognitive_level": "application",
+      "difficulty": 2,
+      "stem": "A 3-year-old is seen for vomiting, abdominal pain, and decreased oral intake after a febrile illness. He is afebrile now but remains tachycardic. The liver edge is enlarged and tender, extremities are cool, capillary refill is delayed, and there is a new gallop. Which interpretation is most appropriate?",
+      "options": [
+        {"id":"gastroenteritis","text":"Uncomplicated viral gastroenteritis with mild dehydration"},
+        {"id":"appendicitis","text":"Early appendicitis with reactive tachycardia"},
+        {"id":"myocarditis_low_output","text":"Possible myocarditis with congestive and low-output heart failure"},
+        {"id":"dka","text":"Diabetic ketoacidosis"},
+        {"id":"septic_shock","text":"Distributive septic shock without primary cardiac dysfunction"}
+      ],
+      "correct_option_id": "myocarditis_low_output",
+      "rationale": "Vomiting and abdominal pain are nonspecific in young children, but hepatomegaly, a gallop, persistent unexplained tachycardia, and cool delayed perfusion are cardiac clues. The safest interpretation is possible myocardial dysfunction with heart failure rather than a purely gastrointestinal diagnosis.",
+      "option_explanations": {
+        "gastroenteritis": "Tempting because vomiting and poor intake are common after viral exposure. Mild dehydration can cause tachycardia, but it does not explain a gallop and hepatomegaly with systemic congestion. Gastroenteritis becomes more likely when perfusion improves appropriately and the cardiac examination is normal.",
+        "appendicitis": "Abdominal pain and vomiting can occur with appendicitis, but the cardiac examination and systemic venous congestion are not explained by a localized abdominal process. Appendicitis would require compatible focal abdominal findings and would not account for the gallop.",
+        "myocarditis_low_output": "Correct. Young children can present with gastrointestinal symptoms when heart failure causes hepatic congestion and low systemic output.",
+        "dka": "DKA can cause abdominal pain, vomiting, tachycardia, and poor perfusion. The vignette lacks the metabolic clues that would make DKA primary, while gallop and hepatomegaly specifically suggest cardiac failure. Glucose/acid-base testing would clarify if DKA is plausible.",
+        "septic_shock": "Sepsis remains a must-not-miss alternative after febrile illness, but a gallop and congestive hepatomegaly raise concern for primary or important secondary myocardial dysfunction. The shock phenotype should be defined rather than assuming distributive physiology."
+      },
+      "board_pearl": "In young children, abdominal pain and vomiting can be heart-failure symptoms; the liver and perfusion examination often reveal the diagnosis.",
+      "evidence": [
+        {"claim":"Pediatric myocarditis presentations are age dependent and may include nonspecific gastrointestinal symptoms with heart failure.","source_id":"AHA_MYOCARDITIS_2021"},
+        {"claim":"Congestion and hypoperfusion are central bedside domains in pediatric acute decompensated heart failure.","source_id":"AHA_PED_ADHF_2026"}
+      ],
+      "last_medical_review": null,
+      "requires_sme_review": true
+    },
+    {
+      "id": "MYO-003",
+      "status": "draft-medical-review",
+      "age": "15 years",
+      "age_group": "adolescent",
+      "domain": "recognition",
+      "concept": "chest-pain phenotype",
+      "learning_objective": "Recognize a myocarditis-type chest-pain phenotype with preserved global systolic function while discriminating it from close cardiac alternatives.",
+      "cognitive_level": "recognition",
+      "difficulty": 1,
+      "stem": "A 15-year-old develops acute chest pain and palpitations several days after a viral syndrome. Troponin is elevated, ECG shows new ST-T abnormalities, and echocardiography shows normal coronary origins, no ventricular hypertrophy, and preserved LV systolic function. Which diagnosis best fits the current presentation?",
+      "options": [
+        {"id":"myocarditis_preserved_ef","text":"Acute myocarditis with preserved global systolic function"},
+        {"id":"myopericarditis","text":"Predominantly acute pericarditis with minor myocardial involvement (myopericarditis)"},
+        {"id":"coronary_ischemia","text":"Coronary ischemic injury from an anomalous or acquired coronary process"},
+        {"id":"arrhythmogenic_cm","text":"An inherited arrhythmogenic cardiomyopathy presenting with an inflammatory episode"},
+        {"id":"hcm_injury","text":"Hypertrophic cardiomyopathy with secondary myocardial injury"}
+      ],
+      "correct_option_id": "myocarditis_preserved_ef",
+      "rationale": "The acute postviral course, objective myocardial injury, and new ECG abnormalities support myocarditis even though global systolic function is preserved. The alternatives are clinically relevant, but the stem lacks the predominant pericarditic syndrome, coronary/anatomic evidence, hypertrophy, or inherited/chronic phenotype that would make them more likely.",
+      "option_explanations": {
+        "myocarditis_preserved_ef": "Correct. Pediatric myocarditis can present primarily with chest pain, troponin elevation, and ECG changes before global pump function becomes abnormal; preserved EF therefore modifies severity assessment but does not exclude myocardial inflammation.",
+        "myopericarditis": "Myopericarditis is a real competing inflammatory diagnosis when pericarditic features predominate, such as positional pleuritic pain, diffuse pericarditic ECG changes, rub, or effusion. Those features are not provided here, so a myocarditis-type myocardial injury phenotype is the better fit.",
+        "coronary_ischemia": "Coronary ischemia must be considered in an adolescent with chest pain, troponin elevation, and ECG changes, particularly when symptoms are exertional or injury follows a vascular territory. Normal coronary origins are reassuring but do not replace clinical judgment if other ischemic clues emerge.",
+        "arrhythmogenic_cm": "Inherited arrhythmogenic cardiomyopathy can produce myocarditis-like inflammatory episodes and ventricular arrhythmias. It becomes more compelling with recurrent episodes, a malignant family history, characteristic scar/structural abnormalities, or persistent electrical disease beyond the acute illness.",
+        "hcm_injury": "HCM can cause chest pain, ischemia, and arrhythmia risk, but the absence of ventricular hypertrophy and the acute postviral injury pattern make it less likely in this vignette. Family history and evolving imaging findings would change that assessment."
+      },
+      "board_pearl": "Preserved EF does not rule out myocarditis; in chest-pain presentations, the differential should remain cardiac rather than collapsing to benign noncardiac explanations.",
+      "evidence": [
+        {"claim":"Myocarditis can present with chest pain and myocardial injury without severe ventricular dysfunction.","source_id":"AHA_MYOCARDITIS_2021"},
+        {"claim":"Normal common testing does not rule out myocarditis when clinical suspicion remains high.","source_id":"ACC_MYOCARDITIS_2024"}
+      ],
+      "last_medical_review": null,
+      "requires_sme_review": true
+    },
+    {
+      "id": "MYO-004",
+      "status": "draft-medical-review",
+      "age": "4 months",
+      "age_group": "infant",
+      "domain": "differential diagnosis",
+      "concept": "ALCAPA mimic",
+      "learning_objective": "Prioritize exclusion of ALCAPA in an infant with unexplained LV dysfunction and ischemic clues.",
+      "cognitive_level": "application",
+      "difficulty": 2,
+      "stem": "A 4-month-old has diaphoresis and irritability with feeds, tachypnea, poor weight gain, and severe left ventricular systolic dysfunction. ECG shows deep Q waves in lateral leads. On the initial echocardiogram, the left coronary origin is not confidently visualized. Which alternative diagnosis is most important to exclude before labeling the child as having idiopathic myocarditis?",
+      "options": [
+        {"id":"alcapa","text":"Anomalous left coronary artery from the pulmonary artery (ALCAPA)"},
+        {"id":"large_vsd","text":"Large ventricular septal defect"},
+        {"id":"svt_cm","text":"Tachycardia-induced cardiomyopathy"},
+        {"id":"metabolic_cm","text":"Metabolic cardiomyopathy"},
+        {"id":"myocarditis","text":"Acute myocarditis"}
+      ],
+      "correct_option_id": "alcapa",
+      "rationale": "ALCAPA is a critical reversible cause of infant LV dysfunction that may mimic myocarditis or dilated cardiomyopathy. Ischemic-appearing lateral Q waves and inability to confirm the left coronary origin should trigger dedicated coronary evaluation.",
+      "option_explanations": {
+        "alcapa": "Correct. ALCAPA commonly presents in infancy with heart failure and ischemic myocardial dysfunction, and direct visualization plus secondary echocardiographic markers are important because the anomalous origin is not always obvious.",
+        "large_vsd": "A large VSD can cause failure to thrive and congestive symptoms, but it should be evident structurally on echocardiography and does not specifically explain an ischemic Q-wave pattern. It remains a structural differential when pulmonary overcirculation and a defect are seen.",
+        "svt_cm": "Incessant SVT can cause severe reversible dysfunction, but a rhythm history or documented persistent tachyarrhythmia would be expected. The coronary and ischemic clues make ALCAPA the higher-priority exclusion here.",
+        "metabolic_cm": "Metabolic disease can cause infant cardiomyopathy and may be suggested by hypoglycemia, acidosis, muscle weakness, dysmorphism, or multisystem findings. It is important when the presentation or family history supports it, but it does not explain the coronary-imaging concern as directly.",
+        "myocarditis": "Myocarditis remains plausible, but the question asks for the dangerous alternative that must be excluded before diagnostic closure. The ischemic ECG and uncertain coronary origin specifically elevate ALCAPA."
+      },
+      "board_pearl": "In every infant with unexplained LV dysfunction, explicitly confirm coronary origins; ALCAPA is a myocarditis mimic with a surgically correctable mechanism.",
+      "evidence": [
+        {"claim":"ALCAPA can present with LV dysfunction and may be missed if coronary origins and secondary echocardiographic markers are not assessed carefully.","source_id":"ALCAPA_PATEL_2017"},
+        {"claim":"Pediatric CMR/echo evaluation of myocarditis should consider congenital coronary abnormalities as alternative causes of new ventricular dysfunction.","source_id":"PED_CMR_GUIDANCE"}
+      ],
+      "last_medical_review": null,
+      "requires_sme_review": true
+    },
+    {
+      "id": "MYO-005",
+      "status": "draft-medical-review",
+      "age": "16 years",
+      "age_group": "adolescent",
+      "domain": "differential diagnosis",
+      "concept": "perimyocarditis terminology",
+      "learning_objective": "Distinguish myopericarditis from perimyocarditis when pericarditic features coexist with new LV dysfunction.",
+      "cognitive_level": "application",
+      "difficulty": 2,
+      "stem": "A 16-year-old has sharp pleuritic chest pain that improves while sitting forward. ECG shows widespread ST elevation with PR depression. Troponin is elevated, and echocardiography shows a new diffuse reduction in left ventricular systolic function. Which term best describes the predominant syndrome?",
+      "options": [
+        {"id":"isolated_pericarditis","text":"Isolated acute pericarditis"},
+        {"id":"myopericarditis","text":"Myopericarditis"},
+        {"id":"perimyocarditis","text":"Perimyocarditis"},
+        {"id":"ischemic_mi","text":"Acute coronary-territory myocardial infarction"},
+        {"id":"dcm","text":"Chronic dilated cardiomyopathy without pericardial involvement"}
+      ],
+      "correct_option_id": "perimyocarditis",
+      "rationale": "Contemporary ESC terminology uses myopericarditis for a predominantly pericarditic syndrome with myocardial injury but without new LV dysfunction. New focal or diffuse LV dysfunction with pericarditic features indicates predominant myocarditis with pericardial involvement, termed perimyocarditis.",
+      "option_explanations": {
+        "isolated_pericarditis": "The pain and ECG are pericarditic, but elevated troponin plus new LV dysfunction demonstrate myocardial involvement. Isolated pericarditis would be more appropriate when there is no evidence of myocardial injury or dysfunction.",
+        "myopericarditis": "Tempting because pericarditic symptoms and troponin elevation often lead to this label. Under current ESC terminology, myopericarditis implies minor myocardial involvement without new LV dysfunction, so it is not the best term here.",
+        "perimyocarditis": "Correct. New LV systolic dysfunction means myocardial involvement is clinically predominant despite concurrent pericarditis.",
+        "ischemic_mi": "Adolescents can have rare coronary ischemic disease, but the diffuse pericarditic ECG pattern and positional pleuritic pain favor inflammatory overlap. Coronary evaluation becomes important if the ECG, imaging, or history suggests a territorial ischemic process.",
+        "dcm": "DCM can cause LV dysfunction but does not explain the acute pericarditic chest pain and ECG findings. Chronic remodeling, a longer symptom history, or genetic clues would make DCM more likely."
+      },
+      "board_pearl": "Pericarditic syndrome + troponin but normal LV function = myopericarditis; new LV dysfunction shifts the label toward perimyocarditis.",
+      "evidence": [
+        {"claim":"Myopericarditis and perimyocarditis are distinguished by whether new LV dysfunction is present.","source_id":"ESC_IMPS_2025"}
+      ],
+      "last_medical_review": null,
+      "requires_sme_review": true
+    },
+    {
+      "id": "MYO-006",
+      "status": "draft-medical-review",
+      "age": "15 years",
+      "age_group": "adolescent",
+      "domain": "differential diagnosis",
+      "concept": "tachycardia-induced cardiomyopathy",
+      "learning_objective": "Differentiate arrhythmia-induced cardiomyopathy from myocarditis using temporal relationship and inflammatory evidence.",
+      "cognitive_level": "multi-step",
+      "difficulty": 3,
+      "stem": "A 15-year-old has progressive exercise intolerance and reduced LV systolic function. Telemetry shows an incessant narrow-complex tachycardia that parents report began weeks before the exercise intolerance. Troponin is normal, inflammatory markers are normal, and CMR shows no edema or nonischemic inflammatory injury. Which diagnosis is most likely?",
+      "options": [
+        {"id":"acute_myocarditis","text":"Acute myocarditis causing secondary supraventricular tachycardia"},
+        {"id":"tachy_cm","text":"Tachycardia-induced cardiomyopathy"},
+        {"id":"pericarditis","text":"Acute pericarditis"},
+        {"id":"alcapa","text":"Late-presenting ALCAPA"},
+        {"id":"genetic_dcm","text":"Primary genetic dilated cardiomyopathy with incidental tachycardia"}
+      ],
+      "correct_option_id": "tachy_cm",
+      "rationale": "The arrhythmia clearly predates ventricular dysfunction and inflammatory testing is unrevealing. That temporal sequence strongly favors tachycardia-induced cardiomyopathy over myocarditis-related arrhythmia.",
+      "option_explanations": {
+        "acute_myocarditis": "Myocarditis can cause atrial or ventricular arrhythmias and reduced function, so it is a legitimate competing diagnosis. It is less likely because the tachycardia preceded the decline and there is no biomarker or CMR evidence of inflammation. It rises again if inflammatory evidence or a myocarditis-compatible prodrome appears.",
+        "tachy_cm": "Correct. Persistent tachyarrhythmia can itself cause reversible ventricular dysfunction, and chronology is central to recognizing it.",
+        "pericarditis": "Pericarditis may cause tachycardia from pain or inflammation but does not typically produce this pattern of incessant tachyarrhythmia followed by progressive LV dysfunction. Pericarditic chest pain, rub, effusion, or typical inflammatory findings would be expected.",
+        "alcapa": "Late ALCAPA exists and should not be dismissed purely by age, but the stem provides no coronary ischemic or imaging clues and gives a strong arrhythmia-first timeline. Dedicated coronary imaging would be appropriate if the anatomy remained uncertain.",
+        "genetic_dcm": "Genetic DCM can coexist with arrhythmia and should be reconsidered if function fails to recover after rhythm control or family history/genetic features emerge. The chronology here makes the incessant tachycardia the more parsimonious primary driver."
+      },
+      "board_pearl": "Ask which came first: the arrhythmia or the ventricular dysfunction. Chronology can separate a cause from a complication.",
+      "evidence": [
+        {"claim":"Arrhythmias are recognized presentations/complications of myocarditis, so alternative rhythm-driven cardiomyopathy must be considered when chronology points elsewhere.","source_id":"AHA_MYOCARDITIS_2021"}
+      ],
+      "last_medical_review": null,
+      "requires_sme_review": true
+    },
+    {
+      "id": "MYO-007",
+      "status": "draft-medical-review",
+      "age": "16 years",
+      "age_group": "adolescent",
+      "domain": "differential diagnosis",
+      "concept": "arrhythmogenic cardiomyopathy mimic",
+      "learning_objective": "Recognize inherited arrhythmogenic cardiomyopathy when family history and chronic RV structural disease conflict with acute myocarditis.",
+      "cognitive_level": "multi-step",
+      "difficulty": 3,
+      "stem": "A 16-year-old presents after exertional syncope with frequent ventricular ectopy. Troponin is minimally elevated. CMR shows extensive right-ventricular structural abnormality and fibrofatty replacement without convincing myocardial edema. His father died suddenly at age 32. Which diagnosis should take priority over presumed acute viral myocarditis?",
+      "options": [
+        {"id":"arrhythmogenic_cm","text":"Arrhythmogenic cardiomyopathy"},
+        {"id":"acute_myocarditis","text":"Acute viral myocarditis"},
+        {"id":"pericarditis","text":"Acute pericarditis"},
+        {"id":"tachy_cm","text":"Tachycardia-induced cardiomyopathy"},
+        {"id":"athlete_heart","text":"Physiologic athletic remodeling"}
+      ],
+      "correct_option_id": "arrhythmogenic_cm",
+      "rationale": "Exertional syncope, ventricular arrhythmia, a strong family history of premature sudden death, and chronic-appearing RV structural/tissue abnormality without active edema point to inherited arrhythmogenic cardiomyopathy rather than an acute inflammatory syndrome.",
+      "option_explanations": {
+        "arrhythmogenic_cm": "Correct. The inherited/chronic phenotype and family history outweigh a nonspecific small troponin rise.",
+        "acute_myocarditis": "Myocarditis can produce ventricular arrhythmia and even mimic inherited cardiomyopathy, but acute inflammation should be supported by clinical context and tissue findings. The chronic RV pattern and pedigree require an inherited disease evaluation.",
+        "pericarditis": "Pericarditis primarily produces chest pain and pericardial inflammation, not a familial RV fibrofatty cardiomyopathy phenotype. It would become plausible if pericarditic symptoms and imaging findings were present.",
+        "tachy_cm": "Arrhythmia-induced dysfunction is possible when persistent tachycardia precedes pump failure, but it does not explain inherited sudden-death history and fibrofatty RV disease.",
+        "athlete_heart": "Athletic remodeling can include bradycardia and chamber enlargement, but exertional syncope, ventricular arrhythmia, tissue replacement, and a malignant family history are pathologic red flags."
+      },
+      "board_pearl": "A myocarditis-like arrhythmic presentation plus a malignant family history should trigger a genetic cardiomyopathy differential.",
+      "evidence": [
+        {"claim":"Contemporary myocarditis frameworks emphasize family history and genetic predisposition because inflammatory presentations may overlap inherited cardiomyopathy phenotypes.","source_id":"ACC_MYOCARDITIS_2024"},
+        {"claim":"The 2025 ESC myocarditis framework includes dedicated genetic assessment when indicated.","source_id":"ESC_IMPS_2025"}
+      ],
+      "last_medical_review": null,
+      "requires_sme_review": true
+    },
+    {
+      "id": "MYO-008",
+      "status": "draft-medical-review",
+      "age": "8 years",
+      "age_group": "child",
+      "domain": "differential diagnosis",
+      "concept": "septic versus cardiogenic physiology",
+      "learning_objective": "Use hemodynamic phenotype and ventricular function rather than troponin alone to distinguish distributive sepsis from myocarditis-associated cardiogenic shock.",
+      "cognitive_level": "application",
+      "difficulty": 2,
+      "stem": "An 8-year-old with fever and hypotension has elevated troponin. Extremities are warm with bounding pulses. Echocardiography shows preserved biventricular systolic function, and blood cultures later grow a pathogenic bacterium. Which interpretation best fits the presentation?",
+      "options": [
+        {"id":"septic_secondary_injury","text":"Distributive septic shock with secondary myocardial injury marker elevation"},
+        {"id":"fulminant_myocarditis","text":"Fulminant myocarditis causing primary cardiogenic shock"},
+        {"id":"perimyocarditis","text":"Perimyocarditis"},
+        {"id":"alcapa","text":"Anomalous left coronary artery from the pulmonary artery (ALCAPA)"},
+        {"id":"dcm","text":"Chronic dilated cardiomyopathy"}
+      ],
+      "correct_option_id": "septic_secondary_injury",
+      "rationale": "Troponin is a marker of myocardial injury, not a myocarditis-specific test. Warm distributive physiology, preserved ventricular function, and documented bacteremia make septic shock the dominant diagnosis.",
+      "option_explanations": {
+        "septic_secondary_injury": "Correct. Critical illness and sepsis can raise troponin without primary inflammatory myocarditis, and the hemodynamic phenotype here is distributive.",
+        "fulminant_myocarditis": "Myocarditis must be considered in a febrile child with shock and troponin elevation, but fulminant myocarditis would be more compelling with important ventricular dysfunction, electrical instability, congestion, or low-output physiology.",
+        "perimyocarditis": "There are no pericarditic symptoms or new LV dysfunction to support an overlapping pericardial-myocardial syndrome.",
+        "alcapa": "ALCAPA causes an ischemic cardiomyopathy phenotype rather than warm bacteremic shock with preserved function. It should be considered in unexplained pediatric LV dysfunction, not as the best unifier here.",
+        "dcm": "Chronic DCM would usually show ventricular remodeling/dysfunction and does not explain the documented acute distributive infectious syndrome."
+      },
+      "board_pearl": "Never translate 'elevated troponin' directly into 'myocarditis'; first define the patient's physiology and competing causes of myocardial injury.",
+      "evidence": [
+        {"claim":"Troponin contributes to myocarditis evaluation but must be interpreted in clinical context rather than used as a stand-alone diagnosis.","source_id":"AHA_MYOCARDITIS_2021"},
+        {"claim":"Acute heart failure/shock assessment in children depends on defining the hemodynamic phenotype.","source_id":"AHA_PED_ADHF_2026"}
+      ],
+      "last_medical_review": null,
+      "requires_sme_review": true
+    },
+    {
+      "id": "MYO-009",
+      "status": "draft-medical-review",
+      "age": "10 years",
+      "age_group": "child",
+      "domain": "differential diagnosis",
+      "concept": "acute myocarditis versus chronic DCM",
+      "learning_objective": "Recognize features that favor chronic/inherited dilated cardiomyopathy over an acute inflammatory syndrome.",
+      "cognitive_level": "application",
+      "difficulty": 2,
+      "stem": "A 10-year-old has several months of progressive exercise intolerance. Echocardiography shows marked LV dilation with depressed systolic function. Troponin and inflammatory markers are normal, CMR shows no edema, and a first-degree relative has unexplained dilated cardiomyopathy. Which diagnosis is more likely than acute myocarditis?",
+      "options": [
+        {"id":"genetic_dcm","text":"Inherited dilated cardiomyopathy"},
+        {"id":"acute_myocarditis","text":"Acute myocarditis"},
+        {"id":"pericarditis","text":"Acute pericarditis"},
+        {"id":"septic_cm","text":"Sepsis-associated myocardial dysfunction"},
+        {"id":"coronary_infarct","text":"Acute coronary-territory myocardial infarction"}
+      ],
+      "correct_option_id": "genetic_dcm",
+      "rationale": "A chronic course, marked ventricular dilation, lack of active inflammatory evidence, and a family history of DCM favor inherited cardiomyopathy. Myocarditis can evolve into a DCM phenotype, but acute myocarditis is not the best explanation for this pattern.",
+      "option_explanations": {
+        "genetic_dcm": "Correct. The time course and family history strongly support inherited disease and should prompt cardiomyopathy/genetic evaluation.",
+        "acute_myocarditis": "Myocarditis can produce LV dysfunction and later remodeling, so it cannot be excluded solely by one negative test. The months-long course, absent edema/injury markers, and family history make acute inflammation less likely.",
+        "pericarditis": "Pericarditis does not typically cause chronic marked LV dilation without pericarditic symptoms. It would be considered with chest pain, rub, effusion, or pericardial inflammation.",
+        "septic_cm": "Sepsis-associated myocardial dysfunction occurs during systemic infection and does not fit a months-long familial cardiomyopathy phenotype.",
+        "coronary_infarct": "A territorial ischemic process would require coronary/anatomic or tissue-pattern evidence and would not readily explain the chronic familial DCM history."
+      },
+      "board_pearl": "Time course and pedigree matter: chronic dilation plus family history should make inherited cardiomyopathy a first-class alternative to myocarditis.",
+      "evidence": [
+        {"claim":"Myocarditis and inherited cardiomyopathy can overlap phenotypically; family history and chronicity should inform the differential.","source_id":"AHA_MYOCARDITIS_2021"},
+        {"claim":"Genetic predisposition is increasingly recognized in myocarditis/cardiomyopathy presentations.","source_id":"ACC_MYOCARDITIS_2024"}
+      ],
+      "last_medical_review": null,
+      "requires_sme_review": true
+    },
+    {
+      "id": "MYO-010",
+      "status": "draft-medical-review",
+      "age": "9 years",
+      "age_group": "child",
+      "domain": "recognition",
+      "concept": "high-risk integrated phenotype",
+      "learning_objective": "Recognize convergence of pump, perfusion, congestion, and electrical abnormalities as a high-risk myocarditis presentation requiring immediate escalation.",
+      "cognitive_level": "multi-step",
+      "difficulty": 3,
+      "stem": "A 9-year-old had a viral illness one week ago and now has abdominal pain, persistent tachycardia, hepatomegaly, cool extremities, elevated troponin, frequent ventricular ectopy, and depressed biventricular function. Oxygen saturation is 97% on room air. Which statement best summarizes the immediate clinical significance?",
+      "options": [
+        {"id":"high_risk_myocarditis","text":"This is a high-risk myocarditis phenotype with combined pump and electrical instability that requires monitored intensive care and escalation readiness"},
+        {"id":"stable_because_spo2","text":"Normal oxygen saturation makes immediate deterioration unlikely"},
+        {"id":"etiology_first","text":"The exact viral cause should be established before deciding disposition"},
+        {"id":"outpatient_arrhythmia","text":"The ventricular ectopy can be evaluated as an outpatient if the child has no syncope"},
+        {"id":"gi_primary","text":"The abdominal pain makes a primary gastrointestinal diagnosis more likely than cardiac disease"}
+      ],
+      "correct_option_id": "high_risk_myocarditis",
+      "rationale": "The child has multiple high-risk domains at once: poor systemic perfusion, congestion, myocardial injury, biventricular pump dysfunction, and ventricular electrical instability. Normal oxygen saturation does not measure cardiac output and should not delay intensive monitoring or escalation planning.",
+      "option_explanations": {
+        "high_risk_myocarditis": "Correct. This phenotype is a pre-arrest concern and belongs in a setting able to manage rapid hemodynamic or electrical deterioration.",
+        "stable_because_spo2": "Tempting because pulse oximetry is normal, but oxygen saturation can remain normal despite severely reduced systemic blood flow. Perfusion, mental status, urine output, rhythm, and ventricular function are more relevant to the immediate cardiac risk.",
+        "etiology_first": "Etiology can matter for targeted therapy, but stabilization and safe destination come first. Pathogen testing should proceed in parallel rather than delay management of a high-risk physiologic state.",
+        "outpatient_arrhythmia": "Ventricular ectopy in a child with biventricular dysfunction and poor perfusion is not an isolated outpatient rhythm issue. Outpatient evaluation is appropriate only after the acute hemodynamic/electrical risk has resolved.",
+        "gi_primary": "Abdominal pain can result from hepatic congestion or low output in children. It should not distract from the objective cardiac findings."
+      },
+      "board_pearl": "The sickest myocarditis cases are recognized by convergence of perfusion, congestion, ventricular function, and rhythm—not by one laboratory value or oxygen saturation.",
+      "evidence": [
+        {"claim":"Pediatric myocarditis may progress to ventricular arrhythmias and cardiogenic shock and requires anticipatory monitoring/escalation.","source_id":"AHA_MYOCARDITIS_2021"},
+        {"claim":"Arrhythmia, heart block, ST changes, or low cardiac output in pediatric myocarditis should trigger early ICU-level monitoring and therapy.","source_id":"AHA_PALS_2025"}
+      ],
+      "last_medical_review": null,
+      "requires_sme_review": true
+    }
+  ]
+}

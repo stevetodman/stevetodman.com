@@ -1,0 +1,34 @@
+.bank-hero .hero-lead { max-width: 56rem; }
+.bank-shell { padding-bottom: 5rem; }
+.bank-controls { margin-top: 2rem; }
+.bank-control-row { display: flex; flex-wrap: wrap; gap: .75rem; align-items: end; margin-top: 1rem; }
+.bank-control-row label { font-weight: 700; width: 100%; }
+.bank-control-row select { min-width: min(100%, 30rem); border: 1px solid #cbd5e1; border-radius: .65rem; padding: .75rem .9rem; background: #fff; font: inherit; }
+.bank-form { display: grid; gap: 1rem; margin-top: 1rem; }
+.bank-stack-heading { margin-bottom: .25rem; }
+.bank-question { border: 0; margin: 0; min-width: 0; }
+.bank-question legend { width: 100%; font-weight: 700; line-height: 1.5; padding: 0 0 .8rem; }
+.bank-number { display: inline-flex; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 999px; background: #e2e8f0; margin-right: .25rem; }
+.bank-option-list { display: grid; gap: .6rem; }
+.bank-option { display: grid; grid-template-columns: auto 2rem 1fr; align-items: start; gap: .55rem; padding: .8rem; border: 1px solid #dbe3ed; border-radius: .7rem; cursor: pointer; }
+.bank-option:hover { border-color: #94a3b8; }
+.bank-option input { margin-top: .25rem; }
+.bank-option-letter { font-weight: 800; }
+.bank-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; position: sticky; bottom: .5rem; z-index: 4; }
+.bank-correct { border-left: .35rem solid #15803d; }
+.bank-incorrect { border-left: .35rem solid #b91c1c; }
+.bank-feedback { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #dbe3ed; }
+.bank-result-line { font-weight: 800; }
+.bank-explanations { display: grid; gap: .45rem; margin-top: 1rem; }
+.bank-explanations details, .bank-evidence { border: 1px solid #dbe3ed; border-radius: .6rem; padding: .6rem .75rem; }
+.bank-explanations summary, .bank-evidence summary { cursor: pointer; font-weight: 700; }
+.bank-pearl { margin-top: 1rem; padding: .75rem; border-left: .25rem solid #64748b; background: #f8fafc; }
+.bank-meta { font-size: .9rem; color: #475569; text-transform: capitalize; }
+.bank-score { margin-bottom: 1rem; }
+.bank-score-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1rem; }
+.bank-error { margin-top: 2rem; border-left: .35rem solid #b91c1c; }
+@media (max-width: 640px) {
+  .bank-control-row select, .bank-control-row .button { width: 100%; }
+  .bank-option { grid-template-columns: auto 1.6rem 1fr; }
+  .bank-actions { position: static; }
+}
