@@ -47,25 +47,25 @@
       "evidence":[{"claim":"Updated Lake Louise criteria use at least one T2-based marker plus at least one T1-based marker for stronger CMR evidence of active myocardial inflammation.","source_id":"FERREIRA_LLC_2018"},{"claim":"The 2025 ESC framework classifies two-domain CMR as proven and a single-domain result as less specific/uncertain in the appropriate clinical context.","source_id":"ESC_IMPS_2025"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
-      "id":"MYO-013","status":"draft-medical-review","age":"4 years","age_group":"child","domain":"diagnosis","concept":"normal troponin/ECG do not exclude","learning_objective":"Continue evaluation when a high-suspicion clinical phenotype conflicts with initially reassuring ECG or troponin.","cognitive_level":"application","difficulty":2,
-      "stem":"A 4-year-old has persistent unexplained tachycardia, poor feeding, hepatomegaly, and cool extremities. The first ECG shows sinus tachycardia without ST-T changes and the initial troponin is within the laboratory reference range. What is the best next step?",
+      "id":"MYO-013","status":"draft-medical-review","age":"4 years","age_group":"child","domain":"diagnosis","concept":"normal troponin/ECG do not exclude","learning_objective":"Continue myocarditis evaluation when a high-risk bedside phenotype conflicts with initially reassuring ECG and troponin rather than using serial normal snapshots as a rule-out gate.","cognitive_level":"application","difficulty":2,
+      "stem":"A 4-year-old has persistent tachycardia after a gastrointestinal illness, poor feeding, hepatomegaly, cool extremities, and delayed capillary refill. The first ECG shows only sinus tachycardia and the initial troponin is within the laboratory reference range. Which next strategy best addresses the diagnostic conflict?",
       "options":[
-        {"id":"continue_eval","text":"Continue cardiac evaluation with echocardiography and appropriate monitoring because the phenotype remains concerning"},
-        {"id":"rule_out","text":"Exclude myocarditis because both ECG and troponin are reassuring"},
-        {"id":"fluid_only","text":"Treat as dehydration with repeated large-volume boluses without cardiac imaging"},
-        {"id":"exercise_test","text":"Arrange an exercise stress test to prove the tachycardia is physiologic"},
-        {"id":"outpatient_only","text":"Defer all cardiac testing to routine outpatient follow-up"}
+        {"id":"continue_eval","text":"Obtain prompt echocardiographic assessment of ventricular/hemodynamic status and continue appropriate rhythm/perfusion monitoring because the bedside phenotype remains concerning"},
+        {"id":"serial_gate","text":"Repeat the ECG and troponin and defer cardiac imaging if both remain reassuring, using concordant serial normal results as the main rule-out strategy"},
+        {"id":"fluid_response_gate","text":"Give cautious volume for possible dehydration and defer cardiac imaging if heart rate and capillary refill improve, treating the hepatomegaly as nonspecific during the acute illness"},
+        {"id":"cmr_before_echo","text":"Proceed to CMR for tissue confirmation before echocardiography because normal ECG and troponin make bedside cardiac testing unlikely to clarify the diagnosis"},
+        {"id":"infection_first_gate","text":"Complete infectious and gastrointestinal evaluation first and add echocardiography only if a noncardiac explanation is not found or the troponin later becomes abnormal"}
       ],
       "correct_option_id":"continue_eval",
-      "rationale":"Normal initial ECG or troponin cannot by themselves exclude myocarditis or acute heart failure. The bedside evidence of congestion and poor perfusion warrants echocardiographic assessment and monitoring.",
+      "rationale":"Initially normal ECG and troponin values lower the weight of those individual tests but do not overrule a phenotype suggesting congestion and impaired perfusion. Hepatomegaly, cool extremities, delayed refill, and persistent disproportionate tachycardia require direct assessment of ventricular function and hemodynamics now rather than serial biomarker gatekeeping or a search for a noncardiac diagnosis first.",
       "option_explanations":{
-        "continue_eval":"Correct. The clinical phenotype carries enough pretest concern that ventricular function and structural causes still need evaluation.",
-        "rule_out":"A normal ECG and troponin lower concern in some contexts, but neither has sufficient sensitivity to overrule hepatomegaly, poor perfusion, and persistent disproportionate tachycardia. They are more reassuring when the clinical phenotype is also low risk.",
-        "fluid_only":"Dehydration can produce tachycardia and poor perfusion, but hepatomegaly raises concern for congestion. Fluids should be guided by physiology rather than assumed hypovolemia.",
-        "exercise_test":"Exercise testing is not appropriate during suspected active myocardial disease and does not address the immediate question of ventricular function or perfusion.",
-        "outpatient_only":"Routine outpatient follow-up is appropriate for low-risk presentations after dangerous cardiac pathology has been reasonably excluded, not for a child with ongoing low-output/congestive findings."
+        "continue_eval":"Correct. The discordance should be resolved by testing the dangerous physiologic hypothesis directly: echocardiography and monitoring assess pump function, congestion, rhythm, and trajectory even when the first injury/electrical snapshots are reassuring.",
+        "serial_gate":"Repeating ECG and troponin may add information, but serial reassurance in those domains still does not directly assess ventricular function or systemic output. Persistent low-output/congestive findings should not wait for a biomarker or ECG abnormality to appear.",
+        "fluid_response_gate":"Dehydration is a legitimate competing diagnosis after gastrointestinal illness, and a carefully judged fluid response can inform physiology. However, hepatomegaly plus cool poor perfusion raises enough concern for cardiac congestion/low output that transient improvement after volume would not safely substitute for cardiac imaging.",
+        "cmr_before_echo":"CMR can clarify tissue inflammation in a stable child, but the urgent question here is whether ventricular dysfunction or hemodynamic compromise is present. Bedside echocardiography and monitoring answer that question faster and with less procedural burden.",
+        "infection_first_gate":"An infectious evaluation can proceed in parallel, but finding a plausible gastrointestinal or viral illness would not exclude myocarditis and should not delay direct assessment of a concerning cardiac phenotype."
       },
-      "board_pearl":"A normal snapshot test should not defeat a high-risk bedside phenotype.",
+      "board_pearl":"When normal ECG/troponin conflict with congestion and poor perfusion, test the physiology—not the reassuring snapshot again and again.",
       "evidence":[{"claim":"Normal ECG, echocardiogram, or troponin testing does not reliably rule out myocarditis when clinical suspicion is high.","source_id":"ACC_MYOCARDITIS_2024"},{"claim":"Pediatric myocarditis diagnosis relies on integrated clinical and diagnostic information.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
@@ -91,25 +91,25 @@
       "evidence":[{"claim":"Echocardiography is important for ventricular function and structural assessment but is not specific for myocarditis.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"Pediatric myocarditis can present with preserved ventricular systolic function despite objective myocardial injury.","source_id":"AHA_MYOCARDITIS_2021"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
-      "id":"MYO-015","status":"draft-medical-review","age":"12 years","age_group":"child","domain":"diagnosis","concept":"endomyocardial biopsy selection","learning_objective":"Identify a high-risk scenario in which EMB may change diagnosis-directed therapy rather than using biopsy routinely.","cognitive_level":"multi-step","difficulty":3,
-      "stem":"A 12-year-old with suspected myocarditis develops rapidly progressive biventricular failure, recurrent ventricular tachycardia, and high-grade AV block despite intensive support. CMR is nondiagnostic. Which diagnostic strategy is most appropriate once the child is stabilized at an advanced cardiac center?",
+      "id":"MYO-015","status":"draft-medical-review","age":"12 years","age_group":"child","domain":"diagnosis","concept":"endomyocardial biopsy selection","learning_objective":"Choose selective early EMB in a high-risk myocarditis phenotype when tissue could identify a treatment-relevant subtype or mimic, rather than waiting for noninvasive certainty or using empiric mechanism-specific therapy.","cognitive_level":"multi-step","difficulty":3,
+      "stem":"A 12-year-old with suspected myocarditis develops rapidly progressive biventricular failure, recurrent ventricular tachycardia, and high-grade AV block despite intensive support. CMR is nondiagnostic. The child is now stabilized enough for additional evaluation at an advanced cardiac center. Which diagnostic strategy is most appropriate?",
       "options":[
-        {"id":"emb_selected","text":"Consider early endomyocardial biopsy because a specific histologic subtype or mimic could alter treatment"},
-        {"id":"no_tissue","text":"Avoid biopsy under all circumstances because CMR has replaced tissue diagnosis"},
-        {"id":"biopsy_everyone","text":"Biopsy is required in every clinically suspected pediatric myocarditis case"},
-        {"id":"repeat_troponin_only","text":"Use serial troponin alone to determine the inflammatory subtype"},
-        {"id":"wait_recovery","text":"Wait for spontaneous recovery before deciding whether diagnostic clarification matters"}
+        {"id":"emb_selected","text":"Consider early endomyocardial biopsy because histology, immunohistochemistry, or myocardial molecular testing could identify a treatment-relevant subtype or important mimic"},
+        {"id":"repeat_cmr_gate","text":"Repeat CMR after further stabilization and defer EMB unless a later study first demonstrates definitive two-domain tissue criteria for myocarditis"},
+        {"id":"empiric_immune_first","text":"Begin mechanism-specific immunosuppression for presumed fulminant lymphocytic myocarditis and reserve EMB for failure to improve, because severe physiology is sufficient to select the inflammatory subtype"},
+        {"id":"genetic_first","text":"Prioritize cardiomyopathy genetic testing before EMB because arrhythmia and biventricular failure can reflect inherited disease, and wait for those results before pursuing tissue diagnosis"},
+        {"id":"recovery_then_biopsy","text":"Continue supportive care and reconsider EMB only after the acute phase, when procedural risk is lower and the recovery trajectory can determine whether etiologic clarification is still needed"}
       ],
       "correct_option_id":"emb_selected",
-      "rationale":"Severe, rapidly progressive disease with electrical instability raises concern for histologic subtypes such as giant-cell or eosinophilic myocarditis and for mimics in which tissue diagnosis can change therapy. EMB remains selective rather than routine.",
+      "rationale":"Rapidly progressive pump failure combined with malignant ventricular arrhythmia and high-grade conduction disease is a high-risk phenotype in which specific inflammatory subtypes or mimics can alter therapy. A nondiagnostic CMR does not create a requirement for repeat noninvasive proof before selective EMB. Genetic evaluation and supportive care may proceed in parallel, but neither substitutes for timely tissue characterization when the result could change acute disease-directed treatment.",
       "option_explanations":{
-        "emb_selected":"Correct. In high-risk myocarditis, the diagnostic yield is valuable when histology, immunohistochemistry, or molecular analysis could trigger etiology-specific treatment.",
-        "no_tissue":"CMR is transformative but does not eliminate EMB. Tissue remains important in selected high-risk disease or when CMR is inconclusive and a treatable subtype is plausible.",
-        "biopsy_everyone":"Routine biopsy of every child exposes patients to invasive risk without sufficient added value in uncomplicated presentations. It is most appropriate when the answer could change treatment or resolve a high-stakes diagnostic uncertainty.",
-        "repeat_troponin_only":"Troponin tracks myocardial injury but cannot identify giant-cell, eosinophilic, or other histologic subtypes. Serial biomarkers can complement, not replace, tissue when subtype matters.",
-        "wait_recovery":"Spontaneous improvement is possible in myocarditis, but this child is already high risk. Delaying subtype clarification may lose an opportunity for disease-specific therapy."
+        "emb_selected":"Correct. The indication is not merely to prove inflammation; it is the combination of high-risk physiology and a realistic possibility that tissue will identify a mechanism with different treatment or prognosis.",
+        "repeat_cmr_gate":"Repeat CMR may be useful later, especially if the initial study was technically limited, but definitive CMR criteria are not a prerequisite for EMB in a high-risk child when tissue could be immediately management-changing.",
+        "empiric_immune_first":"Some centers use empiric immunomodulation in selected severe cases, but severity alone does not identify lymphocytic, eosinophilic, giant-cell, infectious, or other mechanisms. Starting a mechanism-specific strategy should not be used as a reason to forgo treatment-relevant tissue diagnosis when biopsy is feasible.",
+        "genetic_first":"Inherited cardiomyopathy is an important parallel differential, particularly with recurrence or a suggestive pedigree, but genetic testing generally does not answer the immediate histologic question in a rapidly deteriorating inflammatory phenotype and should not delay acute tissue evaluation when indicated.",
+        "recovery_then_biopsy":"Procedural risk matters, but postponing tissue until recovery can erase the acute window in which a treatable histologic subtype would alter management. The child is now at an advanced center and sufficiently stabilized for the decision to be considered."
       },
-      "board_pearl":"Biopsy is not a routine myocarditis test; it becomes valuable when the tissue result can change treatment in a high-risk child.",
+      "board_pearl":"High-risk myocarditis is where EMB earns its invasiveness: biopsy when the tissue can change what you do now, not only after noninvasive tests become definitive.",
       "evidence":[{"claim":"EMB is used selectively to identify myocarditis etiologies or histologic subtypes with management implications and to evaluate mimics.","source_id":"AHA_MYOCARDITIS_2021"},{"claim":"High-risk myocarditis is a setting in which EMB may be particularly important.","source_id":"ESC_IMPS_2025"},{"claim":"Contemporary registry data support the continued diagnostic utility of EMB in pediatric and adult myocarditis, while CMR sensitivity can be lower in children with biopsy-proven disease.","source_id":"EMB_REGISTRY_2024"}],"last_medical_review":null,"requires_sme_review":true
     },
     {
