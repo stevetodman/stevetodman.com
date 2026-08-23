@@ -22,7 +22,7 @@ test("Mac release profile disables renderer paths identified as GPU bottlenecks"
   requireLine(engine, "r.Lumen.Reflections.Allow=0");
   requireLine(engine, "r.Lumen.ScreenTraces=0");
   requireLine(engine, "r.DistanceFieldShadowing=0");
-  requireLine(engine, "r.TranslucencyLightingVolumeDim=16");
+  requireLine(engine, "r.TranslucencyLightingVolume.Dim=16");
 });
 
 test("measured 1440p profile preserves output, AA, textures and distance while reducing GPU-heavy groups", () => {
