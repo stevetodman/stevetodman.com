@@ -20,7 +20,9 @@ namespace
     // The temporary Ready Player Me attending is about 188 cm tall; 170 cm is
     // a reasonable face target until final MetaHuman-native medical art lands.
     constexpr float AttendingFaceHeightCm = 170.f;
-    constexpr float WalkStallLimitSeconds = 0.45f;
+    // A blocked guided walk must stop rather than silently discard a waypoint
+    // and send the learner through a wall or piece of furniture.
+    constexpr float WalkStallLimitSeconds = 2.0f;
 }
 
 ACardioBlockoutCharacter::ACardioBlockoutCharacter()
@@ -228,7 +230,11 @@ void ACardioBlockoutCharacter::ClickGo()
 
 void ACardioBlockoutCharacter::WalkTo(const FVector& Destination, const bool bInteractWhenThere)
 {
-    bInteractOnArrival = bInteractWhenThere;
+    // Guided movement only positions and faces the learner. Interaction stays
+    // explicit so an NPC can turn toward the learner and the learner gets a
+    // real opportunity to press E instead of the conversation auto-firing.
+    (void)bInteractWhenThere;
+    bInteractOnArrival = false;
     BuildWalkPath(Destination);
 }
 
@@ -260,14 +266,9 @@ void ACardioBlockoutCharacter::FaceNpc(AActor* Npc)
         return;
     }
 
-    // Stand south of Patel, toward the team-room door, so arrival is
-    // face-to-face rather than a profile caught beside him.
-    const FVector NpcLoc = Npc->GetActorLocation();
-    FVector Stand = NpcLoc;
-    Stand.Y = NpcLoc.Y - ConversationStandOffCm;
-    Stand.Z = GetActorLocation().Z;
-    SetActorLocation(Stand, false, nullptr, ETeleportType::TeleportPhysics);
-
+    // Never teleport the learner for conversation framing. The character
+    // reaches the interaction point through collision-aware movement, then
+    // both sides turn to face one another in place.
     LookAtActorFace(Npc);
     if (ACardioBlockoutNPC* Attending = Cast<ACardioBlockoutNPC>(Npc))
     {
@@ -295,7 +296,16 @@ void ACardioBlockoutCharacter::AdvanceGuidedWalk()
         WalkStallSeconds = 0.f;
     }
 
-    if (To.Size() <= ArriveRadiusCm || WalkStallSeconds >= WalkStallLimitSeconds)
+    // A collision stall means the authored path needs attention. Do not skip
+    // the blocked waypoint: skipping is what can turn a safe doorway path into
+    // an unnatural wall/furniture cut.
+    if (WalkStallSeconds >= WalkStallLimitSeconds)
+    {
+        CancelGuidedWalk();
+        return;
+    }
+
+    if (To.Size() <= ArriveRadiusCm)
     {
         GuidedPath.RemoveAt(0);
         WalkStallSeconds = 0.f;
@@ -367,6 +377,9 @@ void ACardioBlockoutCharacter::BuildWalkPath(const FVector& Destination)
     const bool bSameWing = (From.X < 0.f) == (Destination.X < 0.f);
     const bool bSameRoom = bFromRoom && bDestRoom && bSameSide && bSameWing;
 
+    // Room transitions always use the authored doorway centers. Character
+    // movement supplies collision, so these waypoints keep the capsule in the
+    // corridor until it is aligned with the correct opening.
     if (bFromRoom && !bSameRoom)
     {
         GuidedPath.Add(FVector(DoorXFor(From), From.Y > 0.f ? 160.f : -160.f, From.Z));
