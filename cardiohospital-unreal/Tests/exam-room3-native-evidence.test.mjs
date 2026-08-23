@@ -20,14 +20,25 @@ const actions = [
   "performance.record", "next-case.begin",
 ];
 
+function syntheticPng(width = 2560, height = 1440) {
+  const bytes = Buffer.alloc(2048);
+  Buffer.from("89504e470d0a1a0a", "hex").copy(bytes, 0);
+  bytes.writeUInt32BE(13, 8);
+  bytes.write("IHDR", 12, "ascii");
+  bytes.writeUInt32BE(width, 16);
+  bytes.writeUInt32BE(height, 20);
+  return bytes;
+}
+
 function makeEvidence(mutator = () => {}) {
   const dir = mkdtempSync(path.join(os.tmpdir(), "exam-room3-native-"));
   const captureDir = path.join(dir, "captures");
   mkdirSync(captureDir, { recursive: true });
   const captures = ["doorway", "patient-side", "provider"].map((id) => {
     const capturePath = path.join(captureDir, `${id}.png`);
-    writeFileSync(capturePath, `synthetic-fixture-${id}`);
-    return { id, path: capturePath, bytes: 10, width: 2560, height: 1440 };
+    const fixture = syntheticPng();
+    writeFileSync(capturePath, fixture);
+    return { id, path: capturePath, bytes: fixture.length, width: 2560, height: 1440 };
   });
   const result = {
     schemaVersion: 1,
@@ -91,5 +102,30 @@ test("automated evidence cannot impersonate the manual walkthrough", () => {
     const validation = validate(dir);
     assert.notEqual(validation.status, 0);
     assert.match(validation.stdout, /must not claim the manual walkthrough/);
+  });
+});
+
+test("renamed text cannot impersonate a PNG capture", () => {
+  withEvidence((result) => {
+    writeFileSync(result.captures[0].path, "not a png");
+    result.captures[0].bytes = 9;
+  }, (dir) => {
+    const validation = validate(dir);
+    assert.notEqual(validation.status, 0);
+    assert.match(validation.stdout, /not a valid PNG header/);
+  });
+});
+
+test("wrong-resolution PNG cannot satisfy the locked capture gate", () => {
+  withEvidence((result) => {
+    const fixture = syntheticPng(1920, 1080);
+    writeFileSync(result.captures[1].path, fixture);
+    result.captures[1].bytes = fixture.length;
+    result.captures[1].width = 1920;
+    result.captures[1].height = 1080;
+  }, (dir) => {
+    const validation = validate(dir);
+    assert.notEqual(validation.status, 0);
+    assert.match(validation.stdout, /PNG dimensions must be 2560x1440/);
   });
 });
