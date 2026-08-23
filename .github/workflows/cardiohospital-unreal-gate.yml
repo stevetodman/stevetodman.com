@@ -1,0 +1,46 @@
+name: CardioHospital Unreal Gate
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'cardiohospital-unreal/**'
+      - 'tests/cardiohospital-unreal-exam-room-gate.test.mjs'
+      - '.github/workflows/cardiohospital-unreal-gate.yml'
+  pull_request:
+    paths:
+      - 'cardiohospital-unreal/**'
+      - 'tests/cardiohospital-unreal-exam-room-gate.test.mjs'
+      - '.github/workflows/cardiohospital-unreal-gate.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  exam_room_gate:
+    name: Exam Room 3 deterministic gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check Python evaluator syntax
+        run: |
+          python3 -m py_compile cardiohospital-unreal/SourceAssets/ExamRoom/Gate1/exam_room_greybox_layout.py
+          python3 -m py_compile cardiohospital-unreal/SourceAssets/ExamRoom/Gate1/validate_exam_room_greybox.py
+          python3 -m py_compile cardiohospital-unreal/SourceAssets/ExamRoom/Gate1/validate_candidate_asset_fit.py
+
+      - name: Run Exam Room 3 gauntlet
+        run: node --test tests/cardiohospital-unreal-exam-room-gate.test.mjs
