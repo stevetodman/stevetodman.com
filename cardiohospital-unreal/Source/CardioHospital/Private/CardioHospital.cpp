@@ -1,5 +1,6 @@
 #include "CardioHospital.h"
 #include "CardioClinicPolish.h"
+#include "CardioEncounterPresentationNPC.h"
 #include "Modules/ModuleManager.h"
 
 DEFINE_LOG_CATEGORY(LogCardioHospital);
@@ -11,10 +12,12 @@ public:
     {
         FDefaultGameModuleImpl::StartupModule();
         CardioClinicPolish::RegisterWorldHook();
+        CardioEncounterPresentation::RegisterWorldHook();
     }
 
     virtual void ShutdownModule() override
     {
+        CardioEncounterPresentation::UnregisterWorldHook();
         CardioClinicPolish::UnregisterWorldHook();
         FDefaultGameModuleImpl::ShutdownModule();
     }
