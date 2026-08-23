@@ -17,17 +17,19 @@ test("Mac release profile keeps hardware ray tracing disabled for the first slic
   requireLine(engine, "r.RayTracing=False");
 });
 
-test("balanced 1440p defaults preserve output resolution while reducing GPU-heavy groups", () => {
+test("measured 1440p profile preserves output, AA, textures and distance while reducing GPU-heavy groups", () => {
   requireLine(user, "ResolutionSizeX=2560");
   requireLine(user, "ResolutionSizeY=1440");
-  requireLine(user, "sg.ResolutionQuality=85");
+  requireLine(user, "sg.ResolutionQuality=75");
   requireLine(user, "sg.ViewDistanceQuality=3");
   requireLine(user, "sg.AntiAliasingQuality=3");
   requireLine(user, "sg.TextureQuality=3");
-  requireLine(user, "sg.ShadowQuality=2");
-  requireLine(user, "sg.GlobalIlluminationQuality=2");
-  requireLine(user, "sg.ReflectionQuality=2");
-  requireLine(user, "sg.PostProcessQuality=2");
-  requireLine(user, "sg.EffectsQuality=2");
-  requireLine(user, "sg.ShadingQuality=2");
+  requireLine(user, "sg.FoliageQuality=3");
+  requireLine(user, "sg.LandscapeQuality=3");
+  requireLine(user, "sg.ShadowQuality=1");
+  requireLine(user, "sg.GlobalIlluminationQuality=1");
+  requireLine(user, "sg.ReflectionQuality=1");
+  requireLine(user, "sg.PostProcessQuality=1");
+  requireLine(user, "sg.EffectsQuality=1");
+  requireLine(user, "sg.ShadingQuality=1");
 });
