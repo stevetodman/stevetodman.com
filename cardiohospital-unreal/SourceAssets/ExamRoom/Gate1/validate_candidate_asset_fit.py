@@ -13,10 +13,10 @@ import json
 import sys
 from pathlib import Path
 
-from exam_room_greybox_layout import ENVELOPES, LAYOUT_VERSION, envelope_by_name
+from exam_room_greybox_layout import LAYOUT_VERSION, envelope_by_name
 
 HERE = Path(__file__).resolve().parent
-+CONTRACT = HERE / "candidate_asset_contracts.json"
+CONTRACT = HERE / "candidate_asset_contracts.json"
 
 AXIS_INDEX = {"x": 0, "y": 1, "z": 2}
 
