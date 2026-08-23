@@ -7,15 +7,26 @@ import { fileURLToPath } from "node:url";
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (path) => readFile(resolve(projectRoot, path), "utf8");
 
+function functionSlice(source, startSignature, endSignature) {
+  const start = source.indexOf(startSignature);
+  const end = source.indexOf(endSignature, start + startSignature.length);
+  assert.ok(start >= 0, `missing function: ${startSignature}`);
+  assert.ok(end > start, `missing boundary after: ${startSignature}`);
+  return source.slice(start, end);
+}
+
 test("guided clinic travel never teleports the learner into conversation position", async () => {
   const source = await read("Source/CardioHospital/Private/CardioBlockoutCharacter.cpp");
-  const faceNpc = source.match(/void ACardioBlockoutCharacter::FaceNpc\(AActor\* Npc\)[\s\S]*?\n}\n\nvoid ACardioBlockoutCharacter::AdvanceGuidedWalk/);
-  assert.ok(faceNpc, "FaceNpc implementation must remain inspectable");
-  assert.doesNotMatch(faceNpc[0], /SetActorLocation|TeleportPhysics/,
+  const faceNpc = functionSlice(
+    source,
+    "void ACardioBlockoutCharacter::FaceNpc(AActor* Npc)",
+    "void ACardioBlockoutCharacter::AdvanceGuidedWalk()",
+  );
+  assert.doesNotMatch(faceNpc, /SetActorLocation|TeleportPhysics/,
     "conversation facing must not teleport the player through room geometry");
-  assert.match(faceNpc[0], /LookAtActorFace\(Npc\)/,
+  assert.match(faceNpc, /LookAtActorFace\(Npc\)/,
     "the learner should face the NPC after arriving normally");
-  assert.match(faceNpc[0], /Attending->FaceToward\(GetActorLocation\(\)\)/,
+  assert.match(faceNpc, /Attending->FaceToward\(GetActorLocation\(\)\)/,
     "the NPC should turn toward the learner before interaction");
 });
 
@@ -30,9 +41,12 @@ test("guided travel stops on a collision stall instead of skipping blocked waypo
 
 test("guided station arrival leaves interaction explicit", async () => {
   const source = await read("Source/CardioHospital/Private/CardioBlockoutCharacter.cpp");
-  const walkTo = source.match(/void ACardioBlockoutCharacter::WalkTo\([^]*?\n}\n\nvoid ACardioBlockoutCharacter::CancelGuidedWalk/);
-  assert.ok(walkTo, "WalkTo implementation must remain inspectable");
-  assert.match(walkTo[0], /bInteractOnArrival = false/,
+  const walkTo = functionSlice(
+    source,
+    "void ACardioBlockoutCharacter::WalkTo(const FVector& Destination, const bool bInteractWhenThere)",
+    "void ACardioBlockoutCharacter::CancelGuidedWalk()",
+  );
+  assert.match(walkTo, /bInteractOnArrival = false/,
     "station navigation should stop and let the learner choose when to interact");
   assert.match(source, /GuidedPath\.Add\(FVector\(DoorXFor\(From\), From\.Y > 0\.f \? 160\.f : -160\.f/,
     "room exits must route through authored doorway centers");
