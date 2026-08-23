@@ -90,6 +90,13 @@ jobs:
       - name: Validate case authoring coverage
         run: node cardiohospital-unreal/Tools/case-authoring-report.mjs
 
+      - name: Validate Exam Room 3 HCM slice contract
+        run: node cardiohospital-unreal/Tools/validate-exam-room3-hcm-slice.mjs
+
+      - name: Parse Exam Room 3 Unreal Python builder
+        if: runner.os != 'Windows'
+        run: python3 -m py_compile cardiohospital-unreal/VerticalSlices/ExamRoom3HCM/build_in_unreal.py
+
       - name: Test deterministic engine, export, and safeguards
         run: node --test cardiohospital-unreal/Tests/*.test.mjs
 
