@@ -66,9 +66,6 @@ jobs:
         shell: pwsh
         run: ./cardiohospital-unreal/Scripts/Run-Validation.ps1
 
-      # The macOS release scripts are checked for syntax and gate wording on
-      # every platform via the portable fixtures below. This step additionally
-      # confirms the executable bits survive checkout on the release platform.
       - name: Verify macOS release scripts are executable
         if: runner.os == 'macOS'
         run: |
@@ -93,9 +90,12 @@ jobs:
       - name: Validate Exam Room 3 HCM slice contract
         run: node cardiohospital-unreal/Tools/validate-exam-room3-hcm-slice.mjs
 
-      - name: Parse Exam Room 3 Unreal Python builder
+      - name: Parse Exam Room 3 Unreal Python automation
         if: runner.os != 'Windows'
-        run: python3 -m py_compile cardiohospital-unreal/VerticalSlices/ExamRoom3HCM/build_in_unreal.py
+        run: |
+          python3 -m py_compile cardiohospital-unreal/VerticalSlices/ExamRoom3HCM/build_in_unreal.py
+          python3 -m py_compile cardiohospital-unreal/VerticalSlices/ExamRoom3HCM/run_acceptance_in_unreal.py
+          bash -n cardiohospital-unreal/VerticalSlices/ExamRoom3HCM/run-native-acceptance.sh
 
       - name: Test deterministic engine, export, and safeguards
         run: node --test cardiohospital-unreal/Tests/*.test.mjs
