@@ -152,7 +152,7 @@ def spawn_runtime_controller(contract):
     actor.set_actor_label(PREFIX + "RuntimeController")
     actor.set_folder_path(FOLDER)
     actor.set_editor_property("case_id", contract["caseId"])
-    actor.set_editor_property("b_start_case_on_begin_play", True)
+    actor.set_editor_property("start_case_on_begin_play", True)
     return actor
 
 
