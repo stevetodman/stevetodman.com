@@ -1,9 +1,9 @@
-"""Build the Exam Room 3 HCM vertical-slice graybox in Unreal Engine 5.8.
+"""Build the Exam Room 3 HCM vertical-slice automation map in Unreal Engine 5.8.
 
-Run this inside the Unreal Editor Python environment on the reference M4 Max.
+The map is intentionally isolated at /Game/VerticalSlices/ExamRoom3HCM/ExamRoom3HCM_Automation.
 It creates measured graybox geometry, the eligible exam-table proxy, patient and
-parent proxies, three locked CineCamera actors, and the C++ runtime controller.
-The controller starts `case-hcm` only when Play In Editor begins.
+parent proxies, basic neutral lighting, three locked CineCamera actors, and the
+C++ runtime controller. The controller starts `case-hcm` when Play In Editor begins.
 
 This script intentionally does NOT place CH-WALLECG-001. That asset remains
 blocked by the portable fit gate.
@@ -18,6 +18,7 @@ import unreal
 
 PREFIX = "VS_ExamRoom3HCM_"
 FOLDER = "CardioHospital/VerticalSlices/ExamRoom3HCM"
+MAP_PATH = "/Game/VerticalSlices/ExamRoom3HCM/ExamRoom3HCM_Automation"
 CONTRACT_PATH = Path(__file__).with_name("acceptance-contract.json")
 
 
@@ -27,6 +28,16 @@ def cm(vector_m):
 
 def load_contract():
     return json.loads(CONTRACT_PATH.read_text(encoding="utf-8"))
+
+
+def ensure_automation_level():
+    subsystem = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
+    if unreal.EditorAssetLibrary.does_asset_exist(MAP_PATH):
+        if not subsystem.load_level(MAP_PATH):
+            raise RuntimeError(f"Could not load automation level: {MAP_PATH}")
+    else:
+        if not subsystem.new_level(MAP_PATH, False):
+            raise RuntimeError(f"Could not create automation level: {MAP_PATH}")
 
 
 def clear_previous_build():
@@ -101,6 +112,18 @@ def spawn_room_shell(contract):
     )
 
 
+def spawn_neutral_lighting():
+    light = unreal.EditorLevelLibrary.spawn_actor_from_class(
+        unreal.PointLight,
+        unreal.Vector(0.0, 15.0, 245.0),
+    )
+    light.set_actor_label(PREFIX + "CeilingLight")
+    light.set_folder_path(FOLDER)
+    component = light.point_light_component
+    component.set_editor_property("intensity", 4200.0)
+    component.set_editor_property("attenuation_radius", 900.0)
+
+
 def spawn_slice_contents(contract):
     table = contract["zones"]["examTable"]
     spawn_cube("ExamTable_Proxy", cm(table["sizeMeters"]), cm(table["locationMeters"]))
@@ -135,14 +158,16 @@ def spawn_runtime_controller(contract):
 
 def main():
     contract = load_contract()
+    ensure_automation_level()
     clear_previous_build()
     spawn_room_shell(contract)
+    spawn_neutral_lighting()
     spawn_slice_contents(contract)
     spawn_runtime_controller(contract)
     unreal.EditorLevelLibrary.save_current_level()
     unreal.log(
-        "Exam Room 3 HCM slice built. CH-WALLECG-001 remains blocked. "
-        "Enter PIE and verify the runtime controller starts case-hcm."
+        "Exam Room 3 HCM automation map built. CH-WALLECG-001 remains blocked. "
+        "The map is ready for locked captures and PIE clinical acceptance replay."
     )
 
 
