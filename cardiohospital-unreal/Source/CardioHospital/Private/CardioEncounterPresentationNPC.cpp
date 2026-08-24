@@ -11,7 +11,8 @@ namespace
 
     void SpawnExamRoomPresentation(UWorld& World)
     {
-        for (TActorIterator<ACardioEncounterPresentationNPC> It(&World); It; ++It)
+        TActorIterator<ACardioEncounterPresentationNPC> Existing(&World);
+        if (Existing)
         {
             return;
         }
