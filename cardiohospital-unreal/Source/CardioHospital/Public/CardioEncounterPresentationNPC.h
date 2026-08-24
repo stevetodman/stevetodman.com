@@ -19,7 +19,7 @@ class CARDIOHOSPITAL_API ACardioEncounterPresentationNPC : public ACardioBlockou
 public:
     ACardioEncounterPresentationNPC();
 
-    void ConfigureRole(const FString& RoleLabel);
+    void ConfigureRole(const FString& RoleLabel, const FString& InteractionId);
 
 private:
     UPROPERTY(VisibleAnywhere)
