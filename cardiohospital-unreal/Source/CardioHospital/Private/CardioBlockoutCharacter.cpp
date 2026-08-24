@@ -29,6 +29,12 @@ namespace
     // aisle, close enough to the presentation patient for deterministic facing.
     const FVector LegacyExamRoom3Station(-750.f, 520.f, 88.f);
     const FVector ExamRoom3PatientArrival(-1080.f, 700.f, 88.f);
+    // Enter and leave Exam Room 3 orthogonally: first clear the doorway, then
+    // move into the west aisle, then approach the patient. The previous single
+    // diagonal from the doorway to the patient anchor cut across the jamb /
+    // furniture envelope and could collision-stall while still inside the room.
+    const FVector ExamRoom3InsideDoor(-750.f, 320.f, 88.f);
+    const FVector ExamRoom3WestAisleEntry(-1080.f, 320.f, 88.f);
     const FString EncounterPatientNpcId = TEXT("encounter-patient");
 }
 
@@ -407,17 +413,32 @@ void ACardioBlockoutCharacter::BuildWalkPath(const FVector& Destination)
     const bool bSameSide = (From.Y > 0.f) == (Destination.Y > 0.f);
     const bool bSameWing = (From.X < 0.f) == (Destination.X < 0.f);
     const bool bSameRoom = bFromRoom && bDestRoom && bSameSide && bSameWing;
+    const bool bFromExamRoom3 = ACardioBlockoutGameMode::IsExamRoom3Location(From);
+    const bool bToExamRoom3Patient = Destination.Equals(
+        FVector(ExamRoom3PatientArrival.X, ExamRoom3PatientArrival.Y, Destination.Z),
+        1.f);
 
-    // Room transitions always use the authored doorway centers. Character
-    // movement supplies collision, so these waypoints keep the capsule in the
-    // corridor until it is aligned with the correct opening.
+    // Exam Room 3 needs an authored orthogonal aisle route because its bed,
+    // chairs and jamb make the old doorway-to-patient diagonal collision-prone.
+    // No waypoint may be skipped on a stall; these points keep the capsule in
+    // known clear floor on both ingress and egress.
     if (bFromRoom && !bSameRoom)
     {
+        if (bFromExamRoom3)
+        {
+            GuidedPath.Add(FVector(ExamRoom3WestAisleEntry.X, ExamRoom3WestAisleEntry.Y, From.Z));
+            GuidedPath.Add(FVector(ExamRoom3InsideDoor.X, ExamRoom3InsideDoor.Y, From.Z));
+        }
         GuidedPath.Add(FVector(DoorXFor(From), From.Y > 0.f ? 160.f : -160.f, From.Z));
     }
     if (bDestRoom && !bSameRoom)
     {
         GuidedPath.Add(FVector(DoorXFor(Destination), Destination.Y > 0.f ? 160.f : -160.f, From.Z));
+        if (bToExamRoom3Patient)
+        {
+            GuidedPath.Add(FVector(ExamRoom3InsideDoor.X, ExamRoom3InsideDoor.Y, From.Z));
+            GuidedPath.Add(FVector(ExamRoom3WestAisleEntry.X, ExamRoom3WestAisleEntry.Y, From.Z));
+        }
     }
     GuidedPath.Add(FVector(Destination.X, Destination.Y, From.Z));
 }
