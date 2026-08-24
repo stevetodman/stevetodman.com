@@ -53,3 +53,32 @@ test("guided station arrival leaves interaction explicit", async () => {
   assert.match(source, /GuidedPath\.Add\(FVector\(DoorXFor\(Destination\), Destination\.Y > 0\.f \? 160\.f : -160\.f/,
     "room entries must route through authored doorway centers");
 });
+
+test("Exam Room 3 station normalizes away from the center furniture cluster", async () => {
+  const source = await read("Source/CardioHospital/Private/CardioBlockoutCharacter.cpp");
+  assert.match(source, /LegacyExamRoom3Station\(-750\.f, 520\.f, 88\.f\)/,
+    "the legacy station command must remain explicitly recognized");
+  assert.match(source, /ExamRoom3PatientArrival\(-1080\.f, 700\.f, 88\.f\)/,
+    "the station must resolve to the authored west-aisle patient arrival anchor");
+  assert.match(source, /Destination\.Equals\(LegacyExamRoom3Station, 1\.f\)[\s\S]*ExamRoom3PatientArrival/,
+    "station 2 must use the clear-floor arrival anchor before path construction");
+});
+
+test("encounter patient and parent have stable presentation-only interaction identities", async () => {
+  const presentation = await read("Source/CardioHospital/Private/CardioEncounterPresentationNPC.cpp");
+  const character = await read("Source/CardioHospital/Private/CardioBlockoutCharacter.cpp");
+  const npcHeader = await read("Source/CardioHospital/Public/CardioBlockoutNPC.h");
+
+  assert.match(presentation, /ConfigureRole\(TEXT\("Patient"\), TEXT\("encounter-patient"\)\)/);
+  assert.match(presentation, /ConfigureRole\(TEXT\("Parent"\), TEXT\("encounter-parent"\)\)/);
+  assert.match(npcHeader, /ConfigurePresentationIdentity/,
+    "presentation roles need targeting IDs without invoking attending-specific visual assembly");
+  assert.match(character, /Candidate->GetNpcId\(\) == EncounterPatientNpcId/,
+    "station arrival must select the authored patient deterministically rather than actor iteration order");
+});
+
+test("presentation identities do not hardcode clinical patient truth", async () => {
+  const presentation = await read("Source/CardioHospital/Private/CardioEncounterPresentationNPC.cpp");
+  assert.doesNotMatch(presentation, /Marcus|Chen|hypertrophic|syncope|murmur/i,
+    "presentation actors must remain role-only; clinical identity and findings belong to the runtime");
+});
