@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "sliceId": "exam-room3-hcm",
+  "caseId": "case-hcm",
+  "purpose": "Bind the deterministic HCM case runtime to the measured Exam Room 3 benchmark without allowing presentation code to own clinical truth.",
+  "provenance": {
+    "runtimeBranch": "claude/github-work-yesterday-62xjvk",
+    "runtimeHeadSha": "50e568e25f9808e7e32547602e46cad9609ca571",
+    "roomBenchmarkPr": 23,
+    "roomBenchmarkHeadSha": "4b34f7b8da484ed6095782a4effdf6982472c0dd",
+    "assetPr": 22,
+    "assetHeadSha": "d8945694694fee258af5f23534e252bf0b8d7a87"
+  },
+  "architecture": {
+    "roomMeters": { "width": 4.27, "depth": 3.96, "height": 2.74 },
+    "doorMeters": { "width": 0.91, "height": 2.13 },
+    "minimumClearancesMeters": {
+      "providerAisle": 0.91,
+      "staffPass": 0.76,
+      "turnDiameter": 1.52
+    }
+  },
+  "zones": {
+    "examTable": {
+      "sizeMeters": [1.82, 0.72, 0.94],
+      "locationMeters": [0.35, 1.47, 0.47]
+    },
+    "ecgStation": {
+      "sizeMeters": [0.45, 0.80, 0.80],
+      "locationMeters": [1.91, 1.47, 0.70]
+    },
+    "parentChair": {
+      "sizeMeters": [0.78, 0.82, 1.05],
+      "locationMeters": [-0.78, 0.82, 0.525]
+    }
+  },
+  "actors": {
+    "patient": {
+      "role": "patient",
+      "placement": "seated_on_exam_table",
+      "proxyLocationMeters": [0.35, 1.47, 1.22],
+      "required": true
+    },
+    "parent": {
+      "role": "parent",
+      "placement": "parent_chair",
+      "proxyLocationMeters": [-0.78, 0.82, 0.525],
+      "required": true
+    }
+  },
+  "cameras": [
+    {
+      "id": "doorway",
+      "locationMeters": [-1.05, -1.70, 1.70],
+      "targetMeters": [0.25, 1.20, 1.18],
+      "lensMm": 30
+    },
+    {
+      "id": "patient-side",
+      "locationMeters": [1.70, 0.15, 1.70],
+      "targetMeters": [0.35, 1.40, 1.05],
+      "lensMm": 32
+    },
+    {
+      "id": "provider",
+      "locationMeters": [-1.70, -0.20, 1.70],
+      "targetMeters": [0.10, 1.00, 1.05],
+      "lensMm": 32
+    }
+  ],
+  "assets": [
+    {
+      "id": "CH-EXAMTABLE-001",
+      "status": "integration_target",
+      "zone": "examTable",
+      "toleranceFraction": 0.05,
+      "dimensionsMeters": { "x": 1.82, "y": 0.72, "z": 0.94 }
+    },
+    {
+      "id": "CH-WALLECG-001",
+      "status": "blocked_candidate",
+      "zone": "ecgStation",
+      "toleranceFraction": 0.05,
+      "dimensionsMeters": { "x": 0.64, "y": 0.92, "z": 0.78 },
+      "blockedUntil": "geometry or zone is deliberately revised and all spatial gates rerun"
+    }
+  ],
+  "runtime": {
+    "owner": "UCardioCaseRuntimeSubsystem",
+    "controller": "ACardioExamRoom3SliceController",
+    "startCase": "case-hcm",
+    "presentationMustNotMutateClinicalTruth": true,
+    "requiredActions": [
+      "encounter.introduce",
+      "history.exertional-timing",
+      "history.family-sudden-death",
+      "history.prodrome",
+      "exam.general",
+      "exam.vitals",
+      "exam.auscultation",
+      "order.ecg",
+      "review.ecg",
+      "order.echo",
+      "review.echo",
+      "reasoning.submit",
+      "management.restrict-sports",
+      "debrief.review"
+    ]
+  },
+  "acceptance": {
+    "portableGateMustPass": true,
+    "nativeUnrealCompileRequiredBeforeAdvancing": true,
+    "threeLockedCameraCapturesRequired": true,
+    "manualWalkthroughRequired": true,
+    "wallEcgMustRemainBlocked": true,
+    "doNotClaimVisualApprovalWithoutRealCaptures": true,
+    "doNotClaimPerformanceWithoutMeasuredEvidence": true
+  }
+}

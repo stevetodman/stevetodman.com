@@ -17,6 +17,16 @@
       "TargetAllowList": ["Editor"]
     },
     {
+      "Name": "EditorScriptingUtilities",
+      "Enabled": true,
+      "TargetAllowList": ["Editor"]
+    },
+    {
+      "Name": "PythonAutomationTest",
+      "Enabled": true,
+      "TargetAllowList": ["Editor"]
+    },
+    {
       "Name": "AndroidFileServer",
       "Enabled": false
     },
@@ -38,4 +48,3 @@
     }
   ]
 }
-

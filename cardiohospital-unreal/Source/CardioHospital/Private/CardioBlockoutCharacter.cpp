@@ -20,7 +20,22 @@ namespace
     // The temporary Ready Player Me attending is about 188 cm tall; 170 cm is
     // a reasonable face target until final MetaHuman-native medical art lands.
     constexpr float AttendingFaceHeightCm = 170.f;
-    constexpr float WalkStallLimitSeconds = 0.45f;
+    // A blocked guided walk must stop rather than silently discard a waypoint
+    // and send the learner through a wall or piece of furniture.
+    constexpr float WalkStallLimitSeconds = 2.0f;
+
+    // Number-key station 2 historically targeted the center furniture cluster.
+    // Normalize that command to an authored clear-floor anchor in the west
+    // aisle, close enough to the presentation patient for deterministic facing.
+    const FVector LegacyExamRoom3Station(-750.f, 520.f, 88.f);
+    const FVector ExamRoom3PatientArrival(-1080.f, 700.f, 88.f);
+    // Enter and leave Exam Room 3 orthogonally: first clear the doorway, then
+    // move into the west aisle, then approach the patient. The previous single
+    // diagonal from the doorway to the patient anchor cut across the jamb /
+    // furniture envelope and could collision-stall while still inside the room.
+    const FVector ExamRoom3InsideDoor(-750.f, 320.f, 88.f);
+    const FVector ExamRoom3WestAisleEntry(-1080.f, 320.f, 88.f);
+    const FString EncounterPatientNpcId = TEXT("encounter-patient");
 }
 
 ACardioBlockoutCharacter::ACardioBlockoutCharacter()
@@ -228,8 +243,22 @@ void ACardioBlockoutCharacter::ClickGo()
 
 void ACardioBlockoutCharacter::WalkTo(const FVector& Destination, const bool bInteractWhenThere)
 {
-    bInteractOnArrival = bInteractWhenThere;
-    BuildWalkPath(Destination);
+    // Guided movement only positions and faces the learner. Interaction stays
+    // explicit so an NPC can turn toward the learner and the learner gets a
+    // real opportunity to press E instead of the conversation auto-firing.
+    (void)bInteractWhenThere;
+    bInteractOnArrival = false;
+
+    FVector AuthoredDestination = Destination;
+    if (Destination.Equals(LegacyExamRoom3Station, 1.f))
+    {
+        AuthoredDestination = FVector(
+            ExamRoom3PatientArrival.X,
+            ExamRoom3PatientArrival.Y,
+            Destination.Z);
+        FocusedNpc = nullptr;
+    }
+    BuildWalkPath(AuthoredDestination);
 }
 
 void ACardioBlockoutCharacter::CancelGuidedWalk()
@@ -260,14 +289,9 @@ void ACardioBlockoutCharacter::FaceNpc(AActor* Npc)
         return;
     }
 
-    // Stand south of Patel, toward the team-room door, so arrival is
-    // face-to-face rather than a profile caught beside him.
-    const FVector NpcLoc = Npc->GetActorLocation();
-    FVector Stand = NpcLoc;
-    Stand.Y = NpcLoc.Y - ConversationStandOffCm;
-    Stand.Z = GetActorLocation().Z;
-    SetActorLocation(Stand, false, nullptr, ETeleportType::TeleportPhysics);
-
+    // Never teleport the learner for conversation framing. The character
+    // reaches the interaction point through collision-aware movement, then
+    // both sides turn to face one another in place.
     LookAtActorFace(Npc);
     if (ACardioBlockoutNPC* Attending = Cast<ACardioBlockoutNPC>(Npc))
     {
@@ -295,7 +319,16 @@ void ACardioBlockoutCharacter::AdvanceGuidedWalk()
         WalkStallSeconds = 0.f;
     }
 
-    if (To.Size() <= ArriveRadiusCm || WalkStallSeconds >= WalkStallLimitSeconds)
+    // A collision stall means the authored path needs attention. Do not skip
+    // the blocked waypoint: skipping is what can turn a safe doorway path into
+    // an unnatural wall/furniture cut.
+    if (WalkStallSeconds >= WalkStallLimitSeconds)
+    {
+        CancelGuidedWalk();
+        return;
+    }
+
+    if (To.Size() <= ArriveRadiusCm)
     {
         GuidedPath.RemoveAt(0);
         WalkStallSeconds = 0.f;
@@ -308,16 +341,30 @@ void ACardioBlockoutCharacter::AdvanceGuidedWalk()
                 float Best = 360.f;
                 for (AActor* Actor : Npcs)
                 {
-                    if (!Actor)
+                    ACardioBlockoutNPC* Candidate = Cast<ACardioBlockoutNPC>(Actor);
+                    if (!Candidate)
                     {
                         continue;
                     }
-                    const float Dist = FVector::Dist2D(GetActorLocation(), Actor->GetActorLocation());
-                    if (Dist < Best)
+                    const float Dist = FVector::Dist2D(GetActorLocation(), Candidate->GetActorLocation());
+                    if (Dist >= Best)
                     {
-                        Best = Dist;
-                        FocusedNpc = Cast<ACardioBlockoutNPC>(Actor);
+                        continue;
                     }
+
+                    // In the assigned exam room, the authored station means
+                    // "approach the patient", not "pick whichever NPC happens
+                    // to be first in actor iteration order". Parent remains
+                    // independently clickable/approachable.
+                    if (IsInExamRoom3()
+                        && Candidate->GetNpcId() == EncounterPatientNpcId)
+                    {
+                        FocusedNpc = Candidate;
+                        break;
+                    }
+
+                    Best = Dist;
+                    FocusedNpc = Candidate;
                 }
             }
             if (FocusedNpc.IsValid())
@@ -366,14 +413,32 @@ void ACardioBlockoutCharacter::BuildWalkPath(const FVector& Destination)
     const bool bSameSide = (From.Y > 0.f) == (Destination.Y > 0.f);
     const bool bSameWing = (From.X < 0.f) == (Destination.X < 0.f);
     const bool bSameRoom = bFromRoom && bDestRoom && bSameSide && bSameWing;
+    const bool bFromExamRoom3 = ACardioBlockoutGameMode::IsExamRoom3Location(From);
+    const bool bToExamRoom3Patient = Destination.Equals(
+        FVector(ExamRoom3PatientArrival.X, ExamRoom3PatientArrival.Y, Destination.Z),
+        1.f);
 
+    // Exam Room 3 needs an authored orthogonal aisle route because its bed,
+    // chairs and jamb make the old doorway-to-patient diagonal collision-prone.
+    // No waypoint may be skipped on a stall; these points keep the capsule in
+    // known clear floor on both ingress and egress.
     if (bFromRoom && !bSameRoom)
     {
+        if (bFromExamRoom3)
+        {
+            GuidedPath.Add(FVector(ExamRoom3WestAisleEntry.X, ExamRoom3WestAisleEntry.Y, From.Z));
+            GuidedPath.Add(FVector(ExamRoom3InsideDoor.X, ExamRoom3InsideDoor.Y, From.Z));
+        }
         GuidedPath.Add(FVector(DoorXFor(From), From.Y > 0.f ? 160.f : -160.f, From.Z));
     }
     if (bDestRoom && !bSameRoom)
     {
         GuidedPath.Add(FVector(DoorXFor(Destination), Destination.Y > 0.f ? 160.f : -160.f, From.Z));
+        if (bToExamRoom3Patient)
+        {
+            GuidedPath.Add(FVector(ExamRoom3InsideDoor.X, ExamRoom3InsideDoor.Y, From.Z));
+            GuidedPath.Add(FVector(ExamRoom3WestAisleEntry.X, ExamRoom3WestAisleEntry.Y, From.Z));
+        }
     }
     GuidedPath.Add(FVector(Destination.X, Destination.Y, From.Z));
 }
