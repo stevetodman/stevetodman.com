@@ -29,6 +29,15 @@ public:
 
     void Configure(const FString& InNpcId, const FString& InDisplayName, const FLinearColor& CoatColor);
 
+    /** Presentation-only actors need stable targeting IDs without invoking the
+     * attending-specific visual assembly path. These identifiers describe a
+     * world role only; clinical identity and truth stay in the case runtime. */
+    void ConfigurePresentationIdentity(const FString& InNpcId, const FString& InDisplayName)
+    {
+        NpcId = InNpcId;
+        DisplayName = InDisplayName;
+    }
+
     const FString& GetNpcId() const { return NpcId; }
     const FString& GetDisplayName() const { return DisplayName; }
     FString GetInteractionPrompt() const;
