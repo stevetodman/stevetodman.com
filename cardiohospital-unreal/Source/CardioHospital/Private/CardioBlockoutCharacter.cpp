@@ -23,6 +23,13 @@ namespace
     // A blocked guided walk must stop rather than silently discard a waypoint
     // and send the learner through a wall or piece of furniture.
     constexpr float WalkStallLimitSeconds = 2.0f;
+
+    // Number-key station 2 historically targeted the center furniture cluster.
+    // Normalize that command to an authored clear-floor anchor in the west
+    // aisle, close enough to the presentation patient for deterministic facing.
+    const FVector LegacyExamRoom3Station(-750.f, 520.f, 88.f);
+    const FVector ExamRoom3PatientArrival(-1080.f, 700.f, 88.f);
+    const FString EncounterPatientNpcId = TEXT("encounter-patient");
 }
 
 ACardioBlockoutCharacter::ACardioBlockoutCharacter()
@@ -235,7 +242,17 @@ void ACardioBlockoutCharacter::WalkTo(const FVector& Destination, const bool bIn
     // real opportunity to press E instead of the conversation auto-firing.
     (void)bInteractWhenThere;
     bInteractOnArrival = false;
-    BuildWalkPath(Destination);
+
+    FVector AuthoredDestination = Destination;
+    if (Destination.Equals(LegacyExamRoom3Station, 1.f))
+    {
+        AuthoredDestination = FVector(
+            ExamRoom3PatientArrival.X,
+            ExamRoom3PatientArrival.Y,
+            Destination.Z);
+        FocusedNpc = nullptr;
+    }
+    BuildWalkPath(AuthoredDestination);
 }
 
 void ACardioBlockoutCharacter::CancelGuidedWalk()
@@ -318,16 +335,30 @@ void ACardioBlockoutCharacter::AdvanceGuidedWalk()
                 float Best = 360.f;
                 for (AActor* Actor : Npcs)
                 {
-                    if (!Actor)
+                    ACardioBlockoutNPC* Candidate = Cast<ACardioBlockoutNPC>(Actor);
+                    if (!Candidate)
                     {
                         continue;
                     }
-                    const float Dist = FVector::Dist2D(GetActorLocation(), Actor->GetActorLocation());
-                    if (Dist < Best)
+                    const float Dist = FVector::Dist2D(GetActorLocation(), Candidate->GetActorLocation());
+                    if (Dist >= Best)
                     {
-                        Best = Dist;
-                        FocusedNpc = Cast<ACardioBlockoutNPC>(Actor);
+                        continue;
                     }
+
+                    // In the assigned exam room, the authored station means
+                    // "approach the patient", not "pick whichever NPC happens
+                    // to be first in actor iteration order". Parent remains
+                    // independently clickable/approachable.
+                    if (IsInExamRoom3()
+                        && Candidate->GetNpcId() == EncounterPatientNpcId)
+                    {
+                        FocusedNpc = Candidate;
+                        break;
+                    }
+
+                    Best = Dist;
+                    FocusedNpc = Candidate;
                 }
             }
             if (FocusedNpc.IsValid())
