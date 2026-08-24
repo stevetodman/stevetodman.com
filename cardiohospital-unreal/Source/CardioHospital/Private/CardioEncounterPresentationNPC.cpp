@@ -27,14 +27,14 @@ namespace
             FVector(-1220.f, 760.f, 0.f), FRotator(0.f, -35.f, 0.f), Params);
         if (Patient)
         {
-            Patient->ConfigureRole(TEXT("Patient"));
+            Patient->ConfigureRole(TEXT("Patient"), TEXT("encounter-patient"));
         }
 
         ACardioEncounterPresentationNPC* Parent = World.SpawnActor<ACardioEncounterPresentationNPC>(
             FVector(-1320.f, 570.f, 0.f), FRotator(0.f, -15.f, 0.f), Params);
         if (Parent)
         {
-            Parent->ConfigureRole(TEXT("Parent"));
+            Parent->ConfigureRole(TEXT("Parent"), TEXT("encounter-parent"));
         }
 
         UE_LOG(LogCardioHospital, Log,
@@ -62,8 +62,11 @@ ACardioEncounterPresentationNPC::ACardioEncounterPresentationNPC()
     RoleText->SetTextRenderColor(FColor(20, 36, 44));
 }
 
-void ACardioEncounterPresentationNPC::ConfigureRole(const FString& RoleLabel)
+void ACardioEncounterPresentationNPC::ConfigureRole(
+    const FString& RoleLabel,
+    const FString& InteractionId)
 {
+    ConfigurePresentationIdentity(InteractionId, RoleLabel);
     if (RoleText)
     {
         RoleText->SetText(FText::FromString(RoleLabel));
