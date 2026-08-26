@@ -51,6 +51,6 @@ test('StudyHub map provenance keeps its recovered attribution chain visible', ()
   assert.match(attribution, /creativecommons\.org\/licenses\/by-sa\/4\.0\//);
   assert.match(attribution, /Ali Zifan, JCRules, Magog the Ogre, Nizolan & Spesh531/);
 
-  const studyIndex = fs.readFileSync(path.join(repoRoot, 'study/index.html'), 'utf8');
-  assert.match(studyIndex, /href=["']ATTRIBUTIONS\.md["']/i, 'Study Hub must link to the map attribution notice');
+  const studyArchive = fs.readFileSync(path.join(repoRoot, 'study/archive/index.html'), 'utf8');
+  assert.match(studyArchive, /href=["']\.\.\/ATTRIBUTIONS\.md["']/i, 'The archived map activities must link to the attribution notice');
 });
