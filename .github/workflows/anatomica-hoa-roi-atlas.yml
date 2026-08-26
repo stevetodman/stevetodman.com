@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: anatomica-hoa-roi-atlas-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   atlas:
     runs-on: ubuntu-latest
