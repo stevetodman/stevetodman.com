@@ -1,6 +1,11 @@
 name: Anatomica HVSMR Evaluation
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/anatomica/**'
+      - '.github/workflows/anatomica-hvsmr-eval.yml'
   pull_request:
     branches: [main]
     paths:
