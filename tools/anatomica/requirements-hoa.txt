@@ -1,0 +1,6 @@
+# Anatomica Human Organ Atlas probe
+# hoa-tools 2.x provides anonymous read-only chunked N5/Zarr access.
+hoa-tools==2.0.0
+matplotlib>=3.9,<4
+scikit-image>=0.24,<1
+trimesh>=4.4,<5
