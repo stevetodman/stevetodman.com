@@ -194,6 +194,9 @@ Do not claim live Cloudflare or Supabase state without direct evidence.
 
 ## Long-lived PR backlog
 
+- Anatomica exterior work is isolated on
+  `codex/anatomica-population-average-exterior`; its geometry pipeline is SOURCE_ONLY
+  and must not be promoted as a clinically reviewed production asset.
 - Reconcile Cardio Hospital PR #27 deliberately.
 - Rebase/retest Steven OS PR #28 against the production-only Pages boundary.
 - Treat old BP and ABPM branches as selective-port/re-review candidates, not ordinary merges.

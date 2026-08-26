@@ -3,7 +3,7 @@
 Status: REPOSITORY PLATFORM HEALTHY — external/live evidence gaps remain
 Owner: Steve Todman
 Created: 2026-08-19
-Updated: 2026-08-20
+Updated: 2026-08-26
 
 ## Operating principles
 
@@ -147,6 +147,9 @@ Do not use commit dates or passing software tests as clinical sign-off.
 
 ## Longer-term backlog
 
+- Anatomica exterior R&D is active on `codex/anatomica-population-average-exterior`:
+  population-average myocardial extraction and an attributable coronary scaffold are
+  implemented as SOURCE_ONLY tooling; neither is production or clinically signed off.
 - Observe actual StudyHub replay/frustration behavior before adding mechanics.
 - Activate custom analytics only after endpoint, retention, and privacy decisions.
 - Reconcile Cardio Hospital PR #27 deliberately.

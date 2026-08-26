@@ -6,3 +6,7 @@ package-lock.json
 
 # Generated deploy artifact
 /dist/
+
+# Python tooling
+__pycache__/
+*.py[cod]
