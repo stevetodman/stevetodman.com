@@ -1,0 +1,72 @@
+name: Study contract
+
+on:
+  pull_request:
+    paths:
+      - 'study/**'
+      - 'tests/study-*.test.mjs'
+      - 'scripts/verify-study-production.mjs'
+      - '_headers'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/study-contract.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'study/**'
+      - 'tests/study-*.test.mjs'
+      - 'scripts/verify-study-production.mjs'
+      - '_headers'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/study-contract.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: study-contract-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: Study contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:study
+
+  production_canary:
+    name: Study production canary
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Verify live Study deployment
+        env:
+          SITE_ORIGIN: https://stevetodman.com
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            npm run verify:study-production && exit 0
+            if [ "$attempt" -eq 6 ]; then
+              exit 1
+            fi
+            sleep 20
+          done
