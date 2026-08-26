@@ -2,6 +2,7 @@
   'use strict';
 
   var STORAGE_KEY = 'studyhub-word-expedition-unit1-v3';
+  // Compatibility keys. Keep these values stable so existing device/cloud progress migrates safely.
   var LEGACY_KEY = 'studyhub-word-mission-unit1-v2';
   var CLOUD_URL = 'https://lpjvsjezjjasgpkvjjlq.supabase.co/functions/v1/studyhub-save';
   var CLOUD_TOKEN_KEY = 'studyhubCloudToken';
@@ -13,6 +14,7 @@
     { name:'Luke', avatar:'🚀' },
     { name:'Samantha', avatar:'⭐' }
   ];
+  // These cloud profile keys predate the Word Expedition rename. Do not change them without a server migration.
   var CLOUD_PROFILE_KEYS = {
     Luke:'word-mission-unit1-luke',
     Samantha:'word-mission-unit1-samantha'
@@ -94,7 +96,12 @@
     return copy;
   }
   function unique(items) { return Array.from(new Set(items)); }
-  function todayKey() { return new Date().toISOString().slice(0,10); }
+  function pad2(value) { return String(value).padStart(2,'0'); }
+  function localDateKey(date) {
+    var d=date || new Date();
+    return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+  }
+  function todayKey() { return localDateKey(new Date()); }
   function profile(name) { return state.learners[name]; }
   function statKey(word,domain) { return word + '|' + domain; }
   function getStat(name,word,domain) {
@@ -133,10 +140,11 @@
   }
 
   function trailHTML(name,compact) {
-    return '<div class="trail '+(compact?'compact':'')+'" role="img" aria-label="'+masteredCount(name)+' of 12 words mastered">'+WORDS.map(function(w,i){
+    // A span keeps the learner card valid HTML because it is nested inside a button.
+    return '<span class="trail '+(compact?'compact':'')+'" role="img" aria-label="'+masteredCount(name)+' of 12 words mastered">'+WORDS.map(function(w,i){
       var level=wordLevel(name,w);
       return '<span class="trail-stop '+level+'" title="'+esc(w.word)+': '+level+'"><span class="stop-number">'+(level==='mastered'?'⚑':(i+1))+'</span></span>';
-    }).join('')+'</div>';
+    }).join('')+'</span>';
   }
 
   function showProfilePicker() {
@@ -178,11 +186,15 @@
     } catch (_) {}
     return token;
   }
+  function validCloudToken(token) {
+    // New tokens are 48 lowercase hex chars. Keep the old 20-200 character window for legacy-device compatibility.
+    return /^[0-9a-f]{48}$/i.test(token) || (token.length>=20 && token.length<=200 && /^[A-Za-z0-9_-]+$/.test(token));
+  }
   function adoptTokenFromHash() {
     var match=/(?:^|[#&])k=([^&]+)/.exec(location.hash||'');
     if (!match) return false;
     var token=decodeURIComponent(match[1]).trim();
-    if (token.length<20||token.length>200) return false;
+    if (!validCloudToken(token)) return false;
     try { localStorage.setItem(CLOUD_TOKEN_KEY,token);history.replaceState(null,'',location.pathname+location.search); } catch (_) {}
     return true;
   }
@@ -250,8 +262,8 @@
     setChip(null);
     var enabled=CLOUD_ENABLED;
     app.innerHTML='<section class="panel cloud-panel"><span class="panel-icon" aria-hidden="true">☁</span><h2>Cloud save</h2>'+
-      '<p>'+(enabled?'Luke and Samantha save automatically after every answer. Use the private link once on another device to connect the same progress.':'Cloud sync turns on automatically on stevetodman.com. This preview is saving only on this device.')+'</p>'+
-      (enabled?'<button type="button" class="primary-button" id="share-cloud">Share private device link</button><p class="privacy-note">Anyone with this private link can access this family’s study progress. The key is removed from the address after the new device connects.</p>':'')+
+      '<p>'+(enabled?'Both learner profiles save automatically after every answer. Use the private link once on another device to connect the same progress.':'Cloud sync turns on automatically on stevetodman.com. This preview is saving only on this device.')+'</p>'+
+      (enabled?'<button type="button" class="primary-button" id="share-cloud">Share private device link</button><p class="privacy-note">Treat this link like a password: anyone with it can read and change this family’s study progress. The key is removed from the address after a new device connects.</p>':'')+
       '<button type="button" class="text-button" id="cloud-done">Done</button></section>';
     if(enabled)document.getElementById('share-cloud').addEventListener('click',function(){
       var link=cloudShareLink();
@@ -265,29 +277,37 @@
   function eligibleWords(domain) { return WORDS.filter(function(w){return domain!=='antonym'||w.antonyms.length;}); }
   function pairPriority(name,word,domain) {
     var st=getStat(name,word.word,domain); var days=(st.correctDays||[]).length;
-    return days*100+(st.correct||0)*7-(st.wrong||0)*9+Math.random()*18;
+    return days*100+(st.correct||0)*7-(st.wrong||0)*9;
   }
-  function domainPlan() {
-    var now=new Date();
-    if(now>=TEST_DATES.vocabulary&&now<TEST_DATES.spelling)return ['spelling','spelling','spelling','spelling','spelling','spelling','spelling','spelling','definition','synonym'];
-    return ['definition','definition','definition','synonym','synonym','antonym','antonym','spelling','spelling','spelling'];
+  function domainPlan(now) {
+    var current=now||new Date();
+    if(current<TEST_DATES.vocabulary)return ['definition','definition','definition','synonym','synonym','antonym','antonym','spelling','spelling','spelling'];
+    if(current<TEST_DATES.spelling)return ['spelling','spelling','spelling','spelling','spelling','spelling','spelling','spelling','definition','synonym'];
+    // After both tests, switch to an explicit retention mix rather than silently reverting to the pre-test schedule.
+    return ['definition','definition','synonym','synonym','antonym','antonym','spelling','spelling','spelling','spelling'];
   }
   function buildPlan(name) {
     var used=new Set(), usedWords={}, plan=[];
     domainPlan().forEach(function(domain,index){
-      var candidates=eligibleWords(domain).slice().sort(function(a,b){
-        var aRepeat=usedWords[a.word]||0,bRepeat=usedWords[b.word]||0;
-        return (aRepeat-bRepeat)*75+pairPriority(name,a,domain)-pairPriority(name,b,domain);
-      });
-      var chosen=candidates.find(function(w){return !used.has(w.word+'|'+domain);})||candidates[0];
+      var ranked=eligibleWords(domain).map(function(word){
+        var repeat=usedWords[word.word]||0;
+        // Jitter is sampled once per candidate; the sort comparator itself is deterministic.
+        return {word:word,score:repeat*75+pairPriority(name,word,domain)+Math.random()*18};
+      }).sort(function(a,b){return a.score-b.score;});
+      var chosenEntry=ranked.find(function(entry){return !used.has(entry.word.word+'|'+domain);})||ranked[0];
+      var chosen=chosenEntry.word;
       used.add(chosen.word+'|'+domain);usedWords[chosen.word]=(usedWords[chosen.word]||0)+1;
       plan.push(makeQuestion({word:chosen,domain:domain},index,false));
     });
     return plan;
   }
-  function relationTerms(exclude) {
-    var terms=[];WORDS.forEach(function(w){terms=terms.concat(w.synonyms,w.antonyms);});
-    return unique(terms.filter(function(x){return exclude.indexOf(x)<0;}));
+  function safeRelationDistractors(word,list,other) {
+    // The old global relation pool could surface a second defensible answer (for example
+    // permanent for continuous, or scrap for cancel) and then grade it as wrong. Prefer
+    // the target word's opposite relation, then fill with unrelated Unit 1 headwords.
+    var accepted=new Set(list.map(normalize));
+    var candidates=other.concat(WORDS.filter(function(w){return w.word!==word.word;}).map(function(w){return w.word;}));
+    return unique(candidates).filter(function(term){return !accepted.has(normalize(term));});
   }
   function makeQuestion(pair,index,forceText) {
     var w=pair.word,domain=pair.domain,typed=forceText||domain==='spelling'||index%2===0,q;
@@ -296,8 +316,11 @@
       else {var defs=WORDS.filter(function(x){return x.word!==w.word;}).map(function(x){return x.definitions[0];});q={kind:'choice',prompt:'Which definition matches <span class="target">'+esc(w.word)+'</span>?',choices:shuffle([w.definitions[0]].concat(shuffle(defs).slice(0,3))),accepted:[w.definitions[0]],answer:w.definitions[0],explanation:w.word+': '+w.definitions.join('; '),listen:true};}
     } else if(domain==='synonym'||domain==='antonym') {
       var list=domain==='synonym'?w.synonyms:w.antonyms,other=domain==='synonym'?w.antonyms:w.synonyms;
-      if(typed)q={kind:'text',prompt:'Type one '+domain+' for <span class="target">'+esc(w.word)+'</span>.',accepted:list,answer:list[0],explanation:'School list: '+list.join(', '),listen:true};
-      else {var distractors=unique(other.concat(shuffle(relationTerms(list.concat(other))).slice(0,5)));q={kind:'choice',prompt:'Which word is '+(domain==='antonym'?'an':'a')+' '+domain+' of <span class="target">'+esc(w.word)+'</span>?',choices:shuffle([list[0]].concat(shuffle(distractors).slice(0,3))),accepted:[list[0]],answer:list[0],explanation:'School list: '+list.join(', '),listen:true};}
+      if(typed)q={kind:'text',prompt:'Type one '+domain+' for <span class="target">'+esc(w.word)+'</span>.',accepted:list.slice(),answer:list[0],explanation:'School list: '+list.join(', '),listen:true};
+      else {
+        var distractors=shuffle(safeRelationDistractors(w,list,other)).slice(0,3);
+        q={kind:'choice',prompt:'Which word is '+(domain==='antonym'?'an':'a')+' '+domain+' of <span class="target">'+esc(w.word)+'</span>?',choices:shuffle([list[0]].concat(distractors)),accepted:list.slice(),answer:list[0],explanation:'School list: '+list.join(', '),listen:true};
+      }
     } else q={kind:'text',prompt:'Listen, then spell the word.',accepted:[w.word],answer:w.word,explanation:'The correct spelling is '+w.word+'.',listen:true,spelling:true};
     q.word=w;q.domain=domain;q.retry=!!forceText;q.checkpoint=index===SESSION_LENGTH-1;return q;
   }
@@ -348,12 +371,14 @@
     profile(activeName).stats[statKey(q.word.word,q.domain)]=st;saveState();
   }
   function scheduleRetry(q) {
-    var start=session.index+2;if(start>=SESSION_LENGTH)return;
-    for(var i=start;i<Math.min(SESSION_LENGTH,start+3);i++){
+    // Keep question 10 reserved as the final checkpoint. A retry can replace questions 3-9 only.
+    var lastRetryIndex=SESSION_LENGTH-2;
+    var start=session.index+2;if(start>lastRetryIndex)return;
+    for(var i=start;i<=Math.min(lastRetryIndex,start+2);i++){
       var future=session.questions[i];
       if(future.word.word===q.word.word&&future.domain===q.domain)return;
     }
-    var target=Math.min(start,SESSION_LENGTH-1);
+    var target=Math.min(start,lastRetryIndex);
     session.questions[target]=makeQuestion({word:q.word,domain:q.domain},target,true);
     session.questions[target].retry=true;
   }

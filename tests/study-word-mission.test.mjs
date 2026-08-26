@@ -140,7 +140,7 @@ describe('Unit 1 Word Expedition', () => {
     await page.locator('[data-profile="Luke"]').click();
     for (let i = 0; i < 7; i++) await answerCorrectly(page);
 
-    assert.match(await page.locator('.q-domain').innerText(), /Spelling/);
+    assert.match(await page.locator('.q-domain').innerText(), /Spelling/i);
     assert.equal(await page.locator('#listen').count(), 1);
     assert.equal(await page.locator('#answer-input').count(), 1);
     assert.equal(await page.locator('#tile-toggle').count(), 1);
