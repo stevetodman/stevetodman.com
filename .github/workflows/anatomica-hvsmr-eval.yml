@@ -1,0 +1,48 @@
+name: Anatomica HVSMR Evaluation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/anatomica/**'
+      - '.github/workflows/anatomica-hvsmr-eval.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: tools/anatomica/requirements-hvsmr.txt
+
+      - name: Install dependencies
+        run: pip install -r tools/anatomica/requirements-hvsmr.txt
+
+      - name: Evaluate HVSMR-2.0 normal candidates
+        run: |
+          python tools/anatomica/evaluate_hvsmr.py \
+            --work .cache/hvsmr \
+            --output hvsmr_output
+
+      - name: Show ranking
+        if: always()
+        run: |
+          test -f hvsmr_output/SUMMARY.md && cat hvsmr_output/SUMMARY.md || true
+
+      - name: Upload evaluation artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: anatomica-hvsmr-evaluation
+          path: hvsmr_output/
+          if-no-files-found: error
+          retention-days: 14
