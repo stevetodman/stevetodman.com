@@ -1,0 +1,70 @@
+name: Anatomica HOA Ingestion Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - anatomica-reference-anatomy-strategy
+    paths:
+      - 'tools/anatomica/hoa_probe.py'
+      - 'tools/anatomica/requirements-hoa.txt'
+      - 'docs/anatomica/HOA_INGESTION_EXPERIMENT.md'
+      - '.github/workflows/anatomica-hoa-probe.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/anatomica/hoa_probe.py'
+      - 'tools/anatomica/requirements-hoa.txt'
+      - 'docs/anatomica/HOA_INGESTION_EXPERIMENT.md'
+      - '.github/workflows/anatomica-hoa-probe.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: anatomica-hoa-probe-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: tools/anatomica/requirements-hoa.txt
+
+      - name: Install HOA probe dependencies
+        run: pip install -r tools/anatomica/requirements-hoa.txt
+
+      - name: Probe LADAF-2021-17 heart
+        run: |
+          python tools/anatomica/hoa_probe.py \
+            --output hoa_probe_output \
+            --downsample-level 4 \
+            --max-whole-volume-mib 600 \
+            --max-mesh-voxels 24000000 \
+            --max-surface-candidates 3
+
+      - name: Show probe report
+        if: always()
+        run: |
+          if [ -f hoa_probe_output/REPORT.md ]; then
+            cat hoa_probe_output/REPORT.md
+          else
+            echo "REPORT.md was not produced."
+          fi
+
+      - name: Upload HOA probe artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: anatomica-hoa-probe
+          path: hoa_probe_output/
+          if-no-files-found: warn
+          retention-days: 14
