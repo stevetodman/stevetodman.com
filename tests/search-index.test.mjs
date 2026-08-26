@@ -32,7 +32,7 @@ test('search index contains only classified production pages', () => {
   const { data } = built;
   const catalog = JSON.parse(fs.readFileSync(path.join(repoRoot, 'site', 'catalog.json'), 'utf8'));
   const expected = catalog.items
-    .filter(item => item.class === 'PRODUCTION' && item.route && item.id !== 'search')
+    .filter(item => item.class === 'PRODUCTION' && item.discoverable !== false && item.route && item.id !== 'search')
     .map(item => item.route)
     .sort();
   assert.equal(data.schemaVersion, 2);
