@@ -39,12 +39,12 @@ async function expectAtlasImage(page, filename) {
 }
 
 describe('PedCardSurg congenital surgery academy', () => {
-  test('loads the complete 9/55/26/44 atlas and curriculum without runtime errors', async () => {
+  test('loads the complete 9/55/26/34 atlas and curriculum without runtime errors', async () => {
     const { page, errors } = await openModule();
     assert.equal(await page.locator('#atlasButtons button').count(), 9);
     assert.equal(await page.locator('#ptedLibrary .libitem').count(), 55);
     assert.equal(await page.locator('#eponymsGrid .eponym').count(), 26);
-    assert.match(await page.locator('#quizApp').textContent(), /44-question mastery assessment/);
+    assert.match(await page.locator('#quizApp').textContent(), /34-question mastery assessment/);
     assert.equal(await page.locator('#visual-lab, #lesions, #outcomes').count(), 0);
     assert.deepEqual(errors, []);
     await page.close();
@@ -94,7 +94,7 @@ describe('PedCardSurg congenital surgery academy', () => {
   test('mastery assessment gives immediate explanation and uses the 80% threshold', async () => {
     const { page } = await openModule();
     await page.locator('#startQuiz').click();
-    assert.match(await page.locator('#quizApp').textContent(), /Question 1 \/ 44/);
+    assert.match(await page.locator('#quizApp').textContent(), /Question 1 \/ 34/);
     assert.equal(await page.locator('.answer').count(), 4);
     await page.locator('.answer').first().click();
     assert.equal(await page.locator('#feedback .explanation').isVisible(), true);
