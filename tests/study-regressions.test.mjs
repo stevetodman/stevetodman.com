@@ -31,6 +31,16 @@ test('Study Unit 1 guards the final-check grading and scheduling fixes', () => {
   assert.match(source, /var target=Math\.min\(start,lastRetryIndex\)/);
 });
 
+test('Study progress schema and compatibility identifiers remain migration-safe', () => {
+  const source = read('study/unit-1/app.js');
+  assert.match(source, /var STORAGE_KEY = 'studyhub-word-expedition-unit1-v3'/);
+  assert.match(source, /var LEGACY_KEY = 'studyhub-word-mission-unit1-v2'/);
+  assert.match(source, /return \{ version:3, learners:/);
+  assert.match(source, /word-mission-unit1-luke/);
+  assert.match(source, /word-mission-unit1-samantha/);
+  assert.match(source, /var LEGACY_CLOUD_TOKEN_KEY = 'usStatesCloudToken'/);
+});
+
 test('Study learner cards use valid phrasing content', () => {
   const source = read('study/unit-1/app.js');
   assert.match(source, /return '<span class="trail /);
@@ -58,4 +68,23 @@ test('Study page metadata does not publish learner names', () => {
     assert.ok(description.length > 0);
     assert.doesNotMatch(description, /Luke|Samantha/i);
   }
+});
+
+test('Study releases have an explicit contract, dedicated CI gate, live canary, and stale-cache defense', () => {
+  const contract = read('study/STUDY_CONTRACT.md');
+  assert.match(contract, /\/study\/.*current one-tap Unit 1 assignment/);
+  assert.match(contract, /Question 10 is the final checkpoint/);
+  assert.match(contract, /Do not clear browser storage/);
+
+  const workflow = read('.github/workflows/study-contract.yml');
+  assert.match(workflow, /name: Study contract/);
+  assert.match(workflow, /npm run test:study/);
+  assert.match(workflow, /npm run verify:study-production/);
+
+  const headers = read('_headers');
+  assert.match(headers, /\/study\/\*\s+Cache-Control: no-cache, max-age=0, must-revalidate/);
+
+  const canary = read('scripts/verify-study-production.mjs');
+  assert.match(canary, /context\.route\('https:\/\/\*\.supabase\.co\/\*\*'/);
+  assert.match(canary, /manifest\.start_url, '\/study\/'/);
 });
