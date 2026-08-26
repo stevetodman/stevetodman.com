@@ -1,0 +1,30 @@
+name: Study cloud canary
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'study/**'
+      - 'scripts/verify-study-cloud.sh'
+      - '.github/workflows/study-cloud-canary.yml'
+  pull_request:
+    paths:
+      - 'study/**'
+      - 'scripts/verify-study-cloud.sh'
+      - '.github/workflows/study-cloud-canary.yml'
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cloud-canary:
+    name: Study cloud canary
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify live Study cloud save
+        run: bash scripts/verify-study-cloud.sh
