@@ -23,8 +23,14 @@ PR 93, production merge `88e60ab966f9fd5174d6f68021d38498a1e693e4`, app build
 `4817f2505cec`, server function version 3. Both browser engines passed 43/43 and
 the exact-build production canary passed. Active release record:
 ../tests/evidence/STUDY_RELEASE_20260828.md. It supersedes the historical statements
-below that production has not changed. A pre-existing site-wide redirect-checker
-issue is being corrected separately; real-device/child acceptance remains open.
+below that production has not changed. The pre-existing redirect-checker issue was
+fixed in PR 94 and the corrected full-site check passed against production.
+Real-device/child acceptance remains unverified, not a release blocker imposed by us.
+
+Owner's latest direction: keep testing proportionate to a game for the twins.
+No further CI expansion or exhaustive certification loops. Future work should
+prioritize their feedback, with a short playthrough, save/reload and phone-layout
+check. Keep the existing checks; do not create another testing project.
 
 The branch includes original illustrated heroes, all 32 equipment combinations,
 four creatures, a forest stage and world map. Implemented and exercised:

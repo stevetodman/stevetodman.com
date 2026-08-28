@@ -67,8 +67,10 @@ The follow-up checker accepts only one same-origin, exact-extension-removal
 checks status, headers and robots metadata on the destination. Internal/excluded
 routes still require a direct 404. New tests reject missing destinations, missing
 metadata and unrelated same-origin or cross-origin redirects. All 28 platform
-checks pass locally. Live full-site rerun and follow-up CI are pending at this
-documentation checkpoint; no website content or security policy is changed.
+checks pass locally. The corrected full-site verifier passed against production.
+PR 94 merged this checker-only fix as `f97271d9ec98febf7659dc0e8b34d3f2892a6819`
+after its checks cleared. No website content or security policy was changed;
+the game remains build `4817f2505cec`.
 
 ## Remaining acceptance limits
 
@@ -79,8 +81,14 @@ approval. No real-money purchasing exists.
 
 ## Next-agent instructions
 
+The owner explicitly requested proportionate testing: this is for the twins,
+not a commercial platform. Do not expand CI, build more test infrastructure, or
+hold routine polish for exhaustive certification. Retain existing safety checks.
+For subsequent changes, use a short playthrough, save/reload and phone-layout check;
+add a regression only when it protects a concrete bug worth catching again.
+
 Read this record and study/QUALITY_HANDOFF.md before working. The game is already
-live: do not redeploy the old version, clear progress, rename storage keys or
-restart the design. Finish the production-checker follow-up, then use the actual
-family/device protocol for the remaining human evidence. Fix only reproducible
-defects with regression coverage and preserve the rollback baseline above.
+live and the checker follow-up is complete. Do not redeploy the old version, clear
+progress, rename storage keys or restart the design. Prioritize feedback from the
+twins and preserve the rollback baseline above. Human acceptance limitations are
+honest limitations, not a reason to keep building verification machinery.
