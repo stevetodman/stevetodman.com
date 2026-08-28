@@ -15,7 +15,8 @@ function loadArt() {
 
 test('game art catalog is bounded, unique, and renders every equipment layer', () => {
   const art = loadArt();
-  assert.equal(art.catalog.length, 6);
+  assert.equal(art.catalog.length, 24);
+  assert.equal(new Set(art.catalog.map(item=>item.sound+":"+item.tone)).size,24);
   assert.equal(new Set(art.catalog.map(item => item.id)).size, art.catalog.length);
   assert.ok(art.catalog.every(item => ['weapon','armor'].includes(item.type)));
   assert.ok(art.catalog.every(item => Number.isInteger(item.price) && item.price > 0));

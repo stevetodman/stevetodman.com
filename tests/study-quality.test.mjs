@@ -13,7 +13,7 @@ function model(audio) {
   const source=read('study/unit-1/app.js');
   vm.runInNewContext(source.slice(0,source.indexOf("  chip.setAttribute('aria-label'"))+`
     window.test={sanitizeGameProfile,applyCloudGame,gameProfile,gameXp,coinBalance,makeQuestion,isAccepted,WORDS,savedRound,savedGearChoice,recordResult,
-      playWeaponSound,
+      playWeaponSound,sessionCoinAward,
       setSession:(value)=>{session=value;activeName='Luke';},stats:()=>profile('Luke').stats};
   })();`,context);
   return {...context.window.test,storage,quality:context.window.WordExpeditionQuality};
@@ -105,4 +105,15 @@ test('unavailable or blocked weapon audio never interrupts learning',()=>{
   assert.doesNotThrow(()=>model(function(){throw new Error('Audio blocked');}).playWeaponSound('moon-blade'));
   const source=read('study/unit-1/app.js');
   assert.match(source,/playWeaponSound\(gameProfile\(activeName\)\.equipped\.weapon\)/);
+});
+
+
+test('coins require sustained practice and new mastery without changing historical wallets',()=>{
+  const m=model();
+  assert.equal(m.sessionCoinAward(0,0,false),2);
+  assert.equal(m.sessionCoinAward(4,0,false),3);
+  assert.equal(m.sessionCoinAward(10,0,false),4);
+  assert.equal(m.sessionCoinAward(10,1,true),15);
+  m.applyCloudGame('Luke',{rewards:{old:{xp:20,coins:8}}});
+  assert.equal(m.coinBalance('Luke'),8);
 });

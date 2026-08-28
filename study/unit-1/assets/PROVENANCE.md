@@ -49,3 +49,10 @@ Built-in image generation, using the original atlas as the monster-identity and 
 Prompt: Redesign the four monsters as ugly, snarling, formidable fantasy foes, facing left: warty moss-and-bark troll with crooked teeth and root claws; angular purple-blue spectral creature; cracked-stone golem with craggy jaw and rune fists; ragged purple owl sorcerer with hooked beak, talons and gold crown. Polished painterly 3D fantasy style; age appropriate for ten-year-olds, no blood or gore. Four equal cells in a 2x2 square grid, no heroes, weapons, labels or text.
 
 Background correction: Replace every checkerboard pixel with a flat very dark forest green #143727 while preserving the four monsters. Transparent-background attempts returned RGB checkerboards and were rejected for production. Only mechanical WebP encoding was performed after generation.
+
+
+## Expanded equipment — August 28, 2026
+
+Built-in image generation; selected 1536x1024 RGB source, encoded mechanically as `extra-gear.webp`. Six columns and three rows, separate from the original hero/gear atlas. Black background is composited with screen blending when worn; the shop feathers cell edges. No claim of transparent alpha.
+
+Prompt: Exactly 18 isolated polished painterly 3D fantasy equipment icons on pure black, 6 columns by 3 rows, complete items centered with margins and no labels. Row 1: oak staff, iron axe, hunter bow, frost spear, ember hammer, thunder blade. Row 2: crystal wand, dragon blade, void scythe, iron shield, ember buckler, crystal shield. Row 3: thunder shield, dragon shield, void shield, oak charm, frost charm, sun charm. Weapons point diagonally up-right; shields face forward; charms upright. Family-friendly, no blood or gore.

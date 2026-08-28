@@ -2,13 +2,223 @@
   'use strict';
 
   var CATALOG = [
-    { id:'copper-blade', type:'weapon', name:'Copper Blade', price:8, rarity:'Trail gear' },
-    { id:'moon-blade', type:'weapon', name:'Moon Blade', price:12, rarity:'Moonforged' },
-    { id:'star-wand', type:'weapon', name:'Star Wand', price:12, rarity:'Starbound' },
-    { id:'forest-hood', type:'armor', name:'Forest Hood', price:16, rarity:'Trail gear' },
-    { id:'guardian-mail', type:'armor', name:'Guardian Mail', price:24, rarity:'Guardian' },
-    { id:'star-mantle', type:'armor', name:'Star Mantle', price:24, rarity:'Starbound' }
-  ];
+  {
+    "id":"copper-blade",
+    "type":"weapon",
+    "name":"Copper Blade",
+    "price":8,
+    "rarity":"Trail gear",
+    "sound":"blade",
+    "tone":520
+  },
+  {
+    "id":"moon-blade",
+    "type":"weapon",
+    "name":"Moon Blade",
+    "price":12,
+    "rarity":"Moonforged",
+    "sound":"blade",
+    "tone":1175
+  },
+  {
+    "id":"star-wand",
+    "type":"weapon",
+    "name":"Star Wand",
+    "price":12,
+    "rarity":"Starbound",
+    "sound":"wand",
+    "tone":784
+  },
+  {
+    "id":"forest-hood",
+    "type":"armor",
+    "name":"Forest Hood",
+    "price":16,
+    "rarity":"Trail gear",
+    "sound":"cloth",
+    "tone":460
+  },
+  {
+    "id":"guardian-mail",
+    "type":"armor",
+    "name":"Guardian Mail",
+    "price":24,
+    "rarity":"Guardian",
+    "sound":"mail",
+    "tone":1650
+  },
+  {
+    "id":"star-mantle",
+    "type":"armor",
+    "name":"Star Mantle",
+    "price":24,
+    "rarity":"Starbound",
+    "sound":"cloth",
+    "tone":980
+  },
+  {
+    "id":"oak-staff",
+    "type":"weapon",
+    "name":"Oak Staff",
+    "price":20,
+    "rarity":"Woodland",
+    "sound":"wood",
+    "tone":180
+  },
+  {
+    "id":"iron-axe",
+    "type":"weapon",
+    "name":"Iron Axe",
+    "price":28,
+    "rarity":"Forged",
+    "sound":"axe",
+    "tone":430
+  },
+  {
+    "id":"hunter-bow",
+    "type":"weapon",
+    "name":"Hunter Bow",
+    "price":32,
+    "rarity":"Ranger",
+    "sound":"bow",
+    "tone":240
+  },
+  {
+    "id":"frost-spear",
+    "type":"weapon",
+    "name":"Frost Spear",
+    "price":40,
+    "rarity":"Frostbound",
+    "sound":"spear",
+    "tone":1380
+  },
+  {
+    "id":"ember-hammer",
+    "type":"weapon",
+    "name":"Ember Hammer",
+    "price":48,
+    "rarity":"Emberforged",
+    "sound":"hammer",
+    "tone":220
+  },
+  {
+    "id":"thunder-blade",
+    "type":"weapon",
+    "name":"Thunder Blade",
+    "price":60,
+    "rarity":"Stormforged",
+    "sound":"blade",
+    "tone":860
+  },
+  {
+    "id":"crystal-wand",
+    "type":"weapon",
+    "name":"Crystal Wand",
+    "price":72,
+    "rarity":"Crystal",
+    "sound":"wand",
+    "tone":1046
+  },
+  {
+    "id":"dragon-blade",
+    "type":"weapon",
+    "name":"Dragon Blade",
+    "price":96,
+    "rarity":"Dragon",
+    "sound":"blade",
+    "tone":610
+  },
+  {
+    "id":"void-scythe",
+    "type":"weapon",
+    "name":"Void Scythe",
+    "price":120,
+    "rarity":"Legendary",
+    "sound":"scythe",
+    "tone":320
+  },
+  {
+    "id":"iron-shield",
+    "type":"armor",
+    "name":"Iron Shield",
+    "price":20,
+    "rarity":"Forged",
+    "sound":"shield",
+    "tone":380
+  },
+  {
+    "id":"ember-buckler",
+    "type":"armor",
+    "name":"Ember Buckler",
+    "price":28,
+    "rarity":"Emberforged",
+    "sound":"shield",
+    "tone":570
+  },
+  {
+    "id":"crystal-shield",
+    "type":"armor",
+    "name":"Crystal Shield",
+    "price":40,
+    "rarity":"Crystal",
+    "sound":"shield",
+    "tone":1280
+  },
+  {
+    "id":"thunder-shield",
+    "type":"armor",
+    "name":"Thunder Shield",
+    "price":56,
+    "rarity":"Stormforged",
+    "sound":"shield",
+    "tone":760
+  },
+  {
+    "id":"dragon-shield",
+    "type":"armor",
+    "name":"Dragon Shield",
+    "price":80,
+    "rarity":"Dragon",
+    "sound":"shield",
+    "tone":290
+  },
+  {
+    "id":"void-shield",
+    "type":"armor",
+    "name":"Void Shield",
+    "price":112,
+    "rarity":"Legendary",
+    "sound":"shield",
+    "tone":190
+  },
+  {
+    "id":"oak-charm",
+    "type":"armor",
+    "name":"Oak Charm",
+    "price":32,
+    "rarity":"Woodland",
+    "sound":"charm",
+    "tone":660
+  },
+  {
+    "id":"frost-charm",
+    "type":"armor",
+    "name":"Frost Charm",
+    "price":64,
+    "rarity":"Frostbound",
+    "sound":"charm",
+    "tone":1320
+  },
+  {
+    "id":"sun-charm",
+    "type":"armor",
+    "name":"Sun Charm",
+    "price":100,
+    "rarity":"Legendary",
+    "sound":"charm",
+    "tone":880
+  }
+];
   var VALID_ITEMS = ['starter-sword','starter-cloak'].concat(CATALOG.map(function (item) { return item.id; }));
   var PALETTES = {
     Luke:{ skin:'#c88457', hair:'#3e2b29', tunic:'#2a8b82', accent:'#f1b449', cape:'#184b68' },
@@ -76,18 +286,25 @@
   function sprite(col,row,cls){
     return '<svg class="'+cls+'" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><svg x="0" y="0" width="120" height="120" viewBox="'+COLS[col]+' '+ROWS[row]+' 314 '+HEIGHTS[row]+'" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg></svg>';
   }
+  function extraItem(id){var index=CATALOG.findIndex(function(item){return item.id===id;})-6;return index>=0?index:-1;}
+  function extraSprite(id,cls){
+    var index=extraItem(id),x=(index%6)*256,y=Math.floor(index/6)*341.333333;
+    return '<svg width="120" height="120" class="'+cls+' extra-item" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><svg width="120" height="120" viewBox="'+x+' '+y+' 256 341.333333" preserveAspectRatio="none" overflow="hidden"><image href="/study/unit-1/assets/extra-gear.webp" width="1536" height="1024"/></svg></svg>';
+  }
   function illustratedHero(name,equipped,pose){
     var armor=equipped&&equipped.armor||'starter-cloak',weapon=equipped&&equipped.weapon||'starter-sword';
     var ac=Math.max(0,['starter-cloak','forest-hood','guardian-mail','star-mantle'].indexOf(armor));
     var wc=Math.max(0,['starter-sword','copper-blade','moon-blade','star-wand'].indexOf(weapon));
+    var extraWeapon=extraItem(weapon)>=0,extraArmor=extraItem(armor)>=0;
     return '<svg class="hero-art hero-'+(pose||'ready')+'" viewBox="0 0 120 120" data-armor="'+armor+'" data-weapon="'+weapon+'" aria-hidden="true" focusable="false">'+
       '<svg x="0" y="0" width="108" height="120" viewBox="'+COLS[ac]+' '+ROWS[name==='Samantha'?1:0]+' 314 '+HEIGHTS[name==='Samantha'?1:0]+'" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg>'+
-      '<g class="gear weapon '+['starter','copper','moon','wand'][wc]+'"><svg x="66" y="17" width="49" height="62" viewBox="'+COLS[wc]+' 954 314 300" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg></g></svg>';
+      (extraWeapon?'<g class="gear weapon extra-equipped" transform="translate(61 12) scale(.57)">'+extraSprite(weapon,'equipped-sprite')+'</g>':'<g class="gear weapon '+['starter','copper','moon','wand'][wc]+'"><svg x="66" y="17" width="49" height="62" viewBox="'+COLS[wc]+' 954 314 300" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg></g>')+
+      (extraArmor?'<g class="gear armor extra-equipped" transform="translate('+(armor.indexOf('charm')>=0?'36 42) scale(.22)':'0 44) scale(.42)')+'">'+extraSprite(armor,'equipped-sprite')+'</g>':'')+'</svg>';
   }
   function illustratedMonster(kind,state){
     var index=Math.max(0,['mossling','wisp','sentinel','boss'].indexOf(kind)),x=(index%2)*627,y=Math.floor(index/2)*627;
     return '<svg class="monster-art monster-cutout monster-'+kind+' monster-'+(state||'ready')+'" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><svg width="120" height="120" viewBox="'+x+' '+y+' 627 627" preserveAspectRatio="none" overflow="hidden"><image href="/study/unit-1/assets/monster-sprites.webp" width="1254" height="1254"/></svg></svg>';
   }
-  function illustratedItem(item){return item.type==='weapon'?sprite(Math.max(0,['starter-sword','copper-blade','moon-blade','star-wand'].indexOf(item.id)),3,'item-art'):sprite(Math.max(0,['starter-cloak','forest-hood','guardian-mail','star-mantle'].indexOf(item.id)),0,'item-art');}
+  function illustratedItem(item){if(extraItem(item.id)>=0)return extraSprite(item.id,'item-art');return item.type==='weapon'?sprite(Math.max(0,['starter-sword','copper-blade','moon-blade','star-wand'].indexOf(item.id)),3,'item-art'):sprite(Math.max(0,['starter-cloak','forest-hood','guardian-mail','star-mantle'].indexOf(item.id)),0,'item-art');}
   window.WordExpeditionArt={ catalog:CATALOG, validItems:VALID_ITEMS, hero:illustratedHero, monster:illustratedMonster, itemIcon:illustratedItem, routeMap:routeMap };
 })();

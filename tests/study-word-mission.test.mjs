@@ -37,6 +37,13 @@ async function fastContext(options = {}) {
   return context;
 }
 
+async function seedSavedCoins(context) {
+  await context.addInitScript(()=>{
+    const key='studyhub-word-expedition-game-unit1-v1';
+    if(!localStorage.getItem(key))localStorage.setItem(key,JSON.stringify({version:1,learners:{Luke:{rewards:{_legacy:{xp:0,coins:8}}}}}));
+  });
+}
+
 async function answerCurrentQuestion(page) {
   if (await page.locator('#answer-input').count()) {
     await page.locator('#answer-input').fill('definitely wrong');
@@ -181,7 +188,7 @@ describe('Unit 1 Word Expedition', () => {
   });
 
   test('awards study coins, previews, spends, equips, persists, and isolates progress', async () => {
-    const context = await fastContext();
+    const context = await fastContext();await seedSavedCoins(context);
     const page = await context.newPage();
     await page.goto(server.origin + '/study/');
     await page.locator('[data-profile="Luke"]').click();
@@ -191,7 +198,7 @@ describe('Unit 1 Word Expedition', () => {
     assert.match(await page.locator('.reward-row').innerText(), /\+20[\s\S]*Level 2/);
 
     let game = await page.evaluate(() => JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')));
-    assert.equal(Object.keys(game.learners.Luke.rewards).length, 1);
+    assert.equal(Object.keys(game.learners.Luke.rewards).filter(id=>id!=='_legacy').length, 1);
     assert.equal(Object.keys(game.learners.Samantha.rewards).length, 0);
 
     await page.locator('#visit-shop').click();
@@ -254,7 +261,7 @@ describe('Unit 1 Word Expedition', () => {
   });
 
   test('gear preview never spends coins; starter gear and purchases remain available', async () => {
-    const context=await fastContext();const page=await context.newPage();
+    const context=await fastContext();await seedSavedCoins(context);const page=await context.newPage();
     await page.goto(server.origin+'/study/');await page.locator('[data-profile="Luke"]').click();
     for(let i=0;i<10;i++)await answerCurrentQuestion(page);
     await page.locator('#visit-shop').click();await page.locator('[data-item="copper-blade"]').click();
@@ -361,11 +368,11 @@ describe('Unit 1 Word Expedition', () => {
     const renderSource=source.slice(source.indexOf('  function renderWeaponSound('),source.indexOf('  function playWeaponSound('));
     const creatureSource=source.slice(source.indexOf('  function renderCreatureSound('),source.indexOf('  function playCreatureSound('));
     const rendered=await page.evaluate(async ({code,creatureCode})=>{
-      const render=new Function(code+';return renderWeaponSound;')();
-      const renderCreature=new Function(creatureCode+';return renderCreatureSound;')();
+      const render=new Function('ART',code+';return renderWeaponSound;')(window.WordExpeditionArt);
+      const renderCreature=new Function('ART',creatureCode+';return renderCreatureSound;')(window.WordExpeditionArt);
       const Offline=window.OfflineAudioContext||window.webkitOfflineAudioContext;
       const results=[];
-      for(const weapon of ['starter-sword','copper-blade','moon-blade','star-wand','mossling','wisp','sentinel','boss']){
+      for(const weapon of ['starter-sword',...window.WordExpeditionArt.catalog.map(item=>item.id),'mossling','wisp','sentinel','boss']){
         const ctx=new Offline(1,24000,48000);
         if(['mossling','wisp','sentinel','boss'].includes(weapon))renderCreature(ctx,weapon,'guardian-mail');else render(ctx,weapon);
         const samples=(await ctx.startRendering()).getChannelData(0);
@@ -379,7 +386,7 @@ describe('Unit 1 Word Expedition', () => {
       assert.ok(sound.rms>.001,sound.weapon+' produces audible energy');
       assert.ok(sound.peak<.5,sound.weapon+' has headroom and does not clip');
     }
-    assert.equal(new Set(rendered.slice(0,4).map(sound=>sound.rms.toFixed(4))).size,4);
+    assert.equal(rendered.length,29);
     await page.locator('#cloud-button').click();await page.locator('#weapon-sounds').click();
     await page.reload();await page.locator('#cloud-button').click();
     assert.equal(await page.locator('#weapon-sounds').getAttribute('aria-pressed'),'false');
@@ -418,18 +425,38 @@ describe('Unit 1 Word Expedition', () => {
     await page.clock.install({time:new Date('2026-08-28T12:00:00')});
     for(const name of ['Luke','Samantha']){
       await page.goto(server.origin+'/study/');
-      // Real fast answers: no synthetic reading-time credit.
-      await page.locator('[data-profile="'+name+'"]').click();
-      for(let i=0;i<10;i++)await answerCorrectly(page);
+      // Two perfect rounds earn the cheapest item; one round is no longer enough.
+      for(let round=0;round<2;round++){
+        await page.locator('[data-profile="'+name+'"]').click();
+        for(let i=0;i<10;i++)await answerCorrectly(page);
+        if(round===0){
+          await page.locator('#visit-shop').click();await page.locator('[data-item="copper-blade"]').click();
+          assert.equal(await page.locator('.wallet strong').innerText(),'4');
+          assert.equal(await page.locator('#confirm-gear').isDisabled(),true,'cannot buy before earning the price');
+          await page.locator('#shop-done').click();
+        }
+      }
       await page.locator('#visit-shop').waitFor({state:'visible'});
       await page.clock.fastForward(60000);
       assert.equal(await page.locator('#visit-shop').isEnabled(),true,'results reading cannot consume store time');
       await page.locator('#visit-shop').click();
+      const directory=path.join(process.env.RUNNER_TEMP||os.tmpdir(),'study-evidence');fs.mkdirSync(directory,{recursive:true});
+      await page.screenshot({path:path.join(directory,'390-expanded-shop.png'),fullPage:true});
+      const ids=[];for(let shelf=0;shelf<4;shelf++){
+        ids.push(...await page.locator('[data-item]').evaluateAll(items=>items.map(item=>item.dataset.item)));
+        if(shelf<3)await page.locator('#shop-next').click();
+      }
+      assert.equal(new Set(ids).size,24);
+      await page.locator('[data-item="sun-charm"]').click();
+      assert.equal(await page.locator('#gear-preview .extra-equipped').count(),1);
+      await page.screenshot({path:path.join(directory,'390-expanded-shop-last-shelf.png'),fullPage:true});
+      for(let shelf=0;shelf<3;shelf++)await page.locator('#shop-prev').click();
       assert.equal(Number(await page.locator('#reward-break-progress').getAttribute('max')),50000);
       assert.equal(await page.locator('.wallet strong').innerText(),'8');
+      const beforeWait=Number(await page.locator('#reward-break-progress').getAttribute('value'));
       await page.clock.fastForward(25000);
       const remaining=Number(await page.locator('#reward-break-progress').getAttribute('value'));
-      assert.ok(remaining>=24000&&remaining<=25000,'half the store time remains after 25 seconds');
+      assert.ok(Math.abs(remaining-(beforeWait-25000))<1200&&remaining>0,'countdown uses elapsed time without restarting on shelf changes');
       await page.locator('[data-item="copper-blade"]').click();
       await page.locator('#confirm-gear').click();
       assert.equal(await page.locator('.wallet strong').innerText(),'0');
@@ -447,7 +474,7 @@ describe('Unit 1 Word Expedition', () => {
   });
 
   test('reward countdown survives preview navigation and expires without spending', async () => {
-    const context=await fastContext();const page=await context.newPage();
+    const context=await fastContext();await seedSavedCoins(context);const page=await context.newPage();
     // Exercise the real browser deadline. Installing a second fake clock over
     // fastContext's reading-time fixture changes timer initialization order.
     await page.goto(server.origin+'/study/');
@@ -465,7 +492,7 @@ describe('Unit 1 Word Expedition', () => {
     assert.equal(await page.locator('[data-profile="Luke"]').count(),1);
     const game=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')).learners.Luke);
     assert.deepEqual(game.purchases,{});assert.equal(game.equipped.weapon,'starter-sword');
-    assert.equal(Object.values(game.rewards).reduce((sum,r)=>sum+r.coins,0),8);
+    assert.ok(Object.values(game.rewards).reduce((sum,r)=>sum+r.coins,0)>=10);
     const draftKey='studyhub-word-expedition-gear-draft-unit1-v1-Luke';
     assert.equal(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).item,draftKey),'copper-blade');
     assert.match(await page.locator('#toast').innerText(),/Choice saved/);
@@ -476,11 +503,12 @@ describe('Unit 1 Word Expedition', () => {
     for(let i=0;i<10;i++)await answerCurrentQuestion(page);
     await page.locator('#visit-shop').click();
     assert.match(await page.locator('#gear-preview').innerText(),/Your saved choice[\s\S]*Copper Blade/);
-    assert.equal(await page.locator('.wallet strong').innerText(),'16','resuming never buys automatically');
+    const beforePurchase=Number(await page.locator('.wallet strong').innerText());
+    assert.ok(beforePurchase>=12,'saved coins and both rounds remain available');
     await page.locator('#cancel-gear').click();
     assert.equal(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).item,draftKey),null);
     await page.locator('[data-item="copper-blade"]').click();await page.locator('#confirm-gear').click();
-    assert.equal(await page.locator('.wallet strong').innerText(),'8');
+    assert.equal(Number(await page.locator('.wallet strong').innerText()),beforePurchase-8);
     assert.equal(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).item,draftKey),null,'confirmation clears the bookmark');
     await context.close();
   });

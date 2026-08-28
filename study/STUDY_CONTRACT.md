@@ -23,6 +23,7 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 - Equipped weapons have distinct, brief synthesized effects: sword swishes and metallic strikes, or a wand chime. Monsters counterattack with creature and armor-impact sounds, without reducing progress or delaying the next question. Spelling audio starts immediately at normal speed and prefers a local English voice. Device settings can mute effects without muting spoken questions. Effects stop for narration, navigation and hidden tabs; unavailable audio never blocks learning.
 - The question is the combat action. There are no separate attack, defend, movement, or energy-grind turns.
 - Every battle contains the same 10 questions as the assignment session. Equipment may change appearance and feedback, but never question count, mastery, difficulty, correctness, or rewards.
+- The shop has 24 cosmetic items in four six-item shelves. Every item has its own sound preview, including unaffordable items; purchases still require the full coin price. Completed rounds earn 2–4 coins based on first-try correct answers, plus 3 per new mastery seal and 8 for a boss victory. Historical coin rewards, ownership and original prices are preserved.
 - XP and study coins are earned only by completed learning sessions and newly earned mastery seals. Study coins can buy cosmetic gear. No real-money purchases, paid currency, subscriptions, payment checkout, ads or loot boxes.
 - Currency, equipment, level, and reward details remain private until a learner selects their profile.
 - Luke and Samantha keep independent wallets, equipment, rewards, and purchase histories.
@@ -51,4 +52,4 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 
 ## Release gates
 
-Every Study change must pass the dedicated `Study contract` workflow. That workflow runs Study-only regression/behavior tests. After a merge to `main`, it also verifies the live production `/study/` route and deployed Study assets.
+Every Study change must pass the dedicated `Study contract` workflow. That workflow runs fast Study unit checks and one focused Chromium smoke pass for the twins, stores, saves, audio and speech. Broader suites and WebKit remain available manually, not required on every family-app edit. The same job on `main` also verifies the live production `/study/` route and deployed Study assets.

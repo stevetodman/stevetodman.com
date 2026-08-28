@@ -351,3 +351,10 @@ body[data-screen="question"] .pips { display:none; }
 @keyframes hero-parry { 0%,100%{transform:translateX(0)}45%{transform:translateX(-10px) rotate(-5deg);filter:brightness(1.2)} }
 
 .monster-cutout { -webkit-mask-image:radial-gradient(ellipse at center,#000 55%,transparent 74%);mask-image:radial-gradient(ellipse at center,#000 55%,transparent 74%); }
+
+.extra-equipped { mix-blend-mode:screen; }
+.extra-item { -webkit-mask-image:radial-gradient(ellipse at center,#000 55%,transparent 74%);mask-image:radial-gradient(ellipse at center,#000 55%,transparent 74%); }
+.shop-pages { display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-size:.75rem;font-weight:800; }
+.shop-pages button { min-height:44px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--teal-dark);font:inherit;cursor:pointer; }
+.shop-pages button:disabled,.preview-confirm:disabled { opacity:.55;cursor:default; }
+@media(max-width:560px){.shop-pages{margin-top:5px;}.merchant-done{margin-top:6px;}.shop-pages button{min-height:40px;}.shop-art,.item-art{height:54px;}.shop-card{padding:6px;}}
