@@ -46,6 +46,11 @@ Physical iOS and observed child enjoyment/90/10 are still OPEN acceptance gates.
 
 ## Evidence, with scope
 
+- Hosted UI clickthrough on build `766ca936cf20` is recorded in
+  ../tests/evidence/STUDY_CLICKTHROUGH_20260828.md: two completed rounds, alternate correction, reload of
+  correction/tiles, earned-coin preview and purchase, timeout/persistence, profile
+  separation, review and device settings. No new functional failure found in
+  those paths; no production activity. Physical audio and child 90/10 stay open.
 - CI 33133053006 (`08cc9691f6dd6b979c696126001a2f6cbb4122a1`): Chromium 40/40,
   platform 25/25 and build 139 files / 25 indexed pages passed.
 - Artifact 9670997499 was downloaded and inspected: 320px shelf, 390px armor
