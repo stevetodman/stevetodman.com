@@ -22,6 +22,65 @@
     {id:'sentinel',name:'Rune Golem',story:'Built to guard ancient treasure. Forgot where it put the treasure.'},
     {id:'boss',name:'The Word Keeper',story:'An owl sorcerer with a thousand spells. Cannot find the one that fixes its hair.'}
   ];
+  // Short, authored practice sentences. Never send a spelling answer into the prompt.
+  var MONSTER_LINES = {
+    mossling:{
+      blunder:'I made a blunder: I put my soup in my boot.',
+      cancel:'I had to cancel my picnic. The golem ate the blanket.',
+      continuous:'That continuous dripping ruined my nap. Even the moss is grumpy.',
+      distribute:'I distribute bridge tickets to visitors. Nobody buys the muddy ones.',
+      document:'This document says the bridge is mine. I signed it in mud.',
+      fragile:'This bridge is fragile. Last week, a squirrel broke it.',
+      myth:'That myth about a polite troll is definitely not about me.',
+      reject:'I reject your offer of broccoli. Bring something with more crunch.',
+      scuffle:'A scuffle broke out over my sandwich. The sandwich lost.',
+      solitary:'I prefer a solitary life. Visitors always steal my biscuits.',
+      temporary:'Your bridge pass is temporary. It expires when I finish lunch.',
+      veteran:'I am a veteran of bridge battles. The splinters remember me.'
+    },
+    wisp:{
+      blunder:'My only blunder was floating into a jar. A very impressive jar.',
+      cancel:'You cannot cancel my grand entrance. I already rehearsed it!',
+      continuous:'Admire my continuous glow. I never need a candle break.',
+      distribute:'I distribute sparkles everywhere. You are welcome, dusty castle.',
+      document:'My document lists every wall I passed through. It is enormous.',
+      fragile:'That fragile lantern cracked. My glow is clearly the better choice.',
+      myth:'The myth says nobody can catch me. Excellent publicity!',
+      reject:'I reject this tiny lantern. A star like me needs room.',
+      scuffle:'I escaped the scuffle through a wall. Such elegant footwork!',
+      solitary:'A solitary spark followed me. Even sparks want my autograph.',
+      temporary:'Your victory would be temporary. My magnificent glow lasts all night.',
+      veteran:'I am a veteran of midnight haunts. Even ghosts ask for tips.'
+    },
+    sentinel:{
+      blunder:'I made a blunder. The door needed a key, not a boulder.',
+      cancel:'I must cancel lunch. Apparently pebbles are not sandwiches.',
+      continuous:'My continuous humming bothers the owl. I thought owls liked music.',
+      distribute:'I distribute stones to every visitor. Why does everyone run?',
+      document:'This document proves I own the castle. Can I eat it now?',
+      fragile:'My fragile teacup survived. The table did not.',
+      myth:'The myth says mountains can walk. Should I ask my cousin?',
+      reject:'They reject my stone soup. Perhaps I need smaller stones.',
+      scuffle:'The scuffle ended when I sat down. Was that the table?',
+      solitary:'A solitary pebble sits beside me. I named it Crowd.',
+      temporary:'My temporary repair is holding. Is this boulder supposed to roll?',
+      veteran:'They call me a veteran guard. Does that come with a hat?'
+    },
+    boss:{
+      blunder:'A blunder in my spell turned my crown into soup. Still regal.',
+      cancel:'I shall cancel the royal feast. Someone invited a hungry golem.',
+      continuous:'My continuous studying proves my brilliance. My feathers demand a holiday.',
+      distribute:'I distribute royal invitations. The mice receive the smallest envelopes.',
+      document:'This document declares me ruler. My signature takes an entire page.',
+      fragile:'Handle my fragile crystal crown carefully. Royal glue is expensive.',
+      myth:'The myth of my wisdom grows daily. I write the updates.',
+      reject:'I reject this crooked crown. My royal head deserves better.',
+      scuffle:'A scuffle in my throne room? Mind the royal cushions!',
+      solitary:'A solitary throne suits me. Sharing is terribly unroyal.',
+      temporary:'Your invitation is temporary. My magnificence, however, is permanent.',
+      veteran:'I am a veteran spellcaster. That exploding teapot was intentional.'
+    }
+  };
   var XP_THRESHOLDS = [0,20,60,120,200,300,430,590,780,1000];
   var LEARNERS = [
     { name:'Luke', avatar:'🚀' },
@@ -450,8 +509,8 @@
       var weak=WORDS.filter(function(word){return wordLevel(name,word)!=='mastered';}).slice(0,3).map(function(word){return word.word;});
       var vocab=WORDS.filter(function(word){return assignedDomains(word).filter(function(domain){return domain!=='spelling';}).every(function(domain){return (getStat(name,word.word,domain).correctDays||[]).length>0;});}).length;
       var spelling=WORDS.filter(function(word){return (getStat(name,word.word,'spelling').correctDays||[]).length>=2;}).length;
-      return '<section><h3>'+esc(name)+'</h3><p>Meanings practiced: '+vocab+'/12 · Spelling across two days: '+spelling+'/12</p><p>'+(weak.length?'Keep practicing: '+esc(weak.join(', ')):'All 12 words mastered.')+'</p>'+(last?'<p>Last adventure: '+last.correct+'/10 on the first try.</p>':'')+(last&&last.timing?'<p class="timing-note">Recorded active time: '+formatDuration(last.timing.learning)+' learning · '+formatDuration(last.timing.play)+' menus and rewards. Interaction-based estimate; idle and background time excluded.</p>':'')+'</section>';
-    }).join('')+'<p class="mastery-explainer">A mastery seal means correct meanings, two spelling days, and practice across three different days. Letter tiles help learning but do not earn a spelling day.</p></details>';
+      return '<section><h3>'+esc(name)+'</h3><p>Meanings recalled: '+vocab+'/12 · Spelling across two days: '+spelling+'/12</p><p>'+(weak.length?'Keep practicing: '+esc(weak.join(', ')):'All 12 words mastered.')+'</p>'+(last?'<p>Last adventure: '+last.correct+'/10 on the first try.</p>':'')+(last&&last.timing?'<p class="timing-note">Recorded active time: '+formatDuration(last.timing.learning)+' learning · '+formatDuration(last.timing.play)+' menus and rewards. Interaction-based estimate; idle and background time excluded.</p>':'')+'</section>';
+    }).join('')+'<p class="mastery-explainer">A mastery seal means meanings recalled without story clues, two spelling days, and practice across three different days. Letter tiles help learning but do not earn a spelling day.</p></details>';
   }
   function formatDuration(ms){var seconds=Math.max(0,Math.round((Number(ms)||0)/1000));return Math.floor(seconds/60)+'m '+seconds%60+'s';}
 
@@ -627,7 +686,26 @@
         q={kind:'choice',prompt:'Which word is '+(domain==='antonym'?'an':'a')+' '+domain+' of <span class="target">'+esc(w.word)+'</span>?',choices:shuffle([list[0]].concat(distractors)),accepted:list.slice(),answer:list[0],explanation:'School list: '+list.join(', '),listen:true};
       }
     } else q={kind:'text',prompt:'Listen, then spell the word.',accepted:[w.word],answer:w.word,explanation:'The correct spelling is '+w.word+'.',listen:true,spelling:true};
-    q.word=w;q.domain=domain;q.retry=!!forceText;q.checkpoint=index===SESSION_LENGTH-1;return q;
+    q.word=w;q.domain=domain;q.retry=!!forceText;q.checkpoint=index===SESSION_LENGTH-1;
+    q.contextual=q.kind==='choice'&&!q.spelling&&!q.retry&&!q.checkpoint;
+    return q;
+  }
+  function monsterSentence(q,kind){return (MONSTER_LINES[kind]||MONSTER_LINES.mossling)[q.word.word]||q.word.example;}
+  function highlightedSentence(q,kind){
+    var line=monsterSentence(q,kind),at=line.toLowerCase().indexOf(q.word.word);
+    if(at<0)return esc(line);
+    return esc(line.slice(0,at))+'<span class="target">'+esc(line.slice(at,at+q.word.word.length))+'</span>'+esc(line.slice(at+q.word.word.length));
+  }
+  function questionPromptHTML(q,kind){
+    if(!q.contextual||q.kind!=='choice'||q.spelling||q.domain==='spelling'||q.retry||q.checkpoint)return '<p class="q-prompt">'+q.prompt+'</p>';
+    var task=q.domain==='definition'?'Which definition matches the bold word?':q.domain==='synonym'?'Which word has the same meaning?':'Which word has the opposite meaning?';
+    return '<div class="monster-dialogue"><p class="dialogue-speaker">'+esc(enemyName(kind))+' · Story practice</p><p class="q-prompt"><span class="dialogue-line">“'+highlightedSentence(q,kind)+'”</span><span class="dialogue-task">'+task+'</span></p></div>';
+  }
+  function monsterTauntHTML(q){
+    // Only a completed wrong attempt unlocks this extra model, including in spelling.
+    var result=session&&session.results[session.index];if(!result||result.correct||result.assisted)return '';
+    var challenge=({mossling:'You soggy turnip!',wisp:'Nice try, walking night-light!',sentinel:'You wobbly pebble!',boss:'You featherless royal nuisance!'})[session.enemy]||'Your move!';
+    return '<div class="monster-taunt"><p class="dialogue-speaker">'+esc(enemyName(session.enemy))+'</p><p>“'+esc(challenge)+' '+highlightedSentence(q,session.enemy)+'”</p></div>';
   }
 
   function startSession(name) {
@@ -700,7 +778,7 @@
     var q=session.questions[session.index];
     app.innerHTML='<section class="mission-head"><div><p class="eyebrow">'+esc(activeName)+'’s expedition</p><h2>'+(q.checkpoint?'Last question':'Question '+(session.index+1))+'</h2></div><span class="question-count">'+(session.index+1)+' / '+SESSION_LENGTH+'</span></section>'+battleStageHTML()+pipsHTML()+
       '<section class="question-card"><div class="question-top"><span class="q-domain" data-domain="'+q.domain+'">'+esc(DOMAIN_LABELS[q.domain])+'</span>'+
-      (q.listen?'<button type="button" class="speak-button" id="listen" aria-label="Hear the word">Hear word</button>':'')+'</div><p class="q-prompt">'+q.prompt+'</p>'+
+      (q.listen?'<button type="button" class="speak-button" id="listen" aria-label="Hear the word">Hear word</button>':'')+'</div>'+questionPromptHTML(q,session.enemy)+
       (q.spelling?'<p class="audio-note">Listen, then type. <button type="button" class="sentence-button" id="hear-sentence">Hear a sentence</button></p>':'')+
       '<div id="answer-area">'+(q.kind==='choice'?choicesHTML(q):inputHTML(q))+'</div><div id="feedback-area" aria-live="polite"></div></section><p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p>';
     resetView();
@@ -731,7 +809,7 @@
     if(st.lastAttemptId===attemptId)return;
     st.lastAttemptId=attemptId;st.attempts=(st.attempts||0)+1;st.lastAt=new Date().toISOString();st.correctDays=st.correctDays||[];
     if(assisted){st.assisted=(st.assisted||0)+1;st.streak=0;}
-    else if(correct){st.correct=(st.correct||0)+1;st.streak=(st.streak||0)+1;st.correctDays=unique(st.correctDays.concat(todayKey())).sort();}
+    else if(correct){st.correct=(st.correct||0)+1;st.streak=(st.streak||0)+1;if(!q.contextual)st.correctDays=unique(st.correctDays.concat(todayKey())).sort();}
     else {st.wrong=(st.wrong||0)+1;st.streak=0;}
     profile(activeName).stats[statKey(q.word.word,q.domain)]=st;saveState();
   }
@@ -782,10 +860,10 @@
   function showCorrection(q) {
     var area=document.getElementById('feedback-area');
     if(q.kind==='choice'){
-      area.innerHTML='<div class="feedback learn"><strong>Good try—learn this one.</strong><span>'+esc(q.explanation)+'</span></div><button type="button" class="continue-button" id="continue">Strike and continue</button>';
+      area.innerHTML=monsterTauntHTML(q)+'<div class="feedback learn"><strong>Good try—learn this one.</strong><span>'+esc(q.explanation)+'</span></div><button type="button" class="continue-button" id="continue">Strike and continue</button>';
       document.getElementById('continue').addEventListener('click',function(){recoverAndContinue(this);});document.getElementById('continue').focus();return;
     }
-    area.innerHTML='<div class="feedback learn"><strong>Let’s learn this one.</strong><span>'+esc(q.explanation)+'</span></div><form id="correction-form"><label for="correction-input">'+(q.accepted.length>1?'Type any school answer, such as <strong>'+esc(q.answer)+'</strong>:':'Type <strong>'+esc(q.answer)+'</strong> once:')+'</label><div class="answer-row"><input class="answer-input" id="correction-input" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"><button class="submit-button" type="submit">Done</button></div><p class="correction-note" id="correction-note"></p></form>';
+    area.innerHTML=monsterTauntHTML(q)+'<div class="feedback learn"><strong>Let’s learn this one.</strong><span>'+esc(q.explanation)+'</span></div><form id="correction-form"><label for="correction-input">'+(q.accepted.length>1?'Type any school answer, such as <strong>'+esc(q.answer)+'</strong>:':'Type <strong>'+esc(q.answer)+'</strong> once:')+'</label><div class="answer-row"><input class="answer-input" id="correction-input" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"><button class="submit-button" type="submit">Done</button></div><p class="correction-note" id="correction-note"></p></form>';
     var form=document.getElementById('correction-form'),input=document.getElementById('correction-input');input.focus();
     form.addEventListener('submit',function(e){e.preventDefault();if(!isAccepted(q,input.value)){document.getElementById('correction-note').textContent='Use one of the school answers shown above.';input.select();return;}form.innerHTML='<p class="correction-success">That’s it. Your strike lands.</p>';landHit('recovery');session.resolved=true;saveRound();activityClock.mode('play');advanceTimer=setTimeout(nextQuestion,480);});
   }
