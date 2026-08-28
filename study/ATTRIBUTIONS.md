@@ -1,5 +1,9 @@
 # StudyHub Attributions
 
+## Word Expedition game artwork
+
+The Word Expedition character, equipment, monster, route, interface-icon, and effect artwork in `study/unit-1/game-art.js` is original, code-generated SVG created for this project. It does not incorporate third-party image assets.
+
 ## 50 States map geometry
 
 The SVG state geometry used by the **50 States Challenge** and reused by **Pin Sprint** was traced to the following source chain:

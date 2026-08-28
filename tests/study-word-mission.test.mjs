@@ -94,6 +94,9 @@ describe('Unit 1 Word Expedition', () => {
     await page.locator('[data-profile="Luke"]').click();
     assert.equal(await page.locator('.question-card').count(), 1);
     assert.equal(await page.locator('.pip').count(), 10);
+    assert.equal(await page.locator('.shield-segment').count(), 10);
+    assert.equal(await page.locator('.hero-fighter svg').count(), 1);
+    assert.equal(await page.locator('.enemy-fighter svg').count(), 1);
     assert.match(await page.locator('.question-count').innerText(), /1 \/ 10/);
     assert.deepEqual(errors, []);
     await page.close();
@@ -159,12 +162,43 @@ describe('Unit 1 Word Expedition', () => {
     assert.match(source, /word-mission-unit1-samantha/);
   });
 
-  test('fits a narrow iPhone viewport without horizontal scrolling', async () => {
-    const context = await browser.newContext({ viewport:{ width:375, height:812 } });
+  test('awards, spends, equips, persists, and isolates game progress', async () => {
+    const context = await fastContext();
     const page = await context.newPage();
     await page.goto(server.origin + '/study/');
-    const widths = await page.evaluate(() => ({ scroll:document.documentElement.scrollWidth, client:document.documentElement.clientWidth }));
-    assert.ok(widths.scroll <= widths.client + 2, `${widths.scroll}px content in ${widths.client}px viewport`);
+    await page.locator('[data-profile="Luke"]').click();
+
+    for (let i = 0; i < 10; i++) await answerCurrentQuestion(page);
+    assert.equal(await page.locator('.game-summary').count(), 1);
+    assert.match(await page.locator('.reward-row').innerText(), /\+20[\s\S]*\+8[\s\S]*Level 2/);
+
+    let game = await page.evaluate(() => JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')));
+    assert.equal(Object.keys(game.learners.Luke.rewards).length, 1);
+    assert.equal(Object.keys(game.learners.Samantha.rewards).length, 0);
+
+    await page.locator('#visit-merchant').click();
+    await page.getByRole('button', { name:'Buy for 8' }).click();
+    assert.equal(await page.locator('.shop-card.equipped').filter({ hasText:'Copper Blade' }).count(), 1);
+
+    await page.reload();
+    await page.locator('[data-profile="Luke"]').click();
+    assert.equal(await page.locator('.hero-fighter .gear.weapon.copper').count(), 1);
+    await page.locator('#profile-chip').click();
+    await page.locator('[data-profile="Samantha"]').click();
+    assert.equal(await page.locator('.level-chip').innerText(), 'Level 1');
+    assert.equal(await page.locator('.hero-fighter .gear.weapon.starter').count(), 1);
     await context.close();
+  });
+
+  test('fits supported phone, tablet, and desktop widths without horizontal scrolling', async () => {
+    for (const width of [320, 375, 390, 768, 1024]) {
+      const context = await browser.newContext({ viewport:{ width, height:844 } });
+      const page = await context.newPage();
+      await page.goto(server.origin + '/study/');
+      await page.locator('[data-profile="Luke"]').click();
+      const sizes = await page.evaluate(() => ({ scroll:document.documentElement.scrollWidth, client:document.documentElement.clientWidth }));
+      assert.ok(sizes.scroll <= sizes.client + 2, `${sizes.scroll}px content in ${sizes.client}px viewport at ${width}px`);
+      await context.close();
+    }
   });
 });

@@ -71,7 +71,7 @@ esac
 
 # Real push/pull path against a synthetic family row.
 request push_a -X POST -H 'content-type: application/json' \
-  --data "{\"action\":\"push\",\"token\":\"$TOKEN\",\"data\":{\"synthetic-canary\":{\"stateStats\":{\"alpha\":{\"streak\":1,\"correct\":1,\"wrong\":0,\"mastered\":true}},\"masteredOrder\":[\"alpha\"],\"bossesDefeated\":1,\"bestStreak\":1}}}" \
+  --data "{\"action\":\"push\",\"token\":\"$TOKEN\",\"data\":{\"synthetic-canary\":{\"stateStats\":{\"alpha\":{\"streak\":1,\"correct\":1,\"wrong\":0,\"mastered\":true}},\"masteredOrder\":[\"alpha\"],\"bossesDefeated\":1,\"bestStreak\":1,\"game\":{\"version\":1,\"rewards\":{\"canary-a\":{\"xp\":20,\"coins\":8}},\"sessionsCompleted\":1,\"purchases\":{\"copper-blade\":\"owned\"},\"equipped\":{\"weapon\":\"copper-blade\",\"armor\":\"starter-cloak\"}}}}}" \
   "$URL"
 expect_status push_a 200
 json_assert push_a 'body.ok === true && Number.isFinite(body.revision) && body.revision >= 1'
@@ -79,7 +79,7 @@ json_assert push_a 'body.ok === true && Number.isFinite(body.revision) && body.r
 # A second device contributes independent progress. Server merge must preserve
 # both sides rather than replacing the first write.
 request push_b -X POST -H 'content-type: application/json' \
-  --data "{\"action\":\"push\",\"token\":\"$TOKEN\",\"data\":{\"synthetic-canary\":{\"stateStats\":{\"beta\":{\"streak\":2,\"correct\":2,\"wrong\":0,\"mastered\":true}},\"masteredOrder\":[\"beta\"],\"bossesDefeated\":2,\"bestStreak\":2}}}" \
+  --data "{\"action\":\"push\",\"token\":\"$TOKEN\",\"data\":{\"synthetic-canary\":{\"stateStats\":{\"beta\":{\"streak\":2,\"correct\":2,\"wrong\":0,\"mastered\":true}},\"masteredOrder\":[\"beta\"],\"bossesDefeated\":2,\"bestStreak\":2,\"game\":{\"version\":1,\"rewards\":{\"canary-b\":{\"xp\":50,\"coins\":20}},\"sessionsCompleted\":2,\"purchases\":{\"forest-hood\":\"owned\"},\"equipped\":{\"weapon\":\"starter-sword\",\"armor\":\"forest-hood\"}}}}}" \
   "$URL"
 expect_status push_b 200
 json_assert push_b 'body.ok === true'
@@ -87,6 +87,6 @@ json_assert push_b 'body.ok === true'
 request pull -X POST -H 'content-type: application/json' \
   --data "{\"action\":\"pull\",\"token\":\"$TOKEN\"}" "$URL"
 expect_status pull 200
-json_assert pull 'body.found === true && body.data && body.data["synthetic-canary"] && body.data["synthetic-canary"].stateStats.alpha.mastered === true && body.data["synthetic-canary"].stateStats.beta.mastered === true && body.data["synthetic-canary"].bossesDefeated >= 2 && body.data["synthetic-canary"].bestStreak >= 2'
+json_assert pull 'body.found === true && body.data && body.data["synthetic-canary"] && body.data["synthetic-canary"].stateStats.alpha.mastered === true && body.data["synthetic-canary"].stateStats.beta.mastered === true && body.data["synthetic-canary"].bossesDefeated >= 2 && body.data["synthetic-canary"].bestStreak >= 2 && body.data["synthetic-canary"].game.rewards["canary-a"].coins === 8 && body.data["synthetic-canary"].game.rewards["canary-b"].xp === 50 && body.data["synthetic-canary"].game.purchases["copper-blade"] && body.data["synthetic-canary"].game.purchases["forest-hood"] && body.data["synthetic-canary"].game.sessionsCompleted >= 2'
 
 echo "Study cloud canary passed: validation, CORS, direct-access rejection, push, pull, and merge are healthy."

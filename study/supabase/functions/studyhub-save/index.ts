@@ -83,6 +83,47 @@ function mergeStats(a: unknown, b: unknown): Record<string, Stat> {
   return out;
 }
 
+function mergeGame(a: unknown, b: unknown): Record<string, unknown> {
+  const A = isObj(a) ? a : {};
+  const B = isObj(b) ? b : {};
+  const rewards: Record<string, { xp: number; coins: number }> = {};
+  const rewardIds = [...new Set([
+    ...Object.keys(isObj(A.rewards) ? A.rewards : {}),
+    ...Object.keys(isObj(B.rewards) ? B.rewards : {}),
+  ])].filter((id) => id.length < 100).slice(-160);
+  for (const id of rewardIds) {
+    const ar = isObj(isObj(A.rewards) ? A.rewards[id] : null) ? A.rewards[id] as Record<string, unknown> : {};
+    const br = isObj(isObj(B.rewards) ? B.rewards[id] : null) ? B.rewards[id] as Record<string, unknown> : {};
+    rewards[id] = {
+      xp: Math.max(0, Math.min(1000, Math.max(num(ar.xp), num(br.xp)))),
+      coins: Math.max(0, Math.min(1000, Math.max(num(ar.coins), num(br.coins)))),
+    };
+  }
+
+  const purchases: Record<string, string> = {};
+  const purchaseA = isObj(A.purchases) ? A.purchases : {};
+  const purchaseB = isObj(B.purchases) ? B.purchases : {};
+  for (const id of [...new Set([...Object.keys(purchaseA), ...Object.keys(purchaseB)])].filter((key) => key.length < 80).slice(-80)) {
+    const av = typeof purchaseA[id] === "string" ? purchaseA[id] as string : "owned";
+    const bv = typeof purchaseB[id] === "string" ? purchaseB[id] as string : "owned";
+    purchases[id] = av > bv ? av : bv;
+  }
+
+  const equippedA = isObj(A.equipped) ? A.equipped : {};
+  const equippedB = isObj(B.equipped) ? B.equipped : {};
+  return {
+    version: 1,
+    rewards,
+    sessionsCompleted: Math.max(num(A.sessionsCompleted), num(B.sessionsCompleted)),
+    bossDefeatedAt: typeof A.bossDefeatedAt === "string" ? A.bossDefeatedAt : (typeof B.bossDefeatedAt === "string" ? B.bossDefeatedAt : null),
+    purchases,
+    equipped: {
+      weapon: typeof equippedB.weapon === "string" ? equippedB.weapon : equippedA.weapon ?? "starter-sword",
+      armor: typeof equippedB.armor === "string" ? equippedB.armor : equippedA.armor ?? "starter-cloak",
+    },
+  };
+}
+
 function mergeProfile(a: unknown, b: unknown): Record<string, unknown> {
   const A = isObj(a) ? a : {};
   const B = isObj(b) ? b : {};
@@ -123,6 +164,7 @@ function mergeProfile(a: unknown, b: unknown): Record<string, unknown> {
   out.bossesDefeated = Math.max(num(A.bossesDefeated), num(B.bossesDefeated));
   out.bestStreak = Math.max(num(A.bestStreak), num(B.bestStreak));
   out.avatar = A.avatar ?? B.avatar ?? null;
+  if (isObj(A.game) || isObj(B.game)) out.game = mergeGame(A.game, B.game);
 
   // Best round: compare only like-for-like round lengths.
   const brA = isObj(A.bestRound) ? A.bestRound : null;

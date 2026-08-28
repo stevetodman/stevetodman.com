@@ -10,6 +10,10 @@
   var CLOUD_ENABLED = location.protocol === 'https:' && /(^|\.)stevetodman\.com$/i.test(location.hostname);
   var CLOUD_PUSH_DELAY = 1200;
   var SESSION_LENGTH = 10;
+  var GAME_STORAGE_KEY = 'studyhub-word-expedition-game-unit1-v1';
+  var ART = window.WordExpeditionArt;
+  var GAME_CATALOG = ART.catalog;
+  var XP_THRESHOLDS = [0,20,60,120,200,300,430,590,780,1000];
   var LEARNERS = [
     { name:'Luke', avatar:'🚀' },
     { name:'Samantha', avatar:'⭐' }
@@ -45,6 +49,7 @@
   var chip = document.getElementById('profile-chip');
   var toast = document.getElementById('toast');
   var state = loadState();
+  var gameState = loadGameState();
   var activeName = null;
   var session = null;
   var toastTimer = null;
@@ -56,6 +61,77 @@
 
   function blankProfile() { return { stats:{}, sessions:[] }; }
   function defaultState() { return { version:3, learners:{ Luke:blankProfile(), Samantha:blankProfile() } }; }
+
+  function blankGameProfile() {
+    return { rewards:{}, sessionsCompleted:0, bossDefeatedAt:null, owned:['starter-sword','starter-cloak'], equipped:{weapon:'starter-sword',armor:'starter-cloak'}, purchases:{} };
+  }
+  function defaultGameState() { return { version:1, learners:{ Luke:blankGameProfile(), Samantha:blankGameProfile() } }; }
+
+  function sanitizeGameProfile(raw) {
+    var clean=blankGameProfile();
+    if(!raw||typeof raw!=='object')return clean;
+    clean.sessionsCompleted=Math.max(0,Math.floor(Number(raw.sessionsCompleted)||0));
+    clean.bossDefeatedAt=typeof raw.bossDefeatedAt==='string'&&raw.bossDefeatedAt.length<50?raw.bossDefeatedAt:null;
+    clean.rewards={};
+    if(raw.rewards&&typeof raw.rewards==='object')Object.keys(raw.rewards).slice(-80).forEach(function(id){
+      var reward=raw.rewards[id];if(typeof id==='string'&&id.length<100&&reward&&typeof reward==='object')clean.rewards[id]={xp:Math.max(0,Math.min(1000,Math.floor(Number(reward.xp)||0))),coins:Math.max(0,Math.min(1000,Math.floor(Number(reward.coins)||0)))};
+    });
+    if(!Object.keys(clean.rewards).length&&(Number(raw.xp)>0||Number(raw.coinsEarned)>0))clean.rewards._legacy={xp:Math.max(0,Math.floor(Number(raw.xp)||0)),coins:Math.max(0,Math.floor(Number(raw.coinsEarned)||0))};
+    clean.owned=unique(clean.owned.concat(Array.isArray(raw.owned)?raw.owned:[])).filter(function(id){return ART.validItems.indexOf(id)>=0;});
+    clean.purchases={};
+    if(raw.purchases&&typeof raw.purchases==='object')Object.keys(raw.purchases).forEach(function(id){
+      if(GAME_CATALOG.some(function(item){return item.id===id;}))clean.purchases[id]=String(raw.purchases[id]||'owned');
+    });
+    clean.owned=unique(clean.owned.concat(Object.keys(clean.purchases)));
+    var weapon=raw.equipped&&raw.equipped.weapon;
+    var armor=raw.equipped&&raw.equipped.armor;
+    if(clean.owned.indexOf(weapon)>=0&&itemType(weapon)==='weapon')clean.equipped.weapon=weapon;
+    if(clean.owned.indexOf(armor)>=0&&itemType(armor)==='armor')clean.equipped.armor=armor;
+    return clean;
+  }
+  function loadGameState() {
+    try {
+      var parsed=JSON.parse(localStorage.getItem(GAME_STORAGE_KEY));
+      if(parsed&&parsed.version===1&&parsed.learners)return {version:1,learners:{Luke:sanitizeGameProfile(parsed.learners.Luke),Samantha:sanitizeGameProfile(parsed.learners.Samantha)}};
+    } catch (_) {}
+    return defaultGameState();
+  }
+  function saveGameState() {
+    try { localStorage.setItem(GAME_STORAGE_KEY,JSON.stringify(gameState)); }
+    catch (_) { showToast('Hero progress could not be saved on this device.'); }
+  }
+  function itemById(id) { return GAME_CATALOG.find(function(item){return item.id===id;}); }
+  function itemType(id) { var item=itemById(id);if(item)return item.type;return id==='starter-sword'?'weapon':'armor'; }
+  function gameProfile(name) { return gameState.learners[name]; }
+  function rewardTotal(name,field) { return Object.keys(gameProfile(name).rewards).reduce(function(sum,id){return sum+(Number(gameProfile(name).rewards[id][field])||0);},0); }
+  function gameXp(name) { return rewardTotal(name,'xp'); }
+  function coinsEarned(name) { return rewardTotal(name,'coins'); }
+  function coinsSpent(name) { return Object.keys(gameProfile(name).purchases).reduce(function(sum,id){var item=itemById(id);return sum+(item?item.price:0);},0); }
+  function coinBalance(name) { return Math.max(0,coinsEarned(name)-coinsSpent(name)); }
+  function levelForXp(xp) {
+    var level=1;
+    XP_THRESHOLDS.forEach(function(threshold,index){if(xp>=threshold)level=index+1;});
+    if(xp>=XP_THRESHOLDS[XP_THRESHOLDS.length-1])level+=Math.floor((xp-XP_THRESHOLDS[XP_THRESHOLDS.length-1])/250);
+    return level;
+  }
+  function nextLevelXp(xp) {
+    var current=levelForXp(xp);
+    return XP_THRESHOLDS[current]!==undefined?XP_THRESHOLDS[current]:XP_THRESHOLDS[XP_THRESHOLDS.length-1]+(current-(XP_THRESHOLDS.length-1))*250;
+  }
+  function levelFloorXp(level) {
+    return XP_THRESHOLDS[level-1]!==undefined?XP_THRESHOLDS[level-1]:XP_THRESHOLDS[XP_THRESHOLDS.length-1]+(level-XP_THRESHOLDS.length)*250;
+  }
+  function gameLevels(name) { return WORDS.map(function(word){return wordLevel(name,word);}); }
+
+  function gameCloudProfile(name) {
+    var gp=gameProfile(name);
+    return {version:1,rewards:gp.rewards,sessionsCompleted:gp.sessionsCompleted,bossDefeatedAt:gp.bossDefeatedAt,purchases:gp.purchases,equipped:gp.equipped};
+  }
+  function applyCloudGame(name,remote) {
+    if(!remote||typeof remote!=='object')return;
+    var local=gameProfile(name),combined={version:1,rewards:Object.assign({},local.rewards,remote.rewards||{}),sessionsCompleted:Math.max(local.sessionsCompleted||0,Number(remote.sessionsCompleted)||0),bossDefeatedAt:local.bossDefeatedAt||remote.bossDefeatedAt||null,purchases:Object.assign({},local.purchases,remote.purchases||{}),owned:local.owned,equipped:remote.equipped||local.equipped};
+    gameState.learners[name]=sanitizeGameProfile(combined);
+  }
 
   function loadState() {
     try {
@@ -132,6 +208,13 @@
     toastTimer=setTimeout(function(){toast.hidden=true;},2200);
   }
 
+  function resetView(headingSelector) {
+    window.scrollTo(0,0);
+    if(!headingSelector)return;
+    var heading=document.querySelector(headingSelector);
+    if(heading){heading.setAttribute('tabindex','-1');heading.focus({preventScroll:true});}
+  }
+
   function setChip(name) {
     if (!name) { chip.hidden=true; return; }
     var learner=LEARNERS.find(function(l){return l.name===name;});
@@ -149,9 +232,9 @@
 
   function showProfilePicker() {
     clearTimeout(advanceTimer); session=null;activeName=null;setChip(null);
-    app.innerHTML='<section class="picker-intro"><p class="eyebrow">Vocabulary Tuesday · Spelling Wednesday</p><h2>Who is practicing?</h2><p>Tap your name. Your 10-question expedition starts right away.</p></section>'+
+    app.innerHTML='<section class="picker-intro"><div class="intro-copy"><p class="eyebrow">Vocabulary Tuesday · Spelling Wednesday</p><h2>Choose your hero</h2><p>Ten questions move the adventure forward. Master every word to restore the realm.</p></div><div class="intro-emblem" aria-hidden="true">✦</div></section>'+
       '<div class="profile-grid">'+LEARNERS.map(function(l){return '<button type="button" class="learner-card" data-profile="'+esc(l.name)+'">'+
-        '<span class="big-avatar" aria-hidden="true">'+l.avatar+'</span><strong>'+esc(l.name)+'</strong><span class="stamp-count">'+masteredCount(l.name)+' of 12 stamps</span>'+trailHTML(l.name,true)+'</button>';}).join('')+'</div>'+
+        '<span class="profile-hero">'+ART.hero(l.name,gameProfile(l.name).equipped,'ready')+'</span><strong>'+esc(l.name)+'</strong><span class="stamp-count">'+masteredCount(l.name)+' of 12 seals restored</span>'+trailHTML(l.name,true)+'</button>';}).join('')+'</div>'+
       '<div class="picker-links"><button type="button" class="text-button" id="word-list">Review the 12 words</button>'+
       '<button type="button" class="cloud-button" id="cloud-button">'+cloudStatusText()+'</button></div>';
     app.querySelectorAll('[data-profile]').forEach(function(button){button.addEventListener('click',function(){startSession(button.getAttribute('data-profile'));});});
@@ -211,7 +294,7 @@
         remoteStats[base]={streak:st.streak||0,correct:st.correct||0,wrong:st.wrong||0,mastered:false};
         (st.correctDays||[]).forEach(function(day){remoteStats[base+'|day|'+day]={streak:1,correct:1,wrong:0,mastered:true};});
       });});
-      out[CLOUD_PROFILE_KEYS[learner.name]]={stateStats:remoteStats,masteredOrder:[],avatar:learner.avatar};
+      out[CLOUD_PROFILE_KEYS[learner.name]]={stateStats:remoteStats,masteredOrder:[],avatar:learner.avatar,game:gameCloudProfile(learner.name)};
     });
     return out;
   }
@@ -237,8 +320,9 @@
         }
         profile(learner.name).stats[statKey(word.word,parts[2])]=local;
       });
+      applyCloudGame(learner.name,source.game);
     });
-    saveState(false);
+    saveState(false);saveGameState();
   }
   function cloudPush() {
     if (!CLOUD_ENABLED) return Promise.resolve();
@@ -327,7 +411,10 @@
 
   function startSession(name) {
     activeName=name;setChip(name);warmSpeech();
-    session={index:0,questions:buildPlan(name),results:[],combo:0,beforeMastered:masteredCount(name),strengthened:new Set()};
+    var completed=gameProfile(name).sessionsCompleted;
+    var readyForBoss=masteredCount(name)>=12||(new Date()>=TEST_DATES.spelling&&masteredCount(name)>=10);
+    var kinds=['mossling','wisp','sentinel'];
+    session={id:new Date().toISOString()+'-'+Math.random().toString(36).slice(2,8),index:0,questions:buildPlan(name),results:[],combo:0,beforeMastered:masteredCount(name),strengthened:new Set(),battleDamage:0,battleState:'ready',enemy:readyForBoss&&!gameProfile(name).bossDefeatedAt?'boss':kinds[completed%kinds.length],rewarded:false};
     renderQuestion();
   }
   function warmSpeech() { if('speechSynthesis'in window)window.speechSynthesis.getVoices(); }
@@ -337,15 +424,51 @@
       return '<span class="pip '+cls+'"></span>';
     }).join('')+'</div>';
   }
+  function enemyName(kind) {
+    return ({mossling:'Bramble Imp',wisp:'Gloom Wisp',sentinel:'Rune Sentinel',boss:'The Word Keeper'})[kind]||'Shadow creature';
+  }
+  function battleStageHTML() {
+    var gp=gameProfile(activeName),xp=gameXp(activeName),level=levelForXp(xp),next=nextLevelXp(xp),base=levelFloorXp(level);
+    var progress=Math.max(0,Math.min(100,Math.round(((xp-base)/Math.max(1,next-base))*100)));
+    return '<section class="battle-stage" id="battle-stage" data-state="'+esc(session.battleState)+'">'+
+      '<div class="battle-hud"><span class="level-chip">Level '+level+'</span><span class="enemy-name">'+esc(enemyName(session.enemy))+'</span><span class="coin-chip" aria-label="'+coinBalance(activeName)+' expedition coins">◆ '+coinBalance(activeName)+'</span></div>'+
+      '<div class="battle-scene"><div class="fighter hero-fighter">'+ART.hero(activeName,gp.equipped,session.battleState)+'</div><div class="impact-burst" aria-hidden="true">✦</div><div class="fighter enemy-fighter">'+ART.monster(session.enemy,session.battleState)+'</div></div>'+
+      '<div class="shield-row" role="img" aria-label="'+session.battleDamage+' of 10 shield points cleared">'+Array.from({length:SESSION_LENGTH},function(_,i){return '<span class="shield-segment '+(i<session.battleDamage?'cleared':'')+'"></span>';}).join('')+'</div>'+
+      '<div class="xp-track" aria-label="Hero level progress"><span style="width:'+progress+'%"></span></div><p class="battle-status sr-only" id="battle-status" aria-live="assertive"></p></section>';
+  }
+  function setBattleState(kind,message,advance) {
+    session.battleState=kind;
+    if(advance)session.battleDamage=Math.min(SESSION_LENGTH,session.battleDamage+1);
+    var stage=document.getElementById('battle-stage');
+    if(!stage)return;
+    stage.setAttribute('data-state',kind);
+    var shields=stage.querySelectorAll('.shield-segment');
+    shields.forEach(function(segment,index){segment.classList.toggle('cleared',index<session.battleDamage);});
+    var row=stage.querySelector('.shield-row');if(row)row.setAttribute('aria-label',session.battleDamage+' of 10 shield points cleared');
+    var status=document.getElementById('battle-status');if(status)status.textContent=message;
+    clearTimeout(stage._battleTimer);
+    stage._battleTimer=setTimeout(function(){if(stage.isConnected){stage.setAttribute('data-state','ready');session.battleState='ready';}},520);
+  }
+  function landHit(kind) {
+    var final=session.battleDamage+1>=SESSION_LENGTH;
+    var message=kind==='critical'?'Critical hit. Shield point cleared.':kind==='recovery'?'Correction complete. Shield point cleared.':'Shield point cleared.';
+    setBattleState(final?'victory':kind,message,true);
+  }
+  function recoverAndContinue(button) {
+    if(button)button.disabled=true;
+    landHit('recovery');
+    advanceTimer=setTimeout(nextQuestion,480);
+  }
   function renderQuestion() {
     clearTimeout(advanceTimer);
     if(!session||session.index>=SESSION_LENGTH){finishSession();return;}
     var q=session.questions[session.index];
-    app.innerHTML='<section class="mission-head"><div><p class="eyebrow">'+esc(activeName)+'’s expedition</p><h2>'+(q.checkpoint?'Final checkpoint':'Question '+(session.index+1))+'</h2></div><span class="question-count">'+(session.index+1)+' / '+SESSION_LENGTH+'</span></section>'+pipsHTML()+
+    app.innerHTML='<section class="mission-head"><div><p class="eyebrow">'+esc(activeName)+'’s expedition</p><h2>'+(q.checkpoint?'Final checkpoint':'Question '+(session.index+1))+'</h2></div><span class="question-count">'+(session.index+1)+' / '+SESSION_LENGTH+'</span></section>'+battleStageHTML()+pipsHTML()+
       '<section class="question-card"><div class="question-top"><span class="q-domain">'+(q.checkpoint?'Checkpoint · ':'')+esc(DOMAIN_LABELS[q.domain])+'</span>'+
       (q.listen?'<button type="button" class="speak-button" id="listen" aria-label="Hear the word">🔊</button>':'')+'</div><p class="q-prompt">'+q.prompt+'</p>'+
       (q.spelling?'<p class="audio-note">The word plays automatically. Tap the speaker to hear it again.</p>':'')+
       '<div id="answer-area">'+(q.kind==='choice'?choicesHTML(q):inputHTML(q))+'</div><div id="feedback-area" aria-live="polite"></div></section><p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p>';
+    resetView();
     if(q.kind==='choice')wireChoices(q);else wireInput(q);
     if(q.listen){document.getElementById('listen').addEventListener('click',function(){speakWord(q.word);});setTimeout(function(){speakWord(q.word);},220);}
   }
@@ -388,7 +511,8 @@
     var correct=isAccepted(q,value);
     recordResult(q,correct,assisted);
     session.results.push({word:q.word.word,domain:q.domain,correct:correct&&!assisted,assisted:!!assisted});
-    if(correct&&!assisted){session.combo+=1;session.strengthened.add(q.word.word);}else session.combo=0;
+    if(correct&&!assisted){session.combo+=1;session.strengthened.add(q.word.word);landHit('critical');}
+    else {session.combo=0;if(assisted)landHit('standard');else setBattleState('blocked','The creature blocked. Learn the answer, then strike again.',false);}
     if(!correct)scheduleRetry(q);
     disableAnswerArea();
     if(q.kind==='choice'){
@@ -411,12 +535,12 @@
   function showCorrection(q) {
     var area=document.getElementById('feedback-area');
     if(q.kind==='choice'){
-      area.innerHTML='<div class="feedback learn"><strong>Good try—learn this one.</strong><span>'+esc(q.explanation)+'</span></div><button type="button" class="continue-button" id="continue">Continue</button>';
-      document.getElementById('continue').addEventListener('click',nextQuestion);document.getElementById('continue').focus();return;
+      area.innerHTML='<div class="feedback learn"><strong>Good try—learn this one.</strong><span>'+esc(q.explanation)+'</span></div><button type="button" class="continue-button" id="continue">Strike and continue</button>';
+      document.getElementById('continue').addEventListener('click',function(){recoverAndContinue(this);});document.getElementById('continue').focus();return;
     }
     area.innerHTML='<div class="feedback learn"><strong>Now lock it in.</strong><span>'+esc(q.explanation)+'</span></div><form id="correction-form"><label for="correction-input">Type <strong>'+esc(q.answer)+'</strong> once:</label><div class="answer-row"><input class="answer-input" id="correction-input" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"><button class="submit-button" type="submit">Done</button></div><p class="correction-note" id="correction-note"></p></form>';
     var form=document.getElementById('correction-form'),input=document.getElementById('correction-input');input.focus();
-    form.addEventListener('submit',function(e){e.preventDefault();if(normalize(input.value)!==normalize(q.answer)){document.getElementById('correction-note').textContent='Copy it exactly, then try again.';input.select();return;}form.innerHTML='<p class="correction-success">That’s it.</p>';advanceTimer=setTimeout(nextQuestion,700);});
+    form.addEventListener('submit',function(e){e.preventDefault();if(normalize(input.value)!==normalize(q.answer)){document.getElementById('correction-note').textContent='Copy it exactly, then try again.';input.select();return;}form.innerHTML='<p class="correction-success">That’s it. Your strike lands.</p>';landHit('recovery');advanceTimer=setTimeout(nextQuestion,620);});
   }
   function nextQuestion(){session.index+=1;renderQuestion();}
 
@@ -442,12 +566,47 @@
   function finishSession() {
     var after=masteredCount(activeName),newStamps=Math.max(0,after-session.beforeMastered);
     var correct=session.results.filter(function(r){return r.correct;}).length;
-    profile(activeName).sessions.unshift({id:new Date().toISOString()+'-'+Math.random().toString(36).slice(2,8),at:new Date().toISOString(),correct:correct,total:SESSION_LENGTH,newStamps:newStamps});
+    profile(activeName).sessions.unshift({id:session.id,at:new Date().toISOString(),correct:correct,total:SESSION_LENGTH,newStamps:newStamps});
     profile(activeName).sessions=profile(activeName).sessions.slice(0,20);saveState();scheduleCloudPush(0);
+    var gp=gameProfile(activeName),bossWon=session.enemy==='boss',oldLevel=levelForXp(gameXp(activeName)),xpAward=(bossWon?50:20)+newStamps*15,coinAward=(bossWon?20:8)+newStamps*5;
+    if(!gp.rewards[session.id]){
+      gp.rewards[session.id]={xp:xpAward,coins:coinAward};gp.sessionsCompleted+=1;if(bossWon&&!gp.bossDefeatedAt)gp.bossDefeatedAt=new Date().toISOString();saveGameState();
+    } else { xpAward=0;coinAward=0; }
+    var newLevel=levelForXp(gameXp(activeName)),leveledUp=newLevel>oldLevel;
     setChip(activeName);
-    app.innerHTML='<section class="panel summary"><div class="summary-icon" aria-hidden="true">'+(newStamps?'🚩':'🧭')+'</div><p class="eyebrow">Expedition complete</p><h2>'+esc(activeName)+', you finished all 10.</h2><p>'+session.strengthened.size+' '+(session.strengthened.size===1?'word got':'words got')+' stronger'+(newStamps?' and '+newStamps+' new '+(newStamps===1?'stamp was':'stamps were')+' earned.':'.')+'</p>'+trailHTML(activeName,false)+'<button type="button" class="primary-button done-button" id="summary-done">Done</button><p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p></section>';
+    app.innerHTML='<section class="panel summary game-summary">'+
+      '<div class="victory-lockup"><div class="summary-hero">'+ART.hero(activeName,gp.equipped,'victory')+(bossWon?'<span class="unit-crown" aria-hidden="true">✦</span>':'')+'</div><div><p class="eyebrow">'+(bossWon?'Unit 1 complete':'Expedition complete')+'</p><h2>'+(bossWon?'The Word Keeper is defeated.':esc(activeName)+', the path is clear.')+'</h2><p>'+(bossWon?'The realm is restored. Your mastery seals remain the permanent record of every word you know.':session.strengthened.size+' '+(session.strengthened.size===1?'word got':'words got')+' stronger'+(newStamps?' and '+newStamps+' new '+(newStamps===1?'seal was':'seals were')+' restored.':'.'))+'</p></div></div>'+
+      '<div class="reward-row" aria-label="Expedition rewards"><span><strong>+'+xpAward+'</strong> XP</span><span><strong>+'+coinAward+'</strong> coins</span><span><strong>Level '+newLevel+'</strong>'+(leveledUp?' · New level!':'')+'</span></div>'+
+      ART.routeMap(Math.min(12,gp.sessionsCompleted),gameLevels(activeName))+trailHTML(activeName,false)+
+      '<div class="summary-actions"><button type="button" class="primary-button" id="visit-merchant">Visit merchant</button><button type="button" class="secondary-button" id="summary-done">Done</button></div><p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p></section>';
+    resetView('.game-summary h2');
     if(newStamps||correct>=8)celebrate();
+    document.getElementById('visit-merchant').addEventListener('click',showMerchant);
     document.getElementById('summary-done').addEventListener('click',showProfilePicker);
+  }
+
+  function merchantItemHTML(item) {
+    var gp=gameProfile(activeName),owned=gp.owned.indexOf(item.id)>=0,equipped=gp.equipped[item.type]===item.id,affordable=coinBalance(activeName)>=item.price;
+    var label=equipped?'Equipped':owned?'Equip':affordable?'Buy for '+item.price:'Need '+(item.price-coinBalance(activeName))+' more';
+    return '<article class="shop-card '+(equipped?'equipped ':'')+(owned?'owned':'')+'"><div class="shop-art">'+ART.itemIcon(item)+'</div><div class="shop-copy"><span class="item-rarity">'+esc(item.rarity)+'</span><h3>'+esc(item.name)+'</h3><p>'+esc(item.type==='weapon'?'Changes your hero’s attack style.':'Changes your hero’s adventure look.')+'</p></div><button type="button" class="shop-action '+(!owned&&!affordable?'unaffordable':'')+'" data-item="'+esc(item.id)+'" '+(equipped?'disabled':'')+'>'+esc(label)+'</button></article>';
+  }
+  function showMerchant() {
+    var gp=gameProfile(activeName);
+    setChip(activeName);
+    app.innerHTML='<section class="merchant-head"><div><p class="eyebrow">Trail merchant</p><h2>Choose your gear</h2><p>Your coins are private. Gear changes the adventure’s look, never the questions.</p></div><div class="wallet"><span>◆</span><strong>'+coinBalance(activeName)+'</strong><small>coins</small></div></section>'+
+      '<section class="merchant-preview"><div class="preview-glow"></div>'+ART.hero(activeName,gp.equipped,'ready')+'<div><span>Level '+levelForXp(gameXp(activeName))+'</span><strong>'+esc(activeName)+'</strong><small>'+esc((itemById(gp.equipped.weapon)||{name:'Starter Sword'}).name)+' · '+esc((itemById(gp.equipped.armor)||{name:'Starter Cloak'}).name)+'</small></div></section>'+
+      '<div class="shop-grid">'+GAME_CATALOG.map(merchantItemHTML).join('')+'</div><button type="button" class="secondary-button merchant-done" id="merchant-done">Back to heroes</button>';
+    resetView('.merchant-head h2');
+    app.querySelectorAll('[data-item]').forEach(function(button){button.addEventListener('click',function(){buyOrEquip(button.getAttribute('data-item'));});});
+    document.getElementById('merchant-done').addEventListener('click',showProfilePicker);
+  }
+  function buyOrEquip(id) {
+    var item=itemById(id),gp=gameProfile(activeName);if(!item)return;
+    if(gp.owned.indexOf(id)<0){
+      if(coinBalance(activeName)<item.price){showToast('Complete another expedition to earn more coins.');return;}
+      gp.purchases[id]=new Date().toISOString();gp.owned.push(id);showToast(item.name+' added to your gear.');
+    } else showToast(item.name+' equipped.');
+    gp.equipped[item.type]=id;saveGameState();scheduleCloudPush(0);showMerchant();
   }
   function celebrate() {
     var colors=['#f2ad36','#087e78','#dc6a4d','#6d70c9'];

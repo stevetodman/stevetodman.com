@@ -12,10 +12,22 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 ## Learner progress
 
 - `studyhub-word-expedition-unit1-v3` is the current local progress schema and has `version: 3`.
+- `studyhub-word-expedition-game-unit1-v1` is the separate cosmetic game-progress schema. Game progression must never overwrite, weaken, or reinterpret the learning schema.
 - `studyhub-word-mission-unit1-v2` is a compatibility key. Do not rename or remove it without a tested migration.
 - Existing legacy progress must load without clearing localStorage or site data.
 - Cloud profile keys `word-mission-unit1-luke` and `word-mission-unit1-samantha` are compatibility identifiers. Do not rename them without a coordinated server migration.
 - `studyhubCloudToken` and the legacy `usStatesCloudToken` must not be cleared during ordinary upgrades.
+
+## Game layer
+
+- The question is the combat action. There are no separate attack, defend, movement, or energy-grind turns.
+- Every battle contains the same 10 questions as the assignment session. Equipment may change appearance and feedback, but never question count, mastery, difficulty, correctness, or rewards.
+- XP and coins are awarded only by completed learning sessions and newly earned mastery seals. Purchases are cosmetic only.
+- Currency, equipment, level, and reward details remain private until a learner selects their profile.
+- Luke and Samantha keep independent wallets, equipment, rewards, and purchase histories.
+- Game rewards use an idempotent per-session ledger so a repeated or merged cloud save cannot award the same session twice.
+- The boss is a presentation of the normal mixed-retrieval session, not a gate to practice. A learner may face it at 12 seals, or at 10 seals after the unit test date; missing seals remain available afterward.
+- The merchant is limited to a short post-session choice and cannot interrupt a question.
 
 ## Assignment behavior
 

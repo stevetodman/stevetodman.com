@@ -4,11 +4,12 @@
   "type": "module",
   "description": "Personal website and tools. Static site; this manifest exists only to pin the test tooling.",
   "scripts": {
+    "dev": "node scripts/dev-static-server.mjs",
     "build": "node scripts/build-site.mjs && node scripts/build-search-index.mjs",
     "verify:production": "node scripts/verify-production.mjs",
     "verify:study-production": "node scripts/verify-study-production.mjs",
     "test": "node --test tests/*.test.mjs",
-    "test:study": "node --test tests/study-word-mission.test.mjs tests/study-regressions.test.mjs",
+    "test:study": "node --test tests/study-word-mission.test.mjs tests/study-regressions.test.mjs tests/study-game.test.mjs",
     "test:steven-os": "node --test tests/steven-os.test.mjs",
     "test:platform": "node --test tests/platform-policy.test.mjs tests/production-verifier.test.mjs tests/governance.test.mjs tests/asset-provenance.test.mjs tests/performance-budget.test.mjs tests/search-index.test.mjs",
     "test:a11y": "node --test tests/accessibility.test.mjs",
