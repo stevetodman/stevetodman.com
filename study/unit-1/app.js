@@ -545,7 +545,7 @@
       '<div id="answer-area">'+(q.kind==='choice'?choicesHTML(q):inputHTML(q))+'</div><div id="feedback-area" aria-live="polite"></div></section><p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p>';
     resetView();
     if(q.kind==='choice')wireChoices(q);else wireInput(q);
-    if(q.listen){document.getElementById('listen').addEventListener('click',function(){speakWord(q.word);});speechTimer=setTimeout(function(){if(session&&session.questions[session.index]===q)speakWord(q.word);},220);}
+    if(q.listen){document.getElementById('listen').addEventListener('click',function(){speakWord(q.word);});if(q.spelling)speechTimer=setTimeout(function(){if(session&&session.questions[session.index]===q)speakWord(q.word);},220);}
     if(q.spelling)document.getElementById('hear-sentence').addEventListener('click',function(){speakWord(q.word,true);});
     if(q.spelling&&session.tileQuestion===session.index)showLetterTiles(q);
     var input=document.getElementById('answer-input');if(input&&session.draftValue)input.value=session.draftValue;
@@ -661,6 +661,7 @@
     if(document.body.dataset.screen!=='question'&&document.body.dataset.screen!=='review')return;
     if(document.body.dataset.screen==='review'){showToast('Audio is unavailable on this device.');return;}
     if(!session||session.questions[session.index].word.word!==word.word)return;
+    if(!session.questions[session.index].spelling){showToast('Audio is unavailable. You can read this question instead.');return;}
     showToast('Audio is unavailable. Try Hear word again, or use practice tiles.');
     var note=document.querySelector('.audio-note');
     if(note)note.textContent='Audio is unavailable here. Use letter tiles to practice this word, or ask someone to read it aloud.';

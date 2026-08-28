@@ -325,7 +325,11 @@ describe('Unit 1 Word Expedition', () => {
     },failure);
     const page=await context.newPage();const errors=watchForErrors(page);await page.goto(server.origin+'/study/');
     await page.locator('[data-profile="Luke"]').click();
-    for(let i=0;i<7;i++)await answerCorrectly(page);
+    await answerCorrectly(page);
+    await page.locator('#listen').click();
+    assert.match(await page.locator('#toast').innerText(),/read this question instead/);
+    assert.doesNotMatch(await page.locator('#toast').innerText(),/tiles/,'meaning questions do not offer nonexistent spelling controls');
+    for(let i=1;i<7;i++)await answerCorrectly(page);
     await page.locator('#listen').click();
     assert.match(await page.locator('.audio-note').innerText(),/Audio is unavailable/);
     await page.locator('#tile-toggle').click();

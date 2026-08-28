@@ -35,8 +35,12 @@ four creatures, a forest stage and world map. Implemented and exercised:
 Latest fix: speech warm-up, cancellation and playback tolerate exceptions.
 The complete speech test double now includes getVoices. Two scenarios exercise
 error callbacks AND thrown exceptions through assisted spelling and reload.
-Local 21/21 unit checks and JavaScript syntax checks pass. The expanded 41-check
-Chromium/WebKit suite MUST be rerun before claiming cross-browser success.
+Local 21/21 unit checks and JavaScript syntax checks pass. CI 33145172484 on
+`301223e320f2f80d30579d406533d31e08bdf607` passed all 41 Study checks in BOTH
+Chromium and WebKit, plus platform checks and build. Aggregate gate passed.
+Final hosted-preview refinement: only spelling auto-plays; optional meaning audio
+failure says to read the question, never to find nonexistent tiles. Those assertions
+were added to both failure scenarios. Verify its new CI run before final handoff.
 
 ## Evidence, with scope
 
@@ -49,6 +53,9 @@ Chromium/WebKit suite MUST be rerun before claiming cross-browser success.
 - CI 33144925483 (`0c488b148c60e8289a0ea26a1c8286313cd4e814`): 39/40 in each
   engine. Gallery passed. Audio fixture lacked getVoices, preventing test startup;
   corrected in the latest work. Assertions were not removed or weakened.
+- CI 33145172484: both engines 41/41, platform checks and build passed. WebKit
+  screenshots from artifact 9675417903 were also reviewed for the narrow shop,
+  question and all 32 equipment combinations. Layout and art are consistent.
 - A tool-driven phone round completed 10 questions, including final-question reload,
   alternate correction and tiles. Local estimate: 7m45s learning / 52s menus/rewards.
   This interrupted agent session is NOT an observation of child attention.
@@ -63,7 +70,8 @@ https://study-quality-90-10-20260828.stevetodman-com.pages.dev/study/
 
 This URL is generated automatically by the existing branch integration. It was
 opened and verified in a browser: correct assignment, fresh assets, answer feedback,
-and pause/resume. This pages.dev hostname saves locally only; it does NOT read/write
+and pause/resume across a fresh build (verified build d192a9a29445 before the final
+audio-copy refinement). This pages.dev hostname saves locally only; it does NOT read/write
 the production family cloud save. Each device has isolated preview progress.
 The branch URL follows later commits. Record the build hash when testing.
 
