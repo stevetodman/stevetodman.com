@@ -354,32 +354,61 @@ describe('Unit 1 Word Expedition', () => {
     await context.close();
   });
 
-  test('each weapon renders a distinct audible effect and device mute survives reload', async () => {
+  test('weapons and monsters render audible effects and device mute survives reload', async () => {
     const context=await browser.newContext();const page=await context.newPage();
     await page.goto(server.origin+'/study/');
     const source=fs.readFileSync(path.join(repoRoot,'study/unit-1/app.js'),'utf8');
     const renderSource=source.slice(source.indexOf('  function renderWeaponSound('),source.indexOf('  function playWeaponSound('));
-    const rendered=await page.evaluate(async code=>{
+    const creatureSource=source.slice(source.indexOf('  function renderCreatureSound('),source.indexOf('  function playCreatureSound('));
+    const rendered=await page.evaluate(async ({code,creatureCode})=>{
       const render=new Function(code+';return renderWeaponSound;')();
+      const renderCreature=new Function(creatureCode+';return renderCreatureSound;')();
       const Offline=window.OfflineAudioContext||window.webkitOfflineAudioContext;
       const results=[];
-      for(const weapon of ['starter-sword','copper-blade','moon-blade','star-wand']){
-        const ctx=new Offline(1,24000,48000);render(ctx,weapon);
+      for(const weapon of ['starter-sword','copper-blade','moon-blade','star-wand','mossling','wisp','sentinel','boss']){
+        const ctx=new Offline(1,24000,48000);
+        if(['mossling','wisp','sentinel','boss'].includes(weapon))renderCreature(ctx,weapon,'guardian-mail');else render(ctx,weapon);
         const samples=(await ctx.startRendering()).getChannelData(0);
         let energy=0,peak=0;
         for(const sample of samples){energy+=sample*sample;peak=Math.max(peak,Math.abs(sample));}
         results.push({weapon,rms:Math.sqrt(energy/samples.length),peak});
       }
       return results;
-    },renderSource);
+    },{code:renderSource,creatureCode:creatureSource});
     for(const sound of rendered){
       assert.ok(sound.rms>.001,sound.weapon+' produces audible energy');
       assert.ok(sound.peak<.5,sound.weapon+' has headroom and does not clip');
     }
-    assert.equal(new Set(rendered.map(sound=>sound.rms.toFixed(4))).size,4);
+    assert.equal(new Set(rendered.slice(0,4).map(sound=>sound.rms.toFixed(4))).size,4);
     await page.locator('#cloud-button').click();await page.locator('#weapon-sounds').click();
     await page.reload();await page.locator('#cloud-button').click();
     assert.equal(await page.locator('#weapon-sounds').getAttribute('aria-pressed'),'false');
+    await context.close();
+  });
+
+  test('monsters counterattack without penalties and spelling starts promptly with a local voice', async () => {
+    const context=await browser.newContext();
+    await context.addInitScript(()=>{
+      window.heard=[];
+      window.SpeechSynthesisUtterance=function(text){this.text=text;};
+      Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{
+        cancel(){},resume(){},getVoices(){return [{name:'Remote',lang:'en-US',localService:false},{name:'Local',lang:'en-US',localService:true}];},
+        speak(utterance){window.heard.push({text:utterance.text,voice:utterance.voice.name,rate:utterance.rate,at:performance.now()});}
+      }});
+    });
+    const page=await context.newPage();await page.clock.install({time:new Date('2026-08-28T12:00:00')});
+    await page.goto(server.origin+'/study/');await page.locator('[data-profile="Luke"]').click();
+    await answerCorrectly(page,false);await page.clock.runFor(460);
+    assert.equal(await page.locator('#battle-stage').getAttribute('data-state'),'counter');
+    assert.equal(await page.locator('.shield-segment.cleared').count(),1,'counterattack cannot erase a correct answer');
+    assert.equal(await page.locator('.question-count').innerText(),'1 / 10');
+    await page.locator('#next-question').click();
+    for(let i=1;i<7;i++)await answerCorrectly(page);
+    assert.equal(await page.locator('.q-domain').getAttribute('data-domain'),'spelling');
+    const speech=await page.evaluate(()=>({last:window.heard.at(-1),age:performance.now()-window.heard.at(-1).at}));
+    assert.equal(speech.last.voice,'Local');assert.equal(speech.last.rate,1);
+    assert.ok(speech.age<220,'speech starts on render, without the former 220ms timer');
+    assert.equal(await page.locator('.question-count').innerText(),'8 / 10');
     await context.close();
   });
 

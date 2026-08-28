@@ -5,7 +5,7 @@ import { chromium } from 'playwright';
 
 const ORIGIN = process.env.SITE_ORIGIN || 'https://stevetodman.com';
 const hash = createHash('sha256');
-for (const asset of ['app.js','game-art.js','quality-core.js','app.css','assets/expedition-sprites.webp','assets/forest-clearing.webp','assets/expedition-world.webp']) {
+for (const asset of ['app.js','game-art.js','quality-core.js','app.css','assets/expedition-sprites.webp','assets/forest-clearing.webp','assets/expedition-world.webp','assets/monster-sprites.webp']) {
   hash.update(fs.readFileSync(new URL('../study/unit-1/'+asset,import.meta.url)));
 }
 const expectedBuild = hash.digest('hex').slice(0,12);

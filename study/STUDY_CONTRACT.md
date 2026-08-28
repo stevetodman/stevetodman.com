@@ -20,7 +20,7 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 
 ## Game layer
 
-- Equipped weapons have distinct, brief synthesized effects: sword swishes and metallic strikes, or a wand chime. Device settings can mute effects without muting spoken questions. Effects stop for narration, navigation and hidden tabs; unavailable audio never blocks learning.
+- Equipped weapons have distinct, brief synthesized effects: sword swishes and metallic strikes, or a wand chime. Monsters counterattack with creature and armor-impact sounds, without reducing progress or delaying the next question. Spelling audio starts immediately at normal speed and prefers a local English voice. Device settings can mute effects without muting spoken questions. Effects stop for narration, navigation and hidden tabs; unavailable audio never blocks learning.
 - The question is the combat action. There are no separate attack, defend, movement, or energy-grind turns.
 - Every battle contains the same 10 questions as the assignment session. Equipment may change appearance and feedback, but never question count, mastery, difficulty, correctness, or rewards.
 - XP and study coins are earned only by completed learning sessions and newly earned mastery seals. Study coins can buy cosmetic gear. No real-money purchases, paid currency, subscriptions, payment checkout, ads or loot boxes.

@@ -84,7 +84,10 @@
       '<svg x="0" y="0" width="108" height="120" viewBox="'+COLS[ac]+' '+ROWS[name==='Samantha'?1:0]+' 314 '+HEIGHTS[name==='Samantha'?1:0]+'" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg>'+
       '<g class="gear weapon '+['starter','copper','moon','wand'][wc]+'"><svg x="66" y="17" width="49" height="62" viewBox="'+COLS[wc]+' 954 314 300" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg></g></svg>';
   }
-  function illustratedMonster(kind,state){return sprite(Math.max(0,['mossling','wisp','sentinel','boss'].indexOf(kind)),2,'monster-art monster-'+kind+' monster-'+(state||'ready'));}
+  function illustratedMonster(kind,state){
+    var index=Math.max(0,['mossling','wisp','sentinel','boss'].indexOf(kind)),x=(index%2)*627,y=Math.floor(index/2)*627;
+    return '<svg class="monster-art monster-cutout monster-'+kind+' monster-'+(state||'ready')+'" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><svg width="120" height="120" viewBox="'+x+' '+y+' 627 627" preserveAspectRatio="none" overflow="hidden"><image href="/study/unit-1/assets/monster-sprites.webp" width="1254" height="1254"/></svg></svg>';
+  }
   function illustratedItem(item){return item.type==='weapon'?sprite(Math.max(0,['starter-sword','copper-blade','moon-blade','star-wand'].indexOf(item.id)),3,'item-art'):sprite(Math.max(0,['starter-cloak','forest-hood','guardian-mail','star-mantle'].indexOf(item.id)),0,'item-art');}
   window.WordExpeditionArt={ catalog:CATALOG, validItems:VALID_ITEMS, hero:illustratedHero, monster:illustratedMonster, itemIcon:illustratedItem, routeMap:routeMap };
 })();

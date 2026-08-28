@@ -342,3 +342,12 @@ body[data-screen="question"] .pips { display:none; }
   .merchant-head{gap:10px;}.merchant-head .eyebrow{font-size:.63rem;}
   .merchant-preview{margin-bottom:8px;}.reward-break{margin:8px 0 10px;}
 }
+
+/* Counterattacks are presentation only: no health loss or delay to the next answer. */
+.battle-stage[data-state="counter"] .enemy-fighter { animation:monster-strike .48s cubic-bezier(.2,.8,.2,1); }
+.battle-stage[data-state="counter"] .hero-fighter { animation:hero-parry .48s ease; }
+.battle-stage[data-state="counter"] .impact-burst { left:36%;color:#c8f5ff;animation:impact-pop .48s ease; }
+@keyframes monster-strike { 0%,100%{transform:translateX(0)}40%{transform:translateX(-42px) rotate(-12deg) scale(1.08)}70%{transform:translateX(-16px) rotate(4deg)} }
+@keyframes hero-parry { 0%,100%{transform:translateX(0)}45%{transform:translateX(-10px) rotate(-5deg);filter:brightness(1.2)} }
+
+.monster-cutout { -webkit-mask-image:radial-gradient(ellipse at center,#000 55%,transparent 74%);mask-image:radial-gradient(ellipse at center,#000 55%,transparent 74%); }
