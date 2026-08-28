@@ -11,6 +11,8 @@
   var CLOUD_PUSH_DELAY = 1200;
   var SESSION_LENGTH = 10;
   var GAME_STORAGE_KEY = 'studyhub-word-expedition-game-unit1-v1';
+  var ROUND_KEY = 'studyhub-word-expedition-round-unit1-v1-';
+  var QUALITY = window.WordExpeditionQuality;
   var ART = window.WordExpeditionArt;
   var GAME_CATALOG = ART.catalog;
   var XP_THRESHOLDS = [0,20,60,120,200,300,430,590,780,1000];
@@ -58,6 +60,37 @@
   var cloudPushInFlight = false;
   var cloudPushQueued = false;
   var cloudStatus = CLOUD_ENABLED ? 'loading' : 'local';
+  var activityClock=QUALITY.createClock(function(){return performance.now();});
+  var speechTimer=null;
+
+  function saveRound() {
+    if(!session||!activeName||session.rewarded)return;
+    var input=document.getElementById('answer-input');
+    if(input&&!input.disabled)session.draftValue=input.value;
+    session.timing=activityClock.snapshot();
+    try{localStorage.setItem(ROUND_KEY+activeName,JSON.stringify(Object.assign({},session,{version:1,strengthened:Array.from(session.strengthened)})));}
+    catch(_){showToast('This round cannot be resumed on this device. Keep this tab open.');}
+  }
+  function savedRound(name) {
+    try{
+      var raw=JSON.parse(localStorage.getItem(ROUND_KEY+name));
+      if(!raw||raw.version!==1||typeof raw.id!=='string'||!Number.isInteger(raw.index)||raw.index<0||raw.index>10||!Array.isArray(raw.questions)||raw.questions.length!==10||!Array.isArray(raw.results)||raw.results.length<raw.index||raw.results.length>raw.index+1||gameProfile(name).rewards[raw.id])return null;
+      raw.questions=raw.questions.map(function(old,index){
+        var word=WORDS.find(function(w){return old.word&&w.word===old.word.word;});
+        if(!word||assignedDomains(word).indexOf(old.domain)<0)throw new Error('Unknown question');
+        var q=makeQuestion({word:word,domain:old.domain},index,old.kind==='text');
+        if(q.kind==='choice'&&Array.isArray(old.choices)&&old.choices.length===4){
+          var valid=q.domain==='definition'?WORDS.map(function(w){return w.definitions[0];}):q.accepted.concat(safeRelationDistractors(word,q.accepted,q.domain==='synonym'?word.antonyms:word.synonyms));
+          if(old.choices.every(function(c){return valid.indexOf(c)>=0;})&&old.choices.some(function(c){return isAccepted(q,c);}))q.choices=old.choices;
+        }
+        return q;
+      });
+      raw.strengthened=new Set(Array.isArray(raw.strengthened)?raw.strengthened.filter(function(name){return WORDS.some(function(w){return w.word===name;});}):[]);
+      raw.battleDamage=Math.max(0,Math.min(10,Number(raw.battleDamage)||0));raw.battleState='ready';
+      return raw;
+    }catch(_){return null;}
+  }
+  function pauseSession(){saveRound();if('speechSynthesis'in window)window.speechSynthesis.cancel();showProfilePicker();}
 
   function blankProfile() { return { stats:{}, sessions:[] }; }
   function defaultState() { return { version:3, learners:{ Luke:blankProfile(), Samantha:blankProfile() } }; }
@@ -73,10 +106,13 @@
     clean.sessionsCompleted=Math.max(0,Math.floor(Number(raw.sessionsCompleted)||0));
     clean.bossDefeatedAt=typeof raw.bossDefeatedAt==='string'&&raw.bossDefeatedAt.length<50?raw.bossDefeatedAt:null;
     clean.rewards={};
-    if(raw.rewards&&typeof raw.rewards==='object')Object.keys(raw.rewards).slice(-80).forEach(function(id){
-      var reward=raw.rewards[id];if(typeof id==='string'&&id.length<100&&reward&&typeof reward==='object')clean.rewards[id]={xp:Math.max(0,Math.min(1000,Math.floor(Number(reward.xp)||0))),coins:Math.max(0,Math.min(1000,Math.floor(Number(reward.coins)||0)))};
+    // This is the source of truth for lifetime earnings, not a rolling history.
+    if(raw.rewards&&typeof raw.rewards==='object')Object.keys(raw.rewards).forEach(function(id){
+      var reward=raw.rewards[id],limit=id==='_legacy'?Number.MAX_SAFE_INTEGER:1000;
+      if(id.length<100&&!['__proto__','constructor','prototype'].includes(id)&&reward&&typeof reward==='object')clean.rewards[id]={xp:Math.max(0,Math.min(limit,Math.floor(Number(reward.xp)||0))),coins:Math.max(0,Math.min(limit,Math.floor(Number(reward.coins)||0)))};
     });
     if(!Object.keys(clean.rewards).length&&(Number(raw.xp)>0||Number(raw.coinsEarned)>0))clean.rewards._legacy={xp:Math.max(0,Math.floor(Number(raw.xp)||0)),coins:Math.max(0,Math.floor(Number(raw.coinsEarned)||0))};
+    clean.sessionsCompleted=Math.max(clean.sessionsCompleted,Object.keys(clean.rewards).filter(function(id){return id!=='_legacy';}).length);
     clean.owned=unique(clean.owned.concat(Array.isArray(raw.owned)?raw.owned:[])).filter(function(id){return ART.validItems.indexOf(id)>=0;});
     clean.purchases={};
     if(raw.purchases&&typeof raw.purchases==='object')Object.keys(raw.purchases).forEach(function(id){
@@ -129,7 +165,9 @@
   }
   function applyCloudGame(name,remote) {
     if(!remote||typeof remote!=='object')return;
-    var local=gameProfile(name),combined={version:1,rewards:Object.assign({},local.rewards,remote.rewards||{}),sessionsCompleted:Math.max(local.sessionsCompleted||0,Number(remote.sessionsCompleted)||0),bossDefeatedAt:local.bossDefeatedAt||remote.bossDefeatedAt||null,purchases:Object.assign({},local.purchases,remote.purchases||{}),owned:local.owned,equipped:remote.equipped||local.equipped};
+    var local=gameProfile(name),safeRemote=sanitizeGameProfile(remote),rewards=Object.assign({},local.rewards);
+    Object.keys(safeRemote.rewards).forEach(function(id){var a=rewards[id]||{xp:0,coins:0},b=safeRemote.rewards[id];rewards[id]={xp:Math.max(a.xp,b.xp),coins:Math.max(a.coins,b.coins)};});
+    var combined={version:1,rewards:rewards,sessionsCompleted:Math.max(local.sessionsCompleted||0,safeRemote.sessionsCompleted),bossDefeatedAt:local.bossDefeatedAt||safeRemote.bossDefeatedAt||null,purchases:Object.assign({},local.purchases,safeRemote.purchases),owned:local.owned,equipped:remote.equipped||local.equipped};
     gameState.learners[name]=sanitizeGameProfile(combined);
   }
 
@@ -231,10 +269,10 @@
   }
 
   function showProfilePicker() {
-    clearTimeout(advanceTimer); session=null;activeName=null;setChip(null);
+    saveRound();clearTimeout(advanceTimer);clearTimeout(speechTimer);session=null;activeName=null;setChip(null);activityClock.mode('play');document.body.dataset.screen='home';
     app.innerHTML='<section class="picker-intro"><div class="intro-copy"><p class="eyebrow">Vocabulary Tuesday · Spelling Wednesday</p><h2>Choose your hero</h2><p>Ten questions move the adventure forward. Master every word to restore the realm.</p></div><div class="intro-emblem" aria-hidden="true">✦</div></section>'+
       '<div class="profile-grid">'+LEARNERS.map(function(l){return '<button type="button" class="learner-card" data-profile="'+esc(l.name)+'">'+
-        '<span class="profile-hero">'+ART.hero(l.name,gameProfile(l.name).equipped,'ready')+'</span><strong>'+esc(l.name)+'</strong><span class="stamp-count">'+masteredCount(l.name)+' of 12 seals restored</span>'+trailHTML(l.name,true)+'</button>';}).join('')+'</div>'+
+        '<span class="profile-hero">'+ART.hero(l.name,gameProfile(l.name).equipped,'ready')+'</span><strong>'+esc(l.name)+'</strong><span class="stamp-count">'+masteredCount(l.name)+' of 12 words mastered</span><span class="start-label">'+(savedRound(l.name)?'Resume adventure':'Start adventure')+' <span aria-hidden="true">→</span></span><span class="session-promise">10 questions · about 4 minutes</span></button>';}).join('')+'</div>'+
       '<div class="picker-links"><button type="button" class="text-button" id="word-list">Review the 12 words</button>'+
       '<button type="button" class="cloud-button" id="cloud-button">'+cloudStatusText()+'</button></div>';
     app.querySelectorAll('[data-profile]').forEach(function(button){button.addEventListener('click',function(){startSession(button.getAttribute('data-profile'));});});
@@ -411,11 +449,14 @@
 
   function startSession(name) {
     activeName=name;setChip(name);warmSpeech();
+    var resumed=savedRound(name);
+    if(resumed){session=resumed;activityClock=QUALITY.createClock(function(){return performance.now();},session.timing);activityClock.mode('learning');renderQuestion();return;}
+    activityClock=QUALITY.createClock(function(){return performance.now();});activityClock.mode('learning');
     var completed=gameProfile(name).sessionsCompleted;
     var readyForBoss=masteredCount(name)>=12||(new Date()>=TEST_DATES.spelling&&masteredCount(name)>=10);
     var kinds=['mossling','wisp','sentinel'];
     session={id:new Date().toISOString()+'-'+Math.random().toString(36).slice(2,8),index:0,questions:buildPlan(name),results:[],combo:0,beforeMastered:masteredCount(name),strengthened:new Set(),battleDamage:0,battleState:'ready',enemy:readyForBoss&&!gameProfile(name).bossDefeatedAt?'boss':kinds[completed%kinds.length],rewarded:false};
-    renderQuestion();
+    saveRound();renderQuestion();
   }
   function warmSpeech() { if('speechSynthesis'in window)window.speechSynthesis.getVoices(); }
   function pipsHTML() {
@@ -456,12 +497,13 @@
   }
   function recoverAndContinue(button) {
     if(button)button.disabled=true;
-    landHit('recovery');
+    landHit('recovery');session.resolved=true;saveRound();
     advanceTimer=setTimeout(nextQuestion,480);
   }
   function renderQuestion() {
     clearTimeout(advanceTimer);
     if(!session||session.index>=SESSION_LENGTH){finishSession();return;}
+    activityClock.mode('learning');document.body.dataset.screen='question';
     var q=session.questions[session.index];
     app.innerHTML='<section class="mission-head"><div><p class="eyebrow">'+esc(activeName)+'’s expedition</p><h2>'+(q.checkpoint?'Final checkpoint':'Question '+(session.index+1))+'</h2></div><span class="question-count">'+(session.index+1)+' / '+SESSION_LENGTH+'</span></section>'+battleStageHTML()+pipsHTML()+
       '<section class="question-card"><div class="question-top"><span class="q-domain">'+(q.checkpoint?'Checkpoint · ':'')+esc(DOMAIN_LABELS[q.domain])+'</span>'+
@@ -470,13 +512,15 @@
       '<div id="answer-area">'+(q.kind==='choice'?choicesHTML(q):inputHTML(q))+'</div><div id="feedback-area" aria-live="polite"></div></section><p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p>';
     resetView();
     if(q.kind==='choice')wireChoices(q);else wireInput(q);
-    if(q.listen){document.getElementById('listen').addEventListener('click',function(){speakWord(q.word);});setTimeout(function(){speakWord(q.word);},220);}
+    if(q.listen){document.getElementById('listen').addEventListener('click',function(){speakWord(q.word);});speechTimer=setTimeout(function(){if(session&&session.questions[session.index]===q)speakWord(q.word);},220);}
+    var input=document.getElementById('answer-input');if(input&&session.draftValue)input.value=session.draftValue;
+    if(session.results.length>session.index){disableAnswerArea();var result=session.results[session.index];if(session.resolved){if(result.assisted)showAssistedFeedback(q);else showPositiveFeedback(q);}else showCorrection(q);}
   }
   function choicesHTML(q) { return '<div class="choice-list">'+q.choices.map(function(c){return '<button type="button" class="choice" data-answer="'+esc(c)+'">'+esc(c)+'</button>';}).join('')+'</div>'; }
   function inputHTML(q) {
     var label=q.spelling?'Type the spelling':'Type your answer';
     return '<form id="answer-form"><label class="sr-only" for="answer-input">'+label+'</label><div class="answer-row"><input class="answer-input" id="answer-input" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="'+label+'"><button class="submit-button" type="submit">Check</button></div></form>'+
-      (q.spelling?'<button type="button" class="tile-toggle" id="tile-toggle">Need help? Use letter tiles</button>':'');
+      (q.spelling?'<button type="button" class="tile-toggle" id="tile-toggle">Use letter tiles · practice, not mastery</button>':'');
   }
   function wireChoices(q) { app.querySelectorAll('.choice').forEach(function(button){button.addEventListener('click',function(){submitAnswer(q,button.getAttribute('data-answer'),button,false);});}); }
   function wireInput(q) {
@@ -487,7 +531,9 @@
   }
   function isAccepted(q,value){var n=normalize(value);return q.accepted.some(function(a){return normalize(a)===n;});}
   function recordResult(q,correct,assisted) {
-    var st=getStat(activeName,q.word.word,q.domain);st.attempts=(st.attempts||0)+1;st.lastAt=new Date().toISOString();st.correctDays=st.correctDays||[];
+    var st=getStat(activeName,q.word.word,q.domain),attemptId=session.id+':'+session.index;
+    if(st.lastAttemptId===attemptId)return;
+    st.lastAttemptId=attemptId;st.attempts=(st.attempts||0)+1;st.lastAt=new Date().toISOString();st.correctDays=st.correctDays||[];
     if(assisted){st.assisted=(st.assisted||0)+1;st.streak=0;}
     else if(correct){st.correct=(st.correct||0)+1;st.streak=(st.streak||0)+1;st.correctDays=unique(st.correctDays.concat(todayKey())).sort();}
     else {st.wrong=(st.wrong||0)+1;st.streak=0;}
@@ -514,6 +560,7 @@
     if(correct&&!assisted){session.combo+=1;session.strengthened.add(q.word.word);landHit('critical');}
     else {session.combo=0;if(assisted)landHit('standard');else setBattleState('blocked','The creature blocked. Learn the answer, then strike again.',false);}
     if(!correct)scheduleRetry(q);
+    session.resolved=correct||assisted;saveRound();
     disableAnswerArea();
     if(q.kind==='choice'){
       app.querySelectorAll('.choice').forEach(function(button){if(isAccepted(q,button.getAttribute('data-answer')))button.classList.add('correct');});
@@ -526,11 +573,15 @@
   function showPositiveFeedback(q) {
     var callout=session.combo>=3?session.combo+' in a row!':session.combo===2?'Two in a row!':'Nice work.';
     document.getElementById('feedback-area').innerHTML='<div class="feedback good"><strong>'+callout+'</strong><span>'+esc(q.explanation)+'</span></div>';
-    advanceTimer=setTimeout(nextQuestion,900);
+    addNextButton();
   }
   function showAssistedFeedback(q) {
     document.getElementById('feedback-area').innerHTML='<div class="feedback learn"><strong>Built correctly.</strong><span>Type it without tiles next time to earn a mastery day.</span></div>';
-    advanceTimer=setTimeout(nextQuestion,1200);
+    addNextButton();
+  }
+  function addNextButton(){
+    document.getElementById('feedback-area').insertAdjacentHTML('beforeend','<button type="button" class="continue-button" id="next-question">'+(session.index===9?'Finish adventure':'Next question')+' <span aria-hidden="true">→</span></button>');
+    var next=document.getElementById('next-question');next.addEventListener('click',nextQuestion);next.focus({preventScroll:true});
   }
   function showCorrection(q) {
     var area=document.getElementById('feedback-area');
@@ -540,9 +591,9 @@
     }
     area.innerHTML='<div class="feedback learn"><strong>Now lock it in.</strong><span>'+esc(q.explanation)+'</span></div><form id="correction-form"><label for="correction-input">Type <strong>'+esc(q.answer)+'</strong> once:</label><div class="answer-row"><input class="answer-input" id="correction-input" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"><button class="submit-button" type="submit">Done</button></div><p class="correction-note" id="correction-note"></p></form>';
     var form=document.getElementById('correction-form'),input=document.getElementById('correction-input');input.focus();
-    form.addEventListener('submit',function(e){e.preventDefault();if(normalize(input.value)!==normalize(q.answer)){document.getElementById('correction-note').textContent='Copy it exactly, then try again.';input.select();return;}form.innerHTML='<p class="correction-success">That’s it. Your strike lands.</p>';landHit('recovery');advanceTimer=setTimeout(nextQuestion,620);});
+    form.addEventListener('submit',function(e){e.preventDefault();if(!isAccepted(q,input.value)){document.getElementById('correction-note').textContent='Use one of the school answers shown above.';input.select();return;}form.innerHTML='<p class="correction-success">That’s it. Your strike lands.</p>';landHit('recovery');session.resolved=true;saveRound();advanceTimer=setTimeout(nextQuestion,620);});
   }
-  function nextQuestion(){session.index+=1;renderQuestion();}
+  function nextQuestion(){if(!session)return;session.index+=1;session.draftValue='';session.resolved=false;saveRound();renderQuestion();}
 
   function showLetterTiles(q) {
     var letters=shuffle(q.word.word.split('').map(function(letter,index){return {letter:letter,id:index};}));
@@ -564,21 +615,24 @@
   }
 
   function finishSession() {
+    if(!session||!activeName)return;
+    activityClock.mode('play');document.body.dataset.screen='summary';
     var after=masteredCount(activeName),newStamps=Math.max(0,after-session.beforeMastered);
     var correct=session.results.filter(function(r){return r.correct;}).length;
-    profile(activeName).sessions.unshift({id:session.id,at:new Date().toISOString(),correct:correct,total:SESSION_LENGTH,newStamps:newStamps});
+    if(!profile(activeName).sessions.some(function(s){return s.id===session.id;}))profile(activeName).sessions.unshift({id:session.id,at:new Date().toISOString(),correct:correct,total:SESSION_LENGTH,newStamps:newStamps,timing:activityClock.snapshot()});
     profile(activeName).sessions=profile(activeName).sessions.slice(0,20);saveState();scheduleCloudPush(0);
     var gp=gameProfile(activeName),bossWon=session.enemy==='boss',oldLevel=levelForXp(gameXp(activeName)),xpAward=(bossWon?50:20)+newStamps*15,coinAward=(bossWon?20:8)+newStamps*5;
     if(!gp.rewards[session.id]){
       gp.rewards[session.id]={xp:xpAward,coins:coinAward};gp.sessionsCompleted+=1;if(bossWon&&!gp.bossDefeatedAt)gp.bossDefeatedAt=new Date().toISOString();saveGameState();
     } else { xpAward=0;coinAward=0; }
     var newLevel=levelForXp(gameXp(activeName)),leveledUp=newLevel>oldLevel;
+    session.rewarded=true;try{localStorage.removeItem(ROUND_KEY+activeName);}catch(_){}
     setChip(activeName);
     app.innerHTML='<section class="panel summary game-summary">'+
       '<div class="victory-lockup"><div class="summary-hero">'+ART.hero(activeName,gp.equipped,'victory')+(bossWon?'<span class="unit-crown" aria-hidden="true">✦</span>':'')+'</div><div><p class="eyebrow">'+(bossWon?'Unit 1 complete':'Expedition complete')+'</p><h2>'+(bossWon?'The Word Keeper is defeated.':esc(activeName)+', the path is clear.')+'</h2><p>'+(bossWon?'The realm is restored. Your mastery seals remain the permanent record of every word you know.':session.strengthened.size+' '+(session.strengthened.size===1?'word got':'words got')+' stronger'+(newStamps?' and '+newStamps+' new '+(newStamps===1?'seal was':'seals were')+' restored.':'.'))+'</p></div></div>'+
       '<div class="reward-row" aria-label="Expedition rewards"><span><strong>+'+xpAward+'</strong> XP</span><span><strong>+'+coinAward+'</strong> coins</span><span><strong>Level '+newLevel+'</strong>'+(leveledUp?' · New level!':'')+'</span></div>'+
-      ART.routeMap(Math.min(12,gp.sessionsCompleted),gameLevels(activeName))+trailHTML(activeName,false)+
-      '<div class="summary-actions"><button type="button" class="primary-button" id="visit-merchant">Visit merchant</button><button type="button" class="secondary-button" id="summary-done">Done</button></div><p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p></section>';
+      ART.routeMap(Math.min(12,gp.sessionsCompleted),gameLevels(activeName))+
+      '<div class="summary-actions"><button type="button" class="primary-button" id="summary-done">Done for now</button><button type="button" class="secondary-button" id="visit-merchant">Choose gear</button></div><p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p></section>';
     resetView('.game-summary h2');
     if(newStamps||correct>=8)celebrate();
     document.getElementById('visit-merchant').addEventListener('click',showMerchant);
@@ -591,6 +645,7 @@
     return '<article class="shop-card '+(equipped?'equipped ':'')+(owned?'owned':'')+'"><div class="shop-art">'+ART.itemIcon(item)+'</div><div class="shop-copy"><span class="item-rarity">'+esc(item.rarity)+'</span><h3>'+esc(item.name)+'</h3><p>'+esc(item.type==='weapon'?'Changes your hero’s attack style.':'Changes your hero’s adventure look.')+'</p></div><button type="button" class="shop-action '+(!owned&&!affordable?'unaffordable':'')+'" data-item="'+esc(item.id)+'" '+(equipped?'disabled':'')+'>'+esc(label)+'</button></article>';
   }
   function showMerchant() {
+    activityClock.mode('play');document.body.dataset.screen='shop';
     var gp=gameProfile(activeName);
     setChip(activeName);
     app.innerHTML='<section class="merchant-head"><div><p class="eyebrow">Trail merchant</p><h2>Choose your gear</h2><p>Your coins are private. Gear changes the adventure’s look, never the questions.</p></div><div class="wallet"><span>◆</span><strong>'+coinBalance(activeName)+'</strong><small>coins</small></div></section>'+
@@ -614,15 +669,20 @@
   }
 
   function showWordList() {
+    activityClock.mode('learning');document.body.dataset.screen='review';
     setChip(null);
     app.innerHTML='<section class="screen-heading"><button type="button" class="back-button" id="list-back" aria-label="Back">←</button><div><p class="eyebrow">Exact school list</p><h2>The 12 words</h2></div></section><div class="word-list">'+WORDS.map(function(w){return '<article class="word-card"><div class="word-top"><div><h3>'+esc(w.word)+'</h3><span class="pos">'+esc(w.pos)+'</span></div><button type="button" class="speak-button" data-speak="'+esc(w.word)+'" aria-label="Hear '+esc(w.word)+'">🔊</button></div><p class="definition">'+esc(w.definitions.join('; '))+'</p><p><strong>Synonyms:</strong> '+esc(w.synonyms.join(', '))+'</p><p><strong>Antonyms:</strong> '+(w.antonyms.length?esc(w.antonyms.join(', ')):'Not assigned on the worksheet')+'</p><p class="example">'+esc(w.example)+'</p></article>';}).join('')+'</div>';
     document.getElementById('list-back').addEventListener('click',showProfilePicker);
     app.querySelectorAll('[data-speak]').forEach(function(button){button.addEventListener('click',function(){speakWord(WORDS.find(function(w){return w.word===button.getAttribute('data-speak');}));});});
   }
 
-  chip.addEventListener('click',showProfilePicker);
+  chip.setAttribute('aria-label','Pause and return to heroes');
+  chip.addEventListener('click',pauseSession);
+  ['pointerdown','keydown','input','scroll'].forEach(function(event){document.addEventListener(event,function(){activityClock.activity();},{passive:true});});
+  document.addEventListener('input',saveRound);
+  window.addEventListener('pagehide',saveRound);
   window.addEventListener('online',function(){scheduleCloudPush(0);});
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)cloudPull().then(function(){if(!activeName)showProfilePicker();});});
+  document.addEventListener('visibilitychange',function(){activityClock.visibility(!document.hidden);saveRound();if(!document.hidden)cloudPull().then(function(){if(!activeName)showProfilePicker();});});
 
   adoptTokenFromHash();
   showProfilePicker();

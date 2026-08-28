@@ -88,7 +88,7 @@ test('cloud merge unions session rewards and purchases instead of using last-wri
   const source = read('study/supabase/functions/studyhub-save/index.ts');
   assert.match(source, /function mergeGame\(/);
   assert.match(source, /new Set\(\[\s*\.\.\.Object\.keys\(isObj\(A\.rewards\)/);
-  assert.match(source, /xp: Math\.max\(0, Math\.min\(1000, Math\.max\(num\(ar\.xp\), num\(br\.xp\)\)\)\)/);
+  assert.doesNotMatch(source, /rewardIds[\s\S]*?slice\(-160\)/);
   assert.match(source, /purchases\[id\]/);
   assert.match(source, /out\.game = mergeGame\(A\.game, B\.game\)/);
   assert.match(source, /bossDefeatedAt:/);
