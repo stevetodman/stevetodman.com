@@ -35,7 +35,7 @@ jobs:
   contract:
     name: Study contract
     runs-on: ubuntu-latest
-    timeout-minutes: 7
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -43,9 +43,11 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
       - run: npm run test:study:unit
       - run: npm run test:study:smoke
+      - name: Validate iPhone audio path in WebKit
+        run: npm run test:study:webkit
       - run: npm run build
       - name: Save focused Study screenshots
         if: always()

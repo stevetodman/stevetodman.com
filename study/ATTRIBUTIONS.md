@@ -1,5 +1,21 @@
 # StudyHub Attributions
 
+## Word Expedition battle audio
+
+Battle effects use a deliberately small **12-clip** local sample bank so mobile Safari has little to fetch or decode. Every shipped clip is **CC0 1.0 / public domain**, trimmed to **150–400 ms**, mono **22.05 kHz**, **48 kbps MP3**, and loudness-normalized. Decoding begins on the same user gesture that unlocks the shared iPhone/desktop AudioContext. Until a sample is decoded—or if fetch/decode ever fails—the existing Web Audio synthesizer plays immediately instead, so audio can never delay a learning interaction.
+
+No scream, flesh-impact, or gunshot recording is selected or shipped.
+
+Sources (CC0 does not require attribution, but exact provenance is recorded):
+
+- **rubberduck — 80 CC0 RPG SFX** (OpenGameArt, CC0 1.0): `blade_01.ogg`, `blade_02.ogg`, `blade_03.ogg`, `item_gem_01.ogg`, and `wood_02.ogg` — blade/spear/scythe, magic, and wood/axe layers. Source: https://opengameart.org/content/80-cc0-rpg-sfx
+- **Kenney — RPG Audio** (CC0 1.0): `Audio/chop.ogg` — staff/wood contact. Source: https://kenney.nl/assets/rpg-audio
+- **artisticdude — Swishes Sound Pack** (OpenGameArt, CC0 1.0): `swishes/swish-7.wav` — bow/whoosh. Source: https://opengameart.org/content/swishes-sound-pack
+- **rubberduck — 100 CC0 SFX #2** (OpenGameArt, CC0 1.0): `sfx100v2_metal_04.ogg` — hammer/metal impact. Source: https://opengameart.org/content/100-cc0-sfx-2
+- **rubberduck — 80 CC0 creature SFX** (OpenGameArt, CC0 1.0): `cute_05.ogg`, `eat_02.ogg`, and `roar_03.ogg` — four short creature effects are derived only from these kid-safe families. `scream_*` files from the source pack are intentionally not used. Source: https://opengameart.org/content/80-cc0-creature-sfx
+
+The final MP3 files live under `study/unit-1/sfx/`; there are no runtime third-party audio requests. Word/sentence audio remains the browser speech synthesizer.
+
 ## Word Expedition game artwork
 
 Word Expedition uses generated raster artwork for characters, equipment, monsters,

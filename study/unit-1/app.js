@@ -134,6 +134,7 @@
   var rewardAllowance=0;
   var selectedGear=null,shopPage=0;
   var weaponAudio=null,stopWeaponSound=null,stopCreatureSound=null,weaponSoundsEnabled=true;
+  var SFX=window.WordExpeditionSfxBank||null;
   try{weaponSoundsEnabled=localStorage.getItem('studyhub-weapon-sounds')!=='off';}catch(_){}
   var localSaveErrors={};
 
@@ -201,8 +202,13 @@
       var Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return null;
       if(!weaponAudio||weaponAudio.state==='closed')weaponAudio=new Audio();
       if(weaponAudio.state==='suspended')weaponAudio.resume().catch(function(){});
+      if(weaponAudio.state==='running'&&SFX&&typeof SFX.warm==='function')SFX.warm(weaponAudio);
       return weaponAudio;
     }catch(_){return null;}
+  }
+  function playBankSound(ctx,spec){
+    if(!SFX||typeof SFX.play!=='function'||!spec)return null;
+    try{return SFX.play(ctx,spec);}catch(_){return null;}
   }
   // Short synthesized foley: swept air + inharmonic metal; the wand uses bell tones.
   function renderWeaponSound(ctx,weapon){
@@ -260,7 +266,9 @@
     silenceWeapon();
     var ctx=warmWeaponAudio();
     if(!ctx||ctx.state!=='running'||document.hidden)return;
-    try{stopWeaponSound=renderWeaponSound(ctx,weapon);}catch(_){} // Audio must never block learning.
+    var item=ART.catalog.find(function(entry){return entry.id===weapon;})||{sound:'blade'};
+    var sample=SFX&&SFX.weapon&&SFX.weapon[item.sound];
+    try{stopWeaponSound=playBankSound(ctx,sample)||renderWeaponSound(ctx,weapon);}catch(_){try{stopWeaponSound=renderWeaponSound(ctx,weapon);}catch(__){}} // Audio must never block learning.
   }
 
   function silenceCreature(){if(stopCreatureSound){stopCreatureSound();stopCreatureSound=null;}}
@@ -292,7 +300,8 @@
   }
   function playCreatureSound(kind,armor){
     silenceCreature();var ctx=warmWeaponAudio();if(!ctx||ctx.state!=='running'||document.hidden)return;
-    try{stopCreatureSound=renderCreatureSound(ctx,kind,armor);}catch(_){}
+    var sample=SFX&&SFX.creature&&SFX.creature[kind];
+    try{stopCreatureSound=playBankSound(ctx,sample)||renderCreatureSound(ctx,kind,armor);}catch(_){try{stopCreatureSound=renderCreatureSound(ctx,kind,armor);}catch(__){}}
   }
   function monsterCounterattack(){
     if(!session||document.hidden||document.body.dataset.screen!=='question'||session.battleDamage>=SESSION_LENGTH)return;

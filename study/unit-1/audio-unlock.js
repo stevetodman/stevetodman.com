@@ -33,6 +33,13 @@
       source.start(0);
     } catch (_) {}
 
+    try {
+      var tap = document.createElement('audio');
+      tap.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+      var played = tap.play();
+      if (played && typeof played.catch === 'function') played.catch(function () {});
+    } catch (_) {}
+
     if (ctx.state === 'suspended' && typeof ctx.resume === 'function') {
       try {
         var resumed = ctx.resume();
