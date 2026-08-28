@@ -519,3 +519,17 @@ body[data-screen="question"] .pips { display:none; }
 .monster-taunt { margin:12px 0 0;padding:9px 11px;background:#f6f0df;border-left:3px solid #b69758;border-radius:0 10px 10px 0; }
 .monster-taunt>p:last-child { margin:0;font-size:.85rem;line-height:1.35;color:var(--ink); }.monster-taunt .target { color:var(--teal-dark);font-weight:900; }
 @media(forced-colors:active){.monster-dialogue,.monster-taunt{border:1px solid CanvasText;}}
+
+
+/* Answer feedback and contact-synchronized impact polish. */
+.impact-chip { position:absolute;z-index:6;left:38%;top:28%;display:grid;place-items:center;width:24px;height:24px;opacity:0;border:1px solid color-mix(in srgb,var(--effect) 70%,white);border-radius:50%;background:#173526e8;color:var(--effect);font-size:.78rem;font-weight:900;line-height:1;box-shadow:0 0 12px color-mix(in srgb,var(--effect) 58%,transparent);pointer-events:none; }
+.battle-stage:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .impact-chip { animation:impact-chip .30s cubic-bezier(.2,.8,.2,1) var(--contact) both; }
+.question-card[data-feedback="correct"] { animation:answer-confirm .32s ease-out; }
+.question-card[data-feedback="incorrect"] { animation:answer-rethink .26s ease-out; }
+.question-card:is([data-feedback="assisted"],[data-feedback="recovery"]) { animation:answer-learn .30s ease-out; }
+@keyframes impact-chip { 0%{opacity:0;transform:translateY(6px) scale(.55)}28%{opacity:1;transform:translateY(0) scale(1.08)}100%{opacity:0;transform:translateY(-12px) scale(.92)} }
+@keyframes answer-confirm { 0%,100%{box-shadow:var(--shadow)}45%{box-shadow:0 0 0 3px #7fae7238,var(--shadow)} }
+@keyframes answer-rethink { 0%,100%{transform:none;box-shadow:var(--shadow)}35%{transform:translateX(-2px);box-shadow:0 0 0 3px #c9985330,var(--shadow)}65%{transform:translateX(2px)} }
+@keyframes answer-learn { 0%,100%{box-shadow:var(--shadow)}45%{box-shadow:0 0 0 3px #6e9e9c2d,var(--shadow)} }
+@media (prefers-reduced-motion:reduce) { .question-card[data-feedback],.impact-chip { animation:none!important;transform:none!important; } }
+@media (forced-colors:active) { .impact-chip { border:1px solid CanvasText;background:Canvas;color:CanvasText;box-shadow:none; } }
