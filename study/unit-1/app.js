@@ -738,15 +738,28 @@
     var progress=Math.max(0,Math.min(100,Math.round(((xp-base)/Math.max(1,next-base))*100)));
     return '<section class="battle-stage" id="battle-stage" data-weapon="'+esc(gp.equipped.weapon)+'" data-enemy="'+esc(session.enemy)+'" data-wear="'+Math.min(3,Math.ceil(session.battleDamage/3))+'" data-attack="'+weapon.attack+'" data-element="'+weapon.element+'" data-defense="'+armor.defense+'" data-guard-element="'+armor.element+'" data-state="'+esc(session.battleState)+'" style="--contact:'+weapon.contact+'s;--swing:'+(weapon.contact*2)+'s;--flight:'+(weapon.contact-.04)+'s">'+
       '<div class="battle-hud"><span class="level-chip">Level '+level+'</span><span class="enemy-name">'+esc(enemyName(session.enemy))+'</span><span class="coin-chip">'+(session.enemy==='boss'?'Final battle':'Trail '+Math.min(12,gp.sessionsCompleted+1))+'</span></div>'+
-      '<div class="battle-scene"><div class="fighter hero-fighter">'+ART.hero(activeName,gp.equipped,session.battleState)+'<span class="hero-guard" aria-hidden="true"></span></div><div class="projectile-lane" aria-hidden="true"><span class="hero-projectile"></span><span class="enemy-projectile"></span></div><div class="fighter enemy-fighter">'+ART.monster(session.enemy,session.battleState)+'<span class="enemy-guard" aria-hidden="true"></span><span class="hit-mark" aria-hidden="true"></span><span class="ground-ripple" aria-hidden="true"></span></div></div>'+
+      '<div class="battle-scene"><div class="fighter hero-fighter">'+ART.hero(activeName,gp.equipped,session.battleState)+'<span class="hero-guard" aria-hidden="true"></span></div><div class="projectile-lane" aria-hidden="true"><span class="hero-projectile"></span><span class="enemy-projectile"></span></div><div class="fighter enemy-fighter">'+ART.monster(session.enemy,session.battleState)+'<span class="enemy-guard" aria-hidden="true"></span><span class="hit-mark" aria-hidden="true"></span><span class="ground-ripple" aria-hidden="true"></span></div><div class="finish-burst" aria-hidden="true">'+Array.from({length:6},function(_,i){return '<i style="--dx:'+([-28,24,-14,34,-35,12][i])+'px;--dy:'+([-24,-32,28,15,8,-40][i])+'px;--spin:'+((i%2?1:-1)*110)+'deg"></i>';}).join('')+'</div></div>'+
       '<div class="shield-row" role="img" aria-label="'+session.battleDamage+' of 10 shield points cleared">'+Array.from({length:SESSION_LENGTH},function(_,i){return '<span class="shield-segment '+(i<session.battleDamage?'cleared':'')+'"></span>';}).join('')+'</div>'+
       '<div class="xp-track" aria-label="Hero level progress"><span style="width:'+progress+'%"></span></div><p class="battle-status" id="battle-status" aria-live="polite">'+esc(({mossling:'Claws ready. Your answers drive it back.',wisp:'Catch the wisp with each answer.',sentinel:'Each answer cracks its stone armor.',boss:'Each answer breaks the owl’s spell.'})[session.enemy])+'</p></section>';
+  }
+  function alignBattleContact(stage) {
+    // Layout offsets ignore any still-running recoil. Measure at each strike so
+    // rotating a phone cannot leave a cached desktop-sized lunge or projectile.
+    var hero=stage.querySelector('.hero-fighter'),enemy=stage.querySelector('.enemy-fighter');
+    var target=enemy.offsetLeft+enemy.offsetWidth*.30;
+    stage.style.setProperty('--lunge',Math.max(0,target-hero.offsetLeft-hero.offsetWidth*1.24)+'px');
+    var lane=stage.querySelector('.projectile-lane'),start=hero.offsetLeft+hero.offsetWidth*.84;
+    lane.style.left=start+'px';lane.style.right='auto';lane.style.width=Math.max(0,target-start)+'px';
+    lane.style.top=(hero.offsetTop+hero.offsetHeight*.62)+'px';
+    var burst=stage.querySelector('.finish-burst');
+    burst.style.left=(enemy.offsetLeft+enemy.offsetWidth*.5)+'px';burst.style.top=(enemy.offsetTop+enemy.offsetHeight*.45)+'px';
   }
   function setBattleState(kind,message,advance) {
     session.battleState=kind;
     if(advance)session.battleDamage=Math.min(SESSION_LENGTH,session.battleDamage+1);
     var stage=document.getElementById('battle-stage');
     if(!stage)return;
+    alignBattleContact(stage);
     stage.setAttribute('data-state',kind);
     stage.setAttribute('data-wear',Math.min(3,Math.ceil(session.battleDamage/3)));
     var shields=stage.querySelectorAll('.shield-segment');
