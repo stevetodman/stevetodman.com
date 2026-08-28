@@ -32,7 +32,8 @@ test('game art catalog is bounded, unique, and renders every equipment layer', (
         weapon:item.type === 'weapon' ? item.id : 'starter-sword',
         armor:item.type === 'armor' ? item.id : 'starter-cloak',
       };
-      const svg = art.hero(learner, equipped, 'ready');
+      assert.doesNotMatch(art.hero(learner, equipped, 'ready'),/hero-poses/,'static cards must not fetch attack art');
+      const svg = art.hero(learner, equipped, 'ready', true);
       assert.match(svg, /^<svg/);
       assert.match(svg, /viewBox="0 0 120 120"/);
       assert.doesNotMatch(svg, /undefined|null/);

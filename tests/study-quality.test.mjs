@@ -13,7 +13,7 @@ function model(audio) {
   const source=read('study/unit-1/app.js');
   vm.runInNewContext(source.slice(0,source.indexOf("  chip.setAttribute('aria-label'"))+`
     window.test={sanitizeGameProfile,applyCloudGame,gameProfile,gameXp,coinBalance,makeQuestion,isAccepted,WORDS,savedRound,savedGearChoice,recordResult,
-      playWeaponSound,sessionCoinAward,monsterCounts,questionPromptHTML,monsterTauntHTML,journeySentence,
+      playWeaponSound,sessionCoinAward,monsterCounts,questionPromptHTML,monsterTauntHTML,journeySentence,practiceSuggestions,roundReviewHTML,meaningTypo,cloudToken,
       setSession:(value)=>{session=value;activeName='Luke';},stats:()=>profile('Luke').stats};
   })();`,context);
   return {...context.window.test,storage,quality:context.window.WordExpeditionQuality};
@@ -65,6 +65,32 @@ test('server merge retains >160 entries and is commutative for reward values',()
   assert.deepEqual({...context.merge(collected,stale).rewards.battle},{xp:20,coins:4,monster:'wisp'});
   assert.deepEqual({...context.merge(stale,collected).rewards.battle},{xp:20,coins:4,monster:'wisp'});
 });
+test('cloud saves reject unprovisioned tokens and oversized writes without losing existing data',async()=>{
+  let row=null,handler,writes=0;
+  const sql=async(strings,...values)=>{
+    const query=strings.join('?');
+    if(/select data, revision/.test(query))return row?[row]:[];
+    assert.match(query,/update studyhub\.saves/,'public handler must never insert a save');
+    writes++;row={data:values[0],revision:row.revision+1};return [row];
+  };
+  sql.begin=fn=>fn(sql);sql.json=value=>value;
+  const source=read('study/supabase/functions/studyhub-save/index.ts');
+  vm.runInNewContext(stripTypeScriptTypes(source.slice(source.indexOf('const MAX_BODY_BYTES'))),{
+    sql,Request,Response,TextEncoder,TextDecoder,crypto,console,Deno:{serve:fn=>{handler=fn;}}
+  });
+  const request=body=>handler(new Request('https://example.test',{method:'POST',body:typeof body==='string'?body:JSON.stringify(body)}));
+  const token='synthetic-unit-token-not-a-family';
+  assert.equal((await request({token,action:'push',data:{}})).status,403);assert.equal(writes,0);
+  assert.equal((await request('null')).status,400);
+  assert.equal((await request({token,padding:'é'.repeat(140000)})).status,413,'limit is bytes, not characters');
+  row={data:{Luke:{stateStats:{old:{correct:2}}}},revision:1};
+  assert.equal((await request({token,action:'push',data:{Luke:{stateStats:{new:{correct:1}}}}})).status,200);
+  assert.equal(row.data.Luke.stateStats.old.correct,2);assert.equal(row.data.Luke.stateStats.new.correct,1);
+  const pull=await (await request({token,action:'pull'})).json();assert.equal(pull.revision,2);
+  row.data.Luke.padding='x'.repeat(1024*1024);const before=JSON.stringify(row);
+  assert.equal((await request({token,action:'push',data:{}})).status,413);
+  assert.equal(JSON.stringify(row),before,'capacity rejection must leave the previous save intact');
+});
 test('every teacher-listed relation is accepted in ordinary and correction grading',()=>{
   const m=model();
   for(const word of m.WORDS)for(const domain of ['synonym','antonym']){
@@ -78,6 +104,22 @@ test('every teacher-listed relation is accepted in ordinary and correction gradi
     for(const q of [m.makeQuestion({word,domain:'spelling'},1,false),m.makeQuestion({word,domain:'definition'},0,false),m.makeQuestion({word,domain:'definition'},9,false),m.makeQuestion({word,domain:'definition'},1,true)])assert.doesNotMatch(m.questionPromptHTML(q,'boss'),/monster-dialogue/);
   }
   const word=m.WORDS[0],practice=m.makeQuestion({word,domain:'synonym'},1,false);
+  assert.equal(m.practiceSuggestions('Luke').length,0,'new learners do not get an arbitrary first-three-word list');
+  const continuous=m.WORDS.find(w=>w.word==='continuous');
+  const meaning=m.makeQuestion({word:continuous,domain:'definition'},0,true);
+  assert.equal(m.meaningTypo(meaning,'continuos'),true);
+  assert.equal(m.meaningTypo(meaning,'continuouss'),true);
+  assert.equal(m.meaningTypo(meaning,'cancel'),false);
+  assert.equal(m.meaningTypo(m.makeQuestion({word:continuous,domain:'spelling'},0,true),'continuos'),false);
+  assert.equal(m.meaningTypo(m.makeQuestion({word:m.WORDS.find(w=>w.word==='myth'),domain:'definition'},0,true),'math'),false);
+  m.setSession({id:'recent-miss',index:0,results:[]});m.recordResult(meaning,false,false);
+  assert.equal(m.practiceSuggestions('Luke')[0].word,'continuous');
+  assert.equal(m.practiceSuggestions('Luke')[0].domain,'definition');
+  assert.equal(m.practiceSuggestions('Samantha').length,0);
+  m.setSession({id:'recalled',index:0,results:[]});m.recordResult(meaning,true,false);
+  assert.notEqual(m.practiceSuggestions('Luke')[0].domain,'definition','a successful recall clears the urgent miss');
+  assert.match(m.roundReviewHTML([{word:'continuous',domain:'spelling',correct:false}]),/continuous — spelling/);
+  assert.equal(m.cloudToken(true),null,'fresh devices do not mint unprovisioned family credentials');
   m.setSession({id:'story',index:0,enemy:'mossling',results:[]});m.recordResult(practice,true,false);
   assert.equal(m.stats()['blunder|synonym'].correct,1);assert.equal(m.stats()['blunder|synonym'].correctDays.length,0,'context clues do not earn mastery days');
   m.setSession({id:'recall',index:0,enemy:'mossling',results:[]});m.recordResult(m.makeQuestion({word,domain:'synonym'},0,true),true,false);

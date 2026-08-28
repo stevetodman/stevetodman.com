@@ -6,6 +6,7 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 
 - `/study/` is the current one-tap Unit 1 assignment, not the retired assignment-card hub.
 - `/study/unit-1/` must remain directly usable.
+- Past activities remain linked through Device settings → Past practice; archived activities return to `/study/archive/`.
 - The installed PWA identity remains `./us-states.html` for migration compatibility, while its `start_url` and `scope` remain `/study/`.
 - The Study manifest, HTML, JavaScript, and CSS must be revalidated after deployment so an installed Chromebook shortcut cannot remain indefinitely pinned to stale behavior.
 
@@ -41,6 +42,8 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 - A session is exactly 10 questions.
 - Question 10 is the final checkpoint and cannot be replaced by retry scheduling.
 - Teacher-listed synonyms and antonyms are all accepted as correct answers.
+- Meaning recall for Unit 1 headwords of six or more letters tolerates one omitted or doubled letter and displays the correct spelling. Substitutions, short words, synonyms, antonyms and spelling questions retain exact normalized matching. A tolerated meaning typo never creates spelling credit.
+- Round summaries identify the words and skills practiced with help. Practice suggestions prioritize the latest unresolved skill mistakes; successful recall clears urgent priority. No arbitrary first-three-word list for new learners.
 - Relation distractors may not contain another defensible teacher-listed answer for the current word.
 - Mastery-day keys use the learner device's local calendar date, not UTC.
 - There is an explicit post-test retention schedule after the spelling test date.
@@ -50,6 +53,8 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 
 - Learner names must not be placed in page metadata.
 - A cloud share token is bearer access: the UI must continue warning that anyone with the link can read and change family progress.
+- Only existing, parent-provisioned cloud-save rows accept pushes. Unknown tokens receive `403 family_link_required`; the public endpoint cannot insert rows. Existing family tokens remain valid. Fresh devices use the private family link or practice locally.
+- Requests are limited to 256 KiB of streamed UTF-8 bytes; merged saves are limited to 1 MiB. Rejected writes preserve the previous row and local progress; history is never silently trimmed to fit.
 - A cloud outage must not prevent device-local practice or device-local saving.
 - Do not clear browser storage as an update or troubleshooting strategy.
 

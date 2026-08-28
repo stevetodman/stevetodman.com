@@ -220,52 +220,6 @@
   }
 ];
   var VALID_ITEMS = ['starter-sword','starter-cloak'].concat(CATALOG.map(function (item) { return item.id; }));
-  var PALETTES = {
-    Luke:{ skin:'#c88457', hair:'#3e2b29', tunic:'#2a8b82', accent:'#f1b449', cape:'#184b68' },
-    Samantha:{ skin:'#b86f4d', hair:'#3d2530', tunic:'#6969ba', accent:'#f1b449', cape:'#8b3f6b' }
-  };
-
-  function weaponMarkup(id) {
-    if (id === 'star-wand') return '<g class="gear weapon wand"><path d="M73 66 91 29"/><circle cx="94" cy="23" r="7"/><path class="spark" d="m94 9 2 8 8 2-8 3-2 8-3-8-8-3 8-2Z"/></g>';
-    if (id === 'moon-blade') return '<g class="gear weapon moon"><path d="M73 66 91 31"/><path class="blade" d="m88 34 7-20 6 10-5 14Z"/><path d="m83 41 12 6"/></g>';
-    return '<g class="gear weapon '+(id==='copper-blade'?'copper':'starter')+'"><path d="M73 66 91 32"/><path class="blade" d="m88 34 7-21 6 11-5 14Z"/><path d="m83 41 12 6"/></g>';
-  }
-
-  function armorMarkup(id, palette) {
-    if (id === 'forest-hood') return '<path class="cape forest" d="M31 55q6-22 29-22t30 22l-9 48H38Z"/><path class="hood forest" d="M38 46q3-27 22-27t24 27q-10-10-24-10T38 46Z"/>';
-    if (id === 'guardian-mail') return '<path class="cape guardian" d="M33 55q7-17 27-17t29 17l-5 48H37Z"/><path class="mail" d="M43 50h34l8 53H36Z"/><path class="mail-line" d="M43 63h36M40 76h42M39 89h44"/>';
-    if (id === 'star-mantle') return '<path class="cape star" d="M31 55q7-20 29-20t31 20l-8 48H37Z"/><path class="star-mark" d="m60 57 4 9 10 1-8 7 2 10-8-5-9 5 2-10-7-7 10-1Z"/>';
-    return '<path class="cape starter" style="--cape:'+palette.cape+'" d="M33 56q7-18 27-18t29 18l-7 47H38Z"/>';
-  }
-
-  function hero(name, equipped, pose) {
-    var p=PALETTES[name]||PALETTES.Luke;
-    var weapon=equipped&&equipped.weapon||'starter-sword';
-    var armor=equipped&&equipped.armor||'starter-cloak';
-    return '<svg class="hero-art hero-'+(pose||'ready')+'" viewBox="0 0 120 120" aria-hidden="true" focusable="false">'+
-      '<ellipse class="hero-shadow" cx="60" cy="107" rx="29" ry="7"/>'+armorMarkup(armor,p)+
-      '<path class="hero-body" style="--tunic:'+p.tunic+'" d="M43 54q7-8 17-8t18 8l8 48H35Z"/>'+
-      '<path class="hero-belt" style="--accent:'+p.accent+'" d="M38 78h46v8H38Z"/>'+
-      '<path class="hero-leg" d="m45 99-3 11h13l4-11m15 0 3 11H64l-3-11"/>'+
-      '<circle class="hero-head" style="--skin:'+p.skin+'" cx="60" cy="37" r="20"/>'+
-      '<path class="hero-hair" style="--hair:'+p.hair+'" d="M40 38q0-23 20-23 18 0 21 17-9-8-19-6-8 2-12-3-2 9-10 15Z"/>'+
-      '<circle class="hero-eye" cx="53" cy="39" r="2"/><circle class="hero-eye" cx="68" cy="39" r="2"/>'+
-      '<path class="hero-smile" d="M55 48q5 4 10 0"/>'+weaponMarkup(weapon)+'</svg>';
-  }
-
-  function monster(kind, state) {
-    var cls='monster-art monster-'+kind+' monster-'+(state||'ready');
-    if (kind === 'wisp') return '<svg class="'+cls+'" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><ellipse class="monster-shadow" cx="60" cy="107" rx="30" ry="7"/><path class="wisp-tail" d="M42 92q-9 10 4 18 1-9 10-10 13 10 21 1 5-6 1-13Z"/><path class="wisp-body" d="M29 64q0-36 31-36t32 36q0 33-32 36T29 64Z"/><path class="wisp-horn" d="m38 38-8-21 19 13m34 8 8-21-19 13"/><circle class="monster-eye" cx="49" cy="62" r="5"/><circle class="monster-eye" cx="73" cy="62" r="5"/><path class="monster-mouth" d="M53 79q8-5 16 0"/></svg>';
-    if (kind === 'sentinel') return '<svg class="'+cls+'" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><ellipse class="monster-shadow" cx="60" cy="108" rx="35" ry="7"/><path class="stone-body" d="m29 48 14-19h35l14 19 8 42-17 17H37L20 90Z"/><path class="stone-plate" d="m42 29 6-14h25l6 14M31 55l-14 9 6 20m66-29 14 9-6 20"/><circle class="monster-eye glow" cx="48" cy="61" r="5"/><circle class="monster-eye glow" cx="73" cy="61" r="5"/><path class="stone-rune" d="m60 74-8 12 8 9 9-9Z"/></svg>';
-    if (kind === 'boss') return '<svg class="'+cls+'" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><ellipse class="monster-shadow" cx="60" cy="109" rx="38" ry="7"/><path class="boss-cape" d="M24 50q10-26 36-26t37 26l8 54H16Z"/><path class="boss-body" d="M28 53q6-29 32-29t33 29l-8 52H36Z"/><path class="boss-crown" d="m39 30 5-19 15 13L74 10l7 20Z"/><circle class="monster-eye boss-eye" cx="49" cy="59" r="5"/><circle class="monster-eye boss-eye" cx="73" cy="59" r="5"/><path class="monster-mouth" d="M52 78q9-6 18 0"/><path class="boss-rune" d="m60 83 4 8 9 1-7 6 2 9-8-5-8 5 2-9-7-6 9-1Z"/></svg>';
-    return '<svg class="'+cls+'" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><ellipse class="monster-shadow" cx="60" cy="108" rx="34" ry="7"/><path class="moss-body" d="M25 71q2-35 35-35t36 35q0 34-36 36T25 71Z"/><path class="moss-horn" d="m37 44-14-21 27 13m33 8 14-21-27 13"/><path class="moss-leaf" d="M54 35q-3-20 14-23 2 16-14 23Z"/><circle class="monster-eye" cx="48" cy="68" r="5"/><circle class="monster-eye" cx="73" cy="68" r="5"/><path class="monster-mouth" d="M52 85q9-5 17 0"/></svg>';
-  }
-
-  function itemIcon(item) {
-    if (item.type === 'weapon') return '<svg class="item-art" viewBox="0 0 120 120" aria-hidden="true" focusable="false">'+weaponMarkup(item.id)+'</svg>';
-    return '<svg class="item-art" viewBox="0 0 120 120" aria-hidden="true" focusable="false">'+armorMarkup(item.id,PALETTES.Luke)+'</svg>';
-  }
-
   function routeMap(step) {
     var safeStep=Math.max(0,Math.min(12,Number(step)||0));
     var points=[[13,80],[28,66],[46,78],[65,59],[87,69],[106,49],[129,58],[149,38],[172,48],[192,28],[215,38],[239,18]];
@@ -334,7 +288,7 @@
     var spec=gearSpec(id),extra=extraItem(id)>=0,s=spec.height/(extra?341.333333:HEIGHTS[3]),width=(extra?256:314)*s;
     return '<g class="gear '+cls+'" data-item-art="'+id+'"'+(mask?' mask="url(#'+mask+')"':'')+'><g transform="rotate('+spec.tilt+')"><g transform="translate('+(-spec.grip[0]*s)+' '+(-spec.grip[1]*s)+')">'+gearRaster(id,width,spec.height)+'</g></g></g>';
   }
-  function illustratedHero(name,equipped,pose){
+  function illustratedHero(name,equipped,pose,battle){
     var armor=equipped&&equipped.armor||'starter-cloak',weapon=equipped&&equipped.weapon||'starter-sword';
     var ac=Math.max(0,['starter-cloak','forest-hood','guardian-mail','star-mantle'].indexOf(armor));
     var extraArmor=extraItem(armor)>=0,hands=HERO_HANDS[name]||HERO_HANDS.Luke,hand=hands[ac],mask='gear-grip-'+(++nextGripMask);
@@ -343,7 +297,7 @@
     var tip=fit.tip||fit.grip,reach=(hand[2][0]+((tip[0]-fit.grip[0])*Math.cos(angle)-(tip[1]-fit.grip[1])*Math.sin(angle))*scale)/120;
     // Inspected crop windows: the generated sheet is not an equal-cell grid.
     var px=[0,260,563,790,1026,1300],pw=[250,300,220,232,275,225],py=[0,260,510,760];
-    var frames=['windup','contact','recover'].map(function(frame,index){
+    var frames=(battle?['windup','contact','recover']:[]).map(function(frame,index){
       var col=(name==='Samantha'?3:0)+index;
       return '<g class="hero-frame frame-'+frame+'"><svg width="108" height="120" viewBox="'+px[col]+' '+py[ac]+' '+pw[col]+' 250" preserveAspectRatio="none" overflow="hidden"><image href="/study/unit-1/assets/hero-poses.webp" width="1536" height="1024"/></svg></g>';
     }).join('');

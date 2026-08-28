@@ -217,6 +217,11 @@ h1 { font-size:1.65rem;letter-spacing:-.055em; }
 .learner-card strong { font-size:1.25rem;margin-bottom:5px; }
 .stamp-count { font-size:.75rem;font-weight:600;margin-bottom:14px; }
 .journey-line { display:block;min-height:3.6em;margin:2px 0 10px;color:var(--teal-dark);font-size:.74rem;font-weight:650;line-height:1.2; }
+.past-practice { display:block;padding:12px;color:var(--teal-dark);font-weight:700;text-align:center; }
+.round-review { margin:14px 0;padding:12px 14px;border-radius:12px;background:var(--paper);color:var(--teal-dark);text-align:left;font-size:.85rem;line-height:1.5; }
+.round-review p { margin:3px 0; }
+.coin-shortfall { display:block;color:#52615b;font-size:.7rem;line-height:1.3;margin-top:4px; }
+.shop-action.preview-only { background:#e7eee8;color:#254b3b;box-shadow:none; }
 .start-label { display:block;padding:11px 8px;border-radius:12px;background:var(--teal);color:#fff;font-weight:800;font-size:.85rem;box-shadow:0 3px 0 #134733; }
 .session-promise { display:block;margin-top:10px;color:var(--muted);font-size:.67rem;font-weight:500; }
 .picker-links { margin-top:22px; }

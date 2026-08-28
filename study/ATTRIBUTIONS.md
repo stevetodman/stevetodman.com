@@ -10,8 +10,8 @@ selected outputs, and processing details are recorded in
 `study/unit-1/assets/PROVENANCE.md`.
 
 Route markers, interface shapes, and combat effects are code-generated SVG/CSS.
-Earlier SVG character renderers remain in the source but are not the production
-character artwork. No stock-image source is used for the expedition artwork.
+The retired SVG character renderers have been removed. No stock-image source
+is used for the expedition artwork.
 
 ## 50 States map geometry
 

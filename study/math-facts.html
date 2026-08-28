@@ -106,7 +106,7 @@
   .btn-retry { background: #e53e3e; color: #fff; }
   .btn-restart { background: linear-gradient(135deg, #ed8936, #dd6b20); color: #fff; }
   .btn-home { background: #4a5568; color: #fff; }
-  a.back-link { display: block; text-align: center; color: #667eea; font-size: 0.9rem; margin-top: 12px; }
+  a.back-link { display: block; text-align: center; color: #4c3fbf; font-size: 0.9rem; margin-top: 12px; }
   .menu-card:focus-visible, .choice-btn:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #667eea; outline-offset: 2px; }
 </style>
 </head>
@@ -182,7 +182,7 @@ function showMenu() {
         <p>Every unique multiplication fact from 0&times;0 to 12&times;12</p>
       </button>
     </div>
-    <a class="back-link" href="./">Back to home</a>
+    <a class="back-link" href="/study/archive/">Past practice</a>
   `;
   app.querySelectorAll(".menu-card").forEach(card => {
     card.addEventListener("click", () => startDrill(card.dataset.mode));
