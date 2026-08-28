@@ -768,7 +768,7 @@
     var form=document.getElementById('correction-form'),input=document.getElementById('correction-input');input.focus();
     form.addEventListener('submit',function(e){e.preventDefault();if(!isAccepted(q,input.value)){document.getElementById('correction-note').textContent='Use one of the school answers shown above.';input.select();return;}form.innerHTML='<p class="correction-success">That’s it. Your strike lands.</p>';landHit('recovery');session.resolved=true;saveRound();activityClock.mode('play');advanceTimer=setTimeout(nextQuestion,480);});
   }
-  function nextQuestion(){if(!session)return;cancelSpeech();session.index+=1;session.draftValue='';session.resolved=false;session.tileQuestion=null;session.tileChoiceIds=[];saveRound();renderQuestion();}
+  function nextQuestion(){if(!session)return;cancelSpeech();session.battleState='ready';session.index+=1;session.draftValue='';session.resolved=false;session.tileQuestion=null;session.tileChoiceIds=[];saveRound();renderQuestion();}
 
   function showLetterTiles(q) {
     var letters=shuffle(q.word.word.split('').map(function(letter,index){return {letter:letter,id:index};}));
