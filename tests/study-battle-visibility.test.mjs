@@ -19,6 +19,7 @@ after(async () => {
 
 test('weapons and monsters remain visibly in the fight on mobile and desktop', async () => {
   const viewports = [
+    { name:'iphone-tiny', width:390, height:420 },
     { name:'iphone-short', width:390, height:520 },
     { name:'iphone-portrait', width:390, height:844 },
     { name:'desktop', width:1024, height:844 },
@@ -41,7 +42,7 @@ test('weapons and monsters remain visibly in the fight on mobile and desktop', a
     const question = page.locator('.question-card');
 
     assert.equal(await stage.count(), 1, `${viewport.name}: battle stage exists`);
-    assert.equal(await stage.isVisible(), true, `${viewport.name}: battle stage is visible`);
+    assert.equal(await stage.isVisible(), true, `${viewport.name}: battle stage is visible before any software keyboard is opened`);
     assert.equal(await mission.isVisible(), true, `${viewport.name}: question heading is visible`);
     assert.equal(await hero.isVisible(), true, `${viewport.name}: hero is visible`);
     assert.equal(await enemy.isVisible(), true, `${viewport.name}: monster is visible`);
