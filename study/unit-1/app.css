@@ -216,6 +216,7 @@ h1 { font-size:1.65rem;letter-spacing:-.055em; }
 .profile-hero::after { display:none; }
 .learner-card strong { font-size:1.25rem;margin-bottom:5px; }
 .stamp-count { font-size:.75rem;font-weight:600;margin-bottom:14px; }
+.journey-line { display:block;min-height:3.6em;margin:2px 0 10px;color:var(--teal-dark);font-size:.74rem;font-weight:650;line-height:1.2; }
 .start-label { display:block;padding:11px 8px;border-radius:12px;background:var(--teal);color:#fff;font-weight:800;font-size:.85rem;box-shadow:0 3px 0 #134733; }
 .session-promise { display:block;margin-top:10px;color:var(--muted);font-size:.67rem;font-weight:500; }
 .picker-links { margin-top:22px; }
@@ -331,8 +332,7 @@ body[data-screen="question"] .pips { display:none; }
 /* The monster atlas has true alpha. Never feather its silhouette into a disc. */
 .monster-cutout { -webkit-mask-image:none;mask-image:none; }
 
-.extra-equipped { mix-blend-mode:screen; }
-.extra-item { -webkit-mask-image:radial-gradient(ellipse at center,#000 55%,transparent 74%);mask-image:radial-gradient(ellipse at center,#000 55%,transparent 74%); }
+.extra-item { -webkit-mask-image:none;mask-image:none; }
 .shop-pages { display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-size:.75rem;font-weight:800; }
 .shop-pages button { min-height:44px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--teal-dark);font:inherit;cursor:pointer; }
 .shop-pages button:disabled,.preview-confirm:disabled { opacity:.55;cursor:default; }
@@ -360,12 +360,13 @@ body[data-screen="question"] .pips { display:none; }
 .battle-stage[data-enemy="mossling"] { --enemy-effect:#dac693; }
 .battle-status { position:relative;min-height:2.4em;margin:5px 0 0;color:#fff9e3;font-size:.65rem;line-height:1.2;text-align:center;text-shadow:0 1px 3px #08291e; }
 .battle-scene .fighter { flex-shrink:0; }
-.weapon-motion { transform-box:view-box;transform-origin:74px 76px; }
+.hero-art { overflow:visible; }
+.weapon-motion { transform-box:view-box;transform-origin:0 0; }
 .hero-frame { opacity:0; }
-.hero-art { --grip-wind:translate(-35px,-30px);--grip-hit:translate(25px,-1px);--grip-recover:translate(-31px,-8px); }
-.hero-art[data-learner="Samantha"] { --grip-wind:translate(-25px,-23px);--grip-hit:translate(22px,0);--grip-recover:translate(-26px,-4px); }
 .weapon-grip { transform-box:view-box; }
-.armor-motion { transform-box:view-box;transform-origin:36px 76px; }
+.armor-motion { transform-box:view-box;transform-origin:0 0; }
+.armor-anchor[data-slot="offhand"] { --armor-wind:translate(55px,7px);--armor-hit:translate(23px,9px);--armor-recover:translate(55px,11px); }
+.armor-anchor[data-slot="neck"] { --armor-wind:translate(-2px,6px);--armor-hit:translate(0,26px);--armor-recover:translate(3px,12px); }
 .hit-mark,.ground-ripple,.hero-guard,.enemy-guard { position:absolute;pointer-events:none;opacity:0; }
 .hit-mark { z-index:4;left:14%;top:50%;width:60%;height:35%;border-top:4px solid var(--effect);border-radius:50%;filter:drop-shadow(0 0 5px var(--effect)); }
 .ground-ripple { left:-15%;bottom:2%;width:130%;height:18%;border:3px solid var(--effect);border-radius:50%; }
@@ -389,12 +390,13 @@ body[data-screen="question"] .pips { display:none; }
 .battle-stage:is([data-element="ice"],[data-element="crystal"]) .hit-mark { border-radius:10%;transform:rotate(30deg);border:3px solid var(--effect); }
 .battle-stage[data-element="fire"] .hit-mark { border:0;background:radial-gradient(ellipse,#fff6b8 5%,#ffb347 32%,transparent 70%); }
 
-.battle-stage[style]:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .hero-fighter { animation:hero-lunge var(--swing) ease-in-out;mix-blend-mode:screen; }
+.battle-stage[style]:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .hero-fighter { animation:hero-lunge var(--swing) ease-in-out; }
 .battle-stage:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .hero-idle { animation:pose-idle var(--swing) steps(1,end); }
 .battle-stage:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .frame-windup { animation:pose-windup var(--swing) steps(1,end); }
 .battle-stage:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .frame-contact { animation:pose-contact var(--swing) steps(1,end); }
 .battle-stage:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .frame-recover { animation:pose-recover var(--swing) steps(1,end); }
 .battle-stage:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .weapon-grip { animation:grip-poses var(--swing) steps(1,end); }
+.battle-stage:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .armor-grip { animation:armor-poses var(--swing) steps(1,end); }
 .battle-stage:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .weapon-motion { animation:weapon-slash var(--swing) ease-in-out; }
 .battle-stage:is([data-attack="chop"],[data-attack="smash"]):is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .weapon-motion { animation-name:weapon-overhead; }
 .battle-stage[data-attack="thrust"]:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .weapon-motion { animation-name:weapon-thrust; }
@@ -405,6 +407,7 @@ body[data-screen="question"] .pips { display:none; }
 .battle-stage:is([data-attack="shoot"],[data-attack="cast"]):is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .frame-windup { animation-name:pose-ranged-windup; }
 .battle-stage:is([data-attack="shoot"],[data-attack="cast"]):is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .frame-contact { animation-name:pose-ranged-contact; }
 .battle-stage:is([data-attack="shoot"],[data-attack="cast"]):is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .weapon-grip { animation-name:grip-ranged; }
+.battle-stage:is([data-attack="shoot"],[data-attack="cast"]):is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .armor-grip { animation-name:armor-ranged; }
 .battle-stage:is([data-attack="shoot"],[data-attack="cast"]):is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .hero-projectile { animation:projectile-out var(--flight) linear .04s forwards; }
 .battle-stage:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .hit-mark { animation:contact-flash .22s ease-out var(--contact) forwards; }
 .battle-stage[data-attack="smash"]:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .ground-ripple { animation:ground-wave .26s ease-out var(--contact) forwards; }
@@ -448,6 +451,8 @@ body[data-screen="question"] .pips { display:none; }
 @keyframes pose-ranged-contact { 0%{opacity:0}10%{opacity:1}67%,100%{opacity:0} }
 @keyframes grip-poses { 0%{transform:var(--grip-wind)}50%{transform:var(--grip-hit)}67%{transform:var(--grip-recover)}100%{transform:none} }
 @keyframes grip-ranged { 0%{transform:var(--grip-wind)}10%{transform:var(--grip-hit)}67%{transform:var(--grip-recover)}100%{transform:none} }
+@keyframes armor-poses { 0%{transform:var(--armor-wind)}50%{transform:var(--armor-hit)}67%{transform:var(--armor-recover)}100%{transform:none} }
+@keyframes armor-ranged { 0%{transform:var(--armor-wind)}10%{transform:var(--armor-hit)}67%{transform:var(--armor-recover)}100%{transform:none} }
 @keyframes hero-lunge { 0%,100%{transform:none}25%{transform:translateX(-4px)}50%,62%{transform:translateX(var(--lunge,24px))} }
 @keyframes hero-ranged { 0%,100%{transform:none}10%,62%{transform:translateX(-2px)} }
 @keyframes weapon-slash { 0%,100%{transform:none}20%{transform:rotate(-40deg)}50%,62%{transform:rotate(55deg)} }

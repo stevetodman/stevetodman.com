@@ -146,6 +146,7 @@ describe('Unit 1 Word Expedition', () => {
     const context = await fastContext();
     const page = await context.newPage();
     await page.goto(server.origin + '/study/');
+    assert.match(await page.locator('[data-profile="Luke"] .journey-line').innerText(),/Adventure 1 of 12/);
     await page.locator('[data-profile="Luke"]').click();
     await answerCurrentQuestion(page);
 
@@ -442,6 +443,7 @@ describe('Unit 1 Word Expedition', () => {
       await page.clock.pauseAt(new Date(await page.evaluate(()=>Date.now()+1000)));
       const stage=page.locator('#battle-stage');
       assert.equal(await stage.getAttribute('data-enemy'),enemy);
+      assert.equal(await stage.locator('.hero-fighter').evaluate(el=>getComputedStyle(el).mixBlendMode),'normal','hero colors do not depend on screen blending');
       assert.equal(await stage.locator('.monster-cutout').evaluate(el=>getComputedStyle(el).maskImage),'none','transparent monsters must not have a circular fade');
       const gameBefore=await page.evaluate(()=>localStorage.getItem('studyhub-word-expedition-game-unit1-v1'));
       await answerCorrectly(page,false);
@@ -533,7 +535,7 @@ describe('Unit 1 Word Expedition', () => {
       }
       assert.equal(new Set(ids).size,24);
       await page.locator('[data-item="sun-charm"]').click();
-      assert.equal(await page.locator('#gear-preview .extra-equipped').count(),1);
+      assert.equal(await page.locator('#gear-preview [data-item-art="sun-charm"]').count(),1);
       await page.screenshot({path:path.join(directory,'390-expanded-shop-last-shelf.png'),fullPage:true});
       for(let shelf=0;shelf<3;shelf++)await page.locator('#shop-prev').click();
       assert.equal(Number(await page.locator('#reward-break-progress').getAttribute('max')),50000);

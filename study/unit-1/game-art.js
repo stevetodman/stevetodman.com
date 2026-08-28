@@ -282,31 +282,77 @@
   // The generated atlas was inspected and is not an equal-cell grid. Explicit
   // crop windows preserve each complete character; the SVGs only clip raster art.
   var ATLAS='/study/unit-1/assets/expedition-sprites.webp';
-  var COLS=[0,314,628,942],ROWS=[0,330,654,954],HEIGHTS=[330,324,300,300];
+  var COLS=[0,314,628,942],ROWS=[0,330,654,946],HEIGHTS=[330,324,292,308];
   function sprite(col,row,cls){
     return '<svg class="'+cls+'" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><svg x="0" y="0" width="120" height="120" viewBox="'+COLS[col]+' '+ROWS[row]+' 314 '+HEIGHTS[row]+'" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg></svg>';
   }
-  function extraItem(id){var index=CATALOG.findIndex(function(item){return item.id===id;})-6;return index>=0?index:-1;}
+  // Art slots and attachment points belong to the item, never its shop order.
+  // Grip/tip coordinates are pixels inside the inspected source cell.
+  var EXTRA_GEAR={
+    'oak-staff':{cell:[0,0],grip:[89,239],tip:[208,55],height:77,tilt:-12},
+    'iron-axe':{cell:[1,0],grip:[100,244],tip:[190,75],height:70,tilt:-12},
+    'hunter-bow':{cell:[2,0],grip:[79,190],tip:[79,190],height:69,tilt:-8},
+    'frost-spear':{cell:[3,0],grip:[68,254],tip:[207,55],height:78,tilt:-18},
+    'ember-hammer':{cell:[4,0],grip:[89,250],tip:[176,105],height:72,tilt:-14},
+    'thunder-blade':{cell:[5,0],grip:[64,277],tip:[214,54],height:70,tilt:-12},
+    'crystal-wand':{cell:[0,1],grip:[94,242],tip:[201,39],height:72,tilt:-12},
+    'dragon-blade':{cell:[1,1],grip:[69,240],tip:[208,28],height:70,tilt:-12},
+    'void-scythe':{cell:[2,1],grip:[109,227],tip:[25,108],height:77,tilt:-12},
+    'iron-shield':{cell:[3,1],grip:[112,172],height:52,tilt:0},
+    'ember-buckler':{cell:[4,1],grip:[105,170],height:49,tilt:0},
+    'crystal-shield':{cell:[5,1],grip:[112,170],height:53,tilt:0},
+    'thunder-shield':{cell:[0,2],grip:[128,150],height:53,tilt:0},
+    'dragon-shield':{cell:[1,2],grip:[128,150],height:53,tilt:0},
+    'void-shield':{cell:[2,2],grip:[128,150],height:53,tilt:0},
+    'oak-charm':{cell:[3,2],grip:[128,25],height:27,tilt:0},
+    'frost-charm':{cell:[4,2],grip:[128,25],height:27,tilt:0},
+    'sun-charm':{cell:[5,2],grip:[128,25],height:27,tilt:0}
+  };
+  var STARTER_GEAR={
+    'starter-sword':{col:0,grip:[88,230],tip:[270,23],height:62,tilt:-12},
+    'copper-blade':{col:1,grip:[85,228],tip:[263,33],height:62,tilt:-12},
+    'moon-blade':{col:2,grip:[99,230],tip:[218,15],height:66,tilt:-15},
+    'star-wand':{col:3,grip:[104,222],tip:[216,63],height:65,tilt:-12}
+  };
+  var HERO_HANDS={
+    Luke:[[[90,77],[43,46],[95,78],[43,70]],[[89,77],[39,34],[100,72],[42,65]],[[83,77],[39,40],[97,72],[42,67]],[[83,77],[37,41],[97,71],[38,66]]],
+    Samantha:[[[90,74],[51,52],[97,78],[50,72]],[[89,74],[48,50],[97,72],[50,63]],[[83,74],[46,35],[97,72],[47,66]],[[85,75],[46,43],[96,72],[44,66]]]
+  };
+  var nextGripMask=0;
+  function extraItem(id){return Object.prototype.hasOwnProperty.call(EXTRA_GEAR,id)?1:-1;}
+  function gearSpec(id){return EXTRA_GEAR[id]||STARTER_GEAR[id]||STARTER_GEAR['starter-sword'];}
+  function gearRaster(id,width,height){
+    var spec=gearSpec(id),extra=extraItem(id)>=0,cw=extra?256:314,ch=extra?341.333333:HEIGHTS[3];
+    var x=extra?spec.cell[0]*cw:COLS[spec.col],y=extra?spec.cell[1]*ch:ROWS[3];
+    // Inner viewport clips the cell; outer viewport preserves its proportions.
+    return '<svg width="'+width+'" height="'+height+'" viewBox="0 0 '+cw+' '+ch+'" preserveAspectRatio="xMidYMid meet" overflow="hidden"><svg width="'+cw+'" height="'+ch+'" viewBox="'+x+' '+y+' '+cw+' '+ch+'" preserveAspectRatio="none" overflow="hidden"><image href="'+(extra?'/study/unit-1/assets/extra-gear.webp':ATLAS)+'" width="'+(extra?1536:1254)+'" height="'+(extra?1024:1254)+'"/></svg></svg>';
+  }
   function extraSprite(id,cls){
-    var index=extraItem(id),x=(index%6)*256,y=Math.floor(index/6)*341.333333;
-    return '<svg width="120" height="120" class="'+cls+' extra-item" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><svg width="120" height="120" viewBox="'+x+' '+y+' 256 341.333333" preserveAspectRatio="none" overflow="hidden"><image href="/study/unit-1/assets/extra-gear.webp" width="1536" height="1024"/></svg></svg>';
+    return '<svg width="120" height="120" class="'+cls+' extra-item" viewBox="0 0 120 120" aria-hidden="true" focusable="false">'+gearRaster(id,120,120)+'</svg>';
+  }
+  function equippedGear(id,cls,mask){
+    var spec=gearSpec(id),extra=extraItem(id)>=0,s=spec.height/(extra?341.333333:HEIGHTS[3]),width=(extra?256:314)*s;
+    return '<g class="gear '+cls+'" data-item-art="'+id+'"'+(mask?' mask="url(#'+mask+')"':'')+'><g transform="rotate('+spec.tilt+')"><g transform="translate('+(-spec.grip[0]*s)+' '+(-spec.grip[1]*s)+')">'+gearRaster(id,width,spec.height)+'</g></g></g>';
   }
   function illustratedHero(name,equipped,pose){
     var armor=equipped&&equipped.armor||'starter-cloak',weapon=equipped&&equipped.weapon||'starter-sword';
     var ac=Math.max(0,['starter-cloak','forest-hood','guardian-mail','star-mantle'].indexOf(armor));
-    var wc=Math.max(0,['starter-sword','copper-blade','moon-blade','star-wand'].indexOf(weapon));
-    var extraWeapon=extraItem(weapon)>=0,extraArmor=extraItem(armor)>=0;
+    var extraArmor=extraItem(armor)>=0,hands=HERO_HANDS[name]||HERO_HANDS.Luke,hand=hands[ac],mask='gear-grip-'+(++nextGripMask);
+    var gripStyle=['wind','hit','recover'].map(function(key,i){return '--grip-'+key+':translate('+(hand[i+1][0]-hand[0][0])+'px,'+(hand[i+1][1]-hand[0][1])+'px)';}).join(';');
+    var fit=gearSpec(weapon),scale=fit.height/(extraItem(weapon)>=0?341.333333:HEIGHTS[3]),angle=(fit.tilt+(combatProfile(weapon).attack==='thrust'?60:55))*Math.PI/180;
+    var tip=fit.tip||fit.grip,reach=(hand[2][0]+((tip[0]-fit.grip[0])*Math.cos(angle)-(tip[1]-fit.grip[1])*Math.sin(angle))*scale)/120;
     // Inspected crop windows: the generated sheet is not an equal-cell grid.
     var px=[0,260,563,790,1026,1300],pw=[250,300,220,232,275,225],py=[0,260,510,760];
     var frames=['windup','contact','recover'].map(function(frame,index){
       var col=(name==='Samantha'?3:0)+index;
       return '<g class="hero-frame frame-'+frame+'"><svg width="108" height="120" viewBox="'+px[col]+' '+py[ac]+' '+pw[col]+' 250" preserveAspectRatio="none" overflow="hidden"><image href="/study/unit-1/assets/hero-poses.webp" width="1536" height="1024"/></svg></g>';
     }).join('');
-    return '<svg class="hero-art hero-'+(pose||'ready')+'" viewBox="0 0 120 120" data-learner="'+name+'" data-armor="'+armor+'" data-weapon="'+weapon+'" aria-hidden="true" focusable="false">'+
+    return '<svg class="hero-art hero-'+(pose||'ready')+'" viewBox="0 0 120 120" data-learner="'+name+'" data-armor="'+armor+'" data-weapon="'+weapon+'" data-reach="'+reach.toFixed(3)+'" style="'+gripStyle+'" aria-hidden="true" focusable="false">'+
+      '<defs><mask id="'+mask+'" maskUnits="userSpaceOnUse" x="-120" y="-120" width="240" height="240"><rect x="-120" y="-120" width="240" height="240" fill="white"/><circle cx="0" cy="0" r="3" fill="black"/></mask></defs>'+
       '<g class="hero-idle">'+
       '<svg x="0" y="0" width="108" height="120" viewBox="'+COLS[ac]+' '+ROWS[name==='Samantha'?1:0]+' 314 '+HEIGHTS[name==='Samantha'?1:0]+'" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg>'+
-      '</g>'+frames+'<g class="weapon-grip"><g class="weapon-motion">'+(extraWeapon?'<g class="gear weapon extra-equipped" transform="translate(61 12) scale(.57)">'+extraSprite(weapon,'equipped-sprite')+'</g>':'<g class="gear weapon '+['starter','copper','moon','wand'][wc]+'"><svg x="66" y="17" width="49" height="62" viewBox="'+COLS[wc]+' 954 314 300" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg></g>')+'</g></g>'+
-      (extraArmor?'<g class="armor-motion"><g class="gear armor extra-equipped" transform="translate('+(armor.indexOf('charm')>=0?'36 42) scale(.22)':'0 44) scale(.42)')+'">'+extraSprite(armor,'equipped-sprite')+'</g></g>':'')+'</svg>';
+      '</g>'+frames+'<g class="weapon-anchor" transform="translate('+hand[0].join(' ')+')"><g class="weapon-grip"><g class="weapon-motion">'+equippedGear(weapon,'weapon',mask)+'</g></g></g>'+
+      (extraArmor?'<g class="armor-anchor" data-slot="'+(armor.indexOf('charm')>=0?'neck':'offhand')+'" transform="translate('+(armor.indexOf('charm')>=0?'55 48':'29 74')+')"><g class="armor-grip"><g class="armor-motion">'+equippedGear(armor,'armor')+'</g></g></g>':'')+'</svg>';
   }
   function illustratedMonster(kind,state){
     var index=Math.max(0,['mossling','wisp','sentinel','boss'].indexOf(kind)),x=(index%2)*627,y=Math.floor(index/2)*627;

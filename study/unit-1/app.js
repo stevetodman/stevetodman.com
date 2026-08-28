@@ -492,11 +492,18 @@
     }).join('')+'</span>';
   }
 
+  function readyForCastle(name){return masteredCount(name)>=12||gameProfile(name).sessionsCompleted>=11||(new Date()>=TEST_DATES.spelling&&masteredCount(name)>=10);}
+  function journeySentence(name){
+    var gp=gameProfile(name);
+    if(gp.bossDefeatedAt)return 'Castle reached! Keep your words strong.';
+    if(readyForCastle(name))return 'The castle is next: one final adventure!';
+    return 'Adventure '+Math.min(12,gp.sessionsCompleted+1)+' of 12: heading to the castle.';
+  }
   function showProfilePicker(preserveClock) {
     clearTimeout(counterTimer);silenceWeapon();silenceCreature();saveRound();saveTiming();clearTimeout(advanceTimer);clearTimeout(speechTimer);clearTimeout(rewardTimer);session=null;activeName=null;setChip(null);if(preserveClock!==true)activityClock=QUALITY.createClock(function(){return performance.now();});activityClock.mode('play');document.body.dataset.screen='home';
     app.innerHTML='<section class="picker-intro"><div class="intro-copy"><p class="eyebrow">'+esc(new Date()<TEST_DATES.vocabulary?'Tonight: mostly meanings':new Date()<TEST_DATES.spelling?'Tonight: mostly spelling':'Keep your words strong')+'</p><h2>Choose your hero</h2><p>Learn a word. Land a hit. Find your way to the castle.</p></div><div class="intro-emblem" aria-hidden="true">✦</div></section>'+
       '<div class="profile-grid">'+LEARNERS.map(function(l){return '<button type="button" class="learner-card" data-profile="'+esc(l.name)+'">'+
-        '<span class="profile-hero">'+ART.hero(l.name,gameProfile(l.name).equipped,'ready')+'</span><strong>'+esc(l.name)+'</strong><span class="stamp-count">'+masteredCount(l.name)+' of 12 words mastered</span><span class="start-label">'+(savedRound(l.name)?'Resume adventure':'Start adventure')+' <span aria-hidden="true">→</span></span><span class="session-promise">10 questions · about 4 minutes</span></button>';}).join('')+'</div>'+
+        '<span class="profile-hero">'+ART.hero(l.name,gameProfile(l.name).equipped,'ready')+'</span><strong>'+esc(l.name)+'</strong><span class="journey-line">'+esc(journeySentence(l.name))+'</span><span class="start-label">'+(savedRound(l.name)?'Resume adventure':'Start adventure')+' <span aria-hidden="true">→</span></span><span class="session-promise">10 questions · about 4 minutes</span></button>';}).join('')+'</div>'+
       '<div class="picker-links"><button type="button" class="text-button" id="word-list">Review the 12 words</button>'+
       '<span class="cloud-button" id="cloud-status">'+cloudStatusText()+'</span><button type="button" class="text-button" id="cloud-button">Device settings</button></div>'+learningSummaryHTML();
     app.querySelectorAll('[data-profile]').forEach(function(button){button.addEventListener('click',function(){startSession(button.getAttribute('data-profile'));});});
@@ -715,7 +722,7 @@
     if(resumed){session=resumed;var prior=session.timing||{};prior.play=(prior.play||0)+entryTiming.play;activityClock=QUALITY.createClock(function(){return performance.now();},prior);activityClock.mode('learning');renderQuestion();return;}
     activityClock=QUALITY.createClock(function(){return performance.now();},entryTiming);activityClock.mode('learning');
     var completed=gameProfile(name).sessionsCompleted;
-    var readyForBoss=masteredCount(name)>=12||completed>=11||(new Date()>=TEST_DATES.spelling&&masteredCount(name)>=10);
+    var readyForBoss=readyForCastle(name);
     var kinds=['mossling','wisp','sentinel'];
     session={id:new Date().toISOString()+'-'+Math.random().toString(36).slice(2,8),index:0,questions:buildPlan(name),results:[],combo:0,beforeMastered:masteredCount(name),strengthened:new Set(),battleDamage:0,battleState:'ready',enemy:readyForBoss&&!gameProfile(name).bossDefeatedAt?'boss':kinds[completed%kinds.length],rewarded:false};
     saveRound();renderQuestion();
@@ -747,7 +754,8 @@
     // rotating a phone cannot leave a cached desktop-sized lunge or projectile.
     var hero=stage.querySelector('.hero-fighter'),enemy=stage.querySelector('.enemy-fighter');
     var target=enemy.offsetLeft+enemy.offsetWidth*.30;
-    stage.style.setProperty('--lunge',Math.max(0,target-hero.offsetLeft-hero.offsetWidth*1.24)+'px');
+    var reach=Number(hero.querySelector('.hero-art').dataset.reach)||1.24;
+    stage.style.setProperty('--lunge',Math.max(0,target-hero.offsetLeft-hero.offsetWidth*reach)+'px');
     var lane=stage.querySelector('.projectile-lane'),start=hero.offsetLeft+hero.offsetWidth*.84;
     lane.style.left=start+'px';lane.style.right='auto';lane.style.width=Math.max(0,target-start)+'px';
     lane.style.top=(hero.offsetTop+hero.offsetHeight*.62)+'px';
