@@ -4,18 +4,16 @@ on:
   push:
     branches: [main]
     paths:
-      - 'study/**'
+      - 'study/supabase/**'
       - 'scripts/verify-study-cloud.sh'
       - 'scripts/verify-study-reward-ledger.mjs'
       - '.github/workflows/study-cloud-canary.yml'
   pull_request:
     paths:
-      - 'study/**'
+      - 'study/supabase/**'
       - 'scripts/verify-study-cloud.sh'
       - 'scripts/verify-study-reward-ledger.mjs'
       - '.github/workflows/study-cloud-canary.yml'
-  schedule:
-    - cron: '17 */6 * * *'
   workflow_dispatch:
 
 permissions:

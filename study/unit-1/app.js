@@ -62,11 +62,14 @@
   var cloudPushQueued = false;
   var cloudStatus = CLOUD_ENABLED ? 'loading' : 'local';
   var activityClock=QUALITY.createClock(function(){return performance.now();});
-  var speechTimer=null;
+  var speechTimer=null,counterTimer=null,localVoice=null;
   var rewardTimer=null;
-  var rewardDeadline=0;
+  var rewardDeadline=null;
+  var STORE_TIME_MS=50000;
   var rewardAllowance=0;
-  var selectedGear=null;
+  var selectedGear=null,shopPage=0;
+  var weaponAudio=null,stopWeaponSound=null,stopCreatureSound=null,weaponSoundsEnabled=true;
+  try{weaponSoundsEnabled=localStorage.getItem('studyhub-weapon-sounds')!=='off';}catch(_){}
   var localSaveErrors={};
 
   function persistLocal(key,value){
@@ -123,8 +126,95 @@
       return raw;
     }catch(_){return null;}
   }
-  function cancelSpeech(){try{if('speechSynthesis'in window)window.speechSynthesis.cancel();}catch(_){}}
+  function cancelSpeech(){clearTimeout(counterTimer);silenceWeapon();silenceCreature();try{if('speechSynthesis'in window)window.speechSynthesis.cancel();}catch(_){}}
   function pauseSession(){saveRound();cancelSpeech();showProfilePicker();}
+
+  function silenceWeapon(){if(stopWeaponSound){stopWeaponSound();stopWeaponSound=null;}}
+  function warmWeaponAudio(){
+    if(!weaponSoundsEnabled)return null;
+    try{
+      var Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return null;
+      if(!weaponAudio||weaponAudio.state==='closed')weaponAudio=new Audio();
+      if(weaponAudio.state==='suspended')weaponAudio.resume().catch(function(){});
+      return weaponAudio;
+    }catch(_){return null;}
+  }
+  // Short synthesized foley: swept air + inharmonic metal; the wand uses bell tones.
+  function renderWeaponSound(ctx,weapon){
+    var item=ART.catalog.find(function(item){return item.id===weapon;})||{sound:'blade',tone:730};
+    var type=item.sound,toneHz=item.tone;
+    var start=ctx.currentTime+.005,nodes=[],sources=[],remaining=0;
+    var output=ctx.createGain();output.gain.value=.16;output.connect(ctx.destination);nodes.push(output);
+    function cleanup(){nodes.forEach(function(node){try{node.disconnect();}catch(_){}});}
+    function voice(source,duration,volume,delay,filter){
+      var at=start+(delay||0),gain=ctx.createGain();nodes.push(source,gain);sources.push(source);remaining++;
+      gain.gain.setValueAtTime(.0001,at);gain.gain.exponentialRampToValueAtTime(volume,at+.008);
+      gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
+      if(filter){source.connect(filter);filter.connect(gain);nodes.push(filter);}else source.connect(gain);
+      gain.connect(output);source.onended=function(){if(--remaining===0)cleanup();};
+      source.start(at);source.stop(at+duration+.01);
+    }
+    try{
+      if(type==='wand'||type==='charm'){
+        [toneHz,toneHz*1.498,toneHz*2].forEach(function(hz,index){
+          var tone=ctx.createOscillator();tone.type='sine';tone.frequency.setValueAtTime(hz,start);
+          voice(tone,.30,.24,index*.055);
+        });
+      }else{
+        var copper=weapon==='copper-blade',moon=weapon==='moon-blade',soft=type==='cloth'||type==='wood',heavy=type==='hammer'||type==='shield';
+        var buffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*.18),ctx.sampleRate),data=buffer.getChannelData(0);
+        for(var i=0;i<data.length;i++)data[i]=Math.random()*2-1;
+        var air=ctx.createBufferSource();air.buffer=buffer;
+        var filter=ctx.createBiquadFilter();filter.type='bandpass';filter.Q.value=.7;
+        filter.frequency.setValueAtTime(type==='cloth'?toneHz*3:type==='bow'?3200:moon?3400:Math.min(3600,toneHz*3),start);
+        filter.frequency.exponentialRampToValueAtTime(400,start+.16);voice(air,.18,soft?.42:.6,0,filter);
+        var thud=ctx.createOscillator();thud.type='triangle';thud.frequency.setValueAtTime(type==='bow'?toneHz:heavy?95:145,start+.18);thud.frequency.exponentialRampToValueAtTime(heavy?35:48,start+.29);voice(thud,.13,soft?.14:heavy?.55:.38,.18);
+        var partials=[toneHz,toneHz*(type==='bow'?2:1.68),toneHz*(soft?3:2.71)];
+        partials.forEach(function(hz,index){
+          var metal=ctx.createOscillator();metal.type='sine';metal.frequency.setValueAtTime(hz*1.035,start+.18);metal.frequency.exponentialRampToValueAtTime(hz,start+.215);
+          voice(metal,type==='cloth'?.08:type==='bow'?.12:moon?.36:copper?.16:.22,(soft?.06:.25)/(index+1),.18);
+        });
+      }
+    }catch(error){sources.forEach(function(source){try{source.stop();}catch(_){}});cleanup();throw error;}
+    return function(){sources.forEach(function(source){try{source.stop();}catch(_){}});cleanup();};
+  }
+  function playWeaponSound(weapon){
+    silenceWeapon();
+    var ctx=warmWeaponAudio();
+    if(!ctx||ctx.state!=='running'||document.hidden)return;
+    try{stopWeaponSound=renderWeaponSound(ctx,weapon);}catch(_){} // Audio must never block learning.
+  }
+
+  function silenceCreature(){if(stopCreatureSound){stopCreatureSound();stopCreatureSound=null;}}
+  function renderCreatureSound(ctx,kind,armor){
+    var params=({mossling:[95,700,.34],wisp:[520,2300,.32],sentinel:[55,430,.38],boss:[260,1800,.40]})[kind]||[95,700,.34];
+    var armorItem=ART.catalog.find(function(item){return item.id===armor;}),armorTone=armorItem?armorItem.tone:115;
+    var duration=params[2],buffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*duration),ctx.sampleRate),data=buffer.getChannelData(0),phase=0;
+    for(var i=0;i<data.length;i++){
+      var t=i/ctx.sampleRate,fall=1-t/duration;
+      phase+=2*Math.PI*params[0]*(.65+.35*fall+.06*Math.sin(2*Math.PI*23*t))/ctx.sampleRate;
+      var growl=(Math.sin(phase)+.3*Math.sin(phase*2.01)+.2*Math.sin(phase*3.9))*(.7+.3*Math.sin(t*2*Math.PI*31));
+      var grit=(Math.random()*2-1)*(kind==='wisp'?.55:.25);
+      // Armor absorbs the counterattack: mail rings, fabric gives a soft thump.
+      var impact=t>.11?Math.exp(-(t-.11)*35)*Math.sin(t*2*Math.PI*armorTone)*.4:0;
+      data[i]=(growl*.38+grit+impact)*Math.min(1,t/.018)*Math.pow(fall,1.3);
+    }
+    var source=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
+    source.buffer=buffer;filter.type='lowpass';filter.frequency.value=armorItem?Math.max(armorTone*1.4,params[1]):params[1];gain.gain.value=.20;
+    source.connect(filter);filter.connect(gain);gain.connect(ctx.destination);
+    function cleanup(){source.disconnect();filter.disconnect();gain.disconnect();}
+    source.onended=cleanup;source.start();
+    return function(){try{source.stop();}catch(_){}cleanup();};
+  }
+  function playCreatureSound(kind,armor){
+    silenceCreature();var ctx=warmWeaponAudio();if(!ctx||ctx.state!=='running'||document.hidden)return;
+    try{stopCreatureSound=renderCreatureSound(ctx,kind,armor);}catch(_){}
+  }
+  function monsterCounterattack(){
+    if(!session||document.body.dataset.screen!=='question'||session.battleDamage>=SESSION_LENGTH)return;
+    setBattleState('counter','The monster strikes back. Your armor holds.',false);
+    playCreatureSound(session.enemy,gameProfile(activeName).equipped.armor);
+  }
 
   function blankProfile() { return { stats:{}, sessions:[] }; }
   function defaultState() { return { version:3, learners:{ Luke:blankProfile(), Samantha:blankProfile() } }; }
@@ -301,7 +391,7 @@
   }
 
   function showProfilePicker(preserveClock) {
-    saveRound();saveTiming();clearTimeout(advanceTimer);clearTimeout(speechTimer);clearTimeout(rewardTimer);session=null;activeName=null;setChip(null);if(preserveClock!==true)activityClock=QUALITY.createClock(function(){return performance.now();});activityClock.mode('play');document.body.dataset.screen='home';
+    clearTimeout(counterTimer);silenceWeapon();silenceCreature();saveRound();saveTiming();clearTimeout(advanceTimer);clearTimeout(speechTimer);clearTimeout(rewardTimer);session=null;activeName=null;setChip(null);if(preserveClock!==true)activityClock=QUALITY.createClock(function(){return performance.now();});activityClock.mode('play');document.body.dataset.screen='home';
     app.innerHTML='<section class="picker-intro"><div class="intro-copy"><p class="eyebrow">'+esc(new Date()<TEST_DATES.vocabulary?'Tonight: mostly meanings':new Date()<TEST_DATES.spelling?'Tonight: mostly spelling':'Keep your words strong')+'</p><h2>Choose your hero</h2><p>Learn a word. Land a hit. Find your way to the castle.</p></div><div class="intro-emblem" aria-hidden="true">✦</div></section>'+
       '<div class="profile-grid">'+LEARNERS.map(function(l){return '<button type="button" class="learner-card" data-profile="'+esc(l.name)+'">'+
         '<span class="profile-hero">'+ART.hero(l.name,gameProfile(l.name).equipped,'ready')+'</span><strong>'+esc(l.name)+'</strong><span class="stamp-count">'+masteredCount(l.name)+' of 12 words mastered</span><span class="start-label">'+(savedRound(l.name)?'Resume adventure':'Start adventure')+' <span aria-hidden="true">→</span></span><span class="session-promise">10 questions · about 4 minutes</span></button>';}).join('')+'</div>'+
@@ -430,7 +520,13 @@
     app.innerHTML='<section class="panel cloud-panel"><span class="panel-icon" aria-hidden="true">☁</span><h2>Cloud save</h2>'+
       '<p>'+(enabled?'Both learner profiles save automatically after every answer. Use the private link once on another device to connect the same progress.':'Cloud sync turns on automatically on stevetodman.com. This preview is saving only on this device.')+'</p>'+
       (enabled?'<button type="button" class="primary-button" id="share-cloud">Share private device link</button><p class="privacy-note">Treat this link like a password: anyone with it can read and change this family’s study progress. The key is removed from the address after a new device connects.</p>':'')+
+      '<button type="button" class="secondary-button" id="weapon-sounds" aria-pressed="'+weaponSoundsEnabled+'">Battle sounds: '+(weaponSoundsEnabled?'on':'off')+'</button>'+
       '<button type="button" class="text-button" id="cloud-done">Done</button></section>';
+    document.getElementById('weapon-sounds').addEventListener('click',function(){
+      weaponSoundsEnabled=!weaponSoundsEnabled;silenceWeapon();silenceCreature();
+      try{localStorage.setItem('studyhub-weapon-sounds',weaponSoundsEnabled?'on':'off');}catch(_){}
+      this.setAttribute('aria-pressed',String(weaponSoundsEnabled));this.textContent='Battle sounds: '+(weaponSoundsEnabled?'on':'off');
+    });
     if(enabled)document.getElementById('share-cloud').addEventListener('click',function(){
       var link=cloudShareLink();
       if(navigator.share)navigator.share({title:'Study Hub cloud save',url:link}).catch(function(){});
@@ -492,7 +588,7 @@
   }
 
   function startSession(name) {
-    activeName=name;setChip(name);warmSpeech();
+    activeName=name;setChip(name);warmSpeech();warmWeaponAudio();
     var resumed=savedRound(name);
     var entryTiming=activityClock.snapshot();
     if(resumed){session=resumed;var prior=session.timing||{};prior.play=(prior.play||0)+entryTiming.play;activityClock=QUALITY.createClock(function(){return performance.now();},prior);activityClock.mode('learning');renderQuestion();return;}
@@ -503,7 +599,9 @@
     session={id:new Date().toISOString()+'-'+Math.random().toString(36).slice(2,8),index:0,questions:buildPlan(name),results:[],combo:0,beforeMastered:masteredCount(name),strengthened:new Set(),battleDamage:0,battleState:'ready',enemy:readyForBoss&&!gameProfile(name).bossDefeatedAt?'boss':kinds[completed%kinds.length],rewarded:false};
     saveRound();renderQuestion();
   }
-  function warmSpeech() { try{if('speechSynthesis'in window)window.speechSynthesis.getVoices();}catch(_){} }
+  function warmSpeech() {
+    try{if('speechSynthesis'in window){var voices=window.speechSynthesis.getVoices();localVoice=voices.find(function(v){return v.localService&&/^en[-_]US$/i.test(v.lang);})||voices.find(function(v){return v.localService&&/^en/i.test(v.lang);})||null;}}catch(_){}
+  }
   function pipsHTML() {
     return '<div class="pips" aria-label="Question '+(session.index+1)+' of '+SESSION_LENGTH+'">'+Array.from({length:SESSION_LENGTH},function(_,i){
       var cls=i<session.results.length?(session.results[i].correct?'done':'learned'):(i===session.index?'current':'');
@@ -539,6 +637,8 @@
     var final=session.battleDamage+1>=SESSION_LENGTH;
     var message=kind==='critical'?'Critical hit. Shield point cleared.':kind==='recovery'?'Correction complete. Shield point cleared.':'Shield point cleared.';
     setBattleState(final?'victory':kind,message,true);
+    cancelSpeech();playWeaponSound(gameProfile(activeName).equipped.weapon);
+    if(!final&&kind!=='recovery')counterTimer=setTimeout(monsterCounterattack,450);
   }
   function recoverAndContinue(button) {
     if(button)button.disabled=true;
@@ -548,7 +648,7 @@
   }
   function renderQuestion() {
     clearTimeout(advanceTimer);
-    clearTimeout(speechTimer);
+    clearTimeout(speechTimer);clearTimeout(counterTimer);
     if(!session||session.index>=SESSION_LENGTH){finishSession();return;}
     activityClock.mode('learning');document.body.dataset.screen='question';
     var q=session.questions[session.index];
@@ -559,11 +659,12 @@
       '<div id="answer-area">'+(q.kind==='choice'?choicesHTML(q):inputHTML(q))+'</div><div id="feedback-area" aria-live="polite"></div></section><p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p>';
     resetView();
     if(q.kind==='choice')wireChoices(q);else wireInput(q);
-    if(q.listen){document.getElementById('listen').addEventListener('click',function(){speakWord(q.word);});if(q.spelling)speechTimer=setTimeout(function(){if(session&&session.questions[session.index]===q)speakWord(q.word);},220);}
+    if(q.listen){document.getElementById('listen').addEventListener('click',function(){speakWord(q.word);});}
     if(q.spelling)document.getElementById('hear-sentence').addEventListener('click',function(){speakWord(q.word,true);});
     if(q.spelling&&session.tileQuestion===session.index)showLetterTiles(q);
     var input=document.getElementById('answer-input');if(input&&session.draftValue)input.value=session.draftValue;
     if(session.results.length>session.index){disableAnswerArea();var result=session.results[session.index];if(session.resolved){if(result.assisted)showAssistedFeedback(q);else showPositiveFeedback(q);}else showCorrection(q);}
+    else if(q.spelling)speakWord(q.word);
   }
   function choicesHTML(q) { return '<div class="choice-list">'+q.choices.map(function(c){return '<button type="button" class="choice" data-answer="'+esc(c)+'">'+esc(c)+'</button>';}).join('')+'</div>'; }
   function inputHTML(q) {
@@ -607,7 +708,7 @@
     recordResult(q,correct,assisted);
     session.results.push({word:q.word.word,domain:q.domain,correct:correct&&!assisted,assisted:!!assisted});
     if(correct&&!assisted){session.combo+=1;session.strengthened.add(q.word.word);landHit('critical');}
-    else {session.combo=0;if(assisted)landHit('standard');else setBattleState('blocked','The creature blocked. Learn the answer, then strike again.',false);}
+    else {session.combo=0;if(assisted)landHit('standard');else {cancelSpeech();monsterCounterattack();}}
     if(!correct)scheduleRetry(q);
     session.resolved=correct||assisted;saveRound();
     disableAnswerArea();
@@ -664,9 +765,11 @@
     if(!('speechSynthesis'in window)){audioUnavailable(word);return;}
     cancelSpeech();
     try{
-    var first=new SpeechSynthesisUtterance(word.word+'.');var second=new SpeechSynthesisUtterance(word.spellingSentence);
-    first.lang=second.lang='en-US';first.rate=.78;second.rate=.84;
-    var utterance=sentence?second:first;
+    warmSpeech();
+    var utterance=new SpeechSynthesisUtterance(sentence?word.spellingSentence:word.word);
+    utterance.lang='en-US';utterance.rate=1;
+    if(localVoice)utterance.voice=localVoice;
+    if(typeof window.speechSynthesis.resume==='function')window.speechSynthesis.resume();
     utterance.onerror=function(event){if(!['interrupted','canceled'].includes(event.error))audioUnavailable(word);};
     window.speechSynthesis.speak(utterance);
     }catch(_){audioUnavailable(word);}
@@ -681,6 +784,8 @@
     if(note)note.textContent='Audio is unavailable here. Use letter tiles to practice this word, or ask someone to read it aloud.';
   }
 
+  function sessionCoinAward(correct,newStamps,bossWon){return 2+Math.floor(Math.max(0,Math.min(10,correct))/4)+Math.max(0,newStamps)*3+(bossWon?8:0);}
+
   function finishSession() {
     if(!session||!activeName)return;
     clearTimeout(toastTimer);toast.hidden=true;
@@ -689,13 +794,13 @@
     var correct=session.results.filter(function(r){return r.correct;}).length;
     if(!profile(activeName).sessions.some(function(s){return s.id===session.id;}))profile(activeName).sessions.unshift({id:session.id,at:new Date().toISOString(),correct:correct,total:SESSION_LENGTH,newStamps:newStamps,timing:activityClock.snapshot()});
     profile(activeName).sessions=profile(activeName).sessions.slice(0,20);saveState();scheduleCloudPush(0);
-    var gp=gameProfile(activeName),bossWon=session.enemy==='boss',oldLevel=levelForXp(gameXp(activeName)),xpAward=(bossWon?50:20)+newStamps*15,coinAward=(bossWon?20:8)+newStamps*5;
+    var gp=gameProfile(activeName),bossWon=session.enemy==='boss',oldLevel=levelForXp(gameXp(activeName)),xpAward=(bossWon?50:20)+newStamps*15,coinAward=sessionCoinAward(correct,newStamps,bossWon);
     if(!gp.rewards[session.id]){
       gp.rewards[session.id]={xp:xpAward,coins:coinAward};gp.sessionsCompleted+=1;if(bossWon&&!gp.bossDefeatedAt)gp.bossDefeatedAt=new Date().toISOString();
     } else { xpAward=0;coinAward=0; }
     var rewardSaved=saveGameState();
     var newLevel=levelForXp(gameXp(activeName)),leveledUp=newLevel>oldLevel;
-    session.rewarded=true;rewardAllowance=Math.min(25000,QUALITY.playBudget(activityClock.snapshot()));rewardDeadline=performance.now()+rewardAllowance;if(rewardSaved){try{localStorage.removeItem(ROUND_KEY+activeName);}catch(_){}}
+    session.rewarded=true;rewardAllowance=STORE_TIME_MS;rewardDeadline=null;shopPage=0;if(rewardSaved){try{localStorage.removeItem(ROUND_KEY+activeName);}catch(_){}}
     setChip(activeName);
     app.innerHTML='<section class="panel summary game-summary">'+
       '<div class="victory-lockup"><div class="summary-hero">'+ART.hero(activeName,gp.equipped,'victory')+(bossWon?'<span class="unit-crown" aria-hidden="true">✦</span>':'')+'</div><div><p class="eyebrow">'+(bossWon?'Adventure complete':'Expedition complete')+'</p><h2>'+(bossWon?'The castle is yours!':esc(activeName)+', the path is clear.')+'</h2><p>'+(bossWon?'You restored the realm. Keep practicing any words that still need a mastery seal.':session.strengthened.size+' '+(session.strengthened.size===1?'word got':'words got')+' stronger'+(newStamps?' and '+newStamps+' new '+(newStamps===1?'seal was':'seals were')+' restored.':'.'))+'</p></div></div>'+
@@ -706,12 +811,13 @@
     if(newStamps||correct>=8)celebrate();
     document.getElementById('visit-shop').addEventListener('click',function(){showShop();});
     document.getElementById('summary-done').addEventListener('click',showProfilePicker);
-    scheduleRewardEnd();
   }
-  function rewardBreakHTML(){return '<div class="reward-break" aria-live="off"><p id="reward-break-note">A short reward break. Coins and gear stay saved.</p><progress id="reward-break-progress" max="'+Math.max(1,rewardAllowance)+'" value="'+Math.max(0,rewardDeadline-performance.now())+'" aria-label="Reward break time remaining"></progress></div>';}
+  function rewardBreakHTML(){
+    if(rewardDeadline===null)return '<p class="cloud-mini">Your 50-second store visit starts when you choose gear.</p>';
+    return '<div class="reward-break" aria-live="off"><p id="reward-break-note">A short reward break. Coins and gear stay saved.</p><progress id="reward-break-progress" max="'+Math.max(1,rewardAllowance)+'" value="'+Math.max(0,rewardDeadline-performance.now())+'" aria-label="Reward break time remaining"></progress></div>';}
   function endExpiredRewardBreak(){
     if(!session||!session.rewarded)return true;
-    if(performance.now()<rewardDeadline)return false;
+    if(rewardDeadline===null||performance.now()<rewardDeadline)return false;
     var pending=savedGearChoice(activeName);
     showProfilePicker();showToast(pending?'Choice saved for your next reward break. No coins spent.':'Adventure complete. Coins and gear are saved.');return true;
   }
@@ -720,8 +826,6 @@
     // Navigation and preview share one allowance; neither can restart it.
     if(endExpiredRewardBreak())return;
     var remaining=Math.max(0,rewardDeadline-performance.now());
-    var link=document.getElementById('visit-shop');
-    if(link&&remaining<4000){link.disabled=true;link.textContent='Gear saved for next time';}
     var note=document.getElementById('reward-break-note');
     if(note)note.textContent=savedGearChoice(activeName)?'Back in '+Math.ceil(remaining/1000)+'s · choice saved for next time.':'Back to heroes in '+Math.ceil(remaining/1000)+'s. Coins and gear stay saved.';
     var progress=document.getElementById('reward-break-progress');if(progress)progress.value=remaining;
@@ -730,21 +834,24 @@
 
   function gearItemHTML(item) {
     var gp=gameProfile(activeName),owned=gp.owned.indexOf(item.id)>=0,equipped=gp.equipped[item.type]===item.id,affordable=coinBalance(activeName)>=item.price;
-    var label=equipped?'Equipped':owned?'Try on':affordable?item.price+' coins':'Need '+(item.price-coinBalance(activeName))+' more';
-    return '<article class="shop-card '+(equipped?'equipped ':'')+(owned?'owned':'')+'"><div class="shop-art">'+ART.itemIcon(item)+'</div><div class="shop-copy"><span class="item-rarity">'+esc(item.rarity)+'</span><h3>'+esc(item.name)+'</h3></div><button type="button" class="shop-action" data-item="'+esc(item.id)+'" '+(equipped||(!owned&&!affordable)?'disabled':'')+' aria-label="'+esc(item.name+': '+label)+'">'+esc(label)+'</button></article>';
+    var label=equipped?'Equipped':owned?'Try on':item.price+' coins · try';
+    return '<article class="shop-card '+(equipped?'equipped ':'')+(owned?'owned':'')+'"><div class="shop-art">'+ART.itemIcon(item)+'</div><div class="shop-copy"><span class="item-rarity">'+esc(item.rarity)+'</span><h3>'+esc(item.name)+'</h3></div><button type="button" class="shop-action" data-item="'+esc(item.id)+'" '+(equipped?'disabled':'')+' aria-label="'+esc(item.name+': '+label)+'">'+esc(label)+'</button></article>';
   }
   function showShop(keepPosition) {
     if(endExpiredRewardBreak())return;
+    if(rewardDeadline===null)rewardDeadline=performance.now()+rewardAllowance;
     activityClock.mode('play');document.body.dataset.screen='shop';
     var gp=gameProfile(activeName);
     setChip(activeName);
     app.innerHTML='<section class="merchant-head"><div><p class="eyebrow">Trail shop · a quick reward break</p><h2>Make it yours</h2></div><div class="wallet"><span aria-hidden="true">◆</span><strong>'+coinBalance(activeName)+'</strong><small>study coins</small></div><p class="merchant-note">Study coins only. No real money. Gear changes looks, not questions.</p></section>'+
       '<section class="merchant-preview" id="gear-preview"><div class="preview-glow"></div>'+ART.hero(activeName,gp.equipped,'ready')+'<div><span>Level '+levelForXp(gameXp(activeName))+'</span><strong>'+esc(activeName)+'</strong><small>'+esc((itemById(gp.equipped.weapon)||{name:'Starter Sword'}).name)+' · '+esc((itemById(gp.equipped.armor)||{name:'Starter Cloak'}).name)+'</small><button type="button" class="starter-button" id="starter-gear">Wear starter gear</button></div></section>'+
-      rewardBreakHTML()+'<div class="shop-grid">'+GAME_CATALOG.map(gearItemHTML).join('')+'</div><button type="button" class="secondary-button merchant-done" id="shop-done">Done for now</button>';
+      rewardBreakHTML()+'<div class="shop-grid">'+GAME_CATALOG.slice(shopPage*6,shopPage*6+6).map(gearItemHTML).join('')+'</div><nav class="shop-pages" aria-label="Shop shelves"><button type="button" id="shop-prev" '+(shopPage===0?'disabled':'')+'>← Back</button><span>Shelf '+(shopPage+1)+' / '+Math.ceil(GAME_CATALOG.length/6)+'</span><button type="button" id="shop-next" '+(shopPage>=Math.ceil(GAME_CATALOG.length/6)-1?'disabled':'')+'>More gear →</button></nav><button type="button" class="secondary-button merchant-done" id="shop-done">Done for now</button>';
     if(!keepPosition)resetView('.merchant-head h2');
     app.querySelectorAll('[data-item]').forEach(function(button){button.addEventListener('click',function(){previewGear(button.getAttribute('data-item'));});});
     document.getElementById('starter-gear').addEventListener('click',function(){if(endExpiredRewardBreak())return;saveGearChoice(null);gameProfile(activeName).equipped={weapon:'starter-sword',armor:'starter-cloak'};saveGameState();scheduleCloudPush();showShop(true);showToast('Starter gear equipped. Your collection is safe.');});
     document.getElementById('shop-done').addEventListener('click',showProfilePicker);
+    document.getElementById('shop-prev').addEventListener('click',function(){if(endExpiredRewardBreak())return;shopPage=Math.max(0,shopPage-1);saveGearChoice(null);showShop(true);});
+    document.getElementById('shop-next').addEventListener('click',function(){if(endExpiredRewardBreak())return;shopPage=Math.min(Math.ceil(GAME_CATALOG.length/6)-1,shopPage+1);saveGearChoice(null);showShop(true);});
     scheduleRewardEnd();
     var pending=savedGearChoice(activeName);
     if(pending)previewGear(pending,true);
@@ -754,13 +861,15 @@
     var item=itemById(id);if(!item)return;
     var gp=gameProfile(activeName),equipped=Object.assign({},gp.equipped);equipped[item.type]=id;
     var owned=gp.owned.indexOf(id)>=0;
-    if(gp.equipped[item.type]===id||(!owned&&coinBalance(activeName)<item.price)){saveGearChoice(null);return;}
+    if(gp.equipped[item.type]===id){saveGearChoice(null);return;}
     saveGearChoice(id);
-    document.getElementById('gear-preview').innerHTML=ART.hero(activeName,equipped,'ready')+'<div><span>'+(resumed?'Your saved choice':'Try it on')+' · no coins spent</span><strong>'+esc(item.name)+'</strong><button type="button" class="preview-confirm" id="confirm-gear">'+(owned?'Equip this':'Use '+item.price+' coins')+'</button><button type="button" class="starter-button" id="cancel-gear">Keep my gear</button></div>';
+    if(!resumed)playWeaponSound(id);
+    var canBuy=owned||coinBalance(activeName)>=item.price;
+    document.getElementById('gear-preview').innerHTML=ART.hero(activeName,equipped,'ready')+'<div><span>'+(resumed?'Your saved choice':'Try it on')+' · no coins spent</span><strong>'+esc(item.name)+'</strong><button type="button" class="preview-confirm" id="confirm-gear" '+(canBuy?'':'disabled')+'>'+(!canBuy?'Need '+(item.price-coinBalance(activeName))+' more coins':owned?'Equip this':'Use '+item.price+' coins')+'</button><button type="button" class="starter-button" id="cancel-gear">Keep my gear</button></div>';
     document.getElementById('confirm-gear').addEventListener('click',function(){buyOrEquip(selectedGear);});
     document.getElementById('cancel-gear').addEventListener('click',function(){if(endExpiredRewardBreak())return;saveGearChoice(null);showShop(true);});
     document.getElementById('gear-preview').scrollIntoView({block:'nearest',behavior:'auto'});
-    document.getElementById('confirm-gear').focus({preventScroll:true});
+    document.getElementById(canBuy?'confirm-gear':'cancel-gear').focus({preventScroll:true});
     scheduleRewardEnd();
   }
   function buyOrEquip(id) {
@@ -791,7 +900,7 @@
   document.addEventListener('input',saveRound);
   window.addEventListener('pagehide',function(){saveRound();saveTiming();});
   window.addEventListener('online',function(){scheduleCloudPush(0);});
-  document.addEventListener('visibilitychange',function(){activityClock.visibility(!document.hidden);saveRound();saveTiming();if(!document.hidden)cloudPull().then(function(){if(!activeName&&document.body.dataset.screen==='home')showProfilePicker(true);});});
+  document.addEventListener('visibilitychange',function(){if(document.hidden){clearTimeout(counterTimer);silenceWeapon();silenceCreature();}activityClock.visibility(!document.hidden);saveRound();saveTiming();if(!document.hidden)cloudPull().then(function(){if(!activeName&&document.body.dataset.screen==='home')showProfilePicker(true);});});
 
   adoptTokenFromHash();
   showProfilePicker();

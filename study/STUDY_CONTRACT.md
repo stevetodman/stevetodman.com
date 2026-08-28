@@ -20,14 +20,16 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 
 ## Game layer
 
+- Equipped weapons have distinct, brief synthesized effects: sword swishes and metallic strikes, or a wand chime. Monsters counterattack with creature and armor-impact sounds, without reducing progress or delaying the next question. Spelling audio starts immediately at normal speed and prefers a local English voice. Device settings can mute effects without muting spoken questions. Effects stop for narration, navigation and hidden tabs; unavailable audio never blocks learning.
 - The question is the combat action. There are no separate attack, defend, movement, or energy-grind turns.
 - Every battle contains the same 10 questions as the assignment session. Equipment may change appearance and feedback, but never question count, mastery, difficulty, correctness, or rewards.
+- The shop has 24 cosmetic items in four six-item shelves. Every item has its own sound preview, including unaffordable items; purchases still require the full coin price. Completed rounds earn 2–4 coins based on first-try correct answers, plus 3 per new mastery seal and 8 for a boss victory. Historical coin rewards, ownership and original prices are preserved.
 - XP and study coins are earned only by completed learning sessions and newly earned mastery seals. Study coins can buy cosmetic gear. No real-money purchases, paid currency, subscriptions, payment checkout, ads or loot boxes.
 - Currency, equipment, level, and reward details remain private until a learner selects their profile.
 - Luke and Samantha keep independent wallets, equipment, rewards, and purchase histories.
 - Game rewards use an idempotent per-session ledger so a repeated or merged cloud save cannot award the same session twice.
 - The boss is a presentation of the normal ten-question session, not a gate to practice. A learner may face it at 12 seals, at 10 seals after the unit test date, or on the twelfth travel session. Finishing the adventure is distinct from mastering every word; missing seals remain available afterward.
-- Equipment selection is limited to a short post-session choice and cannot interrupt a question. Preview gear before spending earned study coins. Owned gear can be equipped free.
+- Both learners receive a full 50-second store visit after every completed session, including fast rounds. The timer starts on first store entry, not on the results screen; preview, cancel and purchase never restart it. The learning/play ratio is measured, not enforced by removing store access. Equipment selection cannot interrupt a question. Preview gear before spending earned study coins. Owned gear can be equipped free.
 - An unconfirmed gear choice is a validated, learner-specific device-local bookmark. It survives timeout/reload and resumes only in the next earned reward break; it never spends coins, changes equipment, syncs to another device, or extends the play budget. Cancel and successful confirmation clear it.
 
 ## Assignment behavior
@@ -50,4 +52,4 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 
 ## Release gates
 
-Every Study change must pass the dedicated `Study contract` workflow. That workflow runs Study-only regression/behavior tests. After a merge to `main`, it also verifies the live production `/study/` route and deployed Study assets.
+Every Study change must pass the dedicated `Study contract` workflow. That workflow runs fast Study unit checks and one focused Chromium smoke pass for the twins, stores, saves, audio and speech. Broader suites and WebKit remain available manually, not required on every family-app edit. The same job on `main` also verifies the live production `/study/` route and deployed Study assets.

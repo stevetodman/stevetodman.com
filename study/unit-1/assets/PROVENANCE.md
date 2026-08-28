@@ -40,3 +40,19 @@ NO characters, enemies, text, numbers, labels, markers, UI, path nodes, logos or
 Use case: precise-object-edit. Edit this transparent sprite atlas. Preserve ALL16 existing sprites exactly: same characters, identity, faces, outfits, poses, style, colors, foes and weapons, same order.
 CHANGE ONLY THE LAYOUT/SCALING: make it a rigorously aligned regular4x4 square atlas. Every sprite must fit entirely within its equal-size cell with generous empty transparent gutters. Shrink all sprites to roughly72% of their current per-cell size and recenter. Ensure top row bottoms do NOT cross into row2; row2 bottoms do NOT cross into row3; row3 foes fully fit inside row3; row4 weapons fully inside row4. Center every sprite in its cell. Keep consistent body scale and baseline for the eight adventurer variants. No object crosses cell boundaries or touches outer canvas edge.
 If output2048x2048, exact cell edges0,512,1024,1536,2048. Each sprite should remain inside its cell inset64px on ALL sides. Blank gutters must have actual alpha0. Genuine transparent PNG background, not black, white or checkerboard. NO drawn grid or numbers. Preserve everything else, especially polished2.5D storybook style and all details.
+
+
+## Fiercer monster replacement — August 28, 2026
+
+Built-in image generation, using the original atlas as the monster-identity and style reference. New `monster-sprites.webp` is a separate 2x2 atlas; hero and gear art is unchanged. Order: Bramble Imp, Gloom Wisp, Rune Sentinel, Word Keeper. The RGB background is dark forest green and the UI feathers the outer cell edges into the battle scene. It is not represented as alpha transparency.
+
+Prompt: Redesign the four monsters as ugly, snarling, formidable fantasy foes, facing left: warty moss-and-bark troll with crooked teeth and root claws; angular purple-blue spectral creature; cracked-stone golem with craggy jaw and rune fists; ragged purple owl sorcerer with hooked beak, talons and gold crown. Polished painterly 3D fantasy style; age appropriate for ten-year-olds, no blood or gore. Four equal cells in a 2x2 square grid, no heroes, weapons, labels or text.
+
+Background correction: Replace every checkerboard pixel with a flat very dark forest green #143727 while preserving the four monsters. Transparent-background attempts returned RGB checkerboards and were rejected for production. Only mechanical WebP encoding was performed after generation.
+
+
+## Expanded equipment — August 28, 2026
+
+Built-in image generation; selected 1536x1024 RGB source, encoded mechanically as `extra-gear.webp`. Six columns and three rows, separate from the original hero/gear atlas. Black background is composited with screen blending when worn; the shop feathers cell edges. No claim of transparent alpha.
+
+Prompt: Exactly 18 isolated polished painterly 3D fantasy equipment icons on pure black, 6 columns by 3 rows, complete items centered with margins and no labels. Row 1: oak staff, iron axe, hunter bow, frost spear, ember hammer, thunder blade. Row 2: crystal wand, dragon blade, void scythe, iron shield, ember buckler, crystal shield. Row 3: thunder shield, dragon shield, void shield, oak charm, frost charm, sun charm. Weapons point diagonally up-right; shields face forward; charms upright. Family-friendly, no blood or gore.

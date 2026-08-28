@@ -79,7 +79,7 @@ const files = [];
 // Content-address Study's delivery as one release, including CSS background
 // imagery. Revalidating HTML then cannot load an older cached app/atlas.
 const studyAssets = ['app.js','game-art.js','quality-core.js','app.css'];
-const studyArt = ['expedition-sprites.webp','forest-clearing.webp','expedition-world.webp'];
+const studyArt = ['expedition-sprites.webp','forest-clearing.webp','expedition-world.webp','monster-sprites.webp','extra-gear.webp'];
 const studyHash = createHash('sha256');
 for (const asset of studyAssets.concat(studyArt.map(name=>'assets/'+name))) {
   studyHash.update(fs.readFileSync(path.join(dist,'study/unit-1',asset)));
