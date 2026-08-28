@@ -373,7 +373,7 @@ describe('Unit 1 Word Expedition', () => {
       const Offline=window.OfflineAudioContext||window.webkitOfflineAudioContext;
       const results=[];
       for(const weapon of ['starter-sword',...window.WordExpeditionArt.catalog.map(item=>item.id),'mossling','wisp','sentinel','boss']){
-        const ctx=new Offline(1,24000,48000);
+        const ctx=new Offline(1,31200,48000);
         if(['mossling','wisp','sentinel','boss'].includes(weapon))renderCreature(ctx,weapon,'guardian-mail');else render(ctx,weapon);
         const samples=(await ctx.startRendering()).getChannelData(0);
         let energy=0,peak=0;
@@ -394,7 +394,7 @@ describe('Unit 1 Word Expedition', () => {
   });
 
   test('monsters counterattack without penalties and spelling starts promptly with a local voice', async () => {
-    const context=await browser.newContext();
+    const context=await browser.newContext({viewport:{width:390,height:844}});
     await context.addInitScript(()=>{
       window.heard=[];
       window.SpeechSynthesisUtterance=function(text){this.text=text;};
@@ -416,6 +416,60 @@ describe('Unit 1 Word Expedition', () => {
     assert.equal(speech.last.voice,'Local');assert.equal(speech.last.rate,1);
     assert.ok(speech.age<220,'speech starts on render, without the former 220ms timer');
     assert.equal(await page.locator('.question-count').innerText(),'8 / 10');
+
+    // Exercise each attack family and all four monsters/defenses in this same smoke check.
+    const scenes=[
+      ['starter-sword','starter-cloak',0,'mossling','weapon-slash','hero-evade'],
+      ['ember-hammer','iron-shield',2,'sentinel','weapon-overhead','hero-brace'],
+      ['hunter-bow','guardian-mail',1,'wisp','weapon-draw','hero-brace'],
+      ['crystal-wand','star-mantle',11,'boss','weapon-cast','hero-barrier'],
+      ['iron-axe','sun-charm',0,'mossling','weapon-overhead','hero-barrier'],
+      ['frost-spear','crystal-shield',2,'sentinel','weapon-thrust','hero-brace'],
+      ['oak-staff','forest-hood',0,'mossling','weapon-sweep','hero-evade'],
+      ['void-scythe','void-shield',1,'wisp','weapon-sweep','hero-brace'],
+    ];
+    const directory=path.join(process.env.RUNNER_TEMP||os.tmpdir(),'study-evidence');fs.mkdirSync(directory,{recursive:true});
+    for(const [weapon,armor,rounds,enemy,weaponMotion,defenseMotion] of scenes){
+      await page.locator('#profile-chip').click();
+      await page.evaluate(({weapon,armor,rounds})=>{
+        localStorage.removeItem('studyhub-word-expedition-round-unit1-v1-Luke');
+        localStorage.setItem('studyhub-word-expedition-game-unit1-v1',JSON.stringify({version:1,learners:{Luke:{sessionsCompleted:rounds,owned:[weapon,armor],equipped:{weapon,armor}}}}));
+      },{weapon,armor,rounds});
+      await page.reload();await page.locator('[data-profile="Luke"]').click();
+      const stage=page.locator('#battle-stage');
+      assert.equal(await stage.getAttribute('data-enemy'),enemy);
+      const gameBefore=await page.evaluate(()=>localStorage.getItem('studyhub-word-expedition-game-unit1-v1'));
+      await answerCorrectly(page,false);
+      const motion=await stage.evaluate(el=>({
+        weapon:getComputedStyle(el.querySelector('.weapon-motion')).animationName,
+        contact:Number.parseFloat(el.style.getPropertyValue('--contact')),
+        hitDelay:Number.parseFloat(getComputedStyle(el.querySelector('.hit-mark')).animationDelay),
+        nextEnabled:!document.querySelector('#next-question').disabled
+      }));
+      assert.equal(motion.weapon,weaponMotion,weapon);
+      assert.equal(motion.hitDelay,motion.contact,'hit effect waits for weapon contact');
+      assert.equal(motion.nextEnabled,true,'combat never locks Next');
+      assert.equal(await page.locator('.shield-segment.cleared').count(),1);
+      if(weapon==='ember-hammer'||weapon==='crystal-wand'){
+        await stage.evaluate((el,contact)=>{for(const animation of el.getAnimations({subtree:true})){animation.pause();animation.currentTime=contact*1000+70;}},motion.contact);
+        await page.screenshot({path:path.join(directory,'390-combat-'+weapon+'.png'),fullPage:true,animations:'allow'});
+      }
+      await page.clock.runFor(Math.max(450,motion.contact*2000)+10);
+      assert.equal(await stage.getAttribute('data-state'),'counter');
+      assert.equal(await stage.locator('.hero-fighter').evaluate(el=>getComputedStyle(el).animationName),defenseMotion);
+      const counter=await stage.locator('.enemy-fighter').evaluate(el=>getComputedStyle(el).animationName);
+      assert.equal(counter,({mossling:'troll-swipe',sentinel:'golem-slam',wisp:'wisp-dart',boss:'owl-cast'})[enemy]);
+      assert.equal(await page.locator('.shield-segment.cleared').count(),1,'every monster preserves the earned hit');
+      assert.equal(await page.evaluate(()=>localStorage.getItem('studyhub-word-expedition-game-unit1-v1')),gameBefore,'combat cannot change currency or equipment');
+      await page.locator('#next-question').click();
+      await page.clock.runFor(650);
+      assert.equal(await stage.getAttribute('data-state'),'ready','old counter cannot leak into the next question');
+      assert.equal(await page.locator('.question-count').innerText(),'2 / 10');
+    }
+    await page.emulateMedia({reducedMotion:'reduce'});
+    await answerCorrectly(page,false);
+    assert.equal(await page.locator('.weapon-motion').evaluate(el=>getComputedStyle(el).animationName),'none');
+    assert.equal(await page.locator('.shield-segment.cleared').count(),2,'reduced motion preserves earned hits');
     await context.close();
   });
 

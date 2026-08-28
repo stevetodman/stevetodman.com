@@ -89,11 +89,6 @@ h2,h3,p { margin-top:0; }
 .gear.weapon path { fill:none; stroke:#4c3027; stroke-width:5; stroke-linecap:round; stroke-linejoin:round; }.gear.weapon .blade { fill:#e6edf0; stroke:#17324d; stroke-width:2.5; }.gear.weapon.starter .blade { fill:#b9c7cc; }.gear.weapon.copper .blade { fill:#d78350; }.gear.weapon.moon .blade { fill:#d9e9ff; }.gear.weapon.wand circle { fill:#f4bd55; stroke:#17324d; stroke-width:2.5; }.gear.weapon.wand .spark { fill:#fff1ae; stroke:#fff8d6; stroke-width:1.2; }
 .moss-body { fill:#659852; stroke:#17324d; stroke-width:4; }.moss-horn { fill:#8ebd74; stroke:#17324d; stroke-width:4; stroke-linejoin:round; }.moss-leaf { fill:#b6db75; stroke:#17324d; stroke-width:3; }.monster-eye { fill:#f8f4d6; stroke:#17324d; stroke-width:2; }.monster-mouth { fill:none; stroke:#17324d; stroke-width:3; stroke-linecap:round; }.wisp-body { fill:#6d62b3; stroke:#241f52; stroke-width:4; }.wisp-tail { fill:#51478f; stroke:#241f52; stroke-width:4; }.wisp-horn { fill:#978ed0; stroke:#241f52; stroke-width:4; }.stone-body { fill:#607b8c; stroke:#17324d; stroke-width:4; }.stone-plate { fill:#8ca2ad; stroke:#17324d; stroke-width:4; stroke-linejoin:round; }.glow { fill:#b8fff0; }.stone-rune { fill:#5ee0ca; stroke:#17324d; stroke-width:3; }.boss-cape { fill:#4a306e; stroke:#1f173c; stroke-width:4; }.boss-body { fill:#764988; stroke:#1f173c; stroke-width:4; }.boss-crown { fill:#f4bd55; stroke:#1f173c; stroke-width:3; }.boss-eye { fill:#ffe084; }.boss-rune { fill:#f7c85e; stroke:#fff2b3; stroke-width:2; }
 
-.battle-stage[data-state="critical"] .hero-fighter,.battle-stage[data-state="recovery"] .hero-fighter,.battle-stage[data-state="victory"] .hero-fighter { animation:hero-strike .5s cubic-bezier(.2,.8,.2,1); }
-.battle-stage[data-state="critical"] .enemy-fighter,.battle-stage[data-state="recovery"] .enemy-fighter,.battle-stage[data-state="victory"] .enemy-fighter { animation:enemy-hit .5s ease; }
-.battle-stage[data-state="blocked"] .enemy-fighter { animation:enemy-block .42s ease; }
-.battle-stage[data-state="critical"] .impact-burst,.battle-stage[data-state="recovery"] .impact-burst,.battle-stage[data-state="victory"] .impact-burst { animation:impact-pop .5s ease; }
-.battle-stage[data-state="victory"] .enemy-fighter { animation:enemy-defeat .7s ease forwards; }
 
 .secondary-button { min-height:50px; padding:11px 18px; color:var(--ink); background:#edf4f2; border:1px solid #c9d9d6; border-radius:14px; font-weight:950; cursor:pointer; }
 .game-summary { padding:22px; text-align:left; }
@@ -180,11 +175,6 @@ h2,h3,p { margin-top:0; }
 button:focus-visible,input:focus-visible { outline:4px solid var(--gold); outline-offset:3px; }
 
 @keyframes confetti-fall { to { transform:translateY(105vh) rotate(520deg); opacity:.3; } }
-@keyframes hero-strike { 0%{transform:translateX(0) rotate(0)}45%{transform:translateX(38px) rotate(5deg)}100%{transform:translateX(0) rotate(0)} }
-@keyframes enemy-hit { 0%,100%{transform:translateX(0)}45%{transform:translateX(12px) rotate(6deg);filter:brightness(1.5)} }
-@keyframes enemy-block { 0%,100%{transform:translateX(0)}35%{transform:translateX(-9px) scale(1.04)}65%{transform:translateX(5px)} }
-@keyframes impact-pop { 0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0)}45%{opacity:1;transform:translate(-50%,-50%) scale(1.25) rotate(20deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.8) rotate(45deg)} }
-@keyframes enemy-defeat { 0%{transform:translateY(0) scale(1);opacity:1}70%{transform:translateY(9px) scale(.82) rotate(8deg);opacity:.55}100%{transform:translateY(18px) scale(.55);opacity:0} }
 @media (max-width:560px) {
   .shell { padding-left:12px; padding-right:12px; }
   .picker-intro { padding:21px 19px; }
@@ -285,13 +275,6 @@ body[data-screen="question"] .cloud-mini { display:none; }
 .shop-card h3 { font-size:.96rem; }.shop-card p { font-size:.72rem; }
 .shop-card.equipped { border-color:#5c9a6c;background:#f2f6e9; }
 .shop-card .item-art svg { overflow:hidden; }
-.battle-stage[data-state="standard"] .hero-fighter { animation:hero-strike .45s ease; }
-.battle-stage[data-state="standard"] .enemy-fighter { animation:enemy-hit .45s ease; }
-.battle-stage[data-state="standard"] .impact-burst { animation:impact-pop .45s ease; }
-.battle-stage[data-weapon="star-wand"] .impact-burst { color:#e9d0ff;text-shadow:0 0 18px #a367ed;font-size:2.8rem; }
-.battle-stage[data-weapon="moon-blade"] .impact-burst { color:#cff9ff;text-shadow:0 0 18px #78e7fc; }
-.battle-stage[data-weapon="star-wand"][data-state="critical"] .hero-fighter { animation:wand-cast .5s ease; }
-@keyframes wand-cast { 0%,100%{transform:translateY(0)}45%{transform:translateY(-8px) rotate(-4deg);filter:drop-shadow(0 0 9px #bc99ff)} }
 @media (max-width:560px) {
   .shell { padding:calc(14px + env(safe-area-inset-top)) 14px calc(25px + env(safe-area-inset-bottom)); }
   .topbar { margin-bottom:16px; }.topbar h1{font-size:1.42rem;}
@@ -344,11 +327,6 @@ body[data-screen="question"] .pips { display:none; }
 }
 
 /* Counterattacks are presentation only: no health loss or delay to the next answer. */
-.battle-stage[data-state="counter"] .enemy-fighter { animation:monster-strike .48s cubic-bezier(.2,.8,.2,1); }
-.battle-stage[data-state="counter"] .hero-fighter { animation:hero-parry .48s ease; }
-.battle-stage[data-state="counter"] .impact-burst { left:36%;color:#c8f5ff;animation:impact-pop .48s ease; }
-@keyframes monster-strike { 0%,100%{transform:translateX(0)}40%{transform:translateX(-42px) rotate(-12deg) scale(1.08)}70%{transform:translateX(-16px) rotate(4deg)} }
-@keyframes hero-parry { 0%,100%{transform:translateX(0)}45%{transform:translateX(-10px) rotate(-5deg);filter:brightness(1.2)} }
 
 .monster-cutout { -webkit-mask-image:radial-gradient(ellipse at center,#000 55%,transparent 74%);mask-image:radial-gradient(ellipse at center,#000 55%,transparent 74%); }
 
@@ -358,3 +336,109 @@ body[data-screen="question"] .pips { display:none; }
 .shop-pages button { min-height:44px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--teal-dark);font:inherit;cursor:pointer; }
 .shop-pages button:disabled,.preview-confirm:disabled { opacity:.55;cursor:default; }
 @media(max-width:560px){.shop-pages{margin-top:5px;}.merchant-done{margin-top:6px;}.shop-pages button{min-height:40px;}.shop-art,.item-art{height:54px;}.shop-card{padding:6px;}}
+
+/* A question is still the only combat input. All motion is brief and skippable. */
+.battle-stage { --effect:#ffe0a4;--guard:#a9e7ef;--enemy-effect:#c9a6ff; }
+.battle-stage[data-element="moon"],.battle-stage[data-element="ice"] { --effect:#b9f4ff; }
+.battle-stage[data-element="fire"] { --effect:#ffac58; }
+.battle-stage[data-element="lightning"] { --effect:#f9ef83; }
+.battle-stage[data-element="star"],.battle-stage[data-element="crystal"] { --effect:#efc4ff; }
+.battle-stage[data-element="void"] { --effect:#bc9bff; }
+.battle-stage[data-element="wood"] { --effect:#d9e9a6; }
+.battle-stage[data-guard-element="fire"] { --guard:#ffb967; }
+.battle-stage[data-guard-element="crystal"],.battle-stage[data-guard-element="star"],.battle-stage[data-guard-element="void"] { --guard:#dab4ff; }
+.battle-stage[data-guard-element="wood"] { --guard:#bde29d; }
+.battle-stage[data-guard-element="lightning"] { --guard:#fff39a; }
+.battle-stage[data-enemy="sentinel"] { --enemy-effect:#b8f69c; }
+.battle-stage[data-enemy="mossling"] { --enemy-effect:#dac693; }
+.battle-status { position:relative;min-height:2.4em;margin:5px 0 0;color:#fff9e3;font-size:.65rem;line-height:1.2;text-align:center;text-shadow:0 1px 3px #08291e; }
+.battle-scene .fighter { flex-shrink:0; }
+.weapon-motion { transform-box:view-box;transform-origin:78px 70px; }
+.armor-motion { transform-box:view-box;transform-origin:36px 76px; }
+.hit-mark,.ground-ripple,.hero-guard,.enemy-guard { position:absolute;pointer-events:none;opacity:0; }
+.hit-mark { z-index:4;left:14%;top:28%;width:60%;height:45%;border-top:4px solid var(--effect);border-radius:50%;filter:drop-shadow(0 0 5px var(--effect)); }
+.ground-ripple { left:-15%;bottom:2%;width:130%;height:18%;border:3px solid var(--effect);border-radius:50%; }
+.hero-guard { z-index:3;left:40%;top:17%;width:58%;height:75%;border:3px solid var(--guard);border-radius:48%;background:radial-gradient(ellipse,transparent 50%,#bceeff40);box-shadow:0 0 12px var(--guard); }
+.enemy-guard { z-index:2;inset:10% 6%;border:2px solid var(--enemy-effect);border-radius:45%; }
+.battle-stage[data-enemy="sentinel"] .enemy-guard { opacity:.38;clip-path:polygon(15% 0,80% 0,100% 40%,83% 88%,50% 100%,12% 80%,0 35%);border-radius:20%;background:linear-gradient(135deg,#8ba58930,transparent); }
+.battle-stage[data-enemy="boss"] .enemy-guard { opacity:.40;border-style:dashed;box-shadow:inset 0 0 12px #bf82ef70; }
+.battle-stage[data-enemy="sentinel"] .enemy-fighter::after { content:"";position:absolute;inset:25% 25% 17%;background:#e1ffb1;opacity:0;clip-path:polygon(40% 0,49% 0,60% 30%,43% 47%,60% 70%,48% 100%,41% 100%,50% 70%,33% 47%,50% 30%);pointer-events:none; }
+.battle-stage[data-enemy="sentinel"][data-wear="1"] .enemy-fighter::after { opacity:.4; }
+.battle-stage[data-enemy="sentinel"][data-wear="2"] .enemy-fighter::after { opacity:.7;scale:1.1; }
+.battle-stage[data-enemy="sentinel"][data-wear="3"] .enemy-fighter::after { opacity:1;scale:1.2; }
+.battle-stage[data-enemy="wisp"][data-wear="1"] .monster-art { opacity:.85; }
+.battle-stage[data-enemy="wisp"][data-wear="2"] .monster-art { opacity:.7; }
+.battle-stage[data-enemy="wisp"][data-wear="3"] .monster-art { opacity:.55; }
+.projectile-lane { position:absolute;z-index:4;left:calc(17% + 48px);right:calc(17% + 32px);top:48%;height:10px;pointer-events:none; }
+.hero-projectile,.enemy-projectile { position:absolute;top:0;left:0;width:13px;height:13px;opacity:0;border-radius:50%;background:var(--effect);box-shadow:0 0 10px var(--effect); }
+.enemy-projectile { background:var(--enemy-effect);box-shadow:0 0 10px var(--enemy-effect); }
+.battle-stage[data-attack="shoot"] .hero-projectile { width:27px;height:3px;border-radius:0;background:#e9d1a1;box-shadow:none; }
+.battle-stage[data-attack="shoot"] .hero-projectile::after { content:"";position:absolute;right:-4px;top:-3px;border-left:7px solid #e8edf1;border-top:4px solid transparent;border-bottom:4px solid transparent; }
+.battle-stage[data-element="lightning"] .hit-mark { border:0;border-radius:0;background:var(--effect);clip-path:polygon(60% 0,25% 52%,49% 52%,37% 100%,84% 35%,59% 35%); }
+.battle-stage:is([data-element="ice"],[data-element="crystal"]) .hit-mark { border-radius:10%;transform:rotate(30deg);border:3px solid var(--effect); }
+.battle-stage[data-element="fire"] .hit-mark { border:0;background:radial-gradient(ellipse,#fff6b8 5%,#ffb347 32%,transparent 70%); }
+
+.battle-stage[style]:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .hero-fighter { animation:hero-lunge var(--swing) ease-in-out; }
+.battle-stage:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .weapon-motion { animation:weapon-slash var(--swing) ease-in-out; }
+.battle-stage:is([data-attack="chop"],[data-attack="smash"]):is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .weapon-motion { animation-name:weapon-overhead; }
+.battle-stage[data-attack="thrust"]:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .weapon-motion { animation-name:weapon-thrust; }
+.battle-stage[data-attack="sweep"]:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .weapon-motion { animation-name:weapon-sweep; }
+.battle-stage[data-attack="shoot"]:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .weapon-motion { animation-name:weapon-draw; }
+.battle-stage[data-attack="cast"]:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .weapon-motion { animation-name:weapon-cast; }
+.battle-stage[style]:is([data-attack="shoot"],[data-attack="cast"]):is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .hero-fighter { animation-name:hero-ranged; }
+.battle-stage:is([data-attack="shoot"],[data-attack="cast"]):is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .hero-projectile { animation:projectile-out var(--flight) linear .04s forwards; }
+.battle-stage:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .hit-mark { animation:contact-flash .22s ease-out var(--contact) forwards; }
+.battle-stage[data-attack="smash"]:is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .ground-ripple { animation:ground-wave .26s ease-out var(--contact) forwards; }
+.battle-stage:is([data-state="critical"],[data-state="standard"],[data-state="recovery"]) .enemy-fighter { animation:troll-stagger .24s ease-out var(--contact) forwards; }
+.battle-stage[data-enemy="wisp"]:is([data-state="critical"],[data-state="standard"],[data-state="recovery"]) .enemy-fighter { animation-name:wisp-caught; }
+.battle-stage[data-enemy="sentinel"]:is([data-state="critical"],[data-state="standard"],[data-state="recovery"]) .enemy-fighter { animation-name:golem-crack; }
+.battle-stage[data-enemy="boss"]:is([data-state="critical"],[data-state="standard"],[data-state="recovery"]) .enemy-fighter { animation-name:owl-interrupted; }
+.battle-stage:is([data-enemy="sentinel"],[data-enemy="boss"]):is([data-state="critical"],[data-state="standard"],[data-state="recovery"],[data-state="victory"]) .enemy-guard { animation:guard-break .26s ease-out var(--contact) forwards; }
+.battle-stage[data-state="victory"] .enemy-fighter { animation:monster-fall .35s ease-in var(--contact) forwards; }
+.battle-stage[data-enemy="wisp"][data-state="victory"] .enemy-fighter,.battle-stage[data-enemy="boss"][data-state="victory"] .enemy-fighter { animation-name:monster-dissolve; }
+
+.battle-stage[data-state="counter"] .enemy-fighter { animation:troll-swipe .48s ease; }
+.battle-stage[data-enemy="sentinel"][data-state="counter"] .enemy-fighter { animation-name:golem-slam; }
+.battle-stage[data-enemy="wisp"][data-state="counter"] .enemy-fighter { animation-name:wisp-dart; }
+.battle-stage[data-enemy="boss"][data-state="counter"] .enemy-fighter { animation-name:owl-cast; }
+.battle-stage:is([data-enemy="wisp"],[data-enemy="boss"])[data-state="counter"] .enemy-projectile { animation:projectile-in .16s linear .04s forwards; }
+.battle-stage[data-enemy="sentinel"][data-state="counter"] .ground-ripple { border-color:var(--enemy-effect);animation:ground-wave .28s ease-out .20s forwards; }
+.battle-stage[data-enemy="mossling"][data-state="counter"] .enemy-projectile { width:26px;height:30px;background:none;box-shadow:none;border-left:3px solid var(--enemy-effect);border-right:3px solid var(--enemy-effect);border-radius:40%;animation:projectile-in .16s linear .04s forwards; }
+.battle-stage[data-state="counter"] .hero-fighter { animation:hero-brace .48s ease; }
+.battle-stage[data-defense="evade"][data-state="counter"] .hero-fighter { animation-name:hero-evade; }
+.battle-stage[data-defense="barrier"][data-state="counter"] .hero-fighter { animation-name:hero-barrier; }
+.battle-stage[data-state="counter"] .hero-guard { animation:guard-catch .28s ease-out .20s forwards; }
+.battle-stage[data-defense="shield"] .hero-guard { border-radius:15% 15% 50% 50%;width:40%;left:60%; }
+.battle-stage[data-defense="brace"] .hero-guard { border-radius:20%;width:45%;height:45%;top:40%;left:30%; }
+.battle-stage[data-defense="evade"] .hero-guard { display:none; }
+.battle-stage[data-defense="shield"][data-state="counter"] .armor-motion { animation:shield-lift .48s ease; }
+
+@keyframes hero-lunge { 0%,100%{transform:none}25%{transform:translateX(-4px) rotate(-3deg)}50%{transform:translateX(24px) rotate(5deg)} }
+@keyframes hero-ranged { 0%,100%{transform:none}25%{transform:translateX(-4px) rotate(-3deg)}50%{transform:translateY(-3px) rotate(2deg)} }
+@keyframes weapon-slash { 0%,100%{transform:none}20%{transform:rotate(-40deg)}50%{transform:rotate(65deg)} }
+@keyframes weapon-overhead { 0%,100%{transform:none}28%{transform:translateY(-9px) rotate(-85deg)}50%{transform:translateY(10px) rotate(85deg)} }
+@keyframes weapon-thrust { 0%,100%{transform:none}25%{transform:translateX(-8px) rotate(55deg)}50%{transform:translateX(18px) rotate(80deg)} }
+@keyframes weapon-sweep { 0%,100%{transform:none}25%{transform:rotate(-65deg)}50%{transform:rotate(110deg)} }
+@keyframes weapon-draw { 0%,100%{transform:none}15%{transform:translateX(-5px) scaleX(.85)}50%{transform:translateX(2px)} }
+@keyframes weapon-cast { 0%,100%{transform:none}25%{transform:rotate(-20deg)}50%{transform:rotate(35deg);filter:drop-shadow(0 0 5px var(--effect))} }
+@keyframes projectile-out { 0%{left:0;opacity:1}95%{opacity:1}100%{left:100%;opacity:0} }
+@keyframes projectile-in { 0%{left:100%;opacity:1}95%{opacity:1}100%{left:0;opacity:0} }
+@keyframes contact-flash { 0%{opacity:1;scale:.65;rotate:-25deg}100%{opacity:0;scale:1.4;rotate:25deg} }
+@keyframes ground-wave { 0%{opacity:.9;transform:scale(.35)}100%{opacity:0;transform:scale(1.45)} }
+@keyframes troll-stagger { 0%{transform:translateX(10px) rotate(9deg)}100%{transform:none} }
+@keyframes wisp-caught { 0%{transform:translate(9px,-8px);opacity:.4;filter:brightness(1.7)}100%{transform:none;opacity:1} }
+@keyframes golem-crack { 0%{transform:translateX(5px) rotate(3deg);filter:brightness(1.6)}30%{transform:translateX(-3px)}65%{transform:translateX(3px)}100%{transform:none} }
+@keyframes owl-interrupted { 0%{transform:translateY(7px) rotate(-8deg);filter:brightness(1.5)}100%{transform:none} }
+@keyframes guard-break { 0%{opacity:.9;scale:1}100%{opacity:0;scale:1.4;rotate:18deg} }
+@keyframes monster-fall { 0%{opacity:1;transform:none}100%{opacity:0;transform:translateY(24px) rotate(18deg) scale(.65)} }
+@keyframes monster-dissolve { 0%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-18px) scale(.3)} }
+@keyframes troll-swipe { 0%,100%{transform:none}20%{transform:rotate(9deg)}41.667%{transform:translateX(-27px) rotate(-13deg)} }
+@keyframes golem-slam { 0%,100%{transform:none}20%{transform:translateY(-9px) scaleY(1.06)}41.667%{transform:translate(-8px,5px) scaleY(.88)}65%{transform:translateX(3px)} }
+@keyframes wisp-dart { 0%,100%{transform:none}20%{transform:translate(7px,-10px)}41.667%{transform:translate(-15px,-4px) scale(.92)}70%{transform:translate(4px,-8px)} }
+@keyframes owl-cast { 0%,100%{transform:none}20%{transform:translateY(-7px) rotate(6deg)}41.667%{transform:rotate(-7deg);filter:drop-shadow(0 0 7px #c989ff)} }
+@keyframes hero-brace { 0%,100%{transform:none}41.667%{transform:translateX(-5px) rotate(-4deg) scaleY(.97)} }
+@keyframes hero-evade { 0%,100%{transform:none}41.667%{transform:translate(-15px,3px) rotate(-12deg);opacity:.75} }
+@keyframes hero-barrier { 0%,100%{transform:none}41.667%{filter:drop-shadow(0 0 7px var(--guard))} }
+@keyframes guard-catch { 0%{opacity:1;scale:.92}100%{opacity:0;scale:1.1} }
+@keyframes shield-lift { 0%,100%{transform:none}41.667%{transform:translate(14px,-12px) rotate(-15deg)} }
+@media(prefers-reduced-motion:reduce){.projectile-lane,.hit-mark,.ground-ripple,.hero-guard{display:none;}.battle-stage[data-state="victory"] .enemy-fighter{opacity:.3;}}
