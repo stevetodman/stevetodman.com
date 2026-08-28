@@ -86,7 +86,7 @@ function mergeStats(a: unknown, b: unknown): Record<string, Stat> {
 function mergeGame(a: unknown, b: unknown): Record<string, unknown> {
   const A = isObj(a) ? a : {};
   const B = isObj(b) ? b : {};
-  const rewards: Record<string, { xp: number; coins: number }> = {};
+  const rewards: Record<string, { xp: number; coins: number; monster?: string }> = {};
   const rewardIds = [...new Set([
     ...Object.keys(isObj(A.rewards) ? A.rewards : {}),
     ...Object.keys(isObj(B.rewards) ? B.rewards : {}),
@@ -98,6 +98,10 @@ function mergeGame(a: unknown, b: unknown): Record<string, unknown> {
       xp: Math.max(0, Math.min(id === "_legacy" ? Number.MAX_SAFE_INTEGER : 1000, Math.max(num(ar.xp), num(br.xp)))),
       coins: Math.max(0, Math.min(id === "_legacy" ? Number.MAX_SAFE_INTEGER : 1000, Math.max(num(ar.coins), num(br.coins)))),
     };
+    // Keep the encounter attached to its unique reward, including across older clients.
+    const monster = [ar.monster, br.monster].filter((value): value is string =>
+      typeof value === "string" && ["mossling", "wisp", "sentinel", "boss"].includes(value)).sort()[0];
+    if (id !== "_legacy" && monster) rewards[id].monster = monster;
   }
 
   const purchases: Record<string, string> = {};

@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 // Public synthetic canary only. Never use a real family's credential or profile.
 const url=process.env.STUDY_CLOUD_URL||'https://lpjvsjezjjasgpkvjjlq.supabase.co/functions/v1/studyhub-save';
 const token='studyhub-public-canary-v1-20260826-stable-token';
-const profile='synthetic-reward-ledger-v1';
-const rewards=(start,end)=>Object.fromEntries(Array.from({length:end-start},(_,i)=>['ledger-'+(start+i),{xp:20,coins:8}]));
+const profile='synthetic-reward-ledger-monsters-v1';
+const rewards=(start,end)=>Object.fromEntries(Array.from({length:end-start},(_,i)=>['ledger-'+(start+i),{xp:20,coins:8,monster:['mossling','wisp','sentinel','boss'][(start+i)%4]}]));
 async function request(body){
   const response=await fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token,...body}),signal:AbortSignal.timeout(20000)});
   assert.equal(response.status,200,'synthetic ledger request must succeed');
@@ -18,5 +18,5 @@ assert.ok(game,'synthetic ledger must round-trip');
 assert.equal(Object.keys(game.rewards).length,251,'all 250 sessions and legacy totals survive');
 assert.equal(game.sessionsCompleted,250);
 assert.equal(game.rewards._legacy.xp,5000);assert.equal(game.rewards._legacy.coins,2000);
-for(let i=0;i<250;i++)assert.deepEqual(game.rewards['ledger-'+i],{xp:20,coins:8},'duplicate/stale writes cannot lower rewards');
-console.log('Study reward ledger canary passed: 250 sessions, legacy totals, stale-write merge and pull. Synthetic data only.');
+for(let i=0;i<250;i++)assert.deepEqual(game.rewards['ledger-'+i],{xp:20,coins:8,monster:['mossling','wisp','sentinel','boss'][i%4]},'duplicate/stale writes cannot lower rewards or erase collected monsters');
+console.log('Study reward ledger canary passed: 250 sessions, monster collection, legacy totals, stale-write merge and pull. Synthetic data only.');
