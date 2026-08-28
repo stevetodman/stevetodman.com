@@ -49,6 +49,13 @@ retaining the completed-round checkpoint if saving its rewards fails, safe handl
 of a malformed device-link fragment, and starter-gear selection reading the current
 profile after any sync. Added two browser regressions; their CI result is pending.
 
+Rendered artifact review found two more concrete UX defects: the six-item phone
+shop required scrolling, and an audio-error toast could linger over reward controls.
+The phone shelf is now three columns/two rows, preview scrolls into view when needed,
+and old audio errors cannot follow the child into the shop. Countdown updates are
+excluded from live announcements. New assertions require the complete shelf plus
+Done to fit at320/390x844; rendered artifacts now also include320px. Verify latest CI.
+
 The complete illustrated atlas and two world backdrops are now included under
 `study/unit-1/assets/` with prompt provenance. Phone home/question screens were
 visually inspected; atlas clipping was corrected. All32 equipment combinations

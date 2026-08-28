@@ -395,7 +395,7 @@ describe('Unit 1 Word Expedition', () => {
   test('records rendered evidence and opens the final adventure without perfect mastery', async () => {
     const directory=path.join(process.env.RUNNER_TEMP||os.tmpdir(),'study-evidence');
     fs.mkdirSync(directory,{recursive:true});
-    for(const width of [390,1024]){
+    for(const width of [320,390,1024]){
       const context=await fastContext({viewport:{width,height:844},reducedMotion:'reduce'});
       await context.addInitScript(()=>{
         localStorage.setItem('studyhub-word-expedition-game-unit1-v1',JSON.stringify({version:1,learners:{Luke:{sessionsCompleted:11,rewards:{seed:{xp:220,coins:88}}}}}));
@@ -414,6 +414,11 @@ describe('Unit 1 Word Expedition', () => {
       assert.match(await page.locator('.game-summary h2').innerText(),/castle is yours/);
       assert.match(await page.locator('.victory-lockup').innerText(),/words that still need a mastery seal/);
       await capture('boss-complete');await page.locator('#visit-shop').click();await capture('shop');
+      if(width<=390){
+        const done=await page.locator('#shop-done').boundingBox();
+        assert.ok(done.y+done.height<=844,'all six items and Done fit on the '+width+'px phone');
+      }
+      assert.equal(await page.locator('#toast').isVisible(),false,'audio errors from the finished question do not cover reward controls');
       await page.locator('[data-item="guardian-mail"]').click();await capture('armor-preview');
       await page.locator('#cancel-gear').click();await page.locator('#shop-done').click();
       const entry=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')).learners.Luke.sessions[0]);

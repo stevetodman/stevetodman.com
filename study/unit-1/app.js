@@ -656,6 +656,9 @@
     window.speechSynthesis.speak(utterance);
   }
   function audioUnavailable(word){
+    if(document.body.dataset.screen!=='question'&&document.body.dataset.screen!=='review')return;
+    if(document.body.dataset.screen==='review'){showToast('Audio is unavailable on this device.');return;}
+    if(!session||session.questions[session.index].word.word!==word.word)return;
     showToast('Audio is unavailable. Try Hear word again, or use practice tiles.');
     var note=document.querySelector('.audio-note');
     if(note)note.textContent='Audio is unavailable here. Use letter tiles to practice this word, or ask someone to read it aloud.';
@@ -663,6 +666,7 @@
 
   function finishSession() {
     if(!session||!activeName)return;
+    clearTimeout(toastTimer);toast.hidden=true;
     activityClock.mode('play');document.body.dataset.screen='summary';
     var after=masteredCount(activeName),newStamps=Math.max(0,after-session.beforeMastered);
     var correct=session.results.filter(function(r){return r.correct;}).length;
@@ -687,7 +691,7 @@
     document.getElementById('summary-done').addEventListener('click',showProfilePicker);
     scheduleRewardEnd();
   }
-  function rewardBreakHTML(){return '<div class="reward-break"><p id="reward-break-note">A short reward break. Coins and gear stay saved.</p><progress id="reward-break-progress" max="'+Math.max(1,rewardAllowance)+'" value="'+Math.max(0,rewardDeadline-performance.now())+'" aria-label="Reward break time remaining"></progress></div>';}
+  function rewardBreakHTML(){return '<div class="reward-break" aria-live="off"><p id="reward-break-note">A short reward break. Coins and gear stay saved.</p><progress id="reward-break-progress" max="'+Math.max(1,rewardAllowance)+'" value="'+Math.max(0,rewardDeadline-performance.now())+'" aria-label="Reward break time remaining"></progress></div>';}
   function endExpiredRewardBreak(){
     if(!session||!session.rewarded)return true;
     if(performance.now()<rewardDeadline)return false;
@@ -734,6 +738,7 @@
     document.getElementById('gear-preview').innerHTML=ART.hero(activeName,equipped,'ready')+'<div><span>Try it on · no coins spent</span><strong>'+esc(item.name)+'</strong><button type="button" class="preview-confirm" id="confirm-gear">'+(owned?'Equip this':'Use '+item.price+' coins')+'</button><button type="button" class="starter-button" id="cancel-gear">Keep my gear</button></div>';
     document.getElementById('confirm-gear').addEventListener('click',function(){buyOrEquip(selectedGear);});
     document.getElementById('cancel-gear').addEventListener('click',function(){selectedGear=null;showShop(true);});
+    document.getElementById('gear-preview').scrollIntoView({block:'nearest',behavior:'auto'});
     document.getElementById('confirm-gear').focus({preventScroll:true});
   }
   function buyOrEquip(id) {

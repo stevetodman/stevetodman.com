@@ -333,3 +333,11 @@ body[data-screen="question"] .cloud-mini { display:none; }
 .learning-notes section { padding:10px 0;border-top:1px solid var(--line); }.learning-notes h3{font-size:.9rem;margin:0 0 7px;color:var(--ink);}.learning-notes p{margin:5px 0;line-height:1.5;}.learning-notes .mastery-explainer{font-size:.71rem;margin:10px 0 15px;}
 body[data-screen="question"] .pips { display:none; }
 @media(max-width:560px){.session-promise{font-size:.66rem;}.battle-hud{font-size:.65rem;}.item-rarity{font-size:.62rem;}.shop-card h3{font-size:.88rem;}}
+@media(max-width:560px){
+  .shop-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+  .shop-card{padding:8px 6px;}.shop-card .item-rarity{display:none;}
+  .shop-copy{display:grid;place-items:center;min-height:36px;}.shop-card h3{font-size:.78rem;line-height:1.25;margin:2px 0;}
+  .shop-action{align-self:stretch;width:100%;padding:6px 4px;font-size:.7rem;margin-top:6px;}
+  .merchant-head{gap:10px;}.merchant-head .eyebrow{font-size:.63rem;}
+  .merchant-preview{margin-bottom:8px;}.reward-break{margin:8px 0 10px;}
+}
