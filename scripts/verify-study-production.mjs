@@ -17,6 +17,9 @@ await context.route('https://*.supabase.co/**', route => route.abort());
 
 try {
   const page = await context.newPage();
+  // Reproduce the short visual viewport that mobile browser chrome can create on iPhone.
+  // Combat is a core learning/game mechanic and must compress rather than disappear.
+  await page.setViewportSize({ width:390, height:520 });
   const consoleErrors = [];
   page.on('pageerror', error => consoleErrors.push(String(error)));
 
@@ -31,6 +34,10 @@ try {
   assert.equal(await page.locator('.pip').count(), 10);
   assert.match(await page.locator('.question-count').innerText(), /1\s*\/\s*10/);
   assert.equal(await page.locator('.battle-stage').count(),1,'illustrated combat must be live');
+  assert.equal(await page.locator('.battle-stage').isVisible(),true,'illustrated combat must remain visible on a short iPhone-like viewport');
+  assert.equal(await page.locator('.mission-head').isVisible(),true,'question heading must remain visible on a short iPhone-like viewport');
+  const battleBox = await page.locator('.battle-stage').boundingBox();
+  assert.ok(battleBox && battleBox.height >= 60,'mobile combat must retain a usable visible stage');
   assert.equal(await page.locator('.hero-art image').first().getAttribute('width'),'1254');
   assert.equal(await page.locator('[data-domain]').count(),1);
   assert.equal(await page.locator('html').getAttribute('data-study-build'),expectedBuild,'must serve this exact release, not an older versioned build');
