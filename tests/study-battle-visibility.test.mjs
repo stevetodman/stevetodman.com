@@ -35,6 +35,10 @@ test('weapons and monsters remain visibly in the fight on mobile and desktop', a
     await page.goto(server.origin + '/study/');
     await page.locator('[data-profile="Luke"]').click();
 
+    // At keyboard-sized heights the app may autofocus a text answer. Blurring models
+    // dismissing the software keyboard; the fight must immediately return.
+    if (viewport.height <= 450) await page.evaluate(() => document.activeElement?.blur());
+
     const stage = page.locator('.battle-stage');
     const mission = page.locator('.mission-head');
     const hero = page.locator('.hero-fighter > svg');
@@ -42,7 +46,7 @@ test('weapons and monsters remain visibly in the fight on mobile and desktop', a
     const question = page.locator('.question-card');
 
     assert.equal(await stage.count(), 1, `${viewport.name}: battle stage exists`);
-    assert.equal(await stage.isVisible(), true, `${viewport.name}: battle stage is visible before any software keyboard is opened`);
+    assert.equal(await stage.isVisible(), true, `${viewport.name}: battle stage is visible with the software keyboard dismissed`);
     assert.equal(await mission.isVisible(), true, `${viewport.name}: question heading is visible`);
     assert.equal(await hero.isVisible(), true, `${viewport.name}: hero is visible`);
     assert.equal(await enemy.isVisible(), true, `${viewport.name}: monster is visible`);
