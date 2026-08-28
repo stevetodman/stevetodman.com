@@ -109,7 +109,8 @@
       return raw;
     }catch(_){return null;}
   }
-  function pauseSession(){saveRound();if('speechSynthesis'in window)window.speechSynthesis.cancel();showProfilePicker();}
+  function cancelSpeech(){try{if('speechSynthesis'in window)window.speechSynthesis.cancel();}catch(_){}}
+  function pauseSession(){saveRound();cancelSpeech();showProfilePicker();}
 
   function blankProfile() { return { stats:{}, sessions:[] }; }
   function defaultState() { return { version:3, learners:{ Luke:blankProfile(), Samantha:blankProfile() } }; }
@@ -488,7 +489,7 @@
     session={id:new Date().toISOString()+'-'+Math.random().toString(36).slice(2,8),index:0,questions:buildPlan(name),results:[],combo:0,beforeMastered:masteredCount(name),strengthened:new Set(),battleDamage:0,battleState:'ready',enemy:readyForBoss&&!gameProfile(name).bossDefeatedAt?'boss':kinds[completed%kinds.length],rewarded:false};
     saveRound();renderQuestion();
   }
-  function warmSpeech() { if('speechSynthesis'in window)window.speechSynthesis.getVoices(); }
+  function warmSpeech() { try{if('speechSynthesis'in window)window.speechSynthesis.getVoices();}catch(_){} }
   function pipsHTML() {
     return '<div class="pips" aria-label="Question '+(session.index+1)+' of '+SESSION_LENGTH+'">'+Array.from({length:SESSION_LENGTH},function(_,i){
       var cls=i<session.results.length?(session.results[i].correct?'done':'learned'):(i===session.index?'current':'');
@@ -627,7 +628,7 @@
     var form=document.getElementById('correction-form'),input=document.getElementById('correction-input');input.focus();
     form.addEventListener('submit',function(e){e.preventDefault();if(!isAccepted(q,input.value)){document.getElementById('correction-note').textContent='Use one of the school answers shown above.';input.select();return;}form.innerHTML='<p class="correction-success">That’s it. Your strike lands.</p>';landHit('recovery');session.resolved=true;saveRound();activityClock.mode('play');advanceTimer=setTimeout(nextQuestion,480);});
   }
-  function nextQuestion(){if(!session)return;if('speechSynthesis'in window)window.speechSynthesis.cancel();session.index+=1;session.draftValue='';session.resolved=false;session.tileQuestion=null;session.tileChoiceIds=[];saveRound();renderQuestion();}
+  function nextQuestion(){if(!session)return;cancelSpeech();session.index+=1;session.draftValue='';session.resolved=false;session.tileQuestion=null;session.tileChoiceIds=[];saveRound();renderQuestion();}
 
   function showLetterTiles(q) {
     var letters=shuffle(q.word.word.split('').map(function(letter,index){return {letter:letter,id:index};}));
@@ -647,12 +648,14 @@
 
   function speakWord(word,sentence) {
     if(!('speechSynthesis'in window)){audioUnavailable(word);return;}
-    window.speechSynthesis.cancel();
+    cancelSpeech();
+    try{
     var first=new SpeechSynthesisUtterance(word.word+'.');var second=new SpeechSynthesisUtterance(word.spellingSentence);
     first.lang=second.lang='en-US';first.rate=.78;second.rate=.84;
     var utterance=sentence?second:first;
     utterance.onerror=function(event){if(!['interrupted','canceled'].includes(event.error))audioUnavailable(word);};
     window.speechSynthesis.speak(utterance);
+    }catch(_){audioUnavailable(word);}
   }
   function audioUnavailable(word){
     if(document.body.dataset.screen!=='question'&&document.body.dataset.screen!=='review')return;

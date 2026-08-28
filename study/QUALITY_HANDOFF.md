@@ -1,144 +1,96 @@
 # Resume Word Expedition here
 
-Branch: `study/quality-90-10-20260828`
 Repository: `stevetodman/stevetodman.com`
-Base: `f069e8d4bef4c7e7e03cff63ea06514af401fcc3`
+Branch: `study/quality-90-10-20260828`
+Original base: `f069e8d4bef4c7e7e03cff63ea06514af401fcc3`
 
-Read `QUALITY_PLAN.md` and `STUDY_CONTRACT.md` first. This is a recovery checkpoint,
-not App Store-quality sign-off. Production is unchanged by this branch.
+Read QUALITY_PLAN.md and STUDY_CONTRACT.md first. A saved checkpoint is NOT
+App Store-quality, real-child 90/10, or production release sign-off.
 
-## Current work — checkpoint 4
+## Owner decisions
 
-Latest owner clarification: in-game purchases with earned study coins ARE allowed;
-REAL MONEY is not. No checkout, paid currency, subscriptions or monetization.
+- Reduce friction, keep the adventure fun, aim for 90% learning / 10% play.
+- Earned study coins MAY buy cosmetic gear. NO REAL MONEY, paid currency,
+  subscriptions, ads, loot boxes or payment integration.
+- Ten questions; the question is the attack. Equipment never changes question
+  count, grading, mastery, difficulty or rewards. No sibling rankings.
+- Save work and evidence; continue fixing failed checks. Never silently merge to main.
 
-Verified checkpoint3 remotely: GitHub Study contract run33132259813 on commit
-`5a309b8fe77f8b8dad9f3e6267b8c8a5614c1bc2` succeeded. Actual Chromium sessions,
-pause/reload/correction/final-question recovery, preview/spend/re-equip, simulated
-90/10 timing and five-screen serious/critical accessibility scans all passed.
-Platform checks25/25 and build139files /25 indexed pages also passed in that run.
+## Current checkpoint — 28 August 2026
 
-The32 hero equipment combinations and four creatures were rendered together and
-visually inspected; all were readable and showed the correct equipment, with no
-neighboring sprite bleed. A phone playtest accepted `discontinue` as a correction
-for `cancel` even though the suggested first answer was `stop`.
+The branch includes original illustrated heroes, all 32 equipment combinations,
+four creatures, a forest stage and world map. Implemented and exercised:
 
-Current refinement: visible reward-break countdown/progress, no 1.5-second budget
-extension, a readable model for assisted tiles when audio fails, persisted tile
-choices across reload (still assisted, never silently promoted to mastery), and
-recorded interaction-time estimates in Learning progress. No countdown on questions.
-Additional tests cover reward expiry without spending, tile recovery/audio failure,
-small keyboard viewport, the twelfth-travel-session boss without perfect mastery,
-and phone/desktop screenshots uploaded as CI artifacts. These NEW tests need a
-fresh CI result; do not infer success from checkpoint3.
+- Permanent reward ledger and max-per-ID merge; independent wallets.
+- Device-local round recovery, including correction and question 10; idempotent rewards.
+- Any teacher-listed relation accepted in correction; explicit Next; short prompts.
+- Readable assisted spelling model; tile choices survive reload and stay assisted.
+- Compact phone layout; private expandable learning summary; separate device settings.
+- Preview before spending; free re-equip/starter gear; six-item phone shelf fits.
+- Shared bounded reward allowance, visible progress, no repeated live announcements.
+- No stale audio toast in rewards; persistent warning when device saving fails.
+- Travel independent of mastery; a twelfth-session boss without perfect mastery.
+- Content-hashed app/art URLs; engineering documents excluded from production output.
 
-Checkpoint4 CI33132703749 passed36/38. The two failures were verification-harness
-issues: installing another fake clock over the existing reading-time fixture,
-and comparing CSS-uppercase enemy text case-sensitively. Corrections use the real
-browser reward deadline and a case-insensitive exact name. Rerun33132823347 on
-`46eadb0841f1c0a33b30945c24f26a258af03625` passed38/38 Study checks,25/25 platform
-checks and the build. Its `study-rendered-evidence` artifact9670919525 includes
-phone/desktop home, boss, victory, shop, armor preview and equipment gallery.
-The manual phone round finished all10 questions (including a final-question
-reload), accepted an alternate correction, used assisted spelling, and showed
-the new victory screen. Local recorded estimate:7m45s learning /52s menus and
-rewards. This tool-driven, interrupted session is NOT a child-attention study.
+Latest fix: speech warm-up, cancellation and playback tolerate exceptions.
+The complete speech test double now includes getVoices. Two scenarios exercise
+error callbacks AND thrown exceptions through assisted spelling and reload.
+Local 21/21 unit checks and JavaScript syntax checks pass. The expanded 41-check
+Chromium/WebKit suite MUST be rerun before claiming cross-browser success.
 
-Latest hardening: persistent device-save failure warning (no false Saved label),
-retaining the completed-round checkpoint if saving its rewards fails, safe handling
-of a malformed device-link fragment, and starter-gear selection reading the current
-profile after any sync. Added two browser regressions; their CI result is pending.
+## Evidence, with scope
 
-Rendered artifact review found two more concrete UX defects: the six-item phone
-shop required scrolling, and an audio-error toast could linger over reward controls.
-The phone shelf is now three columns/two rows, preview scrolls into view when needed,
-and old audio errors cannot follow the child into the shop. Countdown updates are
-excluded from live announcements. New assertions require the complete shelf plus
-Done to fit at320/390x844; rendered artifacts now also include320px. CI33133053006
-on `08cc9691f6dd6b979c696126001a2f6cbb4122a1` passed40/40 Study tests,25/25
-platform checks and the build. Artifact9670997499 was downloaded and visually
-reviewed:320px shelf and390px armor preview both fit, with unobscured controls.
+- CI 33133053006 (`08cc9691f6dd6b979c696126001a2f6cbb4122a1`): Chromium 40/40,
+  platform 25/25 and build 139 files / 25 indexed pages passed.
+- Artifact 9670997499 was downloaded and inspected: 320px shelf, 390px armor
+  preview, home, question, victory and all equipment combinations are readable,
+  consistent and unclipped. No new image generation is needed.
+- CI 33133269734: Chromium 40/40; WebKit 38/40. Fault-injection and QA-gallery issues.
+- CI 33144925483 (`0c488b148c60e8289a0ea26a1c8286313cd4e814`): 39/40 in each
+  engine. Gallery passed. Audio fixture lacked getVoices, preventing test startup;
+  corrected in the latest work. Assertions were not removed or weakened.
+- A tool-driven phone round completed 10 questions, including final-question reload,
+  alternate correction and tiles. Local estimate: 7m45s learning / 52s menus/rewards.
+  This interrupted agent session is NOT an observation of child attention.
+- CI uploads screenshots and labeled simulated-reading timing JSON for
+  320/390/1024px as study-rendered-evidence-chromium and ...-webkit.
+- The stable aggregate Study contract fails if either engine fails. The production
+  canary is deliberately skipped on this feature branch.
 
-Final technical pass underway: Chromium + WebKit CI matrix, while retaining the
-stable required check name `Study contract` as an aggregate that fails if either
-engine fails. Travel-map colors now represent travel only, never word mastery.
-Local preview/test servers use the proper WebP MIME type. Family/device acceptance
-steps are in QUALITY_PLAN.md. Wait for both browser results before technical sign-off.
+## Safe family preview
 
-Cross-engine run33133269734: Chromium40/40 passed; WebKit38/40 passed. WebKit
-failures: native speech-method fault injection did not fire, and the QA equipment
-gallery overflowed at320px. The test now replaces the complete speech API boundary;
-the gallery uses zero-minimum grid columns and wrapping labels. Assertions are
-unchanged. Rerun both engines. This is not yet cross-browser sign-off.
+https://study-quality-90-10-20260828.stevetodman-com.pages.dev/study/
 
-The complete illustrated atlas and two world backdrops are now included under
-`study/unit-1/assets/` with prompt provenance. Phone home/question screens were
-visually inspected; atlas clipping was corrected. All32 equipment combinations
-were reviewed in the rendered gallery. No new image generation is required.
+This URL is generated automatically by the existing branch integration. It was
+opened and verified in a browser: correct assignment, fresh assets, answer feedback,
+and pause/resume. This pages.dev hostname saves locally only; it does NOT read/write
+the production family cloud save. Each device has isolated preview progress.
+The branch URL follows later commits. Record the build hash when testing.
 
-Implemented since checkpoint1: compact storybook game layout; meaningful labels;
-shorter definition prompts; explicit word/sentence audio; try-on before spending;
-free re-equip and starter gear; local timing including post-session activity;
-bounded reward phase; route-based boss release valve; content-hashed asset URLs
-in the production build. Production is still unchanged.
-
-Current local verification:21 unit checks, syntax/diff checks and build passed.
-Local Chromium remains absent; the working GitHub CI runner supplies it. Do not
-repeat failed local browser downloads.
-
-Known open review items:
-- Complete the current local phone playthrough and review the revised shop timer.
-- Confirm the new browser scenarios and inspect the uploaded rendered evidence.
-- Very fast rounds may have no reward allowance; never claim all behavior is
-  guaranteed90/10. Menu time before practice can already exceed the target.
-- Production server merge source still requires separately authorized deployment.
-- Real iOS audio/keyboard and child enjoyment need physical-device/family evidence.
-
-## Earlier recovery checkpoint
-
-Recovery checkpoint 1 (28 August 2026, approximately00:51 UTC): implementation
-continues. Original cohesive atlas/world art is being generated and inspected.
-
-Implemented: no reward-ledger pruning on client/server; max-per-ID union; session
-count from union; device-local round snapshots and resume; official alternative
-corrections accepted; deliberate Next after feedback; Done first; local timing core.
-
-Verified: `npm run test:study:unit`20/20 passed; JavaScript syntax check passed;
-`npm run build` passed (140files,25 indexed pages). New tests actually execute
-client/server merge over1000/250 rewards, round reconstruction, full accepted
-relation sets and fake-clock timing. No UI/UX quality gate has passed yet.
-
-Next: integrate inspected art; refine mobile layout; update browser tests for
-intentional Next; exercise actual pause/reload/correction; persist post-session
-timing and enforce/verify reward budget. The timer core alone is NOT90/10 compliance.
-
-Server merge source changed, but production Edge Function is NOT deployed.
-Keep the256KB request limit; never silently compact the reward ledger. Add a
-future tested monotonic compaction design before payload size becomes a problem.
-Already-truncated historical rewards cannot be reconstructed from arbitrary guesses.
+No main merge or production deployment was performed by this work. The server
+reward-merge source is changed but the production Edge Function is NOT deployed.
+Web and server changes require a coordinated, separately approved release.
 
 ## Next-agent procedure
 
-1. Fetch and check out this branch. Inspect dirty status; preserve unrelated work.
-2. Read the latest commit and this handoff; do not restart the app or rename storage.
-3. Run `npm run test:study` and `npm run build`. Separate failed assertions from
-   unavailable browser infrastructure. The local Chromium download was unavailable
-   in the previous session; do not repeatedly retry a broken download.
-4. Continue open gates in `QUALITY_PLAN.md`. Use a local preview, not real family
-   cloud data. Do not clear localStorage or change production while testing.
-5. Record rendered/browser evidence. A passing unit suite is not visual approval.
-6. Save another commit and update this file before ending. Do not claim 90/10 or
-   child enjoyment without measured/observed evidence.
+1. Fetch this branch; inspect dirty status and preserve unrelated work. Do not restart
+   the product, rename compatibility keys, or clear storage.
+2. Inspect the latest CI run for this exact commit. Run `npm run test:study:unit`,
+   `npm run test:platform`, `npm run build`, and `git diff --check` locally.
+3. Use `npm run test:study` for Chromium and `STUDY_BROWSER=webkit npm run test:study`
+   with installed engines. Local Chromium download was unavailable; use working
+   CI runners instead of repeatedly retrying the same failed download.
+4. Inspect both browser artifacts; fix failed assertions or rendered defects.
+   A test result is not evidence of physical iOS audio or actual enjoyment.
+5. Follow the family/device acceptance protocol in QUALITY_PLAN.md. Real iOS
+   keyboard/audio, whether the reward break feels rushed, and observed 90/10 remain
+   human gates. Very fast rounds may have no shop allowance; menus can exceed the
+   target before practice. Do not hide this by counting idle as learning.
+6. Save a commit, exact results and this handoff before stopping. GitHub connector
+   commits can have a different local SHA; compare tree SHAs, never force-push/reset.
 
-## Known baseline issues
+## Preserved limits
 
-- Client rewards truncated after80; server after160. This loses earned XP/coins.
-- Reload/switch learner abandons the in-memory round.
-- Correction accepts only first official answer; other listed synonyms are rejected.
-- Armor chest details are covered by the body; tiny inconsistent game presentation.
-- 900ms auto-advance can hide feedback before it is read; audio autoplay unreliable.
-- Shop is too tall on phones, primary over Done, and jumps on purchase.
-- No actual learning/play timing. Do not label the current app 90/10-compliant.
-- Unversioned assets can stay stale despite cache headers.
-
-No secrets belong in this document. Keep all existing learning and cloud identifiers.
+Keep the 256KB server request limit. Reward history is no longer silently truncated;
+future compaction must be explicitly designed and tested. Already-lost historical
+rewards cannot be reconstructed by guessing. No secrets belong in this handoff.

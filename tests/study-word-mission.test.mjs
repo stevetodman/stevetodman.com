@@ -309,17 +309,21 @@ describe('Unit 1 Word Expedition', () => {
     await context.close();
   });
 
-  test('audio failure has a visible teaching model and tile recovery stays assisted', async () => {
+  for(const failure of ['event','exception'])test('audio '+failure+' failure has a visible model and tile recovery stays assisted', async () => {
     const context=await fastContext();
-    await context.addInitScript(()=>{
+    await context.addInitScript(failure=>{
       // Replace the complete API boundary: native WebKit method wrappers are
       // not a portable fault-injection surface. The fallback must still render.
       Object.defineProperties(window,{
         SpeechSynthesisUtterance:{configurable:true,value:class {constructor(text){this.text=text;}}},
-        speechSynthesis:{configurable:true,value:{cancel(){},speak(utterance){utterance.onerror?.({error:'synthesis-unavailable'});}}}
+        speechSynthesis:{configurable:true,value:{
+          getVoices(){if(failure==='exception')throw new Error('Voice service unavailable');return [];},
+          cancel(){if(failure==='exception')throw new Error('Voice service unavailable');},
+          speak(utterance){if(failure==='exception')throw new Error('Voice service unavailable');utterance.onerror?.({error:'synthesis-unavailable'});}
+        }}
       });
-    });
-    const page=await context.newPage();await page.goto(server.origin+'/study/');
+    },failure);
+    const page=await context.newPage();const errors=watchForErrors(page);await page.goto(server.origin+'/study/');
     await page.locator('[data-profile="Luke"]').click();
     for(let i=0;i<7;i++)await answerCorrectly(page);
     await page.locator('#listen').click();
@@ -337,6 +341,7 @@ describe('Unit 1 Word Expedition', () => {
     const stats=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')).learners.Luke.stats);
     const spelling=Object.entries(stats).find(([key])=>key.includes(word)&&key.includes('spelling'))?.[1];
     assert.equal(spelling.assisted,1);assert.deepEqual(spelling.correctDays,[]);
+    assert.deepEqual(errors,[],'unavailable audio never breaks starting, advancing or resuming');
     await context.close();
   });
 
