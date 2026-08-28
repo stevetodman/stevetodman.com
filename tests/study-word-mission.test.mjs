@@ -535,7 +535,7 @@ describe('Unit 1 Word Expedition', () => {
       }
       assert.equal(new Set(ids).size,24);
       await page.locator('[data-item="sun-charm"]').click();
-      assert.equal(await page.locator('#gear-preview .extra-equipped').count(),1);
+      assert.equal(await page.locator('#gear-preview [data-item-art="sun-charm"]').count(),1);
       await page.screenshot({path:path.join(directory,'390-expanded-shop-last-shelf.png'),fullPage:true});
       for(let shelf=0;shelf<3;shelf++)await page.locator('#shop-prev').click();
       assert.equal(Number(await page.locator('#reward-break-progress').getAttribute('max')),50000);
