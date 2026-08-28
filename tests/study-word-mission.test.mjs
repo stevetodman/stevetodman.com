@@ -436,6 +436,7 @@ describe('Unit 1 Word Expedition', () => {
         localStorage.setItem('studyhub-word-expedition-game-unit1-v1',JSON.stringify({version:1,learners:{Luke:{sessionsCompleted:rounds,owned:[weapon,armor],equipped:{weapon,armor}}}}));
       },{weapon,armor,rounds});
       await page.reload();await page.locator('[data-profile="Luke"]').click();
+      await page.clock.pauseAt(new Date(await page.evaluate(()=>Date.now()+1000)));
       const stage=page.locator('#battle-stage');
       assert.equal(await stage.getAttribute('data-enemy'),enemy);
       const gameBefore=await page.evaluate(()=>localStorage.getItem('studyhub-word-expedition-game-unit1-v1'));
