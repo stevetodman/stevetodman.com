@@ -1,5 +1,22 @@
 # StudyHub Attributions
 
+## Word Expedition battle audio
+
+Hits, blocks, spells, and creature roars are short CC0 one-shots, trimmed and
+embedded in `study/unit-1/sfx-bank.js`. The live game prefers those samples and
+falls back to the existing Web Audio synthesizer if a device cannot decode them.
+Word/sentence audio remains the browser’s speech synthesizer.
+
+Sources (all Creative Commons CC0, public domain; attribution optional but recorded here):
+
+- Kenney, **RPG Audio** and **Impact Sounds** — https://kenney.nl/assets/rpg-audio — https://kenney.nl/assets/impact-sounds
+  Used for axe, hammer, wood, cloth, mail, shield, charm, and the bow string layer.
+- artisticdude, **RPG Sound Pack** — https://opengameart.org/content/rpg-sound-pack
+  Used for blade, spear, scythe, wand, bow whoosh, and creature voices (ogre, shade, giant, wolfman).
+
+Clips were trimmed to under 450 ms, converted to mono 22.05 kHz 48 kbps MP3, and
+loudness-normalized. No gore or scream recordings are included.
+
 ## Word Expedition game artwork
 
 Word Expedition uses generated raster artwork for characters, equipment, monsters,
