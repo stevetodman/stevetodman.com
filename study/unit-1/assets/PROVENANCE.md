@@ -56,3 +56,27 @@ Background correction: Replace every checkerboard pixel with a flat very dark fo
 Built-in image generation; selected 1536x1024 RGB source, encoded mechanically as `extra-gear.webp`. Six columns and three rows, separate from the original hero/gear atlas. Black background is composited with screen blending when worn; the shop feathers cell edges. No claim of transparent alpha.
 
 Prompt: Exactly 18 isolated polished painterly 3D fantasy equipment icons on pure black, 6 columns by 3 rows, complete items centered with margins and no labels. Row 1: oak staff, iron axe, hunter bow, frost spear, ember hammer, thunder blade. Row 2: crystal wand, dragon blade, void scythe, iron shield, ember buckler, crystal shield. Row 3: thunder shield, dragon shield, void shield, oak charm, frost charm, sun charm. Weapons point diagonally up-right; shields face forward; charms upright. Family-friendly, no blood or gore.
+
+## Hero attack poses — August 28, 2026
+
+Built-in image generation, reference: original expedition atlas. `hero-poses.webp`
+is the selected 1536x1024 RGB black-background sheet (24 poses, 270398 bytes),
+mechanically WebP-encoded at quality 88. Screen compositing is used during battle;
+this is not alpha transparency. The first painted-checkerboard output was rejected.
+Explicit crop windows in game-art.js preserve full capes and extended arms;
+the generated columns are not uniformly spaced. Existing idle art is unchanged.
+
+### Initial prompt
+Use case: stylized-concept. Asset type: production 2D game hero animation sprite sheet.
+Reference image: existing game atlas, use ONLY the boy and girl in its first two rows as identity, outfit and rendering references. Generate NEW attack body poses, not copies of standing poses.
+Create one landscape 1536x1024 sheet, exactly SIX equal columns and FOUR equal rows (24 sprites), each cell 256x256, transparent background with actual alpha, NO grid lines, labels, weapons, effects, monsters or ground.
+Columns 1-3 are Luke (short tousled brown hair): wind-up, contact, recovery. Columns 4-6 are Samantha (high brown ponytail): wind-up, contact, recovery.
+Row 1: teal starter cloak/tunic, brown boots. Row 2: green forest hood/cloak. Row 3: silver guardian shoulder/mail armor over teal. Row 4: purple/gold star mantle over teal. Preserve reference costume details and childlike chibi proportions.
+All face screen RIGHT, same scale, full body entirely inside its cell, feet at y=238 within each cell, head near y=20. Empty near-side weapon hand held in a fist (we overlay equipment in code).
+Wind-up: bent knees, torso twisted back, weapon fist near right shoulder at cell x=165 y=110.
+Contact: strong forward lunge, front knee bent, back leg extended, near arm extended toward enemy, weapon fist at x=204 y=135. Head lowered slightly, determined expression.
+Recovery: torso regaining balance, feet apart, weapon fist returning to x=175 y=155, cloak following through.
+Clear changes in elbows, knees, torso and facial intent across all three poses; no rigid standing-body rotations. Consistent framing and lighting across cells. Charming detailed painted fantasy game art matching reference. No text, no watermark.
+
+### Selected background correction prompt
+Use case: background-extraction. Edit target: this 24-character attack pose sprite sheet. Change ONLY the checkerboard background to solid pure black #000000. Preserve every character, pose, outfit, size, position and all 24 sprites exactly. No checkerboard, no gray squares, no shadow, no text. The output will use screen compositing in a dark forest game, so all empty space must be completely black. Keep 1536x1024 dimensions.

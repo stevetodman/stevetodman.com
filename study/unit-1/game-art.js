@@ -296,9 +296,16 @@
     var ac=Math.max(0,['starter-cloak','forest-hood','guardian-mail','star-mantle'].indexOf(armor));
     var wc=Math.max(0,['starter-sword','copper-blade','moon-blade','star-wand'].indexOf(weapon));
     var extraWeapon=extraItem(weapon)>=0,extraArmor=extraItem(armor)>=0;
-    return '<svg class="hero-art hero-'+(pose||'ready')+'" viewBox="0 0 120 120" data-armor="'+armor+'" data-weapon="'+weapon+'" aria-hidden="true" focusable="false">'+
+    // Inspected crop windows: the generated sheet is not an equal-cell grid.
+    var px=[0,260,563,790,1026,1300],pw=[250,300,220,232,275,225],py=[0,260,510,760];
+    var frames=['windup','contact','recover'].map(function(frame,index){
+      var col=(name==='Samantha'?3:0)+index;
+      return '<g class="hero-frame frame-'+frame+'"><svg width="108" height="120" viewBox="'+px[col]+' '+py[ac]+' '+pw[col]+' 250" preserveAspectRatio="none" overflow="hidden"><image href="/study/unit-1/assets/hero-poses.webp" width="1536" height="1024"/></svg></g>';
+    }).join('');
+    return '<svg class="hero-art hero-'+(pose||'ready')+'" viewBox="0 0 120 120" data-learner="'+name+'" data-armor="'+armor+'" data-weapon="'+weapon+'" aria-hidden="true" focusable="false">'+
+      '<g class="hero-idle">'+
       '<svg x="0" y="0" width="108" height="120" viewBox="'+COLS[ac]+' '+ROWS[name==='Samantha'?1:0]+' 314 '+HEIGHTS[name==='Samantha'?1:0]+'" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg>'+
-      '<g class="weapon-motion">'+(extraWeapon?'<g class="gear weapon extra-equipped" transform="translate(61 12) scale(.57)">'+extraSprite(weapon,'equipped-sprite')+'</g>':'<g class="gear weapon '+['starter','copper','moon','wand'][wc]+'"><svg x="66" y="17" width="49" height="62" viewBox="'+COLS[wc]+' 954 314 300" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg></g>')+'</g>'+
+      '</g>'+frames+'<g class="weapon-grip"><g class="weapon-motion">'+(extraWeapon?'<g class="gear weapon extra-equipped" transform="translate(61 12) scale(.57)">'+extraSprite(weapon,'equipped-sprite')+'</g>':'<g class="gear weapon '+['starter','copper','moon','wand'][wc]+'"><svg x="66" y="17" width="49" height="62" viewBox="'+COLS[wc]+' 954 314 300" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg></g>')+'</g></g>'+
       (extraArmor?'<g class="armor-motion"><g class="gear armor extra-equipped" transform="translate('+(armor.indexOf('charm')>=0?'36 42) scale(.22)':'0 44) scale(.42)')+'">'+extraSprite(armor,'equipped-sprite')+'</g></g>':'')+'</svg>';
   }
   function illustratedMonster(kind,state){

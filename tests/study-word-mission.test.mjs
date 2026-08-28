@@ -453,6 +453,14 @@ describe('Unit 1 Word Expedition', () => {
       assert.equal(motion.hitDelay,motion.contact,'hit effect waits for weapon contact');
       assert.equal(motion.nextEnabled,true,'combat never locks Next');
       assert.equal(await page.locator('.shield-segment.cleared').count(),1);
+      for(const [fraction,frame] of [[.1,'windup'],[1.1,'contact'],[1.5,'recover']]){
+        const visible=await stage.evaluate((el,time)=>{
+          for(const animation of el.getAnimations({subtree:true})){animation.pause();animation.currentTime=time;}
+          return [...el.querySelectorAll('.hero-frame')].filter(frame=>Number(getComputedStyle(frame).opacity)===1).map(frame=>frame.classList[1]);
+        },motion.contact*1000*fraction);
+        assert.deepEqual(visible,['frame-'+frame],'one actual body pose is visible at each phase');
+      }
+      assert.ok(Number.parseFloat(await stage.evaluate(el=>el.style.getPropertyValue('--lunge')))>=0,'contact uses the current layout');
       if(weapon==='ember-hammer'||weapon==='crystal-wand'){
         await stage.evaluate((el,contact)=>{for(const animation of el.getAnimations({subtree:true})){animation.pause();animation.currentTime=contact*1000+70;}},motion.contact);
         await page.screenshot({path:path.join(directory,'390-combat-'+weapon+'.png'),fullPage:true,animations:'allow'});
@@ -473,6 +481,16 @@ describe('Unit 1 Word Expedition', () => {
     await answerCorrectly(page,false);
     assert.equal(await page.locator('.weapon-motion').evaluate(el=>getComputedStyle(el).animationName),'none');
     assert.equal(await page.locator('.shield-segment.cleared').count(),2,'reduced motion preserves earned hits');
+    assert.equal(await page.locator('.hero-idle').evaluate(el=>getComputedStyle(el).opacity),'1','reduced motion keeps the idle hero visible');
+    await page.emulateMedia({reducedMotion:'no-preference'});
+    await page.locator('#next-question').click();
+    for(let i=2;i<9;i++)await answerCorrectly(page);
+    await answerCorrectly(page,false);
+    assert.equal(await page.locator('#battle-stage').getAttribute('data-state'),'victory');
+    assert.equal(await page.locator('.enemy-fighter').evaluate(el=>getComputedStyle(el).animationName),'owl-vanish');
+    assert.equal(await page.locator('.finish-burst i').first().evaluate(el=>getComputedStyle(el).animationName),'finish-scatter');
+    await page.locator('#next-question').click();
+    assert.equal(await page.locator('#visit-shop').count(),1,'finishing animation never delays the summary');
     await context.close();
   });
 

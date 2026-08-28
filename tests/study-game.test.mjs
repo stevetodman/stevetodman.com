@@ -31,6 +31,7 @@ test('game art catalog is bounded, unique, and renders every equipment layer', (
       assert.match(svg, /^<svg/);
       assert.match(svg, /viewBox="0 0 120 120"/);
       assert.doesNotMatch(svg, /undefined|null/);
+      assert.equal((svg.match(/class="hero-frame frame-/g)||[]).length,3,'each outfit has all three attack frames');
     }
   }
 });
