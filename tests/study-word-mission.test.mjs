@@ -312,7 +312,12 @@ describe('Unit 1 Word Expedition', () => {
   test('audio failure has a visible teaching model and tile recovery stays assisted', async () => {
     const context=await fastContext();
     await context.addInitScript(()=>{
-      if('speechSynthesis'in window)window.speechSynthesis.speak=utterance=>utterance.onerror?.({error:'synthesis-unavailable'});
+      // Replace the complete API boundary: native WebKit method wrappers are
+      // not a portable fault-injection surface. The fallback must still render.
+      Object.defineProperties(window,{
+        SpeechSynthesisUtterance:{configurable:true,value:class {constructor(text){this.text=text;}}},
+        speechSynthesis:{configurable:true,value:{cancel(){},speak(utterance){utterance.onerror?.({error:'synthesis-unavailable'});}}}
+      });
     });
     const page=await context.newPage();await page.goto(server.origin+'/study/');
     await page.locator('[data-profile="Luke"]').click();

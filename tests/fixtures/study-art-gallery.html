@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Study equipment QA gallery</title>
 <link rel="stylesheet" href="/study/unit-1/app.css">
-<style>body{padding:20px}h1{margin:0 0 18px}.gallery{display:grid;grid-template-columns:repeat(8,minmax(100px,1fr));gap:10px}.sample{background:#fffef8;border:1px solid #d8dfd2;border-radius:14px;padding:10px;text-align:center}.sample svg{display:block;width:120px;height:120px;max-width:100%;margin:auto}.sample p{font-size:10px;margin:6px 0 0}.monsters{margin-top:20px;grid-template-columns:repeat(4,1fr)}@media(max-width:800px){.gallery{grid-template-columns:repeat(4,1fr)}}</style></head>
+<style>body{padding:20px}h1{margin:0 0 18px}.gallery{display:grid;grid-template-columns:repeat(8,minmax(100px,1fr));gap:10px}.sample{min-width:0;overflow-wrap:anywhere;background:#fffef8;border:1px solid #d8dfd2;border-radius:14px;padding:10px;text-align:center}.sample svg{display:block;width:120px;height:120px;max-width:100%;margin:auto}.sample p{font-size:10px;margin:6px 0 0}.monsters{margin-top:20px;grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:800px){.gallery{grid-template-columns:repeat(4,minmax(0,1fr))}}</style></head>
 <body><h1>Equipment and creature consistency check</h1><main><div class="gallery" id="heroes"></div><div class="gallery monsters" id="creatures"></div></main>
 <script src="/study/unit-1/game-art.js"></script><script>
 const art=window.WordExpeditionArt;

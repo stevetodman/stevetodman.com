@@ -65,6 +65,12 @@ engine fails. Travel-map colors now represent travel only, never word mastery.
 Local preview/test servers use the proper WebP MIME type. Family/device acceptance
 steps are in QUALITY_PLAN.md. Wait for both browser results before technical sign-off.
 
+Cross-engine run33133269734: Chromium40/40 passed; WebKit38/40 passed. WebKit
+failures: native speech-method fault injection did not fire, and the QA equipment
+gallery overflowed at320px. The test now replaces the complete speech API boundary;
+the gallery uses zero-minimum grid columns and wrapping labels. Assertions are
+unchanged. Rerun both engines. This is not yet cross-browser sign-off.
+
 The complete illustrated atlas and two world backdrops are now included under
 `study/unit-1/assets/` with prompt provenance. Phone home/question screens were
 visually inspected; atlas clipping was corrected. All32 equipment combinations
