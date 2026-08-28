@@ -79,10 +79,9 @@ replace_once(app, """  function setBattleState(kind,message,advance) {
     if(!stage)return;
     alignBattleContact(stage);
     stage.setAttribute('data-state',kind);
+    // Preserve immediate earned-progress feedback; only transient combat effects wait for contact.
+    applyBattleDamageVisual(stage);
     var motion=ART.combatProfile(gameProfile(activeName).equipped.weapon);
-    clearTimeout(stage._impactTimer);
-    if(advance)stage._impactTimer=setTimeout(function(){applyBattleDamageVisual(stage);},Math.max(0,motion.contact*1000));
-    else applyBattleDamageVisual(stage);
     var status=document.getElementById('battle-status');if(status)status.textContent=message;
     clearTimeout(stage._battleTimer);
     if(kind!=='victory')stage._battleTimer=setTimeout(function(){if(stage.isConnected&&session){stage.setAttribute('data-state','ready');session.battleState='ready';}},Math.max(520,motion.contact*2000));
@@ -131,17 +130,19 @@ css_path.write_text(css_text)
 
 insert_before = """test('cloud merge unions session rewards and purchases instead of using last-write-wins', () => {
 """
-new_test = r'''test('answer feedback is immediate while combat impact stays contact-synchronized and non-blocking', () => {
+new_test = r'''test('answer feedback stays immediate while transient combat effects remain contact-synchronized and non-blocking', () => {
   const source = read('study/unit-1/app.js');
   const css = read('study/unit-1/app.css');
   assert.match(source, /function timedWeaponSample\(/);
   assert.match(source, /return Object\.assign\(\{\},sample,\{delay:delay\}\)/);
-  assert.match(source, /stage\._impactTimer=setTimeout\(function\(\)\{applyBattleDamageVisual\(stage\);\},Math\.max\(0,motion\.contact\*1000\)\)/);
+  assert.match(source, /applyBattleDamageVisual\(stage\);[\s\S]*var motion=ART\.combatProfile/,'earned shield progress remains immediate');
+  assert.doesNotMatch(source, /_impactTimer/,'progress UI must not be delayed by combat choreography');
   assert.match(source, /pulseQuestionFeedback\('incorrect'\)/);
   assert.match(source, /pulseQuestionFeedback\(kind==='recovery'\?'recovery':kind==='standard'\?'assisted':'correct'\)/);
   assert.equal((source.match(/advanceTimer=setTimeout\(nextQuestion,480\)/g)||[]).length,2,'recovery cadence must remain unchanged');
   assert.doesNotMatch(source, /advanceTimer=setTimeout\(nextQuestion,(?:[5-9]\d\d|\d{4,})\)/,'feedback polish must not lengthen recovery');
   assert.match(css, /\.impact-chip/);
+  assert.match(css, /animation:impact-chip[^;]*var\(--contact\)/,'impact accent waits for contact');
   assert.match(css, /\.question-card\[data-feedback="correct"\]/);
   assert.match(css, /prefers-reduced-motion:reduce[^}]*\.question-card\[data-feedback\]/s);
 });
