@@ -142,7 +142,7 @@
   // Short synthesized foley: swept air + inharmonic metal; the wand uses bell tones.
   function renderWeaponSound(ctx,weapon){
     var item=ART.catalog.find(function(item){return item.id===weapon;})||{sound:'blade',tone:730};
-    var type=item.sound,toneHz=item.tone;
+    var type=item.sound,toneHz=item.tone,motion=ART.combatProfile(weapon),contact=motion.contact;
     var start=ctx.currentTime+.005,nodes=[],sources=[],remaining=0;
     var output=ctx.createGain();output.gain.value=.16;output.connect(ctx.destination);nodes.push(output);
     function cleanup(){nodes.forEach(function(node){try{node.disconnect();}catch(_){}});}
@@ -156,24 +156,37 @@
     }
     try{
       if(type==='wand'||type==='charm'){
+        var charge=ctx.createOscillator();charge.type='sine';charge.frequency.setValueAtTime(toneHz*.35,start);charge.frequency.exponentialRampToValueAtTime(toneHz,start+contact);
+        voice(charge,contact,.12,0);
         [toneHz,toneHz*1.498,toneHz*2].forEach(function(hz,index){
           var tone=ctx.createOscillator();tone.type='sine';tone.frequency.setValueAtTime(hz,start);
-          voice(tone,.30,.24,index*.055);
+          voice(tone,.22,.24,contact+index*.025);
         });
+        if(motion.element==='crystal'){
+          var crack=ctx.createOscillator();crack.type='triangle';crack.frequency.value=toneHz*3;voice(crack,.055,.09,contact);
+        }
       }else{
         var copper=weapon==='copper-blade',moon=weapon==='moon-blade',soft=type==='cloth'||type==='wood',heavy=type==='hammer'||type==='shield';
-        var buffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*.18),ctx.sampleRate),data=buffer.getChannelData(0);
+        var buffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*contact),ctx.sampleRate),data=buffer.getChannelData(0);
         for(var i=0;i<data.length;i++)data[i]=Math.random()*2-1;
         var air=ctx.createBufferSource();air.buffer=buffer;
         var filter=ctx.createBiquadFilter();filter.type='bandpass';filter.Q.value=.7;
         filter.frequency.setValueAtTime(type==='cloth'?toneHz*3:type==='bow'?3200:moon?3400:Math.min(3600,toneHz*3),start);
-        filter.frequency.exponentialRampToValueAtTime(400,start+.16);voice(air,.18,soft?.42:.6,0,filter);
-        var thud=ctx.createOscillator();thud.type='triangle';thud.frequency.setValueAtTime(type==='bow'?toneHz:heavy?95:145,start+.18);thud.frequency.exponentialRampToValueAtTime(heavy?35:48,start+.29);voice(thud,.13,soft?.14:heavy?.55:.38,.18);
+        filter.frequency.exponentialRampToValueAtTime(400,start+contact);voice(air,contact,soft?.42:.6,0,filter);
+        if(type==='bow'){
+          var string=ctx.createOscillator();string.type='triangle';string.frequency.setValueAtTime(toneHz*2,start+.04);string.frequency.exponentialRampToValueAtTime(toneHz,start+.10);voice(string,.10,.26,.04);
+        }
+        var thud=ctx.createOscillator();thud.type='triangle';thud.frequency.setValueAtTime(type==='bow'?toneHz:heavy?95:145,start+contact);thud.frequency.exponentialRampToValueAtTime(heavy?35:48,start+contact+.11);voice(thud,.13,soft?.14:heavy?.55:.38,contact);
         var partials=[toneHz,toneHz*(type==='bow'?2:1.68),toneHz*(soft?3:2.71)];
         partials.forEach(function(hz,index){
-          var metal=ctx.createOscillator();metal.type='sine';metal.frequency.setValueAtTime(hz*1.035,start+.18);metal.frequency.exponentialRampToValueAtTime(hz,start+.215);
-          voice(metal,type==='cloth'?.08:type==='bow'?.12:moon?.36:copper?.16:.22,(soft?.06:.25)/(index+1),.18);
+          var metal=ctx.createOscillator();metal.type='sine';metal.frequency.setValueAtTime(hz*1.035,start+contact);metal.frequency.exponentialRampToValueAtTime(hz,start+contact+.035);
+          voice(metal,type==='cloth'?.08:type==='bow'?.12:moon?.28:copper?.16:.22,(soft?.06:.25)/(index+1),contact);
         });
+        if(motion.element==='lightning'||motion.element==='ice'||motion.element==='fire'){
+          var spark=ctx.createBufferSource();spark.buffer=buffer;
+          var sparkFilter=ctx.createBiquadFilter();sparkFilter.type=motion.element==='fire'?'lowpass':'highpass';sparkFilter.frequency.value=motion.element==='ice'?4200:1800;
+          voice(spark,.08,.18,contact,sparkFilter);
+        }
       }
     }catch(error){sources.forEach(function(source){try{source.stop();}catch(_){}});cleanup();throw error;}
     return function(){sources.forEach(function(source){try{source.stop();}catch(_){}});cleanup();};
@@ -188,15 +201,21 @@
   function silenceCreature(){if(stopCreatureSound){stopCreatureSound();stopCreatureSound=null;}}
   function renderCreatureSound(ctx,kind,armor){
     var params=({mossling:[95,700,.34],wisp:[520,2300,.32],sentinel:[55,430,.38],boss:[260,1800,.40]})[kind]||[95,700,.34];
-    var armorItem=ART.catalog.find(function(item){return item.id===armor;}),armorTone=armorItem?armorItem.tone:115;
-    var duration=params[2],buffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*duration),ctx.sampleRate),data=buffer.getChannelData(0),phase=0;
+    var armorItem=ART.catalog.find(function(item){return item.id===armor;}),armorTone=armorItem?armorItem.tone:115,defense=ART.combatProfile(armor||'starter-cloak').defense;
+    var duration=.48,buffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*duration),ctx.sampleRate),data=buffer.getChannelData(0),phase=0;
     for(var i=0;i<data.length;i++){
       var t=i/ctx.sampleRate,fall=1-t/duration;
       phase+=2*Math.PI*params[0]*(.65+.35*fall+.06*Math.sin(2*Math.PI*23*t))/ctx.sampleRate;
       var growl=(Math.sin(phase)+.3*Math.sin(phase*2.01)+.2*Math.sin(phase*3.9))*(.7+.3*Math.sin(t*2*Math.PI*31));
       var grit=(Math.random()*2-1)*(kind==='wisp'?.55:.25);
-      // Armor absorbs the counterattack: mail rings, fabric gives a soft thump.
-      var impact=t>.11?Math.exp(-(t-.11)*35)*Math.sin(t*2*Math.PI*armorTone)*.4:0;
+      // Contact is at 200ms, shared with the counterattack and defense keyframes.
+      var hitTime=t-.20,impact=0;
+      if(hitTime>=0){
+        var ring=Math.sin(hitTime*2*Math.PI*armorTone),noise=Math.random()*2-1;
+        impact=defense==='evade'?noise*.24*Math.exp(-hitTime*28):
+          defense==='barrier'?(ring+Math.sin(hitTime*2*Math.PI*armorTone*1.5))*.22*Math.exp(-hitTime*15):
+          (ring+.35*Math.sin(hitTime*2*Math.PI*armorTone*2.71)+noise*.20)*.4*Math.exp(-hitTime*(defense==='brace'?24:18));
+      }
       data[i]=(growl*.38+grit+impact)*Math.min(1,t/.018)*Math.pow(fall,1.3);
     }
     var source=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
@@ -211,8 +230,11 @@
     try{stopCreatureSound=renderCreatureSound(ctx,kind,armor);}catch(_){}
   }
   function monsterCounterattack(){
-    if(!session||document.body.dataset.screen!=='question'||session.battleDamage>=SESSION_LENGTH)return;
-    setBattleState('counter','The monster strikes back. Your armor holds.',false);
+    if(!session||document.hidden||document.body.dataset.screen!=='question'||session.battleDamage>=SESSION_LENGTH)return;
+    var defense=ART.combatProfile(gameProfile(activeName).equipped.armor).defense;
+    var attack=({mossling:'The troll sweeps its claws.',wisp:'The wisp launches a ghost bolt.',sentinel:'The golem slams the ground.',boss:'The owl casts a spell.'})[session.enemy];
+    var response=({shield:'Your shield catches it.',brace:'Your mail absorbs the blow.',barrier:'Your magic barrier deflects it.',evade:'You slip past the attack.'})[defense];
+    setBattleState('counter',attack+' '+response,false);
     playCreatureSound(session.enemy,gameProfile(activeName).equipped.armor);
   }
 
@@ -609,16 +631,17 @@
     }).join('')+'</div>';
   }
   function enemyName(kind) {
-    return ({mossling:'Bramble Imp',wisp:'Gloom Wisp',sentinel:'Rune Sentinel',boss:'The Word Keeper'})[kind]||'Shadow creature';
+    return ({mossling:'Bramble Troll',wisp:'Gloom Wisp',sentinel:'Rune Golem',boss:'The Word Keeper'})[kind]||'Shadow creature';
   }
   function battleStageHTML() {
     var gp=gameProfile(activeName),xp=gameXp(activeName),level=levelForXp(xp),next=nextLevelXp(xp),base=levelFloorXp(level);
+    var weapon=ART.combatProfile(gp.equipped.weapon),armor=ART.combatProfile(gp.equipped.armor);
     var progress=Math.max(0,Math.min(100,Math.round(((xp-base)/Math.max(1,next-base))*100)));
-    return '<section class="battle-stage" id="battle-stage" data-weapon="'+esc(gp.equipped.weapon)+'" data-state="'+esc(session.battleState)+'">'+
+    return '<section class="battle-stage" id="battle-stage" data-weapon="'+esc(gp.equipped.weapon)+'" data-enemy="'+esc(session.enemy)+'" data-wear="'+Math.min(3,Math.ceil(session.battleDamage/3))+'" data-attack="'+weapon.attack+'" data-element="'+weapon.element+'" data-defense="'+armor.defense+'" data-guard-element="'+armor.element+'" data-state="'+esc(session.battleState)+'" style="--contact:'+weapon.contact+'s;--swing:'+(weapon.contact*2)+'s;--flight:'+(weapon.contact-.04)+'s">'+
       '<div class="battle-hud"><span class="level-chip">Level '+level+'</span><span class="enemy-name">'+esc(enemyName(session.enemy))+'</span><span class="coin-chip">'+(session.enemy==='boss'?'Final battle':'Trail '+Math.min(12,gp.sessionsCompleted+1))+'</span></div>'+
-      '<div class="battle-scene"><div class="fighter hero-fighter">'+ART.hero(activeName,gp.equipped,session.battleState)+'</div><div class="impact-burst" aria-hidden="true">✦</div><div class="fighter enemy-fighter">'+ART.monster(session.enemy,session.battleState)+'</div></div>'+
+      '<div class="battle-scene"><div class="fighter hero-fighter">'+ART.hero(activeName,gp.equipped,session.battleState)+'<span class="hero-guard" aria-hidden="true"></span></div><div class="projectile-lane" aria-hidden="true"><span class="hero-projectile"></span><span class="enemy-projectile"></span></div><div class="fighter enemy-fighter">'+ART.monster(session.enemy,session.battleState)+'<span class="enemy-guard" aria-hidden="true"></span><span class="hit-mark" aria-hidden="true"></span><span class="ground-ripple" aria-hidden="true"></span></div></div>'+
       '<div class="shield-row" role="img" aria-label="'+session.battleDamage+' of 10 shield points cleared">'+Array.from({length:SESSION_LENGTH},function(_,i){return '<span class="shield-segment '+(i<session.battleDamage?'cleared':'')+'"></span>';}).join('')+'</div>'+
-      '<div class="xp-track" aria-label="Hero level progress"><span style="width:'+progress+'%"></span></div><p class="battle-status sr-only" id="battle-status" aria-live="assertive"></p></section>';
+      '<div class="xp-track" aria-label="Hero level progress"><span style="width:'+progress+'%"></span></div><p class="battle-status" id="battle-status" aria-live="polite">'+esc(({mossling:'Claws ready. Your answers drive it back.',wisp:'Catch the wisp with each answer.',sentinel:'Each answer cracks its stone armor.',boss:'Each answer breaks the owl’s spell.'})[session.enemy])+'</p></section>';
   }
   function setBattleState(kind,message,advance) {
     session.battleState=kind;
@@ -626,19 +649,21 @@
     var stage=document.getElementById('battle-stage');
     if(!stage)return;
     stage.setAttribute('data-state',kind);
+    stage.setAttribute('data-wear',Math.min(3,Math.ceil(session.battleDamage/3)));
     var shields=stage.querySelectorAll('.shield-segment');
     shields.forEach(function(segment,index){segment.classList.toggle('cleared',index<session.battleDamage);});
     var row=stage.querySelector('.shield-row');if(row)row.setAttribute('aria-label',session.battleDamage+' of 10 shield points cleared');
     var status=document.getElementById('battle-status');if(status)status.textContent=message;
     clearTimeout(stage._battleTimer);
-    if(kind!=='victory')stage._battleTimer=setTimeout(function(){if(stage.isConnected&&session){stage.setAttribute('data-state','ready');session.battleState='ready';}},520);
+    if(kind!=='victory')stage._battleTimer=setTimeout(function(){if(stage.isConnected&&session){stage.setAttribute('data-state','ready');session.battleState='ready';}},Math.max(520,ART.combatProfile(gameProfile(activeName).equipped.weapon).contact*2000));
   }
   function landHit(kind) {
     var final=session.battleDamage+1>=SESSION_LENGTH;
-    var message=kind==='critical'?'Critical hit. Shield point cleared.':kind==='recovery'?'Correction complete. Shield point cleared.':'Shield point cleared.';
+    var message=final?'Victory! The path is clear.':({mossling:'Your strike drives the troll back.',wisp:'Your strike catches the wisp. Its glow fades.',sentinel:'Your strike cracks the golem’s armor.',boss:'Your strike breaks the owl’s shield.'})[session.enemy];
+    if(kind==='recovery')message='Correction complete. '+message;
     setBattleState(final?'victory':kind,message,true);
     cancelSpeech();playWeaponSound(gameProfile(activeName).equipped.weapon);
-    if(!final&&kind!=='recovery')counterTimer=setTimeout(monsterCounterattack,450);
+    if(!final&&kind!=='recovery')counterTimer=setTimeout(monsterCounterattack,Math.max(450,ART.combatProfile(gameProfile(activeName).equipped.weapon).contact*2000));
   }
   function recoverAndContinue(button) {
     if(button)button.disabled=true;
@@ -743,7 +768,7 @@
     var form=document.getElementById('correction-form'),input=document.getElementById('correction-input');input.focus();
     form.addEventListener('submit',function(e){e.preventDefault();if(!isAccepted(q,input.value)){document.getElementById('correction-note').textContent='Use one of the school answers shown above.';input.select();return;}form.innerHTML='<p class="correction-success">That’s it. Your strike lands.</p>';landHit('recovery');session.resolved=true;saveRound();activityClock.mode('play');advanceTimer=setTimeout(nextQuestion,480);});
   }
-  function nextQuestion(){if(!session)return;cancelSpeech();session.index+=1;session.draftValue='';session.resolved=false;session.tileQuestion=null;session.tileChoiceIds=[];saveRound();renderQuestion();}
+  function nextQuestion(){if(!session)return;cancelSpeech();session.battleState='ready';session.index+=1;session.draftValue='';session.resolved=false;session.tileQuestion=null;session.tileChoiceIds=[];saveRound();renderQuestion();}
 
   function showLetterTiles(q) {
     var letters=shuffle(q.word.word.split('').map(function(letter,index){return {letter:letter,id:index};}));

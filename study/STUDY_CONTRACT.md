@@ -20,6 +20,7 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 
 ## Game layer
 
+- Monsters have distinct visual behavior: a troll swipes and staggers, a wisp darts and fades, a golem cracks and slams, and the owl shields and casts. Each correct or recovered answer always clears one shield point; monster defenses never cancel a correct answer. Weapons have family-specific motions and shared visual/audio contact timing. Shields block, mail braces, cloaks evade, and charms or the star mantle deflect with a barrier. All of this is presentation only, with reduced-motion support and no extra input or wait before the next question.
 - Equipped weapons have distinct, brief synthesized effects: sword swishes and metallic strikes, or a wand chime. Monsters counterattack with creature and armor-impact sounds, without reducing progress or delaying the next question. Spelling audio starts immediately at normal speed and prefers a local English voice. Device settings can mute effects without muting spoken questions. Effects stop for narration, navigation and hidden tabs; unavailable audio never blocks learning.
 - The question is the combat action. There are no separate attack, defend, movement, or energy-grind turns.
 - Every battle contains the same 10 questions as the assignment session. Equipment may change appearance and feedback, but never question count, mastery, difficulty, correctness, or rewards.

@@ -298,13 +298,23 @@
     var extraWeapon=extraItem(weapon)>=0,extraArmor=extraItem(armor)>=0;
     return '<svg class="hero-art hero-'+(pose||'ready')+'" viewBox="0 0 120 120" data-armor="'+armor+'" data-weapon="'+weapon+'" aria-hidden="true" focusable="false">'+
       '<svg x="0" y="0" width="108" height="120" viewBox="'+COLS[ac]+' '+ROWS[name==='Samantha'?1:0]+' 314 '+HEIGHTS[name==='Samantha'?1:0]+'" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg>'+
-      (extraWeapon?'<g class="gear weapon extra-equipped" transform="translate(61 12) scale(.57)">'+extraSprite(weapon,'equipped-sprite')+'</g>':'<g class="gear weapon '+['starter','copper','moon','wand'][wc]+'"><svg x="66" y="17" width="49" height="62" viewBox="'+COLS[wc]+' 954 314 300" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg></g>')+
-      (extraArmor?'<g class="gear armor extra-equipped" transform="translate('+(armor.indexOf('charm')>=0?'36 42) scale(.22)':'0 44) scale(.42)')+'">'+extraSprite(armor,'equipped-sprite')+'</g>':'')+'</svg>';
+      '<g class="weapon-motion">'+(extraWeapon?'<g class="gear weapon extra-equipped" transform="translate(61 12) scale(.57)">'+extraSprite(weapon,'equipped-sprite')+'</g>':'<g class="gear weapon '+['starter','copper','moon','wand'][wc]+'"><svg x="66" y="17" width="49" height="62" viewBox="'+COLS[wc]+' 954 314 300" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg></g>')+'</g>'+
+      (extraArmor?'<g class="armor-motion"><g class="gear armor extra-equipped" transform="translate('+(armor.indexOf('charm')>=0?'36 42) scale(.22)':'0 44) scale(.42)')+'">'+extraSprite(armor,'equipped-sprite')+'</g></g>':'')+'</svg>';
   }
   function illustratedMonster(kind,state){
     var index=Math.max(0,['mossling','wisp','sentinel','boss'].indexOf(kind)),x=(index%2)*627,y=Math.floor(index/2)*627;
     return '<svg class="monster-art monster-cutout monster-'+kind+' monster-'+(state||'ready')+'" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><svg width="120" height="120" viewBox="'+x+' '+y+' 627 627" preserveAspectRatio="none" overflow="hidden"><image href="/study/unit-1/assets/monster-sprites.webp" width="1254" height="1254"/></svg></svg>';
   }
   function illustratedItem(item){if(extraItem(item.id)>=0)return extraSprite(item.id,'item-art');return item.type==='weapon'?sprite(Math.max(0,['starter-sword','copper-blade','moon-blade','star-wand'].indexOf(item.id)),3,'item-art'):sprite(Math.max(0,['starter-cloak','forest-hood','guardian-mail','star-mantle'].indexOf(item.id)),0,'item-art');}
-  window.WordExpeditionArt={ catalog:CATALOG, validItems:VALID_ITEMS, hero:illustratedHero, monster:illustratedMonster, itemIcon:illustratedItem, routeMap:routeMap };
+  // Presentation only. Contact seconds drive both CSS motion and audio scheduling.
+  function combatProfile(id){
+    var item=CATALOG.find(function(item){return item.id===id;});
+    var family=item?item.sound:id==='starter-cloak'?'cloth':'blade';
+    var attacks={blade:['slash',.18],axe:['chop',.23],hammer:['smash',.28],spear:['thrust',.17],wood:['sweep',.22],scythe:['sweep',.22],bow:['shoot',.22],wand:['cast',.24]};
+    var attack=attacks[family]||attacks.blade;
+    var element=/ember|sun-/.test(id)?'fire':/frost/.test(id)?'ice':/thunder/.test(id)?'lightning':/void/.test(id)?'void':/crystal/.test(id)?'crystal':/star/.test(id)?'star':/moon/.test(id)?'moon':/oak|forest|hunter/.test(id)?'wood':'steel';
+    var defense=family==='shield'?'shield':family==='mail'?'brace':family==='charm'||id==='star-mantle'?'barrier':'evade';
+    return {attack:attack[0],contact:attack[1],element:element,defense:defense,family:family};
+  }
+  window.WordExpeditionArt={ catalog:CATALOG, validItems:VALID_ITEMS, hero:illustratedHero, monster:illustratedMonster, itemIcon:illustratedItem, routeMap:routeMap, combatProfile:combatProfile };
 })();
