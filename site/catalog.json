@@ -28,7 +28,7 @@
     {"id":"pals","title":"PALS 2025 Resident Mastery Lab","route":"/pals/","class":"PRODUCTION","audience":"residents","category":"education"},
     {"id":"pedcardsurg","title":"CHD Surgical Atlas","route":"/pedcardsurg/","class":"PRODUCTION","audience":"residents","category":"education"},
 
-    {"id":"study","title":"Study Hub","route":"/study/","class":"PRODUCTION","audience":"family","category":"family"},
+    {"id":"study","title":"Word Expedition","route":"/study/","class":"PRODUCTION","audience":"family","category":"family"},
     {"id":"unit-1-word-mission","title":"Unit 1 Word Expedition","route":"/study/unit-1/","class":"PRODUCTION","audience":"family","category":"family"},
     {"id":"study-archive","title":"Past Study Practice","route":"/study/archive/","class":"PRODUCTION","audience":"family","category":"family","discoverable":false},
     {"id":"states","title":"50 States Challenge","route":"/study/us-states.html","class":"PRODUCTION","audience":"family","category":"family","discoverable":false},

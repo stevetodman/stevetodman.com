@@ -5,7 +5,7 @@
 // thing standing between the public internet and the database — it therefore
 // touches nothing outside the `studyhub` schema.
 //
-// Auth is a random per-family token generated on the child's device. Only its
+// Auth is an existing, parent-provisioned per-family token. Only its
 // SHA-256 lands in the database, so a leaked dump does not hand over anyone's
 // save. The token is the credential: whoever holds it can read and write that
 // family's progress, which is why the page keeps it in the URL *fragment*
@@ -31,8 +31,34 @@ const sql = postgres(connectionString, {
 });
 
 const MAX_BODY_BYTES = 256 * 1024; // a whole family's progress is a few KB
+const MAX_SAVE_BYTES = 1024 * 1024; // bound cumulative growth without trimming progress
 const TOKEN_MIN = 20;
 const TOKEN_MAX = 200;
+
+class SaveRequestError extends Error {
+  status: number;
+  constructor(message: string, status: number) { super(message); this.status = status; }
+}
+
+async function readBody(req: Request): Promise<string> {
+  const reader = req.body?.getReader();
+  if (!reader) return "";
+  const decoder = new TextDecoder();
+  let bytes = 0, text = "";
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > MAX_BODY_BYTES) {
+        await reader.cancel();
+        throw new SaveRequestError("payload_too_large", 413);
+      }
+      text += decoder.decode(value, { stream: true });
+    }
+    return text + decoder.decode();
+  } finally { reader.releaseLock(); }
+}
 
 const CORS = {
   "access-control-allow-origin": "*",
@@ -204,13 +230,12 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
-  const raw = await req.text();
-  if (raw.length > MAX_BODY_BYTES) return json({ error: "payload_too_large" }, 413);
-
   let body: Record<string, unknown>;
   try {
-    body = JSON.parse(raw);
-  } catch {
+    body = JSON.parse(await readBody(req));
+    if (!isObj(body)) return json({ error: "bad_json" }, 400);
+  } catch (err) {
+    if (err instanceof SaveRequestError) return json({ error: err.message }, err.status);
     return json({ error: "bad_json" }, 400);
   }
 
@@ -234,40 +259,31 @@ Deno.serve(async (req) => {
     const incoming = isObj(body.data) ? body.data : {};
 
     const merged = await sql.begin(async (tx) => {
-      // Serialise read-merge-write per family. SELECT ... FOR UPDATE alone is
-      // not enough: on the very first push there is no row to lock, so two
-      // devices could both fall through to INSERT and one would hit the
-      // unique constraint. A transaction-scoped advisory lock on the token
-      // covers the not-yet-existing row too, and is released on commit.
-      await tx`select pg_advisory_xact_lock(hashtextextended(${tokenHash}, 0))`;
-
+      // Only previously provisioned rows can sync. Existing tokens are unchanged;
+      // new devices join using a private family link, never public registration.
       const existing = await tx`
         select data, revision from studyhub.saves
         where token_hash = ${tokenHash}
         for update
       `;
-      const current = existing.length ? existing[0].data : {};
+      if (!existing.length) throw new SaveRequestError("family_link_required", 403);
+      const current = existing[0].data;
       const next = mergeFamilies(current, incoming);
-
-      if (existing.length) {
-        const updated = await tx`
-          update studyhub.saves
-          set data = ${sql.json(next)}, revision = revision + 1, updated_at = now()
-          where token_hash = ${tokenHash}
-          returning data, revision
-        `;
-        return updated[0];
+      if (new TextEncoder().encode(JSON.stringify(next)).byteLength > MAX_SAVE_BYTES) {
+        throw new SaveRequestError("save_capacity_reached", 413);
       }
-      const inserted = await tx`
-        insert into studyhub.saves (token_hash, data, revision)
-        values (${tokenHash}, ${sql.json(next)}, 1)
+      const updated = await tx`
+        update studyhub.saves
+        set data = ${sql.json(next)}, revision = revision + 1, updated_at = now()
+        where token_hash = ${tokenHash}
         returning data, revision
       `;
-      return inserted[0];
+      return updated[0];
     });
 
     return json({ ok: true, data: merged.data, revision: Number(merged.revision) });
   } catch (err) {
+    if (err instanceof SaveRequestError) return json({ error: err.message }, err.status);
     console.error("studyhub-save failed", err);
     return json({ error: "server_error" }, 500);
   }

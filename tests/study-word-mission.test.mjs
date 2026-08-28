@@ -147,6 +147,8 @@ describe('Unit 1 Word Expedition', () => {
     const page = await context.newPage();
     await page.goto(server.origin + '/study/');
     assert.match(await page.locator('[data-profile="Luke"] .journey-line').innerText(),/Adventure 1 of 12/);
+    assert.equal(await page.locator('.hero-frame').count(),0,'picker does not include attack images');
+    assert.equal(await page.evaluate(()=>performance.getEntriesByType('resource').some(entry=>entry.name.includes('hero-poses.webp'))),false);
     await page.locator('[data-profile="Luke"]').click();
     await answerCurrentQuestion(page);
 
@@ -197,6 +199,7 @@ describe('Unit 1 Word Expedition', () => {
 
     for (let i = 0; i < 10; i++) await answerCurrentQuestion(page);
     assert.equal(await page.locator('.game-summary').count(), 1);
+    assert.match(await page.locator('.round-review').innerText(),/recalled on the first try/);
     assert.match(await page.locator('.reward-row').innerText(), /\+20[\s\S]*Level 2/);
 
     let game = await page.evaluate(() => JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')));
@@ -210,11 +213,11 @@ describe('Unit 1 Word Expedition', () => {
 
     await page.reload();
     await page.locator('[data-profile="Luke"]').click();
-    assert.equal(await page.locator('.hero-fighter .gear.weapon.copper').count(), 1);
+    assert.equal(await page.locator('.hero-fighter [data-item-art="copper-blade"]').count(), 1);
     await page.locator('#profile-chip').click();
     await page.locator('[data-profile="Samantha"]').click();
     assert.match(await page.locator('.level-chip').innerText(), /^level 1$/i);
-    assert.equal(await page.locator('.hero-fighter .gear.weapon.starter').count(), 1);
+    assert.equal(await page.locator('.hero-fighter [data-item-art="starter-sword"]').count(), 1);
     await context.close();
   });
 
@@ -241,7 +244,7 @@ describe('Unit 1 Word Expedition', () => {
     await page.locator('[data-profile="Luke"]').click();
     assert.equal(await page.locator('#correction-form strong').innerText(),expected);
     await page.locator('#correction-input').fill(expected);await page.locator('#correction-input').press('Enter');
-    await page.waitForTimeout(40);
+    await page.locator('.question-count').filter({hasText:'2 / 10'}).waitFor();
     assert.match(await page.locator('.question-count').innerText(),/2 \/ 10/);
     const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')).learners.Luke.stats);
     assert.deepEqual(after,before);

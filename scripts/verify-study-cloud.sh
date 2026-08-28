@@ -12,7 +12,7 @@ trap 'rm -rf "$TMP"' EXIT
 request() {
   local name="$1"; shift
   local status
-  status="$(curl --silent --show-error --location --output "$TMP/$name.body" --write-out '%{http_code}' "$@")"
+  status="$(curl --silent --show-error --location --connect-timeout 10 --max-time 20 --output "$TMP/$name.body" --write-out '%{http_code}' "$@")"
   printf '%s' "$status" > "$TMP/$name.status"
 }
 
@@ -68,6 +68,12 @@ case "$(cat "$TMP/direct_rest.status")" in
     exit 1
     ;;
 esac
+
+# Unknown credentials must never create rows. Use no real family token.
+request unprovisioned -X POST -H 'content-type: application/json' \
+  --data '{"action":"push","token":"studyhub-unprovisioned-rejection-canary-v1","data":{}}' "$URL"
+expect_status unprovisioned 403
+json_assert unprovisioned 'body.error === "family_link_required"'
 
 # Real push/pull path against a synthetic family row.
 request push_a -X POST -H 'content-type: application/json' \

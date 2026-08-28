@@ -465,6 +465,27 @@
   }
   function masteredCount(name) { return WORDS.filter(function(w){return wordLevel(name,w)==='mastered';}).length; }
 
+  function skillLabel(domain){return {definition:'meaning',synonym:'synonym',antonym:'antonym',spelling:'spelling'}[domain]||'practice';}
+  function practiceSuggestions(name){
+    var candidates=[];
+    WORDS.forEach(function(word){
+      var domains=assignedDomains(word),tried=domains.some(function(d){return getStat(name,word.word,d).attempts>0;});
+      if(!tried)return;
+      domains.forEach(function(domain){
+        var st=getStat(name,word.word,domain),days=(st.correctDays||[]).length;
+        var needsHelp=st.attempts>0&&st.streak===0&&((st.wrong||0)+(st.assisted||0)>0);
+        if(!needsHelp&&days>=(domain==='spelling'?2:1)&&wordLevel(name,word)==='mastered')return;
+        candidates.push({word:word.word,domain:domain,priority:needsHelp?0:days<(domain==='spelling'?2:1)?1:2,at:st.lastAt||''});
+      });
+    });
+    candidates.sort(function(a,b){return a.priority-b.priority||b.at.localeCompare(a.at)||a.word.localeCompare(b.word)||a.domain.localeCompare(b.domain);});
+    return candidates.slice(0,3);
+  }
+  function roundReviewHTML(results){
+    var missed=unique(results.filter(function(r){return !r.correct;}).map(function(r){return r.word+' — '+skillLabel(r.domain);}));
+    return '<section class="round-review" aria-label="This adventure’s practice"><p><strong>'+results.filter(function(r){return r.correct;}).length+' of 10 recalled on the first try.</strong></p><p>'+(missed.length?'Practiced with help: '+esc(missed.join('; '))+'.':'Every answer recalled without help.')+'</p></section>';
+  }
+
   function showToast(message) {
     clearTimeout(toastTimer); toast.textContent=message; toast.hidden=false;
     toastTimer=setTimeout(function(){toast.hidden=true;},2200);
@@ -513,10 +534,10 @@
   function learningSummaryHTML(){
     return '<details class="learning-notes"><summary>Learning progress</summary>'+LEARNERS.map(function(learner){
       var name=learner.name,last=profile(name).sessions[0];
-      var weak=WORDS.filter(function(word){return wordLevel(name,word)!=='mastered';}).slice(0,3).map(function(word){return word.word;});
+      var weak=practiceSuggestions(name).map(function(pair){return pair.word+' — '+skillLabel(pair.domain);});
       var vocab=WORDS.filter(function(word){return assignedDomains(word).filter(function(domain){return domain!=='spelling';}).every(function(domain){return (getStat(name,word.word,domain).correctDays||[]).length>0;});}).length;
       var spelling=WORDS.filter(function(word){return (getStat(name,word.word,'spelling').correctDays||[]).length>=2;}).length;
-      return '<section><h3>'+esc(name)+'</h3><p>Meanings recalled: '+vocab+'/12 · Spelling across two days: '+spelling+'/12</p><p>'+(weak.length?'Keep practicing: '+esc(weak.join(', ')):'All 12 words mastered.')+'</p>'+(last?'<p>Last adventure: '+last.correct+'/10 on the first try.</p>':'')+(last&&last.timing?'<p class="timing-note">Recorded active time: '+formatDuration(last.timing.learning)+' learning · '+formatDuration(last.timing.play)+' menus and rewards. Interaction-based estimate; idle and background time excluded.</p>':'')+'</section>';
+      return '<section><h3>'+esc(name)+'</h3><p>Meanings recalled: '+vocab+'/12 · Spelling across two days: '+spelling+'/12</p><p>'+(weak.length?'Practice next: '+esc(weak.join('; ')):masteredCount(name)===12?'All 12 words mastered.':'Start an adventure to find what needs practice.')+'</p>'+(last?'<p>Last adventure: '+last.correct+'/10 on the first try.</p>':'')+(last&&last.timing?'<p class="timing-note">Recorded active time: '+formatDuration(last.timing.learning)+' learning · '+formatDuration(last.timing.play)+' menus and rewards. Interaction-based estimate; idle and background time excluded.</p>':'')+'</section>';
     }).join('')+'<p class="mastery-explainer">A mastery seal means meanings recalled without story clues, two spelling days, and practice across three different days. Letter tiles help learning but do not earn a spelling day.</p></details>';
   }
   function formatDuration(ms){var seconds=Math.max(0,Math.round((Number(ms)||0)/1000));return Math.floor(seconds/60)+'m '+seconds%60+'s';}
@@ -525,6 +546,8 @@
     if(Object.keys(localSaveErrors).length)return 'Device save unavailable';
     if (!CLOUD_ENABLED) return 'Saved on this device';
     if (cloudStatus==='saving'||cloudStatus==='loading') return '☁ Saving…';
+    if (cloudStatus==='unlinked') return 'Saved on this device · family link needed';
+    if (cloudStatus==='capacity') return 'Saved on this device · cloud storage full';
     if (cloudStatus==='offline') return 'Offline · saved on this device';
     return '☁ Saved';
   }
@@ -535,17 +558,11 @@
     var mini=document.getElementById('cloud-mini');
     if (mini) mini.textContent=cloudStatusText();
   }
-  function newCloudToken() {
-    var bytes=new Uint8Array(24); crypto.getRandomValues(bytes); var out='';
-    for (var i=0;i<bytes.length;i++) out+=('0'+bytes[i].toString(16)).slice(-2);
-    return out;
-  }
   function cloudToken(create) {
     var token=null;
     try {
       token=localStorage.getItem(CLOUD_TOKEN_KEY) || localStorage.getItem(LEGACY_CLOUD_TOKEN_KEY);
       if (token && !localStorage.getItem(CLOUD_TOKEN_KEY)) localStorage.setItem(CLOUD_TOKEN_KEY,token);
-      if (!token && create) { token=newCloudToken();localStorage.setItem(CLOUD_TOKEN_KEY,token); }
     } catch (_) {}
     return token;
   }
@@ -562,7 +579,7 @@
     return true;
   }
   function cloudRequest(payload) {
-    return fetch(CLOUD_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)}).then(function(res){if(!res.ok)throw new Error('cloud '+res.status);return res.json();});
+    return fetch(CLOUD_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)}).then(function(res){return res.json().then(function(body){if(!res.ok){var error=new Error(body.error||'cloud '+res.status);error.status=res.status;throw error;}return body;});});
   }
   function cloudSkillKey(word,domain) { return 'wm1|'+word+'|'+domain; }
   function cloudPayload() {
@@ -606,10 +623,10 @@
   }
   function cloudPush() {
     if (!CLOUD_ENABLED) return Promise.resolve();
-    var token=cloudToken(true); if(!token)return Promise.resolve();
+    var token=cloudToken(false); if(!token){updateCloudStatus('unlinked');return Promise.resolve();}
     if(cloudPushInFlight){cloudPushQueued=true;return Promise.resolve();}
     cloudPushInFlight=true;updateCloudStatus('saving');
-    return cloudRequest({token:token,action:'push',data:cloudPayload()}).then(function(res){applyCloudData(res.data);updateCloudStatus('saved');}).catch(function(){updateCloudStatus('offline');}).then(function(){cloudPushInFlight=false;if(cloudPushQueued){cloudPushQueued=false;scheduleCloudPush(0);}});
+    return cloudRequest({token:token,action:'push',data:cloudPayload()}).then(function(res){applyCloudData(res.data);updateCloudStatus('saved');}).catch(function(error){updateCloudStatus(error.status===403?'unlinked':error.status===413?'capacity':'offline');}).then(function(){cloudPushInFlight=false;if(cloudPushQueued){cloudPushQueued=false;scheduleCloudPush(0);}});
   }
   function scheduleCloudPush(delay) {
     if(!CLOUD_ENABLED)return;
@@ -617,27 +634,27 @@
   }
   function cloudPull() {
     if(!CLOUD_ENABLED)return Promise.resolve(false);
-    var token=cloudToken(true);updateCloudStatus('loading');
-    return cloudRequest({token:token,action:'pull'}).then(function(res){if(res.found)applyCloudData(res.data);updateCloudStatus('saved');return !!res.found;}).catch(function(){updateCloudStatus('offline');return false;});
+    var token=cloudToken(false);if(!token){updateCloudStatus('unlinked');return Promise.resolve(false);}updateCloudStatus('loading');
+    return cloudRequest({token:token,action:'pull'}).then(function(res){if(res.found)applyCloudData(res.data);updateCloudStatus(res.found?'saved':'unlinked');return !!res.found;}).catch(function(error){updateCloudStatus(error.status===403?'unlinked':error.status===413?'capacity':'offline');return false;});
   }
-  function cloudShareLink() { return location.origin+'/study/#k='+encodeURIComponent(cloudToken(true)); }
+  function cloudShareLink() { var token=cloudToken(false);return token?location.origin+'/study/#k='+encodeURIComponent(token):null; }
 
   function showCloudScreen() {
     activityClock.mode('play');document.body.dataset.screen='settings';
     setChip(null);
-    var enabled=CLOUD_ENABLED;
+    var enabled=CLOUD_ENABLED,linked=!!cloudToken(false)&&cloudStatus!=='unlinked';
     app.innerHTML='<section class="panel cloud-panel"><span class="panel-icon" aria-hidden="true">☁</span><h2>Cloud save</h2>'+
-      '<p>'+(enabled?'Both learner profiles save automatically after every answer. Use the private link once on another device to connect the same progress.':'Cloud sync turns on automatically on stevetodman.com. This preview is saving only on this device.')+'</p>'+
-      (enabled?'<button type="button" class="primary-button" id="share-cloud">Share private device link</button><p class="privacy-note">Treat this link like a password: anyone with it can read and change this family’s study progress. The key is removed from the address after a new device connects.</p>':'')+
+      '<p>'+(enabled?'Both learners save on this device after every answer. Family-linked devices also sync to the cloud. On a new device, open the private link shared from an already linked device; local practice stays available without linking.':'This preview saves on this device. Family cloud linking is available on stevetodman.com.')+'</p>'+
+      (enabled&&linked?'<button type="button" class="primary-button" id="share-cloud">Share private device link</button><p class="privacy-note">Treat this link like a password: anyone with it can read and change this family’s study progress. The key is removed from the address after a new device connects.</p>':'')+
       '<button type="button" class="secondary-button" id="weapon-sounds" aria-pressed="'+weaponSoundsEnabled+'">Battle sounds: '+(weaponSoundsEnabled?'on':'off')+'</button>'+
-      '<button type="button" class="text-button" id="cloud-done">Done</button></section>';
+      '<a class="past-practice" href="/study/archive/">Past practice →</a><button type="button" class="text-button" id="cloud-done">Done</button></section>';
     document.getElementById('weapon-sounds').addEventListener('click',function(){
       weaponSoundsEnabled=!weaponSoundsEnabled;silenceWeapon();silenceCreature();
       try{localStorage.setItem('studyhub-weapon-sounds',weaponSoundsEnabled?'on':'off');}catch(_){}
       this.setAttribute('aria-pressed',String(weaponSoundsEnabled));this.textContent='Battle sounds: '+(weaponSoundsEnabled?'on':'off');
     });
-    if(enabled)document.getElementById('share-cloud').addEventListener('click',function(){
-      var link=cloudShareLink();
+    if(enabled&&linked)document.getElementById('share-cloud').addEventListener('click',function(){
+      var link=cloudShareLink();if(!link)return;
       if(navigator.share)navigator.share({title:'Study Hub cloud save',url:link}).catch(function(){});
       else if(navigator.clipboard)navigator.clipboard.writeText(link).then(function(){showToast('Private link copied.');}).catch(function(){showToast('Could not copy the link.');});
       else showToast('Open this page in a browser that can share links.');
@@ -745,7 +762,7 @@
     var progress=Math.max(0,Math.min(100,Math.round(((xp-base)/Math.max(1,next-base))*100)));
     return '<section class="battle-stage" id="battle-stage" data-weapon="'+esc(gp.equipped.weapon)+'" data-enemy="'+esc(session.enemy)+'" data-wear="'+Math.min(3,Math.ceil(session.battleDamage/3))+'" data-attack="'+weapon.attack+'" data-element="'+weapon.element+'" data-defense="'+armor.defense+'" data-guard-element="'+armor.element+'" data-state="'+esc(session.battleState)+'" style="--contact:'+weapon.contact+'s;--swing:'+(weapon.contact*2)+'s;--flight:'+(weapon.contact-.04)+'s">'+
       '<div class="battle-hud"><span class="level-chip">Level '+level+'</span><span class="enemy-name">'+esc(enemyName(session.enemy))+'</span><span class="coin-chip">'+(session.enemy==='boss'?'Final battle':'Trail '+Math.min(12,gp.sessionsCompleted+1))+'</span></div>'+
-      '<div class="battle-scene"><div class="fighter hero-fighter">'+ART.hero(activeName,gp.equipped,session.battleState)+'<span class="hero-guard" aria-hidden="true"></span></div><div class="projectile-lane" aria-hidden="true"><span class="hero-projectile"></span><span class="enemy-projectile"></span></div><div class="fighter enemy-fighter">'+ART.monster(session.enemy,session.battleState)+'<span class="enemy-guard" aria-hidden="true"></span><span class="hit-mark" aria-hidden="true"></span><span class="ground-ripple" aria-hidden="true"></span></div><div class="finish-burst" aria-hidden="true">'+Array.from({length:6},function(_,i){return '<i style="--dx:'+([-28,24,-14,34,-35,12][i])+'px;--dy:'+([-24,-32,28,15,8,-40][i])+'px;--spin:'+((i%2?1:-1)*110)+'deg"></i>';}).join('')+'</div></div>'+
+      '<div class="battle-scene"><div class="fighter hero-fighter">'+ART.hero(activeName,gp.equipped,session.battleState,true)+'<span class="hero-guard" aria-hidden="true"></span></div><div class="projectile-lane" aria-hidden="true"><span class="hero-projectile"></span><span class="enemy-projectile"></span></div><div class="fighter enemy-fighter">'+ART.monster(session.enemy,session.battleState)+'<span class="enemy-guard" aria-hidden="true"></span><span class="hit-mark" aria-hidden="true"></span><span class="ground-ripple" aria-hidden="true"></span></div><div class="finish-burst" aria-hidden="true">'+Array.from({length:6},function(_,i){return '<i style="--dx:'+([-28,24,-14,34,-35,12][i])+'px;--dy:'+([-24,-32,28,15,8,-40][i])+'px;--spin:'+((i%2?1:-1)*110)+'deg"></i>';}).join('')+'</div></div>'+
       '<div class="shield-row" role="img" aria-label="'+session.battleDamage+' of 10 shield points cleared">'+Array.from({length:SESSION_LENGTH},function(_,i){return '<span class="shield-segment '+(i<session.battleDamage?'cleared':'')+'"></span>';}).join('')+'</div>'+
       '<div class="xp-track" aria-label="Hero level progress"><span style="width:'+progress+'%"></span></div><p class="battle-status" id="battle-status" aria-live="polite">'+esc(({mossling:'Claws ready. Your answers drive it back.',wisp:'Catch the wisp with each answer.',sentinel:'Each answer cracks its stone armor.',boss:'Each answer breaks the owl’s spell.'})[session.enemy])+'</p></section>';
   }
@@ -825,6 +842,14 @@
     if(!q.spelling)setTimeout(function(){input.focus();},80);
   }
   function isAccepted(q,value){var n=normalize(value);return q.accepted.some(function(a){return normalize(a)===n;});}
+  function meaningTypo(q,value){
+    // Only Unit 1 headwords, only missing/doubled letters in meaning recall.
+    // No fuzzy synonyms, substitutions (myth/math), or spelling credit.
+    if(q.domain!=='definition'||q.kind!=='text'||q.word.word.length<6)return false;
+    var n=normalize(value),word=q.word.word;
+    if(!/^[a-z]+$/.test(n)||WORDS.some(function(w){return w.word===n;}))return false;
+    return Array.from(word).some(function(letter,i){return n===word.slice(0,i)+word.slice(i+1)||n===word.slice(0,i)+letter+word.slice(i);});
+  }
   function recordResult(q,correct,assisted) {
     var st=getStat(activeName,q.word.word,q.domain),attemptId=session.id+':'+session.index;
     if(st.lastAttemptId===attemptId)return;
@@ -849,9 +874,9 @@
   function disableAnswerArea() { app.querySelectorAll('#answer-area button,#answer-area input').forEach(function(el){el.disabled=true;}); }
   function submitAnswer(q,value,source,assisted) {
     if(session.results.length>session.index)return;
-    var correct=isAccepted(q,value);
+    var typo=meaningTypo(q,value),correct=isAccepted(q,value)||typo;
     recordResult(q,correct,assisted);
-    session.results.push({word:q.word.word,domain:q.domain,correct:correct&&!assisted,assisted:!!assisted});
+    session.results.push({word:q.word.word,domain:q.domain,correct:correct&&!assisted,assisted:!!assisted,typo:typo});
     if(correct&&!assisted){session.combo+=1;session.strengthened.add(q.word.word);landHit('critical');}
     else {session.combo=0;if(assisted)landHit('standard');else {cancelSpeech();monsterCounterattack();}}
     if(!correct)scheduleRetry(q);
@@ -867,6 +892,7 @@
   }
   function showPositiveFeedback(q) {
     var callout=session.combo>=3?session.combo+' in a row!':session.combo===2?'Two in a row!':'Nice work.';
+    if(session.results[session.index]&&session.results[session.index].typo)callout='Right word! It’s spelled '+q.word.word+'.';
     document.getElementById('feedback-area').innerHTML='<div class="feedback good"><strong>'+callout+'</strong><span>'+esc(q.explanation)+'</span></div>';
     addNextButton();
   }
@@ -951,6 +977,7 @@
       '<div class="victory-lockup"><div class="summary-hero">'+ART.hero(activeName,gp.equipped,'victory')+(bossWon?'<span class="unit-crown" aria-hidden="true">✦</span>':'')+'</div><div><p class="eyebrow">'+(bossWon?'Adventure complete':'Expedition complete')+'</p><h2>'+(bossWon?'The castle is yours!':esc(activeName)+', the path is clear.')+'</h2><p>'+(bossWon?'You restored the realm. Keep practicing any words that still need a mastery seal.':session.strengthened.size+' '+(session.strengthened.size===1?'word got':'words got')+' stronger'+(newStamps?' and '+newStamps+' new '+(newStamps===1?'seal was':'seals were')+' restored.':'.'))+'</p></div></div>'+
       '<div class="reward-row" aria-label="Expedition rewards"><span><strong>+'+xpAward+'</strong> XP earned</span><span><strong>+'+coinAward+'</strong> study coins</span><span><strong>Level '+newLevel+'</strong>'+(leveledUp?'New level!':'Your hero')+'</span></div>'+
       ART.routeMap(Math.min(12,gp.sessionsCompleted))+
+      roundReviewHTML(session.results)+
       '<div class="summary-actions"><button type="button" class="primary-button" id="summary-done">Done for now</button><button type="button" class="secondary-button" id="visit-shop">Choose gear</button></div>'+rewardBreakHTML()+'<p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p></section>';
     resetView('.game-summary h2');
     if(newStamps||correct>=8)celebrate();
@@ -980,7 +1007,8 @@
   function gearItemHTML(item) {
     var gp=gameProfile(activeName),owned=gp.owned.indexOf(item.id)>=0,equipped=gp.equipped[item.type]===item.id,affordable=coinBalance(activeName)>=item.price;
     var label=equipped?'Equipped':owned?'Try on':item.price+' coins · try';
-    return '<article class="shop-card '+(equipped?'equipped ':'')+(owned?'owned':'')+'"><div class="shop-art">'+ART.itemIcon(item)+'</div><div class="shop-copy"><span class="item-rarity">'+esc(item.rarity)+'</span><h3>'+esc(item.name)+'</h3></div><button type="button" class="shop-action" data-item="'+esc(item.id)+'" '+(equipped?'disabled':'')+' aria-label="'+esc(item.name+': '+label)+'">'+esc(label)+'</button></article>';
+    var shortfall=!owned&&!affordable?'Need '+(item.price-coinBalance(activeName))+' more coins':'';
+    return '<article class="shop-card '+(equipped?'equipped ':'')+(owned?'owned':'')+'"><div class="shop-art">'+ART.itemIcon(item)+'</div><div class="shop-copy"><span class="item-rarity">'+esc(item.rarity)+'</span><h3>'+esc(item.name)+'</h3>'+(shortfall?'<small class="coin-shortfall">'+shortfall+'</small>':'')+'</div><button type="button" class="shop-action '+(shortfall?'preview-only':'')+'" data-item="'+esc(item.id)+'" '+(equipped?'disabled':'')+' aria-label="'+esc(item.name+': '+label+(shortfall?' · '+shortfall:''))+'">'+esc(label)+'</button></article>';
   }
   function showShop(keepPosition) {
     if(endExpiredRewardBreak())return;
