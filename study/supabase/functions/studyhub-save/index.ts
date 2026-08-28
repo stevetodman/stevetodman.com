@@ -90,13 +90,13 @@ function mergeGame(a: unknown, b: unknown): Record<string, unknown> {
   const rewardIds = [...new Set([
     ...Object.keys(isObj(A.rewards) ? A.rewards : {}),
     ...Object.keys(isObj(B.rewards) ? B.rewards : {}),
-  ])].filter((id) => id.length < 100).slice(-160);
+  ])].filter((id) => id.length < 100 && !["__proto__", "constructor", "prototype"].includes(id));
   for (const id of rewardIds) {
     const ar = isObj(isObj(A.rewards) ? A.rewards[id] : null) ? A.rewards[id] as Record<string, unknown> : {};
     const br = isObj(isObj(B.rewards) ? B.rewards[id] : null) ? B.rewards[id] as Record<string, unknown> : {};
     rewards[id] = {
-      xp: Math.max(0, Math.min(1000, Math.max(num(ar.xp), num(br.xp)))),
-      coins: Math.max(0, Math.min(1000, Math.max(num(ar.coins), num(br.coins)))),
+      xp: Math.max(0, Math.min(id === "_legacy" ? Number.MAX_SAFE_INTEGER : 1000, Math.max(num(ar.xp), num(br.xp)))),
+      coins: Math.max(0, Math.min(id === "_legacy" ? Number.MAX_SAFE_INTEGER : 1000, Math.max(num(ar.coins), num(br.coins)))),
     };
   }
 
@@ -114,7 +114,7 @@ function mergeGame(a: unknown, b: unknown): Record<string, unknown> {
   return {
     version: 1,
     rewards,
-    sessionsCompleted: Math.max(num(A.sessionsCompleted), num(B.sessionsCompleted)),
+    sessionsCompleted: Math.max(num(A.sessionsCompleted), num(B.sessionsCompleted), rewardIds.filter((id) => id !== "_legacy").length),
     bossDefeatedAt: typeof A.bossDefeatedAt === "string" ? A.bossDefeatedAt : (typeof B.bossDefeatedAt === "string" ? B.bossDefeatedAt : null),
     purchases,
     equipped: {

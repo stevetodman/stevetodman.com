@@ -34,7 +34,7 @@ test('game art catalog is bounded, unique, and renders every equipment layer', (
   }
 });
 
-test('route art always contains twelve seal nodes and a bounded marker', () => {
+test('route art has twelve travel nodes independent of word mastery', () => {
   const art = loadArt();
   for (const step of [-10, 0, 6, 12, 99]) {
     const svg = art.routeMap(step, Array(12).fill('new'));
@@ -42,6 +42,8 @@ test('route art always contains twelve seal nodes and a bounded marker', () => {
     assert.equal((svg.match(/class="route-marker/g) || []).length, 1);
     assert.doesNotMatch(svg, /translate\([^)]*(?:NaN|undefined)/);
   }
+  assert.equal(art.routeMap(3,Array(12).fill('mastered')),art.routeMap(3,Array(12).fill('new')));
+  assert.equal((art.routeMap(3).match(/route-node reached/g)||[]).length,3);
 });
 
 test('game state is isolated from the version-three learning schema', () => {
@@ -64,7 +66,7 @@ test('question-as-combat preserves the fixed ten-question learning loop', () => 
   assert.match(source, /battleDamage:0/);
   assert.match(source, /session\.battleDamage=Math\.min\(SESSION_LENGTH,session\.battleDamage\+1\)/);
   assert.match(source, /if\(!session\|\|session\.index>=SESSION_LENGTH\)\{finishSession\(\);return;\}/);
-  assert.match(source, /gear changes the adventure’s look, never the questions/i);
+  assert.match(source, /gear changes looks, not questions/i);
   assert.doesNotMatch(source, /equipment.*SESSION_LENGTH|equipped.*buildPlan/i);
 });
 
@@ -88,7 +90,7 @@ test('cloud merge unions session rewards and purchases instead of using last-wri
   const source = read('study/supabase/functions/studyhub-save/index.ts');
   assert.match(source, /function mergeGame\(/);
   assert.match(source, /new Set\(\[\s*\.\.\.Object\.keys\(isObj\(A\.rewards\)/);
-  assert.match(source, /xp: Math\.max\(0, Math\.min\(1000, Math\.max\(num\(ar\.xp\), num\(br\.xp\)\)\)\)/);
+  assert.doesNotMatch(source, /rewardIds[\s\S]*?slice\(-160\)/);
   assert.match(source, /purchases\[id\]/);
   assert.match(source, /out\.game = mergeGame\(A\.game, B\.game\)/);
   assert.match(source, /bossDefeatedAt:/);

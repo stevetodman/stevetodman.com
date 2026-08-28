@@ -2,6 +2,17 @@
   "schemaVersion": 1,
   "families": [
     {
+      "pathPrefix": "study/unit-1/assets/",
+      "description": "Word Expedition original storybook character/equipment atlas and forest/world backgrounds.",
+      "status": "project-generated-ai-assisted-provenance-recorded",
+      "source": "AI-assisted illustrations generated for this family vocabulary game on August 28, 2026. Original prompts and inspection notes are retained in study/unit-1/assets/PROVENANCE.md in source control.",
+      "creator": "Project-directed generation, selection, quality inspection and integration.",
+      "license": "Project-controlled generated assets; no exclusive copyright claim is made for purely AI-generated expressive elements. Use remains subject to applicable law and the generation service terms.",
+      "redistribution": "Preserve this provenance record; do not represent these assets as wholly hand-drawn or as third-party licensed artwork.",
+      "derivatives": "WebP compression and background resizing from generated PNGs. Atlas uses inspected crop windows; original source prompts are retained.",
+      "evidence": ["study/unit-1/assets/PROVENANCE.md", "Study quality branch art checkpoint dated August 28, 2026"]
+    },
+    {
       "pathPrefix": "pedcardsurg/assets/chd-atlas/",
       "description": "CHD surgical atlas full-resolution PNG masters and web-optimized WebP derivatives.",
       "status": "project-generated-ai-assisted-provenance-recorded",

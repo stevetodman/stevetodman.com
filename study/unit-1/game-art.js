@@ -56,13 +56,12 @@
     return '<svg class="item-art" viewBox="0 0 120 120" aria-hidden="true" focusable="false">'+armorMarkup(item.id,PALETTES.Luke)+'</svg>';
   }
 
-  function routeMap(step, levels) {
+  function routeMap(step) {
     var safeStep=Math.max(0,Math.min(12,Number(step)||0));
     var points=[[13,80],[28,66],[46,78],[65,59],[87,69],[106,49],[129,58],[149,38],[172,48],[192,28],[215,38],[239,18]];
     var circles=points.map(function (point,index) {
-      var level=levels&&levels[index]||'new';
       var reached=index<safeStep?' reached':'';
-      return '<g class="route-node '+level+reached+'"><circle cx="'+point[0]+'" cy="'+point[1]+'" r="6"/><text x="'+point[0]+'" y="'+(point[1]+2.6)+'">'+(index+1)+'</text></g>';
+      return '<g class="route-node'+reached+'"><circle cx="'+point[0]+'" cy="'+point[1]+'" r="6"/><text x="'+point[0]+'" y="'+(point[1]+2.6)+'">'+(index+1)+'</text></g>';
     }).join('');
     var marker=points[Math.max(0,Math.min(points.length-1,safeStep?safeStep-1:0))];
     return '<svg class="route-art" viewBox="0 0 252 98" role="img" aria-label="Expedition route, '+safeStep+' of 12 travel steps reached">'+
@@ -70,5 +69,22 @@
       '<g class="route-marker" transform="translate('+(marker[0]-4)+' '+(marker[1]-20)+')"><path d="M4 16 0 7l4-7 4 7Z"/><circle cx="4" cy="7" r="2"/></g></svg>';
   }
 
-  window.WordExpeditionArt={ catalog:CATALOG, validItems:VALID_ITEMS, hero:hero, monster:monster, itemIcon:itemIcon, routeMap:routeMap };
+  // The generated atlas was inspected and is not an equal-cell grid. Explicit
+  // crop windows preserve each complete character; the SVGs only clip raster art.
+  var ATLAS='/study/unit-1/assets/expedition-sprites.webp';
+  var COLS=[0,314,628,942],ROWS=[0,330,654,954],HEIGHTS=[330,324,300,300];
+  function sprite(col,row,cls){
+    return '<svg class="'+cls+'" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><svg x="0" y="0" width="120" height="120" viewBox="'+COLS[col]+' '+ROWS[row]+' 314 '+HEIGHTS[row]+'" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg></svg>';
+  }
+  function illustratedHero(name,equipped,pose){
+    var armor=equipped&&equipped.armor||'starter-cloak',weapon=equipped&&equipped.weapon||'starter-sword';
+    var ac=Math.max(0,['starter-cloak','forest-hood','guardian-mail','star-mantle'].indexOf(armor));
+    var wc=Math.max(0,['starter-sword','copper-blade','moon-blade','star-wand'].indexOf(weapon));
+    return '<svg class="hero-art hero-'+(pose||'ready')+'" viewBox="0 0 120 120" data-armor="'+armor+'" data-weapon="'+weapon+'" aria-hidden="true" focusable="false">'+
+      '<svg x="0" y="0" width="108" height="120" viewBox="'+COLS[ac]+' '+ROWS[name==='Samantha'?1:0]+' 314 '+HEIGHTS[name==='Samantha'?1:0]+'" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg>'+
+      '<g class="gear weapon '+['starter','copper','moon','wand'][wc]+'"><svg x="66" y="17" width="49" height="62" viewBox="'+COLS[wc]+' 954 314 300" preserveAspectRatio="none" overflow="hidden"><image href="'+ATLAS+'" width="1254" height="1254"/></svg></g></svg>';
+  }
+  function illustratedMonster(kind,state){return sprite(Math.max(0,['mossling','wisp','sentinel','boss'].indexOf(kind)),2,'monster-art monster-'+kind+' monster-'+(state||'ready'));}
+  function illustratedItem(item){return item.type==='weapon'?sprite(Math.max(0,['starter-sword','copper-blade','moon-blade','star-wand'].indexOf(item.id)),3,'item-art'):sprite(Math.max(0,['starter-cloak','forest-hood','guardian-mail','star-mantle'].indexOf(item.id)),0,'item-art');}
+  window.WordExpeditionArt={ catalog:CATALOG, validItems:VALID_ITEMS, hero:illustratedHero, monster:illustratedMonster, itemIcon:illustratedItem, routeMap:routeMap };
 })();
