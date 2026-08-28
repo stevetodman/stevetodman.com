@@ -22,13 +22,18 @@ const HEADERS = {
   'content-security-policy': "default-src 'self'",
 };
 
-async function startFixture({ missingMetaPath = '', missingPublicPath = '', sitemapStatus = 404, exposedPath = '' } = {}) {
+async function startFixture({ missingMetaPath = '', missingPublicPath = '', sitemapStatus = 404, exposedPath = '', canonicalHtml = false, redirectTarget = '' } = {}) {
   const server = http.createServer((request, response) => {
     const pathname = new URL(request.url, 'http://fixture.invalid').pathname;
+    if (canonicalHtml && PUBLIC_HTML_PATHS.has(pathname) && pathname.endsWith('.html')) {
+      response.writeHead(308,{...HEADERS,location:redirectTarget || pathname.slice(0,-5)});
+      response.end();return;
+    }
+    const publicPath = canonicalHtml && PUBLIC_HTML_PATHS.has(pathname+'.html') ? pathname+'.html' : pathname;
 
-    if ((PUBLIC_HTML_PATHS.has(pathname) && pathname !== missingPublicPath) || pathname === exposedPath) {
+    if ((PUBLIC_HTML_PATHS.has(publicPath) && publicPath !== missingPublicPath) || pathname === exposedPath) {
       response.writeHead(200, { ...HEADERS, 'content-type': 'text/html; charset=utf-8' });
-      response.end(pathname === missingMetaPath ? '<html><head></head><body>ok</body></html>' : HTML);
+      response.end(publicPath === missingMetaPath ? '<html><head></head><body>ok</body></html>' : HTML);
       return;
     }
 
@@ -90,6 +95,27 @@ test('production verifier accepts the intended live deployment policy', async (t
   const result = await runVerifier(fixture.origin);
   assert.equal(result.code, 0, result.stderr);
   assert.match(result.stdout, /Production verification passed/);
+});
+
+test('production verifier follows only expected Pages .html canonical redirects', async (t) => {
+  const fixture=await startFixture({canonicalHtml:true});t.after(fixture.close);
+  const result=await runVerifier(fixture.origin);assert.equal(result.code,0,result.stderr);
+});
+
+test('canonical redirects cannot hide a missing destination or missing robots metadata', async (t) => {
+  for(const defect of ['missingPublicPath','missingMetaPath']){
+    const fixture=await startFixture({canonicalHtml:true,[defect]:'/study/us-states.html'});t.after(fixture.close);
+    const result=await runVerifier(fixture.origin);assert.equal(result.code,1);
+    assert.match(result.stderr,defect==='missingPublicPath'?/us-states.html returned 404/:/us-states.html is missing meta/);
+  }
+});
+
+test('production verifier rejects unrelated same-origin and cross-origin redirects', async (t) => {
+  for(const redirectTarget of ['/','https://example.invalid/study/us-states']){
+    const fixture=await startFixture({canonicalHtml:true,redirectTarget});t.after(fixture.close);
+    const result=await runVerifier(fixture.origin);assert.equal(result.code,1);
+    assert.match(result.stderr,/unexpected canonical redirect/);
+  }
 });
 
 test('production verifier rejects a cataloged production route that is missing', async (t) => {

@@ -14,7 +14,7 @@ const excludedPaths = [
 ];
 
 async function get(path, options = {}) {
-  const response = await fetch(ORIGIN + path, { redirect: 'manual', ...options });
+  const response = await fetch(ORIGIN + path, { redirect: 'manual', signal:AbortSignal.timeout(20000), ...options });
   const text = options.method === 'HEAD' ? '' : await response.text();
   return { response, text };
 }
@@ -73,7 +73,18 @@ const sitemap = await get('/sitemap.xml');
 check(sitemap.response.status === 404, `/sitemap.xml should be absent but returned ${sitemap.response.status}`);
 
 for (const path of productionPaths.filter((path) => path !== '/')) {
-  const r = await get(path);
+  let r = await get(path);
+  // Pages canonicalizes public file URLs by removing .html. Follow exactly that
+  // one same-origin hop, not arbitrary redirects (which can hide missing pages).
+  // Excluded/internal paths below still require a direct 404.
+  if ([301,308].includes(r.response.status) && path.endsWith('.html')) {
+    const expected = new URL(ORIGIN + path.slice(0,-5));
+    let target;
+    try { target = new URL(r.response.headers.get('location') || '', ORIGIN + path); } catch {}
+    check(target?.href === expected.href, `${path} has an unexpected canonical redirect`);
+    check(/noindex/i.test(r.response.headers.get('x-robots-tag') || ''), `${path} redirect is missing noindex response header`);
+    if (target?.href === expected.href) r = await get(expected.pathname);
+  }
   check(r.response.status === 200, `${path} returned ${r.response.status}`);
   check(/noindex/i.test(r.response.headers.get('x-robots-tag') || ''), `${path} is missing noindex response header`);
   checkHtmlNoindex(path, r.text);
