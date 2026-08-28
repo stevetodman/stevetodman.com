@@ -98,7 +98,7 @@ async function answerCorrectly(page, advance = true) {
     await page.locator('#answer-input').fill(answer);
     await page.locator('#answer-form').evaluate(form => form.requestSubmit());
   } else {
-    await page.locator('.choice').filter({ hasText:answer }).first().click();
+    await page.getByRole('button', { name:answer, exact:true }).click();
   }
   if(advance)await page.locator('#next-question').click();
   await page.waitForTimeout(35);
