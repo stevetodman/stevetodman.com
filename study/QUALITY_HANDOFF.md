@@ -35,11 +35,19 @@ fresh CI result; do not infer success from checkpoint3.
 Checkpoint4 CI33132703749 passed36/38. The two failures were verification-harness
 issues: installing another fake clock over the existing reading-time fixture,
 and comparing CSS-uppercase enemy text case-sensitively. Corrections use the real
-browser reward deadline and a case-insensitive exact name. Rerun is required.
+browser reward deadline and a case-insensitive exact name. Rerun33132823347 on
+`46eadb0841f1c0a33b30945c24f26a258af03625` passed38/38 Study checks,25/25 platform
+checks and the build. Its `study-rendered-evidence` artifact9670919525 includes
+phone/desktop home, boss, victory, shop, armor preview and equipment gallery.
 The manual phone round finished all10 questions (including a final-question
 reload), accepted an alternate correction, used assisted spelling, and showed
 the new victory screen. Local recorded estimate:7m45s learning /52s menus and
 rewards. This tool-driven, interrupted session is NOT a child-attention study.
+
+Latest hardening: persistent device-save failure warning (no false Saved label),
+retaining the completed-round checkpoint if saving its rewards fails, safe handling
+of a malformed device-link fragment, and starter-gear selection reading the current
+profile after any sync. Added two browser regressions; their CI result is pending.
 
 The complete illustrated atlas and two world backdrops are now included under
 `study/unit-1/assets/` with prompt provenance. Phone home/question screens were

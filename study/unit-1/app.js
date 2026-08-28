@@ -66,6 +66,16 @@
   var rewardDeadline=0;
   var rewardAllowance=0;
   var selectedGear=null;
+  var localSaveErrors={};
+
+  function persistLocal(key,value){
+    try{localStorage.setItem(key,JSON.stringify(value));delete localSaveErrors[key];}
+    catch(_){localSaveErrors[key]=true;}
+    var warning=document.getElementById('save-warning'),failed=Object.keys(localSaveErrors).length>0;
+    if(warning){warning.hidden=!failed;warning.textContent=failed?'This device is not saving. Keep this tab open—progress may be lost if you close it.':'';}
+    updateCloudStatus(cloudStatus);
+    return !localSaveErrors[key];
+  }
 
   function saveTiming(){
     if(!session||!activeName)return;
@@ -78,8 +88,7 @@
     var input=document.getElementById('answer-input');
     if(input&&!input.disabled)session.draftValue=input.value;
     session.timing=activityClock.snapshot();
-    try{localStorage.setItem(ROUND_KEY+activeName,JSON.stringify(Object.assign({},session,{version:1,strengthened:Array.from(session.strengthened)})));}
-    catch(_){showToast('This round cannot be resumed on this device. Keep this tab open.');}
+    persistLocal(ROUND_KEY+activeName,Object.assign({},session,{version:1,strengthened:Array.from(session.strengthened)}));
   }
   function savedRound(name) {
     try{
@@ -143,8 +152,7 @@
     return defaultGameState();
   }
   function saveGameState() {
-    try { localStorage.setItem(GAME_STORAGE_KEY,JSON.stringify(gameState)); }
-    catch (_) { showToast('Hero progress could not be saved on this device.'); }
+    return persistLocal(GAME_STORAGE_KEY,gameState);
   }
   function itemById(id) { return GAME_CATALOG.find(function(item){return item.id===id;}); }
   function itemType(id) { var item=itemById(id);if(item)return item.type;return id==='starter-sword'?'weapon':'armor'; }
@@ -204,7 +212,7 @@
   }
 
   function saveState(sync) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) { showToast('Progress could not be saved on this device.'); }
+    persistLocal(STORAGE_KEY,state);
     if (sync !== false) scheduleCloudPush();
   }
 
@@ -301,6 +309,7 @@
   function formatDuration(ms){var seconds=Math.max(0,Math.round((Number(ms)||0)/1000));return Math.floor(seconds/60)+'m '+seconds%60+'s';}
 
   function cloudStatusText() {
+    if(Object.keys(localSaveErrors).length)return 'Device save unavailable';
     if (!CLOUD_ENABLED) return 'Saved on this device';
     if (cloudStatus==='saving'||cloudStatus==='loading') return '☁ Saving…';
     if (cloudStatus==='offline') return 'Offline · saved on this device';
@@ -334,7 +343,7 @@
   function adoptTokenFromHash() {
     var match=/(?:^|[#&])k=([^&]+)/.exec(location.hash||'');
     if (!match) return false;
-    var token=decodeURIComponent(match[1]).trim();
+    var token;try{token=decodeURIComponent(match[1]).trim();}catch(_){return false;}
     if (!validCloudToken(token)) return false;
     try { localStorage.setItem(CLOUD_TOKEN_KEY,token);history.replaceState(null,'',location.pathname+location.search); } catch (_) {}
     return true;
@@ -401,6 +410,7 @@
   function cloudShareLink() { return location.origin+'/study/#k='+encodeURIComponent(cloudToken(true)); }
 
   function showCloudScreen() {
+    activityClock.mode('play');document.body.dataset.screen='settings';
     setChip(null);
     var enabled=CLOUD_ENABLED;
     app.innerHTML='<section class="panel cloud-panel"><span class="panel-icon" aria-hidden="true">☁</span><h2>Cloud save</h2>'+
@@ -661,10 +671,10 @@
     var gp=gameProfile(activeName),bossWon=session.enemy==='boss',oldLevel=levelForXp(gameXp(activeName)),xpAward=(bossWon?50:20)+newStamps*15,coinAward=(bossWon?20:8)+newStamps*5;
     if(!gp.rewards[session.id]){
       gp.rewards[session.id]={xp:xpAward,coins:coinAward};gp.sessionsCompleted+=1;if(bossWon&&!gp.bossDefeatedAt)gp.bossDefeatedAt=new Date().toISOString();
-      saveGameState();
     } else { xpAward=0;coinAward=0; }
+    var rewardSaved=saveGameState();
     var newLevel=levelForXp(gameXp(activeName)),leveledUp=newLevel>oldLevel;
-    session.rewarded=true;rewardAllowance=Math.min(25000,QUALITY.playBudget(activityClock.snapshot()));rewardDeadline=performance.now()+rewardAllowance;try{localStorage.removeItem(ROUND_KEY+activeName);}catch(_){}
+    session.rewarded=true;rewardAllowance=Math.min(25000,QUALITY.playBudget(activityClock.snapshot()));rewardDeadline=performance.now()+rewardAllowance;if(rewardSaved){try{localStorage.removeItem(ROUND_KEY+activeName);}catch(_){}}
     setChip(activeName);
     app.innerHTML='<section class="panel summary game-summary">'+
       '<div class="victory-lockup"><div class="summary-hero">'+ART.hero(activeName,gp.equipped,'victory')+(bossWon?'<span class="unit-crown" aria-hidden="true">✦</span>':'')+'</div><div><p class="eyebrow">'+(bossWon?'Adventure complete':'Expedition complete')+'</p><h2>'+(bossWon?'The castle is yours!':esc(activeName)+', the path is clear.')+'</h2><p>'+(bossWon?'You restored the realm. Keep practicing any words that still need a mastery seal.':session.strengthened.size+' '+(session.strengthened.size===1?'word got':'words got')+' stronger'+(newStamps?' and '+newStamps+' new '+(newStamps===1?'seal was':'seals were')+' restored.':'.'))+'</p></div></div>'+
@@ -711,7 +721,7 @@
       rewardBreakHTML()+'<div class="shop-grid">'+GAME_CATALOG.map(gearItemHTML).join('')+'</div><button type="button" class="secondary-button merchant-done" id="shop-done">Done for now</button>';
     if(!keepPosition)resetView('.merchant-head h2');
     app.querySelectorAll('[data-item]').forEach(function(button){button.addEventListener('click',function(){previewGear(button.getAttribute('data-item'));});});
-    document.getElementById('starter-gear').addEventListener('click',function(){gp.equipped={weapon:'starter-sword',armor:'starter-cloak'};saveGameState();scheduleCloudPush();showShop(true);showToast('Starter gear equipped. Your collection is safe.');});
+    document.getElementById('starter-gear').addEventListener('click',function(){if(endExpiredRewardBreak())return;gameProfile(activeName).equipped={weapon:'starter-sword',armor:'starter-cloak'};saveGameState();scheduleCloudPush();showShop(true);showToast('Starter gear equipped. Your collection is safe.');});
     document.getElementById('shop-done').addEventListener('click',showProfilePicker);
     scheduleRewardEnd();
   }

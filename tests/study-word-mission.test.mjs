@@ -369,6 +369,29 @@ describe('Unit 1 Word Expedition', () => {
     await context.close();
   });
 
+  test('blocked device storage remains playable and never reports a false saved status', async () => {
+    const context=await fastContext();
+    await context.addInitScript(()=>{Storage.prototype.setItem=function(){throw new DOMException('Storage full','QuotaExceededError');};});
+    const page=await context.newPage();await page.goto(server.origin+'/study/');
+    await page.locator('[data-profile="Luke"]').click();
+    assert.equal(await page.locator('#save-warning').isVisible(),true);
+    assert.match(await page.locator('#save-warning').innerText(),/not saving/);
+    for(let i=0;i<10;i++)await answerCurrentQuestion(page);
+    assert.equal(await page.locator('.game-summary').count(),1,'storage failure does not block practice');
+    await page.locator('#summary-done').click();
+    assert.equal(await page.locator('#cloud-status').innerText(),'Device save unavailable');
+    assert.equal(await page.locator('#save-warning').isVisible(),true);
+    await context.close();
+  });
+
+  test('a damaged device-link fragment cannot prevent local practice', async () => {
+    const page=await browser.newPage();const errors=watchForErrors(page);
+    await page.goto(server.origin+'/study/#k=%E0%A4%A');
+    await page.locator('[data-profile="Luke"]').click();
+    assert.equal(await page.locator('.question-card').count(),1);assert.deepEqual(errors,[]);
+    await page.close();
+  });
+
   test('records rendered evidence and opens the final adventure without perfect mastery', async () => {
     const directory=path.join(process.env.RUNNER_TEMP||os.tmpdir(),'study-evidence');
     fs.mkdirSync(directory,{recursive:true});
