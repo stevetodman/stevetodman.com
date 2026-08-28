@@ -63,7 +63,7 @@
 
   var bossIntroduced=false;
 
-  function esc(value){return String(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[ch];});}
+  function esc(value){return String(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
   function trailNumber(stage){
     var chip=stage&&stage.querySelector('.coin-chip'),match=chip&&/^Trail\s+(\d+)/i.exec(chip.textContent||'');
     return match?Number(match[1]):0;
