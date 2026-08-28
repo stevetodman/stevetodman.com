@@ -328,7 +328,8 @@ body[data-screen="question"] .pips { display:none; }
 
 /* Counterattacks are presentation only: no health loss or delay to the next answer. */
 
-.monster-cutout { -webkit-mask-image:radial-gradient(ellipse at center,#000 55%,transparent 74%);mask-image:radial-gradient(ellipse at center,#000 55%,transparent 74%); }
+/* The monster atlas has true alpha. Never feather its silhouette into a disc. */
+.monster-cutout { -webkit-mask-image:none;mask-image:none; }
 
 .extra-equipped { mix-blend-mode:screen; }
 .extra-item { -webkit-mask-image:radial-gradient(ellipse at center,#000 55%,transparent 74%);mask-image:radial-gradient(ellipse at center,#000 55%,transparent 74%); }

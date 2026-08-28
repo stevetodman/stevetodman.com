@@ -20,6 +20,9 @@ test('game art catalog is bounded, unique, and renders every equipment layer', (
   assert.equal(new Set(art.catalog.map(item => item.id)).size, art.catalog.length);
   assert.ok(art.catalog.every(item => ['weapon','armor'].includes(item.type)));
   assert.ok(art.catalog.every(item => Number.isInteger(item.price) && item.price > 0));
+  const monsters=fs.readFileSync(path.join(repoRoot,'study/unit-1/assets/monster-sprites.webp'));
+  assert.equal(monsters.toString('ascii',12,16),'VP8X');
+  assert.ok(monsters[20]&0x10,'monster artwork must retain real transparency');
 
   for (const learner of ['Luke','Samantha']) {
     for (const item of art.catalog) {

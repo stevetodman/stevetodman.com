@@ -45,6 +45,7 @@ async function seedSavedCoins(context) {
 }
 
 async function answerCurrentQuestion(page) {
+  const question=await page.locator('.question-count').innerText();
   if (await page.locator('#answer-input').count()) {
     await page.locator('#answer-input').fill('definitely wrong');
     await page.locator('#answer-form').evaluate(form => form.requestSubmit());
@@ -57,7 +58,7 @@ async function answerCurrentQuestion(page) {
     if (await page.locator('#continue').count()) await page.locator('#continue').click();
     else if (await page.locator('#next-question').count()) await page.locator('#next-question').click();
   }
-  await page.waitForTimeout(35);
+  await page.waitForFunction(previous=>document.querySelector('.game-summary')||document.querySelector('.question-count')?.textContent!==previous,question);
 }
 
 const schoolAnswers = {
@@ -441,6 +442,7 @@ describe('Unit 1 Word Expedition', () => {
       await page.clock.pauseAt(new Date(await page.evaluate(()=>Date.now()+1000)));
       const stage=page.locator('#battle-stage');
       assert.equal(await stage.getAttribute('data-enemy'),enemy);
+      assert.equal(await stage.locator('.monster-cutout').evaluate(el=>getComputedStyle(el).maskImage),'none','transparent monsters must not have a circular fade');
       const gameBefore=await page.evaluate(()=>localStorage.getItem('studyhub-word-expedition-game-unit1-v1'));
       await answerCorrectly(page,false);
       const motion=await stage.evaluate(el=>({

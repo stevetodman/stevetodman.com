@@ -44,7 +44,7 @@ If output2048x2048, exact cell edges0,512,1024,1536,2048. Each sprite should rem
 
 ## Fiercer monster replacement — August 28, 2026
 
-Built-in image generation, using the original atlas as the monster-identity and style reference. New `monster-sprites.webp` is a separate 2x2 atlas; hero and gear art is unchanged. Order: Bramble Imp, Gloom Wisp, Rune Sentinel, Word Keeper. The RGB background is dark forest green and the UI feathers the outer cell edges into the battle scene. It is not represented as alpha transparency.
+Original version (superseded by the transparent cutouts below): built-in image generation, using the original atlas as the monster-identity and style reference. `monster-sprites.webp` is a separate 2x2 atlas; hero and gear art is unchanged. Order: Bramble Imp, Gloom Wisp, Rune Sentinel, Word Keeper. The original RGB background was dark forest green and the UI feathered the outer cell edges into the battle scene.
 
 Prompt: Redesign the four monsters as ugly, snarling, formidable fantasy foes, facing left: warty moss-and-bark troll with crooked teeth and root claws; angular purple-blue spectral creature; cracked-stone golem with craggy jaw and rune fists; ragged purple owl sorcerer with hooked beak, talons and gold crown. Polished painterly 3D fantasy style; age appropriate for ten-year-olds, no blood or gore. Four equal cells in a 2x2 square grid, no heroes, weapons, labels or text.
 
@@ -80,3 +80,17 @@ Clear changes in elbows, knees, torso and facial intent across all three poses; 
 
 ### Selected background correction prompt
 Use case: background-extraction. Edit target: this 24-character attack pose sprite sheet. Change ONLY the checkerboard background to solid pure black #000000. Preserve every character, pose, outfit, size, position and all 24 sprites exactly. No checkerboard, no gray squares, no shadow, no text. The output will use screen compositing in a dark forest game, so all empty space must be completely black. Keep 1536x1024 dimensions.
+
+## Crisp monster cutouts — August 28, 2026
+
+User reported a muddy dark disc around the monster. The circular CSS mask has
+been removed. Current `monster-sprites.webp` is 1254x1254 RGBA, produced by
+built-in image generation followed by **user-approved Adobe background removal**
+(request 3b565a8c-3aab-47c2-98d7-430008e646be). Adobe retained all four monsters.
+Alpha was verified before and after mechanical WebP encoding (quality 92):
+range 0–255, transparent corners and gutters. No pixel editing, resizing or
+sharpening filters were applied in code. The brighter generated source had a
+painted checkerboard; only the Adobe cutout, not that RGB source, ships.
+
+Prompt:
+Use case: background-extraction. Edit target: attached monster sprite atlas. Remove the entire dark green background and return a TRANSPARENT PNG with actual RGBA alpha: every background pixel has alpha=0, not a painted checkerboard, not a solid-color replacement. Four complete isolated monster cutouts in their existing 2x2 layout. Preserve exactly these four monsters, their positions, silhouettes, colors, eyes, textures, claws, horns, feathers and sharp edges. Preserve all edge details with crisp antialiasing. NO circular feathering, no vignette, no backdrop, no ground, no halo, no borders, no fake transparency pattern. Make the faces and body surfaces slightly more clearly lit so they read on a dark forest, with sharp detailed outlines. All four monsters fully visible inside their own square cell with safe margins. Output a true transparent sprite sheet suitable for direct compositing over game scenery.
