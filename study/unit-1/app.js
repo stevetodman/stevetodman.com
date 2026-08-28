@@ -210,6 +210,14 @@
     if(!SFX||typeof SFX.play!=='function'||!spec)return null;
     try{return SFX.play(ctx,spec);}catch(_){return null;}
   }
+  function timedWeaponSample(weapon,item,sample){
+    if(!sample)return null;
+    var contact=ART.combatProfile(weapon).contact;
+    // Bow and wand clips describe launch motion; melee/material clips describe contact.
+    // AudioContext scheduling keeps the sample transient aligned with the CSS combat keyframe.
+    var delay=(item.sound==='bow'||item.sound==='wand')?Math.min(.06,Math.max(.03,contact*.25)):contact;
+    return Object.assign({},sample,{delay:delay});
+  }
   // Short synthesized foley: swept air + inharmonic metal; the wand uses bell tones.
   function renderWeaponSound(ctx,weapon){
     var item=ART.catalog.find(function(item){return item.id===weapon;})||{sound:'blade',tone:730};
@@ -267,7 +275,7 @@
     var ctx=warmWeaponAudio();
     if(!ctx||ctx.state!=='running'||document.hidden)return;
     var item=ART.catalog.find(function(entry){return entry.id===weapon;})||{sound:'blade'};
-    var sample=SFX&&SFX.weapon&&SFX.weapon[item.sound];
+    var sample=timedWeaponSample(weapon,item,SFX&&SFX.weapon&&SFX.weapon[item.sound]);
     try{stopWeaponSound=playBankSound(ctx,sample)||renderWeaponSound(ctx,weapon);}catch(_){try{stopWeaponSound=renderWeaponSound(ctx,weapon);}catch(__){}} // Audio must never block learning.
   }
 
@@ -771,7 +779,7 @@
     var progress=Math.max(0,Math.min(100,Math.round(((xp-base)/Math.max(1,next-base))*100)));
     return '<section class="battle-stage" id="battle-stage" data-weapon="'+esc(gp.equipped.weapon)+'" data-enemy="'+esc(session.enemy)+'" data-wear="'+Math.min(3,Math.ceil(session.battleDamage/3))+'" data-attack="'+weapon.attack+'" data-element="'+weapon.element+'" data-defense="'+armor.defense+'" data-guard-element="'+armor.element+'" data-state="'+esc(session.battleState)+'" style="--contact:'+weapon.contact+'s;--swing:'+(weapon.contact*2)+'s;--flight:'+(weapon.contact-.04)+'s">'+
       '<div class="battle-hud"><span class="level-chip">Level '+level+'</span><span class="enemy-name">'+esc(enemyName(session.enemy))+'</span><span class="coin-chip">'+(session.enemy==='boss'?'Final battle':'Trail '+Math.min(12,gp.sessionsCompleted+1))+'</span></div>'+
-      '<div class="battle-scene"><div class="fighter hero-fighter">'+ART.hero(activeName,gp.equipped,session.battleState,true)+'<span class="hero-guard" aria-hidden="true"></span></div><div class="projectile-lane" aria-hidden="true"><span class="hero-projectile"></span><span class="enemy-projectile"></span></div><div class="fighter enemy-fighter">'+ART.monster(session.enemy,session.battleState)+'<span class="enemy-guard" aria-hidden="true"></span><span class="hit-mark" aria-hidden="true"></span><span class="ground-ripple" aria-hidden="true"></span></div><div class="finish-burst" aria-hidden="true">'+Array.from({length:6},function(_,i){return '<i style="--dx:'+([-28,24,-14,34,-35,12][i])+'px;--dy:'+([-24,-32,28,15,8,-40][i])+'px;--spin:'+((i%2?1:-1)*110)+'deg"></i>';}).join('')+'</div></div>'+
+      '<div class="battle-scene"><div class="fighter hero-fighter">'+ART.hero(activeName,gp.equipped,session.battleState,true)+'<span class="hero-guard" aria-hidden="true"></span></div><div class="projectile-lane" aria-hidden="true"><span class="hero-projectile"></span><span class="enemy-projectile"></span></div><div class="fighter enemy-fighter">'+ART.monster(session.enemy,session.battleState)+'<span class="enemy-guard" aria-hidden="true"></span><span class="hit-mark" aria-hidden="true"></span><span class="impact-chip" aria-hidden="true">✦</span><span class="ground-ripple" aria-hidden="true"></span></div><div class="finish-burst" aria-hidden="true">'+Array.from({length:6},function(_,i){return '<i style="--dx:'+([-28,24,-14,34,-35,12][i])+'px;--dy:'+([-24,-32,28,15,8,-40][i])+'px;--spin:'+((i%2?1:-1)*110)+'deg"></i>';}).join('')+'</div></div>'+
       '<div class="shield-row" role="img" aria-label="'+session.battleDamage+' of 10 shield points cleared">'+Array.from({length:SESSION_LENGTH},function(_,i){return '<span class="shield-segment '+(i<session.battleDamage?'cleared':'')+'"></span>';}).join('')+'</div>'+
       '<div class="xp-track" aria-label="Hero level progress"><span style="width:'+progress+'%"></span></div><p class="battle-status" id="battle-status" aria-live="polite">'+esc(({mossling:'Claws ready. Your answers drive it back.',wisp:'Catch the wisp with each answer.',sentinel:'Each answer cracks its stone armor.',boss:'Each answer breaks the owl’s spell.'})[session.enemy])+'</p></section>';
   }
@@ -788,6 +796,18 @@
     var burst=stage.querySelector('.finish-burst');
     burst.style.left=(enemy.offsetLeft+enemy.offsetWidth*.5)+'px';burst.style.top=(enemy.offsetTop+enemy.offsetHeight*.45)+'px';
   }
+  function applyBattleDamageVisual(stage){
+    if(!stage||!stage.isConnected||!session)return;
+    stage.setAttribute('data-wear',Math.min(3,Math.ceil(session.battleDamage/3)));
+    var shields=stage.querySelectorAll('.shield-segment');
+    shields.forEach(function(segment,index){segment.classList.toggle('cleared',index<session.battleDamage);});
+    var row=stage.querySelector('.shield-row');if(row)row.setAttribute('aria-label',session.battleDamage+' of 10 shield points cleared');
+  }
+  function pulseQuestionFeedback(kind){
+    var card=document.querySelector('.question-card');if(!card)return;
+    card.setAttribute('data-feedback',kind);clearTimeout(card._feedbackTimer);
+    card._feedbackTimer=setTimeout(function(){if(card.isConnected)card.removeAttribute('data-feedback');},360);
+  }
   function setBattleState(kind,message,advance) {
     session.battleState=kind;
     if(advance)session.battleDamage=Math.min(SESSION_LENGTH,session.battleDamage+1);
@@ -795,18 +815,18 @@
     if(!stage)return;
     alignBattleContact(stage);
     stage.setAttribute('data-state',kind);
-    stage.setAttribute('data-wear',Math.min(3,Math.ceil(session.battleDamage/3)));
-    var shields=stage.querySelectorAll('.shield-segment');
-    shields.forEach(function(segment,index){segment.classList.toggle('cleared',index<session.battleDamage);});
-    var row=stage.querySelector('.shield-row');if(row)row.setAttribute('aria-label',session.battleDamage+' of 10 shield points cleared');
+    // Preserve immediate earned-progress feedback; only transient combat effects wait for contact.
+    applyBattleDamageVisual(stage);
+    var motion=ART.combatProfile(gameProfile(activeName).equipped.weapon);
     var status=document.getElementById('battle-status');if(status)status.textContent=message;
     clearTimeout(stage._battleTimer);
-    if(kind!=='victory')stage._battleTimer=setTimeout(function(){if(stage.isConnected&&session){stage.setAttribute('data-state','ready');session.battleState='ready';}},Math.max(520,ART.combatProfile(gameProfile(activeName).equipped.weapon).contact*2000));
+    if(kind!=='victory')stage._battleTimer=setTimeout(function(){if(stage.isConnected&&session){stage.setAttribute('data-state','ready');session.battleState='ready';}},Math.max(520,motion.contact*2000));
   }
   function landHit(kind) {
     var final=session.battleDamage+1>=SESSION_LENGTH;
     var message=final?'Victory! The path is clear.':({mossling:'Your strike drives the troll back.',wisp:'Your strike catches the wisp. Its glow fades.',sentinel:'Your strike cracks the golem’s armor.',boss:'Your strike breaks the owl’s shield.'})[session.enemy];
     if(kind==='recovery')message='Correction complete. '+message;
+    pulseQuestionFeedback(kind==='recovery'?'recovery':kind==='standard'?'assisted':'correct');
     setBattleState(final?'victory':kind,message,true);
     cancelSpeech();playWeaponSound(gameProfile(activeName).equipped.weapon);
     if(!final&&kind!=='recovery')counterTimer=setTimeout(monsterCounterattack,Math.max(450,ART.combatProfile(gameProfile(activeName).equipped.weapon).contact*2000));
@@ -887,7 +907,7 @@
     recordResult(q,correct,assisted);
     session.results.push({word:q.word.word,domain:q.domain,correct:correct&&!assisted,assisted:!!assisted,typo:typo});
     if(correct&&!assisted){session.combo+=1;session.strengthened.add(q.word.word);landHit('critical');}
-    else {session.combo=0;if(assisted)landHit('standard');else {cancelSpeech();monsterCounterattack();}}
+    else {session.combo=0;if(assisted)landHit('standard');else {pulseQuestionFeedback('incorrect');cancelSpeech();monsterCounterattack();}}
     if(!correct)scheduleRetry(q);
     session.resolved=correct||assisted;saveRound();
     disableAnswerArea();
@@ -900,7 +920,7 @@
     showCorrection(q);
   }
   function showPositiveFeedback(q) {
-    var callout=session.combo>=3?session.combo+' in a row!':session.combo===2?'Two in a row!':'Nice work.';
+    var callout=session.combo>=3?session.combo+' in a row!':session.combo===2?'Two in a row!':'Direct hit.';
     if(session.results[session.index]&&session.results[session.index].typo)callout='Right word! It’s spelled '+q.word.word+'.';
     document.getElementById('feedback-area').innerHTML='<div class="feedback good"><strong>'+callout+'</strong><span>'+esc(q.explanation)+'</span></div>';
     addNextButton();

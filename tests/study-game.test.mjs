@@ -97,6 +97,24 @@ test('game presentation contains reduced-motion and forced-color fallbacks', () 
   assert.match(css, /min-height:50px/);
 });
 
+test('answer feedback stays immediate while transient combat effects remain contact-synchronized and non-blocking', () => {
+  const source = read('study/unit-1/app.js');
+  const css = read('study/unit-1/app.css');
+  assert.match(source, /function timedWeaponSample\(/);
+  assert.match(source, /return Object\.assign\(\{\},sample,\{delay:delay\}\)/);
+  assert.match(source, /applyBattleDamageVisual\(stage\);[\s\S]*var motion=ART\.combatProfile/,'earned shield progress remains immediate');
+  assert.doesNotMatch(source, /_impactTimer/,'progress UI must not be delayed by combat choreography');
+  assert.match(source, /pulseQuestionFeedback\('incorrect'\)/);
+  assert.match(source, /pulseQuestionFeedback\(kind==='recovery'\?'recovery':kind==='standard'\?'assisted':'correct'\)/);
+  assert.match(source, /setBattleState\(final\?'victory':kind,message,true\);\s*cancelSpeech\(\);playWeaponSound\(gameProfile\(activeName\)\.equipped\.weapon\);/,'successful strike keeps visual state and audio coupled');
+  assert.equal((source.match(/advanceTimer=setTimeout\(nextQuestion,480\)/g)||[]).length,2,'recovery cadence must remain unchanged');
+  assert.doesNotMatch(source, /advanceTimer=setTimeout\(nextQuestion,(?:[5-9]\d\d|\d{4,})\)/,'feedback polish must not lengthen recovery');
+  assert.match(css, /\.impact-chip/);
+  assert.match(css, /animation:impact-chip[^;]*var\(--contact\)/,'impact accent waits for contact');
+  assert.match(css, /\.question-card\[data-feedback="correct"\]/);
+  assert.match(css, /prefers-reduced-motion:reduce[^}]*\.question-card\[data-feedback\]/s);
+});
+
 test('cloud merge unions session rewards and purchases instead of using last-write-wins', () => {
   const source = read('study/supabase/functions/studyhub-save/index.ts');
   assert.match(source, /function mergeGame\(/);
