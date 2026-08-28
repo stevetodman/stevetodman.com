@@ -32,15 +32,17 @@ four creatures, a forest stage and world map. Implemented and exercised:
 - Travel independent of mastery; a twelfth-session boss without perfect mastery.
 - Content-hashed app/art URLs; engineering documents excluded from production output.
 
-Latest fix: speech warm-up, cancellation and playback tolerate exceptions.
-The complete speech test double now includes getVoices. Two scenarios exercise
-error callbacks AND thrown exceptions through assisted spelling and reload.
-Local 21/21 unit checks and JavaScript syntax checks pass. CI 33145172484 on
-`301223e320f2f80d30579d406533d31e08bdf607` passed all 41 Study checks in BOTH
-Chromium and WebKit, plus platform checks and build. Aggregate gate passed.
-Final hosted-preview refinement: only spelling auto-plays; optional meaning audio
-failure says to read the question, never to find nonexistent tiles. Those assertions
-were added to both failure scenarios. Verify its new CI run before final handoff.
+Implementation and automated verification are complete for the current scope.
+Latest code commit: `e174270bda69fcf41c55de2d34da43d8fda0ae1b`.
+Final CI run: 33145356689. BOTH Chromium and WebKit passed 41/41 Study checks,
+25/25 platform checks and the 139-file / 25-page build. Aggregate gate passed;
+production canary correctly skipped. No assertion was removed to obtain a pass.
+
+Speech warm-up, cancellation and playback tolerate exceptions. Event and exception
+failures are tested through assisted spelling and reload. Only spelling auto-plays;
+optional meaning audio failure says to read the question, never to find absent tiles.
+Local 21/21 unit checks, syntax and diff checks also passed. All code/art is saved.
+Physical iOS and observed child enjoyment/90/10 are still OPEN acceptance gates.
 
 ## Evidence, with scope
 
@@ -70,8 +72,9 @@ https://study-quality-90-10-20260828.stevetodman-com.pages.dev/study/
 
 This URL is generated automatically by the existing branch integration. It was
 opened and verified in a browser: correct assignment, fresh assets, answer feedback,
-and pause/resume across a fresh build (verified build d192a9a29445 before the final
-audio-copy refinement). This pages.dev hostname saves locally only; it does NOT read/write
+and pause/resume across the final fresh build: `766ca936cf20`. The same paused
+question 2 and completed answer survived the update. This pages.dev hostname saves
+locally only; it does NOT read/write
 the production family cloud save. Each device has isolated preview progress.
 The branch URL follows later commits. Record the build hash when testing.
 
@@ -96,6 +99,10 @@ Web and server changes require a coordinated, separately approved release.
    target before practice. Do not hide this by counting idle as learning.
 6. Save a commit, exact results and this handoff before stopping. GitHub connector
    commits can have a different local SHA; compare tree SHAs, never force-push/reset.
+
+Do not start another redesign on resumption. The next meaningful input is the
+family/device acceptance record. If it finds a defect, reproduce it in the preview,
+add a regression, implement the narrow fix, rerun both engines, and save a checkpoint.
 
 ## Preserved limits
 

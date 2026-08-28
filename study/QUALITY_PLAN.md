@@ -45,9 +45,10 @@ an agent must not fabricate that evidence.
   reload, the boss, preview/cancel/spend/re-equip and reward expiry without spending.
 - G5 has local active-time records and tested budgeting. Actual child90/10 and
   enjoyment are still OPEN; simulated reading is explicitly labeled in artifacts.
-- G6 Chromium and WebKit each passed41/41 Study tests, platform checks and build
-  in CI33145172484. The latest minor audio-copy change still needs its own CI result.
-  Physical iOS checks remain open and are not replaced by desktop WebKit.
+- G6 Chromium and WebKit each passed41/41 Study tests,25/25 platform checks and
+  build in final code CI33145356689 (commit e174270bda69fcf41c55de2d34da43d8fda0ae1b).
+  Hosted preview build766ca936cf20 was verified, including pause/resume across an
+  update. Physical iOS checks remain open and are not replaced by desktop WebKit.
 
 These are evidence statements, not a blanket App Store-quality or release sign-off.
 
