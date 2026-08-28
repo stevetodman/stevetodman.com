@@ -28,6 +28,7 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 - Game rewards use an idempotent per-session ledger so a repeated or merged cloud save cannot award the same session twice.
 - The boss is a presentation of the normal ten-question session, not a gate to practice. A learner may face it at 12 seals, at 10 seals after the unit test date, or on the twelfth travel session. Finishing the adventure is distinct from mastering every word; missing seals remain available afterward.
 - Equipment selection is limited to a short post-session choice and cannot interrupt a question. Preview gear before spending earned study coins. Owned gear can be equipped free.
+- An unconfirmed gear choice is a validated, learner-specific device-local bookmark. It survives timeout/reload and resumes only in the next earned reward break; it never spends coins, changes equipment, syncs to another device, or extends the play budget. Cancel and successful confirmation clear it.
 
 ## Assignment behavior
 

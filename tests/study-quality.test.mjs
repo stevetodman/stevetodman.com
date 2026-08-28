@@ -12,7 +12,7 @@ function model() {
   vm.runInNewContext(read('study/unit-1/quality-core.js'),context);
   const source=read('study/unit-1/app.js');
   vm.runInNewContext(source.slice(0,source.indexOf("  chip.setAttribute('aria-label'"))+`
-    window.test={sanitizeGameProfile,applyCloudGame,gameProfile,gameXp,coinBalance,makeQuestion,isAccepted,WORDS,savedRound,recordResult,
+    window.test={sanitizeGameProfile,applyCloudGame,gameProfile,gameXp,coinBalance,makeQuestion,isAccepted,WORDS,savedRound,savedGearChoice,recordResult,
       setSession:(value)=>{session=value;activeName='Luke';},stats:()=>profile('Luke').stats};
   })();`,context);
   return {...context.window.test,storage,quality:context.window.WordExpeditionQuality};
@@ -85,4 +85,15 @@ test('paid currency, real-money checkout and payment integrations are absent',()
   assert.match(source,/Study coins only\. No real money/);
   assert.doesNotMatch(source,/stripe|paypal|paymentRequest|buyCurrency|buyCoins|billing|subscription/i);
   assert.match(source,/function previewGear/);assert.match(source,/if\(coinBalance\(activeName\)<item.price\)return/);
+});
+
+test('unconfirmed gear choices are validated and isolated by learner',()=>{
+  const m=model(),key='studyhub-word-expedition-gear-draft-unit1-v1-';
+  m.storage.set(key+'Luke',JSON.stringify({version:1,item:'copper-blade'}));
+  assert.equal(m.savedGearChoice('Luke'),'copper-blade');
+  assert.equal(m.savedGearChoice('Samantha'),null);
+  assert.equal(m.coinBalance('Luke'),0);assert.deepEqual({...m.gameProfile('Luke').purchases},{});
+  for(const value of ['{',JSON.stringify({version:2,item:'copper-blade'}),JSON.stringify({version:1,item:'constructor'}),JSON.stringify({version:1,item:null})]){
+    m.storage.set(key+'Luke',value);assert.equal(m.savedGearChoice('Luke'),null);
+  }
 });

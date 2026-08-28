@@ -6,11 +6,13 @@ on:
     paths:
       - 'study/**'
       - 'scripts/verify-study-cloud.sh'
+      - 'scripts/verify-study-reward-ledger.mjs'
       - '.github/workflows/study-cloud-canary.yml'
   pull_request:
     paths:
       - 'study/**'
       - 'scripts/verify-study-cloud.sh'
+      - 'scripts/verify-study-reward-ledger.mjs'
       - '.github/workflows/study-cloud-canary.yml'
   schedule:
     - cron: '17 */6 * * *'
@@ -26,5 +28,10 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Verify live Study cloud save
         run: bash scripts/verify-study-cloud.sh
+      - name: Verify durable reward ledger with synthetic data
+        run: node scripts/verify-study-reward-ledger.mjs

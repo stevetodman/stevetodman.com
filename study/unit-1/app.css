@@ -120,7 +120,7 @@ h2,h3,p { margin-top:0; }
 .question-card { padding:23px; }
 .question-top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:13px; }
 .q-domain { display:inline-flex; padding:6px 10px; color:var(--teal-dark); background:var(--mint); border-radius:999px; font-size:.67rem; font-weight:950; letter-spacing:.065em; text-transform:uppercase; }
-.speak-button { flex:0 0 auto; display:grid; place-items:center; width:46px; height:46px; color:var(--ink); background:#edf4f2; border:0; border-radius:14px; font-size:1.18rem; cursor:pointer; }
+.speak-button { flex:0 0 auto; display:grid; place-items:center; min-width:46px; height:46px; padding:0 12px; white-space:nowrap; color:var(--ink); background:#edf4f2; border:0; border-radius:14px; font-size:.85rem; font-weight:700; cursor:pointer; }
 .q-prompt { margin:0 0 20px; font-size:clamp(1.18rem,5.4vw,1.48rem); line-height:1.4; letter-spacing:-.022em; }
 .q-prompt .target { color:var(--teal-dark); font-weight:950; }
 .audio-note { margin:-10px 0 18px; color:var(--muted); font-size:.78rem; line-height:1.4; }

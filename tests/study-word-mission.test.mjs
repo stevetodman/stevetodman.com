@@ -369,7 +369,40 @@ describe('Unit 1 Word Expedition', () => {
     const game=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')).learners.Luke);
     assert.deepEqual(game.purchases,{});assert.equal(game.equipped.weapon,'starter-sword');
     assert.equal(Object.values(game.rewards).reduce((sum,r)=>sum+r.coins,0),8);
+    const draftKey='studyhub-word-expedition-gear-draft-unit1-v1-Luke';
+    assert.equal(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).item,draftKey),'copper-blade');
+    assert.match(await page.locator('#toast').innerText(),/Choice saved/);
+    await page.reload();await page.locator('[data-profile="Samantha"]').click();
+    assert.equal(await page.locator('#gear-preview').count(),0,'a saved choice never interrupts practice');
+    assert.equal(await page.evaluate(()=>localStorage.getItem('studyhub-word-expedition-gear-draft-unit1-v1-Samantha')),null);
+    await page.locator('#profile-chip').click();await page.locator('[data-profile="Luke"]').click();
+    for(let i=0;i<10;i++)await answerCurrentQuestion(page);
+    await page.locator('#visit-shop').click();
+    assert.match(await page.locator('#gear-preview').innerText(),/Your saved choice[\s\S]*Copper Blade/);
+    assert.equal(await page.locator('.wallet strong').innerText(),'16','resuming never buys automatically');
+    await page.locator('#cancel-gear').click();
+    assert.equal(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).item,draftKey),null);
+    await page.locator('[data-item="copper-blade"]').click();await page.locator('#confirm-gear').click();
+    assert.equal(await page.locator('.wallet strong').innerText(),'8');
+    assert.equal(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).item,draftKey),null,'confirmation clears the bookmark');
     await context.close();
+  });
+
+  test('Hear word stays on one line with a full touch target at phone and desktop widths', async () => {
+    const directory=path.join(process.env.RUNNER_TEMP||os.tmpdir(),'study-evidence');fs.mkdirSync(directory,{recursive:true});
+    for(const width of [320,390,1024]){
+      const context=await fastContext({viewport:{width,height:844}});const page=await context.newPage();
+      await page.goto(server.origin+'/study/');await page.locator('[data-profile="Luke"]').click();
+      await answerCurrentQuestion(page);
+      const size=await page.locator('#listen').evaluate(el=>{
+        const range=document.createRange();range.selectNodeContents(el);
+        const box=el.getBoundingClientRect();
+        return {lines:range.getClientRects().length,width:box.width,height:box.height,overflow:el.scrollWidth>el.clientWidth};
+      });
+      assert.equal(size.lines,1);assert.equal(size.overflow,false);assert.ok(size.width>=44&&size.height>=44);
+      await page.screenshot({path:path.join(directory,width+'-audio-control.png'),fullPage:true});
+      await context.close();
+    }
   });
 
   test('small keyboard viewport keeps the prompt and typing control reachable', async () => {

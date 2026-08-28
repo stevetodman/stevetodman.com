@@ -12,6 +12,7 @@
   var SESSION_LENGTH = 10;
   var GAME_STORAGE_KEY = 'studyhub-word-expedition-game-unit1-v1';
   var ROUND_KEY = 'studyhub-word-expedition-round-unit1-v1-';
+  var GEAR_DRAFT_KEY = 'studyhub-word-expedition-gear-draft-unit1-v1-';
   var QUALITY = window.WordExpeditionQuality;
   var ART = window.WordExpeditionArt;
   var GAME_CATALOG = ART.catalog;
@@ -81,6 +82,19 @@
     if(!session||!activeName)return;
     var entry=profile(activeName).sessions.find(function(s){return s.id===session.id;});
     if(entry){entry.timing=activityClock.snapshot();saveState(false);}
+  }
+
+  // A try-on is a device-local bookmark, never a purchase or cloud preference.
+  function savedGearChoice(name){
+    try{
+      var draft=JSON.parse(localStorage.getItem(GEAR_DRAFT_KEY+name)||'null');
+      var item=draft&&draft.version===1&&itemById(draft.item);
+      return item?item.id:null;
+    }catch(_){return null;}
+  }
+  function saveGearChoice(id){
+    selectedGear=itemById(id)?id:null;
+    return persistLocal(GEAR_DRAFT_KEY+activeName,{version:1,item:selectedGear});
   }
 
   function saveRound() {
@@ -690,7 +704,7 @@
       '<div class="summary-actions"><button type="button" class="primary-button" id="summary-done">Done for now</button><button type="button" class="secondary-button" id="visit-shop">Choose gear</button></div>'+rewardBreakHTML()+'<p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p></section>';
     resetView('.game-summary h2');
     if(newStamps||correct>=8)celebrate();
-    document.getElementById('visit-shop').addEventListener('click',function(){selectedGear=null;showShop();});
+    document.getElementById('visit-shop').addEventListener('click',function(){showShop();});
     document.getElementById('summary-done').addEventListener('click',showProfilePicker);
     scheduleRewardEnd();
   }
@@ -698,7 +712,8 @@
   function endExpiredRewardBreak(){
     if(!session||!session.rewarded)return true;
     if(performance.now()<rewardDeadline)return false;
-    showProfilePicker();showToast('Adventure complete. Coins and gear are saved.');return true;
+    var pending=savedGearChoice(activeName);
+    showProfilePicker();showToast(pending?'Choice saved for your next reward break. No coins spent.':'Adventure complete. Coins and gear are saved.');return true;
   }
   function scheduleRewardEnd(){
     clearTimeout(rewardTimer);
@@ -708,7 +723,7 @@
     var link=document.getElementById('visit-shop');
     if(link&&remaining<4000){link.disabled=true;link.textContent='Gear saved for next time';}
     var note=document.getElementById('reward-break-note');
-    if(note)note.textContent='Back to heroes in '+Math.ceil(remaining/1000)+'s. Coins and gear stay saved.';
+    if(note)note.textContent=savedGearChoice(activeName)?'Back to heroes in '+Math.ceil(remaining/1000)+'s. Your choice stays saved; no need to rush.':'Back to heroes in '+Math.ceil(remaining/1000)+'s. Coins and gear stay saved.';
     var progress=document.getElementById('reward-break-progress');if(progress)progress.value=remaining;
     rewardTimer=setTimeout(scheduleRewardEnd,Math.min(1000,remaining));
   }
@@ -728,21 +743,25 @@
       rewardBreakHTML()+'<div class="shop-grid">'+GAME_CATALOG.map(gearItemHTML).join('')+'</div><button type="button" class="secondary-button merchant-done" id="shop-done">Done for now</button>';
     if(!keepPosition)resetView('.merchant-head h2');
     app.querySelectorAll('[data-item]').forEach(function(button){button.addEventListener('click',function(){previewGear(button.getAttribute('data-item'));});});
-    document.getElementById('starter-gear').addEventListener('click',function(){if(endExpiredRewardBreak())return;gameProfile(activeName).equipped={weapon:'starter-sword',armor:'starter-cloak'};saveGameState();scheduleCloudPush();showShop(true);showToast('Starter gear equipped. Your collection is safe.');});
+    document.getElementById('starter-gear').addEventListener('click',function(){if(endExpiredRewardBreak())return;saveGearChoice(null);gameProfile(activeName).equipped={weapon:'starter-sword',armor:'starter-cloak'};saveGameState();scheduleCloudPush();showShop(true);showToast('Starter gear equipped. Your collection is safe.');});
     document.getElementById('shop-done').addEventListener('click',showProfilePicker);
     scheduleRewardEnd();
+    var pending=savedGearChoice(activeName);
+    if(pending)previewGear(pending,true);
   }
-  function previewGear(id){
+  function previewGear(id,resumed){
     if(endExpiredRewardBreak())return;
     var item=itemById(id);if(!item)return;
-    var gp=gameProfile(activeName),equipped=Object.assign({},gp.equipped);equipped[item.type]=id;selectedGear=id;
+    var gp=gameProfile(activeName),equipped=Object.assign({},gp.equipped);equipped[item.type]=id;
     var owned=gp.owned.indexOf(id)>=0;
-    if(!owned&&coinBalance(activeName)<item.price)return;
-    document.getElementById('gear-preview').innerHTML=ART.hero(activeName,equipped,'ready')+'<div><span>Try it on · no coins spent</span><strong>'+esc(item.name)+'</strong><button type="button" class="preview-confirm" id="confirm-gear">'+(owned?'Equip this':'Use '+item.price+' coins')+'</button><button type="button" class="starter-button" id="cancel-gear">Keep my gear</button></div>';
+    if(gp.equipped[item.type]===id||(!owned&&coinBalance(activeName)<item.price)){saveGearChoice(null);return;}
+    saveGearChoice(id);
+    document.getElementById('gear-preview').innerHTML=ART.hero(activeName,equipped,'ready')+'<div><span>'+(resumed?'Your saved choice':'Try it on')+' · no coins spent</span><strong>'+esc(item.name)+'</strong><button type="button" class="preview-confirm" id="confirm-gear">'+(owned?'Equip this':'Use '+item.price+' coins')+'</button><button type="button" class="starter-button" id="cancel-gear">Keep my gear</button></div>';
     document.getElementById('confirm-gear').addEventListener('click',function(){buyOrEquip(selectedGear);});
-    document.getElementById('cancel-gear').addEventListener('click',function(){selectedGear=null;showShop(true);});
+    document.getElementById('cancel-gear').addEventListener('click',function(){if(endExpiredRewardBreak())return;saveGearChoice(null);showShop(true);});
     document.getElementById('gear-preview').scrollIntoView({block:'nearest',behavior:'auto'});
     document.getElementById('confirm-gear').focus({preventScroll:true});
+    scheduleRewardEnd();
   }
   function buyOrEquip(id) {
     if(endExpiredRewardBreak())return;
@@ -751,7 +770,7 @@
       if(coinBalance(activeName)<item.price)return;
       gp.purchases[id]=new Date().toISOString();gp.owned.push(id);
     }
-    gp.equipped[item.type]=id;saveGameState();scheduleCloudPush(0);selectedGear=null;showShop(true);showToast(item.name+' equipped.');
+    gp.equipped[item.type]=id;saveGameState();scheduleCloudPush(0);saveGearChoice(null);showShop(true);showToast(item.name+' equipped.');
   }
   function celebrate() {
     var colors=['#f2ad36','#087e78','#dc6a4d','#6d70c9'];

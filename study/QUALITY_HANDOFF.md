@@ -18,6 +18,11 @@ App Store-quality, real-child 90/10, or production release sign-off.
 
 ## Current checkpoint — 28 August 2026
 
+The owner has now authorized final polish and production deployment. Active release
+record: ../tests/evidence/STUDY_RELEASE_20260828.md. Its latest status supersedes
+the earlier statements below that production has not been changed. At the initial
+release checkpoint, code is polished and local checks pass; deployment is pending.
+
 The branch includes original illustrated heroes, all 32 equipment combinations,
 four creatures, a forest stage and world map. Implemented and exercised:
 
