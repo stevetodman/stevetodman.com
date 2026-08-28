@@ -34,6 +34,48 @@ behavior checks, rendered screenshots and observed play are separate evidence.
 Actual child enjoyment and native iOS behavior require a family/device playtest;
 an agent must not fabricate that evidence.
 
+## Recorded status, 28 August 2026
+
+- G0 baseline defects were reproduced and the compatibility contract retained.
+- G1 branch checks pass for reward history, merges, recoverable rounds, alternative
+  grading, blocked storage and damaged device links. Production merge code is not deployed.
+- G2 original art, all32 equipped combinations, four creatures and the320/390px
+  reward shelf have been rendered and inspected. CI stores repeatable screenshots.
+- G3/G4 browser flows pass through correct/wrong/assisted answers, final-question
+  reload, the boss, preview/cancel/spend/re-equip and reward expiry without spending.
+- G5 has local active-time records and tested budgeting. Actual child90/10 and
+  enjoyment are still OPEN; simulated reading is explicitly labeled in artifacts.
+- G6 Chromium has40/40 Study tests,25/25 platform checks and a successful build.
+  The final cross-engine WebKit run and physical iOS checks must be recorded separately.
+
+These are evidence statements, not a blanket App Store-quality or release sign-off.
+
+## Final family/device acceptance protocol
+
+Use a branch preview with isolated practice data, not the production family save.
+Record device/browser/date, learner, observation and any screenshot for each result.
+
+1. On iPhone Safari, iPad Safari and the installed shortcut, open the app cold.
+   Check readable art, responsive taps, visible prompt/input above the keyboard,
+   explicit Hear word/Hear a sentence, muted-device recovery and reduced motion.
+2. Each twin independently starts, completes10 questions, corrects one error,
+   pauses/reloads once, and finds the same question. No explanation from an adult
+   should be needed to find Start, Next, hear a word, or return from the shop.
+3. Try one affordable item, cancel, then buy it with study coins. Verify the hero
+   changes, the other wallet does not, starter gear remains available, and expiry
+   never spends coins or loses progress. Note whether the short break feels rushed.
+4. Time at least three ordinary rounds per learner. Compare observed retrieval,
+   listening, correction and feedback reading with menu/reward time and the local
+   estimate. Require learning/(learning+play)>=0.90 on representative observed
+   use; investigate mismatches instead of reclassifying idle or adding filler.
+5. Ask whether they want another adventure and what confused them. Any lost work,
+   unfair grading, blocked keyboard/audio flow, clipped control, accidental spend,
+   or frustrating expiry fails the relevant gate and returns to implementation.
+
+Only after these checks and owner approval: merge/deploy web and server changes
+as a coordinated release, then run the production canary and inspect actual fresh
+asset versions. Keep the compatibility keys and a rollback to the prior commit.
+
 ## 90/10 measurement contract
 
 Learning = retrieval, listening to the question, reading meaningful feedback,

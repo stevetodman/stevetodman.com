@@ -56,13 +56,12 @@
     return '<svg class="item-art" viewBox="0 0 120 120" aria-hidden="true" focusable="false">'+armorMarkup(item.id,PALETTES.Luke)+'</svg>';
   }
 
-  function routeMap(step, levels) {
+  function routeMap(step) {
     var safeStep=Math.max(0,Math.min(12,Number(step)||0));
     var points=[[13,80],[28,66],[46,78],[65,59],[87,69],[106,49],[129,58],[149,38],[172,48],[192,28],[215,38],[239,18]];
     var circles=points.map(function (point,index) {
-      var level=levels&&levels[index]||'new';
       var reached=index<safeStep?' reached':'';
-      return '<g class="route-node '+level+reached+'"><circle cx="'+point[0]+'" cy="'+point[1]+'" r="6"/><text x="'+point[0]+'" y="'+(point[1]+2.6)+'">'+(index+1)+'</text></g>';
+      return '<g class="route-node'+reached+'"><circle cx="'+point[0]+'" cy="'+point[1]+'" r="6"/><text x="'+point[0]+'" y="'+(point[1]+2.6)+'">'+(index+1)+'</text></g>';
     }).join('');
     var marker=points[Math.max(0,Math.min(points.length-1,safeStep?safeStep-1:0))];
     return '<svg class="route-art" viewBox="0 0 252 98" role="img" aria-label="Expedition route, '+safeStep+' of 12 travel steps reached">'+

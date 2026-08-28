@@ -33,9 +33,15 @@ permissions:
 
 jobs:
   contract:
-    name: Study contract
+    name: Study contract (${{ matrix.browser }})
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit]
+    env:
+      STUDY_BROWSER: ${{ matrix.browser }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -43,7 +49,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
       - run: npm run test:study
       - run: npm run test:platform
       - run: npm run build
@@ -51,14 +57,25 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: study-rendered-evidence
+          name: study-rendered-evidence-${{ matrix.browser }}
           path: ${{ runner.temp }}/study-evidence/
           if-no-files-found: warn
+
+  quality_gate:
+    name: Study contract
+    if: always()
+    needs: contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require both browser engines
+        env:
+          STUDY_BROWSER_RESULT: ${{ needs.contract.result }}
+        run: test "$STUDY_BROWSER_RESULT" = success
 
   production_canary:
     name: Study production canary
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: contract
+    needs: quality_gate
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

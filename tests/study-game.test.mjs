@@ -34,7 +34,7 @@ test('game art catalog is bounded, unique, and renders every equipment layer', (
   }
 });
 
-test('route art always contains twelve seal nodes and a bounded marker', () => {
+test('route art has twelve travel nodes independent of word mastery', () => {
   const art = loadArt();
   for (const step of [-10, 0, 6, 12, 99]) {
     const svg = art.routeMap(step, Array(12).fill('new'));
@@ -42,6 +42,8 @@ test('route art always contains twelve seal nodes and a bounded marker', () => {
     assert.equal((svg.match(/class="route-marker/g) || []).length, 1);
     assert.doesNotMatch(svg, /translate\([^)]*(?:NaN|undefined)/);
   }
+  assert.equal(art.routeMap(3,Array(12).fill('mastered')),art.routeMap(3,Array(12).fill('new')));
+  assert.equal((art.routeMap(3).match(/route-node reached/g)||[]).length,3);
 });
 
 test('game state is isolated from the version-three learning schema', () => {

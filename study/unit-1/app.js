@@ -175,7 +175,6 @@
   function levelFloorXp(level) {
     return XP_THRESHOLDS[level-1]!==undefined?XP_THRESHOLDS[level-1]:XP_THRESHOLDS[XP_THRESHOLDS.length-1]+(level-XP_THRESHOLDS.length)*250;
   }
-  function gameLevels(name) { return WORDS.map(function(word){return wordLevel(name,word);}); }
 
   function gameCloudProfile(name) {
     var gp=gameProfile(name);
@@ -683,7 +682,7 @@
     app.innerHTML='<section class="panel summary game-summary">'+
       '<div class="victory-lockup"><div class="summary-hero">'+ART.hero(activeName,gp.equipped,'victory')+(bossWon?'<span class="unit-crown" aria-hidden="true">✦</span>':'')+'</div><div><p class="eyebrow">'+(bossWon?'Adventure complete':'Expedition complete')+'</p><h2>'+(bossWon?'The castle is yours!':esc(activeName)+', the path is clear.')+'</h2><p>'+(bossWon?'You restored the realm. Keep practicing any words that still need a mastery seal.':session.strengthened.size+' '+(session.strengthened.size===1?'word got':'words got')+' stronger'+(newStamps?' and '+newStamps+' new '+(newStamps===1?'seal was':'seals were')+' restored.':'.'))+'</p></div></div>'+
       '<div class="reward-row" aria-label="Expedition rewards"><span><strong>+'+xpAward+'</strong> XP earned</span><span><strong>+'+coinAward+'</strong> study coins</span><span><strong>Level '+newLevel+'</strong>'+(leveledUp?'New level!':'Your hero')+'</span></div>'+
-      ART.routeMap(Math.min(12,gp.sessionsCompleted),gameLevels(activeName))+
+      ART.routeMap(Math.min(12,gp.sessionsCompleted))+
       '<div class="summary-actions"><button type="button" class="primary-button" id="summary-done">Done for now</button><button type="button" class="secondary-button" id="visit-shop">Choose gear</button></div>'+rewardBreakHTML()+'<p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p></section>';
     resetView('.game-summary h2');
     if(newStamps||correct>=8)celebrate();

@@ -54,7 +54,16 @@ shop required scrolling, and an audio-error toast could linger over reward contr
 The phone shelf is now three columns/two rows, preview scrolls into view when needed,
 and old audio errors cannot follow the child into the shop. Countdown updates are
 excluded from live announcements. New assertions require the complete shelf plus
-Done to fit at320/390x844; rendered artifacts now also include320px. Verify latest CI.
+Done to fit at320/390x844; rendered artifacts now also include320px. CI33133053006
+on `08cc9691f6dd6b979c696126001a2f6cbb4122a1` passed40/40 Study tests,25/25
+platform checks and the build. Artifact9670997499 was downloaded and visually
+reviewed:320px shelf and390px armor preview both fit, with unobscured controls.
+
+Final technical pass underway: Chromium + WebKit CI matrix, while retaining the
+stable required check name `Study contract` as an aggregate that fails if either
+engine fails. Travel-map colors now represent travel only, never word mastery.
+Local preview/test servers use the proper WebP MIME type. Family/device acceptance
+steps are in QUALITY_PLAN.md. Wait for both browser results before technical sign-off.
 
 The complete illustrated atlas and two world backdrops are now included under
 `study/unit-1/assets/` with prompt provenance. Phone home/question screens were

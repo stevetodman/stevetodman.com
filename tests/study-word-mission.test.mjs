@@ -9,7 +9,8 @@ let server, browser;
 
 before(async () => {
   server = await startServer();
-  browser = await (await getChromium()).launch();
+  const engine=process.env.STUDY_BROWSER==='webkit'?(await import('playwright')).webkit:await getChromium();
+  browser = await engine.launch();
 });
 
 after(async () => {
@@ -311,7 +312,7 @@ describe('Unit 1 Word Expedition', () => {
   test('audio failure has a visible teaching model and tile recovery stays assisted', async () => {
     const context=await fastContext();
     await context.addInitScript(()=>{
-      window.speechSynthesis.speak=utterance=>utterance.onerror?.({error:'synthesis-unavailable'});
+      if('speechSynthesis'in window)window.speechSynthesis.speak=utterance=>utterance.onerror?.({error:'synthesis-unavailable'});
     });
     const page=await context.newPage();await page.goto(server.origin+'/study/');
     await page.locator('[data-profile="Luke"]').click();
