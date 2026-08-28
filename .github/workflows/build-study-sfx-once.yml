@@ -6,6 +6,7 @@ on:
       - agent/word-expedition-battle-sfx
     paths:
       - .github/workflows/build-study-sfx-once.yml
+      - .github/scripts/build-study-sfx.sh
 
 permissions:
   contents: write
