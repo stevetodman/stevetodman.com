@@ -72,13 +72,18 @@ async function answerCorrectly(page, advance = true) {
   const domain = await page.locator('.q-domain').getAttribute('data-domain');
   const prompt = await page.locator('.q-prompt').innerText();
   let word;
-  if (domain === 'definition' && await page.locator('#answer-input').count()) {
+  if (domain === 'spelling') {
+    word=await page.evaluate(()=>{
+      const key=Object.keys(localStorage).find(key=>key.startsWith('studyhub-word-expedition-round-unit1-v1-'));
+      const round=JSON.parse(localStorage.getItem(key));return round.questions[round.index].word.word;
+    });
+  } else if (domain === 'definition' && await page.locator('#answer-input').count()) {
     word = Object.keys(schoolAnswers).find(name => prompt.includes(schoolAnswers[name].definition.split(';')[0]));
   } else {
     word = (await page.locator('.q-prompt .target').innerText()).trim();
   }
   assert.ok(word && schoolAnswers[word], `could not resolve ${domain} question: ${prompt}`);
-  const answer = domain === 'definition' && await page.locator('#answer-input').count()
+  const answer = domain === 'spelling' || (domain === 'definition' && await page.locator('#answer-input').count())
     ? word
     : schoolAnswers[word][domain];
   assert.ok(answer, `no ${domain} answer recorded for ${word}`);
@@ -381,7 +386,7 @@ describe('Unit 1 Word Expedition', () => {
   test('both learners get 50 seconds in the store after fast rounds and an unhurried summary', async () => {
     const context=await browser.newContext({viewport:{width:390,height:844}});
     const page=await context.newPage();
-    await page.clock.install();
+    await page.clock.install({time:new Date('2026-08-28T12:00:00')});
     for(const name of ['Luke','Samantha']){
       await page.goto(server.origin+'/study/');
       // Real fast answers: no synthetic reading-time credit.
