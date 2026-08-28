@@ -23,7 +23,18 @@ jobs:
           node-version: 22
           cache: npm
       - name: Apply focused feedback and timing patch
-        run: python3 .github/scripts/word-expedition-feedback-sync.py
+        run: |
+          python3 .github/scripts/word-expedition-feedback-sync.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('study/unit-1/app.js')
+          text=p.read_text()
+          old="""    setBattleState(final?'victory':kind,message,true);\n    pulseQuestionFeedback(kind==='recovery'?'recovery':kind==='standard'?'assisted':'correct');\n    cancelSpeech();playWeaponSound(gameProfile(activeName).equipped.weapon);\n"""
+          new="""    pulseQuestionFeedback(kind==='recovery'?'recovery':kind==='standard'?'assisted':'correct');\n    setBattleState(final?'victory':kind,message,true);\n    cancelSpeech();playWeaponSound(gameProfile(activeName).equipped.weapon);\n"""
+          if text.count(old)!=1:
+              raise SystemExit('Expected one successful-strike feedback block')
+          p.write_text(text.replace(old,new,1))
+          PY
       - name: Syntax and whitespace
         run: |
           node --check study/unit-1/app.js
