@@ -443,3 +443,23 @@ body[data-screen="question"] .pips { display:none; }
 @keyframes guard-catch { 0%{opacity:1;scale:.92}100%{opacity:0;scale:1.1} }
 @keyframes shield-lift { 0%,100%{transform:none}41.667%{transform:translate(14px,-12px) rotate(-15deg)} }
 @media(prefers-reduced-motion:reduce){.projectile-lane,.hit-mark,.ground-ripple,.hero-guard{display:none;}.battle-stage[data-state="victory"] .enemy-fighter{opacity:.3;}}
+
+/* The collection is a shelf in the timed store, never a learning-screen destination. */
+.book-open { display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:44px;margin:0 0 5px;padding:8px 12px;color:var(--teal-dark);background:#edf3e4;border:1px solid #c8d5b9;border-radius:12px;font:inherit;font-size:.78rem;font-weight:900;cursor:pointer; }
+.book-open span { font-size:.68rem;font-weight:700; }
+.book-controls { position:sticky;top:0;z-index:5;margin:-2px -2px 0;padding:8px 4px 1px;background:var(--paper);border-bottom:1px solid var(--line);border-radius:14px 14px 0 0; }
+.book-heading { display:flex;align-items:center;gap:12px; }.book-heading h2 { margin:0;font-size:1.55rem; }.book-heading .eyebrow { margin:0 0 3px; }.book-heading .back-button { flex-shrink:0;min-width:44px;min-height:44px; }
+.book-controls .reward-break { margin:8px 0; }.book-controls .reward-break p { font-size:.7rem; }
+.book-intro,.book-footnote { color:var(--muted);font-size:.75rem;line-height:1.4;margin:10px 0; }.book-footnote { font-size:.66rem; }
+.monster-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px; }
+.monster-card { display:flex;flex-direction:column;align-items:center;min-width:0;padding:10px;text-align:center;background:var(--paper);border:1px solid #cbd5bf;border-radius:17px;box-shadow:0 4px 12px #1735260b; }
+.monster-portrait { position:relative;display:grid;place-items:center;width:100%;height:108px;margin-bottom:7px;overflow:hidden;background:radial-gradient(ellipse,#1e4837,#0a251b);border-radius:12px; }
+.monster-portrait .monster-art { width:110px;height:110px; }.monster-portrait>span { position:absolute;color:#d9dfce;font-size:2.8rem;font-weight:900;text-shadow:0 2px 9px #031a10; }
+.undiscovered .monster-art { filter:grayscale(1) contrast(8) brightness(.35);mix-blend-mode:screen;opacity:.6; }
+.monster-entry { color:var(--teal-dark);font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em; }
+.monster-card h3 { margin:3px 0 6px;font-size:.95rem; }.monster-story { flex:1;margin:0 0 8px;color:var(--muted);font-size:.72rem;line-height:1.4; }
+.monster-count { margin:0 0 7px;color:var(--teal-dark);font-size:.68rem;font-weight:800; }
+.roar-button { width:100%;min-height:44px;padding:7px;border:1px solid #b8cbb9;border-radius:10px;background:#e5efdc;color:var(--teal-dark);font:inherit;font-size:.74rem;font-weight:900;cursor:pointer; }
+.roar-button:disabled { opacity:.65;cursor:default; }.monster-locked { margin:auto 0 10px;color:var(--muted);font-size:.65rem; }
+@media(max-width:380px){.monster-card{padding:8px;}.monster-portrait{height:90px;}.monster-portrait .monster-art{width:95px;height:95px;}.monster-card h3{font-size:.85rem;}}
+@media(forced-colors:active){.monster-card,.book-controls,.book-open,.roar-button{border:1px solid CanvasText;}}

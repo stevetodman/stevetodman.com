@@ -13,7 +13,7 @@ function model(audio) {
   const source=read('study/unit-1/app.js');
   vm.runInNewContext(source.slice(0,source.indexOf("  chip.setAttribute('aria-label'"))+`
     window.test={sanitizeGameProfile,applyCloudGame,gameProfile,gameXp,coinBalance,makeQuestion,isAccepted,WORDS,savedRound,savedGearChoice,recordResult,
-      playWeaponSound,sessionCoinAward,
+      playWeaponSound,sessionCoinAward,monsterCounts,
       setSession:(value)=>{session=value;activeName='Luke';},stats:()=>profile('Luke').stats};
   })();`,context);
   return {...context.window.test,storage,quality:context.window.WordExpeditionQuality};
@@ -35,11 +35,18 @@ test('cloud union keeps disjoint sessions and never lowers a duplicate reward',(
   assert.equal(m.gameProfile('Luke').sessionsCompleted,200);
   m.applyCloudGame('Luke',{rewards:rewards(0,200)});
   assert.equal(m.gameXp('Luke'),4000);assert.equal(m.gameXp('Samantha'),0);
+  m.applyCloudGame('Luke',{rewards:{'session-0':{xp:20,coins:8,monster:'mossling'},'session-1':{xp:20,coins:8,monster:'mossling'}}});
+  m.applyCloudGame('Luke',{rewards:{'session-0':{xp:1,coins:1}}});
+  assert.equal(m.monsterCounts('Luke').mossling,2,'repeat battles count once each despite stale cloud writes');
+  assert.equal(m.monsterCounts('Samantha').mossling,0);
 });
 test('legacy totals survive normalization and unsafe reward keys are ignored',()=>{
   const m=model();
   const clean=m.sanitizeGameProfile(JSON.parse('{"rewards":{"_legacy":{"xp":5000,"coins":1200},"__proto__":{"xp":100}}}'));
   assert.equal(clean.rewards._legacy.xp,5000);assert.equal(Object.keys(clean.rewards).length,1);
+  m.applyCloudGame('Luke',{bossDefeatedAt:'2026-08-28T12:00:00Z',rewards:{old:{xp:20,coins:8},bad:{monster:'unknown'}}});
+  assert.equal(m.monsterCounts('Luke').boss,1,'explicit historical boss victory stays collected');
+  assert.equal(m.monsterCounts('Luke').mossling,0,'do not invent monsters for old unclassified battles');
 });
 test('server merge retains >160 entries and is commutative for reward values',()=>{
   const source=read('study/supabase/functions/studyhub-save/index.ts');
@@ -51,6 +58,9 @@ test('server merge retains >160 entries and is commutative for reward values',()
   for(const id of Object.keys(ab.rewards))assert.deepEqual({...ab.rewards[id]},{...ba.rewards[id]});
   assert.equal(context.merge(ab,ab).sessionsCompleted,250);
   assert.equal(context.merge({rewards:{_legacy:{xp:5000,coins:2000}}},{}).rewards._legacy.xp,5000);
+  const collected={rewards:{battle:{xp:20,coins:4,monster:'wisp'}}},stale={rewards:{battle:{xp:1,coins:1}}};
+  assert.deepEqual({...context.merge(collected,stale).rewards.battle},{xp:20,coins:4,monster:'wisp'});
+  assert.deepEqual({...context.merge(stale,collected).rewards.battle},{xp:20,coins:4,monster:'wisp'});
 });
 test('every teacher-listed relation is accepted in ordinary and correction grading',()=>{
   const m=model();

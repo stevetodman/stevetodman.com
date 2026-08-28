@@ -16,6 +16,12 @@
   var QUALITY = window.WordExpeditionQuality;
   var ART = window.WordExpeditionArt;
   var GAME_CATALOG = ART.catalog;
+  var MONSTERS = [
+    {id:'mossling',name:'Bramble Troll',story:'Claims this entire forest is its bedroom. Still refuses to tidy it.'},
+    {id:'wisp',name:'Gloom Wisp',story:'Practices its terrifying entrance. Usually floats through the wrong wall.'},
+    {id:'sentinel',name:'Rune Golem',story:'Built to guard ancient treasure. Forgot where it put the treasure.'},
+    {id:'boss',name:'The Word Keeper',story:'An owl sorcerer with a thousand spells. Cannot find the one that fixes its hair.'}
+  ];
   var XP_THRESHOLDS = [0,20,60,120,200,300,430,590,780,1000];
   var LEARNERS = [
     { name:'Luke', avatar:'🚀' },
@@ -210,7 +216,7 @@
       var grit=(Math.random()*2-1)*(kind==='wisp'?.55:.25);
       // Contact is at 200ms, shared with the counterattack and defense keyframes.
       var hitTime=t-.20,impact=0;
-      if(hitTime>=0){
+      if(armor&&hitTime>=0){
         var ring=Math.sin(hitTime*2*Math.PI*armorTone),noise=Math.random()*2-1;
         impact=defense==='evade'?noise*.24*Math.exp(-hitTime*28):
           defense==='barrier'?(ring+Math.sin(hitTime*2*Math.PI*armorTone*1.5))*.22*Math.exp(-hitTime*15):
@@ -255,7 +261,10 @@
     // This is the source of truth for lifetime earnings, not a rolling history.
     if(raw.rewards&&typeof raw.rewards==='object')Object.keys(raw.rewards).forEach(function(id){
       var reward=raw.rewards[id],limit=id==='_legacy'?Number.MAX_SAFE_INTEGER:1000;
-      if(id.length<100&&!['__proto__','constructor','prototype'].includes(id)&&reward&&typeof reward==='object')clean.rewards[id]={xp:Math.max(0,Math.min(limit,Math.floor(Number(reward.xp)||0))),coins:Math.max(0,Math.min(limit,Math.floor(Number(reward.coins)||0)))};
+      if(id.length<100&&!['__proto__','constructor','prototype'].includes(id)&&reward&&typeof reward==='object'){
+        clean.rewards[id]={xp:Math.max(0,Math.min(limit,Math.floor(Number(reward.xp)||0))),coins:Math.max(0,Math.min(limit,Math.floor(Number(reward.coins)||0)))};
+        if(id!=='_legacy'&&knownMonster(reward.monster))clean.rewards[id].monster=reward.monster;
+      }
     });
     if(!Object.keys(clean.rewards).length&&(Number(raw.xp)>0||Number(raw.coinsEarned)>0))clean.rewards._legacy={xp:Math.max(0,Math.floor(Number(raw.xp)||0)),coins:Math.max(0,Math.floor(Number(raw.coinsEarned)||0))};
     clean.sessionsCompleted=Math.max(clean.sessionsCompleted,Object.keys(clean.rewards).filter(function(id){return id!=='_legacy';}).length);
@@ -284,6 +293,14 @@
   function itemById(id) { return GAME_CATALOG.find(function(item){return item.id===id;}); }
   function itemType(id) { var item=itemById(id);if(item)return item.type;return id==='starter-sword'?'weapon':'armor'; }
   function gameProfile(name) { return gameState.learners[name]; }
+  function knownMonster(kind){return MONSTERS.some(function(monster){return monster.id===kind;});}
+  function monsterCounts(name){
+    var counts={mossling:0,wisp:0,sentinel:0,boss:0},gp=gameProfile(name);
+    Object.keys(gp.rewards).forEach(function(id){var kind=gp.rewards[id].monster;if(id!=='_legacy'&&knownMonster(kind))counts[kind]+=1;});
+    // Older ordinary battles did not record their monster. A saved boss victory is explicit.
+    if(gp.bossDefeatedAt&&!counts.boss)counts.boss=1;
+    return counts;
+  }
   function rewardTotal(name,field) { return Object.keys(gameProfile(name).rewards).reduce(function(sum,id){return sum+(Number(gameProfile(name).rewards[id][field])||0);},0); }
   function gameXp(name) { return rewardTotal(name,'xp'); }
   function coinsEarned(name) { return rewardTotal(name,'coins'); }
@@ -310,7 +327,11 @@
   function applyCloudGame(name,remote) {
     if(!remote||typeof remote!=='object')return;
     var local=gameProfile(name),safeRemote=sanitizeGameProfile(remote),rewards=Object.assign({},local.rewards);
-    Object.keys(safeRemote.rewards).forEach(function(id){var a=rewards[id]||{xp:0,coins:0},b=safeRemote.rewards[id];rewards[id]={xp:Math.max(a.xp,b.xp),coins:Math.max(a.coins,b.coins)};});
+    Object.keys(safeRemote.rewards).forEach(function(id){
+      var a=rewards[id]||{xp:0,coins:0},b=safeRemote.rewards[id];
+      rewards[id]={xp:Math.max(a.xp,b.xp),coins:Math.max(a.coins,b.coins)};
+      var monster=[a.monster,b.monster].filter(knownMonster).sort()[0];if(monster)rewards[id].monster=monster;
+    });
     var combined={version:1,rewards:rewards,sessionsCompleted:Math.max(local.sessionsCompleted||0,safeRemote.sessionsCompleted),bossDefeatedAt:local.bossDefeatedAt||safeRemote.bossDefeatedAt||null,purchases:Object.assign({},local.purchases,safeRemote.purchases),owned:local.owned,equipped:remote.equipped||local.equipped};
     gameState.learners[name]=sanitizeGameProfile(combined);
   }
@@ -631,7 +652,7 @@
     }).join('')+'</div>';
   }
   function enemyName(kind) {
-    return ({mossling:'Bramble Troll',wisp:'Gloom Wisp',sentinel:'Rune Golem',boss:'The Word Keeper'})[kind]||'Shadow creature';
+    var monster=MONSTERS.find(function(monster){return monster.id===kind;});return monster?monster.name:'Shadow creature';
   }
   function battleStageHTML() {
     var gp=gameProfile(activeName),xp=gameXp(activeName),level=levelForXp(xp),next=nextLevelXp(xp),base=levelFloorXp(level);
@@ -821,7 +842,7 @@
     profile(activeName).sessions=profile(activeName).sessions.slice(0,20);saveState();scheduleCloudPush(0);
     var gp=gameProfile(activeName),bossWon=session.enemy==='boss',oldLevel=levelForXp(gameXp(activeName)),xpAward=(bossWon?50:20)+newStamps*15,coinAward=sessionCoinAward(correct,newStamps,bossWon);
     if(!gp.rewards[session.id]){
-      gp.rewards[session.id]={xp:xpAward,coins:coinAward};gp.sessionsCompleted+=1;if(bossWon&&!gp.bossDefeatedAt)gp.bossDefeatedAt=new Date().toISOString();
+      gp.rewards[session.id]={xp:xpAward,coins:coinAward,monster:session.enemy};gp.sessionsCompleted+=1;if(bossWon&&!gp.bossDefeatedAt)gp.bossDefeatedAt=new Date().toISOString();
     } else { xpAward=0;coinAward=0; }
     var rewardSaved=saveGameState();
     var newLevel=levelForXp(gameXp(activeName)),leveledUp=newLevel>oldLevel;
@@ -864,22 +885,41 @@
   }
   function showShop(keepPosition) {
     if(endExpiredRewardBreak())return;
+    cancelSpeech();
     if(rewardDeadline===null)rewardDeadline=performance.now()+rewardAllowance;
     activityClock.mode('play');document.body.dataset.screen='shop';
     var gp=gameProfile(activeName);
     setChip(activeName);
     app.innerHTML='<section class="merchant-head"><div><p class="eyebrow">Trail shop · a quick reward break</p><h2>Make it yours</h2></div><div class="wallet"><span aria-hidden="true">◆</span><strong>'+coinBalance(activeName)+'</strong><small>study coins</small></div><p class="merchant-note">Study coins only. No real money. Gear changes looks, not questions.</p></section>'+
-      '<section class="merchant-preview" id="gear-preview"><div class="preview-glow"></div>'+ART.hero(activeName,gp.equipped,'ready')+'<div><span>Level '+levelForXp(gameXp(activeName))+'</span><strong>'+esc(activeName)+'</strong><small>'+esc((itemById(gp.equipped.weapon)||{name:'Starter Sword'}).name)+' · '+esc((itemById(gp.equipped.armor)||{name:'Starter Cloak'}).name)+'</small><button type="button" class="starter-button" id="starter-gear">Wear starter gear</button></div></section>'+
+      '<section class="merchant-preview" id="gear-preview"><div class="preview-glow"></div>'+ART.hero(activeName,gp.equipped,'ready')+'<div><span>Level '+levelForXp(gameXp(activeName))+'</span><strong>'+esc(activeName)+'</strong><small>'+esc((itemById(gp.equipped.weapon)||{name:'Starter Sword'}).name)+' · '+esc((itemById(gp.equipped.armor)||{name:'Starter Cloak'}).name)+'</small><button type="button" class="starter-button" id="starter-gear">Wear starter gear</button></div></section><button type="button" class="book-open" id="monster-book">Monster book <span>Collected '+MONSTERS.filter(function(monster){return monsterCounts(activeName)[monster.id]>0;}).length+' / 4 →</span></button>'+
       rewardBreakHTML()+'<div class="shop-grid">'+GAME_CATALOG.slice(shopPage*6,shopPage*6+6).map(gearItemHTML).join('')+'</div><nav class="shop-pages" aria-label="Shop shelves"><button type="button" id="shop-prev" '+(shopPage===0?'disabled':'')+'>← Back</button><span>Shelf '+(shopPage+1)+' / '+Math.ceil(GAME_CATALOG.length/6)+'</span><button type="button" id="shop-next" '+(shopPage>=Math.ceil(GAME_CATALOG.length/6)-1?'disabled':'')+'>More gear →</button></nav><button type="button" class="secondary-button merchant-done" id="shop-done">Done for now</button>';
     if(!keepPosition)resetView('.merchant-head h2');
     app.querySelectorAll('[data-item]').forEach(function(button){button.addEventListener('click',function(){previewGear(button.getAttribute('data-item'));});});
     document.getElementById('starter-gear').addEventListener('click',function(){if(endExpiredRewardBreak())return;saveGearChoice(null);gameProfile(activeName).equipped={weapon:'starter-sword',armor:'starter-cloak'};saveGameState();scheduleCloudPush();showShop(true);showToast('Starter gear equipped. Your collection is safe.');});
     document.getElementById('shop-done').addEventListener('click',showProfilePicker);
+    document.getElementById('monster-book').addEventListener('click',showMonsterBook);
     document.getElementById('shop-prev').addEventListener('click',function(){if(endExpiredRewardBreak())return;shopPage=Math.max(0,shopPage-1);saveGearChoice(null);showShop(true);});
     document.getElementById('shop-next').addEventListener('click',function(){if(endExpiredRewardBreak())return;shopPage=Math.min(Math.ceil(GAME_CATALOG.length/6)-1,shopPage+1);saveGearChoice(null);showShop(true);});
     scheduleRewardEnd();
     var pending=savedGearChoice(activeName);
     if(pending)previewGear(pending,true);
+  }
+  function showMonsterBook(){
+    if(rewardDeadline===null||endExpiredRewardBreak())return;
+    cancelSpeech();activityClock.mode('play');document.body.dataset.screen='book';
+    var counts=monsterCounts(activeName),discovered=MONSTERS.filter(function(monster){return counts[monster.id]>0;}).length;
+    app.innerHTML='<section class="monster-book"><div class="book-controls"><div class="book-heading"><button type="button" class="back-button" id="book-back" aria-label="Back to store">←</button><div><p class="eyebrow">'+esc(activeName)+'’s collection · '+discovered+' / 4</p><h2>Monster book</h2></div></div>'+rewardBreakHTML()+'</div><p class="book-intro">Finish a battle to collect its monster. Corrections count, too.</p><div class="monster-grid">'+MONSTERS.map(function(monster,index){
+      var count=counts[monster.id];
+      return '<article class="monster-card '+(count?'collected':'undiscovered')+'" data-monster="'+monster.id+'"><div class="monster-portrait" aria-hidden="true">'+ART.monster(monster.id,'ready')+(count?'':'<span>?</span>')+'</div><span class="monster-entry">Entry '+(index+1)+'</span><h3>'+(count?esc(monster.name):'Undiscovered')+'</h3><p class="monster-story">'+(count?esc(monster.story):'Complete an encounter with this creature to reveal its story.')+'</p>'+(count?'<p class="monster-count">Battles completed: '+count+'</p><button type="button" class="roar-button" data-roar="'+monster.id+'" '+(weaponSoundsEnabled?'':'disabled')+' aria-label="Hear '+esc(monster.name)+' roar">'+(weaponSoundsEnabled?'Hear roar':'Sounds are off')+'</button>':'<p class="monster-locked">Waiting on the trail</p>')+'</article>';
+    }).join('')+'</div><p class="book-footnote">Store time keeps running while you browse. New battles fill the book; earlier saved owl victories are included.</p></section>';
+    document.getElementById('book-back').addEventListener('click',function(){if(endExpiredRewardBreak())return;showShop();});
+    app.querySelectorAll('[data-roar]').forEach(function(button){button.addEventListener('click',function(){
+      if(endExpiredRewardBreak())return;
+      var kind=button.getAttribute('data-roar');if(!monsterCounts(activeName)[kind])return;
+      cancelSpeech();playCreatureSound(kind);
+      if(weaponSoundsEnabled&&(!weaponAudio||weaponAudio.state!=='running'))showToast('Sound is unavailable on this device.');
+    });});
+    resetView('.book-heading h2');scheduleRewardEnd();
   }
   function previewGear(id,resumed){
     if(endExpiredRewardBreak())return;

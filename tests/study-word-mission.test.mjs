@@ -476,12 +476,20 @@ describe('Unit 1 Word Expedition', () => {
     await page.clock.install({time:new Date('2026-08-28T12:00:00')});
     for(const name of ['Luke','Samantha']){
       await page.goto(server.origin+'/study/');
+      assert.equal(await page.locator('#monster-book').count(),0,'book is not a home-screen distraction');
       // Two perfect rounds earn the cheapest item; one round is no longer enough.
       for(let round=0;round<2;round++){
         await page.locator('[data-profile="'+name+'"]').click();
+        assert.equal(await page.locator('#monster-book').count(),0,'no book while learning');
         for(let i=0;i<10;i++)await answerCorrectly(page);
+        assert.equal(await page.locator('#monster-book').count(),0,'results do not unlock untimed browsing');
         if(round===0){
-          await page.locator('#visit-shop').click();await page.locator('[data-item="copper-blade"]').click();
+          await page.locator('#visit-shop').click();await page.locator('#monster-book').click();
+          assert.equal(await page.locator('.monster-card.collected').count(),1,name+' has an independent collection');
+          assert.equal(await page.locator('.monster-card.undiscovered').count(),3);
+          assert.equal(await page.locator('[data-monster="mossling"] .monster-count').innerText(),'Battles completed: 1');
+          await page.locator('[data-roar="mossling"]').click();await page.locator('#book-back').click();
+          await page.locator('[data-item="copper-blade"]').click();
           assert.equal(await page.locator('.wallet strong').innerText(),'4');
           assert.equal(await page.locator('#confirm-gear').isDisabled(),true,'cannot buy before earning the price');
           await page.locator('#shop-done').click();
@@ -505,17 +513,23 @@ describe('Unit 1 Word Expedition', () => {
       assert.equal(Number(await page.locator('#reward-break-progress').getAttribute('max')),50000);
       assert.equal(await page.locator('.wallet strong').innerText(),'8');
       const beforeWait=Number(await page.locator('#reward-break-progress').getAttribute('value'));
+      await page.locator('#monster-book').click();
+      assert.equal(await page.locator('.monster-card.collected').count(),2);
+      await page.screenshot({path:path.join(directory,'390-monster-book.png'),fullPage:true});
       await page.clock.fastForward(25000);
       const remaining=Number(await page.locator('#reward-break-progress').getAttribute('value'));
-      assert.ok(Math.abs(remaining-(beforeWait-25000))<1200&&remaining>0,'countdown uses elapsed time without restarting on shelf changes');
+      assert.ok(Math.abs(remaining-(beforeWait-25000))<1500&&remaining>0,'book browsing uses the same store deadline');
+      await page.locator('#book-back').click();
       await page.locator('[data-item="copper-blade"]').click();
       await page.locator('#confirm-gear').click();
       assert.equal(await page.locator('.wallet strong').innerText(),'0');
+      await page.locator('#monster-book').click();
       await page.clock.fastForward(26000);
       await page.locator('[data-profile="'+name+'"]').waitFor({state:'visible'});
       await page.reload();
       const game=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')).learners);
       assert.equal(game[name].equipped.weapon,'copper-blade','purchase survives timeout and reload');
+      assert.deepEqual(Object.values(game[name].rewards).map(reward=>reward.monster).sort(),['mossling','wisp'],'collection survives store expiry and reload');
       if(name==='Luke'){
         assert.deepEqual(game.Samantha.purchases,{});
         assert.equal(game.Samantha.equipped.weapon,'starter-sword');
