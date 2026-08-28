@@ -11,7 +11,7 @@
   <link rel="manifest" href="/study/us-states.webmanifest">
   <link rel="stylesheet" href="app.css">
   <style>
-    /* Keep the core combat loop visible even when mobile browser chrome leaves a short visual viewport. */
+    /* Keep the core combat loop visible when mobile browser chrome leaves a short viewport. */
     @media (max-height:550px) and (max-width:560px) {
       body[data-screen="question"] .topbar { margin-bottom:8px; }
       body[data-screen="question"] .mission-head { display:flex; margin-bottom:6px; }
@@ -23,6 +23,11 @@
       body[data-screen="question"] .coin-chip { min-height:21px; padding:2px 7px; }
       body[data-screen="question"] .battle-status { display:none; }
       body[data-screen="question"] .shield-row { margin:0 10%; }
+    }
+    /* Only while a software keyboard is consuming an extremely short viewport, prioritize the typing control. */
+    @media (max-height:450px) and (max-width:560px) {
+      body[data-screen="question"]:has(#answer-input:focus) .mission-head,
+      body[data-screen="question"]:has(#answer-input:focus) .battle-stage { display:none; }
     }
   </style>
 </head>
