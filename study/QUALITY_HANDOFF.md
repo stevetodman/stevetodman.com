@@ -32,6 +32,15 @@ small keyboard viewport, the twelfth-travel-session boss without perfect mastery
 and phone/desktop screenshots uploaded as CI artifacts. These NEW tests need a
 fresh CI result; do not infer success from checkpoint3.
 
+Checkpoint4 CI33132703749 passed36/38. The two failures were verification-harness
+issues: installing another fake clock over the existing reading-time fixture,
+and comparing CSS-uppercase enemy text case-sensitively. Corrections use the real
+browser reward deadline and a case-insensitive exact name. Rerun is required.
+The manual phone round finished all10 questions (including a final-question
+reload), accepted an alternate correction, used assisted spelling, and showed
+the new victory screen. Local recorded estimate:7m45s learning /52s menus and
+rewards. This tool-driven, interrupted session is NOT a child-attention study.
+
 The complete illustrated atlas and two world backdrops are now included under
 `study/unit-1/assets/` with prompt provenance. Phone home/question screens were
 visually inspected; atlas clipping was corrected. All32 equipment combinations

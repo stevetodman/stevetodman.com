@@ -336,18 +336,20 @@ describe('Unit 1 Word Expedition', () => {
 
   test('reward countdown survives preview navigation and expires without spending', async () => {
     const context=await fastContext();const page=await context.newPage();
-    await page.clock.install();await page.goto(server.origin+'/study/');
+    // Exercise the real browser deadline. Installing a second fake clock over
+    // fastContext's reading-time fixture changes timer initialization order.
+    await page.goto(server.origin+'/study/');
     await page.locator('[data-profile="Luke"]').click();
     for(let i=0;i<10;i++)await answerCurrentQuestion(page);
     await page.locator('#visit-shop').click();
     const first=Number(await page.locator('#reward-break-progress').getAttribute('value'));
     assert.match(await page.locator('#reward-break-note').innerText(),/Coins and gear stay saved/);
-    await page.clock.runFor(3000);
+    await page.waitForTimeout(3000);
     await page.locator('[data-item="copper-blade"]').click();await page.locator('#cancel-gear').click();
     const second=Number(await page.locator('#reward-break-progress').getAttribute('value'));
     assert.ok(second<=first-2900,'reopening the shop does not restart its allowance');
     await page.locator('[data-item="copper-blade"]').click();
-    await page.clock.runFor(26000);
+    await page.locator('[data-profile="Luke"]').waitFor({state:'visible',timeout:30000});
     assert.equal(await page.locator('[data-profile="Luke"]').count(),1);
     const game=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')).learners.Luke);
     assert.deepEqual(game.purchases,{});assert.equal(game.equipped.weapon,'starter-sword');
@@ -382,7 +384,7 @@ describe('Unit 1 Word Expedition', () => {
         await page.screenshot({path:path.join(directory,width+'-'+screen+'.png'),fullPage:true});
       }
       await capture('home');await page.locator('[data-profile="Luke"]').click();
-      assert.equal(await page.locator('.enemy-name').innerText(),'The Word Keeper');
+      assert.match(await page.locator('.enemy-name').innerText(),/^The Word Keeper$/i);
       assert.equal(await page.locator('.question-count').innerText(),'1 / 10');
       await capture('boss-question');
       for(let i=0;i<10;i++)await answerCurrentQuestion(page);
