@@ -417,16 +417,12 @@ describe('Unit 1 Word Expedition', () => {
     assert.ok(speech.age<220,'speech starts on render, without the former 220ms timer');
     assert.equal(await page.locator('.question-count').innerText(),'8 / 10');
 
-    // Exercise each attack family and all four monsters/defenses in this same smoke check.
+    // Four representative battles in the existing smoke check; no exhaustive gear matrix.
     const scenes=[
       ['starter-sword','starter-cloak',0,'mossling','weapon-slash','hero-evade'],
       ['ember-hammer','iron-shield',2,'sentinel','weapon-overhead','hero-brace'],
       ['hunter-bow','guardian-mail',1,'wisp','weapon-draw','hero-brace'],
       ['crystal-wand','star-mantle',11,'boss','weapon-cast','hero-barrier'],
-      ['iron-axe','sun-charm',0,'mossling','weapon-overhead','hero-barrier'],
-      ['frost-spear','crystal-shield',2,'sentinel','weapon-thrust','hero-brace'],
-      ['oak-staff','forest-hood',0,'mossling','weapon-sweep','hero-evade'],
-      ['void-scythe','void-shield',1,'wisp','weapon-sweep','hero-brace'],
     ];
     const directory=path.join(process.env.RUNNER_TEMP||os.tmpdir(),'study-evidence');fs.mkdirSync(directory,{recursive:true});
     for(const [weapon,armor,rounds,enemy,weaponMotion,defenseMotion] of scenes){

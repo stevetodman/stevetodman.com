@@ -402,7 +402,7 @@ body[data-screen="question"] .pips { display:none; }
 .battle-stage[data-enemy="wisp"][data-state="counter"] .enemy-fighter { animation-name:wisp-dart; }
 .battle-stage[data-enemy="boss"][data-state="counter"] .enemy-fighter { animation-name:owl-cast; }
 .battle-stage:is([data-enemy="wisp"],[data-enemy="boss"])[data-state="counter"] .enemy-projectile { animation:projectile-in .16s linear .04s forwards; }
-.battle-stage[data-enemy="sentinel"][data-state="counter"] .ground-ripple { border-color:var(--enemy-effect);animation:ground-wave .28s ease-out .20s forwards; }
+.battle-stage[data-enemy="sentinel"][data-state="counter"] .ground-ripple { border-color:var(--enemy-effect);animation:golem-wave .28s ease-out .20s forwards; }
 .battle-stage[data-enemy="mossling"][data-state="counter"] .enemy-projectile { width:26px;height:30px;background:none;box-shadow:none;border-left:3px solid var(--enemy-effect);border-right:3px solid var(--enemy-effect);border-radius:40%;animation:projectile-in .16s linear .04s forwards; }
 .battle-stage[data-state="counter"] .hero-fighter { animation:hero-brace .48s ease; }
 .battle-stage[data-defense="evade"][data-state="counter"] .hero-fighter { animation-name:hero-evade; }
@@ -425,6 +425,7 @@ body[data-screen="question"] .pips { display:none; }
 @keyframes projectile-in { 0%{left:100%;opacity:1}95%{opacity:1}100%{left:0;opacity:0} }
 @keyframes contact-flash { 0%{opacity:1;scale:.65;rotate:-25deg}100%{opacity:0;scale:1.4;rotate:25deg} }
 @keyframes ground-wave { 0%{opacity:.9;transform:scale(.35)}100%{opacity:0;transform:scale(1.45)} }
+@keyframes golem-wave { 0%{opacity:.9;transform:scale(.35)}100%{opacity:0;transform:scale(1.45)} }
 @keyframes troll-stagger { 0%{transform:translateX(10px) rotate(9deg)}100%{transform:none} }
 @keyframes wisp-caught { 0%{transform:translate(9px,-8px);opacity:.4;filter:brightness(1.7)}100%{transform:none;opacity:1} }
 @keyframes golem-crack { 0%{transform:translateX(5px) rotate(3deg);filter:brightness(1.6)}30%{transform:translateX(-3px)}65%{transform:translateX(3px)}100%{transform:none} }
