@@ -2,7 +2,16 @@
 
 ## Word Expedition game artwork
 
-The Word Expedition character, equipment, monster, route, interface-icon, and effect artwork in `study/unit-1/game-art.js` is original, code-generated SVG created for this project. It does not incorporate third-party image assets.
+Word Expedition uses generated raster artwork for characters, equipment, monsters,
+and scenery, displayed from WebP atlases through SVG crop viewports. Artwork was
+created for this project with OpenAI's built-in image generation; Adobe background
+removal produced the transparent character and equipment cutouts. Source prompts,
+selected outputs, and processing details are recorded in
+`study/unit-1/assets/PROVENANCE.md`.
+
+Route markers, interface shapes, and combat effects are code-generated SVG/CSS.
+Earlier SVG character renderers remain in the source but are not the production
+character artwork. No stock-image source is used for the expedition artwork.
 
 ## 50 States map geometry
 

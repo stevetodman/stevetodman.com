@@ -13,7 +13,7 @@ function model(audio) {
   const source=read('study/unit-1/app.js');
   vm.runInNewContext(source.slice(0,source.indexOf("  chip.setAttribute('aria-label'"))+`
     window.test={sanitizeGameProfile,applyCloudGame,gameProfile,gameXp,coinBalance,makeQuestion,isAccepted,WORDS,savedRound,savedGearChoice,recordResult,
-      playWeaponSound,sessionCoinAward,monsterCounts,questionPromptHTML,monsterTauntHTML,
+      playWeaponSound,sessionCoinAward,monsterCounts,questionPromptHTML,monsterTauntHTML,journeySentence,
       setSession:(value)=>{session=value;activeName='Luke';},stats:()=>profile('Luke').stats};
   })();`,context);
   return {...context.window.test,storage,quality:context.window.WordExpeditionQuality};
@@ -39,6 +39,8 @@ test('cloud union keeps disjoint sessions and never lowers a duplicate reward',(
   m.applyCloudGame('Luke',{rewards:{'session-0':{xp:1,coins:1}}});
   assert.equal(m.monsterCounts('Luke').mossling,2,'repeat battles count once each despite stale cloud writes');
   assert.equal(m.monsterCounts('Samantha').mossling,0);
+  assert.match(m.journeySentence('Luke'),/one final adventure/);
+  assert.match(m.journeySentence('Samantha'),/Adventure 1 of 12/);
 });
 test('legacy totals survive normalization and unsafe reward keys are ignored',()=>{
   const m=model();
@@ -46,6 +48,7 @@ test('legacy totals survive normalization and unsafe reward keys are ignored',()
   assert.equal(clean.rewards._legacy.xp,5000);assert.equal(Object.keys(clean.rewards).length,1);
   m.applyCloudGame('Luke',{bossDefeatedAt:'2026-08-28T12:00:00Z',rewards:{old:{xp:20,coins:8},bad:{monster:'unknown'}}});
   assert.equal(m.monsterCounts('Luke').boss,1,'explicit historical boss victory stays collected');
+  assert.match(m.journeySentence('Luke'),/^Castle reached!/);
   assert.equal(m.monsterCounts('Luke').mossling,0,'do not invent monsters for old unclassified battles');
 });
 test('server merge retains >160 entries and is commutative for reward values',()=>{

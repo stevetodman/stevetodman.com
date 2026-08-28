@@ -2,7 +2,7 @@
 
 Built-in image_gen tool. Generated 2026-08-28. No CLI/API fallback.
 
-Production derivatives are `expedition-sprites.webp` (1254x1254, alpha retained),
+Original production derivatives were `expedition-sprites.webp` (1254x1254, alpha retained),
 `forest-clearing.webp` and `expedition-world.webp` (1200x800). Mechanical WebP
 compression/resizing only; no scene edits. Atlas crop viewports explicitly use
 preserveAspectRatio=none to avoid neighboring sprites bleeding into letterboxes.
@@ -53,13 +53,13 @@ Background correction: Replace every checkerboard pixel with a flat very dark fo
 
 ## Expanded equipment — August 28, 2026
 
-Built-in image generation; selected 1536x1024 RGB source, encoded mechanically as `extra-gear.webp`. Six columns and three rows, separate from the original hero/gear atlas. Black background is composited with screen blending when worn; the shop feathers cell edges. No claim of transparent alpha.
+Original version, superseded by the alpha cleanup below: built-in image generation; selected 1536x1024 RGB source, encoded mechanically as `extra-gear.webp`. Six columns and three rows, separate from the original hero/gear atlas. This version used black-background screen blending and feathered shop edges.
 
 Prompt: Exactly 18 isolated polished painterly 3D fantasy equipment icons on pure black, 6 columns by 3 rows, complete items centered with margins and no labels. Row 1: oak staff, iron axe, hunter bow, frost spear, ember hammer, thunder blade. Row 2: crystal wand, dragon blade, void scythe, iron shield, ember buckler, crystal shield. Row 3: thunder shield, dragon shield, void shield, oak charm, frost charm, sun charm. Weapons point diagonally up-right; shields face forward; charms upright. Family-friendly, no blood or gore.
 
 ## Hero attack poses — August 28, 2026
 
-Built-in image generation, reference: original expedition atlas. `hero-poses.webp`
+Original version, superseded by the alpha cleanup below: built-in image generation, reference: original expedition atlas. `hero-poses.webp`
 is the selected 1536x1024 RGB black-background sheet (24 poses, 270398 bytes),
 mechanically WebP-encoded at quality 88. Screen compositing is used during battle;
 this is not alpha transparency. The first painted-checkerboard output was rejected.
@@ -94,3 +94,28 @@ painted checkerboard; only the Adobe cutout, not that RGB source, ships.
 
 Prompt:
 Use case: background-extraction. Edit target: attached monster sprite atlas. Remove the entire dark green background and return a TRANSPARENT PNG with actual RGBA alpha: every background pixel has alpha=0, not a painted checkerboard, not a solid-color replacement. Four complete isolated monster cutouts in their existing 2x2 layout. Preserve exactly these four monsters, their positions, silhouettes, colors, eyes, textures, claws, horns, feathers and sharp edges. Preserve all edge details with crisp antialiasing. NO circular feathering, no vignette, no backdrop, no ground, no halo, no borders, no fake transparency pattern. Make the faces and body surfaces slightly more clearly lit so they read on a dark forest, with sharp detailed outlines. All four monsters fully visible inside their own square cell with safe margins. Output a true transparent sprite sheet suitable for direct compositing over game scenery.
+
+
+## Hero and equipment alpha cleanup — August 28, 2026
+
+Current production files:
+- `expedition-sprites.webp`: 1254x1254 RGBA; eight standing heroes and four starter weapons. The unused original monster row is now empty padding. The separate fierce monster atlas is unchanged.
+- `extra-gear.webp`: 1536x1024 RGBA; all 18 equipment items retained.
+- `hero-poses.webp`: 1536x1024 RGBA; all 24 attack poses retained.
+
+Mode: reference edits with the built-in image generation tool for standing-atlas edge repair and removal of unused sprites, followed by user-approved Adobe background removal. Extra equipment and attack poses used Adobe background removal directly, without redesign. Initial cutouts that retained colored edge contamination were rejected. The selected standing-atlas edit outputs were `exec-dfc8e75b-d5ce-473f-8f06-f4e67b1bf2d5.png` and `exec-8998f2a8-86f0-4510-95bb-61d6cd68d928.png`.
+
+Selected Adobe cutout request IDs:
+- Standing heroes and starter gear: `5331b1bd-742b-4649-af03-309203c22955`.
+- Extra gear: `99103982-8db2-49ef-9e25-15020c20f95d`.
+- Attack poses: `75b6c253-8d2c-40bf-ad14-55d2fa364c63`.
+
+Each selected PNG was mechanically encoded as WebP, quality 92, with alpha retained and verified (0–255). No semantic pixel edits, sharpening, or background-removal filters were applied in code. The CSS screen blending and circular gear feathering are removed. Explicit item metadata now maps each sprite to its own cell, grip, size, tilt and reach; equipment preserves its proportions and follows each hero/outfit's pose attachment points. A small SVG grip mask lets the existing hand show over the handle. Standing-atlas row boundaries are now 0/330/654/946/1254; the empty third row prevents old foliage from bleeding below Samantha's boots.
+
+A code-native SVG preview was rendered and inspected on a forest-colored background for both heroes with swords, bow, hammer, shield and charm. This is asset/composition preflight, not a browser or physical-device check.
+
+### Standing-atlas edge repair prompt
+Use case: precise-object-edit. Asset type: existing 4x4 game sprite atlas edge repair. Edit target: attached atlas. Repair ONLY the red/magenta/yellow/cyan checkerboard and speckled edge contamination around all 16 sprites. Preserve the exact identities, faces, poses, outfits, weapon designs, colors, full silhouettes, positions, sizes and layout. The top two rows are Luke and Samantha in four outfits; their open hands, elbow and body positions must remain identical for game attachment coordinates. Bottom row swords and wand must retain their exact angles and proportions. Do not redesign or rearrange anything. Reconstruct clean, crisp antialiased edges without colored halos. Replace all empty background with flat pure WHITE #FFFFFF, including gaps inside hands and equipment; no checkerboard, shadows, glow discs, gradients or text. Preserve legitimate gold stars and magic ornamentation, but remove colored garbage beyond the actual silhouette. Output 1254x1254 with unchanged original sprite placement; we will remove the white background in a separate production cutout pass.
+
+### Unused monster row removal prompt
+Use case: precise-object-edit. Edit target: repaired sprite atlas. Remove ONLY the four unused monster sprites in the third row (the moss creature, purple wisp, stone golem, purple owl, between approximately y=654 and y=950). Replace their complete silhouettes and particles with pure white background. Preserve ALL eight heroes in the top two rows and ALL four weapons in the bottom row exactly: same positions, dimensions, poses, colors, hands, sharp edges and complete boots. Do not crop or move any remaining sprite. The third row must be entirely empty white padding separating the heroes from the weapons. Preserve 1254x1254 dimensions. No text or checkerboard. Do not alter the monsters used in our game: these are old unused atlas sprites only.
