@@ -7,31 +7,35 @@ Base: `f069e8d4bef4c7e7e03cff63ea06514af401fcc3`
 Read `QUALITY_PLAN.md` and `STUDY_CONTRACT.md` first. This is a recovery checkpoint,
 not App Store-quality sign-off. Production is unchanged by this branch.
 
-## Current work — checkpoint 2
+## Current work — checkpoint 4
 
 Latest owner clarification: in-game purchases with earned study coins ARE allowed;
 REAL MONEY is not. No checkout, paid currency, subscriptions or monetization.
 
-Verified checkpoint2 remotely: GitHub Study contract run33132006448 on commit
-`c3e6287db7e1fa39de3ba1ffce1439b38ec97857` passed33/33 tests (zero failures or
-cancellations). Includes actual Chromium sessions, pause/reload/correction/final
-question recovery, gear preview/spend/re-equip, and simulated-time90/10 assertion.
-Local platform checks25/25 passed after adding artwork provenance.
+Verified checkpoint3 remotely: GitHub Study contract run33132259813 on commit
+`5a309b8fe77f8b8dad9f3e6267b8c8a5614c1bc2` succeeded. Actual Chromium sessions,
+pause/reload/correction/final-question recovery, preview/spend/re-equip, simulated
+90/10 timing and five-screen serious/critical accessibility scans all passed.
+Platform checks25/25 and build139files /25 indexed pages also passed in that run.
 
 The32 hero equipment combinations and four creatures were rendered together and
 visually inspected; all were readable and showed the correct equipment, with no
 neighboring sprite bleed. A phone playtest accepted `discontinue` as a correction
 for `cancel` even though the suggested first answer was `stop`.
 
-Additional current refinement: hide redundant question pips visually, retain
-enemy defeat until summary, add expandable learning progress, increase small
-phone labels, and run serious/critical accessibility checks through five screens.
-The latest refinement requires its own CI result before release.
+Current refinement: visible reward-break countdown/progress, no 1.5-second budget
+extension, a readable model for assisted tiles when audio fails, persisted tile
+choices across reload (still assisted, never silently promoted to mastery), and
+recorded interaction-time estimates in Learning progress. No countdown on questions.
+Additional tests cover reward expiry without spending, tile recovery/audio failure,
+small keyboard viewport, the twelfth-travel-session boss without perfect mastery,
+and phone/desktop screenshots uploaded as CI artifacts. These NEW tests need a
+fresh CI result; do not infer success from checkpoint3.
 
 The complete illustrated atlas and two world backdrops are now included under
 `study/unit-1/assets/` with prompt provenance. Phone home/question screens were
-visually inspected; atlas clipping was corrected. All outfits still need the full
-rendered gallery review. No new image generation is required.
+visually inspected; atlas clipping was corrected. All32 equipment combinations
+were reviewed in the rendered gallery. No new image generation is required.
 
 Implemented since checkpoint1: compact storybook game layout; meaningful labels;
 shorter definition prompts; explicit word/sentence audio; try-on before spending;
@@ -39,15 +43,15 @@ free re-equip and starter gear; local timing including post-session activity;
 bounded reward phase; route-based boss release valve; content-hashed asset URLs
 in the production build. Production is still unchanged.
 
-Current verification:21 unit checks pass, syntax/diff checks pass, build139files /
-25 indexed pages. Browser suite adds pause/reload/final-question/preview/timing
-scenarios; CI verification is NEXT, not yet claimed. Local Chromium remains absent.
+Current local verification:21 unit checks, syntax/diff checks and build passed.
+Local Chromium remains absent; the working GitHub CI runner supplies it. Do not
+repeat failed local browser downloads.
 
 Known open review items:
-- Reward timeout can be too abrupt for very fast rounds; measure and refine without
-  pretending all real child behavior is guaranteed90/10.
-- Check full rendered shop, all equipment combinations, reduced motion, keyboard.
-- Confirm real browser timing/round recovery assertions in CI.
+- Complete the current local phone playthrough and review the revised shop timer.
+- Confirm the new browser scenarios and inspect the uploaded rendered evidence.
+- Very fast rounds may have no reward allowance; never claim all behavior is
+  guaranteed90/10. Menu time before practice can already exceed the target.
 - Production server merge source still requires separately authorized deployment.
 - Real iOS audio/keyboard and child enjoyment need physical-device/family evidence.
 

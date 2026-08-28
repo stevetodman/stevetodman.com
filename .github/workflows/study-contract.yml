@@ -47,6 +47,13 @@ jobs:
       - run: npm run test:study
       - run: npm run test:platform
       - run: npm run build
+      - name: Save rendered Study evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: study-rendered-evidence
+          path: ${{ runner.temp }}/study-evidence/
+          if-no-files-found: warn
 
   production_canary:
     name: Study production canary

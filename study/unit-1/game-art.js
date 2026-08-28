@@ -2,12 +2,12 @@
   'use strict';
 
   var CATALOG = [
-    { id:'copper-blade', type:'weapon', name:'Copper Blade', price:8, unlockAt:1, rarity:'Trail gear' },
-    { id:'moon-blade', type:'weapon', name:'Moon Blade', price:12, unlockAt:3, rarity:'Moonforged' },
-    { id:'star-wand', type:'weapon', name:'Star Wand', price:12, unlockAt:7, rarity:'Starbound' },
-    { id:'forest-hood', type:'armor', name:'Forest Hood', price:16, unlockAt:2, rarity:'Trail gear' },
-    { id:'guardian-mail', type:'armor', name:'Guardian Mail', price:24, unlockAt:5, rarity:'Guardian' },
-    { id:'star-mantle', type:'armor', name:'Star Mantle', price:24, unlockAt:9, rarity:'Starbound' }
+    { id:'copper-blade', type:'weapon', name:'Copper Blade', price:8, rarity:'Trail gear' },
+    { id:'moon-blade', type:'weapon', name:'Moon Blade', price:12, rarity:'Moonforged' },
+    { id:'star-wand', type:'weapon', name:'Star Wand', price:12, rarity:'Starbound' },
+    { id:'forest-hood', type:'armor', name:'Forest Hood', price:16, rarity:'Trail gear' },
+    { id:'guardian-mail', type:'armor', name:'Guardian Mail', price:24, rarity:'Guardian' },
+    { id:'star-mantle', type:'armor', name:'Star Mantle', price:24, rarity:'Starbound' }
   ];
   var VALID_ITEMS = ['starter-sword','starter-cloak'].concat(CATALOG.map(function (item) { return item.id; }));
   var PALETTES = {

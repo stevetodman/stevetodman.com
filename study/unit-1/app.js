@@ -64,6 +64,7 @@
   var speechTimer=null;
   var rewardTimer=null;
   var rewardDeadline=0;
+  var rewardAllowance=0;
   var selectedGear=null;
 
   function saveTiming(){
@@ -294,9 +295,10 @@
       var weak=WORDS.filter(function(word){return wordLevel(name,word)!=='mastered';}).slice(0,3).map(function(word){return word.word;});
       var vocab=WORDS.filter(function(word){return assignedDomains(word).filter(function(domain){return domain!=='spelling';}).every(function(domain){return (getStat(name,word.word,domain).correctDays||[]).length>0;});}).length;
       var spelling=WORDS.filter(function(word){return (getStat(name,word.word,'spelling').correctDays||[]).length>=2;}).length;
-      return '<section><h3>'+esc(name)+'</h3><p>Meanings practiced: '+vocab+'/12 · Spelling across two days: '+spelling+'/12</p><p>'+(weak.length?'Keep practicing: '+esc(weak.join(', ')):'All 12 words mastered.')+'</p>'+(last?'<p>Last adventure: '+last.correct+'/10 on the first try.</p>':'')+'</section>';
+      return '<section><h3>'+esc(name)+'</h3><p>Meanings practiced: '+vocab+'/12 · Spelling across two days: '+spelling+'/12</p><p>'+(weak.length?'Keep practicing: '+esc(weak.join(', ')):'All 12 words mastered.')+'</p>'+(last?'<p>Last adventure: '+last.correct+'/10 on the first try.</p>':'')+(last&&last.timing?'<p class="timing-note">Recorded active time: '+formatDuration(last.timing.learning)+' learning · '+formatDuration(last.timing.play)+' menus and rewards. Interaction-based estimate; idle and background time excluded.</p>':'')+'</section>';
     }).join('')+'<p class="mastery-explainer">A mastery seal means correct meanings, two spelling days, and practice across three different days. Letter tiles help learning but do not earn a spelling day.</p></details>';
   }
+  function formatDuration(ms){var seconds=Math.max(0,Math.round((Number(ms)||0)/1000));return Math.floor(seconds/60)+'m '+seconds%60+'s';}
 
   function cloudStatusText() {
     if (!CLOUD_ENABLED) return 'Saved on this device';
@@ -535,6 +537,7 @@
     if(q.kind==='choice')wireChoices(q);else wireInput(q);
     if(q.listen){document.getElementById('listen').addEventListener('click',function(){speakWord(q.word);});speechTimer=setTimeout(function(){if(session&&session.questions[session.index]===q)speakWord(q.word);},220);}
     if(q.spelling)document.getElementById('hear-sentence').addEventListener('click',function(){speakWord(q.word,true);});
+    if(q.spelling&&session.tileQuestion===session.index)showLetterTiles(q);
     var input=document.getElementById('answer-input');if(input&&session.draftValue)input.value=session.draftValue;
     if(session.results.length>session.index){disableAnswerArea();var result=session.results[session.index];if(session.resolved){if(result.assisted)showAssistedFeedback(q);else showPositiveFeedback(q);}else showCorrection(q);}
   }
@@ -615,15 +618,19 @@
     var form=document.getElementById('correction-form'),input=document.getElementById('correction-input');input.focus();
     form.addEventListener('submit',function(e){e.preventDefault();if(!isAccepted(q,input.value)){document.getElementById('correction-note').textContent='Use one of the school answers shown above.';input.select();return;}form.innerHTML='<p class="correction-success">That’s it. Your strike lands.</p>';landHit('recovery');session.resolved=true;saveRound();activityClock.mode('play');advanceTimer=setTimeout(nextQuestion,480);});
   }
-  function nextQuestion(){if(!session)return;if('speechSynthesis'in window)window.speechSynthesis.cancel();session.index+=1;session.draftValue='';session.resolved=false;saveRound();renderQuestion();}
+  function nextQuestion(){if(!session)return;if('speechSynthesis'in window)window.speechSynthesis.cancel();session.index+=1;session.draftValue='';session.resolved=false;session.tileQuestion=null;session.tileChoiceIds=[];saveRound();renderQuestion();}
 
   function showLetterTiles(q) {
     var letters=shuffle(q.word.word.split('').map(function(letter,index){return {letter:letter,id:index};}));
-    var chosen=[];
+    var ids=session.tileQuestion===session.index&&Array.isArray(session.tileChoiceIds)?session.tileChoiceIds:[];
+    var chosen=ids.filter(function(id,index){return Number.isInteger(id)&&id>=0&&id<letters.length&&ids.indexOf(id)===index;}).map(function(id){return letters.find(function(letter){return letter.id===id;});});
+    session.tileQuestion=session.index;
     function draw(message){
-      document.getElementById('answer-area').innerHTML='<div class="tile-builder"><div class="built-word" aria-label="Built word">'+(chosen.length?chosen.map(function(x){return '<button type="button" class="built-tile" data-remove="'+x.id+'">'+esc(x.letter)+'</button>';}).join(''):'<span>Build the word here</span>')+'</div><div class="tile-bank">'+letters.filter(function(x){return !chosen.some(function(c){return c.id===x.id;});}).map(function(x){return '<button type="button" class="letter-tile" data-tile="'+x.id+'">'+esc(x.letter)+'</button>';}).join('')+'</div><button type="button" class="submit-button tile-check" id="tile-check" '+(chosen.length===letters.length?'':'disabled')+'>Check tiles</button><p class="correction-note">'+esc(message||'')+'</p></div>';
-      app.querySelectorAll('[data-tile]').forEach(function(button){button.addEventListener('click',function(){var item=letters.find(function(x){return String(x.id)===button.getAttribute('data-tile');});chosen.push(item);draw();});});
-      app.querySelectorAll('[data-remove]').forEach(function(button){button.addEventListener('click',function(){chosen=chosen.filter(function(x){return String(x.id)!==button.getAttribute('data-remove');});draw();});});
+      document.getElementById('answer-area').innerHTML='<div class="tile-builder"><p class="tile-model">Read it, then build it: <strong>'+esc(q.word.word)+'</strong></p><div class="built-word" aria-label="Built word">'+(chosen.length?chosen.map(function(x){return '<button type="button" class="built-tile" data-remove="'+x.id+'">'+esc(x.letter)+'</button>';}).join(''):'<span>Build the word here</span>')+'</div><div class="tile-bank">'+letters.filter(function(x){return !chosen.some(function(c){return c.id===x.id;});}).map(function(x){return '<button type="button" class="letter-tile" data-tile="'+x.id+'">'+esc(x.letter)+'</button>';}).join('')+'</div><button type="button" class="submit-button tile-check" id="tile-check" '+(chosen.length===letters.length?'':'disabled')+'>Check tiles</button><p class="correction-note">'+esc(message||'')+'</p></div>';
+      session.tileChoiceIds=chosen.map(function(x){return x.id;});saveRound();
+      function focusTile(){var target=app.querySelector('.letter-tile')||document.getElementById('tile-check');if(target)target.focus({preventScroll:true});}
+      app.querySelectorAll('[data-tile]').forEach(function(button){button.addEventListener('click',function(){var item=letters.find(function(x){return String(x.id)===button.getAttribute('data-tile');});chosen.push(item);draw();focusTile();});});
+      app.querySelectorAll('[data-remove]').forEach(function(button){button.addEventListener('click',function(){chosen=chosen.filter(function(x){return String(x.id)!==button.getAttribute('data-remove');});draw();focusTile();});});
       document.getElementById('tile-check').addEventListener('click',function(){var answer=chosen.map(function(x){return x.letter;}).join('');if(normalize(answer)===normalize(q.word.word))submitAnswer(q,answer,null,true);else draw('Almost—tap a letter above to move it back.');});
     }
     draw('Tiles help you learn; typing earns mastery.');
@@ -657,28 +664,36 @@
       saveGameState();
     } else { xpAward=0;coinAward=0; }
     var newLevel=levelForXp(gameXp(activeName)),leveledUp=newLevel>oldLevel;
-    session.rewarded=true;rewardDeadline=performance.now()+Math.min(25000,QUALITY.playBudget(activityClock.snapshot()));try{localStorage.removeItem(ROUND_KEY+activeName);}catch(_){}
+    session.rewarded=true;rewardAllowance=Math.min(25000,QUALITY.playBudget(activityClock.snapshot()));rewardDeadline=performance.now()+rewardAllowance;try{localStorage.removeItem(ROUND_KEY+activeName);}catch(_){}
     setChip(activeName);
     app.innerHTML='<section class="panel summary game-summary">'+
       '<div class="victory-lockup"><div class="summary-hero">'+ART.hero(activeName,gp.equipped,'victory')+(bossWon?'<span class="unit-crown" aria-hidden="true">✦</span>':'')+'</div><div><p class="eyebrow">'+(bossWon?'Adventure complete':'Expedition complete')+'</p><h2>'+(bossWon?'The castle is yours!':esc(activeName)+', the path is clear.')+'</h2><p>'+(bossWon?'You restored the realm. Keep practicing any words that still need a mastery seal.':session.strengthened.size+' '+(session.strengthened.size===1?'word got':'words got')+' stronger'+(newStamps?' and '+newStamps+' new '+(newStamps===1?'seal was':'seals were')+' restored.':'.'))+'</p></div></div>'+
       '<div class="reward-row" aria-label="Expedition rewards"><span><strong>+'+xpAward+'</strong> XP earned</span><span><strong>+'+coinAward+'</strong> study coins</span><span><strong>Level '+newLevel+'</strong>'+(leveledUp?'New level!':'Your hero')+'</span></div>'+
       ART.routeMap(Math.min(12,gp.sessionsCompleted),gameLevels(activeName))+
-      '<div class="summary-actions"><button type="button" class="primary-button" id="summary-done">Done for now</button><button type="button" class="secondary-button" id="visit-shop">Choose gear</button></div><p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p></section>';
+      '<div class="summary-actions"><button type="button" class="primary-button" id="summary-done">Done for now</button><button type="button" class="secondary-button" id="visit-shop">Choose gear</button></div>'+rewardBreakHTML()+'<p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p></section>';
     resetView('.game-summary h2');
     if(newStamps||correct>=8)celebrate();
     document.getElementById('visit-shop').addEventListener('click',function(){selectedGear=null;showShop();});
     document.getElementById('summary-done').addEventListener('click',showProfilePicker);
     scheduleRewardEnd();
   }
+  function rewardBreakHTML(){return '<div class="reward-break"><p id="reward-break-note">A short reward break. Coins and gear stay saved.</p><progress id="reward-break-progress" max="'+Math.max(1,rewardAllowance)+'" value="'+Math.max(0,rewardDeadline-performance.now())+'" aria-label="Reward break time remaining"></progress></div>';}
+  function endExpiredRewardBreak(){
+    if(!session||!session.rewarded)return true;
+    if(performance.now()<rewardDeadline)return false;
+    showProfilePicker();showToast('Adventure complete. Coins and gear are saved.');return true;
+  }
   function scheduleRewardEnd(){
     clearTimeout(rewardTimer);
-    // No forced extra study. A quiet exit preserves every earned item.
+    // Navigation and preview share one allowance; neither can restart it.
+    if(endExpiredRewardBreak())return;
     var remaining=Math.max(0,rewardDeadline-performance.now());
     var link=document.getElementById('visit-shop');
     if(link&&remaining<4000){link.disabled=true;link.textContent='Gear saved for next time';}
     var note=document.getElementById('reward-break-note');
-    if(note)note.textContent='A short reward break · gear stays yours';
-    rewardTimer=setTimeout(function(){if(session&&session.rewarded){showProfilePicker();showToast('Adventure saved. Your gear is ready next time.');}},Math.max(1500,remaining));
+    if(note)note.textContent='Back to heroes in '+Math.ceil(remaining/1000)+'s. Coins and gear stay saved.';
+    var progress=document.getElementById('reward-break-progress');if(progress)progress.value=remaining;
+    rewardTimer=setTimeout(scheduleRewardEnd,Math.min(1000,remaining));
   }
 
   function gearItemHTML(item) {
@@ -687,12 +702,13 @@
     return '<article class="shop-card '+(equipped?'equipped ':'')+(owned?'owned':'')+'"><div class="shop-art">'+ART.itemIcon(item)+'</div><div class="shop-copy"><span class="item-rarity">'+esc(item.rarity)+'</span><h3>'+esc(item.name)+'</h3></div><button type="button" class="shop-action" data-item="'+esc(item.id)+'" '+(equipped||(!owned&&!affordable)?'disabled':'')+' aria-label="'+esc(item.name+': '+label)+'">'+esc(label)+'</button></article>';
   }
   function showShop(keepPosition) {
+    if(endExpiredRewardBreak())return;
     activityClock.mode('play');document.body.dataset.screen='shop';
     var gp=gameProfile(activeName);
     setChip(activeName);
     app.innerHTML='<section class="merchant-head"><div><p class="eyebrow">Trail shop · a quick reward break</p><h2>Make it yours</h2><p>Study coins only. No real money. Gear changes the adventure’s look, never the questions.</p></div><div class="wallet"><span aria-hidden="true">◆</span><strong>'+coinBalance(activeName)+'</strong><small>study coins</small></div></section>'+
       '<section class="merchant-preview" id="gear-preview"><div class="preview-glow"></div>'+ART.hero(activeName,gp.equipped,'ready')+'<div><span>Level '+levelForXp(gameXp(activeName))+'</span><strong>'+esc(activeName)+'</strong><small>'+esc((itemById(gp.equipped.weapon)||{name:'Starter Sword'}).name)+' · '+esc((itemById(gp.equipped.armor)||{name:'Starter Cloak'}).name)+'</small><button type="button" class="starter-button" id="starter-gear">Wear starter gear</button></div></section>'+
-      '<div class="shop-grid">'+GAME_CATALOG.map(gearItemHTML).join('')+'</div><button type="button" class="secondary-button merchant-done" id="shop-done">Done for now</button>';
+      rewardBreakHTML()+'<div class="shop-grid">'+GAME_CATALOG.map(gearItemHTML).join('')+'</div><button type="button" class="secondary-button merchant-done" id="shop-done">Done for now</button>';
     if(!keepPosition)resetView('.merchant-head h2');
     app.querySelectorAll('[data-item]').forEach(function(button){button.addEventListener('click',function(){previewGear(button.getAttribute('data-item'));});});
     document.getElementById('starter-gear').addEventListener('click',function(){gp.equipped={weapon:'starter-sword',armor:'starter-cloak'};saveGameState();scheduleCloudPush();showShop(true);showToast('Starter gear equipped. Your collection is safe.');});
@@ -700,6 +716,7 @@
     scheduleRewardEnd();
   }
   function previewGear(id){
+    if(endExpiredRewardBreak())return;
     var item=itemById(id);if(!item)return;
     var gp=gameProfile(activeName),equipped=Object.assign({},gp.equipped);equipped[item.type]=id;selectedGear=id;
     var owned=gp.owned.indexOf(id)>=0;
@@ -710,6 +727,7 @@
     document.getElementById('confirm-gear').focus({preventScroll:true});
   }
   function buyOrEquip(id) {
+    if(endExpiredRewardBreak())return;
     var item=itemById(id),gp=gameProfile(activeName);if(!item)return;
     if(gp.owned.indexOf(id)<0){
       if(coinBalance(activeName)<item.price)return;

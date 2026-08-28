@@ -2,6 +2,7 @@ import { test, before, after, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import { startServer, getChromium, watchForErrors, repoRoot } from './helpers/harness.mjs';
 
 let server, browser;
@@ -19,6 +20,11 @@ after(async () => {
 async function fastContext(options = {}) {
   const context = await browser.newContext(options);
   await context.addInitScript(() => {
+    const NativeDate=Date,fixtureDate=new NativeDate('2026-08-28T12:00:00').getTime();
+    window.Date=class extends NativeDate {
+      constructor(...args){super(...(args.length?args:[fixtureDate]));}
+      static now(){return fixtureDate;}
+    };
     const nativeTimeout = window.setTimeout;
     window.setTimeout = (fn, ms, ...args) => nativeTimeout(fn, Number(ms)<1000?Math.min(Number(ms)||0,20):ms, ...args);
     const nativeNow=performance.now.bind(performance);let readingTime=0;
@@ -300,5 +306,95 @@ describe('Unit 1 Word Expedition', () => {
     for(let i=1;i<10;i++)await answerCurrentQuestion(page);
     await scan('summary');await page.locator('#visit-shop').click();await scan('shop');
     await context.close();
+  });
+
+  test('audio failure has a visible teaching model and tile recovery stays assisted', async () => {
+    const context=await fastContext();
+    await context.addInitScript(()=>{
+      window.speechSynthesis.speak=utterance=>utterance.onerror?.({error:'synthesis-unavailable'});
+    });
+    const page=await context.newPage();await page.goto(server.origin+'/study/');
+    await page.locator('[data-profile="Luke"]').click();
+    for(let i=0;i<7;i++)await answerCorrectly(page);
+    await page.locator('#listen').click();
+    assert.match(await page.locator('.audio-note').innerText(),/Audio is unavailable/);
+    await page.locator('#tile-toggle').click();
+    const word=await page.locator('.tile-model strong').innerText();
+    await page.locator('.letter-tile').filter({hasText:new RegExp('^'+word[0]+'$')}).first().click();
+    await page.reload();await page.locator('[data-profile="Luke"]').click();
+    assert.equal(await page.locator('.tile-model strong').innerText(),word);
+    assert.equal(await page.locator('.built-word').innerText(),word[0]);
+    assert.equal(await page.locator('#answer-input').count(),0,'reload cannot turn a scaffold into unassisted mastery');
+    for(const letter of word.slice(1))await page.locator('.letter-tile').filter({hasText:new RegExp('^'+letter+'$')}).first().click();
+    await page.locator('#tile-check').click();
+    assert.match(await page.locator('#feedback-area').innerText(),/Built correctly/);
+    const stats=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')).learners.Luke.stats);
+    const spelling=Object.entries(stats).find(([key])=>key.includes(word)&&key.includes('spelling'))?.[1];
+    assert.equal(spelling.assisted,1);assert.deepEqual(spelling.correctDays,[]);
+    await context.close();
+  });
+
+  test('reward countdown survives preview navigation and expires without spending', async () => {
+    const context=await fastContext();const page=await context.newPage();
+    await page.clock.install();await page.goto(server.origin+'/study/');
+    await page.locator('[data-profile="Luke"]').click();
+    for(let i=0;i<10;i++)await answerCurrentQuestion(page);
+    await page.locator('#visit-shop').click();
+    const first=Number(await page.locator('#reward-break-progress').getAttribute('value'));
+    assert.match(await page.locator('#reward-break-note').innerText(),/Coins and gear stay saved/);
+    await page.clock.runFor(3000);
+    await page.locator('[data-item="copper-blade"]').click();await page.locator('#cancel-gear').click();
+    const second=Number(await page.locator('#reward-break-progress').getAttribute('value'));
+    assert.ok(second<=first-2900,'reopening the shop does not restart its allowance');
+    await page.locator('[data-item="copper-blade"]').click();
+    await page.clock.runFor(26000);
+    assert.equal(await page.locator('[data-profile="Luke"]').count(),1);
+    const game=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')).learners.Luke);
+    assert.deepEqual(game.purchases,{});assert.equal(game.equipped.weapon,'starter-sword');
+    assert.equal(Object.values(game.rewards).reduce((sum,r)=>sum+r.coins,0),8);
+    await context.close();
+  });
+
+  test('small keyboard viewport keeps the prompt and typing control reachable', async () => {
+    const context=await browser.newContext({viewport:{width:390,height:420}});
+    const page=await context.newPage();await page.goto(server.origin+'/study/');
+    await page.locator('[data-profile="Luke"]').click();await page.locator('#answer-input').focus();
+    assert.equal(await page.locator('.battle-stage').isVisible(),false);
+    for(const selector of ['.q-prompt','#answer-input']){
+      const box=await page.locator(selector).boundingBox();
+      assert.ok(box&&box.y>=0&&box.y+box.height<=420,selector+' stays above the simulated keyboard');
+    }
+    await context.close();
+  });
+
+  test('records rendered evidence and opens the final adventure without perfect mastery', async () => {
+    const directory=path.join(process.env.RUNNER_TEMP||os.tmpdir(),'study-evidence');
+    fs.mkdirSync(directory,{recursive:true});
+    for(const width of [390,1024]){
+      const context=await fastContext({viewport:{width,height:844},reducedMotion:'reduce'});
+      await context.addInitScript(()=>{
+        localStorage.setItem('studyhub-word-expedition-game-unit1-v1',JSON.stringify({version:1,learners:{Luke:{sessionsCompleted:11,rewards:{seed:{xp:220,coins:88}}}}}));
+      });
+      const page=await context.newPage();await page.goto(server.origin+'/study/');
+      async function capture(screen){
+        const sizes=await page.evaluate(()=>({content:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth}));
+        assert.ok(sizes.content<=sizes.viewport+2,screen+' has no horizontal overflow');
+        await page.screenshot({path:path.join(directory,width+'-'+screen+'.png'),fullPage:true});
+      }
+      await capture('home');await page.locator('[data-profile="Luke"]').click();
+      assert.equal(await page.locator('.enemy-name').innerText(),'The Word Keeper');
+      assert.equal(await page.locator('.question-count').innerText(),'1 / 10');
+      await capture('boss-question');
+      for(let i=0;i<10;i++)await answerCurrentQuestion(page);
+      assert.match(await page.locator('.game-summary h2').innerText(),/castle is yours/);
+      assert.match(await page.locator('.victory-lockup').innerText(),/words that still need a mastery seal/);
+      await capture('boss-complete');await page.locator('#visit-shop').click();await capture('shop');
+      await page.locator('[data-item="guardian-mail"]').click();await capture('armor-preview');
+      await page.locator('#cancel-gear').click();await page.locator('#shop-done').click();
+      const entry=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')).learners.Luke.sessions[0]);
+      fs.writeFileSync(path.join(directory,width+'-simulated-timing.json'),JSON.stringify({evidence:'Automated interaction with simulated reading; not a child playtest',...entry.timing},null,2));
+      await page.goto(server.origin+'/tests/fixtures/study-art-gallery.html');await capture('equipment-gallery');
+      await context.close();
+    }
   });
 });
