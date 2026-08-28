@@ -91,8 +91,8 @@ replace_once(app, """  function setBattleState(kind,message,advance) {
 
 replace_once(app, """    setBattleState(final?'victory':kind,message,true);
     cancelSpeech();playWeaponSound(gameProfile(activeName).equipped.weapon);
-""", """    setBattleState(final?'victory':kind,message,true);
-    pulseQuestionFeedback(kind==='recovery'?'recovery':kind==='standard'?'assisted':'correct');
+""", """    pulseQuestionFeedback(kind==='recovery'?'recovery':kind==='standard'?'assisted':'correct');
+    setBattleState(final?'victory':kind,message,true);
     cancelSpeech();playWeaponSound(gameProfile(activeName).equipped.weapon);
 """)
 
@@ -139,6 +139,7 @@ new_test = r'''test('answer feedback stays immediate while transient combat effe
   assert.doesNotMatch(source, /_impactTimer/,'progress UI must not be delayed by combat choreography');
   assert.match(source, /pulseQuestionFeedback\('incorrect'\)/);
   assert.match(source, /pulseQuestionFeedback\(kind==='recovery'\?'recovery':kind==='standard'\?'assisted':'correct'\)/);
+  assert.match(source, /setBattleState\(final\?'victory':kind,message,true\);\s*cancelSpeech\(\);playWeaponSound\(gameProfile\(activeName\)\.equipped\.weapon\);/,'successful strike keeps visual state and audio coupled');
   assert.equal((source.match(/advanceTimer=setTimeout\(nextQuestion,480\)/g)||[]).length,2,'recovery cadence must remain unchanged');
   assert.doesNotMatch(source, /advanceTimer=setTimeout\(nextQuestion,(?:[5-9]\d\d|\d{4,})\)/,'feedback polish must not lengthen recovery');
   assert.match(css, /\.impact-chip/);
