@@ -63,18 +63,15 @@
 
   var bossIntroduced=false;
 
-  function activeLearner(){
-    var chip=document.getElementById('profile-chip');
-    if(!chip||chip.hidden)return null;
-    var match=/Pause\s*·\s*(.+)$/.exec(chip.textContent||'');
-    return match?match[1].trim():null;
-  }
-  function esc(value){return String(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
+  function esc(value){return String(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[ch];});}
   function trailNumber(stage){
     var chip=stage&&stage.querySelector('.coin-chip'),match=chip&&/^Trail\s+(\d+)/i.exec(chip.textContent||'');
     return match?Number(match[1]):0;
   }
-  function variantId(stage){return TRAIL_VARIANTS[trailNumber(stage)]||null;}
+  function variantId(stage){
+    if(!stage||stage.dataset.enemy==='boss')return null;
+    return TRAIL_VARIANTS[trailNumber(stage)]||null;
+  }
   function environmentFor(stage,id){
     if(stage.dataset.enemy==='boss')return 'castle';
     if(id)return ENCOUNTERS[id].theme;
