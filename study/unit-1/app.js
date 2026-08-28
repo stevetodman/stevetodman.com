@@ -64,9 +64,12 @@
   var activityClock=QUALITY.createClock(function(){return performance.now();});
   var speechTimer=null;
   var rewardTimer=null;
-  var rewardDeadline=0;
+  var rewardDeadline=null;
+  var STORE_TIME_MS=50000;
   var rewardAllowance=0;
   var selectedGear=null;
+  var weaponAudio=null,stopWeaponSound=null,weaponSoundsEnabled=true;
+  try{weaponSoundsEnabled=localStorage.getItem('studyhub-weapon-sounds')!=='off';}catch(_){}
   var localSaveErrors={};
 
   function persistLocal(key,value){
@@ -123,8 +126,61 @@
       return raw;
     }catch(_){return null;}
   }
-  function cancelSpeech(){try{if('speechSynthesis'in window)window.speechSynthesis.cancel();}catch(_){}}
+  function cancelSpeech(){silenceWeapon();try{if('speechSynthesis'in window)window.speechSynthesis.cancel();}catch(_){}}
   function pauseSession(){saveRound();cancelSpeech();showProfilePicker();}
+
+  function silenceWeapon(){if(stopWeaponSound){stopWeaponSound();stopWeaponSound=null;}}
+  function warmWeaponAudio(){
+    if(!weaponSoundsEnabled)return null;
+    try{
+      var Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return null;
+      if(!weaponAudio||weaponAudio.state==='closed')weaponAudio=new Audio();
+      if(weaponAudio.state==='suspended')weaponAudio.resume().catch(function(){});
+      return weaponAudio;
+    }catch(_){return null;}
+  }
+  // Short synthesized foley: swept air + inharmonic metal; the wand uses bell tones.
+  function renderWeaponSound(ctx,weapon){
+    var start=ctx.currentTime+.005,nodes=[],sources=[],remaining=0;
+    var output=ctx.createGain();output.gain.value=.16;output.connect(ctx.destination);nodes.push(output);
+    function cleanup(){nodes.forEach(function(node){try{node.disconnect();}catch(_){}});}
+    function voice(source,duration,volume,delay,filter){
+      var at=start+(delay||0),gain=ctx.createGain();nodes.push(source,gain);sources.push(source);remaining++;
+      gain.gain.setValueAtTime(.0001,at);gain.gain.exponentialRampToValueAtTime(volume,at+.008);
+      gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
+      if(filter){source.connect(filter);filter.connect(gain);nodes.push(filter);}else source.connect(gain);
+      gain.connect(output);source.onended=function(){if(--remaining===0)cleanup();};
+      source.start(at);source.stop(at+duration+.01);
+    }
+    try{
+      if(weapon==='star-wand'){
+        [784,1174.66,1568].forEach(function(hz,index){
+          var tone=ctx.createOscillator();tone.type='sine';tone.frequency.setValueAtTime(hz,start);
+          voice(tone,.30,.24,index*.055);
+        });
+      }else{
+        var copper=weapon==='copper-blade',moon=weapon==='moon-blade';
+        var buffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*.18),ctx.sampleRate),data=buffer.getChannelData(0);
+        for(var i=0;i<data.length;i++)data[i]=Math.random()*2-1;
+        var air=ctx.createBufferSource();air.buffer=buffer;
+        var filter=ctx.createBiquadFilter();filter.type='bandpass';filter.Q.value=.7;
+        filter.frequency.setValueAtTime(moon?3400:copper?2200:1700,start);
+        filter.frequency.exponentialRampToValueAtTime(400,start+.16);voice(air,.18,.6,0,filter);
+        var partials=moon?[1175,1974,3020]:copper?[520,873,1411]:[730,1226,1980];
+        partials.forEach(function(hz,index){
+          var metal=ctx.createOscillator();metal.type='sine';metal.frequency.setValueAtTime(hz,start);
+          voice(metal,moon?.36:copper?.16:.22,.25/(index+1),.055);
+        });
+      }
+    }catch(error){sources.forEach(function(source){try{source.stop();}catch(_){}});cleanup();throw error;}
+    return function(){sources.forEach(function(source){try{source.stop();}catch(_){}});cleanup();};
+  }
+  function playWeaponSound(weapon){
+    silenceWeapon();
+    var ctx=warmWeaponAudio();
+    if(!ctx||ctx.state!=='running'||document.hidden)return;
+    try{stopWeaponSound=renderWeaponSound(ctx,weapon);}catch(_){} // Audio must never block learning.
+  }
 
   function blankProfile() { return { stats:{}, sessions:[] }; }
   function defaultState() { return { version:3, learners:{ Luke:blankProfile(), Samantha:blankProfile() } }; }
@@ -301,7 +357,7 @@
   }
 
   function showProfilePicker(preserveClock) {
-    saveRound();saveTiming();clearTimeout(advanceTimer);clearTimeout(speechTimer);clearTimeout(rewardTimer);session=null;activeName=null;setChip(null);if(preserveClock!==true)activityClock=QUALITY.createClock(function(){return performance.now();});activityClock.mode('play');document.body.dataset.screen='home';
+    silenceWeapon();saveRound();saveTiming();clearTimeout(advanceTimer);clearTimeout(speechTimer);clearTimeout(rewardTimer);session=null;activeName=null;setChip(null);if(preserveClock!==true)activityClock=QUALITY.createClock(function(){return performance.now();});activityClock.mode('play');document.body.dataset.screen='home';
     app.innerHTML='<section class="picker-intro"><div class="intro-copy"><p class="eyebrow">'+esc(new Date()<TEST_DATES.vocabulary?'Tonight: mostly meanings':new Date()<TEST_DATES.spelling?'Tonight: mostly spelling':'Keep your words strong')+'</p><h2>Choose your hero</h2><p>Learn a word. Land a hit. Find your way to the castle.</p></div><div class="intro-emblem" aria-hidden="true">✦</div></section>'+
       '<div class="profile-grid">'+LEARNERS.map(function(l){return '<button type="button" class="learner-card" data-profile="'+esc(l.name)+'">'+
         '<span class="profile-hero">'+ART.hero(l.name,gameProfile(l.name).equipped,'ready')+'</span><strong>'+esc(l.name)+'</strong><span class="stamp-count">'+masteredCount(l.name)+' of 12 words mastered</span><span class="start-label">'+(savedRound(l.name)?'Resume adventure':'Start adventure')+' <span aria-hidden="true">→</span></span><span class="session-promise">10 questions · about 4 minutes</span></button>';}).join('')+'</div>'+
@@ -430,7 +486,13 @@
     app.innerHTML='<section class="panel cloud-panel"><span class="panel-icon" aria-hidden="true">☁</span><h2>Cloud save</h2>'+
       '<p>'+(enabled?'Both learner profiles save automatically after every answer. Use the private link once on another device to connect the same progress.':'Cloud sync turns on automatically on stevetodman.com. This preview is saving only on this device.')+'</p>'+
       (enabled?'<button type="button" class="primary-button" id="share-cloud">Share private device link</button><p class="privacy-note">Treat this link like a password: anyone with it can read and change this family’s study progress. The key is removed from the address after a new device connects.</p>':'')+
+      '<button type="button" class="secondary-button" id="weapon-sounds" aria-pressed="'+weaponSoundsEnabled+'">Weapon sounds: '+(weaponSoundsEnabled?'on':'off')+'</button>'+
       '<button type="button" class="text-button" id="cloud-done">Done</button></section>';
+    document.getElementById('weapon-sounds').addEventListener('click',function(){
+      weaponSoundsEnabled=!weaponSoundsEnabled;silenceWeapon();
+      try{localStorage.setItem('studyhub-weapon-sounds',weaponSoundsEnabled?'on':'off');}catch(_){}
+      this.setAttribute('aria-pressed',String(weaponSoundsEnabled));this.textContent='Weapon sounds: '+(weaponSoundsEnabled?'on':'off');
+    });
     if(enabled)document.getElementById('share-cloud').addEventListener('click',function(){
       var link=cloudShareLink();
       if(navigator.share)navigator.share({title:'Study Hub cloud save',url:link}).catch(function(){});
@@ -492,7 +554,7 @@
   }
 
   function startSession(name) {
-    activeName=name;setChip(name);warmSpeech();
+    activeName=name;setChip(name);warmSpeech();warmWeaponAudio();
     var resumed=savedRound(name);
     var entryTiming=activityClock.snapshot();
     if(resumed){session=resumed;var prior=session.timing||{};prior.play=(prior.play||0)+entryTiming.play;activityClock=QUALITY.createClock(function(){return performance.now();},prior);activityClock.mode('learning');renderQuestion();return;}
@@ -539,6 +601,7 @@
     var final=session.battleDamage+1>=SESSION_LENGTH;
     var message=kind==='critical'?'Critical hit. Shield point cleared.':kind==='recovery'?'Correction complete. Shield point cleared.':'Shield point cleared.';
     setBattleState(final?'victory':kind,message,true);
+    cancelSpeech();playWeaponSound(gameProfile(activeName).equipped.weapon);
   }
   function recoverAndContinue(button) {
     if(button)button.disabled=true;
@@ -695,7 +758,7 @@
     } else { xpAward=0;coinAward=0; }
     var rewardSaved=saveGameState();
     var newLevel=levelForXp(gameXp(activeName)),leveledUp=newLevel>oldLevel;
-    session.rewarded=true;rewardAllowance=Math.min(25000,QUALITY.playBudget(activityClock.snapshot()));rewardDeadline=performance.now()+rewardAllowance;if(rewardSaved){try{localStorage.removeItem(ROUND_KEY+activeName);}catch(_){}}
+    session.rewarded=true;rewardAllowance=STORE_TIME_MS;rewardDeadline=null;if(rewardSaved){try{localStorage.removeItem(ROUND_KEY+activeName);}catch(_){}}
     setChip(activeName);
     app.innerHTML='<section class="panel summary game-summary">'+
       '<div class="victory-lockup"><div class="summary-hero">'+ART.hero(activeName,gp.equipped,'victory')+(bossWon?'<span class="unit-crown" aria-hidden="true">✦</span>':'')+'</div><div><p class="eyebrow">'+(bossWon?'Adventure complete':'Expedition complete')+'</p><h2>'+(bossWon?'The castle is yours!':esc(activeName)+', the path is clear.')+'</h2><p>'+(bossWon?'You restored the realm. Keep practicing any words that still need a mastery seal.':session.strengthened.size+' '+(session.strengthened.size===1?'word got':'words got')+' stronger'+(newStamps?' and '+newStamps+' new '+(newStamps===1?'seal was':'seals were')+' restored.':'.'))+'</p></div></div>'+
@@ -706,12 +769,13 @@
     if(newStamps||correct>=8)celebrate();
     document.getElementById('visit-shop').addEventListener('click',function(){showShop();});
     document.getElementById('summary-done').addEventListener('click',showProfilePicker);
-    scheduleRewardEnd();
   }
-  function rewardBreakHTML(){return '<div class="reward-break" aria-live="off"><p id="reward-break-note">A short reward break. Coins and gear stay saved.</p><progress id="reward-break-progress" max="'+Math.max(1,rewardAllowance)+'" value="'+Math.max(0,rewardDeadline-performance.now())+'" aria-label="Reward break time remaining"></progress></div>';}
+  function rewardBreakHTML(){
+    if(rewardDeadline===null)return '<p class="cloud-mini">Your 50-second store visit starts when you choose gear.</p>';
+    return '<div class="reward-break" aria-live="off"><p id="reward-break-note">A short reward break. Coins and gear stay saved.</p><progress id="reward-break-progress" max="'+Math.max(1,rewardAllowance)+'" value="'+Math.max(0,rewardDeadline-performance.now())+'" aria-label="Reward break time remaining"></progress></div>';}
   function endExpiredRewardBreak(){
     if(!session||!session.rewarded)return true;
-    if(performance.now()<rewardDeadline)return false;
+    if(rewardDeadline===null||performance.now()<rewardDeadline)return false;
     var pending=savedGearChoice(activeName);
     showProfilePicker();showToast(pending?'Choice saved for your next reward break. No coins spent.':'Adventure complete. Coins and gear are saved.');return true;
   }
@@ -720,8 +784,6 @@
     // Navigation and preview share one allowance; neither can restart it.
     if(endExpiredRewardBreak())return;
     var remaining=Math.max(0,rewardDeadline-performance.now());
-    var link=document.getElementById('visit-shop');
-    if(link&&remaining<4000){link.disabled=true;link.textContent='Gear saved for next time';}
     var note=document.getElementById('reward-break-note');
     if(note)note.textContent=savedGearChoice(activeName)?'Back in '+Math.ceil(remaining/1000)+'s · choice saved for next time.':'Back to heroes in '+Math.ceil(remaining/1000)+'s. Coins and gear stay saved.';
     var progress=document.getElementById('reward-break-progress');if(progress)progress.value=remaining;
@@ -735,6 +797,7 @@
   }
   function showShop(keepPosition) {
     if(endExpiredRewardBreak())return;
+    if(rewardDeadline===null)rewardDeadline=performance.now()+rewardAllowance;
     activityClock.mode('play');document.body.dataset.screen='shop';
     var gp=gameProfile(activeName);
     setChip(activeName);
@@ -791,7 +854,7 @@
   document.addEventListener('input',saveRound);
   window.addEventListener('pagehide',function(){saveRound();saveTiming();});
   window.addEventListener('online',function(){scheduleCloudPush(0);});
-  document.addEventListener('visibilitychange',function(){activityClock.visibility(!document.hidden);saveRound();saveTiming();if(!document.hidden)cloudPull().then(function(){if(!activeName&&document.body.dataset.screen==='home')showProfilePicker(true);});});
+  document.addEventListener('visibilitychange',function(){if(document.hidden)silenceWeapon();activityClock.visibility(!document.hidden);saveRound();saveTiming();if(!document.hidden)cloudPull().then(function(){if(!activeName&&document.body.dataset.screen==='home')showProfilePicker(true);});});
 
   adoptTokenFromHash();
   showProfilePicker();

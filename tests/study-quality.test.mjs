@@ -5,14 +5,15 @@ import vm from 'node:vm';
 import { stripTypeScriptTypes } from 'node:module';
 
 const read = p => fs.readFileSync(new URL('../'+p,import.meta.url),'utf8');
-function model() {
+function model(audio) {
   const storage=new Map();
-  const context={window:{},document:{getElementById:()=>({})},location:{protocol:'http:',hostname:'localhost'},performance:{now:()=>0},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},setTimeout:()=>0,clearTimeout:()=>{}};
+  const context={window:{AudioContext:audio},document:{getElementById:()=>({})},location:{protocol:'http:',hostname:'localhost'},performance:{now:()=>0},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},setTimeout:()=>0,clearTimeout:()=>{}};
   vm.runInNewContext(read('study/unit-1/game-art.js'),context);
   vm.runInNewContext(read('study/unit-1/quality-core.js'),context);
   const source=read('study/unit-1/app.js');
   vm.runInNewContext(source.slice(0,source.indexOf("  chip.setAttribute('aria-label'"))+`
     window.test={sanitizeGameProfile,applyCloudGame,gameProfile,gameXp,coinBalance,makeQuestion,isAccepted,WORDS,savedRound,savedGearChoice,recordResult,
+      playWeaponSound,
       setSession:(value)=>{session=value;activeName='Luke';},stats:()=>profile('Luke').stats};
   })();`,context);
   return {...context.window.test,storage,quality:context.window.WordExpeditionQuality};
@@ -96,4 +97,12 @@ test('unconfirmed gear choices are validated and isolated by learner',()=>{
   for(const value of ['{',JSON.stringify({version:2,item:'copper-blade'}),JSON.stringify({version:1,item:'constructor'}),JSON.stringify({version:1,item:null})]){
     m.storage.set(key+'Luke',value);assert.equal(m.savedGearChoice('Luke'),null);
   }
+});
+
+
+test('unavailable or blocked weapon audio never interrupts learning',()=>{
+  assert.doesNotThrow(()=>model().playWeaponSound('star-wand'));
+  assert.doesNotThrow(()=>model(function(){throw new Error('Audio blocked');}).playWeaponSound('moon-blade'));
+  const source=read('study/unit-1/app.js');
+  assert.match(source,/playWeaponSound\(gameProfile\(activeName\)\.equipped\.weapon\)/);
 });

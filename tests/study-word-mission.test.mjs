@@ -278,7 +278,7 @@ describe('Unit 1 Word Expedition', () => {
     await context.close();
   });
 
-  test('post-session time is saved and the short reward break stays within 10 percent', async () => {
+  test('post-session time is saved after a short store visit', async () => {
     const context=await fastContext();const page=await context.newPage();
     await page.goto(server.origin+'/study/');await page.locator('[data-profile="Luke"]').click();
     for(let i=0;i<10;i++)await answerCurrentQuestion(page);
@@ -286,7 +286,7 @@ describe('Unit 1 Word Expedition', () => {
     const entry=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')).learners.Luke.sessions[0]);
     assert.ok(entry.timing.learning>=150000,'fixture explicitly simulates reading before each answer');
     assert.ok(entry.timing.play>0);
-    assert.ok(entry.timing.play/(entry.timing.learning+entry.timing.play)<=0.1);
+    assert.ok(Number.isFinite(entry.timing.play));
     await context.close();
   });
 
@@ -349,6 +349,69 @@ describe('Unit 1 Word Expedition', () => {
     await context.close();
   });
 
+  test('each weapon renders a distinct audible effect and device mute survives reload', async () => {
+    const context=await browser.newContext();const page=await context.newPage();
+    await page.goto(server.origin+'/study/');
+    const source=fs.readFileSync(path.join(repoRoot,'study/unit-1/app.js'),'utf8');
+    const renderSource=source.slice(source.indexOf('  function renderWeaponSound('),source.indexOf('  function playWeaponSound('));
+    const rendered=await page.evaluate(async code=>{
+      const render=new Function(code+';return renderWeaponSound;')();
+      const Offline=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+      const results=[];
+      for(const weapon of ['starter-sword','copper-blade','moon-blade','star-wand']){
+        const ctx=new Offline(1,24000,48000);render(ctx,weapon);
+        const samples=(await ctx.startRendering()).getChannelData(0);
+        let energy=0,peak=0;
+        for(const sample of samples){energy+=sample*sample;peak=Math.max(peak,Math.abs(sample));}
+        results.push({weapon,rms:Math.sqrt(energy/samples.length),peak});
+      }
+      return results;
+    },renderSource);
+    for(const sound of rendered){
+      assert.ok(sound.rms>.001,sound.weapon+' produces audible energy');
+      assert.ok(sound.peak<.5,sound.weapon+' has headroom and does not clip');
+    }
+    assert.equal(new Set(rendered.map(sound=>sound.rms.toFixed(4))).size,4);
+    await page.locator('#cloud-button').click();await page.locator('#weapon-sounds').click();
+    await page.reload();await page.locator('#cloud-button').click();
+    assert.equal(await page.locator('#weapon-sounds').getAttribute('aria-pressed'),'false');
+    await context.close();
+  });
+
+  test('both learners get 50 seconds in the store after fast rounds and an unhurried summary', async () => {
+    const context=await browser.newContext({viewport:{width:390,height:844}});
+    const page=await context.newPage();
+    await page.clock.install();
+    for(const name of ['Luke','Samantha']){
+      await page.goto(server.origin+'/study/');
+      // Real fast answers: no synthetic reading-time credit.
+      await page.locator('[data-profile="'+name+'"]').click();
+      for(let i=0;i<10;i++)await answerCorrectly(page);
+      await page.locator('#visit-shop').waitFor({state:'visible'});
+      await page.clock.fastForward(60000);
+      assert.equal(await page.locator('#visit-shop').isEnabled(),true,'results reading cannot consume store time');
+      await page.locator('#visit-shop').click();
+      assert.equal(Number(await page.locator('#reward-break-progress').getAttribute('max')),50000);
+      assert.equal(await page.locator('.wallet strong').innerText(),'8');
+      await page.clock.fastForward(25000);
+      const remaining=Number(await page.locator('#reward-break-progress').getAttribute('value'));
+      assert.ok(remaining>=24000&&remaining<=25000,'half the store time remains after 25 seconds');
+      await page.locator('[data-item="copper-blade"]').click();
+      await page.locator('#confirm-gear').click();
+      assert.equal(await page.locator('.wallet strong').innerText(),'0');
+      await page.clock.fastForward(26000);
+      await page.locator('[data-profile="'+name+'"]').waitFor({state:'visible'});
+      await page.reload();
+      const game=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')).learners);
+      assert.equal(game[name].equipped.weapon,'copper-blade','purchase survives timeout and reload');
+      if(name==='Luke'){
+        assert.deepEqual(game.Samantha.purchases,{});
+        assert.equal(game.Samantha.equipped.weapon,'starter-sword');
+      }
+    }
+    await context.close();
+  });
+
   test('reward countdown survives preview navigation and expires without spending', async () => {
     const context=await fastContext();const page=await context.newPage();
     // Exercise the real browser deadline. Installing a second fake clock over
@@ -364,7 +427,7 @@ describe('Unit 1 Word Expedition', () => {
     const second=Number(await page.locator('#reward-break-progress').getAttribute('value'));
     assert.ok(second<=first-2900,'reopening the shop does not restart its allowance');
     await page.locator('[data-item="copper-blade"]').click();
-    await page.locator('[data-profile="Luke"]').waitFor({state:'visible',timeout:30000});
+    await page.locator('[data-profile="Luke"]').waitFor({state:'visible',timeout:60000});
     assert.equal(await page.locator('[data-profile="Luke"]').count(),1);
     const game=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')).learners.Luke);
     assert.deepEqual(game.purchases,{});assert.equal(game.equipped.weapon,'starter-sword');

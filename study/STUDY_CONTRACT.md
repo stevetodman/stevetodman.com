@@ -20,6 +20,7 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 
 ## Game layer
 
+- Equipped weapons have distinct, brief synthesized effects: sword swishes and metallic strikes, or a wand chime. Device settings can mute effects without muting spoken questions. Effects stop for narration, navigation and hidden tabs; unavailable audio never blocks learning.
 - The question is the combat action. There are no separate attack, defend, movement, or energy-grind turns.
 - Every battle contains the same 10 questions as the assignment session. Equipment may change appearance and feedback, but never question count, mastery, difficulty, correctness, or rewards.
 - XP and study coins are earned only by completed learning sessions and newly earned mastery seals. Study coins can buy cosmetic gear. No real-money purchases, paid currency, subscriptions, payment checkout, ads or loot boxes.
@@ -27,7 +28,7 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 - Luke and Samantha keep independent wallets, equipment, rewards, and purchase histories.
 - Game rewards use an idempotent per-session ledger so a repeated or merged cloud save cannot award the same session twice.
 - The boss is a presentation of the normal ten-question session, not a gate to practice. A learner may face it at 12 seals, at 10 seals after the unit test date, or on the twelfth travel session. Finishing the adventure is distinct from mastering every word; missing seals remain available afterward.
-- Equipment selection is limited to a short post-session choice and cannot interrupt a question. Preview gear before spending earned study coins. Owned gear can be equipped free.
+- Both learners receive a full 50-second store visit after every completed session, including fast rounds. The timer starts on first store entry, not on the results screen; preview, cancel and purchase never restart it. The learning/play ratio is measured, not enforced by removing store access. Equipment selection cannot interrupt a question. Preview gear before spending earned study coins. Owned gear can be equipped free.
 - An unconfirmed gear choice is a validated, learner-specific device-local bookmark. It survives timeout/reload and resumes only in the next earned reward break; it never spends coins, changes equipment, syncs to another device, or extends the play budget. Cancel and successful confirmation clear it.
 
 ## Assignment behavior
