@@ -17,7 +17,7 @@ after(async () => {
 
 test('WebKit with an iPhone profile unlocks, fetches, decodes, and starts all battle samples', async () => {
   const { defaultBrowserType: _defaultBrowserType, ...iphone } = devices['iPhone 13'];
-  const context = await browser.newContext(iphone);
+  const context = await browser.newContext({ ...iphone, hasTouch:true });
   const page = await context.newPage();
   const errors = watchForErrors(page);
   const sampleResponses = new Map();
@@ -34,19 +34,24 @@ test('WebKit with an iPhone profile unlocks, fetches, decodes, and starts all ba
   const boot = await page.evaluate(() => ({
     installed: window.__wordExpeditionAudioUnlockInstalled === true,
     clipCount: window.WordExpeditionSfxBank?.clipCount,
-    hasTouch: navigator.maxTouchPoints > 0,
     userAgent: navigator.userAgent,
   }));
 
   assert.equal(boot.installed, true, 'the audio unlock shim must be installed before interaction');
   assert.equal(boot.clipCount, 12, 'the local battle bank must expose exactly 12 clips');
-  assert.equal(boot.hasTouch, true, 'the WebKit context must emulate a touch device');
   assert.match(boot.userAgent, /iPhone/i, 'the browser context must use an iPhone user agent');
 
-  // This is the first real user gesture. The capture-phase audio handlers should
-  // create/resume the shared context and begin warming the local MP3 bank before
-  // the Study profile click continues into the app.
-  await page.locator('[data-profile="Luke"]').click();
+  // Exercise the touch path rather than relying on navigator.maxTouchPoints,
+  // which Playwright WebKit on Linux does not report consistently even when
+  // touch input is enabled. This sends a real emulated touchscreen gesture to
+  // the same element an iPhone user taps.
+  const profile = page.locator('[data-profile="Luke"]');
+  const profileBox = await profile.boundingBox();
+  assert.ok(profileBox, 'the learner profile must have a tappable rendered box');
+  await page.touchscreen.tap(
+    profileBox.x + profileBox.width / 2,
+    profileBox.y + profileBox.height / 2,
+  );
 
   const result = await page.evaluate(async () => {
     const AudioCtor = window.AudioContext || window.webkitAudioContext;
