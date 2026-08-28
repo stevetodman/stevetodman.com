@@ -336,6 +336,12 @@ body[data-screen="question"] .pips { display:none; }
 .shop-pages button { min-height:44px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--teal-dark);font:inherit;cursor:pointer; }
 .shop-pages button:disabled,.preview-confirm:disabled { opacity:.55;cursor:default; }
 @media(max-width:560px){.shop-pages{margin-top:5px;}.merchant-done{margin-top:6px;}.shop-pages button{min-height:40px;}.shop-art,.item-art{height:54px;}.shop-card{padding:6px;}}
+@media(max-width:560px){
+  #gear-preview:has(#confirm-gear)>div:last-child{grid-template-columns:1fr 1fr;column-gap:6px;}
+  #gear-preview:has(#confirm-gear)>div:last-child>span,#gear-preview:has(#confirm-gear)>div:last-child>strong{grid-column:1/-1;}
+  #gear-preview .preview-confirm{padding:6px;font-size:.72rem;}
+  #gear-preview #cancel-gear{font-size:.68rem;line-height:1.15;}
+}
 
 /* A question is still the only combat input. All motion is brief and skippable. */
 .battle-stage { --effect:#ffe0a4;--guard:#a9e7ef;--enemy-effect:#c9a6ff; }
