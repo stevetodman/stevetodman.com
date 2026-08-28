@@ -7,7 +7,35 @@ Base: `f069e8d4bef4c7e7e03cff63ea06514af401fcc3`
 Read `QUALITY_PLAN.md` and `STUDY_CONTRACT.md` first. This is a recovery checkpoint,
 not App Store-quality sign-off. Production is unchanged by this branch.
 
-## Current work
+## Current work — checkpoint 2
+
+Latest owner clarification: in-game purchases with earned study coins ARE allowed;
+REAL MONEY is not. No checkout, paid currency, subscriptions or monetization.
+
+The complete illustrated atlas and two world backdrops are now included under
+`study/unit-1/assets/` with prompt provenance. Phone home/question screens were
+visually inspected; atlas clipping was corrected. All outfits still need the full
+rendered gallery review. No new image generation is required.
+
+Implemented since checkpoint1: compact storybook game layout; meaningful labels;
+shorter definition prompts; explicit word/sentence audio; try-on before spending;
+free re-equip and starter gear; local timing including post-session activity;
+bounded reward phase; route-based boss release valve; content-hashed asset URLs
+in the production build. Production is still unchanged.
+
+Current verification:21 unit checks pass, syntax/diff checks pass, build139files /
+25 indexed pages. Browser suite adds pause/reload/final-question/preview/timing
+scenarios; CI verification is NEXT, not yet claimed. Local Chromium remains absent.
+
+Known open review items:
+- Reward timeout can be too abrupt for very fast rounds; measure and refine without
+  pretending all real child behavior is guaranteed90/10.
+- Check full rendered shop, all equipment combinations, reduced motion, keyboard.
+- Confirm real browser timing/round recovery assertions in CI.
+- Production server merge source still requires separately authorized deployment.
+- Real iOS audio/keyboard and child enjoyment need physical-device/family evidence.
+
+## Earlier recovery checkpoint
 
 Recovery checkpoint 1 (28 August 2026, approximately00:51 UTC): implementation
 continues. Original cohesive atlas/world art is being generated and inspected.

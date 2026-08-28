@@ -79,3 +79,10 @@ test('active time counts learning/play once, excludes hidden/idle, and uses L/9'
   assert.equal(m.quality.playBudget({learning:240000,play:30000}),0);
   now=200000;const idle=clock.snapshot();assert.equal(idle.play,25000);assert.equal(idle.idle,150000);
 });
+
+test('paid currency, real-money checkout and payment integrations are absent',()=>{
+  const source=read('study/unit-1/app.js');
+  assert.match(source,/Study coins only\. No real money/);
+  assert.doesNotMatch(source,/stripe|paypal|paymentRequest|buyCurrency|buyCoins|billing|subscription/i);
+  assert.match(source,/function previewGear/);assert.match(source,/if\(coinBalance\(activeName\)<item.price\)return/);
+});

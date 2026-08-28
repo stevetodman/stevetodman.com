@@ -23,6 +23,12 @@ try {
   assert.equal(await page.locator('.question-card').count(), 1);
   assert.equal(await page.locator('.pip').count(), 10);
   assert.match(await page.locator('.question-count').innerText(), /1\s*\/\s*10/);
+  assert.equal(await page.locator('.battle-stage').count(),1,'illustrated combat must be live');
+  assert.equal(await page.locator('.hero-art image').first().getAttribute('width'),'1254');
+  assert.equal(await page.locator('[data-domain]').count(),1);
+  assert.ok(await page.locator('html').getAttribute('data-study-build'),'must serve a versioned build');
+  const urls=await page.locator('script[src],link[rel="stylesheet"]').evaluateAll(elements=>elements.map(el=>el.src||el.href));
+  assert.ok(urls.filter(url=>/unit-1\/(?:app|game-art|quality-core)\./.test(url)).every(url=>/[?&]v=[a-f0-9]{12}/.test(url)),'Study assets must be cache-versioned');
 
   const manifest = await page.evaluate(async () => {
     const href = document.querySelector('link[rel="manifest"]')?.href;

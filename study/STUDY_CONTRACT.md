@@ -22,12 +22,12 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 
 - The question is the combat action. There are no separate attack, defend, movement, or energy-grind turns.
 - Every battle contains the same 10 questions as the assignment session. Equipment may change appearance and feedback, but never question count, mastery, difficulty, correctness, or rewards.
-- XP and coins are awarded only by completed learning sessions and newly earned mastery seals. Purchases are cosmetic only.
+- XP and study coins are earned only by completed learning sessions and newly earned mastery seals. Study coins can buy cosmetic gear. No real-money purchases, paid currency, subscriptions, payment checkout, ads or loot boxes.
 - Currency, equipment, level, and reward details remain private until a learner selects their profile.
 - Luke and Samantha keep independent wallets, equipment, rewards, and purchase histories.
 - Game rewards use an idempotent per-session ledger so a repeated or merged cloud save cannot award the same session twice.
-- The boss is a presentation of the normal mixed-retrieval session, not a gate to practice. A learner may face it at 12 seals, or at 10 seals after the unit test date; missing seals remain available afterward.
-- The merchant is limited to a short post-session choice and cannot interrupt a question.
+- The boss is a presentation of the normal ten-question session, not a gate to practice. A learner may face it at 12 seals, at 10 seals after the unit test date, or on the twelfth travel session. Finishing the adventure is distinct from mastering every word; missing seals remain available afterward.
+- Equipment selection is limited to a short post-session choice and cannot interrupt a question. Preview gear before spending earned study coins. Owned gear can be equipped free.
 
 ## Assignment behavior
 

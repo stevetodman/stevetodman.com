@@ -4,6 +4,10 @@ Owner brief (28 August 2026): reduce friction, make a genuinely delightful game,
 and keep at least 90% of active time in learning. “App Store quality” describes
 the graphics and experience, not native packaging or submission paperwork.
 
+Latest owner clarification: NO REAL-MONEY purchasing. Earned study coins can
+buy cosmetic gear. Preview before spending; owned gear can be equipped free.
+No paid currency, subscriptions, payment checkout, ads or loot boxes.
+
 ## Rules that do not move
 
 - One tap to start or resume; exactly ten questions. The question is the attack.

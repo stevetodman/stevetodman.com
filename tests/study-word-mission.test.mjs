@@ -20,7 +20,11 @@ async function fastContext(options = {}) {
   const context = await browser.newContext(options);
   await context.addInitScript(() => {
     const nativeTimeout = window.setTimeout;
-    window.setTimeout = (fn, ms, ...args) => nativeTimeout(fn, Math.min(Number(ms) || 0, 20), ...args);
+    window.setTimeout = (fn, ms, ...args) => nativeTimeout(fn, Number(ms)<1000?Math.min(Number(ms)||0,20):ms, ...args);
+    const nativeNow=performance.now.bind(performance);let readingTime=0;
+    performance.now=()=>nativeNow()+readingTime;
+    document.addEventListener('submit',()=>{readingTime+=15000;},true);
+    document.addEventListener('click',event=>{if(event.target.closest('.choice'))readingTime+=15000;},true);
     if ('speechSynthesis' in window) window.speechSynthesis.cancel = () => {};
   });
   return context;
@@ -37,6 +41,7 @@ async function answerCurrentQuestion(page) {
   } else {
     await page.locator('.choice').first().click();
     if (await page.locator('#continue').count()) await page.locator('#continue').click();
+    else if (await page.locator('#next-question').count()) await page.locator('#next-question').click();
   }
   await page.waitForTimeout(35);
 }
@@ -56,12 +61,12 @@ const schoolAnswers = {
   veteran:{ definition:'a former member of the armed forces; an experienced person', synonym:'expert', antonym:'beginner' },
 };
 
-async function answerCorrectly(page) {
-  const domain = (await page.locator('.q-domain').innerText()).replace(/Checkpoint\s*·\s*/i, '').trim().toLowerCase();
+async function answerCorrectly(page, advance = true) {
+  const domain = await page.locator('.q-domain').getAttribute('data-domain');
   const prompt = await page.locator('.q-prompt').innerText();
   let word;
   if (domain === 'definition' && await page.locator('#answer-input').count()) {
-    word = Object.keys(schoolAnswers).find(name => prompt.includes(schoolAnswers[name].definition));
+    word = Object.keys(schoolAnswers).find(name => prompt.includes(schoolAnswers[name].definition.split(';')[0]));
   } else {
     word = (await page.locator('.q-prompt .target').innerText()).trim();
   }
@@ -76,6 +81,7 @@ async function answerCorrectly(page) {
   } else {
     await page.locator('.choice').filter({ hasText:answer }).first().click();
   }
+  if(advance)await page.locator('#next-question').click();
   await page.waitForTimeout(35);
 }
 
@@ -95,8 +101,8 @@ describe('Unit 1 Word Expedition', () => {
     assert.equal(await page.locator('.question-card').count(), 1);
     assert.equal(await page.locator('.pip').count(), 10);
     assert.equal(await page.locator('.shield-segment').count(), 10);
-    assert.equal(await page.locator('.hero-fighter svg').count(), 1);
-    assert.equal(await page.locator('.enemy-fighter svg').count(), 1);
+    assert.equal(await page.locator('.hero-fighter > svg').count(), 1);
+    assert.equal(await page.locator('.enemy-fighter > svg').count(), 1);
     assert.match(await page.locator('.question-count').innerText(), /1 \/ 10/);
     assert.deepEqual(errors, []);
     await page.close();
@@ -143,7 +149,7 @@ describe('Unit 1 Word Expedition', () => {
     await page.locator('[data-profile="Luke"]').click();
     for (let i = 0; i < 7; i++) await answerCorrectly(page);
 
-    assert.match(await page.locator('.q-domain').innerText(), /Spelling/i);
+    assert.equal(await page.locator('.q-domain').getAttribute('data-domain'), 'spelling');
     assert.equal(await page.locator('#listen').count(), 1);
     assert.equal(await page.locator('#answer-input').count(), 1);
     assert.equal(await page.locator('#tile-toggle').count(), 1);
@@ -162,7 +168,7 @@ describe('Unit 1 Word Expedition', () => {
     assert.match(source, /word-mission-unit1-samantha/);
   });
 
-  test('awards, spends, equips, persists, and isolates game progress', async () => {
+  test('awards study coins, previews, spends, equips, persists, and isolates progress', async () => {
     const context = await fastContext();
     const page = await context.newPage();
     await page.goto(server.origin + '/study/');
@@ -170,14 +176,15 @@ describe('Unit 1 Word Expedition', () => {
 
     for (let i = 0; i < 10; i++) await answerCurrentQuestion(page);
     assert.equal(await page.locator('.game-summary').count(), 1);
-    assert.match(await page.locator('.reward-row').innerText(), /\+20[\s\S]*\+8[\s\S]*Level 2/);
+    assert.match(await page.locator('.reward-row').innerText(), /\+20[\s\S]*Level 2/);
 
     let game = await page.evaluate(() => JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')));
     assert.equal(Object.keys(game.learners.Luke.rewards).length, 1);
     assert.equal(Object.keys(game.learners.Samantha.rewards).length, 0);
 
-    await page.locator('#visit-merchant').click();
-    await page.getByRole('button', { name:'Buy for 8' }).click();
+    await page.locator('#visit-shop').click();
+    await page.locator('[data-item="copper-blade"]').click();
+    await page.getByRole('button', { name:'Use 8 coins' }).click();
     assert.equal(await page.locator('.shop-card.equipped').filter({ hasText:'Copper Blade' }).count(), 1);
 
     await page.reload();
@@ -200,5 +207,79 @@ describe('Unit 1 Word Expedition', () => {
       assert.ok(sizes.scroll <= sizes.client + 2, `${sizes.scroll}px content in ${sizes.client}px viewport at ${width}px`);
       await context.close();
     }
+  });
+
+  test('reload resumes a pending correction without duplicating learning attempts', async () => {
+    const context=await fastContext();const page=await context.newPage();
+    await page.goto(server.origin+'/study/');await page.locator('[data-profile="Luke"]').click();
+    await page.locator('#answer-input').fill('not the answer');await page.locator('#answer-input').press('Enter');
+    await page.locator('#correction-input').waitFor();
+    const expected=await page.locator('#correction-form strong').innerText();
+    const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')).learners.Luke.stats);
+    await page.reload();assert.match(await page.locator('[data-profile="Luke"]').innerText(),/Resume adventure/);
+    await page.locator('[data-profile="Luke"]').click();
+    assert.equal(await page.locator('#correction-form strong').innerText(),expected);
+    await page.locator('#correction-input').fill(expected);await page.locator('#correction-input').press('Enter');
+    await page.waitForTimeout(40);
+    assert.match(await page.locator('.question-count').innerText(),/2 \/ 10/);
+    const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')).learners.Luke.stats);
+    assert.deepEqual(after,before);
+    await context.close();
+  });
+
+  test('reload preserves a correct answer awaiting Next and the same round ID', async () => {
+    const context=await fastContext();const page=await context.newPage();
+    await page.goto(server.origin+'/study/');await page.locator('[data-profile="Samantha"]').click();
+    await answerCorrectly(page,false);
+    const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-round-unit1-v1-Samantha')));
+    await page.reload();await page.locator('[data-profile="Samantha"]').click();
+    assert.equal(await page.locator('#next-question').count(),1);
+    assert.match(await page.locator('.shield-row').getAttribute('aria-label'),/^1 of 10/);
+    await page.locator('#next-question').click();
+    const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-round-unit1-v1-Samantha')));
+    assert.equal(after.id,before.id);assert.equal(after.results.length,1);assert.equal(after.index,1);
+    await context.close();
+  });
+
+  test('gear preview never spends coins; starter gear and purchases remain available', async () => {
+    const context=await fastContext();const page=await context.newPage();
+    await page.goto(server.origin+'/study/');await page.locator('[data-profile="Luke"]').click();
+    for(let i=0;i<10;i++)await answerCurrentQuestion(page);
+    await page.locator('#visit-shop').click();await page.locator('[data-item="copper-blade"]').click();
+    let game=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')).learners.Luke);
+    assert.deepEqual(game.purchases,{});assert.equal(game.equipped.weapon,'starter-sword');
+    await page.locator('#cancel-gear').click();
+    await page.locator('[data-item="copper-blade"]').click();await page.locator('#confirm-gear').click();
+    await page.locator('#starter-gear').click();
+    game=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')).learners.Luke);
+    assert.equal(game.equipped.weapon,'starter-sword');assert.ok(game.purchases['copper-blade']);
+    await page.locator('[data-item="copper-blade"]').click();assert.equal(await page.locator('#confirm-gear').innerText(),'Equip this');
+    await context.close();
+  });
+
+  test('tenth answer resumes safely and completion is awarded once', async () => {
+    const context=await fastContext();const page=await context.newPage();
+    await page.goto(server.origin+'/study/');await page.locator('[data-profile="Luke"]').click();
+    for(let i=0;i<9;i++)await answerCurrentQuestion(page);
+    await page.reload();await page.locator('[data-profile="Luke"]').click();
+    assert.match(await page.locator('.question-count').innerText(),/10 \/ 10/);
+    await answerCurrentQuestion(page);await page.locator('.game-summary').waitFor();
+    await page.reload();
+    const game=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')).learners.Luke);
+    assert.equal(Object.keys(game.rewards).length,1);assert.equal(game.sessionsCompleted,1);
+    assert.match(await page.locator('[data-profile="Luke"]').innerText(),/Start adventure/);
+    await context.close();
+  });
+
+  test('post-session time is saved and the short reward break stays within 10 percent', async () => {
+    const context=await fastContext();const page=await context.newPage();
+    await page.goto(server.origin+'/study/');await page.locator('[data-profile="Luke"]').click();
+    for(let i=0;i<10;i++)await answerCurrentQuestion(page);
+    await page.locator('#visit-shop').click();await page.locator('#shop-done').click();
+    const entry=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')).learners.Luke.sessions[0]);
+    assert.ok(entry.timing.learning>=150000,'fixture explicitly simulates reading before each answer');
+    assert.ok(entry.timing.play>0);
+    assert.ok(entry.timing.play/(entry.timing.learning+entry.timing.play)<=0.1);
+    await context.close();
   });
 });
