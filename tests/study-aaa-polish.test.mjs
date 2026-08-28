@@ -32,6 +32,7 @@ test('AAA polish loads after the core learning application as additive presentat
 
 test('four new trail creatures are deterministic rather than rare or random encounters', () => {
   assert.match(js, /var TRAIL_VARIANTS=\{4:'mushroom',5:'ink',6:'beetle',7:'drake',8:'mushroom',9:'ink',10:'beetle',11:'drake'\}/);
+  assert.match(js, /stage\.dataset\.enemy==='boss'\)return null/, 'the Word Keeper boss must never be replaced by a trail variant');
   assert.doesNotMatch(js, /Math\.random/);
   assert.doesNotMatch(collection, /Math\.random/);
 
