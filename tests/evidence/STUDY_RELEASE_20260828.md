@@ -30,17 +30,57 @@ This is release evidence, not App Store approval or real-child 90/10 certificati
 - Added a synthetic 250-session cloud ledger canary, including stale writes and
   preserved legacy totals. Uses the existing public test row, not family data.
 
-## Verification checkpoint
+## Release completed
 
-- Local Study unit checks: 22/22 passed.
-- Platform checks: 25/25 passed.
-- Production build: 139 files, 25 indexed pages; code syntax and diff checks passed.
-- Browser-engine checks and production cutover: pending at this checkpoint.
-- Physical iOS audio/keyboard and observed child enjoyment/90/10 remain unverified.
+- PR 93 merged the tested head `2d4dce89c7327e5725f289f3016533b9aa7f95a6`.
+- Production merge: `88e60ab966f9fd5174d6f68021d38498a1e693e4`.
+- Live app build: `4817f2505cec`, on `/study/` and `/study/unit-1/`.
+- Backend: `studyhub-save` version 3, ACTIVE. Retrieved deployed source and
+  deno.json match this release exactly; custom token authentication is unchanged.
+- Both cloud canaries pass: input validation, CORS, rejected direct table access,
+  push/pull/merge and 250-session plus legacy reward preservation. Synthetic only.
+- Release-branch CI 33146772880: Chromium 43/43, WebKit 43/43, platform 25/25
+  in each engine and build 139 files/25 pages. Aggregate passed.
+- PR CI 33146775465 passed both engines. Broader Tests 33146775446 and cloud
+  canary 33146775421 also passed. No failing assertion was removed.
+- Main Study CI 33147018781 passed both engines and the exact-build production
+  canary, job 98770740071: both live routes verified at 06:13:52 UTC.
+- Main broader Tests 33147018815 and cloud canary 33147018782 passed.
+- Independent HTTP checks matched both live HTML files and all seven app/art
+  assets byte-for-byte to dist. Browser home showed the correct build, both hero
+  cards, healthy cloud status and no app-origin errors. No family answers submitted.
+- Final Chrome artifact 9676088286 and WebKit artifact 9676120489 were inspected.
+  Gear preview, all six items and Done fit at 320px; the test now explicitly checks
+  the preview as well as the initial shelf. Audio is one line with 44px+ targets.
+- A complete Samantha preview round also finished at 7/10, +20 XP, +8 coins,
+  Level 2 and route 1/12; its saved results were inspected. This was test progress.
 
-## Next action
+## Production checker follow-up
 
-Run both browser engines on the feature branch, inspect audio/saved-choice evidence,
-deploy the compatible server function and run both synthetic cloud canaries, then
-merge only the tested head. Wait for Pages and exact-build production verification.
-Append exact commit/build/CI/function version and live results before reporting done.
+The broader production-policy job 33147018775 failed on 12 expected Cloudflare
+`.html` → extensionless 308 redirects, counting each as a missing page and missing
+robots meta. The prior production main run 33129338900 also failed; this was not a
+Study regression. The game release and its exact-build canary passed independently.
+
+The follow-up checker accepts only one same-origin, exact-extension-removal
+301/308 hop for cataloged public HTML. It verifies noindex on the redirect and
+checks status, headers and robots metadata on the destination. Internal/excluded
+routes still require a direct 404. New tests reject missing destinations, missing
+metadata and unrelated same-origin or cross-origin redirects. All 28 platform
+checks pass locally. Live full-site rerun and follow-up CI are pending at this
+documentation checkpoint; no website content or security policy is changed.
+
+## Remaining acceptance limits
+
+Physical iOS audio/keyboard, child enjoyment and real-child 90/10 remain unverified.
+The agent interaction timer and automated simulated-reading fixtures are not child
+attention measurements. Deployment does not certify these gates or App Store
+approval. No real-money purchasing exists.
+
+## Next-agent instructions
+
+Read this record and study/QUALITY_HANDOFF.md before working. The game is already
+live: do not redeploy the old version, clear progress, rename storage keys or
+restart the design. Finish the production-checker follow-up, then use the actual
+family/device protocol for the remaining human evidence. Fix only reproducible
+defects with regression coverage and preserve the rollback baseline above.
