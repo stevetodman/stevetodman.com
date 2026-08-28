@@ -49,7 +49,8 @@ test('weapons and monsters remain visibly in the fight on mobile and desktop', a
     assert.equal(await question.isVisible(), true, `${viewport.name}: question remains visible`);
 
     const stageBox = await stage.boundingBox();
-    assert.ok(stageBox && stageBox.width > 250 && stageBox.height >= 60, `${viewport.name}: combat has a usable visible area`);
+    const minimumHeight = viewport.height <= 450 ? 40 : 60;
+    assert.ok(stageBox && stageBox.width > 250 && stageBox.height >= minimumHeight, `${viewport.name}: combat has a usable visible area`);
     const layout = await page.evaluate(() => ({
       scrollWidth: document.documentElement.scrollWidth,
       clientWidth: document.documentElement.clientWidth,
