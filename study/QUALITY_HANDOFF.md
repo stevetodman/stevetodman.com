@@ -12,6 +12,22 @@ not App Store-quality sign-off. Production is unchanged by this branch.
 Latest owner clarification: in-game purchases with earned study coins ARE allowed;
 REAL MONEY is not. No checkout, paid currency, subscriptions or monetization.
 
+Verified checkpoint2 remotely: GitHub Study contract run33132006448 on commit
+`c3e6287db7e1fa39de3ba1ffce1439b38ec97857` passed33/33 tests (zero failures or
+cancellations). Includes actual Chromium sessions, pause/reload/correction/final
+question recovery, gear preview/spend/re-equip, and simulated-time90/10 assertion.
+Local platform checks25/25 passed after adding artwork provenance.
+
+The32 hero equipment combinations and four creatures were rendered together and
+visually inspected; all were readable and showed the correct equipment, with no
+neighboring sprite bleed. A phone playtest accepted `discontinue` as a correction
+for `cancel` even though the suggested first answer was `stop`.
+
+Additional current refinement: hide redundant question pips visually, retain
+enemy defeat until summary, add expandable learning progress, increase small
+phone labels, and run serious/critical accessibility checks through five screens.
+The latest refinement requires its own CI result before release.
+
 The complete illustrated atlas and two world backdrops are now included under
 `study/unit-1/assets/` with prompt provenance. Phone home/question screens were
 visually inspected; atlas clipping was corrected. All outfits still need the full

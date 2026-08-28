@@ -283,10 +283,19 @@
       '<div class="profile-grid">'+LEARNERS.map(function(l){return '<button type="button" class="learner-card" data-profile="'+esc(l.name)+'">'+
         '<span class="profile-hero">'+ART.hero(l.name,gameProfile(l.name).equipped,'ready')+'</span><strong>'+esc(l.name)+'</strong><span class="stamp-count">'+masteredCount(l.name)+' of 12 words mastered</span><span class="start-label">'+(savedRound(l.name)?'Resume adventure':'Start adventure')+' <span aria-hidden="true">→</span></span><span class="session-promise">10 questions · about 4 minutes</span></button>';}).join('')+'</div>'+
       '<div class="picker-links"><button type="button" class="text-button" id="word-list">Review the 12 words</button>'+
-      '<span class="cloud-button" id="cloud-status">'+cloudStatusText()+'</span><button type="button" class="text-button" id="cloud-button">Device settings</button></div>';
+      '<span class="cloud-button" id="cloud-status">'+cloudStatusText()+'</span><button type="button" class="text-button" id="cloud-button">Device settings</button></div>'+learningSummaryHTML();
     app.querySelectorAll('[data-profile]').forEach(function(button){button.addEventListener('click',function(){startSession(button.getAttribute('data-profile'));});});
     document.getElementById('word-list').addEventListener('click',showWordList);
     document.getElementById('cloud-button').addEventListener('click',showCloudScreen);
+  }
+  function learningSummaryHTML(){
+    return '<details class="learning-notes"><summary>Learning progress</summary>'+LEARNERS.map(function(learner){
+      var name=learner.name,last=profile(name).sessions[0];
+      var weak=WORDS.filter(function(word){return wordLevel(name,word)!=='mastered';}).slice(0,3).map(function(word){return word.word;});
+      var vocab=WORDS.filter(function(word){return assignedDomains(word).filter(function(domain){return domain!=='spelling';}).every(function(domain){return (getStat(name,word.word,domain).correctDays||[]).length>0;});}).length;
+      var spelling=WORDS.filter(function(word){return (getStat(name,word.word,'spelling').correctDays||[]).length>=2;}).length;
+      return '<section><h3>'+esc(name)+'</h3><p>Meanings practiced: '+vocab+'/12 · Spelling across two days: '+spelling+'/12</p><p>'+(weak.length?'Keep practicing: '+esc(weak.join(', ')):'All 12 words mastered.')+'</p>'+(last?'<p>Last adventure: '+last.correct+'/10 on the first try.</p>':'')+'</section>';
+    }).join('')+'<p class="mastery-explainer">A mastery seal means correct meanings, two spelling days, and practice across three different days. Letter tiles help learning but do not earn a spelling day.</p></details>';
   }
 
   function cloudStatusText() {
@@ -498,7 +507,7 @@
     var row=stage.querySelector('.shield-row');if(row)row.setAttribute('aria-label',session.battleDamage+' of 10 shield points cleared');
     var status=document.getElementById('battle-status');if(status)status.textContent=message;
     clearTimeout(stage._battleTimer);
-    stage._battleTimer=setTimeout(function(){if(stage.isConnected){stage.setAttribute('data-state','ready');session.battleState='ready';}},520);
+    if(kind!=='victory')stage._battleTimer=setTimeout(function(){if(stage.isConnected&&session){stage.setAttribute('data-state','ready');session.battleState='ready';}},520);
   }
   function landHit(kind) {
     var final=session.battleDamage+1>=SESSION_LENGTH;

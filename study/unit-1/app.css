@@ -325,3 +325,8 @@ body[data-screen="question"] .cloud-mini { display:none; }
 .preview-confirm { min-height:44px;padding:8px 14px;background:#f3d381;color:#173c30;border:0;border-radius:10px;font-size:.8rem;font-weight:850;cursor:pointer; }
 .cloud-button { display:inline-flex;align-items:center; }
 @media(max-width:560px){.shop-art,.item-art{height:66px;}.shop-card{padding:8px;}.merchant-head p:last-child{font-size:.73rem;}.picker-links{gap:0 4px;}.audio-note{margin-bottom:8px;} }
+.learning-notes { margin:12px 2px 0;padding:0 12px;border-top:1px solid var(--line);color:var(--muted);font-size:.78rem; }
+.learning-notes summary { min-height:44px;padding:14px 0;cursor:pointer;font-weight:650; }
+.learning-notes section { padding:10px 0;border-top:1px solid var(--line); }.learning-notes h3{font-size:.9rem;margin:0 0 7px;color:var(--ink);}.learning-notes p{margin:5px 0;line-height:1.5;}.learning-notes .mastery-explainer{font-size:.71rem;margin:10px 0 15px;}
+body[data-screen="question"] .pips { display:none; }
+@media(max-width:560px){.session-promise{font-size:.66rem;}.battle-hud{font-size:.65rem;}.item-rarity{font-size:.62rem;}.shop-card h3{font-size:.88rem;}}

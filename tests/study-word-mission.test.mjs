@@ -282,4 +282,23 @@ describe('Unit 1 Word Expedition', () => {
     assert.ok(entry.timing.play/(entry.timing.learning+entry.timing.play)<=0.1);
     await context.close();
   });
+
+  test('home, question, correction, summary and shop pass serious accessibility checks', async () => {
+    const context=await fastContext({viewport:{width:390,height:844},reducedMotion:'reduce'});
+    const page=await context.newPage();await page.goto(server.origin+'/study/');
+    const axeModule=await import('axe-core');await page.addScriptTag({content:(axeModule.default||axeModule).source});
+    async function scan(label){
+      const violations=await page.evaluate(async()=>{
+        const result=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}});
+        return result.violations.filter(v=>['critical','serious'].includes(v.impact)).map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}));
+      });
+      assert.deepEqual(violations,[],label);
+    }
+    await scan('home');await page.locator('[data-profile="Luke"]').click();await scan('question');
+    await page.locator('#answer-input').fill('wrong');await page.locator('#answer-input').press('Enter');await scan('correction');
+    await page.locator('#correction-input').fill(await page.locator('#correction-form strong').innerText());await page.locator('#correction-input').press('Enter');await page.waitForTimeout(35);
+    for(let i=1;i<10;i++)await answerCurrentQuestion(page);
+    await scan('summary');await page.locator('#visit-shop').click();await scan('shop');
+    await context.close();
+  });
 });
