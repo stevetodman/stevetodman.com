@@ -78,7 +78,7 @@ if (fs.existsSync(kawasakiHtml)) {
 const files = [];
 // Content-address Study's delivery as one release, including CSS background
 // imagery. Revalidating HTML then cannot load an older cached app/atlas.
-const studyAssets = ['app.js','game-art.js','quality-core.js','app.css'];
+const studyAssets = ['app.js','game-art.js','quality-core.js','sfx-bank.js','audio-unlock.js','app.css'];
 const studyArt = ['expedition-sprites.webp','forest-clearing.webp','expedition-world.webp','monster-sprites.webp','extra-gear.webp','hero-poses.webp'];
 const studyHash = createHash('sha256');
 for (const asset of studyAssets.concat(studyArt.map(name=>'assets/'+name))) {
@@ -92,7 +92,7 @@ for (const asset of ['app.css','game-art.js']) {
 }
 for (const route of ['study/index.html','study/unit-1/index.html']) {
   const target=path.join(dist,route);
-  const html=fs.readFileSync(target,'utf8').replace(/((?:app|game-art|quality-core)\.(?:js|css))(?=")/g,`$1?v=${studyVersion}`).replace('<html lang="en">',`<html lang="en" data-study-build="${studyVersion}">`);
+  const html=fs.readFileSync(target,'utf8').replace(/((?:app|game-art|quality-core|sfx-bank|audio-unlock)\.(?:js|css))(?=")/g,`$1?v=${studyVersion}`).replace('<html lang="en">',`<html lang="en" data-study-build="${studyVersion}">`);
   fs.writeFileSync(target,html);
 }
 // Engineering handoffs and prompt provenance belong in source, not the family app.
