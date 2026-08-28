@@ -36,6 +36,7 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 
 ## Assignment behavior
 
+- Multiple-choice meaning practice uses short, authored monster dialogue containing the target word. These contextual answers still earn normal hits, coins and correct-answer counts, but do not add mastery days. Typed recall, spelling, retries and the final checkpoint keep their context-free prompts and existing mastery credit. Existing earned mastery is preserved. After a wrong attempt, monsters may give a cartoon insult followed by a model sentence using the word; no taunt or target-word reveal appears before a spelling/recall attempt. Dialogue is text-only, adds no turns and never delays spoken words. No insults about intelligence, reading ability, identity or real-world appearance.
 - A learner is one tap from question 1.
 - A session is exactly 10 questions.
 - Question 10 is the final checkpoint and cannot be replaced by retry scheduling.

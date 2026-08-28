@@ -13,7 +13,7 @@ function model(audio) {
   const source=read('study/unit-1/app.js');
   vm.runInNewContext(source.slice(0,source.indexOf("  chip.setAttribute('aria-label'"))+`
     window.test={sanitizeGameProfile,applyCloudGame,gameProfile,gameXp,coinBalance,makeQuestion,isAccepted,WORDS,savedRound,savedGearChoice,recordResult,
-      playWeaponSound,sessionCoinAward,monsterCounts,
+      playWeaponSound,sessionCoinAward,monsterCounts,questionPromptHTML,monsterTauntHTML,
       setSession:(value)=>{session=value;activeName='Luke';},stats:()=>profile('Luke').stats};
   })();`,context);
   return {...context.window.test,storage,quality:context.window.WordExpeditionQuality};
@@ -69,6 +69,20 @@ test('every teacher-listed relation is accepted in ordinary and correction gradi
     const q=m.makeQuestion({word,domain},0,true);
     for(const answer of list)assert.equal(m.isAccepted(q,answer.toUpperCase()),true,word.word+':'+answer);
   }
+  for(const word of m.WORDS){
+    const practice=m.makeQuestion({word,domain:'definition'},1,false);
+    for(const enemy of ['mossling','wisp','sentinel','boss'])assert.ok(m.questionPromptHTML(practice,enemy).includes('<span class="target">'+word.word+'</span>'),enemy+': '+word.word);
+    for(const q of [m.makeQuestion({word,domain:'spelling'},1,false),m.makeQuestion({word,domain:'definition'},0,false),m.makeQuestion({word,domain:'definition'},9,false),m.makeQuestion({word,domain:'definition'},1,true)])assert.doesNotMatch(m.questionPromptHTML(q,'boss'),/monster-dialogue/);
+  }
+  const word=m.WORDS[0],practice=m.makeQuestion({word,domain:'synonym'},1,false);
+  m.setSession({id:'story',index:0,enemy:'mossling',results:[]});m.recordResult(practice,true,false);
+  assert.equal(m.stats()['blunder|synonym'].correct,1);assert.equal(m.stats()['blunder|synonym'].correctDays.length,0,'context clues do not earn mastery days');
+  m.setSession({id:'recall',index:0,enemy:'mossling',results:[]});m.recordResult(m.makeQuestion({word,domain:'synonym'},0,true),true,false);
+  assert.equal(m.stats()['blunder|synonym'].correctDays.length,1,'ordinary recall still earns mastery');
+  const spelling=m.makeQuestion({word,domain:'spelling'},1,false);
+  assert.equal(m.monsterTauntHTML(spelling),'','no taunt can reveal a word before an attempt');
+  m.setSession({id:'miss',index:0,enemy:'mossling',results:[{correct:false}]});
+  assert.match(m.monsterTauntHTML(spelling),/soggy turnip/);assert.ok(m.monsterTauntHTML(spelling).includes('<span class="target">blunder</span>'));
   assert.match(read('study/unit-1/app.js'),/if\(!isAccepted\(q,input.value\)\)/);
 });
 test('round recovery keeps question order and rejects malformed data without clearing storage',()=>{

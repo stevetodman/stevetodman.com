@@ -463,3 +463,11 @@ body[data-screen="question"] .pips { display:none; }
 .roar-button:disabled { opacity:.65;cursor:default; }.monster-locked { margin:auto 0 10px;color:var(--muted);font-size:.65rem; }
 @media(max-width:380px){.monster-card{padding:8px;}.monster-portrait{height:90px;}.monster-portrait .monster-art{width:95px;height:95px;}.monster-card h3{font-size:.85rem;}}
 @media(forced-colors:active){.monster-card,.book-controls,.book-open,.roar-button{border:1px solid CanvasText;}}
+
+.monster-dialogue { margin:0 0 14px;padding:10px 12px;background:#eef3e8;border-left:3px solid #74916b;border-radius:0 12px 12px 0; }
+.dialogue-speaker { margin:0 0 5px;color:var(--teal-dark);font-size:.64rem;font-weight:900;letter-spacing:.02em; }
+.monster-dialogue .q-prompt { margin:0;font-size:1rem;font-weight:500;line-height:1.4; }
+.dialogue-line,.dialogue-task { display:block; }.dialogue-task { margin-top:8px;font-size:.9rem;font-weight:850; }
+.monster-taunt { margin:12px 0 0;padding:9px 11px;background:#f6f0df;border-left:3px solid #b69758;border-radius:0 10px 10px 0; }
+.monster-taunt>p:last-child { margin:0;font-size:.85rem;line-height:1.35;color:var(--ink); }.monster-taunt .target { color:var(--teal-dark);font-weight:900; }
+@media(forced-colors:active){.monster-dialogue,.monster-taunt{border:1px solid CanvasText;}}

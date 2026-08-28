@@ -410,12 +410,18 @@ describe('Unit 1 Word Expedition', () => {
     assert.equal(await page.locator('.shield-segment.cleared').count(),1,'counterattack cannot erase a correct answer');
     assert.equal(await page.locator('.question-count').innerText(),'1 / 10');
     await page.locator('#next-question').click();
+    assert.equal(await page.locator('.monster-dialogue').count(),1,'meaning practice uses monster dialogue');
+    assert.match(await page.locator('.dialogue-speaker').innerText(),/Bramble Troll/);
     for(let i=1;i<7;i++)await answerCorrectly(page);
     assert.equal(await page.locator('.q-domain').getAttribute('data-domain'),'spelling');
     const speech=await page.evaluate(()=>({last:window.heard.at(-1),age:performance.now()-window.heard.at(-1).at}));
     assert.equal(speech.last.voice,'Local');assert.equal(speech.last.rate,1);
     assert.ok(speech.age<220,'speech starts on render, without the former 220ms timer');
     assert.equal(await page.locator('.question-count').innerText(),'8 / 10');
+    assert.equal(await page.locator('.monster-dialogue,.monster-taunt').count(),0,'spelling gets no story clue before the attempt');
+    await page.locator('#answer-input').fill('definitely wrong');await page.locator('#answer-form').evaluate(form=>form.requestSubmit());
+    assert.match(await page.locator('.monster-taunt').innerText(),/soggy turnip/);
+    assert.equal(await page.locator('.monster-taunt .target').innerText(),await page.locator('#correction-form strong').innerText(),'taunt models the missed word');
 
     // Four representative battles in the existing smoke check; no exhaustive gear matrix.
     const scenes=[
