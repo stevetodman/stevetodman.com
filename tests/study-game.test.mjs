@@ -66,7 +66,7 @@ test('question-as-combat preserves the fixed ten-question learning loop', () => 
   assert.match(source, /battleDamage:0/);
   assert.match(source, /session\.battleDamage=Math\.min\(SESSION_LENGTH,session\.battleDamage\+1\)/);
   assert.match(source, /if\(!session\|\|session\.index>=SESSION_LENGTH\)\{finishSession\(\);return;\}/);
-  assert.match(source, /gear changes the adventure’s look, never the questions/i);
+  assert.match(source, /gear changes looks, not questions/i);
   assert.doesNotMatch(source, /equipment.*SESSION_LENGTH|equipped.*buildPlan/i);
 });
 

@@ -723,7 +723,7 @@
     var link=document.getElementById('visit-shop');
     if(link&&remaining<4000){link.disabled=true;link.textContent='Gear saved for next time';}
     var note=document.getElementById('reward-break-note');
-    if(note)note.textContent=savedGearChoice(activeName)?'Back to heroes in '+Math.ceil(remaining/1000)+'s. Your choice stays saved; no need to rush.':'Back to heroes in '+Math.ceil(remaining/1000)+'s. Coins and gear stay saved.';
+    if(note)note.textContent=savedGearChoice(activeName)?'Back in '+Math.ceil(remaining/1000)+'s · choice saved for next time.':'Back to heroes in '+Math.ceil(remaining/1000)+'s. Coins and gear stay saved.';
     var progress=document.getElementById('reward-break-progress');if(progress)progress.value=remaining;
     rewardTimer=setTimeout(scheduleRewardEnd,Math.min(1000,remaining));
   }
@@ -738,7 +738,7 @@
     activityClock.mode('play');document.body.dataset.screen='shop';
     var gp=gameProfile(activeName);
     setChip(activeName);
-    app.innerHTML='<section class="merchant-head"><div><p class="eyebrow">Trail shop · a quick reward break</p><h2>Make it yours</h2><p>Study coins only. No real money. Gear changes the adventure’s look, never the questions.</p></div><div class="wallet"><span aria-hidden="true">◆</span><strong>'+coinBalance(activeName)+'</strong><small>study coins</small></div></section>'+
+    app.innerHTML='<section class="merchant-head"><div><p class="eyebrow">Trail shop · a quick reward break</p><h2>Make it yours</h2></div><div class="wallet"><span aria-hidden="true">◆</span><strong>'+coinBalance(activeName)+'</strong><small>study coins</small></div><p class="merchant-note">Study coins only. No real money. Gear changes looks, not questions.</p></section>'+
       '<section class="merchant-preview" id="gear-preview"><div class="preview-glow"></div>'+ART.hero(activeName,gp.equipped,'ready')+'<div><span>Level '+levelForXp(gameXp(activeName))+'</span><strong>'+esc(activeName)+'</strong><small>'+esc((itemById(gp.equipped.weapon)||{name:'Starter Sword'}).name)+' · '+esc((itemById(gp.equipped.armor)||{name:'Starter Cloak'}).name)+'</small><button type="button" class="starter-button" id="starter-gear">Wear starter gear</button></div></section>'+
       rewardBreakHTML()+'<div class="shop-grid">'+GAME_CATALOG.map(gearItemHTML).join('')+'</div><button type="button" class="secondary-button merchant-done" id="shop-done">Done for now</button>';
     if(!keepPosition)resetView('.merchant-head h2');

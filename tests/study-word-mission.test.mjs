@@ -468,6 +468,10 @@ describe('Unit 1 Word Expedition', () => {
       }
       assert.equal(await page.locator('#toast').isVisible(),false,'audio errors from the finished question do not cover reward controls');
       await page.locator('[data-item="guardian-mail"]').click();await capture('armor-preview');
+      if(width<=390){
+        const done=await page.locator('#shop-done').boundingBox();
+        assert.ok(done.y+done.height<=844,'preview, all six items and Done fit on the '+width+'px phone');
+      }
       await page.locator('#cancel-gear').click();await page.locator('#shop-done').click();
       const entry=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')).learners.Luke.sessions[0]);
       fs.writeFileSync(path.join(directory,width+'-simulated-timing.json'),JSON.stringify({evidence:'Automated interaction with simulated reading; not a child playtest',...entry.timing},null,2));
