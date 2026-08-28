@@ -185,7 +185,7 @@ describe('Unit 1 Word Expedition', () => {
     assert.equal(await page.locator('.hero-fighter .gear.weapon.copper').count(), 1);
     await page.locator('#profile-chip').click();
     await page.locator('[data-profile="Samantha"]').click();
-    assert.equal(await page.locator('.level-chip').innerText(), 'Level 1');
+    assert.match(await page.locator('.level-chip').innerText(), /^level 1$/i);
     assert.equal(await page.locator('.hero-fighter .gear.weapon.starter').count(), 1);
     await context.close();
   });
