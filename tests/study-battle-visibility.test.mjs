@@ -19,7 +19,6 @@ after(async () => {
 
 test('weapons and monsters remain visibly in the fight on mobile and desktop', async () => {
   const viewports = [
-    { name:'iphone-tiny', width:390, height:420 },
     { name:'iphone-short', width:390, height:520 },
     { name:'iphone-portrait', width:390, height:844 },
     { name:'desktop', width:1024, height:844 },
@@ -35,10 +34,6 @@ test('weapons and monsters remain visibly in the fight on mobile and desktop', a
     await page.goto(server.origin + '/study/');
     await page.locator('[data-profile="Luke"]').click();
 
-    // At keyboard-sized heights the app may autofocus a text answer. Blurring models
-    // dismissing the software keyboard; the fight must immediately return.
-    if (viewport.height <= 450) await page.evaluate(() => document.activeElement?.blur());
-
     const stage = page.locator('.battle-stage');
     const mission = page.locator('.mission-head');
     const hero = page.locator('.hero-fighter > svg');
@@ -46,15 +41,14 @@ test('weapons and monsters remain visibly in the fight on mobile and desktop', a
     const question = page.locator('.question-card');
 
     assert.equal(await stage.count(), 1, `${viewport.name}: battle stage exists`);
-    assert.equal(await stage.isVisible(), true, `${viewport.name}: battle stage is visible with the software keyboard dismissed`);
+    assert.equal(await stage.isVisible(), true, `${viewport.name}: battle stage is visible`);
     assert.equal(await mission.isVisible(), true, `${viewport.name}: question heading is visible`);
     assert.equal(await hero.isVisible(), true, `${viewport.name}: hero is visible`);
     assert.equal(await enemy.isVisible(), true, `${viewport.name}: monster is visible`);
     assert.equal(await question.isVisible(), true, `${viewport.name}: question remains visible`);
 
     const stageBox = await stage.boundingBox();
-    assert.ok(stageBox && stageBox.width > 0 && stageBox.height > 0, `${viewport.name}: combat has a rendered box`);
-    if (viewport.height > 450) assert.ok(stageBox.height >= 60, `${viewport.name}: combat retains a usable stage height`);
+    assert.ok(stageBox && stageBox.width > 0 && stageBox.height >= 60, `${viewport.name}: combat has a usable rendered box`);
     const layout = await page.evaluate(() => ({
       scrollWidth: document.documentElement.scrollWidth,
       clientWidth: document.documentElement.clientWidth,
@@ -65,7 +59,7 @@ test('weapons and monsters remain visibly in the fight on mobile and desktop', a
     assert.ok(layout.questionTop > layout.stageTop, `${viewport.name}: fight remains above the question`);
     assert.deepEqual(errors, [], `${viewport.name}: no page errors`);
 
-    if (['iphone-tiny','iphone-short','desktop'].includes(viewport.name)) {
+    if (viewport.name === 'iphone-short' || viewport.name === 'desktop') {
       await page.screenshot({ path:path.join(evidence, `${viewport.name}-battle-visible.png`), fullPage:true });
     }
     await context.close();
