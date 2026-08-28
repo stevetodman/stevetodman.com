@@ -10,7 +10,7 @@ mkdir -p "$work/out" study/unit-1/sfx
 
 echo "Fetching sparse CC0 mirrors from GitHub..."
 git clone --quiet --depth 1 --filter=blob:none --sparse https://github.com/lospolosadwords-dev/birodalmak.git "$work/biro"
-git -C "$work/biro" sparse-checkout set assets/audio/sfx assets/AUDIO_CREDITS.md
+git -C "$work/biro" sparse-checkout set assets/audio/sfx
 git clone --quiet --depth 1 --filter=blob:none --sparse https://github.com/Ethanil/LogicaTactica.git "$work/logica"
 git -C "$work/logica" sparse-checkout set assets/Sounds/cc0/80-CC0-creature-SFX assets/AudioResources/SFX
 
@@ -22,19 +22,16 @@ encode() {
     -ac 1 -ar 22050 -c:a libmp3lame -b:a 48k -map_metadata -1 "$out"
 }
 
-# Eight weapon/material sounds. The source mirror records each original CC0 pack
-# and source filename in assets/AUDIO_CREDITS.md.
-encode "$work/biro/assets/audio/sfx/melee_1.mp3"    study/unit-1/sfx/blade.mp3   0.29 0.26
-encode "$work/biro/assets/audio/sfx/faith_1.mp3"    study/unit-1/sfx/wand.mp3    0.25 0.22
-encode "$work/biro/assets/audio/sfx/building_l1.mp3" study/unit-1/sfx/wood.mp3    0.24 0.21
-encode "$work/biro/assets/audio/sfx/pillage_2.mp3"  study/unit-1/sfx/axe.mp3     0.28 0.25 0.90
-encode "$work/biro/assets/audio/sfx/arrow_2.mp3"    study/unit-1/sfx/bow.mp3     0.22 0.19
-encode "$work/biro/assets/audio/sfx/melee_2.mp3"    study/unit-1/sfx/spear.mp3   0.30 0.27 1.05
-encode "$work/biro/assets/audio/sfx/project_1.mp3"  study/unit-1/sfx/hammer.mp3  0.30 0.27 0.90
-encode "$work/biro/assets/audio/sfx/melee_3.mp3"    study/unit-1/sfx/scythe.mp3  0.34 0.31 0.94
+encode "$work/biro/assets/audio/sfx/melee_1.mp3"     study/unit-1/sfx/blade.mp3  0.29 0.26
+encode "$work/biro/assets/audio/sfx/faith_1.mp3"     study/unit-1/sfx/wand.mp3   0.25 0.22
+encode "$work/biro/assets/audio/sfx/building_l1.mp3" study/unit-1/sfx/wood.mp3   0.24 0.21
+encode "$work/biro/assets/audio/sfx/pillage_2.mp3"   study/unit-1/sfx/axe.mp3    0.28 0.25 0.90
+encode "$work/biro/assets/audio/sfx/arrow_2.mp3"     study/unit-1/sfx/bow.mp3    0.22 0.19
+encode "$work/biro/assets/audio/sfx/melee_2.mp3"     study/unit-1/sfx/spear.mp3  0.30 0.27 1.05
+encode "$work/biro/assets/audio/sfx/project_1.mp3"   study/unit-1/sfx/hammer.mp3 0.30 0.27 0.90
+encode "$work/biro/assets/audio/sfx/melee_3.mp3"     study/unit-1/sfx/scythe.mp3 0.34 0.31 0.94
 
-# Four creature effects from rubberduck's CC0 creature pack. We deliberately use
-# only cute/eat/roar families. No scream_* recording is selected or shipped.
+# Only cute/eat/roar families are used from the creature pack. No scream file is selected.
 encode "$work/logica/assets/Sounds/cc0/80-CC0-creature-SFX/cute_05.ogg" study/unit-1/sfx/troll.mp3 0.31 0.28 0.92
 encode "$work/logica/assets/Sounds/cc0/80-CC0-creature-SFX/eat_02.ogg"  study/unit-1/sfx/wisp.mp3  0.28 0.25 1.08
 encode "$work/logica/assets/Sounds/cc0/80-CC0-creature-SFX/roar_03.ogg" study/unit-1/sfx/golem.mp3 0.33 0.30 0.88
