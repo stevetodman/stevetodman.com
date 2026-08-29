@@ -341,9 +341,8 @@ describe('Unit 1 Word Expedition', () => {
     const page=await context.newPage();const errors=watchForErrors(page);await page.goto(server.origin+'/study/');
     await page.locator('[data-profile="Luke"]').click();
     await answerCorrectly(page);
-    await page.locator('#listen').click();
-    assert.match(await page.locator('#toast').innerText(),/read this question instead/);
-    assert.doesNotMatch(await page.locator('#toast').innerText(),/tiles/,'meaning questions do not offer nonexistent spelling controls');
+    assert.equal(await page.locator('#listen').count(),0,'word-bank vocabulary clues are readable and do not depend on speech');
+    assert.equal(await page.locator('.choice').count(),12,'vocabulary keeps the complete assigned word bank visible');
     for(let i=1;i<7;i++)await answerCorrectly(page);
     await page.locator('#listen').click();
     assert.match(await page.locator('.audio-note').innerText(),/Audio is unavailable/);
@@ -413,8 +412,9 @@ describe('Unit 1 Word Expedition', () => {
     assert.equal(await page.locator('.shield-segment.cleared').count(),1,'counterattack cannot erase a correct answer');
     assert.equal(await page.locator('.question-count').innerText(),'1 / 10');
     await page.locator('#next-question').click();
-    assert.equal(await page.locator('.monster-dialogue').count(),1,'meaning practice uses monster dialogue');
-    assert.match(await page.locator('.dialogue-speaker').innerText(),/Bramble Troll/);
+    assert.equal(await page.locator('.monster-dialogue').count(),0,'gameplay presentation cannot add alternate vocabulary instruction');
+    assert.equal(await page.locator('.choice').count(),12,'meaning practice uses the complete teacher word bank');
+    assert.match(await page.locator('.q-prompt').innerText(),/Which vocabulary word/);
     for(let i=1;i<7;i++)await answerCorrectly(page);
     assert.equal(await page.locator('.q-domain').getAttribute('data-domain'),'spelling');
     const speech=await page.evaluate(()=>({last:window.heard.at(-1),age:performance.now()-window.heard.at(-1).at}));
@@ -424,7 +424,7 @@ describe('Unit 1 Word Expedition', () => {
     assert.equal(await page.locator('.monster-dialogue,.monster-taunt').count(),0,'spelling gets no story clue before the attempt');
     await page.locator('#answer-input').fill('definitely wrong');await page.locator('#answer-form').evaluate(form=>form.requestSubmit());
     assert.match(await page.locator('.monster-taunt').innerText(),/soggy turnip/);
-    assert.equal(await page.locator('.monster-taunt .target').innerText(),await page.locator('#correction-form strong').innerText(),'taunt models the missed word');
+    assert.equal(await page.locator('.monster-taunt .target').count(),0,'monster flavor never models or teaches the missed word');
 
     // Four representative battles in the existing smoke check; no exhaustive gear matrix.
     const scenes=[
