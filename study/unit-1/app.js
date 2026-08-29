@@ -22,65 +22,6 @@
     {id:'sentinel',name:'Rune Golem',story:'Built to guard ancient treasure. Forgot where it put the treasure.'},
     {id:'boss',name:'The Word Keeper',story:'An owl sorcerer with a thousand spells. Cannot find the one that fixes its hair.'}
   ];
-  // Short, authored practice sentences. Never send a spelling answer into the prompt.
-  var MONSTER_LINES = {
-    mossling:{
-      blunder:'I made a blunder: I put my soup in my boot.',
-      cancel:'I had to cancel my picnic. The golem ate the blanket.',
-      continuous:'That continuous dripping ruined my nap. Even the moss is grumpy.',
-      distribute:'I distribute bridge tickets to visitors. Nobody buys the muddy ones.',
-      document:'This document says the bridge is mine. I signed it in mud.',
-      fragile:'This bridge is fragile. Last week, a squirrel broke it.',
-      myth:'That myth about a polite troll is definitely not about me.',
-      reject:'I reject your offer of broccoli. Bring something with more crunch.',
-      scuffle:'A scuffle broke out over my sandwich. The sandwich lost.',
-      solitary:'I prefer a solitary life. Visitors always steal my biscuits.',
-      temporary:'Your bridge pass is temporary. It expires when I finish lunch.',
-      veteran:'I am a veteran of bridge battles. The splinters remember me.'
-    },
-    wisp:{
-      blunder:'My only blunder was floating into a jar. A very impressive jar.',
-      cancel:'You cannot cancel my grand entrance. I already rehearsed it!',
-      continuous:'Admire my continuous glow. I never need a candle break.',
-      distribute:'I distribute sparkles everywhere. You are welcome, dusty castle.',
-      document:'My document lists every wall I passed through. It is enormous.',
-      fragile:'That fragile lantern cracked. My glow is clearly the better choice.',
-      myth:'The myth says nobody can catch me. Excellent publicity!',
-      reject:'I reject this tiny lantern. A star like me needs room.',
-      scuffle:'I escaped the scuffle through a wall. Such elegant footwork!',
-      solitary:'A solitary spark followed me. Even sparks want my autograph.',
-      temporary:'Your victory would be temporary. My magnificent glow lasts all night.',
-      veteran:'I am a veteran of midnight haunts. Even ghosts ask for tips.'
-    },
-    sentinel:{
-      blunder:'I made a blunder. The door needed a key, not a boulder.',
-      cancel:'I must cancel lunch. Apparently pebbles are not sandwiches.',
-      continuous:'My continuous humming bothers the owl. I thought owls liked music.',
-      distribute:'I distribute stones to every visitor. Why does everyone run?',
-      document:'This document proves I own the castle. Can I eat it now?',
-      fragile:'My fragile teacup survived. The table did not.',
-      myth:'The myth says mountains can walk. Should I ask my cousin?',
-      reject:'They reject my stone soup. Perhaps I need smaller stones.',
-      scuffle:'The scuffle ended when I sat down. Was that the table?',
-      solitary:'A solitary pebble sits beside me. I named it Crowd.',
-      temporary:'My temporary repair is holding. Is this boulder supposed to roll?',
-      veteran:'They call me a veteran guard. Does that come with a hat?'
-    },
-    boss:{
-      blunder:'A blunder in my spell turned my crown into soup. Still regal.',
-      cancel:'I shall cancel the royal feast. Someone invited a hungry golem.',
-      continuous:'My continuous studying proves my brilliance. My feathers demand a holiday.',
-      distribute:'I distribute royal invitations. The mice receive the smallest envelopes.',
-      document:'This document declares me ruler. My signature takes an entire page.',
-      fragile:'Handle my fragile crystal crown carefully. Royal glue is expensive.',
-      myth:'The myth of my wisdom grows daily. I write the updates.',
-      reject:'I reject this crooked crown. My royal head deserves better.',
-      scuffle:'A scuffle in my throne room? Mind the royal cushions!',
-      solitary:'A solitary throne suits me. Sharing is terribly unroyal.',
-      temporary:'Your invitation is temporary. My magnificence, however, is permanent.',
-      veteran:'I am a veteran spellcaster. That exploding teapot was intentional.'
-    }
-  };
   var XP_THRESHOLDS = [0,20,60,120,200,300,430,590,780,1000];
   var LEARNERS = [
     { name:'Luke', avatar:'🚀' },
@@ -93,24 +34,26 @@
   };
   var TEST_DATES = {
     vocabulary:new Date('2026-09-01T08:00:00'),
-    spelling:new Date('2026-09-02T08:00:00')
+    spelling:new Date('2026-09-09T08:00:00')
   };
   var DOMAINS = ['definition','synonym','antonym','spelling'];
   var DOMAIN_LABELS = { definition:'What it means', synonym:'Same meaning', antonym:'Opposite meaning', spelling:'Spell it' };
 
+  // Canonical Unit 1 instructional content transcribed from the teacher worksheet.
+  // Do not add instructional definitions, relations, examples, or usage outside these fields.
   var WORDS = [
-    { word:'blunder', pos:'verb · noun', definitions:['to make a foolish or careless mistake','a serious or thoughtless mistake'], synonyms:['err','foul up','bungle','goof','error','blooper'], antonyms:['triumph','succeed','success','hit'], example:'I made a blunder when I put salt in the lemonade.', spellingSentence:'That careless blunder cost our team a point.' },
-    { word:'cancel', pos:'verb', definitions:['to call off or do away with; to cross out so it cannot be used again'], synonyms:['stop','discontinue','drop','repeal','revoke'], antonyms:['renew','continue','extend','maintain'], example:'The team had to cancel practice because of lightning.', spellingSentence:'The storm may cancel our outdoor practice.' },
-    { word:'continuous', pos:'adjective', definitions:['going on without a stop or break'], synonyms:['ongoing','endless','ceaseless','unbroken','constant','perpetual'], antonyms:['broken','discontinuous','interrupted'], example:'A continuous hum came from the old refrigerator.', spellingSentence:'The machine made one continuous sound.' },
-    { word:'distribute', pos:'verb', definitions:['to give out in shares; to scatter or spread'], synonyms:['divide','share','deal','issue'], antonyms:['gather','collect','hold'], example:'Maya will distribute one worksheet to each student.', spellingSentence:'Please distribute the papers to the whole class.' },
-    { word:'document', pos:'noun · verb', definitions:['a written or printed record that gives information or proof','to provide written or printed proof'], synonyms:['certificate','deed','prove','establish'], antonyms:[], example:'The signed document gave proof, and photographs helped document what happened.', spellingSentence:'The signed document gave us the information we needed.' },
-    { word:'fragile', pos:'adjective', definitions:['easily broken or damaged; requiring special handling or care'], synonyms:['weak','frail','breakable','delicate','brittle','flimsy'], antonyms:['sturdy','hardy','strong','rugged','tough'], example:'The fragile glass ornament needs careful handling.', spellingSentence:'The package was marked fragile because it contained glass.' },
-    { word:'myth', pos:'noun', definitions:['an old story that explains why something is or how it came to be; something imaginary'], synonyms:['legend','fable','tale','fantasy','fairy tale'], antonyms:['fact'], example:'The class read a Greek myth about a hero and a monster.', spellingSentence:'We read a myth about how thunder began.' },
-    { word:'reject', pos:'verb', definitions:['to refuse to accept, agree to, believe, or use'], synonyms:['deny','discard','junk','scrap','decline','dismiss'], antonyms:['take','accept','receive','welcome'], example:'The editor may reject a story that does not follow the rules.', spellingSentence:'The club may reject an application that is incomplete.' },
-    { word:'scuffle', pos:'verb · noun', definitions:['to fight or struggle closely with','a fight or struggle'], synonyms:['tussle','roughhouse','battle','brawl','fistfight','clash'], antonyms:[], example:'A brief scuffle began when both puppies grabbed the same toy.', spellingSentence:'A brief scuffle began over the last ball.' },
-    { word:'solitary', pos:'adjective', definitions:['living or being alone; being the only one'], synonyms:['single','sole','lone'], antonyms:['sociable','several','many','numerous'], example:'One solitary tree stood in the empty field.', spellingSentence:'A solitary bird sat alone on the fence.' },
-    { word:'temporary', pos:'adjective', definitions:['lasting or used for a limited time'], synonyms:['short-term','passing','brief','momentary'], antonyms:['lasting','long-lived','permanent'], example:'The library used a temporary entrance during repairs.', spellingSentence:'The temporary bridge will be removed next month.' },
-    { word:'veteran', pos:'noun · adjective', definitions:['a former member of the armed forces; an experienced person','having much experience in a job or field'], synonyms:['expert','professional','experienced','skilled','accomplished'], antonyms:['beginner','newcomer','novice','rookie'], example:'The veteran firefighter knew how to remain calm.', spellingSentence:'The veteran coach had many years of experience.' }
+    { word:'blunder', pos:'verb · noun', definitions:['to make a foolish or careless mistake','a serious or thoughtless mistake'], synonyms:['err','foul up','bungle','goof','error','blooper'], antonyms:['triumph','succeed','success','hit'] },
+    { word:'cancel', pos:'verb', definitions:['to call off or do away with; to cross out so it cannot be used again'], synonyms:['stop','discontinue','drop','repeal','revoke'], antonyms:['renew','continue','extend','maintain'] },
+    { word:'continuous', pos:'adjective', definitions:['going on without a stop or break'], synonyms:['ongoing','endless','ceaseless','unbroken','constant','perpetual'], antonyms:['broken','discontinuous','interrupted'] },
+    { word:'distribute', pos:'verb', definitions:['to give out in shares; to scatter or spread'], synonyms:['divide','share','deal','issue'], antonyms:['gather','collect','hold'] },
+    { word:'document', pos:'noun · verb', definitions:['a written or printed record that gives information or proof','to provide written or printed proof'], synonyms:['certificate','deed','prove','establish'], antonyms:[] },
+    { word:'fragile', pos:'adjective', definitions:['easily broken or damaged; requiring special handling or care'], synonyms:['weak','frail','breakable','delicate','brittle','flimsy'], antonyms:['sturdy','hardy','strong','rugged','tough'] },
+    { word:'myth', pos:'noun', definitions:['an old story that explains why something is or how it came to be; something imaginary'], synonyms:['legend','fable','tale','fantasy','fairy tale'], antonyms:['fact'] },
+    { word:'reject', pos:'verb', definitions:['to refuse to accept, agree to, believe, or use'], synonyms:['deny','discard','junk','scrap','decline','dismiss'], antonyms:['take','accept','receive','welcome'] },
+    { word:'scuffle', pos:'verb · noun', definitions:['to fight or struggle closely with','a fight or struggle'], synonyms:['tussle','roughhouse','battle','brawl','fistfight','clash'], antonyms:[] },
+    { word:'solitary', pos:'adjective', definitions:['living or being alone; being the only one'], synonyms:['single','sole','lone'], antonyms:['sociable','several','many','numerous'] },
+    { word:'temporary', pos:'adjective', definitions:['lasting or used for a limited time'], synonyms:['short-term','passing','brief','momentary'], antonyms:['lasting','long-lived','permanent'] },
+    { word:'veteran', pos:'noun · adjective', definitions:['a former member of the armed forces; an experienced person','having much experience in a job or field'], synonyms:['expert','professional','experienced','skilled','accomplished'], antonyms:['beginner','newcomer','novice','rookie'] }
   ];
 
   var app = document.getElementById('app');
@@ -181,9 +124,9 @@
         var word=WORDS.find(function(w){return old.word&&w.word===old.word.word;});
         if(!word||assignedDomains(word).indexOf(old.domain)<0)throw new Error('Unknown question');
         var q=makeQuestion({word:word,domain:old.domain},index,old.kind==='text');
-        if(q.kind==='choice'&&Array.isArray(old.choices)&&old.choices.length===4){
-          var valid=q.domain==='definition'?WORDS.map(function(w){return w.definitions[0];}):q.accepted.concat(safeRelationDistractors(word,q.accepted,q.domain==='synonym'?word.antonyms:word.synonyms));
-          if(old.choices.every(function(c){return valid.indexOf(c)>=0;})&&old.choices.some(function(c){return isAccepted(q,c);}))q.choices=old.choices;
+        if(q.wordBank&&Array.isArray(old.choices)&&old.choices.length===WORDS.length){
+          var validWords=WORDS.map(function(w){return w.word;});
+          if(unique(old.choices).length===WORDS.length&&old.choices.every(function(c){return validWords.indexOf(c)>=0;})&&old.choices.indexOf(q.answer)>=0)q.choices=old.choices;
         }
         return q;
       });
@@ -714,39 +657,36 @@
     var candidates=other.concat(WORDS.filter(function(w){return w.word!==word.word;}).map(function(w){return w.word;}));
     return unique(candidates).filter(function(term){return !accepted.has(normalize(term));});
   }
+  function teacherClue(word,domain,index) {
+    if(domain==='definition')return word.definitions[index%word.definitions.length];
+    var list=domain==='synonym'?word.synonyms:word.antonyms;
+    return list[index%list.length];
+  }
   function makeQuestion(pair,index,forceText) {
-    var w=pair.word,domain=pair.domain,typed=forceText||domain==='spelling'||index%2===0,q;
-    if(domain==='definition') {
-      if(typed)q={kind:'text',prompt:'Which vocabulary word means “'+w.definitions[0].split(';')[0]+'”?',accepted:[w.word],answer:w.word,explanation:w.word+': '+w.definitions.join('; ')};
-      else {var defs=WORDS.filter(function(x){return x.word!==w.word;}).map(function(x){return x.definitions[0];});q={kind:'choice',prompt:'Which definition matches <span class="target">'+esc(w.word)+'</span>?',choices:shuffle([w.definitions[0]].concat(shuffle(defs).slice(0,3))),accepted:[w.definitions[0]],answer:w.definitions[0],explanation:w.word+': '+w.definitions.join('; '),listen:true};}
-    } else if(domain==='synonym'||domain==='antonym') {
-      var list=domain==='synonym'?w.synonyms:w.antonyms,other=domain==='synonym'?w.antonyms:w.synonyms;
-      if(typed)q={kind:'text',prompt:'Type one '+domain+' for <span class="target">'+esc(w.word)+'</span>.',accepted:list.slice(),answer:list[0],explanation:'School list: '+list.join(', '),listen:true};
-      else {
-        var distractors=shuffle(safeRelationDistractors(w,list,other)).slice(0,3);
-        q={kind:'choice',prompt:'Which word is '+(domain==='antonym'?'an':'a')+' '+domain+' of <span class="target">'+esc(w.word)+'</span>?',choices:shuffle([list[0]].concat(distractors)),accepted:list.slice(),answer:list[0],explanation:'School list: '+list.join(', '),listen:true};
-      }
-    } else q={kind:'text',prompt:'Listen, then spell the word.',accepted:[w.word],answer:w.word,explanation:'The correct spelling is '+w.word+'.',listen:true,spelling:true};
+    var w=pair.word,domain=pair.domain,q;
+    if(domain==='spelling') {
+      q={kind:'text',prompt:'Listen, then spell the word.',accepted:[w.word],answer:w.word,explanation:'The correct spelling is '+w.word+'.',listen:true,spelling:true};
+    } else {
+      var clue=teacherClue(w,domain,index);
+      var prompt=domain==='definition'
+        ? 'Which vocabulary word means “'+clue+'”?'
+        : 'Which vocabulary word has the '+(domain==='synonym'?'same':'opposite')+' meaning as “'+clue+'”?' ;
+      var explanation=domain==='definition'
+        ? w.word+': '+w.definitions.join('; ')
+        : w.word+' — school '+(domain==='synonym'?'synonyms: '+w.synonyms.join(', '):'antonyms: '+w.antonyms.join(', '));
+      q={kind:'choice',prompt:prompt,choices:shuffle(WORDS.map(function(item){return item.word;})),accepted:[w.word],answer:w.word,explanation:explanation,wordBank:true,clue:clue};
+    }
     q.word=w;q.domain=domain;q.retry=!!forceText;q.checkpoint=index===SESSION_LENGTH-1;
-    q.contextual=q.kind==='choice'&&!q.spelling&&!q.retry&&!q.checkpoint;
+    q.contextual=false;
     return q;
   }
-  function monsterSentence(q,kind){return (MONSTER_LINES[kind]||MONSTER_LINES.mossling)[q.word.word]||q.word.example;}
-  function highlightedSentence(q,kind){
-    var line=monsterSentence(q,kind),at=line.toLowerCase().indexOf(q.word.word);
-    if(at<0)return esc(line);
-    return esc(line.slice(0,at))+'<span class="target">'+esc(line.slice(at,at+q.word.word.length))+'</span>'+esc(line.slice(at+q.word.word.length));
-  }
   function questionPromptHTML(q,kind){
-    if(!q.contextual||q.kind!=='choice'||q.spelling||q.domain==='spelling'||q.retry||q.checkpoint)return '<p class="q-prompt">'+q.prompt+'</p>';
-    var task=q.domain==='definition'?'Which definition matches the bold word?':q.domain==='synonym'?'Which word has the same meaning?':'Which word has the opposite meaning?';
-    return '<div class="monster-dialogue"><p class="dialogue-speaker">'+esc(enemyName(kind))+' · Story practice</p><p class="q-prompt"><span class="dialogue-line">“'+highlightedSentence(q,kind)+'”</span><span class="dialogue-task">'+task+'</span></p></div>';
+    return '<p class="q-prompt">'+q.prompt+'</p>';
   }
   function monsterTauntHTML(q){
-    // Only a completed wrong attempt unlocks this extra model, including in spelling.
     var result=session&&session.results[session.index];if(!result||result.correct||result.assisted)return '';
     var challenge=({mossling:'You soggy turnip!',wisp:'Nice try, walking night-light!',sentinel:'You wobbly pebble!',boss:'You featherless royal nuisance!'})[session.enemy]||'Your move!';
-    return '<div class="monster-taunt"><p class="dialogue-speaker">'+esc(enemyName(session.enemy))+'</p><p>“'+esc(challenge)+' '+highlightedSentence(q,session.enemy)+'”</p></div>';
+    return '<div class="monster-taunt"><p class="dialogue-speaker">'+esc(enemyName(session.enemy))+'</p><p>“'+esc(challenge)+'”</p></div>';
   }
 
   function startSession(name) {
@@ -846,18 +786,17 @@
     app.innerHTML='<section class="mission-head"><div><p class="eyebrow">'+esc(activeName)+'’s expedition</p><h2>'+(q.checkpoint?'Last question':'Question '+(session.index+1))+'</h2></div><span class="question-count">'+(session.index+1)+' / '+SESSION_LENGTH+'</span></section>'+battleStageHTML()+pipsHTML()+
       '<section class="question-card"><div class="question-top"><span class="q-domain" data-domain="'+q.domain+'">'+esc(DOMAIN_LABELS[q.domain])+'</span>'+
       (q.listen?'<button type="button" class="speak-button" id="listen" aria-label="Hear the word">Hear word</button>':'')+'</div>'+questionPromptHTML(q,session.enemy)+
-      (q.spelling?'<p class="audio-note">Listen, then type. <button type="button" class="sentence-button" id="hear-sentence">Hear a sentence</button></p>':'')+
+      (q.spelling?'<p class="audio-note">Listen, then type the word.</p>':'')+
       '<div id="answer-area">'+(q.kind==='choice'?choicesHTML(q):inputHTML(q))+'</div><div id="feedback-area" aria-live="polite"></div></section><p class="cloud-mini" id="cloud-mini">'+cloudStatusText()+'</p>';
     resetView();
     if(q.kind==='choice')wireChoices(q);else wireInput(q);
     if(q.listen){document.getElementById('listen').addEventListener('click',function(){speakWord(q.word);});}
-    if(q.spelling)document.getElementById('hear-sentence').addEventListener('click',function(){speakWord(q.word,true);});
     if(q.spelling&&session.tileQuestion===session.index)showLetterTiles(q);
     var input=document.getElementById('answer-input');if(input&&session.draftValue)input.value=session.draftValue;
     if(session.results.length>session.index){disableAnswerArea();var result=session.results[session.index];if(session.resolved){if(result.assisted)showAssistedFeedback(q);else showPositiveFeedback(q);}else showCorrection(q);}
     else if(q.spelling)speakWord(q.word);
   }
-  function choicesHTML(q) { return '<div class="choice-list">'+q.choices.map(function(c){return '<button type="button" class="choice" data-answer="'+esc(c)+'">'+esc(c)+'</button>';}).join('')+'</div>'; }
+  function choicesHTML(q) { return '<div class="choice-list '+(q.wordBank?'word-bank':'')+'">'+q.choices.map(function(c){return '<button type="button" class="choice" data-answer="'+esc(c)+'">'+esc(c)+'</button>';}).join('')+'</div>'; }
   function inputHTML(q) {
     var label=q.spelling?'Type the spelling':'Type your answer';
     return '<form id="answer-form"><label class="sr-only" for="answer-input">'+label+'</label><div class="answer-row"><input class="answer-input" id="answer-input" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="'+label+'"><button class="submit-button" type="submit">Check</button></div></form>'+
@@ -966,7 +905,7 @@
     cancelSpeech();
     try{
     warmSpeech();
-    var utterance=new SpeechSynthesisUtterance(sentence?word.spellingSentence:word.word);
+    var utterance=new SpeechSynthesisUtterance(word.word);
     utterance.lang='en-US';utterance.rate=1;
     if(localVoice)utterance.voice=localVoice;
     if(typeof window.speechSynthesis.resume==='function')window.speechSynthesis.resume();
@@ -1110,7 +1049,7 @@
   function showWordList() {
     activityClock.mode('learning');document.body.dataset.screen='review';
     setChip(null);
-    app.innerHTML='<section class="screen-heading"><button type="button" class="back-button" id="list-back" aria-label="Back">←</button><div><p class="eyebrow">Exact school list</p><h2>The 12 words</h2></div></section><div class="word-list">'+WORDS.map(function(w){return '<article class="word-card"><div class="word-top"><div><h3>'+esc(w.word)+'</h3><span class="pos">'+esc(w.pos)+'</span></div><button type="button" class="speak-button" data-speak="'+esc(w.word)+'" aria-label="Hear '+esc(w.word)+'">🔊</button></div><p class="definition">'+esc(w.definitions.join('; '))+'</p><p><strong>Synonyms:</strong> '+esc(w.synonyms.join(', '))+'</p><p><strong>Antonyms:</strong> '+(w.antonyms.length?esc(w.antonyms.join(', ')):'Not assigned on the worksheet')+'</p><p class="example">'+esc(w.example)+'</p></article>';}).join('')+'</div>';
+    app.innerHTML='<section class="screen-heading"><button type="button" class="back-button" id="list-back" aria-label="Back">←</button><div><p class="eyebrow">Exact school list</p><h2>The 12 words</h2></div></section><div class="word-list">'+WORDS.map(function(w){return '<article class="word-card"><div class="word-top"><div><h3>'+esc(w.word)+'</h3><span class="pos">'+esc(w.pos)+'</span></div><button type="button" class="speak-button" data-speak="'+esc(w.word)+'" aria-label="Hear '+esc(w.word)+'">🔊</button></div><p class="definition">'+esc(w.definitions.join('; '))+'</p><p><strong>Synonyms:</strong> '+esc(w.synonyms.join(', '))+'</p><p><strong>Antonyms:</strong> '+(w.antonyms.length?esc(w.antonyms.join(', ')):'Not assigned on the worksheet')+'</p></article>';}).join('')+'</div>';
     document.getElementById('list-back').addEventListener('click',showProfilePicker);
     app.querySelectorAll('[data-speak]').forEach(function(button){button.addEventListener('click',function(){speakWord(WORDS.find(function(w){return w.word===button.getAttribute('data-speak');}));});});
   }

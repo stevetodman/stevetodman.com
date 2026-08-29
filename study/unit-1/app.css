@@ -533,3 +533,9 @@ body[data-screen="question"] .pips { display:none; }
 @keyframes answer-learn { 0%,100%{box-shadow:var(--shadow)}45%{box-shadow:0 0 0 3px #6e9e9c2d,var(--shadow)} }
 @media (prefers-reduced-motion:reduce) { .question-card[data-feedback],.impact-chip { animation:none!important;transform:none!important; } }
 @media (forced-colors:active) { .impact-chip { border:1px solid CanvasText;background:Canvas;color:CanvasText;box-shadow:none; } }
+
+
+/* Teacher word-bank vocabulary grid */
+.choice-list.word-bank { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.choice-list.word-bank .choice { min-height:44px; padding:10px 8px; }
+@media (min-width:620px) { .choice-list.word-bank { grid-template-columns:repeat(3,minmax(0,1fr)); } }
