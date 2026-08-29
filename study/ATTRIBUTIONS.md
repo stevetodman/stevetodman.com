@@ -2,11 +2,11 @@
 
 ## Word Expedition battle audio
 
-Battle effects use a deliberately small **12-clip** local sample bank so mobile Safari has little to fetch or decode. Ten shipped samples are **CC0 1.0 / public domain**; the Bramble Troll and Word Keeper boss cues are original project-generated synthesis. All non-boss clips are trimmed to **150–400 ms**; the Word Keeper cue is about **720 ms** to preserve a larger attack/sustain/decay envelope. All clips are mono **22.05 kHz**, **48 kbps MP3**, and loudness-normalized. Decoding begins on the same user gesture that unlocks the shared iPhone/desktop AudioContext. Until a sample is decoded—or if fetch/decode ever fails—the existing Web Audio synthesizer plays immediately instead, so audio can never delay a learning interaction.
+Battle effects use a deliberately small **12-clip** local sample bank so mobile Safari has little to fetch or decode. Eleven shipped samples are **CC0 1.0 / public domain**; the Bramble Troll cue is original project-generated synthesis. All non-boss clips are trimmed to **150–400 ms**; the Word Keeper cue is about **1.55 seconds** so the real animal vocalization retains its natural attack and decay. All clips are mono **22.05 kHz**, **48 kbps MP3**, and loudness-normalized. Decoding begins on the same user gesture that unlocks the shared iPhone/desktop AudioContext. Until a sample is decoded—or if fetch/decode ever fails—the existing Web Audio synthesizer plays immediately instead, so audio can never delay a learning interaction.
 
 No scream, flesh-impact, or gunshot recording is selected or shipped.
 
-Sources (CC0 does not require attribution, but exact provenance is recorded):
+Sources (CC0/public-domain material does not require attribution, but exact provenance is recorded):
 
 - **rubberduck — 80 CC0 RPG SFX** (OpenGameArt, CC0 1.0): `blade_01.ogg`, `blade_02.ogg`, `blade_03.ogg`, `item_gem_01.ogg`, and `wood_02.ogg` — blade/spear/scythe, magic, and wood/axe layers. Source: https://opengameart.org/content/80-cc0-rpg-sfx
 - **Kenney — RPG Audio** (CC0 1.0): `Audio/chop.ogg` — staff/wood contact. Source: https://kenney.nl/assets/rpg-audio
@@ -14,7 +14,7 @@ Sources (CC0 does not require attribution, but exact provenance is recorded):
 - **rubberduck — 100 CC0 SFX #2** (OpenGameArt, CC0 1.0): `sfx100v2_metal_04.ogg` — hammer/metal impact. Source: https://opengameart.org/content/100-cc0-sfx-2
 - **rubberduck — 80 CC0 creature SFX** (OpenGameArt, CC0 1.0): `cute_05.ogg`, `eat_02.ogg`, and `roar_03.ogg` — the remaining short creature effects use these kid-safe families. `scream_*` files from the source pack are intentionally not used. Source: https://opengameart.org/content/80-cc0-creature-sfx
 - **Bramble Troll** — `troll.mp3` is original project-generated audio synthesized from low irregular harmonics, filtered noise, wood-strain transients, and a muted earth-impact layer. It contains no recorded voice, scream, flesh impact, or third-party source audio.
-- **Word Keeper boss** — `owl.mp3` is original project-generated audio synthesized as a darker, more powerful large-owl/raptor boss roar: a low descending fundamental, irregular upper harmonics, throat/formant resonance, turbulent breath/feather noise, sub/chest resonance, a short attack shriek, and a delayed secondary growl for scale. It contains no recorded voice, scream, flesh impact, or third-party source audio.
+- **Word Keeper boss** — `owl.mp3` is a minimally processed excerpt of the real male-lion recording **“Lion raring-sound1TamilNadu178.ogg”** on Wikimedia Commons. The uploader identifies it as their own recording and releases it into the public domain worldwide. The shipped cue uses only excerpt selection, high/low-pass filtering, loudness normalization, short fades, mono conversion, resampling to 22.05 kHz, and MP3 encoding. **No pitch shifting, oscillator, synthesized harmonic layer, or generated animal voice is used.** Source: https://commons.wikimedia.org/wiki/File:Lion_raring-sound1TamilNadu178.ogg
 
 The final MP3 files live under `study/unit-1/sfx/`; there are no runtime third-party audio requests. Word/sentence audio remains the browser speech synthesizer.
 
