@@ -1,8 +1,9 @@
-.monster-taunt[data-monster-banter="true"]{position:relative;overflow:hidden;margin-top:10px;padding:9px 11px 10px;border-radius:12px;box-shadow:0 5px 14px rgba(23,50,77,.07)}
-.monster-taunt[data-monster-banter="true"]::after{content:"";position:absolute;inset:auto -12px -22px auto;width:54px;height:54px;border:1px solid rgba(23,50,77,.09);border-radius:50%}
+.monster-banter-line{position:relative;overflow:hidden;margin:10px 0 0;padding:9px 11px 10px;border-radius:12px;box-shadow:0 5px 14px rgba(23,50,77,.07)}
+.monster-banter-line::after{content:"";position:absolute;inset:auto -12px -22px auto;width:54px;height:54px;border:1px solid rgba(23,50,77,.09);border-radius:50%}
 .monster-roast{background:#fff4dc;border-left:3px solid #d99a2c}
 .monster-frustrated{background:#e9f4ee;border-left:3px solid #3f8b76}
+.monster-banter-line .dialogue-speaker{margin:0 0 5px;color:var(--teal-dark);font-size:.64rem;font-weight:900;letter-spacing:.02em}
 .monster-frustrated .dialogue-speaker{color:#2d6d60}
-.monster-taunt[data-monster-banter="true"]>p:last-child{position:relative;z-index:1;margin:0;font-size:.88rem;font-weight:760;line-height:1.35}
-@media (prefers-reduced-motion:reduce){.monster-taunt[data-monster-banter="true"]{scroll-behavior:auto}}
-@media (forced-colors:active){.monster-taunt[data-monster-banter="true"]{border:1px solid CanvasText}}
+.monster-banter-line>p:last-child{position:relative;z-index:1;margin:0;color:var(--ink);font-size:.88rem;font-weight:760;line-height:1.35}
+@media (prefers-reduced-motion:reduce){.monster-banter-line{scroll-behavior:auto}}
+@media (forced-colors:active){.monster-banter-line{border:1px solid CanvasText}}
