@@ -24,15 +24,26 @@ test('adaptive practice uses the exact 12-word Unit 1 bank and the main learner-
   assert.match(source, /recordEvidence\(/);
   assert.match(source, /correctDays/);
   assert.match(source, /lastPracticeType/);
+  assert.match(source, /priorAdventureEvidence/);
 });
 
-test('baseline diagnostic and adaptive continue flow are present', () => {
+test('baseline diagnostic targets practice without letting word-bank recognition masquerade as recall', () => {
   const source = read('study/unit-1/test-practice.js');
   assert.match(source, /Run baseline diagnostic/);
   assert.match(source, /function diagnostic\(/);
+  assert.match(source, /diagnostic-recognition/);
+  assert.match(source, /diagnostic-recognition'\}\);/);
+  assert.match(source, /independent:false,type:'diagnostic-recognition'/);
+  assert.match(source, /diagnostic-spelling/);
+});
+
+test('adaptive continue flow ranks weakness and preserves delayed retries before ending', () => {
+  const source = read('study/unit-1/test-practice.js');
   assert.match(source, /function adaptiveSession\(/);
   assert.match(source, /chooseAdaptiveTask/);
   assert.match(source, /weakness\(/);
+  assert.match(source, /due:done\+3/);
+  assert.match(source, /done>=target&&!queue\.length/);
   assert.match(source, /Continue practice/);
 });
 
@@ -50,6 +61,7 @@ test('practice covers full-bank elimination, dual POS, reverse retrieval, capita
   const source = read('study/unit-1/test-practice.js');
   assert.match(source, /12-for-12 paragraph/);
   assert.match(source, /answers\.every\(Boolean\)/);
+  assert.match(source, /Rainy picnic \+ dock/);
   assert.match(source, /POS_ITEMS/);
   assert.match(source, /blundered/);
   assert.match(source, /scuffled/);
