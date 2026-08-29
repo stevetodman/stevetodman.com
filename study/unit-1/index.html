@@ -12,6 +12,12 @@
   <link rel="stylesheet" href="app.css">
   <link rel="stylesheet" href="aaa-polish.css">
   <style>
+    .unit-tools { display:flex; justify-content:flex-end; margin:-2px 0 10px; }
+    .unit-tools a { text-decoration:none; }
+    body[data-screen="question"] .unit-tools,
+    body[data-screen="shop"] .unit-tools,
+    body[data-screen="book"] .unit-tools,
+    body[data-screen="summary"] .unit-tools { display:none; }
     /* Keep the core combat loop visible when mobile browser chrome leaves a short viewport. */
     @media (max-height:550px) and (max-width:560px) {
       body[data-screen="question"] .topbar { margin-bottom:8px; }
@@ -42,6 +48,7 @@
       <button class="profile-chip" id="profile-chip" type="button" aria-label="Switch learner" hidden></button>
     </header>
     <p class="save-warning" id="save-warning" role="status" hidden></p>
+    <nav class="unit-tools" aria-label="Unit 1 tools"><a class="text-button" href="/study/unit-1/test-practice.html">Test practice</a></nav>
     <div id="app" aria-live="polite"></div>
   </main>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
