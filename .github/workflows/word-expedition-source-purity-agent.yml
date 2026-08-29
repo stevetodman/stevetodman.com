@@ -1,0 +1,64 @@
+name: Word Expedition source-purity agent
+
+on:
+  push:
+    branches:
+      - agent/word-expedition-teacher-word-bank
+
+permissions:
+  contents: write
+
+jobs:
+  source-purity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Remove non-teacher vocabulary example lines from AAA presentation
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          js_path=Path('study/unit-1/aaa-polish.js')
+          js=js_path.read_text()
+          # These per-word story sentences were presentation-only, but they still constituted
+          # alternate instructional usage. Remove them so the teacher worksheet remains the
+          # only source of vocabulary clues/examples anywhere in the live app.
+          js,n=re.subn(r",lines:\{\n(?:      [^\n]+\n){12}    \}","",js)
+          if n != 4:
+              raise SystemExit(f'expected 4 contextual line banks, removed {n}')
+
+          start=js.index('  function highlighted(')
+          end=js.index('  function defenseText(',start)
+          replacement="""  function rewriteDialogue(root,id){\n    if(!id)return;\n    var encounter=ENCOUNTERS[id];\n    root.querySelectorAll('.monster-dialogue').forEach(function(dialogue){\n      var speaker=dialogue.querySelector('.dialogue-speaker');\n      if(speaker)speaker.textContent=encounter.name;\n    });\n    root.querySelectorAll('.monster-taunt').forEach(function(taunt){\n      var speaker=taunt.querySelector('.dialogue-speaker'),body=taunt.querySelector('p:last-child');\n      if(speaker)speaker.textContent=encounter.name;\n      if(body)body.textContent='“'+encounter.taunt+'”';\n    });\n  }\n\n"""
+          js=js[:start]+replacement+js[end:]
+          js_path.write_text(js)
+
+          test_path=Path('tests/study-aaa-polish.test.mjs')
+          test=test_path.read_text()
+          start=test.index("test('each new creature has authored contextual copy for every Unit 1 word'")
+          end=test.index("test('AAA presentation adds environments",start)
+          replacement="""test('AAA presentation never supplies alternate vocabulary examples', () => {\n  for (const word of ['blunder','cancel','continuous','distribute','document','fragile','myth','reject','scuffle','solitary','temporary','veteran']) {\n    assert.doesNotMatch(js, new RegExp(`\\\\b${word}:'`), `${word} must not have an AAA-authored instructional sentence`);\n  }\n  assert.doesNotMatch(js, /lines:\\s*\\{/);\n  assert.doesNotMatch(js, /Story practice/);\n});\n\n"""
+          test=test[:start]+replacement+test[end:]
+          test_path.write_text(test)
+          PY
+      - run: npm ci --no-audit --no-fund
+      - run: npm run test:study:unit
+      - run: npm run build
+      - name: Commit source-purity patch
+        shell: bash
+        run: |
+          rm -f .github/workflows/word-expedition-source-purity-agent.yml
+          git config user.name "study-agent"
+          git config user.email "study-agent@users.noreply.github.com"
+          git add study/unit-1/aaa-polish.js tests/study-aaa-polish.test.mjs .github/workflows/word-expedition-source-purity-agent.yml
+          git commit -m "Word Expedition: keep vocabulary instruction teacher-sourced"
+          git push origin HEAD:agent/word-expedition-teacher-word-bank
