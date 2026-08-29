@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createHash } from 'node:crypto';
+import { computeStudyReleaseVersion } from './study-release.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
@@ -79,17 +79,7 @@ const files = [];
 // Content-address Study's delivery as one release, including curriculum context,
 // presentation code, and CSS background imagery. Revalidating HTML then cannot
 // load an older cached app/context/atlas.
-const studyAssets = [
-  'app.js','game-art.js','quality-core.js','sfx-bank.js','audio-unlock.js','unit1-contexts.js',
-  'aaa-polish.js','aaa-collection.js','monster-banter.js',
-  'app.css','aaa-polish.css','monster-banter.css',
-];
-const studyArt = ['expedition-sprites.webp','forest-clearing.webp','expedition-world.webp','monster-sprites.webp','extra-gear.webp','hero-poses.webp'];
-const studyHash = createHash('sha256');
-for (const asset of studyAssets.concat(studyArt.map(name=>'assets/'+name))) {
-  studyHash.update(fs.readFileSync(path.join(dist,'study/unit-1',asset)));
-}
-const studyVersion = studyHash.digest('hex').slice(0,12);
+const studyVersion = computeStudyReleaseVersion(path.join(dist, 'study', 'unit-1'));
 for (const asset of ['app.css','game-art.js']) {
   const target=path.join(dist,'study/unit-1',asset);
   const content=fs.readFileSync(target,'utf8').replace(/(assets\/[a-z-]+\.webp)(?=['"])/g,`$1?v=${studyVersion}`);
