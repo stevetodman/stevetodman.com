@@ -1,0 +1,67 @@
+name: Boss roar audition
+
+on:
+  push:
+    branches:
+      - agent/word-keeper-real-animal-v3
+    paths:
+      - .boss-roar-trigger
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch public-domain real male lion recording
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/boss-roar study/unit-1/auditions
+          curl --fail --location --retry 3 \
+            'https://upload.wikimedia.org/wikipedia/commons/7/7d/Lion_raring-sound1TamilNadu178.ogg' \
+            -o /tmp/boss-roar/lion.ogg
+          ffprobe -v error -show_entries format=duration,size -of default=nw=1 /tmp/boss-roar/lion.ogg
+
+      - name: Build three minimally processed real-lion candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Preserve the biological recording. Only trim, fade, normalize, and encode for mobile.
+          for spec in 'A 0.0 1.55' 'B 2.5 1.55' 'C 5.0 1.55'; do
+            set -- $spec
+            label="$1"; start="$2"; dur="$3"
+            ffmpeg -hide_banner -loglevel error -y \
+              -ss "$start" -t "$dur" -i /tmp/boss-roar/lion.ogg \
+              -af "highpass=f=35,lowpass=f=9000,loudnorm=I=-15:TP=-1.5:LRA=7,afade=t=in:st=0:d=0.008,afade=t=out:st=1.32:d=0.23,aresample=22050" \
+              -ac 1 -ar 22050 -codec:a libmp3lame -b:a 48k \
+              "study/unit-1/auditions/word-keeper-${label}-real-lion.mp3"
+          done
+
+      - name: Pick loudest candidate by integrated energy
+        shell: bash
+        run: |
+          set -euo pipefail
+          best=''
+          best_rms='-999'
+          for f in study/unit-1/auditions/*.mp3; do
+            rms=$(ffmpeg -hide_banner -nostats -i "$f" -af astats=metadata=1:reset=0 -f null - 2>&1 | awk -F': ' '/RMS level dB/ {v=$2} END {print v}')
+            echo "$f RMS=$rms"
+            awk -v x="$rms" -v y="$best_rms" 'BEGIN{exit !(x>y)}' && { best="$f"; best_rms="$rms"; } || true
+          done
+          test -n "$best"
+          cp "$best" study/unit-1/auditions/word-keeper-BEST-real-lion.mp3
+          printf 'source=%s\nrms_db=%s\n' "$best" "$best_rms" > study/unit-1/auditions/SELECTION.txt
+
+      - name: Commit audition files to branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add study/unit-1/auditions/
+          git commit -m 'Add real-lion Word Keeper auditions' || exit 0
+          git push
