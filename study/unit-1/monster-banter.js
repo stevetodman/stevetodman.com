@@ -49,18 +49,15 @@
   function speaker(){var name=document.querySelector('.enemy-name');return name&&name.textContent?name.textContent.trim():'Monster';}
   function seed(kind){var s=stage(),enemy=s?(s.dataset.aaaMonster||s.dataset.enemy||'monster'):'monster',q=document.querySelector('.question-count'),n=numberFrom(q&&q.textContent);return kind+'|'+enemy+'|'+n+'|'+speaker();}
   function pick(pool,kind){return pool[hash(seed(kind))%pool.length];}
-  function markup(line,extra){return '<div class="monster-taunt '+(extra||'')+'" data-monster-banter="true"><p class="dialogue-speaker"></p><p></p></div>';
-  }
-  function fill(node,line){var who=node.querySelector('.dialogue-speaker'),body=node.querySelector('p:last-child');if(who)who.textContent=speaker();if(body)body.textContent='“'+line+'”';}
+  function markup(kind,extra,line){return '<div class="monster-taunt '+(extra||'')+'" data-monster-banter="true" data-banter-kind="'+kind+'" data-banter-line="'+encodeURIComponent(line)+'"><p class="dialogue-speaker"></p><p></p></div>';}
+  function enforce(node){if(!node)return;var line='';try{line=decodeURIComponent(node.dataset.banterLine||'');}catch(_){line=node.dataset.banterLine||'';}var who=node.querySelector('.dialogue-speaker'),body=node.querySelector('p:last-child'),wantWho=speaker(),wantBody='“'+line+'”';if(who&&who.textContent!==wantWho)who.textContent=wantWho;if(body&&body.textContent!==wantBody)body.textContent=wantBody;}
   function refresh(){
     var area=document.getElementById('feedback-area');if(!area)return;
     var wrong=area.querySelector('.monster-taunt:not([data-monster-banter])');
-    if(wrong){wrong.dataset.monsterBanter='true';wrong.classList.add('monster-roast');fill(wrong,pick(WRONG,'wrong'));}
+    if(wrong){var line=pick(WRONG,'wrong');wrong.dataset.monsterBanter='true';wrong.dataset.banterKind='wrong';wrong.dataset.banterLine=encodeURIComponent(line);wrong.classList.add('monster-roast');}
     var good=area.querySelector('.feedback.good');
-    if(good&&!area.querySelector('.monster-frustrated')){
-      good.insertAdjacentHTML('beforebegin',markup('', 'monster-frustrated'));
-      fill(area.querySelector('.monster-frustrated'),pick(RIGHT,'right'));
-    }
+    if(good&&!area.querySelector('.monster-frustrated')){var rightLine=pick(RIGHT,'right');good.insertAdjacentHTML('beforebegin',markup('right','monster-frustrated',rightLine));}
+    area.querySelectorAll('[data-monster-banter]').forEach(enforce);
   }
   var observer=new MutationObserver(refresh);
   observer.observe(document.documentElement,{subtree:true,childList:true});
