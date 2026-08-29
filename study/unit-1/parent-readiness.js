@@ -12,7 +12,7 @@
       '<p class="subhead">Highest-value next words</p><ul class="weak-list">'+weak.map(function(item){return '<li><strong>'+esc(item.word)+'</strong><span class="skill-pills"><span class="skill-pill '+(item.vocab?'ready':'')+'">vocab '+(item.vocab?'ready':'work')+'</span><span class="skill-pill '+(item.spelling?'ready':'')+'">spelling '+(item.spelling?'ready':'work')+'</span></span></li>';}).join('')+'</ul>'+ 
       '<p class="subhead">Recent misses · this device</p>'+(errors.length?'<ul class="error-list">'+errors.map(function(e){return '<li><span><strong>'+esc(e.word)+'</strong> · '+esc(domainLabel(e.domain))+'</span><span>'+esc(e.error||'miss')+'</span></li>';}).join('')+'</ul>':'<p class="empty-note">No recent misses recorded on this device.</p>')+
       '<p class="subhead">Final mocks · this device</p><ul class="mock-history"><li><span>'+esc(mockLine(name,'vocabulary'))+'</span></li><li><span>'+esc(mockLine(name,'spelling'))+'</span></li></ul>'+ 
-      '<div class="learner-actions"><a class="primary-button" href="test-practice.html?learner='+encodeURIComponent(name)+'">Continue practice</a><a class="secondary-button" href="mock-test.html?learner='+encodeURIComponent(name)+'">Run final mock</a></div></section>';
+      '<div class="learner-actions"><a class="primary-button" href="mastery-quest.html?learner='+encodeURIComponent(name)+'">Start Mastery Quest</a><a class="secondary-button" href="mock-test.html?learner='+encodeURIComponent(name)+'&mode=vocabulary&return=mastery">Run vocabulary Final Boss</a></div></section>';
   }
   function render(){grid.innerHTML=learnerCard('Luke')+learnerCard('Samantha');}
   window.addEventListener('wordexpedition:mastery-updated',render);window.addEventListener('storage',render);render();
