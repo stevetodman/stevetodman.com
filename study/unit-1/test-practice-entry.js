@@ -1,0 +1,1 @@
+(function(){'use strict';var learner=new URLSearchParams(location.search).get('learner');if(learner!=='Luke'&&learner!=='Samantha')return;function enter(){var b=document.querySelector('[data-learner="'+learner+'"]');if(b)b.click();}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(enter,0);});else setTimeout(enter,0);})();
