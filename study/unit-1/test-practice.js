@@ -47,7 +47,7 @@
     {q:'The mug is __________ — one drop and it is gone.',a:'fragile',why:'Fragile means easily broken or damaged.'},
     {q:'That story about the mayor’s flying goat is a __________.',a:'myth',why:'A myth is an old or imaginary story, not proof.'},
     {q:'She kept the __________ in a locked box as proof.',a:'document',why:'A document is a written or printed record that gives information or proof.'},
-    {q:'He ate lunch __________ at the far table.',a:'solitary',why:'Solitary means alone or the only one.'},
+    {q:'He was the __________ diner at the far table.',a:'solitary',why:'Solitary is an adjective meaning alone or the only one.'},
     {q:'A __________ of thirty years, Chief Ruiz had seen every kind of fire.',a:'veteran',why:'The grammar needs a noun; veteran can mean an experienced person.'}
   ];
 
@@ -87,7 +87,7 @@
 
   var SPELLING=[
     {w:'continuous',hint:'Watch contin-u-ous: the middle is “uou”.'},
-    {w:'veteran',hint:'Watch vet-e-ran: do not turn it into veterinarian.'},
+    {w:'veteran',hint:'Keep the e after vet: veteran. Do not turn it into veterinarian.'},
     {w:'fragile',hint:'Keep the g: fra-gile.'},
     {w:'scuffle',hint:'Double f: scu-ff-le.'},
     {w:'solitary',hint:'Ends in -ary.'},
