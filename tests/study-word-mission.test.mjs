@@ -252,7 +252,8 @@ describe('Unit 1 Word Expedition', () => {
     await page.locator('[data-profile="Luke"]').click();
     assert.equal(await page.locator('#correction-form strong').innerText(),expected);
     await page.locator('#correction-input').fill(expected);await page.locator('#correction-input').press('Enter');
-    await page.locator('.question-count').filter({hasText:String(currentNumber+1)+' / 10'}).waitFor();
+    if(currentNumber<10)await page.locator('.question-count').filter({hasText:String(currentNumber+1)+' / 10'}).waitFor();
+    else await page.locator('.game-summary').waitFor();
     const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')).learners.Luke.stats);
     assert.deepEqual(after,before);
     await context.close();
@@ -338,8 +339,6 @@ describe('Unit 1 Word Expedition', () => {
   for(const failure of ['event','exception'])test('audio '+failure+' failure has a visible model and tile recovery stays assisted', async () => {
     const context=await fastContext();
     await context.addInitScript(failure=>{
-      // Replace the complete API boundary: native WebKit method wrappers are
-      // not a portable fault-injection surface. The fallback must still render.
       Object.defineProperties(window,{
         SpeechSynthesisUtterance:{configurable:true,value:class {constructor(text){this.text=text;}}},
         speechSynthesis:{configurable:true,value:{
@@ -437,7 +436,6 @@ describe('Unit 1 Word Expedition', () => {
     assert.match(await page.locator('.monster-taunt').innerText(),/soggy turnip/);
     assert.equal(await page.locator('.monster-taunt .target').count(),0,'monster flavor never models or teaches the missed word');
 
-    // Four representative battles in the existing smoke check; no exhaustive gear matrix.
     const scenes=[
       ['starter-sword','starter-cloak',0,'mossling','weapon-slash','hero-evade'],
       ['ember-hammer','iron-shield',2,'sentinel','weapon-overhead','hero-brace'],
@@ -517,7 +515,6 @@ describe('Unit 1 Word Expedition', () => {
     for(const name of ['Luke','Samantha']){
       await page.goto(server.origin+'/study/');
       assert.equal(await page.locator('#monster-book').count(),0,'book is not a home-screen distraction');
-      // Two perfect rounds earn the cheapest item; one round is no longer enough.
       for(let round=0;round<2;round++){
         await page.locator('[data-profile="'+name+'"]').click();
         assert.equal(await page.locator('#monster-book').count(),0,'no book while learning');
@@ -580,8 +577,6 @@ describe('Unit 1 Word Expedition', () => {
 
   test('reward countdown survives preview navigation and expires without spending', async () => {
     const context=await fastContext();await seedSavedCoins(context);const page=await context.newPage();
-    // Exercise the real browser deadline. Installing a second fake clock over
-    // fastContext's reading-time fixture changes timer initialization order.
     await page.goto(server.origin+'/study/');
     await page.locator('[data-profile="Luke"]').click();
     for(let i=0;i<10;i++)await answerCurrentQuestion(page);
