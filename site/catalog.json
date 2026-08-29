@@ -52,6 +52,7 @@
 
     {"id":"cardio-hospital-3d-source","title":"Cardio Hospital 3D Source","path":"cardio-hospital-3d/","class":"SOURCE_ONLY","audience":"developers","category":"source"},
     {"id":"clipboard-sanitizer-source","title":"Clipboard Sanitizer Source","path":"clipboard-sanitizer/","class":"SOURCE_ONLY","audience":"developers","category":"source"},
-    {"id":"studyhub-function-source","title":"StudyHub Edge Function Source","path":"study/supabase/","class":"SOURCE_ONLY","audience":"developers","category":"source"}
+    {"id":"studyhub-function-source","title":"StudyHub Edge Function Source","path":"study/supabase/","class":"SOURCE_ONLY","audience":"developers","category":"source"},
+    {"id":"anatomica-source","title":"Anatomica Geometry Pipeline Source","path":"tools/anatomica/","class":"SOURCE_ONLY","audience":"developers","category":"source"}
   ]
 }
