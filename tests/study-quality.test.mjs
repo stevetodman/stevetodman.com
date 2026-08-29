@@ -91,43 +91,27 @@ test('cloud saves reject unprovisioned tokens and oversized writes without losin
   assert.equal((await request({token,action:'push',data:{}})).status,413);
   assert.equal(JSON.stringify(row),before,'capacity rejection must leave the previous save intact');
 });
-test('every teacher-listed relation is accepted in ordinary and correction grading',()=>{
-  const m=model();
-  for(const word of m.WORDS)for(const domain of ['synonym','antonym']){
-    const list=word[domain==='synonym'?'synonyms':'antonyms'];if(!list.length)continue;
-    const q=m.makeQuestion({word,domain},0,true);
-    for(const answer of list)assert.equal(m.isAccepted(q,answer.toUpperCase()),true,word.word+':'+answer);
-  }
+test('teacher clues map only to the 12 assigned vocabulary words',()=>{
+  const m=model(); const bank=Array.from(m.WORDS,word=>word.word).sort();
   for(const word of m.WORDS){
-    const practice=m.makeQuestion({word,domain:'definition'},1,false);
-    for(const enemy of ['mossling','wisp','sentinel','boss'])assert.ok(m.questionPromptHTML(practice,enemy).includes('<span class="target">'+word.word+'</span>'),enemy+': '+word.word);
-    for(const q of [m.makeQuestion({word,domain:'spelling'},1,false),m.makeQuestion({word,domain:'definition'},0,false),m.makeQuestion({word,domain:'definition'},9,false),m.makeQuestion({word,domain:'definition'},1,true)])assert.doesNotMatch(m.questionPromptHTML(q,'boss'),/monster-dialogue/);
+    for(const domain of ['definition','synonym','antonym']){
+      const list=domain==='definition'?word.definitions:word[domain==='synonym'?'synonyms':'antonyms']; if(!list.length)continue;
+      for(let i=0;i<list.length;i++){
+        const q=m.makeQuestion({word,domain},i,false); assert.equal(q.kind,'choice'); assert.equal(q.wordBank,true);
+        assert.deepEqual([...q.accepted],[word.word]); assert.deepEqual([...q.choices].sort(),bank); assert.equal(q.clue,list[i]);
+        assert.equal(m.isAccepted(q,word.word.toUpperCase()),true); assert.doesNotMatch(m.questionPromptHTML(q,'boss'),/monster-dialogue/);
+      }
+    }
   }
-  const word=m.WORDS[0],practice=m.makeQuestion({word,domain:'synonym'},1,false);
+  const spelling=m.makeQuestion({word:m.WORDS[0],domain:'spelling'},1,false); assert.equal(spelling.kind,'text');assert.equal(spelling.wordBank,undefined);
   assert.equal(m.practiceSuggestions('Luke').length,0,'new learners do not get an arbitrary first-three-word list');
-  const continuous=m.WORDS.find(w=>w.word==='continuous');
-  const meaning=m.makeQuestion({word:continuous,domain:'definition'},0,true);
-  assert.equal(m.meaningTypo(meaning,'continuos'),true);
-  assert.equal(m.meaningTypo(meaning,'continuouss'),true);
-  assert.equal(m.meaningTypo(meaning,'cancel'),false);
-  assert.equal(m.meaningTypo(m.makeQuestion({word:continuous,domain:'spelling'},0,true),'continuos'),false);
-  assert.equal(m.meaningTypo(m.makeQuestion({word:m.WORDS.find(w=>w.word==='myth'),domain:'definition'},0,true),'math'),false);
+  const meaning=m.makeQuestion({word:m.WORDS.find(w=>w.word==='continuous'),domain:'definition'},0,false);
   m.setSession({id:'recent-miss',index:0,results:[]});m.recordResult(meaning,false,false);
-  assert.equal(m.practiceSuggestions('Luke')[0].word,'continuous');
-  assert.equal(m.practiceSuggestions('Luke')[0].domain,'definition');
-  assert.equal(m.practiceSuggestions('Samantha').length,0);
-  m.setSession({id:'recalled',index:0,results:[]});m.recordResult(meaning,true,false);
-  assert.notEqual(m.practiceSuggestions('Luke')[0].domain,'definition','a successful recall clears the urgent miss');
-  assert.match(m.roundReviewHTML([{word:'continuous',domain:'spelling',correct:false}]),/continuous — spelling/);
-  assert.equal(m.cloudToken(true),null,'fresh devices do not mint unprovisioned family credentials');
-  m.setSession({id:'story',index:0,enemy:'mossling',results:[]});m.recordResult(practice,true,false);
-  assert.equal(m.stats()['blunder|synonym'].correct,1);assert.equal(m.stats()['blunder|synonym'].correctDays.length,0,'context clues do not earn mastery days');
-  m.setSession({id:'recall',index:0,enemy:'mossling',results:[]});m.recordResult(m.makeQuestion({word,domain:'synonym'},0,true),true,false);
-  assert.equal(m.stats()['blunder|synonym'].correctDays.length,1,'ordinary recall still earns mastery');
-  const spelling=m.makeQuestion({word,domain:'spelling'},1,false);
-  assert.equal(m.monsterTauntHTML(spelling),'','no taunt can reveal a word before an attempt');
-  m.setSession({id:'miss',index:0,enemy:'mossling',results:[{correct:false}]});
-  assert.match(m.monsterTauntHTML(spelling),/soggy turnip/);assert.ok(m.monsterTauntHTML(spelling).includes('<span class="target">blunder</span>'));
+  assert.equal(m.practiceSuggestions('Luke')[0].word,'continuous'); assert.equal(m.practiceSuggestions('Luke')[0].domain,'definition'); assert.equal(m.practiceSuggestions('Samantha').length,0);
+  m.setSession({id:'recalled',index:0,results:[]});m.recordResult(meaning,true,false); assert.notEqual(m.practiceSuggestions('Luke')[0].domain,'definition','a successful recall clears the urgent miss');
+  assert.match(m.roundReviewHTML([{word:'continuous',domain:'spelling',correct:false}]),/continuous — spelling/); assert.equal(m.cloudToken(true),null,'fresh devices do not mint unprovisioned family credentials');
+  assert.equal(m.monsterTauntHTML(spelling),'','no taunt can reveal a word before an attempt'); m.setSession({id:'miss',index:0,enemy:'mossling',results:[{correct:false}]});
+  assert.match(m.monsterTauntHTML(spelling),/soggy turnip/); assert.doesNotMatch(m.monsterTauntHTML(spelling),/blunder/,'monster flavor never adds instructional usage');
   assert.match(read('study/unit-1/app.js'),/if\(!isAccepted\(q,input.value\)\)/);
 });
 test('round recovery keeps question order and rejects malformed data without clearing storage',()=>{

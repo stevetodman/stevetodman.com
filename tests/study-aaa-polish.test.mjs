@@ -51,13 +51,12 @@ test('four new trail creatures are deterministic rather than rare or random enco
   }
 });
 
-test('each new creature has authored contextual copy for every Unit 1 word', () => {
-  const words = ['blunder','cancel','continuous','distribute','document','fragile','myth','reject','scuffle','solitary','temporary','veteran'];
-  const blocks = [...js.matchAll(/(?:mushroom|ink|beetle|drake):\{name:[\s\S]*?lines:\{([\s\S]*?)\n\s*\}\}/g)].map(match => match[1]);
-  assert.equal(blocks.length, 4);
-  for (const block of blocks) {
-    for (const word of words) assert.match(block, new RegExp(`\\b${word}:'`), `missing ${word} contextual line`);
+test('AAA presentation never supplies alternate vocabulary examples', () => {
+  for (const word of ['blunder','cancel','continuous','distribute','document','fragile','myth','reject','scuffle','solitary','temporary','veteran']) {
+    assert.doesNotMatch(js, new RegExp(`\\b${word}:'`), `${word} must not have an AAA-authored instructional sentence`);
   }
+  assert.doesNotMatch(js, /lines:\s*\{/);
+  assert.doesNotMatch(js, /Story practice/);
 });
 
 test('AAA presentation adds environments, progressive damage, contact accents, boss framing and accessibility fallbacks', () => {

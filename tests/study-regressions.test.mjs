@@ -13,15 +13,18 @@ test('Study Unit 1 guards the final-check grading and scheduling fixes', () => {
   assert.match(source, /function localDateKey\(date\)/);
   assert.doesNotMatch(source, /function todayKey\(\) \{ return new Date\(\)\.toISOString\(\)\.slice\(0,10\); \}/);
 
-  // Multiple-choice relation questions accept the whole teacher-supplied relation list.
-  assert.match(source, /accepted:list\.slice\(\)/);
-  assert.doesNotMatch(source, /accepted:\[list\[0\]\]/);
-  assert.match(source, /function safeRelationDistractors\(/);
+  // Vocabulary questions use teacher-supplied clues and answer with one of the 12 assigned headwords.
+  assert.match(source, /function teacherClue\(/);
+  assert.match(source, /accepted:\[w\.word\]/);
+  assert.match(source, /wordBank:true/);
+  assert.match(source, /choices:shuffle\(WORDS\.map/);
 
   // Randomness is sampled once before sorting, never from inside the comparator.
   assert.match(source, /score:repeat\*75\+pairPriority\(name,word,domain\)\+Math\.random\(\)\*18/);
   assert.match(source, /\.sort\(function\(a,b\)\{return a\.score-b\.score;\}\)/);
 
+  // Dates follow the teacher worksheet, including the Wednesday September 9 spelling test.
+  assert.match(source, /spelling:new Date\('2026-09-09T08:00:00'\)/);
   // There is an explicit post-spelling-test retention branch.
   assert.match(source, /if\(current<TEST_DATES\.spelling\)/);
   assert.match(source, /return \['definition','definition','synonym','synonym','antonym','antonym','spelling','spelling','spelling','spelling'\]/);

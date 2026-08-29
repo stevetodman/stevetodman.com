@@ -78,32 +78,21 @@ const schoolAnswers = {
 
 async function answerCorrectly(page, advance = true) {
   const domain = await page.locator('.q-domain').getAttribute('data-domain');
-  const prompt = await page.locator('.q-prompt').innerText();
-  let word;
+  const word=await page.evaluate(()=>{
+    const key=Object.keys(localStorage).find(key=>key.startsWith('studyhub-word-expedition-round-unit1-v1-'));
+    const round=JSON.parse(localStorage.getItem(key));return round.questions[round.index].word.word;
+  });
+  assert.ok(word && schoolAnswers[word], `could not resolve ${domain} question for ${word}`);
   if (domain === 'spelling') {
-    word=await page.evaluate(()=>{
-      const key=Object.keys(localStorage).find(key=>key.startsWith('studyhub-word-expedition-round-unit1-v1-'));
-      const round=JSON.parse(localStorage.getItem(key));return round.questions[round.index].word.word;
-    });
-  } else if (domain === 'definition' && await page.locator('#answer-input').count()) {
-    word = Object.keys(schoolAnswers).find(name => prompt.includes(schoolAnswers[name].definition.split(';')[0]));
+    await page.locator('#answer-input').fill(word); await page.locator('#answer-form').evaluate(form => form.requestSubmit());
   } else {
-    word = (await page.locator('.q-prompt .target').innerText()).trim();
-  }
-  assert.ok(word && schoolAnswers[word], `could not resolve ${domain} question: ${prompt}`);
-  const answer = domain === 'spelling' || (domain === 'definition' && await page.locator('#answer-input').count())
-    ? word
-    : schoolAnswers[word][domain];
-  assert.ok(answer, `no ${domain} answer recorded for ${word}`);
-  if (await page.locator('#answer-input').count()) {
-    await page.locator('#answer-input').fill(answer);
-    await page.locator('#answer-form').evaluate(form => form.requestSubmit());
-  } else {
-    await page.getByRole('button', { name:answer, exact:true }).click();
+    assert.equal(await page.locator('.choice').count(),12,'vocabulary uses the complete 12-word bank');
+    await page.getByRole('button', { name:word, exact:true }).click();
   }
   if(advance)await page.locator('#next-question').click();
   await page.waitForTimeout(35);
 }
+
 
 describe('Unit 1 Word Expedition', () => {
   test('puts Luke and Samantha one tap from the first question', async () => {
@@ -163,6 +152,15 @@ describe('Unit 1 Word Expedition', () => {
     const stillSeparate = await page.evaluate(() => JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')));
     assert.equal(Object.keys(stillSeparate.learners.Samantha.stats).length, 0);
     await context.close();
+  });
+
+  test('uses the full teacher word bank for vocabulary clues', async () => {
+    const context = await fastContext(); const page = await context.newPage();
+    await page.goto(server.origin + '/study/unit-1/'); await page.locator('[data-profile="Luke"]').click();
+    assert.notEqual(await page.locator('.q-domain').getAttribute('data-domain'),'spelling');
+    const choices=(await page.locator('.choice').allTextContents()).sort();
+    assert.deepEqual(choices,['blunder','cancel','continuous','distribute','document','fragile','myth','reject','scuffle','solitary','temporary','veteran'].sort());
+    assert.match(await page.locator('.q-prompt').innerText(),/Which vocabulary word/); await context.close();
   });
 
   test('rotates automatically into spelling with audio, typing, and optional tiles', async () => {
@@ -343,9 +341,8 @@ describe('Unit 1 Word Expedition', () => {
     const page=await context.newPage();const errors=watchForErrors(page);await page.goto(server.origin+'/study/');
     await page.locator('[data-profile="Luke"]').click();
     await answerCorrectly(page);
-    await page.locator('#listen').click();
-    assert.match(await page.locator('#toast').innerText(),/read this question instead/);
-    assert.doesNotMatch(await page.locator('#toast').innerText(),/tiles/,'meaning questions do not offer nonexistent spelling controls');
+    assert.equal(await page.locator('#listen').count(),0,'word-bank vocabulary clues are readable and do not depend on speech');
+    assert.equal(await page.locator('.choice').count(),12,'vocabulary keeps the complete assigned word bank visible');
     for(let i=1;i<7;i++)await answerCorrectly(page);
     await page.locator('#listen').click();
     assert.match(await page.locator('.audio-note').innerText(),/Audio is unavailable/);
@@ -415,8 +412,9 @@ describe('Unit 1 Word Expedition', () => {
     assert.equal(await page.locator('.shield-segment.cleared').count(),1,'counterattack cannot erase a correct answer');
     assert.equal(await page.locator('.question-count').innerText(),'1 / 10');
     await page.locator('#next-question').click();
-    assert.equal(await page.locator('.monster-dialogue').count(),1,'meaning practice uses monster dialogue');
-    assert.match(await page.locator('.dialogue-speaker').innerText(),/Bramble Troll/);
+    assert.equal(await page.locator('.monster-dialogue').count(),0,'gameplay presentation cannot add alternate vocabulary instruction');
+    assert.equal(await page.locator('.choice').count(),12,'meaning practice uses the complete teacher word bank');
+    assert.match(await page.locator('.q-prompt').innerText(),/Which vocabulary word/);
     for(let i=1;i<7;i++)await answerCorrectly(page);
     assert.equal(await page.locator('.q-domain').getAttribute('data-domain'),'spelling');
     const speech=await page.evaluate(()=>({last:window.heard.at(-1),age:performance.now()-window.heard.at(-1).at}));
@@ -426,7 +424,7 @@ describe('Unit 1 Word Expedition', () => {
     assert.equal(await page.locator('.monster-dialogue,.monster-taunt').count(),0,'spelling gets no story clue before the attempt');
     await page.locator('#answer-input').fill('definitely wrong');await page.locator('#answer-form').evaluate(form=>form.requestSubmit());
     assert.match(await page.locator('.monster-taunt').innerText(),/soggy turnip/);
-    assert.equal(await page.locator('.monster-taunt .target').innerText(),await page.locator('#correction-form strong').innerText(),'taunt models the missed word');
+    assert.equal(await page.locator('.monster-taunt .target').count(),0,'monster flavor never models or teaches the missed word');
 
     // Four representative battles in the existing smoke check; no exhaustive gear matrix.
     const scenes=[
