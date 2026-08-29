@@ -7,13 +7,16 @@ import { repoRoot } from './helpers/harness.mjs';
 const read = relativePath => fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
 const words = ['blunder','cancel','continuous','distribute','document','fragile','myth','reject','scuffle','solitary','temporary','veteran'];
 
-test('Unit 1 exposes adaptive test practice without replacing the adventure', () => {
+test('Unit 1 exposes Mastery Quest and practice lab without replacing the adventure', () => {
   const index = read('study/unit-1/index.html');
   const html = read('study/unit-1/test-practice.html');
-  assert.match(index, /Adaptive test practice/);
+  assert.match(index, /Mastery Quest/);
+  assert.match(index, /mastery-quest\.html/);
+  assert.match(index, /Practice lab/);
   assert.match(index, /<script src="app\.js"><\/script>/);
   assert.match(html, /test-practice\.js/);
   assert.match(html, /test-practice\.css/);
+  assert.match(html, /Mastery Quest/);
   assert.doesNotMatch(html, /us-states\.webmanifest/);
 });
 
@@ -117,7 +120,7 @@ test('cloud backend preserves unknown profile fields while merging Unit 1 stats'
   assert.match(service, /mergeFamilies\(current, incoming\)/);
 });
 
-test('parent readiness dashboard shows both learners, weak words, errors, and mock history', () => {
+test('parent readiness dashboard routes the primary action through Mastery Quest', () => {
   const html = read('study/unit-1/parent-readiness.html');
   const source = read('study/unit-1/parent-readiness.js');
   assert.match(html, /Parent view/);
@@ -129,6 +132,8 @@ test('parent readiness dashboard shows both learners, weak words, errors, and mo
   assert.match(source, /latestMock/);
   assert.match(source, /vocabulary ready/);
   assert.match(source, /spelling ready/);
+  assert.match(source, /mastery-quest\.html\?learner=/);
+  assert.match(source, /Run vocabulary Final Boss/);
 });
 
 test('final mocks use approved 12-for-12 paragraphs and withhold feedback until submission', () => {
@@ -154,4 +159,64 @@ test('spelling final mock is audio-only and writes misses back to adaptive evide
   assert.match(source, /mock-spelling/);
   assert.match(source, /M\.spellingError/);
   assert.match(source, /Missed words are now higher priority in adaptive practice/);
+});
+
+test('Mastery Quest is a one-button vocabulary control loop with mastered-word suppression', () => {
+  const html = read('study/unit-1/mastery-quest.html');
+  const source = read('study/unit-1/mastery-quest.js');
+  const css = read('study/unit-1/mastery-quest.css');
+  assert.match(html, /Monday mastery/);
+  assert.match(html, /unit1-mastery\.js/);
+  assert.match(html, /unit1-cloud\.js/);
+  assert.match(source, /Start Mastery Quest/);
+  assert.match(source, /Mastered-word suppression/);
+  assert.match(source, /at most one already-ready retention check/);
+  assert.match(source, /candidateTasks/);
+  assert.match(source, /M\.vocabReady/);
+  assert.match(source, /M\.weakness/);
+  assert.match(source, /M\.vocabDomains/);
+  assert.match(css, /\.quest-rune/);
+  assert.match(css, /min-height:48px/);
+  assert.match(css, /safe-area-inset-top/);
+});
+
+test('Mastery Quest turns misses into hidden repair plus delayed retrieval', () => {
+  const source = read('study/unit-1/mastery-quest.js');
+  assert.match(source, /insertDelayed\(task\)/);
+  assert.match(source, /The answer is/);
+  assert.match(source, /Rebuild from memory/);
+  assert.match(source, /mastery-quest-repair/);
+  assert.match(source, /assisted:true,independent:false/);
+  assert.match(source, /mastery-quest-bank/);
+});
+
+test('Mastery Quest has 12 runes, weak-word bosses, Sunday Final Boss, and Monday confidence mode', () => {
+  const source = read('study/unit-1/mastery-quest.js');
+  assert.match(source, /Recover all 12 Word Runes/);
+  assert.match(source, /Weak-word boss/);
+  assert.match(source, /2026-08-30/);
+  assert.match(source, /2026-08-31/);
+  assert.match(source, /Face the Sunday Final Boss/);
+  assert.match(source, /startConfidence/);
+  assert.match(source, /Monday confidence check/);
+  assert.match(source, /No coaching until the end/);
+  assert.match(source, /Stop studying/);
+});
+
+test('vocabulary readiness is aligned to the actual word-bank test instead of requiring harder free recall', () => {
+  const mastery = read('study/unit-1/unit1-mastery.js');
+  assert.match(mastery, /Unit 1 vocabulary is tested with a word bank/);
+  assert.match(mastery, /independentCorrects\(name,word,domain\)>=1/);
+  assert.match(mastery, /Harder free recall remains useful remediation/);
+  assert.doesNotMatch(mastery, /vocabReady[^\n]+independentCorrects\(name,word,'pos'\)/);
+});
+
+test('Final Boss can be launched directly from Mastery Quest and returns there after remediation', () => {
+  const html = read('study/unit-1/mock-test.html');
+  const entry = read('study/unit-1/mock-test-entry.js');
+  assert.match(html, /mock-test-entry\.js/);
+  assert.match(html, /Mastery Quest/);
+  assert.match(entry, /mode!=='vocabulary'/);
+  assert.match(entry, /start-vocab/);
+  assert.match(entry, /mastery-quest\.html\?learner=/);
 });
