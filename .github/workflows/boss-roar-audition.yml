@@ -16,6 +16,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install audio tools
+        shell: bash
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+
       - name: Fetch public-domain real male lion recording
         shell: bash
         run: |
@@ -30,7 +36,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # Preserve the biological recording. Only trim, fade, normalize, and encode for mobile.
           for spec in 'A 0.0 1.55' 'B 2.5 1.55' 'C 5.0 1.55'; do
             set -- $spec
             label="$1"; start="$2"; dur="$3"
