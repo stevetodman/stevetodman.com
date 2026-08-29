@@ -106,3 +106,37 @@ test('parent readiness and both final mocks work on iPhone WebKit without coachi
   assert.deepEqual(errors, [], 'parent and final mock pages must not emit page, console, or request errors in iPhone WebKit');
   await context.close();
 });
+
+test('Mastery Quest renders 12 runes and starts a test-aligned weak-word battle on iPhone WebKit', async () => {
+  const context = await iphoneContext();
+  const page = await context.newPage();
+  const errors = watchForErrors(page);
+  await page.addInitScript(() => {
+    const NativeDate = Date;
+    const fixed = new NativeDate('2026-08-29T12:00:00-05:00').getTime();
+    class FixedDate extends NativeDate {
+      constructor(...args){ super(...(args.length ? args : [fixed])); }
+      static now(){ return fixed; }
+    }
+    window.Date = FixedDate;
+  });
+
+  await page.goto(server.origin + '/study/unit-1/mastery-quest.html?learner=Luke', { waitUntil:'networkidle' });
+  assert.equal(await page.locator('.quest-rune').count(), 12, 'Mastery Quest must show all twelve vocabulary runes');
+  assert.match(await page.locator('#quest-start').textContent(), /Mastery Quest/i);
+  await page.locator('#quest-start').click();
+
+  const choices = page.locator('.quest-choice');
+  await choices.first().waitFor({ state:'visible' });
+  assert.equal(await choices.count(), 12, 'each Mastery Quest clue must use the realistic full vocabulary bank');
+  const target = await choices.first().boundingBox();
+  assert.ok(target && target.height >= 44, 'Mastery Quest word-bank choices must be comfortable iPhone touch targets');
+  await choices.first().click();
+
+  await page.waitForTimeout(80);
+  const shared = await page.evaluate(() => JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')));
+  assert.ok(Object.keys(shared.learners.Luke.stats).length >= 1, 'Mastery Quest must write evidence into the shared Unit 1 learner state');
+  assert.equal(Object.keys(shared.learners.Samantha.stats).length, 0, 'Mastery Quest evidence must remain learner-specific');
+  assert.deepEqual(errors, [], 'Mastery Quest must not emit page, console, or request errors in iPhone WebKit');
+  await context.close();
+});
