@@ -90,10 +90,25 @@ test('Study releases have an explicit contract, dedicated CI gate, live canary, 
   assert.match(liveWorkflow, /schedule:/);
   assert.match(liveWorkflow, /workflow_dispatch:/);
 
+  const packageJson = JSON.parse(read('package.json'));
+  assert.equal(packageJson.scripts['verify:study-production'], 'node scripts/verify-study-release.mjs');
+  assert.equal(packageJson.scripts['verify:study-production:browser'], 'node scripts/verify-study-production.mjs');
+
+  const releaseManifest = read('scripts/study-release.mjs');
+  assert.match(releaseManifest, /unit1-contexts\.js/);
+
+  const build = read('scripts/build-site.mjs');
+  assert.match(build, /unit1-contexts/);
+  assert.match(build, /computeStudyReleaseVersion/);
+
   const headers = read('_headers');
   assert.match(headers, /\/study\/\*\s+Cache-Control: no-cache, max-age=0, must-revalidate/);
 
-  const canary = read('scripts/verify-study-production.mjs');
-  assert.match(canary, /context\.route\('https:\/\/\*\.supabase\.co\/\*\*'/);
-  assert.match(canary, /manifest\.start_url, '\/study\/'/);
+  const lightweightCanary = read('scripts/verify-study-release.mjs');
+  assert.doesNotMatch(lightweightCanary, /playwright|chromium\.launch/);
+  assert.match(lightweightCanary, /unit1-contexts/);
+
+  const browserCanary = read('scripts/verify-study-production.mjs');
+  assert.match(browserCanary, /context\.route\('https:\/\/\*\.supabase\.co\/\*\*'/);
+  assert.match(browserCanary, /manifest\.start_url, '\/study\/'/);
 });
