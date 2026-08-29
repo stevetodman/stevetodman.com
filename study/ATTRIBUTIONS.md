@@ -2,7 +2,7 @@
 
 ## Word Expedition battle audio
 
-Battle effects use a deliberately small **12-clip** local sample bank so mobile Safari has little to fetch or decode. Eleven shipped samples are **CC0 1.0 / public domain**; the Bramble Troll cue is original project-generated synthesis. All clips are trimmed to **150–400 ms**, mono **22.05 kHz**, **48 kbps MP3**, and loudness-normalized. Decoding begins on the same user gesture that unlocks the shared iPhone/desktop AudioContext. Until a sample is decoded—or if fetch/decode ever fails—the existing Web Audio synthesizer plays immediately instead, so audio can never delay a learning interaction.
+Battle effects use a deliberately small **12-clip** local sample bank so mobile Safari has little to fetch or decode. Ten shipped samples are **CC0 1.0 / public domain**; the Bramble Troll and Word Keeper boss cues are original project-generated synthesis. All clips are trimmed to **150–400 ms**, mono **22.05 kHz**, **48 kbps MP3**, and loudness-normalized. Decoding begins on the same user gesture that unlocks the shared iPhone/desktop AudioContext. Until a sample is decoded—or if fetch/decode ever fails—the existing Web Audio synthesizer plays immediately instead, so audio can never delay a learning interaction.
 
 No scream, flesh-impact, or gunshot recording is selected or shipped.
 
@@ -14,6 +14,7 @@ Sources (CC0 does not require attribution, but exact provenance is recorded):
 - **rubberduck — 100 CC0 SFX #2** (OpenGameArt, CC0 1.0): `sfx100v2_metal_04.ogg` — hammer/metal impact. Source: https://opengameart.org/content/100-cc0-sfx-2
 - **rubberduck — 80 CC0 creature SFX** (OpenGameArt, CC0 1.0): `cute_05.ogg`, `eat_02.ogg`, and `roar_03.ogg` — the remaining short creature effects use these kid-safe families. `scream_*` files from the source pack are intentionally not used. Source: https://opengameart.org/content/80-cc0-creature-sfx
 - **Bramble Troll** — `troll.mp3` is original project-generated audio synthesized from low irregular harmonics, filtered noise, wood-strain transients, and a muted earth-impact layer. It contains no recorded voice, scream, flesh impact, or third-party source audio.
+- **Word Keeper boss** — `owl.mp3` is original project-generated audio synthesized as a naturalistic large-owl/raptor call: irregular descending harmonics, throat/formant resonance, breath/feather turbulence, low chest resonance, and a short attack transient. It contains no recorded voice, scream, flesh impact, or third-party source audio.
 
 The final MP3 files live under `study/unit-1/sfx/`; there are no runtime third-party audio requests. Word/sentence audio remains the browser speech synthesizer.
 
@@ -45,7 +46,7 @@ Wikimedia credits the map to **Ali Zifan, JCRules, Magog the Ogre, Nizolan & Spe
 
 https://creativecommons.org/licenses/by-sa/4.0/
 
-The WebsiteBeaver repository's surrounding tutorial/code is published under the MIT License. The state geometry used here has been extracted, reformatted, emedded in application data, styled for the StudyHub games, and reused to render map-derived application icons. To avoid under-attributing the recovered source, this project treats that map geometry and those map-derived renderings as CC BY-SA-derived material unless better upstream provenance is established.
+The WebsiteBeaver repository's surrounding tutorial/code is published under the MIT License. The state geometry used here has been extracted, reformatted, embedded in application data, styled for the StudyHub games, and reused to render map-derived application icons. To avoid under-attributing the recovered source, this project treats that map geometry and those map-derived renderings as CC BY-SA-derived material unless better upstream provenance is established.
 
 This attribution/license notice applies to the identified map-derived material; it does not relicense unrelated application code or other site content.
 
