@@ -19,10 +19,23 @@
     'That guess just tripped over its own shoelaces!',
     'My swamp mud had a better plan than that!',
     'Wrong! And somehow I am suddenly hungry.',
-    'That answer needs a map, a flashlight, and possibly a sandwich.'
+    'That answer needs a map, a flashlight, and possibly a sandwich.',
+    'That was terrible. Do it again, I want to laugh twice.'
   ];
 
   var RIGHT=[
+    'Correct. Do not get used to it.',
+    'One right answer. ONE. Meanwhile I have had six hundred years of being right.',
+    'Fine. But you took forever. I aged. I have new wrinkles because of you.',
+    'Correct — and yet somehow still annoying.',
+    'Oh, you are proud of that? That was the EASY one.',
+    'Yes. That is right. Now wipe that grin off before I eat it.',
+    'Anyone could have gotten that. My moss got that. Yesterday.',
+    'Correct. Also your shoelace is untied. I am not telling you which one.',
+    'Well well. The tiny snack has ONE trick.',
+    'You got it right and I still do not like you.',
+    'Do not celebrate. Celebrating is for winners, and you have won ONE thing.',
+    'Correct. I have written your name down. In my grudge book.',
     'NO! You were not supposed to know that!',
     'Ugh! My slime is curdling!',
     'Lucky guess! That is all! LUCKY GUESS!',
@@ -34,7 +47,6 @@
     'AAARGH! Back to monster school for me!',
     'Stop that. Stop being right. It is rude.',
     'I demand a rematch! And a snack! Mostly a snack!',
-    'Ohhh, you are one of those smart ones, are you?',
     'My earwax collection is very disappointed in me.',
     'Curses! Foiled by a person with a juice box!',
     'That is it. I am telling my grandmother.',
