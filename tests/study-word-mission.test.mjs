@@ -424,7 +424,7 @@ describe('Unit 1 Word Expedition', () => {
     await page.locator('#next-question').click();
     assert.equal(await page.locator('.monster-dialogue').count(),0,'gameplay presentation cannot add alternate vocabulary instruction');
     assert.equal(await page.locator('.choice').count(),12,'meaning practice uses the complete teacher word bank');
-    assert.match(await page.locator('.q-prompt').innerText(),/Which vocabulary word/);
+    assert.match(await page.locator('.q-prompt').innerText(),/__________/,'meaning practice uses a contextual fill-in-the-blank prompt');
     for(let i=1;i<7;i++)await answerCorrectly(page);
     assert.equal(await page.locator('.q-domain').getAttribute('data-domain'),'spelling');
     const speech=await page.evaluate(()=>({last:window.heard.at(-1),age:performance.now()-window.heard.at(-1).at}));
