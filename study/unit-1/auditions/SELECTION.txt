@@ -1,0 +1,2 @@
+source=study/unit-1/auditions/word-keeper-B-real-lion.mp3
+rms_db=-14.670526
