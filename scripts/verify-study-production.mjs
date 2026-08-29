@@ -1,14 +1,10 @@
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
-import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
+import { computeStudyReleaseVersion } from './study-release.mjs';
 
 const ORIGIN = process.env.SITE_ORIGIN || 'https://stevetodman.com';
-const hash = createHash('sha256');
-for (const asset of ['app.js','game-art.js','quality-core.js','sfx-bank.js','audio-unlock.js','app.css','assets/expedition-sprites.webp','assets/forest-clearing.webp','assets/expedition-world.webp','assets/monster-sprites.webp','assets/extra-gear.webp','assets/hero-poses.webp']) {
-  hash.update(fs.readFileSync(new URL('../study/unit-1/'+asset,import.meta.url)));
-}
-const expectedBuild = hash.digest('hex').slice(0,12);
+const expectedBuild = computeStudyReleaseVersion(fileURLToPath(new URL('../study/unit-1/', import.meta.url)));
 const browser = await chromium.launch();
 const context = await browser.newContext();
 
@@ -42,7 +38,7 @@ try {
   assert.equal(await page.locator('[data-domain]').count(),1);
   assert.equal(await page.locator('html').getAttribute('data-study-build'),expectedBuild,'must serve this exact release, not an older versioned build');
   const urls=await page.locator('script[src],link[rel="stylesheet"]').evaluateAll(elements=>elements.map(el=>el.src||el.href));
-  assert.ok(urls.filter(url=>/unit-1\/(?:app|game-art|quality-core|sfx-bank|audio-unlock)\./.test(url)).every(url=>/[?&]v=[a-f0-9]{12}/.test(url)),'Study assets must be cache-versioned');
+  assert.ok(urls.filter(url=>/unit-1\/(?:app|game-art|quality-core|sfx-bank|audio-unlock|unit1-contexts)\./.test(url)).every(url=>/[?&]v=[a-f0-9]{12}/.test(url)),'Study assets must be cache-versioned');
 
   const manifest = await page.evaluate(async () => {
     const href = document.querySelector('link[rel="manifest"]')?.href;
@@ -62,7 +58,7 @@ try {
   assert.equal(await page.locator('html').getAttribute('data-study-build'),expectedBuild,'direct Unit 1 route must match the same release');
   assert.deepEqual(consoleErrors, [], `Study emitted page errors: ${consoleErrors.join('; ')}`);
 
-  console.log(`Live Study verification passed for ${ORIGIN}/study/ and /study/unit-1/ — build ${expectedBuild}`);
+  console.log(`Live Study browser verification passed for ${ORIGIN}/study/ and /study/unit-1/ — build ${expectedBuild}`);
 } finally {
   await context.close();
   await browser.close();
