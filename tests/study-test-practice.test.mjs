@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 import { repoRoot } from './helpers/harness.mjs';
 
 const read = relativePath => fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
@@ -28,6 +29,45 @@ test('adaptive practice uses the exact 12-word Unit 1 bank and the main learner-
   assert.match(source, /correctDays/);
   assert.match(source, /lastPracticeType/);
   assert.match(source, /priorAdventureEvidence/);
+});
+
+test('context library provides five rotating sentences per word and ten valid full-bank paragraphs', () => {
+  const sandbox = { window:{} };
+  vm.runInNewContext(read('study/unit-1/unit1-contexts.js'), sandbox);
+  const contexts = sandbox.window.WordExpeditionContexts;
+  assert.deepEqual(Object.keys(contexts.sentences).sort(), words.slice().sort());
+  for (const word of words) {
+    assert.equal(contexts.sentences[word].length, 5, `${word} should have five contexts`);
+    assert.equal(new Set(contexts.sentences[word].map(item => item.id)).size, 5);
+    for (const item of contexts.sentences[word]) {
+      assert.equal(item.a, word);
+      assert.equal((item.q.match(/__________/g) || []).length, 1);
+    }
+  }
+  assert.equal(contexts.paragraphs.length, 10);
+  assert.equal(new Set(contexts.paragraphs.map(form => form.id)).size, 10);
+  assert.equal(new Set(contexts.paragraphs.map(form => Array.from(form.key).join('|'))).size, 10, 'answer order should not be learnable');
+  for (const form of contexts.paragraphs) {
+    assert.deepEqual(Array.from(form.key).sort(), words.slice().sort(), `${form.id} must use every bank word once`);
+    assert.deepEqual(Array.from(form.text.matchAll(/\{(\d+)\}/g), match => Number(match[1])), [1,2,3,4,5,6,7,8,9,10,11,12]);
+  }
+  for (const word of words) {
+    const positions = new Set(contexts.paragraphs.map(form => Array.from(form.key).indexOf(word)));
+    assert.ok(positions.size >= 3, `${word} should move among paragraph positions`);
+  }
+});
+
+test('adventure, practice, and final mock load the shared contexts before using them', () => {
+  for (const page of ['study/index.html','study/unit-1/index.html','study/unit-1/test-practice.html','study/unit-1/mock-test.html']) {
+    const html = read(page);
+    assert.ok(html.indexOf('unit1-contexts.js') > 0, `${page} should load contexts`);
+    const consumer = page.endsWith('test-practice.html') ? 'test-practice.js' : page.endsWith('mock-test.html') ? 'mock-test.js' : 'app.js';
+    assert.ok(html.indexOf('unit1-contexts.js') < html.indexOf(consumer), `${page} should load contexts first`);
+  }
+  const adventure = read('study/unit-1/app.js');
+  assert.match(adventure, /function nextContextSentence\(/);
+  assert.match(adventure, /context=domain==='definition'&&nextContextSentence\(w\)/);
+  assert.match(adventure, /q\.contextual=!!q\.contextId/);
 });
 
 test('baseline diagnostic targets practice without letting word-bank recognition masquerade as recall', () => {
@@ -62,9 +102,13 @@ test('mastery evidence distinguishes independent retrieval from assisted repair'
 
 test('practice covers full-bank elimination, dual POS, reverse retrieval, capitalization, and cancel discrimination', () => {
   const source = read('study/unit-1/test-practice.js');
+  const contexts = read('study/unit-1/unit1-contexts.js');
   assert.match(source, /12-for-12 paragraph/);
   assert.match(source, /answers\.every\(Boolean\)/);
-  assert.match(source, /Rainy picnic \+ dock/);
+  assert.match(contexts, /Rainy picnic \+ dock/);
+  assert.match(source, /function nextParagraph\(/);
+  assert.match(source, /function nextSentenceSet\(/);
+  assert.match(source, /Sentence variety/);
   assert.match(source, /POS_ITEMS/);
   assert.match(source, /blundered/);
   assert.match(source, /scuffled/);
@@ -138,10 +182,12 @@ test('parent readiness dashboard routes the primary action through Mastery Quest
 
 test('final mocks use approved 12-for-12 paragraphs and withhold feedback until submission', () => {
   const source = read('study/unit-1/mock-test.js');
+  const contexts = read('study/unit-1/unit1-contexts.js');
   const html = read('study/unit-1/mock-test.html');
   assert.match(html, /Final verification/);
-  assert.match(source, /The \[1\] ranger had worked the canyon alone for years/);
-  assert.match(source, /The \[1\] pilot did not \[2\] the flight/);
+  assert.match(contexts, /The \{1\} ranger had worked the canyon alone for years/);
+  assert.match(contexts, /The \{1\} pilot did not \{2\} the flight/);
+  assert.match(source, /f\.id!==last/);
   assert.match(source, /Submit entire vocabulary mock/);
   assert.match(source, /Nothing above is graded until Submit/);
   assert.match(source, /none given/);

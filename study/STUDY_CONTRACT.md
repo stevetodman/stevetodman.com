@@ -37,6 +37,8 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 
 ## Assignment behavior
 
+- The teacher handout is the sole canonical source for Unit 1 headwords, definitions, synonyms, antonyms, spelling, and parts of speech. Authored sentences and paragraphs may demonstrate those supplied meanings, but may not add or change an instructional relationship.
+- Fill-in-the-blank meaning practice uses the complete 12-word bank. The shared context library contains five sentence forms per word and ten 12-for-12 paragraph forms. Per-learner rotation exhausts each sentence/paragraph bag before reuse, prevents an immediate repeat at a bag boundary, and varies paragraph answer positions so answer order cannot become the learned cue.
 - Multiple-choice meaning practice uses short, authored monster dialogue containing the target word. These contextual answers still earn normal hits, coins and correct-answer counts, but do not add mastery days. Typed recall, spelling, retries and the final checkpoint keep their context-free prompts and existing mastery credit. Existing earned mastery is preserved. After a wrong attempt, monsters may give a cartoon insult followed by a model sentence using the word; no taunt or target-word reveal appears before a spelling/recall attempt. Dialogue is text-only, adds no turns and never delays spoken words. No insults about intelligence, reading ability, identity or real-world appearance.
 - A learner is one tap from question 1.
 - A session is exactly 10 questions.

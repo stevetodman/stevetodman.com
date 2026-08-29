@@ -11,10 +11,12 @@
   var CLOUD_PUSH_DELAY = 1200;
   var SESSION_LENGTH = 10;
   var GAME_STORAGE_KEY = 'studyhub-word-expedition-game-unit1-v1';
+  var CONTEXT_ROTATION_KEY = 'studyhub-word-expedition-context-rotation-unit1-v1';
   var ROUND_KEY = 'studyhub-word-expedition-round-unit1-v1-';
   var GEAR_DRAFT_KEY = 'studyhub-word-expedition-gear-draft-unit1-v1-';
   var QUALITY = window.WordExpeditionQuality;
   var ART = window.WordExpeditionArt;
+  var CONTEXTS = window.WordExpeditionContexts || {sentences:{},paragraphs:[]};
   var GAME_CATALOG = ART.catalog;
   var MONSTERS = [
     {id:'mossling',name:'Bramble Troll',story:'Claims this entire forest is its bedroom. Still refuses to tidy it.'},
@@ -393,6 +395,23 @@
     for (var i=copy.length-1;i>0;i--) { var j=Math.floor(Math.random()*(i+1)); var t=copy[i];copy[i]=copy[j];copy[j]=t; }
     return copy;
   }
+  function nextContextSentence(word) {
+    var items=CONTEXTS.sentences[word.word]||[];
+    if(!items.length)return null;
+    var rotation={version:1,learners:{}};
+    try{var saved=JSON.parse(localStorage.getItem(CONTEXT_ROTATION_KEY)||'null');if(saved&&saved.version===1&&saved.learners)rotation=saved;}catch(_){}
+    var learnerRotation=rotation.learners[activeName]=rotation.learners[activeName]||{bags:{},last:{}};
+    var validIds=new Set(items.map(function(item){return item.id;}));
+    var bag=(learnerRotation.bags[word.word]||[]).filter(function(id){return validIds.has(id);});
+    if(!bag.length){
+      bag=shuffle(Array.from(validIds));
+      if(bag.length>1&&bag[0]===learnerRotation.last[word.word]){var swap=bag[0];bag[0]=bag[1];bag[1]=swap;}
+    }
+    var id=bag.shift();
+    learnerRotation.bags[word.word]=bag;learnerRotation.last[word.word]=id;
+    try{localStorage.setItem(CONTEXT_ROTATION_KEY,JSON.stringify(rotation));}catch(_){}
+    return items.find(function(item){return item.id===id;})||items[0];
+  }
   function unique(items) { return Array.from(new Set(items)); }
   function pad2(value) { return String(value).padStart(2,'0'); }
   function localDateKey(date) {
@@ -667,17 +686,19 @@
     if(domain==='spelling') {
       q={kind:'text',prompt:'Listen, then spell the word.',accepted:[w.word],answer:w.word,explanation:'The correct spelling is '+w.word+'.',listen:true,spelling:true};
     } else {
-      var clue=teacherClue(w,domain,index);
-      var prompt=domain==='definition'
-        ? 'Which vocabulary word means “'+clue+'”?'
-        : 'Which vocabulary word has the '+(domain==='synonym'?'same':'opposite')+' meaning as “'+clue+'”?' ;
+      var clue=teacherClue(w,domain,index),context=domain==='definition'&&nextContextSentence(w);
+      var prompt=context
+        ? context.q
+        : domain==='definition'
+          ? 'Which vocabulary word means “'+clue+'”?'
+          : 'Which vocabulary word has the '+(domain==='synonym'?'same':'opposite')+' meaning as “'+clue+'”?' ;
       var explanation=domain==='definition'
         ? w.word+': '+w.definitions.join('; ')
         : w.word+' — school '+(domain==='synonym'?'synonyms: '+w.synonyms.join(', '):'antonyms: '+w.antonyms.join(', '));
-      q={kind:'choice',prompt:prompt,choices:shuffle(WORDS.map(function(item){return item.word;})),accepted:[w.word],answer:w.word,explanation:explanation,wordBank:true,clue:clue};
+      q={kind:'choice',prompt:prompt,choices:shuffle(WORDS.map(function(item){return item.word;})),accepted:[w.word],answer:w.word,explanation:explanation,wordBank:true,clue:clue,contextId:context&&context.id};
     }
     q.word=w;q.domain=domain;q.retry=!!forceText;q.checkpoint=index===SESSION_LENGTH-1;
-    q.contextual=false;
+    q.contextual=!!q.contextId;
     return q;
   }
   function questionPromptHTML(q,kind){
