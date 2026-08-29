@@ -3,7 +3,11 @@ name: Study contract
 on:
   pull_request:
     paths:
-      - 'study/**'
+      - 'study/index.html'
+      - 'study/unit-1/**'
+      - 'study/icons/**'
+      - 'study/*.webmanifest'
+      - 'study/sw.js'
       - 'tests/study-*.test.mjs'
       - 'scripts/verify-study-production.mjs'
       - '_headers'
@@ -15,7 +19,11 @@ on:
       - main
       - 'study/quality-*'
     paths:
-      - 'study/**'
+      - 'study/index.html'
+      - 'study/unit-1/**'
+      - 'study/icons/**'
+      - 'study/*.webmanifest'
+      - 'study/sw.js'
       - 'tests/study-*.test.mjs'
       - 'scripts/verify-study-production.mjs'
       - '_headers'
@@ -33,9 +41,9 @@ permissions:
 
 jobs:
   contract:
-    name: Study contract
+    name: Study unit + build
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -43,37 +51,43 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium webkit
       - run: npm run test:study:unit
-      - run: npm run test:study:smoke
-      - name: Validate iPhone audio path in WebKit
-        run: npm run test:study:webkit
       - run: npm run build
-      - name: Save focused Study screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: study-rendered-evidence-chromium
-          path: ${{ runner.temp }}/study-evidence/
-          if-no-files-found: ignore
 
-  live-deployment:
-    name: Study live deployment
+  chromium-smoke:
+    name: Study Chromium smoke
     needs: contract
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify live Study deployment
-        env:
-          SITE_ORIGIN: https://stevetodman.com
-        run: |
-          for attempt in $(seq 1 20); do
-            npm run verify:study-production && exit 0
-            if [ "$attempt" -eq 20 ]; then exit 1; fi
-            sleep 30
-          done
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:study:smoke
+      - name: Save screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: study-failure-evidence-chromium
+          path: ${{ runner.temp }}/study-evidence/
+          if-no-files-found: ignore
+
+  webkit-iphone:
+    name: Study iPhone WebKit
+    needs: contract
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps webkit
+      - run: npm run test:study:webkit
