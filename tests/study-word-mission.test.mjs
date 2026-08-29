@@ -431,10 +431,10 @@ describe('Unit 1 Word Expedition', () => {
     assert.equal(speech.last.voice,'Local');assert.equal(speech.last.rate,1);
     assert.ok(speech.age<220,'speech starts on render, without the former 220ms timer');
     assert.equal(await page.locator('.question-count').innerText(),'8 / 10');
-    assert.equal(await page.locator('.monster-dialogue,.monster-taunt').count(),0,'spelling gets no story clue before the attempt');
+    assert.equal(await page.locator('.monster-dialogue,.monster-taunt,.monster-banter-line').count(),0,'spelling gets no story clue or taunt before the attempt');
     await page.locator('#answer-input').fill('definitely wrong');await page.locator('#answer-form').evaluate(form=>form.requestSubmit());
-    assert.match(await page.locator('.monster-taunt').innerText(),/soggy turnip/);
-    assert.equal(await page.locator('.monster-taunt .target').count(),0,'monster flavor never models or teaches the missed word');
+    assert.ok((await page.locator('.monster-roast').innerText()).length>10,'the miss gets a playful monster roast');
+    assert.equal(await page.locator('.monster-roast .target').count(),0,'monster flavor never models or teaches the missed word');
 
     const scenes=[
       ['starter-sword','starter-cloak',0,'mossling','weapon-slash','hero-evade'],
@@ -523,7 +523,7 @@ describe('Unit 1 Word Expedition', () => {
         if(round===0){
           await page.locator('#visit-shop').click();await page.locator('#monster-book').click();
           assert.equal(await page.locator('.monster-card.collected').count(),1,name+' has an independent collection');
-          assert.equal(await page.locator('.monster-card.undiscovered').count(),3);
+          assert.equal(await page.locator('.monster-card.undiscovered').count(),7,'the expanded eight-entry book keeps unseen monsters locked');
           assert.equal(await page.locator('[data-monster="mossling"] .monster-count').innerText(),'Battles completed: 1');
           await page.locator('[data-roar="mossling"]').click();await page.locator('#book-back').click();
           await page.locator('[data-item="copper-blade"]').click();
