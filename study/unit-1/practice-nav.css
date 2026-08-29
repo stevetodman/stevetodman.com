@@ -1,0 +1,1 @@
+.practice-tools{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.practice-cloud{font-size:.8rem;text-align:right;color:#617284;margin:-8px 0 10px}@media(max-width:700px){.practice-topbar{align-items:flex-start;flex-direction:column}.practice-tools{justify-content:flex-start}.practice-cloud{text-align:left;margin-top:0}}

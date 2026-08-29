@@ -91,3 +91,67 @@ test('iPhone touch targets and active paragraph blank are explicitly styled', ()
   assert.match(css, /\.blank-token\.active/);
   assert.match(css, /safe-area-inset-top/);
 });
+
+test('practice loads the shared mastery model and direct cloud bridge', () => {
+  const html = read('study/unit-1/test-practice.html');
+  const mastery = read('study/unit-1/unit1-mastery.js');
+  const cloud = read('study/unit-1/unit1-cloud.js');
+  assert.match(html, /unit1-mastery\.js/);
+  assert.match(html, /unit1-cloud\.js/);
+  assert.match(html, /Parent view/);
+  assert.match(html, /Final mock/);
+  for (const word of words) assert.match(mastery, new RegExp(`['"]${word}['"]`));
+  assert.match(cloud, /studyhub-save/);
+  assert.match(cloud, /wm1\|/);
+  assert.match(cloud, /\['definition','synonym','antonym','spelling','pos'\]/);
+  assert.match(cloud, /action:'push',data:payload\(\)/);
+  assert.doesNotMatch(cloud, /equipped/);
+  assert.doesNotMatch(cloud, /game:/);
+});
+
+test('cloud backend preserves unknown profile fields while merging Unit 1 stats', () => {
+  const service = read('study/supabase/functions/studyhub-save/index.ts');
+  assert.match(service, /unknown keys are carried through untouched/);
+  assert.match(service, /const out: Record<string, unknown> = \{ \.\.\.A, \.\.\.B \}/);
+  assert.match(service, /out\.stateStats = stateStats/);
+  assert.match(service, /mergeFamilies\(current, incoming\)/);
+});
+
+test('parent readiness dashboard shows both learners, weak words, errors, and mock history', () => {
+  const html = read('study/unit-1/parent-readiness.html');
+  const source = read('study/unit-1/parent-readiness.js');
+  assert.match(html, /Parent view/);
+  assert.match(html, /readiness-grid/);
+  assert.match(source, /learnerCard\('Luke'\)/);
+  assert.match(source, /learnerCard\('Samantha'\)/);
+  assert.match(source, /weakestWords/);
+  assert.match(source, /recentErrors/);
+  assert.match(source, /latestMock/);
+  assert.match(source, /vocabulary ready/);
+  assert.match(source, /spelling ready/);
+});
+
+test('final mocks use approved 12-for-12 paragraphs and withhold feedback until submission', () => {
+  const source = read('study/unit-1/mock-test.js');
+  const html = read('study/unit-1/mock-test.html');
+  assert.match(html, /Final verification/);
+  assert.match(source, /The \[1\] ranger had worked the canyon alone for years/);
+  assert.match(source, /The \[1\] pilot did not \[2\] the flight/);
+  assert.match(source, /Submit entire vocabulary mock/);
+  assert.match(source, /Nothing above is graded until Submit/);
+  assert.match(source, /none given/);
+  assert.match(source, /mock-context/);
+  assert.match(source, /mock-synonym/);
+  assert.match(source, /mock-antonym/);
+});
+
+test('spelling final mock is audio-only and writes misses back to adaptive evidence', () => {
+  const source = read('study/unit-1/mock-test.js');
+  assert.match(source, /Audio only/);
+  assert.match(source, /No spelling answer will be shown until all 12 are finished/);
+  assert.match(source, /SpeechSynthesisUtterance/);
+  assert.match(source, /autocorrect="off"/);
+  assert.match(source, /mock-spelling/);
+  assert.match(source, /M\.spellingError/);
+  assert.match(source, /Missed words are now higher priority in adaptive practice/);
+});
