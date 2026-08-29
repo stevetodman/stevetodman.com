@@ -15,9 +15,13 @@ after(async () => {
   await server?.close();
 });
 
-test('adaptive Unit 1 practice works on an iPhone WebKit profile and writes shared learner evidence', async () => {
+function iphoneContext(){
   const { defaultBrowserType: _defaultBrowserType, ...iphone } = devices['iPhone 13'];
-  const context = await browser.newContext({ ...iphone, hasTouch:true });
+  return browser.newContext({ ...iphone, hasTouch:true });
+}
+
+test('adaptive Unit 1 practice works on an iPhone WebKit profile and writes shared learner evidence', async () => {
+  const context = await iphoneContext();
   const page = await context.newPage();
   const errors = watchForErrors(page);
 
@@ -57,5 +61,48 @@ test('adaptive Unit 1 practice works on an iPhone WebKit profile and writes shar
   assert.equal(await page.locator('.interactive-bank .bank-word.used').count(), 1, 'using a word must visibly remove it from the remaining bank');
 
   assert.deepEqual(errors, [], 'adaptive test practice must not emit page, console, or request errors in iPhone WebKit');
+  await context.close();
+});
+
+test('parent readiness and both final mocks work on iPhone WebKit without coaching before submission', async () => {
+  const context = await iphoneContext();
+  const page = await context.newPage();
+  const errors = watchForErrors(page);
+
+  await page.goto(server.origin + '/study/unit-1/parent-readiness.html', { waitUntil:'networkidle' });
+  assert.equal(await page.locator('.learner-readiness').count(), 2, 'parent view must show both learners');
+  assert.equal(await page.locator('[data-learner="Luke"] .meter').count(), 3);
+  assert.equal(await page.locator('[data-learner="Samantha"] .meter').count(), 3);
+
+  await page.goto(server.origin + '/study/unit-1/mock-test.html?learner=Luke', { waitUntil:'networkidle' });
+  await page.locator('#start-vocab').click();
+  assert.equal(await page.locator('.mock-word').count(), 12);
+  assert.equal(await page.locator('.mock-blank').count(), 12);
+  assert.equal(await page.locator('.mock-review').count(), 0, 'vocabulary mock must not reveal correctness during the test');
+
+  for (let i=0;i<12;i++) await page.locator('.mock-word').nth(i).click();
+  const relationInputs = page.locator('[data-syn], [data-ant]');
+  assert.equal(await relationInputs.count(), 24);
+  for (let i=0;i<24;i++) await relationInputs.nth(i).fill('wrong');
+  await page.locator('#vocab-mock-form').evaluate(form => form.requestSubmit());
+  await page.locator('.mock-summary').waitFor();
+  assert.match(await page.locator('.mock-score').textContent(), /\/36/);
+
+  await page.locator('#mock-again').click();
+  await page.locator('#start-spelling').click();
+  assert.equal(await page.getByText('Audio only', { exact:true }).count(), 1);
+  assert.equal(await page.locator('.mock-review').count(), 0, 'spelling mock must not reveal correctness during dictation');
+  for (let i=0;i<12;i++) {
+    await page.locator('#spelling-answer').fill('wrong');
+    await page.locator('#spelling-form').evaluate(form => form.requestSubmit());
+  }
+  await page.locator('.mock-summary').waitFor();
+  assert.match(await page.locator('.mock-score').textContent(), /\/12/);
+
+  const shared = await page.evaluate(() => JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')));
+  const spellingKeys = Object.keys(shared.learners.Luke.stats).filter(key => key.endsWith('|spelling'));
+  assert.equal(spellingKeys.length, 12, 'spelling mock must write all twelve results into adaptive learner evidence');
+  assert.equal(Object.keys(shared.learners.Samantha.stats).length, 0, 'mock evidence must remain learner-specific');
+  assert.deepEqual(errors, [], 'parent and final mock pages must not emit page, console, or request errors in iPhone WebKit');
   await context.close();
 });
