@@ -34,13 +34,9 @@ jobs:
 
           app_path=Path('study/unit-1/app.js')
           app=app_path.read_text()
-
           app=app.replace("spelling:new Date('2026-09-02T08:00:00')","spelling:new Date('2026-09-09T08:00:00')")
-          if "spelling:new Date('2026-09-09T08:00:00')" not in app:
-              raise SystemExit('spelling test date patch failed')
+          if "spelling:new Date('2026-09-09T08:00:00')" not in app: raise SystemExit('spelling test date patch failed')
 
-          # Remove authored instructional sentences. Gameplay flavor remains, but curriculum clues
-          # now come only from the teacher worksheet fields below.
           app=between(app,"  // Short, authored practice sentences.","  var XP_THRESHOLDS =", "  var XP_THRESHOLDS =")
           app=app.replace("  var XP_THRESHOLDS =  var XP_THRESHOLDS =", "  var XP_THRESHOLDS =")
           app=re.sub(r", example:'[^']*', spellingSentence:'[^']*'", "", app)
@@ -48,65 +44,71 @@ jobs:
 
           old_saved="""        if(q.kind==='choice'&&Array.isArray(old.choices)&&old.choices.length===4){\n          var valid=q.domain==='definition'?WORDS.map(function(w){return w.definitions[0];}):q.accepted.concat(safeRelationDistractors(word,q.accepted,q.domain==='synonym'?word.antonyms:word.synonyms));\n          if(old.choices.every(function(c){return valid.indexOf(c)>=0;})&&old.choices.some(function(c){return isAccepted(q,c);}))q.choices=old.choices;\n        }\n"""
           new_saved="""        if(q.wordBank&&Array.isArray(old.choices)&&old.choices.length===WORDS.length){\n          var validWords=WORDS.map(function(w){return w.word;});\n          if(unique(old.choices).length===WORDS.length&&old.choices.every(function(c){return validWords.indexOf(c)>=0;})&&old.choices.indexOf(q.answer)>=0)q.choices=old.choices;\n        }\n"""
-          if old_saved not in app:
-              raise SystemExit('saved-round choice block not found')
+          if old_saved not in app: raise SystemExit('saved-round choice block not found')
           app=app.replace(old_saved,new_saved)
 
-          make_question="""  function teacherClue(word,domain,index) {\n    if(domain==='definition')return word.definitions[index%word.definitions.length];\n    var list=domain==='synonym'?word.synonyms:word.antonyms;\n    return list[index%list.length];\n  }\n  function makeQuestion(pair,index,forceText) {\n    var w=pair.word,domain=pair.domain,q;\n    if(domain==='spelling') {\n      q={kind:'text',prompt:'Listen, then spell the word.',accepted:[w.word],answer:w.word,explanation:'The correct spelling is '+w.word+'.',listen:true,spelling:true};\n    } else {\n      var clue=teacherClue(w,domain,index);\n      var prompt=domain==='definition'\n        ? 'Which vocabulary word means “'+clue+'”?'\n        : 'Which vocabulary word has the '+(domain==='synonym'?'same':'opposite')+' meaning as “'+clue+'”?' ;\n      var explanation=domain==='definition'\n        ? w.word+': '+w.definitions.join('; ')\n        : w.word+' — school '+(domain==='synonym'?'synonyms: '+w.synonyms.join(', '):'antonyms: '+w.antonyms.join(', '));\n      q={kind:'choice',prompt:prompt,choices:shuffle(WORDS.map(function(item){return item.word;})),accepted:[w.word],answer:w.word,explanation:explanation,wordBank:true,clue:clue};\n    }\n    q.word=w;q.domain=domain;q.retry=!!forceText;q.checkpoint=index===SESSION_LENGTH-1;\n    // Vocabulary practice mirrors the known test contract: teacher clue -> one of the 12 assigned words.\n    q.contextual=false;\n    return q;\n  }\n"""
+          make_question="""  function teacherClue(word,domain,index) {\n    if(domain==='definition')return word.definitions[index%word.definitions.length];\n    var list=domain==='synonym'?word.synonyms:word.antonyms;\n    return list[index%list.length];\n  }\n  function makeQuestion(pair,index,forceText) {\n    var w=pair.word,domain=pair.domain,q;\n    if(domain==='spelling') {\n      q={kind:'text',prompt:'Listen, then spell the word.',accepted:[w.word],answer:w.word,explanation:'The correct spelling is '+w.word+'.',listen:true,spelling:true};\n    } else {\n      var clue=teacherClue(w,domain,index);\n      var prompt=domain==='definition'\n        ? 'Which vocabulary word means “'+clue+'”?'\n        : 'Which vocabulary word has the '+(domain==='synonym'?'same':'opposite')+' meaning as “'+clue+'”?' ;\n      var explanation=domain==='definition'\n        ? w.word+': '+w.definitions.join('; ')\n        : w.word+' — school '+(domain==='synonym'?'synonyms: '+w.synonyms.join(', '):'antonyms: '+w.antonyms.join(', '));\n      q={kind:'choice',prompt:prompt,choices:shuffle(WORDS.map(function(item){return item.word;})),accepted:[w.word],answer:w.word,explanation:explanation,wordBank:true,clue:clue};\n    }\n    q.word=w;q.domain=domain;q.retry=!!forceText;q.checkpoint=index===SESSION_LENGTH-1;\n    q.contextual=false;\n    return q;\n  }\n"""
           app=between(app,"  function makeQuestion(pair,index,forceText) {","  function monsterSentence",make_question)
 
           source_pure_render="""  function questionPromptHTML(q,kind){\n    return '<p class=\"q-prompt\">'+q.prompt+'</p>';\n  }\n  function monsterTauntHTML(q){\n    var result=session&&session.results[session.index];if(!result||result.correct||result.assisted)return '';\n    var challenge=({mossling:'You soggy turnip!',wisp:'Nice try, walking night-light!',sentinel:'You wobbly pebble!',boss:'You featherless royal nuisance!'})[session.enemy]||'Your move!';\n    return '<div class=\"monster-taunt\"><p class=\"dialogue-speaker\">'+esc(enemyName(session.enemy))+'</p><p>“'+esc(challenge)+'”</p></div>';\n  }\n\n"""
           app=between(app,"  function monsterSentence", "  function startSession", source_pure_render)
-
           app=app.replace("(q.spelling?'<p class=\"audio-note\">Listen, then type. <button type=\"button\" class=\"sentence-button\" id=\"hear-sentence\">Hear a sentence</button></p>':'')+", "(q.spelling?'<p class=\"audio-note\">Listen, then type the word.</p>':'')+")
           app=app.replace("    if(q.spelling)document.getElementById('hear-sentence').addEventListener('click',function(){speakWord(q.word,true);});\n", "")
           app=app.replace("function choicesHTML(q) { return '<div class=\"choice-list\">'", "function choicesHTML(q) { return '<div class=\"choice-list '+(q.wordBank?'word-bank':'')+'\">'")
           app=app.replace("<p class=\"example\">'+esc(w.example)+'</p>", "")
           app=app.replace("var utterance=new SpeechSynthesisUtterance(sentence?word.spellingSentence:word.word);", "var utterance=new SpeechSynthesisUtterance(word.word);")
-
           app_path.write_text(app)
 
-          css_path=Path('study/unit-1/app.css')
-          css=css_path.read_text()
-          marker='/* Teacher word-bank vocabulary grid */'
+          css_path=Path('study/unit-1/app.css'); css=css_path.read_text(); marker='/* Teacher word-bank vocabulary grid */'
           if marker not in css:
-              css += '''\n\n/* Teacher word-bank vocabulary grid */\n.choice-list.word-bank {\n  display:grid;\n  grid-template-columns:repeat(2,minmax(0,1fr));\n  gap:8px;\n}\n.choice-list.word-bank .choice {\n  min-height:44px;\n  padding:10px 8px;\n}\n@media (min-width:620px) {\n  .choice-list.word-bank { grid-template-columns:repeat(3,minmax(0,1fr)); }\n}\n'''
+              css += '''\n\n/* Teacher word-bank vocabulary grid */\n.choice-list.word-bank { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }\n.choice-list.word-bank .choice { min-height:44px; padding:10px 8px; }\n@media (min-width:620px) { .choice-list.word-bank { grid-template-columns:repeat(3,minmax(0,1fr)); } }\n'''
           css_path.write_text(css)
 
-          # Browser helper: every vocabulary answer is now the target headword from the 12-word bank.
-          test_path=Path('tests/study-word-mission.test.mjs')
-          test=test_path.read_text()
-          start=test.index('async function answerCorrectly(page, advance = true) {')
-          end=test.index("\ndescribe('Unit 1 Word Expedition'",start)
-          helper="""async function answerCorrectly(page, advance = true) {\n  const domain = await page.locator('.q-domain').getAttribute('data-domain');\n  const word=await page.evaluate(()=>{\n    const key=Object.keys(localStorage).find(key=>key.startsWith('studyhub-word-expedition-round-unit1-v1-'));\n    const round=JSON.parse(localStorage.getItem(key));return round.questions[round.index].word.word;\n  });\n  assert.ok(word && schoolAnswers[word], `could not resolve ${domain} question for ${word}`);\n  if (domain === 'spelling') {\n    await page.locator('#answer-input').fill(word);\n    await page.locator('#answer-form').evaluate(form => form.requestSubmit());\n  } else {\n    assert.equal(await page.locator('.choice').count(),12,'vocabulary uses the complete 12-word bank');\n    await page.getByRole('button', { name:word, exact:true }).click();\n  }\n  if(advance)await page.locator('#next-question').click();\n  await page.waitForTimeout(35);\n}\n\n"""
+          test_path=Path('tests/study-word-mission.test.mjs'); test=test_path.read_text()
+          start=test.index('async function answerCorrectly(page, advance = true) {'); end=test.index("\ndescribe('Unit 1 Word Expedition'",start)
+          helper="""async function answerCorrectly(page, advance = true) {\n  const domain = await page.locator('.q-domain').getAttribute('data-domain');\n  const word=await page.evaluate(()=>{\n    const key=Object.keys(localStorage).find(key=>key.startsWith('studyhub-word-expedition-round-unit1-v1-'));\n    const round=JSON.parse(localStorage.getItem(key));return round.questions[round.index].word.word;\n  });\n  assert.ok(word && schoolAnswers[word], `could not resolve ${domain} question for ${word}`);\n  if (domain === 'spelling') {\n    await page.locator('#answer-input').fill(word); await page.locator('#answer-form').evaluate(form => form.requestSubmit());\n  } else {\n    assert.equal(await page.locator('.choice').count(),12,'vocabulary uses the complete 12-word bank');\n    await page.getByRole('button', { name:word, exact:true }).click();\n  }\n  if(advance)await page.locator('#next-question').click();\n  await page.waitForTimeout(35);\n}\n\n"""
           test=test[:start]+helper+test[end:]
-          anchor="""  test('rotates automatically into spelling with audio, typing, and optional tiles', async () => {"""
-          new_test="""  test('uses the full teacher word bank for vocabulary clues', async () => {\n    const context = await fastContext();\n    const page = await context.newPage();\n    await page.goto(server.origin + '/study/unit-1/');\n    await page.locator('[data-profile=\"Luke\"]').click();\n    assert.notEqual(await page.locator('.q-domain').getAttribute('data-domain'),'spelling');\n    const choices=(await page.locator('.choice').allTextContents()).sort();\n    assert.deepEqual(choices,[\n      'blunder','cancel','continuous','distribute','document','fragile',\n      'myth','reject','scuffle','solitary','temporary','veteran'\n    ].sort());\n    assert.match(await page.locator('.q-prompt').innerText(),/Which vocabulary word/);\n    await context.close();\n  });\n\n"""
-          if new_test.strip() not in test:
-              test=test.replace(anchor,new_test+anchor)
+          anchor="  test('rotates automatically into spelling with audio, typing, and optional tiles', async () => {"
+          new_test="""  test('uses the full teacher word bank for vocabulary clues', async () => {\n    const context = await fastContext(); const page = await context.newPage();\n    await page.goto(server.origin + '/study/unit-1/'); await page.locator('[data-profile=\"Luke\"]').click();\n    assert.notEqual(await page.locator('.q-domain').getAttribute('data-domain'),'spelling');\n    const choices=(await page.locator('.choice').allTextContents()).sort();\n    assert.deepEqual(choices,['blunder','cancel','continuous','distribute','document','fragile','myth','reject','scuffle','solitary','temporary','veteran'].sort());\n    assert.match(await page.locator('.q-prompt').innerText(),/Which vocabulary word/); await context.close();\n  });\n\n"""
+          if new_test.strip() not in test: test=test.replace(anchor,new_test+anchor)
           test_path.write_text(test)
 
-          reg_path=Path('tests/study-regressions.test.mjs')
-          reg=reg_path.read_text()
+          reg_path=Path('tests/study-regressions.test.mjs'); reg=reg_path.read_text()
           reg=reg.replace("  // Multiple-choice relation questions accept the whole teacher-supplied relation list.\n  assert.match(source, /accepted:list\\.slice\\(\\)/);\n  assert.doesNotMatch(source, /accepted:\\[list\\[0\\]\\]/);\n  assert.match(source, /function safeRelationDistractors\\(/);", "  // Vocabulary questions use teacher-supplied clues and answer with one of the 12 assigned headwords.\n  assert.match(source, /function teacherClue\\(/);\n  assert.match(source, /accepted:\\[w\\.word\\]/);\n  assert.match(source, /wordBank:true/);\n  assert.match(source, /choices:shuffle\\(WORDS\\.map/);")
           reg=reg.replace("  // There is an explicit post-spelling-test retention branch.\n  assert.match(source, /if\\(current<TEST_DATES\\.spelling\\)/);", "  // Dates follow the teacher worksheet, including the Wednesday September 9 spelling test.\n  assert.match(source, /spelling:new Date\\('2026-09-09T08:00:00'\\)/);\n  // There is an explicit post-spelling-test retention branch.\n  assert.match(source, /if\\(current<TEST_DATES\\.spelling\\)/);")
           reg_path.write_text(reg)
 
-          quality_path=Path('tests/study-quality.test.mjs')
-          quality=quality_path.read_text()
-          start=quality.index("test('every teacher-listed relation is accepted in ordinary and correction grading'")
-          end=quality.index("test('round recovery keeps question order",start)
-          replacement="""test('teacher clues map only to the 12 assigned vocabulary words',()=>{\n  const m=model();\n  const bank=m.WORDS.map(word=>word.word).sort();\n  for(const word of m.WORDS){\n    for(const domain of ['definition','synonym','antonym']){\n      const list=domain==='definition'?word.definitions:word[domain==='synonym'?'synonyms':'antonyms'];\n      if(!list.length)continue;\n      for(let i=0;i<list.length;i++){\n        const q=m.makeQuestion({word,domain},i,false);\n        assert.equal(q.kind,'choice');\n        assert.equal(q.wordBank,true);\n        assert.deepEqual([...q.accepted],[word.word]);\n        assert.deepEqual([...q.choices].sort(),bank);\n        assert.equal(q.clue,list[i]);\n        assert.equal(m.isAccepted(q,word.word.toUpperCase()),true);\n        assert.doesNotMatch(m.questionPromptHTML(q,'boss'),/monster-dialogue/);\n      }\n    }\n  }\n  const spelling=m.makeQuestion({word:m.WORDS[0],domain:'spelling'},1,false);\n  assert.equal(spelling.kind,'text');assert.equal(spelling.wordBank,undefined);\n  assert.equal(m.practiceSuggestions('Luke').length,0,'new learners do not get an arbitrary first-three-word list');\n  const meaning=m.makeQuestion({word:m.WORDS.find(w=>w.word==='continuous'),domain:'definition'},0,false);\n  m.setSession({id:'recent-miss',index:0,results:[]});m.recordResult(meaning,false,false);\n  assert.equal(m.practiceSuggestions('Luke')[0].word,'continuous');\n  assert.equal(m.practiceSuggestions('Luke')[0].domain,'definition');\n  assert.equal(m.practiceSuggestions('Samantha').length,0);\n  m.setSession({id:'recalled',index:0,results:[]});m.recordResult(meaning,true,false);\n  assert.notEqual(m.practiceSuggestions('Luke')[0].domain,'definition','a successful recall clears the urgent miss');\n  assert.match(m.roundReviewHTML([{word:'continuous',domain:'spelling',correct:false}]),/continuous — spelling/);\n  assert.equal(m.cloudToken(true),null,'fresh devices do not mint unprovisioned family credentials');\n  assert.equal(m.monsterTauntHTML(spelling),'','no taunt can reveal a word before an attempt');\n  m.setSession({id:'miss',index:0,enemy:'mossling',results:[{correct:false}]});\n  assert.match(m.monsterTauntHTML(spelling),/soggy turnip/);\n  assert.doesNotMatch(m.monsterTauntHTML(spelling),/blunder/,'monster flavor never adds instructional usage');\n  assert.match(read('study/unit-1/app.js'),/if\\(!isAccepted\\(q,input.value\\)\\)/);\n});\n"""
-          quality=quality[:start]+replacement+quality[end:]
-          quality_path.write_text(quality)
+          quality_path=Path('tests/study-quality.test.mjs'); quality=quality_path.read_text()
+          start=quality.index("test('every teacher-listed relation is accepted in ordinary and correction grading'"); end=quality.index("test('round recovery keeps question order",start)
+          replacement="""test('teacher clues map only to the 12 assigned vocabulary words',()=>{\n  const m=model(); const bank=m.WORDS.map(word=>word.word).sort();\n  for(const word of m.WORDS){\n    for(const domain of ['definition','synonym','antonym']){\n      const list=domain==='definition'?word.definitions:word[domain==='synonym'?'synonyms':'antonyms']; if(!list.length)continue;\n      for(let i=0;i<list.length;i++){\n        const q=m.makeQuestion({word,domain},i,false); assert.equal(q.kind,'choice'); assert.equal(q.wordBank,true);\n        assert.deepEqual([...q.accepted],[word.word]); assert.deepEqual([...q.choices].sort(),bank); assert.equal(q.clue,list[i]);\n        assert.equal(m.isAccepted(q,word.word.toUpperCase()),true); assert.doesNotMatch(m.questionPromptHTML(q,'boss'),/monster-dialogue/);\n      }\n    }\n  }\n  const spelling=m.makeQuestion({word:m.WORDS[0],domain:'spelling'},1,false); assert.equal(spelling.kind,'text');assert.equal(spelling.wordBank,undefined);\n  assert.equal(m.practiceSuggestions('Luke').length,0,'new learners do not get an arbitrary first-three-word list');\n  const meaning=m.makeQuestion({word:m.WORDS.find(w=>w.word==='continuous'),domain:'definition'},0,false);\n  m.setSession({id:'recent-miss',index:0,results:[]});m.recordResult(meaning,false,false);\n  assert.equal(m.practiceSuggestions('Luke')[0].word,'continuous'); assert.equal(m.practiceSuggestions('Luke')[0].domain,'definition'); assert.equal(m.practiceSuggestions('Samantha').length,0);\n  m.setSession({id:'recalled',index:0,results:[]});m.recordResult(meaning,true,false); assert.notEqual(m.practiceSuggestions('Luke')[0].domain,'definition','a successful recall clears the urgent miss');\n  assert.match(m.roundReviewHTML([{word:'continuous',domain:'spelling',correct:false}]),/continuous — spelling/); assert.equal(m.cloudToken(true),null,'fresh devices do not mint unprovisioned family credentials');\n  assert.equal(m.monsterTauntHTML(spelling),'','no taunt can reveal a word before an attempt'); m.setSession({id:'miss',index:0,enemy:'mossling',results:[{correct:false}]});\n  assert.match(m.monsterTauntHTML(spelling),/soggy turnip/); assert.doesNotMatch(m.monsterTauntHTML(spelling),/blunder/,'monster flavor never adds instructional usage');\n  assert.match(read('study/unit-1/app.js'),/if\\(!isAccepted\\(q,input.value\\)\\)/);\n});\n"""
+          quality=quality[:start]+replacement+quality[end:]; quality_path.write_text(quality)
           PY
       - run: npm ci --no-audit --no-fund
-      - run: npm run test:study:unit
+      - name: Run Study unit tests
+        id: unit
+        continue-on-error: true
+        shell: bash
+        run: npm run test:study:unit > agent-test-output.txt 2>&1
+      - name: Capture failure details
+        if: steps.unit.outcome == 'failure'
+        shell: bash
+        run: |
+          git config user.name "study-agent"
+          git config user.email "study-agent@users.noreply.github.com"
+          git add -f agent-test-output.txt
+          git commit -m "Agent: capture teacher-bank failure"
+          git push origin HEAD:agent/word-expedition-teacher-word-bank
+      - name: Fail if unit tests failed
+        if: steps.unit.outcome == 'failure'
+        shell: bash
+        run: |
+          tail -n 250 agent-test-output.txt
+          exit 1
       - run: npm run build
       - name: Commit tested patch
         shell: bash
         run: |
-          rm -f .github/workflows/word-expedition-teacher-bank-agent.yml
+          rm -f .github/workflows/word-expedition-teacher-bank-agent.yml agent-test-output.txt
           git config user.name "study-agent"
           git config user.email "study-agent@users.noreply.github.com"
           git add study/unit-1/app.js study/unit-1/app.css tests/study-word-mission.test.mjs tests/study-regressions.test.mjs tests/study-quality.test.mjs .github/workflows/word-expedition-teacher-bank-agent.yml
