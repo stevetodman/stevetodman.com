@@ -1,0 +1,31 @@
+name: Study live canary
+
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: study-live-canary
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    name: Study live canary
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify current Study release
+        env:
+          SITE_ORIGIN: https://stevetodman.com
+        run: |
+          npm run verify:study-production && exit 0
+          sleep 30
+          npm run verify:study-production
