@@ -4,14 +4,21 @@
   <meta charset="utf-8">
   <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="One-tap vocabulary and spelling practice.">
+  <meta name="description" content="One-tap Unit 1 vocabulary, synonym, antonym, and spelling practice.">
   <meta name="theme-color" content="#17324d">
   <title>Unit 1 Word Expedition</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%AD%3C/text%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%A0%3C/text%3E%3C/svg%3E">
   <link rel="manifest" href="/study/us-states.webmanifest">
   <link rel="stylesheet" href="/study/unit-1/app.css">
+  <link rel="stylesheet" href="/study/unit-1/aaa-polish.css">
+  <link rel="stylesheet" href="/study/unit-1/monster-banter.css">
   <style>
-    /* Keep the core combat loop visible when mobile browser chrome leaves a short viewport. */
+    .unit-tools { display:flex; justify-content:flex-end; gap:10px; margin:-2px 0 10px; }
+    .unit-tools a { text-decoration:none; }
+    body[data-screen="question"] .unit-tools,
+    body[data-screen="shop"] .unit-tools,
+    body[data-screen="book"] .unit-tools,
+    body[data-screen="summary"] .unit-tools { display:none; }
     @media (max-height:550px) and (max-width:560px) {
       body[data-screen="question"] .topbar { margin-bottom:8px; }
       body[data-screen="question"] .mission-head { display:flex; margin-bottom:6px; }
@@ -24,7 +31,6 @@
       body[data-screen="question"] .battle-status { display:none; }
       body[data-screen="question"] .shield-row { margin:0 10%; }
     }
-    /* Only while a software keyboard is consuming an extremely short viewport, prioritize the typing control. */
     @media (max-height:450px) and (max-width:560px) {
       body[data-screen="question"]:has(#answer-input:focus) .mission-head,
       body[data-screen="question"]:has(#answer-input:focus) .battle-stage { display:none; }
@@ -41,6 +47,7 @@
       <button class="profile-chip" id="profile-chip" type="button" aria-label="Switch learner" hidden></button>
     </header>
     <p class="save-warning" id="save-warning" role="status" hidden></p>
+    <nav class="unit-tools" aria-label="Unit 1 tools"><a class="text-button" href="/study/unit-1/mastery-quest.html">Mastery Quest</a><a class="text-button" href="/study/unit-1/test-practice.html">Practice lab</a></nav>
     <div id="app" aria-live="polite"></div>
   </main>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
@@ -49,5 +56,8 @@
   <script src="/study/unit-1/audio-unlock.js"></script>
   <script src="/study/unit-1/sfx-bank.js"></script>
   <script src="/study/unit-1/app.js"></script>
+  <script src="/study/unit-1/aaa-polish.js"></script>
+  <script src="/study/unit-1/monster-banter.js"></script>
+  <script src="/study/unit-1/aaa-collection.js"></script>
 </body>
 </html>
