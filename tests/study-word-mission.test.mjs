@@ -106,7 +106,7 @@ describe('Unit 1 Word Expedition', () => {
   test('puts Luke and Samantha one tap from the first question', async () => {
     const page = await browser.newPage();
     const errors = watchForErrors(page);
-    await page.goto(server.origin + '/study/');
+    await page.goto(server.origin + '/study/unit-1/');
 
     assert.equal(await page.locator('.assignment').count(), 0);
     assert.equal(await page.locator('[data-profile="Luke"]').count(), 1);
@@ -142,7 +142,7 @@ describe('Unit 1 Word Expedition', () => {
   test('keeps each twin’s progress separate and never extends a session', async () => {
     const context = await fastContext();
     const page = await context.newPage();
-    await page.goto(server.origin + '/study/');
+    await page.goto(server.origin + '/study/unit-1/');
     assert.match(await page.locator('[data-profile="Luke"] .journey-line').innerText(),/Adventure 1 of 12/);
     assert.equal(await page.locator('.hero-frame').count(),0,'picker does not include attack images');
     assert.equal(await page.evaluate(()=>performance.getEntriesByType('resource').some(entry=>entry.name.includes('hero-poses.webp'))),false);
@@ -200,7 +200,7 @@ describe('Unit 1 Word Expedition', () => {
   test('awards study coins, previews, spends, equips, persists, and isolates progress', async () => {
     const context = await fastContext();await seedSavedCoins(context);
     const page = await context.newPage();
-    await page.goto(server.origin + '/study/');
+    await page.goto(server.origin + '/study/unit-1/');
     await page.locator('[data-profile="Luke"]').click();
 
     for (let i = 0; i < 10; i++) await answerCurrentQuestion(page);
@@ -231,7 +231,7 @@ describe('Unit 1 Word Expedition', () => {
     for (const width of [320, 375, 390, 768, 1024]) {
       const context = await browser.newContext({ viewport:{ width, height:844 } });
       const page = await context.newPage();
-      await page.goto(server.origin + '/study/');
+      await page.goto(server.origin + '/study/unit-1/');
       await page.locator('[data-profile="Luke"]').click();
       const sizes = await page.evaluate(() => ({ scroll:document.documentElement.scrollWidth, client:document.documentElement.clientWidth }));
       assert.ok(sizes.scroll <= sizes.client + 2, `${sizes.scroll}px content in ${sizes.client}px viewport at ${width}px`);
@@ -241,7 +241,7 @@ describe('Unit 1 Word Expedition', () => {
 
   test('reload resumes a pending correction without duplicating learning attempts', async () => {
     const context=await fastContext();const page=await context.newPage();
-    await page.goto(server.origin+'/study/');await page.locator('[data-profile="Luke"]').click();
+    await page.goto(server.origin+'/study/unit-1/');await page.locator('[data-profile="Luke"]').click();
     await advanceToSpelling(page);
     const currentNumber=Number((await page.locator('.question-count').innerText()).split('/')[0].trim());
     await page.locator('#answer-input').fill('not the answer');await page.locator('#answer-input').press('Enter');
@@ -261,7 +261,7 @@ describe('Unit 1 Word Expedition', () => {
 
   test('reload preserves a correct answer awaiting Next and the same round ID', async () => {
     const context=await fastContext();const page=await context.newPage();
-    await page.goto(server.origin+'/study/');await page.locator('[data-profile="Samantha"]').click();
+    await page.goto(server.origin+'/study/unit-1/');await page.locator('[data-profile="Samantha"]').click();
     await answerCorrectly(page,false);
     const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-round-unit1-v1-Samantha')));
     await page.reload();await page.locator('[data-profile="Samantha"]').click();
@@ -275,7 +275,7 @@ describe('Unit 1 Word Expedition', () => {
 
   test('gear preview never spends coins; starter gear and purchases remain available', async () => {
     const context=await fastContext();await seedSavedCoins(context);const page=await context.newPage();
-    await page.goto(server.origin+'/study/');await page.locator('[data-profile="Luke"]').click();
+    await page.goto(server.origin+'/study/unit-1/');await page.locator('[data-profile="Luke"]').click();
     for(let i=0;i<10;i++)await answerCurrentQuestion(page);
     await page.locator('#visit-shop').click();await page.locator('[data-item="copper-blade"]').click();
     let game=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-game-unit1-v1')).learners.Luke);
@@ -291,7 +291,7 @@ describe('Unit 1 Word Expedition', () => {
 
   test('tenth answer resumes safely and completion is awarded once', async () => {
     const context=await fastContext();const page=await context.newPage();
-    await page.goto(server.origin+'/study/');await page.locator('[data-profile="Luke"]').click();
+    await page.goto(server.origin+'/study/unit-1/');await page.locator('[data-profile="Luke"]').click();
     for(let i=0;i<9;i++)await answerCurrentQuestion(page);
     await page.reload();await page.locator('[data-profile="Luke"]').click();
     assert.match(await page.locator('.question-count').innerText(),/10 \/ 10/);
@@ -305,7 +305,7 @@ describe('Unit 1 Word Expedition', () => {
 
   test('post-session time is saved after a short store visit', async () => {
     const context=await fastContext();const page=await context.newPage();
-    await page.goto(server.origin+'/study/');await page.locator('[data-profile="Luke"]').click();
+    await page.goto(server.origin+'/study/unit-1/');await page.locator('[data-profile="Luke"]').click();
     for(let i=0;i<10;i++)await answerCurrentQuestion(page);
     await page.locator('#visit-shop').click();await page.locator('#shop-done').click();
     const entry=await page.evaluate(()=>JSON.parse(localStorage.getItem('studyhub-word-expedition-unit1-v3')).learners.Luke.sessions[0]);
@@ -317,7 +317,7 @@ describe('Unit 1 Word Expedition', () => {
 
   test('home, question, correction, summary and shop pass serious accessibility checks', async () => {
     const context=await fastContext({viewport:{width:390,height:844},reducedMotion:'reduce'});
-    const page=await context.newPage();await page.goto(server.origin+'/study/');
+    const page=await context.newPage();await page.goto(server.origin+'/study/unit-1/');
     const axeModule=await import('axe-core');await page.addScriptTag({content:(axeModule.default||axeModule).source});
     async function scan(label){
       const violations=await page.evaluate(async()=>{
@@ -348,7 +348,7 @@ describe('Unit 1 Word Expedition', () => {
         }}
       });
     },failure);
-    const page=await context.newPage();const errors=watchForErrors(page);await page.goto(server.origin+'/study/');
+    const page=await context.newPage();const errors=watchForErrors(page);await page.goto(server.origin+'/study/unit-1/');
     await page.locator('[data-profile="Luke"]').click();
     await answerCorrectly(page);
     assert.equal(await page.locator('#listen').count(),0,'word-bank vocabulary clues are readable and do not depend on speech');
@@ -375,7 +375,7 @@ describe('Unit 1 Word Expedition', () => {
 
   test('weapons and monsters render audible effects and device mute survives reload', async () => {
     const context=await browser.newContext();const page=await context.newPage();
-    await page.goto(server.origin+'/study/');
+    await page.goto(server.origin+'/study/unit-1/');
     const source=fs.readFileSync(path.join(repoRoot,'study/unit-1/app.js'),'utf8');
     const renderSource=source.slice(source.indexOf('  function renderWeaponSound('),source.indexOf('  function playWeaponSound('));
     const creatureSource=source.slice(source.indexOf('  function renderCreatureSound('),source.indexOf('  function playCreatureSound('));
@@ -416,7 +416,7 @@ describe('Unit 1 Word Expedition', () => {
       }});
     });
     const page=await context.newPage();await page.clock.install({time:new Date('2026-08-28T12:00:00')});
-    await page.goto(server.origin+'/study/');await page.locator('[data-profile="Luke"]').click();
+    await page.goto(server.origin+'/study/unit-1/');await page.locator('[data-profile="Luke"]').click();
     await answerCorrectly(page,false);await page.clock.runFor(460);
     assert.equal(await page.locator('#battle-stage').getAttribute('data-state'),'counter');
     assert.equal(await page.locator('.shield-segment.cleared').count(),1,'counterattack cannot erase a correct answer');
@@ -513,7 +513,7 @@ describe('Unit 1 Word Expedition', () => {
     const page=await context.newPage();
     await page.clock.install({time:new Date('2026-08-28T12:00:00')});
     for(const name of ['Luke','Samantha']){
-      await page.goto(server.origin+'/study/');
+      await page.goto(server.origin+'/study/unit-1/');
       assert.equal(await page.locator('#monster-book').count(),0,'book is not a home-screen distraction');
       for(let round=0;round<2;round++){
         await page.locator('[data-profile="'+name+'"]').click();
@@ -577,7 +577,7 @@ describe('Unit 1 Word Expedition', () => {
 
   test('reward countdown survives preview navigation and expires without spending', async () => {
     const context=await fastContext();await seedSavedCoins(context);const page=await context.newPage();
-    await page.goto(server.origin+'/study/');
+    await page.goto(server.origin+'/study/unit-1/');
     await page.locator('[data-profile="Luke"]').click();
     for(let i=0;i<10;i++)await answerCurrentQuestion(page);
     await page.locator('#visit-shop').click();
@@ -617,7 +617,7 @@ describe('Unit 1 Word Expedition', () => {
     const directory=path.join(process.env.RUNNER_TEMP||os.tmpdir(),'study-evidence');fs.mkdirSync(directory,{recursive:true});
     for(const width of [320,390,1024]){
       const context=await fastContext({viewport:{width,height:844}});const page=await context.newPage();
-      await page.goto(server.origin+'/study/');await page.locator('[data-profile="Luke"]').click();
+      await page.goto(server.origin+'/study/unit-1/');await page.locator('[data-profile="Luke"]').click();
       await advanceToSpelling(page);
       const size=await page.locator('#listen').evaluate(el=>{
         const range=document.createRange();range.selectNodeContents(el);
@@ -632,7 +632,7 @@ describe('Unit 1 Word Expedition', () => {
 
   test('small keyboard viewport keeps the prompt and typing control reachable', async () => {
     const context=await fastContext({viewport:{width:390,height:420}});
-    const page=await context.newPage();await page.goto(server.origin+'/study/');
+    const page=await context.newPage();await page.goto(server.origin+'/study/unit-1/');
     await page.locator('[data-profile="Luke"]').click();await advanceToSpelling(page);await page.locator('#answer-input').focus();
     assert.equal(await page.locator('.battle-stage').isVisible(),false);
     for(const selector of ['.q-prompt','#answer-input']){
@@ -645,7 +645,7 @@ describe('Unit 1 Word Expedition', () => {
   test('blocked device storage remains playable and never reports a false saved status', async () => {
     const context=await fastContext();
     await context.addInitScript(()=>{Storage.prototype.setItem=function(){throw new DOMException('Storage full','QuotaExceededError');};});
-    const page=await context.newPage();await page.goto(server.origin+'/study/');
+    const page=await context.newPage();await page.goto(server.origin+'/study/unit-1/');
     await page.locator('[data-profile="Luke"]').click();
     assert.equal(await page.locator('#save-warning').isVisible(),true);
     assert.match(await page.locator('#save-warning').innerText(),/not saving/);
@@ -659,7 +659,7 @@ describe('Unit 1 Word Expedition', () => {
 
   test('a damaged device-link fragment cannot prevent local practice', async () => {
     const page=await browser.newPage();const errors=watchForErrors(page);
-    await page.goto(server.origin+'/study/#k=%E0%A4%A');
+    await page.goto(server.origin+'/study/unit-1/#k=%E0%A4%A');
     await page.locator('[data-profile="Luke"]').click();
     assert.equal(await page.locator('.question-card').count(),1);assert.deepEqual(errors,[]);
     await page.close();
@@ -673,7 +673,7 @@ describe('Unit 1 Word Expedition', () => {
       await context.addInitScript(()=>{
         localStorage.setItem('studyhub-word-expedition-game-unit1-v1',JSON.stringify({version:1,learners:{Luke:{sessionsCompleted:11,rewards:{seed:{xp:220,coins:88}}}}}));
       });
-      const page=await context.newPage();await page.goto(server.origin+'/study/');
+      const page=await context.newPage();await page.goto(server.origin+'/study/unit-1/');
       async function capture(screen){
         const sizes=await page.evaluate(()=>({content:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth}));
         assert.ok(sizes.content<=sizes.viewport+2,screen+' has no horizontal overflow');
