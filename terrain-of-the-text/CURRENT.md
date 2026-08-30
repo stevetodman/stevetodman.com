@@ -1,30 +1,30 @@
 # Current Approved State
 
-**Approved through:** Round 0 evidence/spec foundation.
+**Approved through:** Round 1 geographic skeleton.
 
-**Round 0 result:** PASS.
+**Round 1 result:** PASS.
 
-**Approved runtime content:** placeholder only; no historical map rendering is approved yet.
+**Approved runtime:** source-derived regional physical raster (GSHHG + NOAA ETOPO1) inside the fixed WGS84/equirectangular coordinate framework, plus three secure vector anchor examples and uncertainty symbology primitives.
 
-## Next allowed scope: Round 1 — geographic skeleton
+## Frozen against silent regression
 
-Round 1 may add only:
+Later rounds must preserve unless an audit documents a correction:
 
-- coastline and water
-- terrain/relief strategy
-- historically appropriate base labels
-- a small set of verified anchor places
-- uncertainty rendering primitives
-- offline geographic fallback strategy
+- WGS84 coordinate model and geographic extent;
+- equirectangular display and distance warning;
+- no modern political borders by default;
+- source-derived regional physical context;
+- responsive aspect-aware pan/zoom;
+- non-scaling vector markers;
+- uncertainty symbology conventions;
+- the rule that regional raster detail is not evidence for exact roads, sites, or elevation.
 
-Round 1 may **not** add:
+## Next scope: Round 2 — John 4 calibration episode
 
-- final episode prose
-- animated route playback
-- inferred ancient road geometry without evidence review
-- bulk episode generation
-- final Sychar resolution
+Build **one complete episode only**.
 
-## Round 1 acceptance condition
+Round 2 may add reviewed John 4 places/candidate sites, an evidence-backed route corridor with explicit route confidence, a geography note, stop interaction, Sychar uncertainty panel, higher-resolution elevation/terrain if justified, three geography-specific discussion questions, and one-page print behavior.
 
-The geographic base must be correct enough that later episodes can be layered onto it without moving the foundation. Any approximate or schematic geometry must say so explicitly.
+Round 2 may not add the other thirteen episodes, a generic road network, a certain Sychar location, the rejected claim that Jews normally avoided Samaria, or theological interpretation presented as geographic fact.
+
+**Acceptance condition:** John 4 must demonstrate the product thesis while being more explicit about uncertainty than a conventional study-Bible map. If it fails, later episodes do not begin.
