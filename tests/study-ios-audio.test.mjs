@@ -73,14 +73,16 @@ test('iOS-style user gestures prime one shared Web Audio context before battle p
   await page.close();
 });
 
-test('both Study entry points unlock audio before app startup and strikes still trigger weapon sound', () => {
-  for (const relative of ['study/index.html', 'study/unit-1/index.html']) {
-    const html = fs.readFileSync(path.join(repoRoot, relative), 'utf8');
-    const unlock = html.indexOf('audio-unlock.js');
-    const app = html.indexOf('app.js');
-    assert.ok(unlock >= 0, `${relative}: audio unlock is loaded`);
-    assert.ok(app > unlock, `${relative}: audio unlock runs before app.js`);
-  }
+test('the canonical Word Expedition route unlocks audio before app startup while the Study hub stays navigation-only', () => {
+  const unitHtml = fs.readFileSync(path.join(repoRoot, 'study/unit-1/index.html'), 'utf8');
+  const unlock = unitHtml.indexOf('audio-unlock.js');
+  const app = unitHtml.indexOf('app.js');
+  assert.ok(unlock >= 0, 'study/unit-1/index.html: audio unlock is loaded');
+  assert.ok(app > unlock, 'study/unit-1/index.html: audio unlock runs before app.js');
+
+  const hubHtml = fs.readFileSync(path.join(repoRoot, 'study/index.html'), 'utf8');
+  assert.match(hubHtml, /href="\/study\/unit-1\/"/, 'Study hub must route to Word Expedition');
+  assert.doesNotMatch(hubHtml, /audio-unlock\.js|\/study\/unit-1\/app\.js/, 'Study hub must not duplicate the Word Expedition audio/app runtime');
 
   const appSource = fs.readFileSync(path.join(repoRoot, 'study/unit-1/app.js'), 'utf8');
   assert.match(appSource, /setBattleState\(final\?'victory':kind,message,true\);\s*cancelSpeech\(\);playWeaponSound\(gameProfile\(activeName\)\.equipped\.weapon\);/,
