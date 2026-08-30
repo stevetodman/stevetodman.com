@@ -81,12 +81,14 @@ test('question-as-combat preserves the fixed ten-question learning loop', () => 
   assert.doesNotMatch(source, /equipment.*SESSION_LENGTH|equipped.*buildPlan/i);
 });
 
-test('both Study entry points load deterministic art before the game', () => {
-  for (const page of ['study/index.html','study/unit-1/index.html']) {
-    const html = read(page);
-    assert.ok(html.indexOf('game-art.js') >= 0);
-    assert.ok(html.indexOf('game-art.js') < html.indexOf('app.js'));
-  }
+test('Word Expedition loads deterministic art before the game while Study remains a navigation hub', () => {
+  const adventure = read('study/unit-1/index.html');
+  assert.ok(adventure.indexOf('game-art.js') >= 0);
+  assert.ok(adventure.indexOf('game-art.js') < adventure.indexOf('app.js'));
+
+  const hub = read('study/index.html');
+  assert.match(hub, /href="\/study\/unit-1\/"/);
+  assert.doesNotMatch(hub, /game-art\.js|\/study\/unit-1\/app\.js/);
 });
 
 test('game presentation contains reduced-motion and forced-color fallbacks', () => {
