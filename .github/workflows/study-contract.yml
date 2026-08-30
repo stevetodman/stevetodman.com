@@ -3,12 +3,14 @@ name: Study contract
 on:
   pull_request:
     paths:
-      - 'study/index.html'
+      - 'study/*.html'
       - 'study/unit-1/**'
       - 'study/icons/**'
       - 'study/*.webmanifest'
       - 'study/sw.js'
       - 'tests/study-*.test.mjs'
+      - 'tests/site-smoke.test.mjs'
+      - 'site/catalog.json'
       - 'scripts/build-site.mjs'
       - 'scripts/study-release.mjs'
       - 'scripts/verify-study-release.mjs'
@@ -23,12 +25,14 @@ on:
       - main
       - 'study/quality-*'
     paths:
-      - 'study/index.html'
+      - 'study/*.html'
       - 'study/unit-1/**'
       - 'study/icons/**'
       - 'study/*.webmanifest'
       - 'study/sw.js'
       - 'tests/study-*.test.mjs'
+      - 'tests/site-smoke.test.mjs'
+      - 'site/catalog.json'
       - 'scripts/build-site.mjs'
       - 'scripts/study-release.mjs'
       - 'scripts/verify-study-release.mjs'
