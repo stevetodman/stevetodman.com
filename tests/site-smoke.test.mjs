@@ -151,7 +151,8 @@ describe('mobile layout', { concurrency: 6 }, () => {
 describe('study tools are keyboard operable', { concurrency: 4 }, () => {
   // Regression: mode selection used click-handled <div>s, so the entry screen of
   // every quiz had zero tabbable elements and was unusable without a mouse.
-  const tools = SITE_PAGES.filter(p => p.startsWith('/study/') && p.endsWith('.html'));
+  // grade5.html is a compatibility navigation page, not a quiz mode selector.
+  const tools = SITE_PAGES.filter(p => p.startsWith('/study/') && p.endsWith('.html') && p !== '/study/grade5.html');
   for (const tool of tools) {
     test(tool, async () => {
       const context = await browser.newContext();
@@ -187,6 +188,33 @@ describe('study tools are keyboard operable', { concurrency: 4 }, () => {
       await context.close();
     });
   }
+});
+
+describe('Grade 5 hub integration', () => {
+  test('the hub exposes every current Grade 5 activity without replacing Word Expedition', async () => {
+    for (const route of ['/study/', '/study/grade5.html', '/study/unit-1/', '/study/matter-lab.html', '/study/world-lab.html', '/study/us-states.html', '/math/']) {
+      assert.ok(SITE_PAGES.includes(route), `${route} must be governed as PRODUCTION`);
+    }
+
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await context.newPage();
+    await page.goto(server.origin + '/study/');
+    assert.equal(await page.locator('h1').innerText(), 'Learning Hub');
+    const hrefs = await page.locator('a[href]').evaluateAll(links => links.map(link => link.getAttribute('href')));
+    for (const href of ['/math/', '/study/unit-1/', '/study/matter-lab.html', '/study/world-lab.html', '/study/us-states.html']) {
+      assert.ok(hrefs.includes(href), `hub must link ${href}`);
+    }
+    assert.equal(await page.locator('script[src*="/study/unit-1/"]').count(), 0, 'hub must route to Word Expedition rather than embedding or duplicating it');
+
+    await page.goto(server.origin + '/study/unit-1/');
+    assert.equal(await page.locator('h1').innerText(), 'Word Expedition');
+    assert.equal(await page.locator('[data-profile="Luke"]').count(), 1);
+    assert.equal(await page.locator('[data-profile="Samantha"]').count(), 1);
+
+    await page.goto(server.origin + '/study/grade5.html');
+    assert.equal(await page.locator('a[href="/study/"]').count(), 1, 'legacy Grade 5 route must lead to the canonical hub');
+    await context.close();
+  });
 });
 
 describe('repository hygiene', () => {
