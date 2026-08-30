@@ -6,4 +6,5 @@
 .exam-blank{display:block;padding:12px 0;border-top:1px solid #e8edef;line-height:1.5}
 .exam-blank span{display:block}
 .exam-blank input{width:min(100%,340px);min-height:48px;margin-top:8px;border:1px solid #aebfc8;border-radius:11px;padding:10px 12px;font-size:16px;font-weight:700}
-@media(max-width:720px){.exam-choices{grid-template-columns:1fr}}
+.exam-repair-row{display:flex;gap:10px;align-items:stretch;margin:18px 0}.exam-repair-row input{flex:1;min-width:0;min-height:52px;border:2px solid #9eb3bf;border-radius:12px;padding:10px 12px;font-size:18px;font-weight:800}.exam-repair-row button{min-width:110px}
+@media(max-width:720px){.exam-choices{grid-template-columns:1fr}.exam-repair-row{flex-direction:column}.exam-repair-row button{width:100%}}

@@ -86,6 +86,7 @@ test('parent readiness and both final mocks work on iPhone WebKit without coachi
   await page.locator('#teacher-exam-form').evaluate(form => form.requestSubmit());
   await page.locator('.mock-summary').waitFor();
   assert.match(await page.locator('.mock-score').textContent(), /\/36/);
+  assert.equal(await page.locator('#start-repair').count(), 1, 'misses must lead directly into required repair');
 
   await page.locator('#mock-again').click();
   await page.locator('#start-spelling').click();

@@ -209,6 +209,10 @@ test('teacher-style exam mirrors all three supplied worksheet formats', () => {
   assert.match(source, /\['veteran','veterans'/);
   assert.match(source, /teacher-mock-word-form/);
   assert.match(source, /Nothing is graded until Submit/);
+  assert.match(source, /Repair every miss now/);
+  assert.match(source, /immediate-exam-repair/);
+  assert.match(source, /delayed-exam-recheck/);
+  assert.match(source, /Every missed concept was retrieved correctly/);
 });
 
 test('spelling final mock is audio-only and writes misses back to adaptive evidence', () => {
