@@ -31,7 +31,7 @@ test('weapons and monsters remain visibly in the fight on mobile and desktop', a
     const context = await browser.newContext({ viewport:{ width:viewport.width, height:viewport.height } });
     const page = await context.newPage();
     const errors = watchForErrors(page);
-    await page.goto(server.origin + '/study/');
+    await page.goto(server.origin + '/study/unit-1/');
     await page.locator('[data-profile="Luke"]').click();
 
     const stage = page.locator('.battle-stage');
