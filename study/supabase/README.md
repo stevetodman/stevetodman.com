@@ -15,6 +15,13 @@ removed from the address bar after adoption. Local progress is retained and
 merged when syncing. Never put the private link or token in GitHub, logs, or a
 support screenshot. Unlinked devices can still practice and save locally.
 
+The Grade 5 Math Mission at `/math/` reuses this family token and Edge
+Function. Each independent answer is a unique monotonic `stateStats` entry
+under `math-mission-luke` or `math-mission-samantha`, so concurrent Chromebook
+and phone work is union-merged instead of overwritten. Opening
+`/math/#k=PRIVATE_TOKEN` adopts the token and immediately removes it from the
+address bar. No child account or browser-visible database key is used.
+
 ## Provisioning a genuinely new family
 
 This is an authenticated owner/administrator operation, not a public endpoint.
