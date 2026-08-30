@@ -4,9 +4,10 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 
 ## Routing and installed app
 
-- `/study/` is the current one-tap Unit 1 assignment, not the retired assignment-card hub.
-- `/study/unit-1/` must remain directly usable.
-- Past activities remain linked through Device settings → Past practice; archived activities return to `/study/archive/`.
+- `/study/` is the Grade 5 Learning Hub: a lightweight navigation surface for current family practice. It must not embed or duplicate the Word Expedition learning runtime.
+- `/study/unit-1/` is the canonical Unit 1 Word Expedition application and must remain directly usable with each learner one tap from question 1.
+- Existing family links using `/study/#k=...` must continue forwarding the bearer token to `/study/unit-1/#k=...` so previously shared device-link URLs do not break.
+- Current Grade 5 practice routes from the hub include Math Mission, Word Expedition, Matter Lab, World Lab, and 50 States Challenge. Past activities remain available through the hub archive and any existing activity-specific navigation.
 - The installed PWA identity remains `./us-states.html` for migration compatibility, while its `start_url` and `scope` remain `/study/`.
 - The Study manifest, HTML, JavaScript, and CSS must be revalidated after deployment so an installed Chromebook shortcut cannot remain indefinitely pinned to stale behavior.
 
@@ -40,7 +41,7 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 - The teacher handout is the sole canonical source for Unit 1 headwords, definitions, synonyms, antonyms, spelling, and parts of speech. Authored sentences and paragraphs may demonstrate those supplied meanings, but may not add or change an instructional relationship.
 - Fill-in-the-blank meaning practice uses the complete 12-word bank. The shared context library contains five sentence forms per word and ten 12-for-12 paragraph forms. Per-learner rotation exhausts each sentence/paragraph bag before reuse, prevents an immediate repeat at a bag boundary, and varies paragraph answer positions so answer order cannot become the learned cue.
 - Multiple-choice meaning practice uses short, authored monster dialogue containing the target word. These contextual answers still earn normal hits, coins and correct-answer counts, but do not add mastery days. Typed recall, spelling, retries and the final checkpoint keep their context-free prompts and existing mastery credit. Existing earned mastery is preserved. After a wrong attempt, monsters may give a cartoon insult followed by a model sentence using the word; no taunt or target-word reveal appears before a spelling/recall attempt. Dialogue is text-only, adds no turns and never delays spoken words. No insults about intelligence, reading ability, identity or real-world appearance.
-- A learner is one tap from question 1.
+- A learner is one tap from question 1 after selecting their profile in Word Expedition.
 - A session is exactly 10 questions.
 - Question 10 is the final checkpoint and cannot be replaced by retry scheduling.
 - Teacher-listed synonyms and antonyms are all accepted as correct answers.
@@ -62,4 +63,4 @@ This file defines the compatibility contract for `/study/`. Changes under `study
 
 ## Release gates
 
-Every Study change must pass the dedicated `Study contract` workflow. That workflow runs fast Study unit checks and one focused Chromium smoke pass for the twins, stores, saves, audio and speech. Broader suites and WebKit remain available manually, not required on every family-app edit. The same job on `main` also verifies the live production `/study/` route and deployed Study assets.
+Every Study change must pass the dedicated `Study contract` workflow. That workflow runs fast Study unit checks and one focused Chromium smoke pass for the twins, stores, saves, audio and speech. Broader suites and WebKit remain available manually, with WebKit also exercised on `main`. The same release contract verifies the live Grade 5 hub, the canonical `/study/unit-1/` Word Expedition route, the current Grade 5 practice pages, deployed Study assets, and stale-cache defenses.
