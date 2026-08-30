@@ -168,7 +168,7 @@ describe('Unit 1 Word Expedition', () => {
     assert.notEqual(await page.locator('.q-domain').getAttribute('data-domain'),'spelling');
     const choices=(await page.locator('.choice').allTextContents()).sort();
     assert.deepEqual(choices,['blunder','cancel','continuous','distribute','document','fragile','myth','reject','scuffle','solitary','temporary','veteran'].sort());
-    assert.match(await page.locator('.q-prompt').innerText(),/Which vocabulary word/); await context.close();
+    assert.match(await page.locator('.q-prompt').innerText(),/__________/,'vocabulary practice uses the current contextual cloze prompt'); await context.close();
   });
 
   test('rotates automatically into spelling with audio, typing, and optional tiles', async () => {
