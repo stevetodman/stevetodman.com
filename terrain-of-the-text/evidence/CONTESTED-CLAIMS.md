@@ -6,17 +6,36 @@ Only claims whose uncertainty materially affects the map or interpretation belon
 
 **Status:** contested interpretive claim.
 
-**Geographic facts allowed:** the Samaritan route is geographically direct; alternate routes existed; Jewish-Samaritan hostility is historically well attested.
+**Geographic facts allowed:** Josephus attests Galilean travel through Samaria, including customary festival travel and a fast Galilee–Jerusalem journey; other route families existed; Jewish–Samaritan hostility is historically well attested.
 
-**Not established by geography:** that Jesus used an abnormal route, or that `had to` must mean theological necessity.
+**Not established by geography:** that Jesus chose an abnormal road, that Jews normally refused Samaritan travel, or that `had to` must mean theological necessity.
 
-**Display rule:** separate geographic facts from interpretive proposals.
+**Display rule:** geography and interpretation are visibly separated.
+
+## John 4 — exact Jesus route
+
+**Status:** unknown reconstruction.
+
+John gives a Judean departure region, not an exact departure point or complete itinerary. Round 2 therefore shows only a **schematic central Samaritan corridor** based on first-century travel evidence plus the topographic road context of central Samaria. Representative control points are geometry aids, not asserted stops.
+
+**Display rule:** broad translucent corridor + dashed centerline; no route-playback claim, no distance/time calculation from the line, no departure marker at Jerusalem.
 
 ## Sychar identification
 
 **Status:** contested place identification.
 
-**Action before mapping:** evidence review must identify the serious candidate sites, coordinates, arguments, and source quality. Do not preassign probability weights.
+**Round 2 candidates:**
+
+- ʿAskar — serious candidate; possible but not secure.
+- Tell Balata / Shechem-related identification — serious alternative; Syriac transmission reads Shechem, but Roman-period archaeology prevents a simple confident equation.
+
+**Display rule:** both shown simultaneously with the same hollow/dashed contested symbology. No probability weights and no preferred winner in the runtime.
+
+## Jacob's Well identification
+
+**Status:** probable/traditional location, distinct from the Sychar question.
+
+**Display rule:** filled marker plus a thin outer halo; text explicitly says the event-site attribution is not archaeologically provable.
 
 ## Gerasene/Gadarene/Gergesene location
 
