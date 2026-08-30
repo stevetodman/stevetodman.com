@@ -196,6 +196,21 @@ test('final mocks use approved 12-for-12 paragraphs and withhold feedback until 
   assert.match(source, /mock-antonym/);
 });
 
+test('teacher-style exam mirrors all three supplied worksheet formats', () => {
+  const source = read('study/unit-1/mock-test.js');
+  const html = read('study/unit-1/mock-test.html');
+  const index = read('study/unit-1/index.html');
+  assert.match(index, /Teacher-style exam/);
+  assert.match(html, /context clues, synonyms and antonyms, then connected passages/i);
+  assert.match(source, /To refuse a gift is to/);
+  assert.match(source, /\['reject','rejected'/);
+  assert.match(source, /\['distribute','distributed'/);
+  assert.match(source, /\['myth','myths'/);
+  assert.match(source, /\['veteran','veterans'/);
+  assert.match(source, /teacher-mock-word-form/);
+  assert.match(source, /Nothing is graded until Submit/);
+});
+
 test('spelling final mock is audio-only and writes misses back to adaptive evidence', () => {
   const source = read('study/unit-1/mock-test.js');
   assert.match(source, /Audio only/);

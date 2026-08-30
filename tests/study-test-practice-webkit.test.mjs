@@ -76,15 +76,14 @@ test('parent readiness and both final mocks work on iPhone WebKit without coachi
 
   await page.goto(server.origin + '/study/unit-1/mock-test.html?learner=Luke', { waitUntil:'networkidle' });
   await page.locator('#start-vocab').click();
-  assert.equal(await page.locator('.mock-word').count(), 12);
-  assert.equal(await page.locator('.mock-blank').count(), 12);
+  assert.equal(await page.locator('[data-exam-choice]').count(), 4);
   assert.equal(await page.locator('.mock-review').count(), 0, 'vocabulary mock must not reveal correctness during the test');
 
-  for (let i=0;i<12;i++) await page.locator('.mock-word').nth(i).click();
-  const relationInputs = page.locator('[data-syn], [data-ant]');
-  assert.equal(await relationInputs.count(), 24);
-  for (let i=0;i<24;i++) await relationInputs.nth(i).fill('wrong');
-  await page.locator('#vocab-mock-form').evaluate(form => form.requestSubmit());
+  for (let i=0;i<24;i++) await page.locator('[data-exam-choice]').first().click();
+  const passageInputs = page.locator('[data-passage-answer]');
+  assert.equal(await passageInputs.count(), 12);
+  for (let i=0;i<12;i++) await passageInputs.nth(i).fill('wrong');
+  await page.locator('#teacher-exam-form').evaluate(form => form.requestSubmit());
   await page.locator('.mock-summary').waitFor();
   assert.match(await page.locator('.mock-score').textContent(), /\/36/);
 
