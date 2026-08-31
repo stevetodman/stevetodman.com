@@ -29,7 +29,7 @@ test('WebKit with an iPhone profile unlocks, fetches, decodes, and starts all ba
     }
   });
 
-  await page.goto(server.origin + '/study/', { waitUntil:'networkidle' });
+  await page.goto(server.origin + '/study/unit-1/', { waitUntil:'networkidle' });
 
   const boot = await page.evaluate(() => ({
     installed: window.__wordExpeditionAudioUnlockInstalled === true,
