@@ -75,7 +75,8 @@ test('Study page metadata does not publish learner names', () => {
 
 test('Study releases have an explicit contract, dedicated CI gate, live canary, and stale-cache defense', () => {
   const contract = read('study/STUDY_CONTRACT.md');
-  assert.match(contract, /\/study\/.*current one-tap Unit 1 assignment/);
+  assert.match(contract, /\/study\/.*Grade 5 Learning Hub/);
+  assert.match(contract, /\/study\/unit-1\/.*canonical Unit 1 Word Expedition application/);
   assert.match(contract, /Question 10 is the final checkpoint/);
   assert.match(contract, /Do not clear browser storage/);
 

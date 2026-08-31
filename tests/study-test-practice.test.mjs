@@ -58,7 +58,7 @@ test('context library provides five rotating sentences per word and ten valid fu
 });
 
 test('adventure, practice, and final mock load the shared contexts before using them', () => {
-  for (const page of ['study/index.html','study/unit-1/index.html','study/unit-1/test-practice.html','study/unit-1/mock-test.html']) {
+  for (const page of ['study/unit-1/index.html','study/unit-1/test-practice.html','study/unit-1/mock-test.html']) {
     const html = read(page);
     assert.ok(html.indexOf('unit1-contexts.js') > 0, `${page} should load contexts`);
     const consumer = page.endsWith('test-practice.html') ? 'test-practice.js' : page.endsWith('mock-test.html') ? 'mock-test.js' : 'app.js';

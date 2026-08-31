@@ -76,16 +76,17 @@ if (fs.existsSync(kawasakiHtml)) {
 }
 
 const files = [];
-// Content-address Study's delivery as one release, including curriculum context,
-// presentation code, and CSS background imagery. Revalidating HTML then cannot
-// load an older cached app/context/atlas.
+// Content-address Word Expedition as one release, including curriculum context,
+// presentation code, and CSS background imagery. Revalidating Unit 1 then cannot
+// load an older cached app/context/atlas. The Study hub is static navigation and
+// is verified separately by route/content canaries.
 const studyVersion = computeStudyReleaseVersion(path.join(dist, 'study', 'unit-1'));
 for (const asset of ['app.css','game-art.js']) {
   const target=path.join(dist,'study/unit-1',asset);
   const content=fs.readFileSync(target,'utf8').replace(/(assets\/[a-z-]+\.webp)(?=['"])/g,`$1?v=${studyVersion}`);
   fs.writeFileSync(target,content);
 }
-for (const route of ['study/index.html','study/unit-1/index.html']) {
+for (const route of ['study/unit-1/index.html']) {
   const target=path.join(dist,route);
   const html=fs.readFileSync(target,'utf8').replace(/((?:app|game-art|quality-core|sfx-bank|audio-unlock|unit1-contexts|aaa-polish|aaa-collection|monster-banter)\.(?:js|css))(?=")/g,`$1?v=${studyVersion}`).replace('<html lang="en">',`<html lang="en" data-study-build="${studyVersion}">`);
   fs.writeFileSync(target,html);

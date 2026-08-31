@@ -13,17 +13,29 @@ await context.route('https://*.supabase.co/**', route => route.abort());
 
 try {
   const page = await context.newPage();
-  // Reproduce the short visual viewport that mobile browser chrome can create on iPhone.
-  // Combat is a core learning/game mechanic and must compress rather than disappear.
   await page.setViewportSize({ width:390, height:520 });
   const consoleErrors = [];
   page.on('pageerror', error => consoleErrors.push(String(error)));
 
-  const response = await page.goto(`${ORIGIN}/study/`, { waitUntil:'domcontentloaded' });
-  assert.equal(response?.status(), 200, '/study/ must return HTTP 200');
+  const hubResponse = await page.goto(`${ORIGIN}/study/`, { waitUntil:'domcontentloaded' });
+  assert.equal(hubResponse?.status(), 200, '/study/ must return HTTP 200');
+  assert.equal(await page.locator('h1').innerText(), 'Learning Hub');
+  for (const href of ['/math/', '/study/unit-1/', '/study/matter-lab.html', '/study/world-lab.html', '/study/us-states.html']) {
+    assert.equal(await page.locator(`a[href="${href}"]`).count(), 1, `hub must link ${href}`);
+  }
+  const hubWidth = await page.evaluate(() => ({ scroll:document.documentElement.scrollWidth, client:document.documentElement.clientWidth }));
+  assert.ok(hubWidth.scroll <= hubWidth.client + 2, 'Grade 5 hub must not horizontally overflow on iPhone-sized screens');
+  const cacheHeader = hubResponse?.headers()['cache-control'] || '';
+  assert.match(cacheHeader, /no-cache|no-store|max-age=0/i, 'Study hub HTML must revalidate instead of remaining stale');
+
+  const unitResponse = await page.goto(`${ORIGIN}/study/unit-1/`, { waitUntil:'domcontentloaded' });
+  assert.equal(unitResponse?.status(),200);
   assert.equal(await page.locator('h1').innerText(), 'Word Expedition');
   assert.equal(await page.locator('[data-profile="Luke"]').count(), 1);
   assert.equal(await page.locator('[data-profile="Samantha"]').count(), 1);
+  assert.equal(await page.locator('html').getAttribute('data-study-build'),expectedBuild,'direct Unit 1 route must match the exact Word Expedition release');
+  const urls=await page.locator('script[src],link[rel="stylesheet"]').evaluateAll(elements=>elements.map(el=>el.src||el.href));
+  assert.ok(urls.filter(url=>/unit-1\/(?:app|game-art|quality-core|sfx-bank|audio-unlock|unit1-contexts)\./.test(url)).every(url=>/[?&]v=[a-f0-9]{12}/.test(url)),'Word Expedition assets must be cache-versioned');
 
   await page.locator('[data-profile="Luke"]').click();
   assert.equal(await page.locator('.question-card').count(), 1);
@@ -36,29 +48,33 @@ try {
   assert.ok(battleBox && battleBox.height >= 60,'mobile combat must retain a usable visible stage');
   assert.equal(await page.locator('.hero-art image').first().getAttribute('width'),'1254');
   assert.equal(await page.locator('[data-domain]').count(),1);
-  assert.equal(await page.locator('html').getAttribute('data-study-build'),expectedBuild,'must serve this exact release, not an older versioned build');
-  const urls=await page.locator('script[src],link[rel="stylesheet"]').evaluateAll(elements=>elements.map(el=>el.src||el.href));
-  assert.ok(urls.filter(url=>/unit-1\/(?:app|game-art|quality-core|sfx-bank|audio-unlock|unit1-contexts)\./.test(url)).every(url=>/[?&]v=[a-f0-9]{12}/.test(url)),'Study assets must be cache-versioned');
+
+  for (const [route, title] of [
+    ['/study/matter-lab.html', 'Matter Lab'],
+    ['/study/world-lab.html', 'World Lab'],
+  ]) {
+    const response = await page.goto(`${ORIGIN}${route}`, { waitUntil:'domcontentloaded' });
+    assert.equal(response?.status(), 200, `${route} must return HTTP 200`);
+    assert.equal(await page.title(), title);
+    assert.ok(await page.locator('.menu-card').count() > 0, `${route} must expose its practice menu`);
+  }
+
+  const mathResponse = await page.goto(`${ORIGIN}/math/`, { waitUntil:'domcontentloaded' });
+  assert.equal(mathResponse?.status(), 200, '/math/ must return HTTP 200');
+  assert.equal(await page.locator('h1').innerText(), 'Who’s practicing?');
+  assert.equal(await page.locator('[data-profile="luke"]').count(), 1);
+  assert.equal(await page.locator('[data-profile="samantha"]').count(), 1);
 
   const manifest = await page.evaluate(async () => {
-    const href = document.querySelector('link[rel="manifest"]')?.href;
-    if (!href) return null;
-    const response = await fetch(href, { cache:'no-store' });
+    const response = await fetch('/study/us-states.webmanifest', { cache:'no-store' });
     return response.json();
   });
-  assert.ok(manifest, 'Study page must expose a web manifest');
   assert.equal(manifest.id, './us-states.html');
   assert.equal(manifest.start_url, '/study/');
   assert.equal(manifest.scope, '/study/');
 
-  const cacheHeader = response?.headers()['cache-control'] || '';
-  assert.match(cacheHeader, /no-cache|no-store|max-age=0/i, 'Study HTML must revalidate instead of remaining stale');
-  const direct = await page.goto(`${ORIGIN}/study/unit-1/`, { waitUntil:'domcontentloaded' });
-  assert.equal(direct?.status(),200);
-  assert.equal(await page.locator('html').getAttribute('data-study-build'),expectedBuild,'direct Unit 1 route must match the same release');
-  assert.deepEqual(consoleErrors, [], `Study emitted page errors: ${consoleErrors.join('; ')}`);
-
-  console.log(`Live Study browser verification passed for ${ORIGIN}/study/ and /study/unit-1/ — build ${expectedBuild}`);
+  assert.deepEqual(consoleErrors, [], `Grade 5 production pages emitted page errors: ${consoleErrors.join('; ')}`);
+  console.log(`Live Grade 5 hub, practice pages, and Word Expedition release passed at ${ORIGIN} — build ${expectedBuild}`);
 } finally {
   await context.close();
   await browser.close();

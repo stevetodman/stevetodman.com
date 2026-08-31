@@ -15,6 +15,7 @@ on:
       - 'tools/**'
       - 'cooking/**'
       - 'math/**'
+      - 'study/*.html'
       - 'admin/**'
       - 'newbornscreen/**'
       - 'kawasaki/**'
@@ -58,6 +59,7 @@ on:
       - 'tools/**'
       - 'cooking/**'
       - 'math/**'
+      - 'study/*.html'
       - 'admin/**'
       - 'newbornscreen/**'
       - 'kawasaki/**'
@@ -148,7 +150,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          find phs/v17 steven-os study tools genetics-chd pedcardsurg hypertension cardiovascular-risk aortopathy myocarditis pals newbornscreen tests site scripts search \
+          find phs/v17 steven-os study math tools genetics-chd pedcardsurg hypertension cardiovascular-risk aortopathy myocarditis pals newbornscreen tests site scripts search \
             -type f \( -name '*.js' -o -name '*.mjs' \) -print0 \
             | xargs -0 -n1 node --check
 
