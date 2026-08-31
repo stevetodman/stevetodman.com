@@ -2,84 +2,95 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  SKILLS,
+  CURRENT_WEEK_MICROS,
+  MICRO_SKILLS,
   diagnostic,
   generate,
-  isCorrectAnswer
+  isCorrectAnswer,
+  validateQuestion
 } from "../math/assets/mission1-content.mjs";
 
-function expectedFromAudit(audit) {
+const placeIndex = { tenths: 0, hundredths: 1, thousandths: 2 };
+const clean = value => String(value).trim().replaceAll(",", "");
+const numeric = value => Number(clean(value));
+
+function independentExpected(audit) {
   switch (audit.kind) {
-    case "multiply": return audit.a !== undefined
-      ? audit.a * audit.b
-      : (audit.hundredths * audit.factor) / 100;
-    case "divide": return audit.a !== undefined
-      ? audit.a / audit.b
-      : (audit.dividendHundredths / 100) / audit.divisor;
-    case "ratio": return audit.numerator / audit.denominator;
-    case "sum": return audit.values.reduce((sum, value) => sum + value, 0);
-    case "expanded": return audit.expected;
-    case "compare": return audit.a < audit.b ? "<" : audit.a > audit.b ? ">" : "=";
-    case "round": {
-      const divisor = 10 ** (3 - audit.digits);
-      return Math.floor((audit.thousandths + divisor / 2) / divisor) * divisor / 1000;
-    }
-    case "add": return (audit.hundredthsA + audit.hundredthsB) / 100;
-    case "subtract": return (audit.hundredthsA - audit.hundredthsB) / 100;
+    case "digitAtPlace": return String(Number(audit.numberText.split(".")[1].padEnd(3, "0")[placeIndex[audit.place]]));
+    case "digitValue": return String(Number(audit.numberText.split(".")[1].padEnd(3, "0")[placeIndex[audit.place]]) / (10 ** (placeIndex[audit.place] + 1)));
+    case "scale": return String(audit.operation === "multiply" ? audit.a * audit.factor : audit.a / audit.factor);
+    case "metric": return String(audit.a * audit.factor);
+    case "sum": return String(audit.values.reduce((sum, value) => sum + value, 0));
+    case "expanded": return String(audit.expected);
+    case "compare": return `${audit.left} ${audit.aScaled < audit.bScaled ? "<" : audit.aScaled > audit.bScaled ? ">" : "="} ${audit.right}`;
+    case "order": return [...audit.values].sort((a, b) => Number(a) - Number(b)).join(", ");
+    case "round": { const divisor = 10 ** (3 - audit.digits); return String(Math.floor((audit.thousandths + divisor / 2) / divisor) * divisor / 1000); }
+    case "roundMinimum": return String((audit.targetTenths * 10 - 5) / 100);
+    case "add": return String((audit.aScaled + audit.bScaled) / (10 ** audit.places));
+    case "subtract": return String((audit.aScaled - audit.bScaled) / (10 ** audit.places));
+    case "product": return String((audit.aScaled * audit.bScaled) / (10 ** (audit.aPlaces + audit.bPlaces)));
+    case "quotient": return String((audit.dividendScaled / (10 ** audit.dividendPlaces)) / audit.divisor);
+    case "subtractDivide": return String(((audit.totalScaled - audit.usedScaled) / (10 ** audit.places)) / audit.divisor);
     default: throw new Error(`Unhandled audit kind: ${audit.kind}`);
   }
 }
 
 function assertQuestion(question) {
-  assert.ok(SKILLS[question.skill], `unknown skill ${question.skill}`);
-  assert.ok(question.prompt);
-  assert.ok(question.why);
-  assert.ok(question.audit);
-  assert.equal(isCorrectAnswer(question.answer, question), true, `${question.prompt} rejects its own answer`);
+  assert.ok(MICRO_SKILLS[question.micro], `unknown micro-skill ${question.micro}`);
+  assert.equal(question.skill, MICRO_SKILLS[question.micro].skill);
+  assert.doesNotMatch(question.prompt, /times (?:as much as|the value of)/i);
+  assert.equal(validateQuestion(question), true);
+  assert.equal(isCorrectAnswer(question.answer, question), true, `${question.prompt} rejects its answer`);
 
-  const expected = expectedFromAudit(question.audit);
-  if (typeof expected === "number") {
-    const keyedNumber = Number.parseFloat(question.answer.replaceAll(",", ""));
-    assert.ok(Math.abs(keyedNumber - expected) < 1e-9 || question.audit.kind === "expanded", `${question.prompt}: ${question.answer} !== ${expected}`);
-  } else {
-    assert.equal(question.audit.expected, expected, question.prompt);
-  }
+  const independentlySolved = independentExpected(question.audit);
+  if (question.audit.kind === "expanded") assert.equal(numeric(question.answer.split("+").reduce((sum, term) => sum + numeric(term), 0)), numeric(independentlySolved));
+  else if (/^(?:digitAtPlace|digitValue|scale|metric|sum|round|roundMinimum|add|subtract|product|quotient|subtractDivide)$/.test(question.audit.kind)) assert.ok(Math.abs(numeric(question.answer) - numeric(independentlySolved)) < 1e-9, `${question.prompt}: ${question.answer} !== ${independentlySolved}`);
+  else assert.equal(question.answer.replaceAll(" ", ""), independentlySolved.replaceAll(" ", ""));
 
   if (question.options) {
-    assert.equal(question.options.filter(option => option === question.answer).length, 1, `${question.prompt} must have one keyed option`);
+    assert.equal(new Set(question.options).size, question.options.length, `${question.prompt} has duplicate choices`);
+    assert.equal(question.options.filter(option => clean(option) === clean(question.answer)).length, 1, `${question.prompt} needs one keyed choice`);
   }
 }
 
-test("diagnostic has 12 verified questions and checks all six skills", () => {
-  const questions = diagnostic();
-  assert.equal(questions.length, 12);
-  assert.deepEqual(new Set(questions.map(question => question.skill)), new Set(Object.keys(SKILLS)));
-  questions.forEach(assertQuestion);
+test("the replacement 6.282 question names the actual hundredths digit", () => {
+  const question = diagnostic()[0];
+  assert.match(question.prompt, /hundredths place in <span class="math">6\.282<\/span>/);
+  assert.equal(question.answer, "8");
+  assert.equal(independentExpected(question.audit), "8");
+  assert.doesNotMatch(question.prompt, /2 in the hundredths/i);
 });
 
-test("place-value comparison uses values and has the correct 300× key", () => {
-  const question = diagnostic()[1];
-  assert.match(question.prompt, /the 6 has how many times the value/);
-  assert.equal(question.answer, "300 times");
-  assert.equal(question.audit.numerator / question.audit.denominator, 300);
+test("diagnostic has one independently verified question per micro-skill", () => {
+  const questions = diagnostic();
+  assert.equal(questions.length, 12);
+  assert.deepEqual(new Set(questions.map(question => question.micro)), new Set(Object.keys(MICRO_SKILLS)));
+  questions.forEach(assertQuestion);
 });
 
 test("equivalent numeric and expanded-form answers are accepted", () => {
   const questions = diagnostic();
-  assert.equal(isCorrectAnswer("4,700.0", questions[0]), true);
-  assert.equal(isCorrectAnswer(".300 + .005", questions[4]), true);
-  assert.equal(isCorrectAnswer("0.005 + 0.30", questions[4]), true);
-  assert.equal(isCorrectAnswer("0.304", questions[4]), false);
+  assert.equal(isCorrectAnswer("4,700.0", questions[2]), true);
+  assert.equal(isCorrectAnswer(".300 + .005", questions[5]), true);
+  assert.equal(isCorrectAnswer("0.005 + 0.30", questions[5]), true);
+  assert.equal(isCorrectAnswer("0.304", questions[5]), false);
 });
 
-test("30,000 generated questions have independently verified keys", () => {
+test("36,000 generated questions have independently verified keys", () => {
   let seed = 0x5eed1234;
-  const random = () => {
-    seed = (1664525 * seed + 1013904223) >>> 0;
-    return seed / 0x100000000;
-  };
+  const random = () => { seed = (1664525 * seed + 1013904223) >>> 0; return seed / 0x100000000; };
+  for (const micro of Object.keys(MICRO_SKILLS)) for (let difficulty = 1; difficulty <= 3; difficulty += 1) for (let index = 0; index < 1000; index += 1) assertQuestion(generate(micro, difficulty, random));
+});
 
-  for (const skill of Object.keys(SKILLS)) {
-    for (let index = 0; index < 5000; index += 1) assertQuestion(generate(skill, random));
-  }
+test("current-week generators cover Lessons 1–16 and include Eureka-style models", () => {
+  assert.deepEqual(CURRENT_WEEK_MICROS, Object.keys(MICRO_SKILLS));
+  let seed = 123;
+  const random = () => { seed = (1664525 * seed + 1013904223) >>> 0; return seed / 0x100000000; };
+  const samples = CURRENT_WEEK_MICROS.flatMap(micro => Array.from({ length: 100 }, () => generate(micro, 3, random)));
+  assert.ok(samples.some(question => question.scratch === "numberline"));
+  assert.ok(samples.some(question => question.scratch === "tape" && /Use a tape diagram/i.test(question.prompt)));
+  assert.ok(samples.some(question => /reasonable product/i.test(question.prompt)));
+  assert.ok(samples.some(question => /Complete the pattern/i.test(question.prompt)));
+  assert.ok(samples.some(question => /smallest possible number/i.test(question.prompt)));
+  assert.ok(samples.some(question => /show both calculations/i.test(question.prompt)));
 });

@@ -7,15 +7,15 @@
   <title>Math Mission — Luke & Samantha</title>
   <meta name="description" content="Short, adaptive Grade 5 math practice aligned to Caddo's current Eureka Math mission.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/mission1.css">
-  <script src="assets/mission1.js?v=20260831-math-audit1" type="module"></script>
-  <script src="assets/math-cloud.js" defer></script>
+  <link rel="stylesheet" href="assets/mission1.css?v=20260831-weekly3">
+  <script src="assets/mission1.js?v=20260831-weekly3" type="module"></script>
+  <script src="assets/math-cloud.js?v=20260831-weekly3" defer></script>
 </head>
 <body>
   <a class="skip" href="#app">Skip to practice</a>
   <header>
     <a class="brand" href="/">ST <span>Learning</span></a>
-    <div class="course"><span>GRADE 5</span> Mission 1 · Decimal Place Value</div>
+    <div class="course"><span>GRADE 5</span> Module 1 · Decimal Operations</div>
   </header>
   <main id="app" tabindex="-1">
     <section id="picker" class="screen active" aria-labelledby="pick-title">
@@ -26,14 +26,14 @@
         <button class="profile luke" data-profile="luke"><span class="avatar">L</span><span><strong>Luke</strong><small class="profile-status">Start Mission 1</small></span><b>→</b></button>
         <button class="profile samantha" data-profile="samantha"><span class="avatar">S</span><span><strong>Samantha</strong><small class="profile-status">Start Mission 1</small></span><b>→</b></button>
       </div>
-      <aside class="why"><strong>Built for independent work.</strong> No hints before an answer. A missed problem becomes a worked example and an immediate retry.</aside>
+      <aside class="why"><strong>Focused on this week’s Lessons 1–16.</strong> Independent questions have no hints. A miss becomes a guided example, then a fresh recovery problem later.</aside>
     </section>
     <section id="dashboard" class="screen" aria-labelledby="hello">
       <div class="topline"><button class="back" data-action="switch">← Switch</button><span id="learner-pill"></span></div>
       <div class="eyebrow">Today’s assignment</div><h2 id="hello" class="screen-heading">Ready?</h2>
       <div id="primary-card" class="mission-card"></div>
       <div class="skill-panel">
-        <div class="section-title"><h2>Mission 1 skills</h2><span id="mastery-count"></span></div>
+        <div class="section-title"><h2>Module 1 skills</h2><span id="mastery-count"></span></div>
         <div id="skill-list" class="skill-list"></div>
       </div>
       <details class="parent-summary"><summary>Parent summary</summary><div id="parent-report"></div><div class="sync-row"><span data-math-cloud-status aria-live="polite">Saved on this device</span><button type="button" class="sync-button" data-action="share-device">Connect another device</button></div></details>
@@ -42,9 +42,16 @@
     <section id="session" class="screen" aria-labelledby="question-title">
       <div class="session-head"><button class="back" data-action="quit">← Exit</button><div id="progress-pips" class="pips" aria-label="Session progress"></div><span id="session-score">0 correct</span></div>
       <div class="question-wrap">
-        <div id="skill-tag" class="eyebrow"></div><h2 id="question-title" class="screen-heading">Question</h2><div id="question-body" class="question-body"></div>
-        <form id="answer-form" novalidate><div id="answer-area"></div><button id="check-button" class="primary-button" type="submit">Check answer</button></form>
-        <div id="feedback" class="feedback" aria-live="polite" hidden></div>
+        <div class="question-main">
+          <div id="skill-tag" class="eyebrow"></div><h2 id="question-title" class="screen-heading">Question</h2>
+          <div id="scaffold-note" class="scaffold-note" hidden></div><div id="question-body" class="question-body"></div>
+          <form id="answer-form" novalidate><div id="answer-area"></div><button id="check-button" class="primary-button" type="submit">Check answer</button></form>
+          <div id="feedback" class="feedback" aria-live="polite" hidden></div>
+        </div>
+        <section id="scratch-panel" class="scratch-panel" aria-labelledby="scratch-title">
+          <div class="scratch-head"><div><strong id="scratch-title">Scratchwork</strong><small id="scratch-guide">Place-value chart</small></div><button id="scratch-toggle" type="button" aria-expanded="false" aria-controls="scratch-body">Open</button></div>
+          <div id="scratch-body" class="scratch-body" hidden><canvas id="scratch-canvas" aria-label="Draw scratchwork with a finger, mouse, or Apple Pencil"></canvas><div class="scratch-actions"><button id="scratch-undo" type="button">Undo</button><button id="scratch-clear" type="button">Clear</button></div></div>
+        </section>
       </div>
     </section>
     <section id="results" class="screen" aria-labelledby="result-title">
