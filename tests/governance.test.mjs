@@ -37,6 +37,32 @@ test('clinical governance records do not fabricate review status', () => {
   }
 });
 
+test('file-backed clinical review evidence exists', () => {
+  for (const module of registry.modules.filter((item) => item.reviewEvidenceFile)) {
+    const evidencePath = path.join(repoRoot, module.reviewEvidenceFile);
+    assert.ok(fs.existsSync(evidencePath), `${module.id} review evidence file is missing: ${module.reviewEvidenceFile}`);
+    const evidence = fs.readFileSync(evidencePath, 'utf8');
+    assert.match(evidence, /Review date:/i, `${module.id} evidence file needs a review date`);
+    assert.match(evidence, /Evidence boundary/i, `${module.id} evidence file needs an explicit evidence boundary`);
+  }
+});
+
+test('newborn CCHD evidence review remains traceable to the reviewed production claims', () => {
+  const module = registry.modules.find((item) => item.id === 'newbornscreen');
+  assert.ok(module);
+  assert.equal(module.lastReviewed, '2026-08-31');
+  assert.equal(module.reviewStatus, 'documented');
+  assert.match(module.reviewLevel, /AI-assisted evidence review/i);
+  assert.match(module.reviewLevel, /no independent clinician certification/i);
+
+  const page = fs.readFileSync(path.join(repoRoot, 'newbornscreen/index.html'), 'utf8');
+  assert.match(page, /screen at 24 hours of age or later/i);
+  assert.match(page, /as late as possible before discharge/i);
+  assert.match(page, /weaned off supplemental oxygen/i);
+  assert.match(page, /echocardiography is warranted/i);
+  assert.match(page, /unless required by state law/i);
+});
+
 test('documented clinical review dates are not stale', () => {
   const limit = Number(registry.policy.reviewIntervalMonths || 12);
   const stale = registry.modules
