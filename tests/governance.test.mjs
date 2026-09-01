@@ -63,6 +63,23 @@ test('newborn CCHD evidence review remains traceable to the reviewed production 
   assert.match(page, /unless required by state law/i);
 });
 
+test('Kawasaki evidence review remains traceable to the reviewed production claims', () => {
+  const module = registry.modules.find((item) => item.id === 'kawasaki');
+  assert.ok(module);
+  assert.equal(module.lastReviewed, '2026-08-31');
+  assert.equal(module.reviewStatus, 'documented');
+  assert.match(module.reviewLevel, /AI-assisted evidence review/i);
+  assert.match(module.reviewLevel, /no independent clinician certification/i);
+
+  const page = fs.readFileSync(path.join(repoRoot, 'kawasaki/index.html'), 'utf8');
+  assert.match(page, /2024 AHA scientific statement is the clinical backbone/i);
+  assert.match(page, /CRP ≥3 mg\/dL and\/or ESR ≥40 mm\/h/i);
+  assert.match(page, /IVIG 2 g\/kg/i);
+  assert.match(page, /Persistent\/recrudescent fever ≥36 h = IVIG resistance/i);
+  assert.match(page, /Large\/giant aneurysm[\s\S]*≥10 or absolute diameter ≥8 mm/i);
+  assert.match(page, /with Z ≥2\.5, at least twice weekly until dimensions stabilize/i);
+});
+
 test('documented clinical review dates are not stale', () => {
   const limit = Number(registry.policy.reviewIntervalMonths || 12);
   const stale = registry.modules
