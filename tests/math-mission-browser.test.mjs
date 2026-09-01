@@ -27,7 +27,14 @@ async function openMath({ viewport = { width: 390, height: 844 }, seed } = {}) {
   return { context, page, errors };
 }
 
-test('fresh learner can enter the diagnostic, use scratchwork, and save an independently checked answer', async () => {
+async function centerPixel(page) {
+  return page.locator('#scratch-canvas').evaluate(canvas => {
+    const context = canvas.getContext('2d');
+    return Array.from(context.getImageData(Math.floor(canvas.width / 2), Math.floor(canvas.height / 2), 1, 1).data);
+  });
+}
+
+test('fresh learner can enter the diagnostic, draw scratchwork, undo it, and save an independently checked answer', async () => {
   const { context, page, errors } = await openMath();
 
   await page.locator('[data-profile="luke"]').click();
@@ -43,8 +50,22 @@ test('fresh learner can enter the diagnostic, use scratchwork, and save an indep
   await page.locator('#scratch-toggle').click();
   assert.equal(await page.locator('#scratch-toggle').getAttribute('aria-expanded'), 'true');
   assert.equal(await page.locator('#scratch-body').isVisible(), true);
-  const canvasSize = await page.locator('#scratch-canvas').evaluate(canvas => ({ width: canvas.width, height: canvas.height }));
+  await page.waitForTimeout(50);
+  const canvas = page.locator('#scratch-canvas');
+  const canvasSize = await canvas.evaluate(element => ({ width: element.width, height: element.height }));
   assert.ok(canvasSize.width > 0 && canvasSize.height > 0, 'scratch canvas should be sized when opened');
+
+  const box = await canvas.boundingBox();
+  assert.ok(box && box.width > 0 && box.height > 0, 'scratch canvas should have a drawable box');
+  const beforeStroke = await centerPixel(page);
+  await page.mouse.move(box.x + box.width * 0.3, box.y + box.height * 0.35);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * 0.7, box.y + box.height * 0.65, { steps: 8 });
+  await page.mouse.up();
+  const afterStroke = await centerPixel(page);
+  assert.notDeepEqual(afterStroke, beforeStroke, 'drawing should change the canvas at the stroke midpoint');
+  await page.locator('#scratch-undo').click();
+  assert.deepEqual(await centerPixel(page), beforeStroke, 'Undo should restore the guide beneath the last stroke');
 
   // Independently anchored to the diagnostic item: the hundredths digit in 6.282 is 8.
   await page.locator('.choice[data-value="8"]').click();
