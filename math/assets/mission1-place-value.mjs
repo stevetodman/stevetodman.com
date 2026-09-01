@@ -39,6 +39,11 @@ export function shiftPlaceValueTokens(tokens, delta) {
   return tokens.map(token => ({ ...token, exponent: token.exponent + delta }));
 }
 
+export function placeValueNumberForTokens(tokens) {
+  const total = tokens.reduce((sum, token) => sum + Number(token.digit) * (10 ** token.exponent), 0);
+  return plainNumber(total);
+}
+
 export function expectedPlaceValueDelta(workspace) {
   return workspace.operation === "multiply" ? workspace.shift : -workspace.shift;
 }
@@ -86,6 +91,7 @@ export function createPlaceValueWorkspace({ root, onGuidedReady = () => {} }) {
     const canLeft = !locked && shifted.every(token => token.exponent < MAX_EXPONENT);
     const canRight = !locked && shifted.every(token => token.exponent > MIN_EXPONENT);
     const wrongDirection = delta !== 0 && Math.sign(delta) !== Math.sign(expected);
+    const canUseChartAnswer = delta !== 0 && (!guided || correctPosition);
 
     root.hidden = false;
     root.dataset.guided = String(guided);
@@ -119,11 +125,12 @@ export function createPlaceValueWorkspace({ root, onGuidedReady = () => {} }) {
         <button type="button" data-pv-reset ${delta === 0 || locked ? "disabled" : ""}>Reset</button>
         <button type="button" data-pv-shift="right" ${canRight ? "" : "disabled"}>Shift right →</button>
       </div>
+      ${canUseChartAnswer ? '<button type="button" class="primary-button pv-use-answer" data-pv-use>Use chart answer</button>' : ""}
       <div class="pv-status ${wrongDirection ? "needs-check" : correctPosition && delta !== 0 ? "ready" : ""}" aria-live="polite">
         ${wrongDirection
           ? `${workspace.operation === "divide" ? "Division should make the number smaller." : "Multiplication should make the number larger."} Check the direction.`
           : correctPosition && delta !== 0
-            ? `Exactly. Each digit is now ${valueChange(workspace)}. Now enter the number you built.`
+            ? `Exactly. Each digit is now ${valueChange(workspace)}. You can use the chart answer or type it yourself.`
             : guided
               ? `You need ${workspace.shift} place-value shift${workspace.shift === 1 ? "" : "s"}. Choose the direction by reasoning from the operation.`
               : `Each tap moves every digit exactly one place.`}
@@ -160,6 +167,14 @@ export function createPlaceValueWorkspace({ root, onGuidedReady = () => {} }) {
       delta = 0;
       ready = false;
       render();
+      return;
+    }
+    if (event.target.closest("[data-pv-use]")) {
+      const input = root.ownerDocument.getElementById("answer-input");
+      if (!input || input.disabled) return;
+      input.value = placeValueNumberForTokens(shiftPlaceValueTokens(baseTokens, delta));
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.focus({ preventScroll: true });
     }
   });
 
