@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { parseOrderItems, sequenceAnswer } from "../math/assets/mission1-low-friction.mjs";
 
 const root = new URL("../", import.meta.url);
 const read = path => readFile(new URL(path, root), "utf8");
@@ -59,6 +60,13 @@ test("wrong-answer UX does not immediately reveal the answer for current powers-
   assert.match(app, /state\.immediateScaffold = question/);
   assert.doesNotMatch(app, /confirm\("Exit this mission/);
   assert.match(html, /id="exit-dialog"/);
+});
+
+test("low-friction controls preserve the learner's mathematical decision while removing transcription", async () => {
+  const html = await read("math/index.html");
+  assert.match(html, /mission1-low-friction\.mjs/);
+  assert.deepEqual(parseOrderItems("0.57, 0.507, 0.6, 0.505"), ["0.57", "0.507", "0.6", "0.505"]);
+  assert.equal(sequenceAnswer(["0.505", "0.507", "0.57", "0.6"]), "0.505, 0.507, 0.57, 0.6");
 });
 
 test("scratchwork supports pointer input, Apple Pencil semantics, undo, clear, and responsive guides", async () => {
