@@ -62,7 +62,10 @@ test('a missed Full Test question stays 1 of exactly 50 and resumes at question 
   });
   assert.deepEqual(committed, { liveLength: 50, liveIndex: 1, savedLength: 50, savedIndex: 1 });
 
-  await page.reload();
+  // Simulate closing and reopening the challenge. A fresh navigation avoids
+  // browser reload/BFCache behavior while preserving the origin's storage.
+  await page.goto('about:blank');
+  await page.goto(`${server.origin}/study/us-states.html`);
   await page.click('[data-mode="resume"]');
   await page.waitForSelector('.score-line');
   assert.match(await page.locator('.score-line').innerText(), /Question 2 of 50/);
