@@ -14,7 +14,7 @@ test("Math Mission separates the broad Module 1 baseline from the verified curre
   assert.match(app, /Current focus · Lessons 1–2 · 5\.NBT\.1–2/);
   assert.doesNotMatch(app, /This week · Lessons 1–16/);
   assert.match(weekly, /Adaptive practice should prioritize Lessons 1–2 \/ 5\.NBT\.1–2 first/);
-  assert.match(weekly, /Do not describe all Lessons 1–16 as "this week"/);
+  assert.match(weekly, /Do not describe all Lessons 1–16 as "this week\."/);
 });
 
 test("scratchwork supports pointer input, Apple Pencil semantics, undo, clear, and responsive guides", async () => {
