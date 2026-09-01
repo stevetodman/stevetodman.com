@@ -1,4 +1,5 @@
-import { DOMAIN_MICROS, MICRO_SKILLS, SKILLS, diagnostic, generate, isCorrectAnswer } from "./mission1-content.mjs?v=20260831-weekly3";
+import { DOMAIN_MICROS, MICRO_SKILLS, SKILLS, diagnostic, isCorrectAnswer } from "./mission1-content.mjs?v=20260831-weekly3";
+import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260831-focus1";
 import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, diagnosticIsCurrent, difficultyForScore, domainStats, microScore, microStats, nextMicro, projectedScore } from "./mission1-adaptive.mjs?v=20260831-focus1";
 import { createScratchpad } from "./mission1-scratch.mjs?v=20260831-weekly3";
 
@@ -64,17 +65,17 @@ import { createScratchpad } from "./mission1-scratch.mjs?v=20260831-weekly3";
     const profile = pdata();
     if (state.immediateScaffold) {
       const micro = state.immediateScaffold; state.immediateScaffold = null;
-      return generate(micro, Math.max(1, difficultyForScore(microScore(profile, micro)) - 1), Math.random, { assisted: true });
+      return generateCurrentWeekQuestion(micro, Math.max(1, difficultyForScore(microScore(profile, micro)) - 1), Math.random, { assisted: true });
     }
     const ready = state.recoveries.findIndex(item => item.delay <= 0);
     if (ready >= 0) {
       const [{ micro }] = state.recoveries.splice(ready, 1);
-      return generate(micro, difficultyForScore(microScore(profile, micro)), Math.random, { recovery: true });
+      return generateCurrentWeekQuestion(micro, difficultyForScore(microScore(profile, micro)), Math.random, { recovery: true });
     }
     state.recoveries.forEach(item => { item.delay -= 1; });
     const avoid = [...state.recentMicros.slice(-2), ...state.recoveries.map(item => item.micro)];
     const micro = nextMicro(profile, { avoid });
-    return generate(micro, difficultyForScore(microScore(profile, micro)));
+    return generateCurrentWeekQuestion(micro, difficultyForScore(microScore(profile, micro)));
   }
 
   function renderQuestion() {
