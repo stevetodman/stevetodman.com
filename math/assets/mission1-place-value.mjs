@@ -90,15 +90,15 @@ export function createPlaceValueWorkspace({ root, onGuidedReady = () => {} }) {
         ? `Move every digit one place at a time. The decimal point stays fixed.`
         : `Move the digits to reason about place value. The decimal point never moves.`}</p>
       <div class="pv-scroll" tabindex="0" aria-label="Place-value chart. Scroll horizontally if needed.">
-        <div class="pv-grid" role="grid" aria-label="Place-value chart">
+        <div class="pv-grid">
           ${PLACE_VALUE_COLUMNS.map(column => `
-            <div class="pv-column" role="gridcell" data-exponent="${column.exponent}" aria-label="${column.label}">
+            <div class="pv-column" role="group" data-exponent="${column.exponent}" aria-label="${column.label}">
               <span class="pv-label"><span class="pv-label-full">${column.label}</span><span class="pv-label-short">${column.short}</span></span>
               <div class="pv-slot">
                 ${shifted.filter(token => token.exponent === column.exponent).map(token => `<span class="pv-digit">${token.digit}</span>`).join("")}
               </div>
             </div>
-            ${column.exponent === 0 ? `<div class="pv-decimal" aria-label="Fixed decimal point"><span>.</span><small>fixed</small></div>` : ""}
+            ${column.exponent === 0 ? `<div class="pv-decimal" role="img" aria-label="Fixed decimal point"><span aria-hidden="true">.</span><small aria-hidden="true">fixed</small></div>` : ""}
           `).join("")}
         </div>
       </div>
