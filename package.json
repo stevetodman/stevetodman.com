@@ -12,8 +12,8 @@
     "test": "node --test tests/*.test.mjs",
     "test:math": "node --test tests/math-mission.test.mjs tests/math-mission-adaptive.test.mjs tests/math-mission-current-week.test.mjs tests/math-mission-place-value.test.mjs tests/math-mission-cloud.test.mjs tests/math-mission-ui.test.mjs",
     "test:math:browser": "node --test tests/math-mission-browser.test.mjs",
-    "test:study": "node --test tests/study-cloud-client.test.mjs tests/study-word-mission.test.mjs tests/study-battle-visibility.test.mjs tests/study-ios-audio.test.mjs tests/study-regressions.test.mjs tests/study-game.test.mjs tests/study-quality.test.mjs tests/study-aaa-polish.test.mjs tests/study-monster-banter.test.mjs tests/study-test-practice.test.mjs tests/us-states-challenge.test.mjs tests/us-states-challenge-browser.test.mjs",
-    "test:study:unit": "node --test tests/study-cloud-client.test.mjs tests/study-regressions.test.mjs tests/study-game.test.mjs tests/study-quality.test.mjs tests/study-aaa-polish.test.mjs tests/study-test-practice.test.mjs tests/us-states-challenge.test.mjs",
+    "test:study": "node --test tests/study-cloud-client.test.mjs tests/study-word-mission.test.mjs tests/study-battle-visibility.test.mjs tests/study-ios-audio.test.mjs tests/study-regressions.test.mjs tests/study-game.test.mjs tests/study-quality.test.mjs tests/study-aaa-polish.test.mjs tests/study-monster-banter.test.mjs tests/study-test-practice.test.mjs",
+    "test:study:unit": "node --test tests/study-cloud-client.test.mjs tests/study-regressions.test.mjs tests/study-game.test.mjs tests/study-quality.test.mjs tests/study-aaa-polish.test.mjs tests/study-test-practice.test.mjs",
     "test:study:webkit": "node --test tests/study-ios-webkit.test.mjs tests/study-test-practice-webkit.test.mjs",
     "test:steven-os": "node --test tests/steven-os.test.mjs",
     "test:platform": "node --test tests/platform-policy.test.mjs tests/production-verifier.test.mjs tests/governance.test.mjs tests/asset-provenance.test.mjs tests/performance-budget.test.mjs tests/search-index.test.mjs",
@@ -28,9 +28,9 @@
     "test:pals": "node --test tests/pals-academy.test.mjs",
     "test:genetics-chd": "node --test tests/genetics-chd-academy.test.mjs",
     "test:pedcardsurg": "node --test tests/pedcardsurg-academy.test.mjs",
-    "test:smoke": "node --test tests/site-smoke.test.mjs tests/math-mission-browser.test.mjs tests/pin-sprint.test.mjs tests/study-word-mission.test.mjs tests/study-battle-visibility.test.mjs tests/study-ios-audio.test.mjs tests/study-regressions.test.mjs tests/us-states-challenge-browser.test.mjs tests/education-platform.test.mjs tests/search-page.test.mjs",
+    "test:smoke": "node --test tests/site-smoke.test.mjs tests/math-mission-browser.test.mjs tests/pin-sprint.test.mjs tests/study-word-mission.test.mjs tests/study-battle-visibility.test.mjs tests/study-ios-audio.test.mjs tests/study-regressions.test.mjs tests/education-platform.test.mjs tests/search-page.test.mjs",
     "test:integrity": "node phs/v17/tests/integrity.mjs",
-    "test:study:smoke": "node --test --test-name-pattern=\"keeps each twin|both learners get|weapons and monsters|monsters counterattack|gear preview never|audio exception failure\" tests/study-word-mission.test.mjs && node --test tests/study-battle-visibility.test.mjs tests/study-ios-audio.test.mjs tests/study-monster-banter.test.mjs"
+    "test:study:smoke": "node --test --test-name-pattern=\"keeps each twin|both learners get|weapons and monsters|monsters counterattack|gear preview never|audio exception failure\" tests/study-word-mission.test.mjs && node --test tests/study-battle-visibility.test.mjs tests/study-ios-audio.test.mjs tests/study-monster-banter.test.mjs tests/study-us-states-challenge-browser.test.mjs"
   },
   "devDependencies": {
     "axe-core": "4.13.0",
