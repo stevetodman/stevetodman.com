@@ -1,6 +1,6 @@
 ---
 status: active
-next: Complete live Pages production-only verification in #38; then search-result removal #40; then StudyHub live acceptance #39. Evidence gaps remain in #41 and #42.
+next: Complete StudyHub live cloud-save acceptance in #39; then complete the six evidence-backed clinical review records in #42. Live Pages/search gates #38/#40 and CHD atlas provenance #41 are resolved.
 ---
 
 # CLAUDE.md
@@ -78,6 +78,8 @@ Cloudflare Pages settings:
 - output directory: `dist`
 - production branch: `main`
 
+Live production verification is automated after pushes to `main`. Issue #38 is closed after repeated successful production-verifier runs against `https://stevetodman.com`; do not regress the production-only boundary.
+
 See `DEPLOYMENT.md` before changing live settings.
 
 ## Key surfaces
@@ -121,6 +123,8 @@ npm test
 npm run test:platform
 npm run test:smoke
 npm run test:a11y
+npm run test:math
+npm run test:math:browser
 npm run test:phs
 npm run test:bp
 npm run test:kawasaki
@@ -136,6 +140,8 @@ npm run verify:production
 ```
 
 CI runs independent browser suites in parallel. Site smoke and accessibility are separate shards; expensive page/mobile/StudyHub smoke checks use bounded native Node test concurrency.
+
+Math Mission now has a dedicated fast regression gate plus real-browser learner-flow coverage. Preserve independent question-key verification, adaptive/mastery tests, cloud payload/apply round-trip coverage, diagnostic persistence, miss -> guided retry behavior, and rendered scratch-canvas draw/Undo/Clear assertions.
 
 Preserve these test-design rules:
 
@@ -166,7 +172,11 @@ Issue #42 remains open for BP calculator, PHS, CCHD/newborn screening, Kawasaki,
 
 StudyHub's U.S.-state geometry/source chain is documented in `study/ATTRIBUTIONS.md`. Do not restore unsupported public-domain claims.
 
-Issue #41 remains open because the CHD surgical-atlas creator/source/license/permission evidence is unknown. Do not infer permission from repository presence or the code license.
+Issue #41 is resolved. PR #73 recorded project-owner evidence that the PedCardSurg CHD surgical illustrations are project-generated, AI-assisted educational assets created specifically for the project under Steve Todman's direction, with human selection, clinical review, and integration documented. Preserve that evidence boundary; do not infer provenance or permission for unrelated assets by analogy.
+
+## Search visibility state
+
+Issue #40 is closed. Public-search rechecks found no `stevetodman.com` results surfacing after live noindex controls were verified. Keep crawling available for noindex processing, keep the sitemap absent, and reopen #40 if public search results recur while direct-link-only mode remains intended.
 
 ## StudyHub cloud save
 
@@ -184,13 +194,16 @@ The live acceptance gate is `study/CLOUD_SAVE_ACCEPTANCE.md` plus issue #39.
 
 ## Current remaining gates
 
-1. **#38 Live Pages verification** — confirm `npm run build`, `dist`, `main`, non-production 404s, noindex/security headers, robots behavior, sitemap absence, and production verifier success.
-2. **#40 Search-engine removal** — after #38 proves live noindex, remove/verify Google and Bing results.
-3. **#39 StudyHub live acceptance** — verify live migration/security/rate limits and two-device/offline merge behavior.
-4. **#41 CHD atlas provenance** — recover permission evidence or replace assets before broader redistribution.
-5. **#42 Clinical review evidence** — complete the six unresolved review records.
+1. **#39 StudyHub live acceptance** — verify live migration/RLS/browser-role restrictions, the intended Edge Function path, rate limiting/error monitoring, and the complete two-device/offline merge sequence. Do not expose the family token in logs/issues.
+2. **#42 Clinical review evidence** — complete evidence-backed review records for BP calculator, PHS, CCHD/newborn screening, Kawasaki, cardiovascular prevention/dyslipidemia, and Myocarditis.
 
-Do not claim live Cloudflare or Supabase state without direct evidence.
+Completed gates that should not be re-opened without contrary evidence:
+
+- **#38 Live Pages production-only verification** — closed after successful automated verification against the live site.
+- **#40 Search-engine removal** — closed after independent public-search rechecks found no surfaced site results.
+- **#41 CHD atlas provenance** — closed after project-owner provenance evidence was recorded in PR #73.
+
+Do not claim Supabase live administrative/device state without direct evidence.
 
 ## Long-lived PR backlog
 
