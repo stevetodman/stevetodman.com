@@ -127,7 +127,10 @@ test('a current-focus miss immediately schedules a guided retry of the same powe
     assert.equal(await page.locator('#question-title').innerText(), 'Guided try');
     assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10.*Guided/i);
     assert.equal(await page.locator('#scaffold-note').isHidden(), false);
-    assert.match(await page.locator('#scaffold-note').innerText(), /dividing makes every digit shift right/i);
+    const scaffold = await page.locator('#scaffold-note').innerText();
+    assert.match(scaffold, /place-value chart/i);
+    assert.match(scaffold, /1\/10.*as large/i);
+    assert.match(scaffold, /shift.*right/i);
     assert.deepEqual(errors, [], `runtime errors:\n${errors.join('\n')}`);
   } finally {
     await context.close();
