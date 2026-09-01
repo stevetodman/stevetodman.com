@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  CURRENT_WEEK_MICROS,
   DIAGNOSTIC_VERSION,
+  REVIEW_MICROS,
   diagnosticIsCurrent,
   difficultyForScore,
   microScore,
@@ -28,11 +30,39 @@ test("difficulty responds to current skill level", () => {
   assert.equal(difficultyForScore(75), 3);
 });
 
-test("all current Lessons 1–16 compete by weakest recent evidence", () => {
-  assert.equal(nextMicro({ attempts: [] }), "place_digit");
-  const attempts = [attempt("place_digit", true, { at: 1 }), attempt("place_value", false, { at: 2 })];
-  assert.equal(nextMicro({ attempts }), "place_value");
-  assert.notEqual(nextMicro({ attempts }, { avoid: ["place_value"] }), "place_value");
+test("current school focus is Lessons 1-2 powers-of-ten work with a separate review layer", () => {
+  assert.deepEqual(CURRENT_WEEK_MICROS, ["powers_multiply", "powers_divide"]);
+  assert.deepEqual(REVIEW_MICROS, ["metric_conversion", "decimal_forms", "decimal_compare"]);
+  assert.equal(nextMicro({ attempts: [] }), "powers_multiply");
+
+  const attempts = [attempt("powers_multiply", true, { at: 1 }), attempt("powers_divide", false, { at: 2 })];
+  assert.equal(nextMicro({ attempts }), "powers_divide");
+  assert.notEqual(nextMicro({ attempts }, { avoid: ["powers_divide"] }), "powers_divide");
+});
+
+test("ordinary review weakness does not displace unfinished Lessons 1-2", () => {
+  const profile = { attempts: [attempt("metric_conversion", false, { at: 1 })] };
+  assert.equal(microScore(profile, "metric_conversion"), 27);
+  assert.ok(CURRENT_WEEK_MICROS.includes(nextMicro(profile)));
+});
+
+test("a severe review gap can interrupt briefly even while current lessons are unfinished", () => {
+  const profile = { attempts: [
+    attempt("metric_conversion", false, { at: 1 }),
+    attempt("metric_conversion", false, { at: 2 })
+  ] };
+  assert.equal(microScore(profile, "metric_conversion"), 14);
+  assert.equal(nextMicro(profile), "metric_conversion");
+});
+
+test("once current Lessons 1-2 are secure, weak review skills surface", () => {
+  const attempts = [];
+  for (const micro of CURRENT_WEEK_MICROS) {
+    for (let index = 0; index < 4; index += 1) attempts.push(attempt(micro, true, { difficulty: 3, date: index < 2 ? "2026-08-29" : "2026-08-30", at: attempts.length + 1 }));
+  }
+  const profile = { attempts };
+  assert.ok(CURRENT_WEEK_MICROS.every(micro => microScore(profile, micro) >= 75));
+  assert.equal(nextMicro(profile), "metric_conversion");
 });
 
 test("mastery requires sustained independent advanced work on two days", () => {
