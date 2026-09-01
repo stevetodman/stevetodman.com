@@ -139,3 +139,24 @@ test("applying the same remote state twice does not duplicate attempts", () => {
   assert.equal(restored.attempts[0].correct, false);
   assert.equal(restored.attempts[0].assisted, true);
 });
+
+test("a completed repair recheck is retained across devices", () => {
+  const source = loadCloud({
+    luke: {
+      attempts: [{
+        skill: "place", micro: "powers_multiply", correct: true, assisted: false,
+        recovery: false, recheck: true, difficulty: 2, transfer: false,
+        date: "2026-09-01", at: 1788224400000
+      }]
+    }
+  });
+  const payload = source.cloud.payload();
+  const key = Object.keys(payload["math-mission-luke"].stateStats).find(item => item.startsWith("math1c|"));
+  assert.match(key, /^math1c\|place\|powers_multiply\|1\|0\|0\|2\|0\|1\|2026-09-01\|1788224400000\|/);
+
+  const target = loadCloud({});
+  target.cloud.apply(payload);
+  const restored = readData(target.localStorage).luke.attempts[0];
+  assert.equal(restored.recheck, true);
+  assert.equal(restored.micro, "powers_multiply");
+});

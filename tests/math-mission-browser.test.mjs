@@ -142,6 +142,8 @@ test('current-focus miss becomes guided place-value action and later independent
     luke: {
       diagnostic: true,
       diagnosticVersion: 2,
+      recheckVersion: 1,
+      rechecks: {},
       sessions: 1,
       attempts: [{
         skill: 'place',
@@ -160,16 +162,28 @@ test('current-focus miss becomes guided place-value action and later independent
   const { context, page, errors } = await openMath(seeded, { width: 390, height: 844 }, 0.1);
   try {
     await page.locator('[data-profile="luke"]').click();
+    await page.waitForTimeout(25);
+    assert.equal(await page.evaluate(() => document.activeElement?.id), 'hello', 'screen changes should put focus on the new heading');
     assert.match(await page.locator('#primary-card').innerText(), /Current focus.*Lessons 1–2.*5\.NBT\.1–2/is);
     assert.match(await page.locator('#primary-card').innerText(), /Powers of 10/i);
     assert.doesNotMatch(await page.locator('#dashboard').innerText(), /level \d|micro-skills|Parent summary/i);
     await page.locator('[data-start="practice"]').click();
+    await page.waitForTimeout(25);
 
     assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10/i);
     assert.equal(await page.locator('#progress-text').innerText(), '1 of 10');
     assert.equal(await page.locator('#session-mode').innerText(), 'Independent');
     assert.equal(await page.locator('#place-value-workspace').isHidden(), false);
     assert.match(await page.locator('#place-value-workspace').innerText(), /decimal point never moves/i);
+    const missedPrompt = await page.locator('#question-body').innerHTML();
+    const mobileChart = await page.locator('#place-value-workspace').evaluate(root => {
+      const viewport = root.querySelector('.pv-scroll').getBoundingClientRect();
+      return [...root.querySelectorAll('.pv-digit')].every(digit => {
+        const rect = digit.getBoundingClientRect();
+        return rect.left >= viewport.left && rect.right <= viewport.right;
+      });
+    });
+    assert.equal(mobileChart, true, 'the initial mobile chart must show every occupied digit');
 
     await page.locator('#answer-input').fill('999999');
     await page.locator('#check-button').click();
@@ -187,6 +201,7 @@ test('current-focus miss becomes guided place-value action and later independent
 
     await page.locator('[data-next]').click();
     assert.equal(await page.locator('#question-title').innerText(), 'Guided step');
+    assert.equal(await page.locator('#question-body').innerHTML(), missedPrompt, 'guided help must use the exact item the child missed');
     assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10.*Guided/i);
     assert.equal(await page.locator('#progress-text').innerText(), '1 of 10 complete');
     assert.equal(await page.locator('#session-mode').innerText(), 'Guided step');
@@ -206,6 +221,7 @@ test('current-focus miss becomes guided place-value action and later independent
     await page.locator('#answer-input').fill(guidedAnswer);
     await page.locator('#check-button').click();
     await page.locator('#feedback.good').waitFor();
+    assert.equal(await page.evaluate(() => document.activeElement?.dataset?.next), '', 'feedback should move focus to the Next action');
     assert.match(await page.locator('#feedback').innerText(), /^Exactly\./);
     assert.equal(await page.locator('#progress-text').innerText(), '1 of 10 complete', 'guided work must not inflate independent progress');
 
@@ -230,14 +246,14 @@ test('current-focus miss becomes guided place-value action and later independent
   }
 });
 
-test('iPad keeps the mathematical workspace and scratchwork available without horizontal page overflow', async () => {
+test('iPad keeps the mathematical workspace available while scratchwork stays optional', async () => {
   const seeded = { luke: { diagnostic: true, diagnosticVersion: 2, sessions: 1, attempts: [] } };
   const { context, page, errors } = await openMath(seeded, { width: 1024, height: 1366 }, 0.1);
   try {
     await page.locator('[data-profile="luke"]').click();
     await page.locator('[data-start="practice"]').click();
     assert.equal(await page.locator('#place-value-workspace').isHidden(), false);
-    assert.equal(await page.locator('#scratch-body').isHidden(), false, 'scratchwork should open automatically on wide tablet layouts');
+    assert.equal(await page.locator('#scratch-body').isHidden(), true, 'scratchwork should not steal workspace width until the learner opens it');
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     assert.equal(overflow, false, 'the page itself must not scroll horizontally');
     assert.deepEqual(errors, [], `runtime errors:\n${errors.join('\n')}`);

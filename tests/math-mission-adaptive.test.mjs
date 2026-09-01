@@ -9,7 +9,9 @@ import {
   difficultyForScore,
   microScore,
   microStats,
+  migrateAffectedRechecks,
   nextMicro,
+  pendingRechecks,
   projectedScore
 } from "../math/assets/mission1-adaptive.mjs";
 
@@ -82,4 +84,13 @@ test("only the independently checked diagnostic version is current", () => {
   assert.equal(DIAGNOSTIC_VERSION, 2);
   assert.equal(diagnosticIsCurrent({ diagnostic: true, diagnosticVersion: 1 }), false);
   assert.equal(diagnosticIsCurrent({ diagnostic: true, diagnosticVersion: 2 }), true);
+});
+
+test("the repair migration preserves history and schedules only affected prior work for an independent recheck", () => {
+  const profile = { attempts: [attempt("powers_divide", false), attempt("decimal_add", true)] };
+  assert.equal(migrateAffectedRechecks(profile), true);
+  assert.deepEqual(pendingRechecks(profile), ["powers_divide"]);
+  assert.equal(profile.attempts.length, 2, "repair migration must not erase evidence");
+  assert.equal(nextMicro(profile), "powers_divide");
+  assert.equal(migrateAffectedRechecks(profile), false, "migration is one-time and does not repeatedly reset progress");
 });

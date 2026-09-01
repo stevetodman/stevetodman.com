@@ -57,16 +57,18 @@ export async function startServer() {
  * place means the suites never hardcode an absolute path.
  */
 export async function getChromium() {
-  const candidates = ['playwright', 'playwright-core', '/opt/node22/lib/node_modules/playwright/index.mjs'];
+  const runtimeModules = process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES;
+  const candidates = ['playwright', 'playwright-core', runtimeModules && `${runtimeModules}/playwright/index.js`, '/opt/node22/lib/node_modules/playwright/index.mjs'].filter(Boolean);
   const errors = [];
   for (const spec of candidates) {
     try {
       const mod = await import(spec);
-      if (mod.chromium) {
+      const playwright = mod.chromium ? mod : mod.default;
+      if (playwright?.chromium) {
         const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
-        if (!executablePath) return mod.chromium;
+        if (!executablePath) return playwright.chromium;
         return {
-          launch: options => mod.chromium.launch({
+          launch: options => playwright.chromium.launch({
             ...(options || {}),
             executablePath,
             args: [...(options?.args || []), '--no-sandbox', '--disable-setuid-sandbox'],

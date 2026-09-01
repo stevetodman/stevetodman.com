@@ -28,7 +28,7 @@
         var date=/^\d{4}-\d{2}-\d{2}$/.test(a.date)?a.date:"unknown",at=Number(a.at)||0,id=safeId(a.cloudId);
         if(!id){id=at+"-"+i;a.cloudId=id;changed=true}
         var key=VALID_MICROS.indexOf(a.micro)>=0
-          ?["math1b",a.skill,a.micro,a.correct?1:0,a.assisted?1:0,a.recovery?1:0,Math.max(1,Math.min(3,Number(a.difficulty)||1)),a.transfer?1:0,date,at,id].join("|")
+          ?[a.recheck?"math1c":"math1b",a.skill,a.micro,a.correct?1:0,a.assisted?1:0,a.recovery?1:0,Math.max(1,Math.min(3,Number(a.difficulty)||1)),a.transfer?1:0,a.recheck?1:0,date,at,id].filter(function(part,index){return a.recheck||index!==8}).join("|")
           :["math1a",a.skill,a.correct?1:0,a.transfer?1:0,date,at,id].join("|");
         stats[key]={streak:1,correct:a.correct?1:0,wrong:a.correct?0:1,mastered:true};
       });
@@ -56,6 +56,9 @@
         }else if(parts[0]==="math1b"&&parts.length===11&&VALID_SKILLS.indexOf(parts[1])>=0&&VALID_MICROS.indexOf(parts[2])>=0&&st.mastered){
           var id=safeId(parts[10]);if(!id||seen.has(id))return;seen.add(id);
           p.attempts.push({skill:parts[1],micro:parts[2],correct:parts[3]==="1",assisted:parts[4]==="1",recovery:parts[5]==="1",difficulty:Math.max(1,Math.min(3,Number(parts[6])||1)),transfer:parts[7]==="1",date:/^\d{4}-\d{2}-\d{2}$/.test(parts[8])?parts[8]:"unknown",at:Number(parts[9])||0,cloudId:id});
+        }else if(parts[0]==="math1c"&&parts.length===12&&VALID_SKILLS.indexOf(parts[1])>=0&&VALID_MICROS.indexOf(parts[2])>=0&&st.mastered){
+          var recheckId=safeId(parts[11]);if(!recheckId||seen.has(recheckId))return;seen.add(recheckId);
+          p.attempts.push({skill:parts[1],micro:parts[2],correct:parts[3]==="1",assisted:parts[4]==="1",recovery:parts[5]==="1",difficulty:Math.max(1,Math.min(3,Number(parts[6])||1)),transfer:parts[7]==="1",recheck:parts[8]==="1",date:/^\d{4}-\d{2}-\d{2}$/.test(parts[9])?parts[9]:"unknown",at:Number(parts[10])||0,cloudId:recheckId});
         }
       });
       p.attempts.sort(function(a,b){return (Number(a.at)||0)-(Number(b.at)||0)});local[name]=p;

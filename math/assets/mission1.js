@@ -1,8 +1,8 @@
 import { MICRO_SKILLS, diagnostic, isCorrectAnswer } from "./mission1-content.mjs?v=20260831-weekly3";
 import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260901-child-ux1";
-import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, diagnosticIsCurrent, difficultyForScore, microScore, nextMicro, projectedScore } from "./mission1-adaptive.mjs?v=20260831-focus1";
-import { createScratchpad } from "./mission1-scratch.mjs?v=20260831-weekly3";
-import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901-child-ux1";
+import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, diagnosticIsCurrent, difficultyForScore, microScore, migrateAffectedRechecks, nextMicro, pendingRechecks, projectedScore } from "./mission1-adaptive.mjs?v=20260901-mastery1";
+import { createScratchpad } from "./mission1-scratch.mjs?v=20260901-mastery1";
+import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901-mastery1";
 
 "use strict";
 (() => {
@@ -11,13 +11,19 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
   const today = () => new Date().toISOString().slice(0, 10);
-  const emptyProfile = () => ({ diagnostic: false, diagnosticVersion: 0, attempts: [], sessions: 0 });
+  const emptyProfile = () => ({ diagnostic: false, diagnosticVersion: 0, attempts: [], sessions: 0, recheckVersion: 1, rechecks: {} });
   function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } }
   function save(data) { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch {} }
   function pdata() { const all = load(); return all[state.profile] || emptyProfile(); }
   function update(fn) { const all = load(), profile = all[state.profile] || emptyProfile(); profile.attempts = Array.isArray(profile.attempts) ? profile.attempts : []; fn(profile); all[state.profile] = profile; save(all); }
+  function profileWithRepairs() { let profile; update(next => { migrateAffectedRechecks(next); profile = next; }); return profile; }
   function profileName() { return state.profile === "luke" ? "Luke" : "Samantha"; }
-  function show(id) { $$(".screen").forEach(screen => screen.classList.toggle("active", screen.id === id)); scrollTo({ top: 0, behavior: "smooth" }); }
+  function show(id) {
+    $$(".screen").forEach(screen => screen.classList.toggle("active", screen.id === id));
+    scrollTo({ top: 0, behavior: "smooth" });
+    const heading = document.querySelector(`#${id} h1, #${id} h2`);
+    if (heading) { heading.tabIndex = -1; requestAnimationFrame(() => heading.focus({ preventScroll: true })); }
+  }
   function currentQuestion() { return state.queue[state.index]; }
 
   const scratchpad = createScratchpad({ panel: $("#scratch-panel"), body: $("#scratch-body"), toggle: $("#scratch-toggle"), canvas: $("#scratch-canvas"), clear: $("#scratch-clear"), undo: $("#scratch-undo"), guide: $("#scratch-guide") });
@@ -44,7 +50,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
   }
 
   function dashboard() {
-    const profile = pdata(), name = profileName(), current = diagnosticIsCurrent(profile), card = $("#primary-card");
+    const profile = profileWithRepairs(), name = profileName(), current = diagnosticIsCurrent(profile), card = $("#primary-card");
     $("#learner-pill").textContent = name;
     $("#hello").textContent = `Ready, ${name}?`;
     if (!current) {
@@ -73,11 +79,11 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
   }
 
   function nextAdaptiveQuestion() {
-    const profile = pdata();
+    const profile = profileWithRepairs();
     if (state.immediateScaffold) {
-      const micro = state.immediateScaffold;
+      const missed = state.immediateScaffold;
       state.immediateScaffold = null;
-      return generateCurrentWeekQuestion(micro, Math.max(1, difficultyForScore(microScore(profile, micro)) - 1), Math.random, { assisted: true });
+      return { ...missed, assisted: true, recovery: false, transfer: false, recheck: false, scaffoldText: "" };
     }
     const ready = state.recoveries.findIndex(item => item.delay <= 0);
     if (ready >= 0) {
@@ -87,7 +93,8 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
     state.recoveries.forEach(item => { item.delay -= 1; });
     const avoid = [...state.recentMicros.slice(-2), ...state.recoveries.map(item => item.micro)];
     const micro = nextMicro(profile, { avoid });
-    return generateCurrentWeekQuestion(micro, difficultyForScore(microScore(profile, micro)));
+    const recheck = pendingRechecks(profile).includes(micro);
+    return { ...generateCurrentWeekQuestion(micro, difficultyForScore(microScore(profile, micro))), recheck };
   }
 
   function renderQuestion() {
@@ -96,7 +103,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
     state.answered = false;
     state.recentMicros.push(question.micro);
 
-    const stateLabel = question.assisted ? " · Guided" : question.recovery ? " · Try again" : "";
+    const stateLabel = question.assisted ? " · Guided" : question.recovery ? " · Try again" : question.recheck ? " · Check again" : "";
     $("#skill-tag").textContent = `${MICRO_SKILLS[question.micro].name}${stateLabel}`;
     $("#question-title").textContent = state.mode === "diagnostic"
       ? `Question ${state.index + 1} of ${state.queue.length}`
@@ -104,6 +111,8 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
         ? "Guided step"
         : question.recovery
           ? "Try it again"
+          : question.recheck
+            ? "Check it again"
           : `Question ${Math.min(state.independentCount + 1, PRACTICE_TARGET)}`;
     $("#question-body").innerHTML = question.prompt;
 
@@ -116,7 +125,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
     const guidedWorkspace = !!question.assisted && workspaceOwnsScaffold;
     area.innerHTML = question.options
       ? `<div class="choice-grid">${question.options.map(option => `<button class="choice" type="button" data-value="${option}">${option}</button>`).join("")}</div>`
-      : `<label class="answer-label" for="answer-input">Your answer</label><input id="answer-input" class="answer-input" inputmode="${keyboard}" enterkeyhint="done" autocomplete="off" placeholder="${question.placeholder}" ${guidedWorkspace ? "disabled" : ""}>`;
+      : `<label id="answer-label" class="answer-label" for="answer-input">${guidedWorkspace ? "Move the digits first, then type the answer" : "Your answer"}</label><input id="answer-input" class="answer-input" inputmode="${keyboard}" enterkeyhint="done" autocomplete="off" placeholder="${question.placeholder}" ${guidedWorkspace ? "disabled aria-describedby=\"guided-answer-help\"" : ""}>${guidedWorkspace ? '<span id="guided-answer-help" class="sr-only">Use the place-value chart. The answer box will unlock after every digit is in the correct place.</span>' : ""}`;
 
     $("#check-button").disabled = guidedWorkspace;
     $("#answer-form").classList.toggle("guided-locked", guidedWorkspace);
@@ -143,7 +152,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
         ? `${completed} of ${count} complete`
         : `${Math.min(completed + 1, count)} of ${count}`;
     $("#progress-text").textContent = display;
-    $("#session-mode").textContent = state.mode === "diagnostic" ? "Starting check" : question?.assisted ? "Guided step" : question?.recovery ? "Independent retry" : "Independent";
+    $("#session-mode").textContent = state.mode === "diagnostic" ? "Starting check" : question?.assisted ? "Guided step" : question?.recovery ? "Independent retry" : question?.recheck ? "Independent recheck" : "Independent";
     $("#progress-fill").style.width = `${Math.round((completed / count) * 100)}%`;
   }
 
@@ -155,9 +164,12 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
     if (!raw) { announce("Choose or enter an answer first.", "bad"); return; }
 
     const correct = isCorrectAnswer(raw, question), at = Date.now();
-    const attempt = { skill: question.skill, micro: question.micro, correct, assisted: question.assisted, recovery: question.recovery, difficulty: question.difficulty, transfer: question.transfer, date: today(), at, cloudId: `${at.toString(36)}-${Math.random().toString(36).slice(2, 8)}` };
+    const attempt = { skill: question.skill, micro: question.micro, correct, assisted: question.assisted, recovery: question.recovery, recheck: !!question.recheck, difficulty: question.difficulty, transfer: question.transfer, date: today(), at, cloudId: `${at.toString(36)}-${Math.random().toString(36).slice(2, 8)}` };
     const score = projectedScore(pdata(), attempt);
-    update(profile => profile.attempts.push(attempt));
+    update(profile => {
+      profile.attempts.push(attempt);
+      if (attempt.recheck && !attempt.assisted) delete profile.rechecks?.[attempt.micro];
+    });
     state.results.push({ ...attempt, before: score.before, after: score.after });
 
     if (!question.assisted) {
@@ -165,7 +177,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
       if (correct) state.correct += 1;
     }
     if (state.mode === "practice" && !correct && !question.assisted) {
-      state.immediateScaffold = question.micro;
+      state.immediateScaffold = question;
       if (!state.recoveries.some(item => item.micro === question.micro)) state.recoveries.push({ micro: question.micro, delay: 1 });
     }
     state.answered = true;
@@ -194,6 +206,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
     feedback.innerHTML = html;
     feedback.className = `feedback ${kind}`;
     feedback.hidden = false;
+    feedback.querySelector("[data-next]")?.focus({ preventScroll: true });
   }
 
   function shouldFinishPractice() {
@@ -254,7 +267,9 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
     const action = event.target.closest("[data-action]")?.dataset.action;
     if (action === "switch") picker();
     if (action === "dashboard") dashboard();
-    if (action === "quit" && confirm("Exit this mission? Completed answers are still saved.")) dashboard();
+    if (action === "quit") $("#exit-dialog").showModal();
+    if (action === "stay") $("#exit-dialog").close();
+    if (action === "confirm-exit") { $("#exit-dialog").close(); dashboard(); }
   });
 
   window.addEventListener("mathmission:cloud-updated", () => {

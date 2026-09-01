@@ -1,6 +1,7 @@
 import { DOMAIN_MICROS } from "./mission1-content.mjs";
 
 export const DIAGNOSTIC_VERSION = 2;
+export const RECHECK_VERSION = 1;
 export const PRACTICE_TARGET = 10;
 export const PRACTICE_MAX = 12;
 export const CURRENT_WEEK_MICROS = ["powers_multiply", "powers_divide"];
@@ -36,8 +37,26 @@ export function domainStats(profile, skill) {
   return { score: Math.round(stats.reduce((sum, item) => sum + item.score, 0) / stats.length), mastered: stats.filter(item => item.mastered).length, total: stats.length };
 }
 
+export function migrateAffectedRechecks(profile) {
+  if (!profile || Number(profile.recheckVersion) >= RECHECK_VERSION) return false;
+  profile.rechecks = profile.rechecks && typeof profile.rechecks === "object" ? profile.rechecks : {};
+  for (const micro of CURRENT_WEEK_MICROS) {
+    const attempts = (profile.attempts || []).filter(attempt => attempt.micro === micro);
+    const hasCompletedRecheck = attempts.some(attempt => attempt.recheck && !attempt.assisted);
+    if (attempts.length && !hasCompletedRecheck) profile.rechecks[micro] = { version: RECHECK_VERSION, status: "pending" };
+  }
+  profile.recheckVersion = RECHECK_VERSION;
+  return true;
+}
+
+export function pendingRechecks(profile) {
+  return CURRENT_WEEK_MICROS.filter(micro => profile?.rechecks?.[micro]?.status === "pending");
+}
+
 export function nextMicro(profile, options = {}) {
   const avoid = new Set(options.avoid || []);
+  const rechecks = pendingRechecks(profile).filter(micro => !avoid.has(micro));
+  if (rechecks.length) return rechecks.sort((a, b) => microScore(profile, a) - microScore(profile, b))[0];
   const currentNeedsWork = CURRENT_WEEK_MICROS.some(micro => microScore(profile, micro) < 75);
   const urgentReview = REVIEW_MICROS.filter(micro => microScore(profile, micro) < 25);
   const ordinaryReview = REVIEW_MICROS.filter(micro => microScore(profile, micro) < 55);

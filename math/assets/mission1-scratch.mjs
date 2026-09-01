@@ -58,5 +58,5 @@ export function createScratchpad({ panel, body, toggle, canvas, clear, undo, gui
   if ("ResizeObserver" in window) new ResizeObserver(sizeCanvas).observe(canvas);
   else window.addEventListener("resize", sizeCanvas);
 
-  return { setQuestion(question) { strokes = []; guideType = question.scratch || "grid"; guide.textContent = GUIDE_LABELS[guideType] || "Scratchwork"; panel.dataset.guide = guideType; setOpen(window.matchMedia("(min-width: 800px)").matches); }, clear() { strokes = []; draw(); } };
+  return { setQuestion(question) { strokes = []; guideType = question.scratch || "grid"; guide.textContent = GUIDE_LABELS[guideType] || "Scratchwork"; panel.dataset.guide = guideType; setOpen(false); }, clear() { strokes = []; draw(); } };
 }

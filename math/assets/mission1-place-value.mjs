@@ -43,6 +43,16 @@ export function expectedPlaceValueDelta(workspace) {
   return workspace.operation === "multiply" ? workspace.shift : -workspace.shift;
 }
 
+// Keep the chart small enough to read before asking a child to scroll. Two
+// nearby empty places on either side leave room for a move without rendering a
+// permanently wide ten-column worksheet.
+export function visiblePlaceValueColumns(tokens, padding = 2) {
+  const exponents = tokens.map(token => token.exponent);
+  const highest = Math.min(MAX_EXPONENT, Math.max(...exponents) + padding);
+  const lowest = Math.max(MIN_EXPONENT, Math.min(...exponents) - padding);
+  return PLACE_VALUE_COLUMNS.filter(column => column.exponent <= highest && column.exponent >= lowest);
+}
+
 function directionWord(delta) {
   return delta > 0 ? "left" : "right";
 }
@@ -70,6 +80,7 @@ export function createPlaceValueWorkspace({ root, onGuidedReady = () => {} }) {
     const guided = !!question.assisted;
     const expected = expectedPlaceValueDelta(workspace);
     const shifted = shiftPlaceValueTokens(baseTokens, delta);
+    const columns = visiblePlaceValueColumns([...baseTokens, ...shifted]);
     const correctPosition = delta === expected;
     const locked = guided && correctPosition;
     const canLeft = !locked && shifted.every(token => token.exponent < MAX_EXPONENT);
@@ -89,11 +100,11 @@ export function createPlaceValueWorkspace({ root, onGuidedReady = () => {} }) {
       <p class="pv-instruction">${guided
         ? `Move every digit one place at a time. The decimal point stays fixed.`
         : `Move the digits to reason about place value. The decimal point never moves.`}</p>
-      <div class="pv-scroll" tabindex="0" aria-label="Place-value chart. Scroll horizontally if needed.">
-        <div class="pv-grid">
-          ${PLACE_VALUE_COLUMNS.map(column => `
+      <div class="pv-scroll" tabindex="0" aria-label="Place-value chart. Swipe horizontally if more columns are available.">
+        <div class="pv-grid" style="--pv-columns:${columns.map(column => column.exponent === 0 ? "minmax(var(--pv-column-min), 1fr) var(--pv-decimal-width)" : "minmax(var(--pv-column-min), 1fr)").join(" ")}">
+          ${columns.map(column => `
             <div class="pv-column" role="group" data-exponent="${column.exponent}" aria-label="${column.label}">
-              <span class="pv-label"><span class="pv-label-full">${column.label}</span><span class="pv-label-short">${column.short}</span></span>
+              <span class="pv-label">${column.label}</span>
               <div class="pv-slot">
                 ${shifted.filter(token => token.exponent === column.exponent).map(token => `<span class="pv-digit">${token.digit}</span>`).join("")}
               </div>
@@ -102,6 +113,7 @@ export function createPlaceValueWorkspace({ root, onGuidedReady = () => {} }) {
           `).join("")}
         </div>
       </div>
+      <p class="pv-scroll-hint" hidden>Swipe the chart to see the remaining columns.</p>
       <div class="pv-controls" aria-label="Move all digits one place">
         <button type="button" data-pv-shift="left" ${canLeft ? "" : "disabled"}>← Shift left</button>
         <button type="button" data-pv-reset ${delta === 0 || locked ? "disabled" : ""}>Reset</button>
@@ -117,6 +129,17 @@ export function createPlaceValueWorkspace({ root, onGuidedReady = () => {} }) {
               : `Each tap moves every digit exactly one place.`}
       </div>
     `;
+
+    requestAnimationFrame(() => {
+      const scroll = root.querySelector(".pv-scroll");
+      const digits = [...root.querySelectorAll(".pv-digit")];
+      if (!scroll || !digits.length) return;
+      const first = Math.min(...digits.map(digit => digit.offsetLeft));
+      const last = Math.max(...digits.map(digit => digit.offsetLeft + digit.offsetWidth));
+      scroll.scrollLeft = Math.max(0, Math.round((first + last) / 2 - scroll.clientWidth / 2));
+      const hint = root.querySelector(".pv-scroll-hint");
+      if (hint) hint.hidden = scroll.scrollWidth <= scroll.clientWidth + 1;
+    });
 
     if (guided && correctPosition && !ready) {
       ready = true;

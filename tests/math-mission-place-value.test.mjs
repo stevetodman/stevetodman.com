@@ -5,7 +5,8 @@ import {
   PLACE_VALUE_COLUMNS,
   expectedPlaceValueDelta,
   placeValueTokensFor,
-  shiftPlaceValueTokens
+  shiftPlaceValueTokens,
+  visiblePlaceValueColumns
 } from "../math/assets/mission1-place-value.mjs";
 
 test("place-value tokens map digits to their actual base-ten units", () => {
@@ -46,4 +47,10 @@ test("powers-of-ten operations require the correct direction and number of shift
   assert.equal(expectedPlaceValueDelta({ operation: "multiply", shift: 3 }), 3);
   assert.equal(expectedPlaceValueDelta({ operation: "divide", shift: 1 }), -1);
   assert.equal(expectedPlaceValueDelta({ operation: "divide", shift: 3 }), -3);
+});
+
+test("the chart keeps the occupied digits and nearby move space, rather than a fixed ten-column strip", () => {
+  const columns = visiblePlaceValueColumns(placeValueTokensFor(46.76));
+  assert.deepEqual(columns.map(column => column.exponent), [3, 2, 1, 0, -1, -2, -3]);
+  assert.ok(columns.every(column => /[A-Z]/.test(column.label)), "every visible label uses a readable word, not a lowercase abbreviation");
 });

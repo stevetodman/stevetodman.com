@@ -43,16 +43,22 @@ test("the learning screen has explicit independent progress and an interactive f
   assert.match(workspace, /data-pv-shift="left"/);
   assert.match(workspace, /data-pv-shift="right"/);
   assert.match(workspace, /decimal point stays fixed/i);
+  assert.match(workspace, /visiblePlaceValueColumns/);
+  assert.match(workspace, /Swipe the chart/);
   assert.match(css, /\.progress-track/);
   assert.match(css, /\.place-value-workspace/);
   assert.match(css, /position:sticky/);
+  assert.match(css, /grid-template-columns:var\(--pv-columns\)/);
 });
 
 test("wrong-answer UX does not immediately reveal the answer for current powers-of-ten practice", async () => {
-  const app = await read("math/assets/mission1.js");
+  const [app, html] = await Promise.all([read("math/assets/mission1.js"), read("math/index.html")]);
   assert.match(app, /Show me with the place-value chart/);
   assert.match(app, /Check what happens to each digit’s value/);
   assert.match(app, /question\.workspace\?\.type === "place-value"/);
+  assert.match(app, /state\.immediateScaffold = question/);
+  assert.doesNotMatch(app, /confirm\("Exit this mission/);
+  assert.match(html, /id="exit-dialog"/);
 });
 
 test("scratchwork supports pointer input, Apple Pencil semantics, undo, clear, and responsive guides", async () => {

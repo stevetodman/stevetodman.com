@@ -7,9 +7,9 @@
   <title>Math Mission — Luke & Samantha</title>
   <meta name="description" content="Short, adaptive Grade 5 practice for Eureka Math Module 1: Place Value and Decimal Fractions.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/mission1.css?v=20260901-child-ux1">
-  <script src="assets/mission1.js?v=20260901-child-ux1" type="module"></script>
-  <script src="assets/math-cloud.js?v=20260901-focus1" defer></script>
+  <link rel="stylesheet" href="assets/mission1.css?v=20260901-mastery1">
+  <script src="assets/mission1.js?v=20260901-mastery1" type="module"></script>
+  <script src="assets/math-cloud.js?v=20260901-mastery1" defer></script>
 </head>
 <body>
   <a class="skip" href="#app">Skip to practice</a>
@@ -55,7 +55,7 @@
             <div id="answer-area"></div>
             <button id="check-button" class="primary-button" type="submit">Check answer</button>
           </form>
-          <div id="feedback" class="feedback" aria-live="polite" hidden></div>
+          <div id="feedback" class="feedback" role="status" aria-live="polite" hidden></div>
         </div>
         <section id="scratch-panel" class="scratch-panel" aria-labelledby="scratch-title">
           <div class="scratch-head"><div><strong id="scratch-title">Scratchwork</strong><small id="scratch-guide">Place-value chart</small></div><button id="scratch-toggle" type="button" aria-expanded="false" aria-controls="scratch-body">Open</button></div>
@@ -73,6 +73,11 @@
       <button class="primary-button" data-action="dashboard">Done</button>
     </section>
   </main>
+  <dialog id="exit-dialog" aria-labelledby="exit-title">
+    <h2 id="exit-title">Leave this mission?</h2>
+    <p>Your completed answers are already saved.</p>
+    <div class="dialog-actions"><button type="button" data-action="stay">Keep practicing</button><button type="button" class="primary-button" data-action="confirm-exit">Leave mission</button></div>
+  </dialog>
   <footer>Grade 5 Eureka Math · Module 1: Place Value and Decimal Fractions · <span data-math-cloud-status>Saved on this device</span></footer>
 </body>
 </html>
