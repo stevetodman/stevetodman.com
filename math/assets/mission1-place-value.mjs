@@ -1,4 +1,4 @@
-const COLUMNS = [
+export const PLACE_VALUE_COLUMNS = [
   { exponent: 6, label: "Millions", short: "M" },
   { exponent: 5, label: "Hundred thousands", short: "HTh" },
   { exponent: 4, label: "Ten thousands", short: "TTh" },
@@ -11,8 +11,8 @@ const COLUMNS = [
   { exponent: -3, label: "Thousandths", short: "th" }
 ];
 
-const MIN_EXPONENT = COLUMNS.at(-1).exponent;
-const MAX_EXPONENT = COLUMNS[0].exponent;
+const MIN_EXPONENT = PLACE_VALUE_COLUMNS.at(-1).exponent;
+const MAX_EXPONENT = PLACE_VALUE_COLUMNS[0].exponent;
 
 function plainNumber(value) {
   const number = Number(value);
@@ -20,7 +20,7 @@ function plainNumber(value) {
   return number.toLocaleString("en-US", { useGrouping: false, maximumFractionDigits: 6 });
 }
 
-function tokensFor(value) {
+export function placeValueTokensFor(value) {
   const text = plainNumber(value);
   const [integerRaw, fractionRaw = ""] = text.split(".");
   const integer = integerRaw.replace(/^[-+]/, "");
@@ -35,7 +35,11 @@ function tokensFor(value) {
   return tokens.length ? tokens : [{ digit: "0", exponent: 0 }];
 }
 
-function expectedDelta(workspace) {
+export function shiftPlaceValueTokens(tokens, delta) {
+  return tokens.map(token => ({ ...token, exponent: token.exponent + delta }));
+}
+
+export function expectedPlaceValueDelta(workspace) {
   return workspace.operation === "multiply" ? workspace.shift : -workspace.shift;
 }
 
@@ -64,11 +68,12 @@ export function createPlaceValueWorkspace({ root, onGuidedReady = () => {} }) {
 
     const workspace = question.workspace;
     const guided = !!question.assisted;
-    const expected = expectedDelta(workspace);
-    const shifted = baseTokens.map(token => ({ ...token, exponent: token.exponent + delta }));
-    const canLeft = shifted.every(token => token.exponent < MAX_EXPONENT);
-    const canRight = shifted.every(token => token.exponent > MIN_EXPONENT);
+    const expected = expectedPlaceValueDelta(workspace);
+    const shifted = shiftPlaceValueTokens(baseTokens, delta);
     const correctPosition = delta === expected;
+    const locked = guided && correctPosition;
+    const canLeft = !locked && shifted.every(token => token.exponent < MAX_EXPONENT);
+    const canRight = !locked && shifted.every(token => token.exponent > MIN_EXPONENT);
     const wrongDirection = delta !== 0 && Math.sign(delta) !== Math.sign(expected);
 
     root.hidden = false;
@@ -86,7 +91,7 @@ export function createPlaceValueWorkspace({ root, onGuidedReady = () => {} }) {
         : `Move the digits to reason about place value. The decimal point never moves.`}</p>
       <div class="pv-scroll" tabindex="0" aria-label="Place-value chart. Scroll horizontally if needed.">
         <div class="pv-grid" role="grid" aria-label="Place-value chart">
-          ${COLUMNS.map(column => `
+          ${PLACE_VALUE_COLUMNS.map(column => `
             <div class="pv-column" role="gridcell" data-exponent="${column.exponent}" aria-label="${column.label}">
               <span class="pv-label"><span class="pv-label-full">${column.label}</span><span class="pv-label-short">${column.short}</span></span>
               <div class="pv-slot">
@@ -99,7 +104,7 @@ export function createPlaceValueWorkspace({ root, onGuidedReady = () => {} }) {
       </div>
       <div class="pv-controls" aria-label="Move all digits one place">
         <button type="button" data-pv-shift="left" ${canLeft ? "" : "disabled"}>← Shift left</button>
-        <button type="button" data-pv-reset ${delta === 0 ? "disabled" : ""}>Reset</button>
+        <button type="button" data-pv-reset ${delta === 0 || locked ? "disabled" : ""}>Reset</button>
         <button type="button" data-pv-shift="right" ${canRight ? "" : "disabled"}>Shift right →</button>
       </div>
       <div class="pv-status ${wrongDirection ? "needs-check" : correctPosition && delta !== 0 ? "ready" : ""}" aria-live="polite">
@@ -138,7 +143,7 @@ export function createPlaceValueWorkspace({ root, onGuidedReady = () => {} }) {
   return {
     setQuestion(nextQuestion) {
       question = nextQuestion;
-      baseTokens = nextQuestion?.workspace ? tokensFor(nextQuestion.workspace.value) : [];
+      baseTokens = nextQuestion?.workspace ? placeValueTokensFor(nextQuestion.workspace.value) : [];
       delta = 0;
       ready = false;
       render();
