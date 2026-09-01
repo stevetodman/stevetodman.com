@@ -7,7 +7,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
 "use strict";
 (() => {
   const KEY = "mathmission.m1.v1";
-  const state = { profile: null, mode: null, queue: [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [] };
+  const state = { profile: null, mode: null, queue: [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [], answered: false };
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
   const today = () => new Date().toISOString().slice(0, 10);
@@ -66,7 +66,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
   }
 
   function start(mode) {
-    Object.assign(state, { mode, queue: mode === "diagnostic" ? diagnostic() : [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [] });
+    Object.assign(state, { mode, queue: mode === "diagnostic" ? diagnostic() : [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [], answered: false });
     if (mode === "practice") state.queue.push(nextAdaptiveQuestion());
     show("session");
     renderQuestion();
@@ -93,6 +93,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
   function renderQuestion() {
     const question = currentQuestion();
     state.selected = null;
+    state.answered = false;
     state.recentMicros.push(question.micro);
 
     const stateLabel = question.assisted ? " · Guided" : question.recovery ? " · Try again" : "";
@@ -133,10 +134,12 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
   function renderProgress() {
     const question = currentQuestion();
     const count = state.mode === "diagnostic" ? state.queue.length : PRACTICE_TARGET;
-    const completed = state.mode === "diagnostic" ? state.index : Math.min(state.independentCount, count);
+    const completed = state.mode === "diagnostic"
+      ? Math.min(state.index + (state.answered ? 1 : 0), count)
+      : Math.min(state.independentCount, count);
     const display = state.mode === "diagnostic"
-      ? `${Math.min(state.index + 1, count)} of ${count}`
-      : question?.assisted
+      ? state.answered ? `${completed} of ${count} complete` : `${Math.min(state.index + 1, count)} of ${count}`
+      : question?.assisted || state.answered
         ? `${completed} of ${count} complete`
         : `${Math.min(completed + 1, count)} of ${count}`;
     $("#progress-text").textContent = display;
@@ -165,6 +168,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
       state.immediateScaffold = question.micro;
       if (!state.recoveries.some(item => item.micro === question.micro)) state.recoveries.push({ micro: question.micro, delay: 1 });
     }
+    state.answered = true;
 
     if (correct) {
       const lead = question.assisted ? "Exactly." : question.recovery ? "You got it independently this time." : "Yes.";
