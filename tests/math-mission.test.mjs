@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  CURRENT_WEEK_MICROS,
   MICRO_SKILLS,
   SKILLS,
   diagnostic,
@@ -112,10 +111,10 @@ test("36,000 generated questions have independently verified keys and stay insid
 });
 
 test("Module 1 generators include Eureka-style models and both directions of measurement conversion", () => {
-  assert.deepEqual(CURRENT_WEEK_MICROS, Object.keys(MICRO_SKILLS));
+  const moduleMicros = Object.keys(MICRO_SKILLS);
   let seed = 123;
   const random = () => { seed = (1664525 * seed + 1013904223) >>> 0; return seed / 0x100000000; };
-  const samples = CURRENT_WEEK_MICROS.flatMap(micro => Array.from({ length: 100 }, () => generate(micro, 3, random)));
+  const samples = moduleMicros.flatMap(micro => Array.from({ length: 100 }, () => generate(micro, 3, random)));
   assert.ok(samples.some(question => question.scratch === "numberline"));
   assert.ok(samples.some(question => question.scratch === "tape" && /Use a tape diagram/i.test(question.prompt)));
   assert.ok(samples.some(question => /reasonable product/i.test(question.prompt)));

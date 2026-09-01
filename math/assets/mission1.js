@@ -1,5 +1,6 @@
-import { DOMAIN_MICROS, MICRO_SKILLS, SKILLS, diagnostic, generate, isCorrectAnswer } from "./mission1-content.mjs?v=20260831-weekly3";
-import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, diagnosticIsCurrent, difficultyForScore, domainStats, microScore, microStats, nextMicro, projectedScore } from "./mission1-adaptive.mjs?v=20260831-weekly3";
+import { DOMAIN_MICROS, MICRO_SKILLS, SKILLS, diagnostic, isCorrectAnswer } from "./mission1-content.mjs?v=20260831-weekly3";
+import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260831-focus1";
+import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, diagnosticIsCurrent, difficultyForScore, domainStats, microScore, microStats, nextMicro, projectedScore } from "./mission1-adaptive.mjs?v=20260831-focus1";
 import { createScratchpad } from "./mission1-scratch.mjs?v=20260831-weekly3";
 
 "use strict";
@@ -31,10 +32,10 @@ import { createScratchpad } from "./mission1-scratch.mjs?v=20260831-weekly3";
   function dashboard() {
     const profile = pdata(), name = profileName(), current = diagnosticIsCurrent(profile), card = $("#primary-card");
     $("#learner-pill").textContent = name; $("#hello").textContent = `Ready, ${name}?`;
-    if (!current) card.innerHTML = `<div class="label">First assignment · about 10 minutes</div><h2>Find your starting point</h2><p>12 independently checked questions measure the specific skills across this week’s Module 1 Lessons 1–16. Practice then targets the weakest skill at the right difficulty.</p><button class="primary-button" data-start="diagnostic">Start diagnostic</button>`;
+    if (!current) card.innerHTML = `<div class="label">First assignment · about 10 minutes</div><h2>Find your starting point</h2><p>12 independently checked questions establish a broad Module 1 baseline. After that, adaptive practice prioritizes the school’s current Lessons 1–2 / 5.NBT.1–2 work.</p><button class="primary-button" data-start="diagnostic">Start diagnostic</button>`;
     else {
       const micro = nextMicro(profile), score = microScore(profile, micro);
-      card.innerHTML = `<div class="label">This week · Lessons 1–16</div><h2>Strengthen ${MICRO_SKILLS[micro].name.toLowerCase()}</h2><p>Starts at level ${difficultyForScore(score)}, changes after every answer, and uses Eureka-style models. A miss schedules a guided try plus a later independent recovery.</p><button class="primary-button" data-start="practice">Start adaptive mission</button>`;
+      card.innerHTML = `<div class="label">Current focus · Lessons 1–2 · 5.NBT.1–2</div><h2>Strengthen ${MICRO_SKILLS[micro].name.toLowerCase()}</h2><p>Practice prioritizes adjacent base-ten relationships and multiplying/dividing by powers of 10. Weak review skills can surface briefly without displacing the current lesson focus.</p><button class="primary-button" data-start="practice">Start adaptive mission</button>`;
     }
     renderSkills(profile); show("dashboard");
   }
@@ -64,17 +65,17 @@ import { createScratchpad } from "./mission1-scratch.mjs?v=20260831-weekly3";
     const profile = pdata();
     if (state.immediateScaffold) {
       const micro = state.immediateScaffold; state.immediateScaffold = null;
-      return generate(micro, Math.max(1, difficultyForScore(microScore(profile, micro)) - 1), Math.random, { assisted: true });
+      return generateCurrentWeekQuestion(micro, Math.max(1, difficultyForScore(microScore(profile, micro)) - 1), Math.random, { assisted: true });
     }
     const ready = state.recoveries.findIndex(item => item.delay <= 0);
     if (ready >= 0) {
       const [{ micro }] = state.recoveries.splice(ready, 1);
-      return generate(micro, difficultyForScore(microScore(profile, micro)), Math.random, { recovery: true });
+      return generateCurrentWeekQuestion(micro, difficultyForScore(microScore(profile, micro)), Math.random, { recovery: true });
     }
     state.recoveries.forEach(item => { item.delay -= 1; });
     const avoid = [...state.recentMicros.slice(-2), ...state.recoveries.map(item => item.micro)];
     const micro = nextMicro(profile, { avoid });
-    return generate(micro, difficultyForScore(microScore(profile, micro)));
+    return generateCurrentWeekQuestion(micro, difficultyForScore(microScore(profile, micro)));
   }
 
   function renderQuestion() {

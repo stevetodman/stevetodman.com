@@ -5,11 +5,16 @@ import test from "node:test";
 const root = new URL("../", import.meta.url);
 const read = path => readFile(new URL(path, root), "utf8");
 
-test("Math Mission names the actual Module 1 scope without claiming an unverified weekly pace", async () => {
-  const html = await read("math/index.html");
+test("Math Mission separates the broad Module 1 baseline from the verified current weekly focus", async () => {
+  const [html, app, weekly] = await Promise.all([read("math/index.html"), read("math/assets/mission1.js"), read("math/CURRENT_WEEK.md")]);
   assert.match(html, /Module 1 · Place Value & Decimal Fractions/);
-  assert.match(html, /Focused on Module 1 Lessons 1–16/);
-  assert.doesNotMatch(html, /this week/i);
+  assert.match(html, /Current focus: Lessons 1–2 \/ 5\.NBT\.1–2/);
+  assert.doesNotMatch(html, /Focused on Module 1 Lessons 1–16/);
+  assert.match(app, /broad Module 1 baseline/);
+  assert.match(app, /Current focus · Lessons 1–2 · 5\.NBT\.1–2/);
+  assert.doesNotMatch(app, /This week · Lessons 1–16/);
+  assert.match(weekly, /Adaptive practice should prioritize Lessons 1–2 \/ 5\.NBT\.1–2 first/);
+  assert.match(weekly, /Do not describe all Lessons 1–16 as "this week\."/);
 });
 
 test("scratchwork supports pointer input, Apple Pencil semantics, undo, clear, and responsive guides", async () => {

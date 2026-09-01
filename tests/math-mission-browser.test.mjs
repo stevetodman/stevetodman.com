@@ -33,6 +33,38 @@ async function canvasSnapshot(page) {
   return page.locator('#scratch-canvas').evaluate(canvas => canvas.toDataURL());
 }
 
+async function drawPenStroke(page) {
+  await page.locator('#scratch-canvas').evaluate(canvas => {
+    const rect = canvas.getBoundingClientRect();
+    const points = [
+      [rect.left + rect.width * 0.25, rect.top + rect.height * 0.30],
+      [rect.left + rect.width * 0.40, rect.top + rect.height * 0.42],
+      [rect.left + rect.width * 0.55, rect.top + rect.height * 0.54],
+      [rect.left + rect.width * 0.70, rect.top + rect.height * 0.66]
+    ];
+    const originalCapture = canvas.setPointerCapture;
+    canvas.setPointerCapture = () => {};
+    try {
+      const emit = (type, [clientX, clientY]) => canvas.dispatchEvent(new PointerEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 17,
+        pointerType: 'pen',
+        button: 0,
+        buttons: type === 'pointerup' ? 0 : 1,
+        clientX,
+        clientY
+      }));
+      emit('pointerdown', points[0]);
+      emit('pointermove', points[1]);
+      emit('pointermove', points[2]);
+      emit('pointerup', points[3]);
+    } finally {
+      canvas.setPointerCapture = originalCapture;
+    }
+  });
+}
+
 test('diagnostic answer persists, feedback renders, scratchwork works, and the session advances', async () => {
   const { context, page, errors } = await openMath();
   try {
@@ -50,10 +82,7 @@ test('diagnostic answer persists, feedback renders, scratchwork works, and the s
     assert.ok(box && box.width > 0 && box.height > 0, 'scratch canvas should be visible and sized');
 
     const beforeStroke = await canvasSnapshot(page);
-    await page.mouse.move(box.x + box.width * 0.3, box.y + box.height * 0.35);
-    await page.mouse.down();
-    await page.mouse.move(box.x + box.width * 0.7, box.y + box.height * 0.65, { steps: 8 });
-    await page.mouse.up();
+    await drawPenStroke(page);
     const afterStroke = await canvasSnapshot(page);
     assert.notEqual(afterStroke, beforeStroke, 'pointer input should visibly change the scratch canvas');
 
@@ -83,15 +112,15 @@ test('diagnostic answer persists, feedback renders, scratchwork works, and the s
   }
 });
 
-test('an adaptive-practice miss immediately schedules a guided retry of the same micro-skill', async () => {
+test('a current-focus miss immediately schedules a guided retry of the same powers-of-ten micro-skill', async () => {
   const seeded = {
     luke: {
       diagnostic: true,
       diagnosticVersion: 2,
       sessions: 1,
       attempts: [{
-        skill: 'addsub',
-        micro: 'decimal_add',
+        skill: 'place',
+        micro: 'powers_divide',
         correct: false,
         assisted: false,
         recovery: false,
@@ -99,18 +128,18 @@ test('an adaptive-practice miss immediately schedules a guided retry of the same
         transfer: false,
         date: '2026-08-31',
         at: 1788137000000,
-        cloudId: 'seed-decimal-add-miss'
+        cloudId: 'seed-powers-divide-miss'
       }]
     }
   };
   const { context, page, errors } = await openMath(seeded);
   try {
     await page.locator('[data-profile="luke"]').click();
-    assert.match(await page.locator('#primary-card').innerText(), /Strengthen add decimals/i);
-    assert.match(await page.locator('#primary-card').innerText(), /Starts at level 1/i);
+    assert.match(await page.locator('#primary-card').innerText(), /Current focus.*Lessons 1–2.*5\.NBT\.1–2/is);
+    assert.match(await page.locator('#primary-card').innerText(), /Strengthen divide by powers of 10/i);
     await page.locator('[data-start="practice"]').click();
 
-    assert.match(await page.locator('#skill-tag').innerText(), /Add decimals/i);
+    assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10/i);
     await page.locator('#answer-input').fill('999999');
     await page.locator('#check-button').click();
     await page.locator('#feedback.bad').waitFor();
@@ -119,16 +148,18 @@ test('an adaptive-practice miss immediately schedules a guided retry of the same
 
     const attempts = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts);
     assert.equal(attempts.length, 2);
-    assert.equal(attempts[1].micro, 'decimal_add');
+    assert.equal(attempts[1].micro, 'powers_divide');
     assert.equal(attempts[1].correct, false);
     assert.equal(attempts[1].assisted, false);
 
     await page.locator('[data-next]').click();
     assert.equal(await page.locator('#question-title').innerText(), 'Guided try');
-    assert.match(await page.locator('#skill-tag').innerText(), /Add decimals.*Guided/i);
+    assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10.*Guided/i);
     assert.equal(await page.locator('#scaffold-note').isHidden(), false);
-    assert.match(await page.locator('#scaffold-note').innerText(), /like place-value units/i);
-    assert.doesNotMatch(await page.locator('#scaffold-note').innerText(), /line up (?:the )?decimals/i);
+    const scaffold = await page.locator('#scaffold-note').innerText();
+    assert.match(scaffold, /place-value chart/i);
+    assert.match(scaffold, /1\/10.*as large/i);
+    assert.match(scaffold, /shift.*right/i);
     assert.deepEqual(errors, [], `runtime errors:\n${errors.join('\n')}`);
   } finally {
     await context.close();

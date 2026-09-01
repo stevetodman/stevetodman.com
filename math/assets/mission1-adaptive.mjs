@@ -1,8 +1,10 @@
-import { CURRENT_WEEK_MICROS, DOMAIN_MICROS, MICRO_SKILLS, PREREQUISITE_MICROS } from "./mission1-content.mjs";
+import { DOMAIN_MICROS } from "./mission1-content.mjs";
 
 export const DIAGNOSTIC_VERSION = 2;
 export const PRACTICE_TARGET = 10;
 export const PRACTICE_MAX = 12;
+export const CURRENT_WEEK_MICROS = ["powers_multiply", "powers_divide"];
+export const REVIEW_MICROS = ["metric_conversion", "decimal_forms", "decimal_compare"];
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const relevantAttempts = (profile, micro) => (profile?.attempts || []).filter(attempt => attempt.micro === micro).sort((a, b) => (Number(a.at) || 0) - (Number(b.at) || 0)).slice(-12);
 
@@ -36,14 +38,20 @@ export function domainStats(profile, skill) {
 
 export function nextMicro(profile, options = {}) {
   const avoid = new Set(options.avoid || []);
-  const urgentPrerequisites = PREREQUISITE_MICROS.filter(micro => microScore(profile, micro) < 40);
-  const pool = urgentPrerequisites.length ? urgentPrerequisites : CURRENT_WEEK_MICROS;
-  const candidates = pool.map((micro, order) => {
+  const currentNeedsWork = CURRENT_WEEK_MICROS.some(micro => microScore(profile, micro) < 75);
+  const urgentReview = REVIEW_MICROS.filter(micro => microScore(profile, micro) < 25);
+  const ordinaryReview = REVIEW_MICROS.filter(micro => microScore(profile, micro) < 55);
+  const pool = currentNeedsWork
+    ? [...CURRENT_WEEK_MICROS, ...urgentReview]
+    : [...CURRENT_WEEK_MICROS, ...ordinaryReview];
+  const uniquePool = [...new Set(pool)];
+  const candidates = uniquePool.map((micro, order) => {
     const stats = microStats(profile, micro);
     const latest = relevantAttempts(profile, micro).at(-1)?.at || 0;
-    return { micro, score: stats.score, attempts: stats.attempts, latest, avoided: avoid.has(micro) ? 1 : 0, order };
+    const isCurrent = CURRENT_WEEK_MICROS.includes(micro);
+    return { micro, score: stats.score, attempts: stats.attempts, latest, avoided: avoid.has(micro) ? 1 : 0, isCurrent: isCurrent ? 0 : 1, order };
   });
-  candidates.sort((a, b) => a.avoided - b.avoided || a.score - b.score || a.attempts - b.attempts || a.latest - b.latest || a.order - b.order);
+  candidates.sort((a, b) => a.avoided - b.avoided || a.score - b.score || a.isCurrent - b.isCurrent || a.attempts - b.attempts || a.latest - b.latest || a.order - b.order);
   return candidates[0].micro;
 }
 
