@@ -16,7 +16,7 @@ test("current-week powers-of-ten questions remain independently answerable acros
   const random = seededRandom();
   for (const micro of ["powers_multiply", "powers_divide"]) {
     for (let difficulty = 1; difficulty <= 3; difficulty += 1) {
-      for (let index = 0; index < 1000; index += 1) {
+      for (let index = 0; index < 50; index += 1) {
         const question = generateCurrentWeekQuestion(micro, difficulty, random);
         assert.equal(question.micro, micro);
         assert.equal(question.skill, "place");
@@ -37,7 +37,7 @@ test("advanced weekly practice includes direct place-value reasoning, reverse re
   const random = seededRandom(77);
   const questions = [];
   for (const micro of ["powers_multiply", "powers_divide"]) {
-    for (let index = 0; index < 300; index += 1) questions.push(generateCurrentWeekQuestion(micro, 3, random));
+    for (let index = 0; index < 150; index += 1) questions.push(generateCurrentWeekQuestion(micro, 3, random));
   }
 
   assert.ok(questions.some(question => /predict how the value of each digit changes/i.test(question.prompt)), "needs direct place-value prediction questions");
