@@ -1,9 +1,9 @@
 # stevetodman.com Platform Master Plan
 
-Status: REPOSITORY PLATFORM HEALTHY — external/live evidence gaps remain
+Status: REPOSITORY PLATFORM HEALTHY — StudyHub live acceptance and clinical review evidence remain
 Owner: Steve Todman
 Created: 2026-08-19
-Updated: 2026-08-20
+Updated: 2026-08-31
 
 ## Operating principles
 
@@ -33,8 +33,9 @@ This means the public Pages deployment does **not** need Cloudflare Access for `
 1. Read this file.
 2. Read `CLAUDE.md` and `DEPLOYMENT.md`.
 3. Check active PRs/issues before changing state.
-4. Resume the first unfinished external gate below.
-5. Never infer live completion from repository files alone.
+4. Resume **#39 StudyHub live cloud-save acceptance** unless newer direct evidence changes the order.
+5. Then complete **#42 clinical review evidence**.
+6. Never infer live Supabase/device completion from repository files alone.
 
 ## Repository platform — completed
 
@@ -48,6 +49,8 @@ This means the public Pages deployment does **not** need Cloudflare Access for `
 - [x] No sitemap while direct-link-only policy is active.
 - [x] Custom 404 and `/.well-known/security.txt`.
 - [x] Production verifier checks public routes, noindex/security controls, non-production absence, and custom 404 behavior.
+- [x] Automated production verification runs after pushes to `main` and has repeatedly passed against the live site (#38).
+- [x] Public-search rechecks show no surfaced `stevetodman.com` results under the direct-link-only policy (#40).
 
 ### CI and quality
 
@@ -57,6 +60,9 @@ This means the public Pages deployment does **not** need Cloudflare Access for `
 - [x] All dedicated simulator/calculator/academy suites remain covered.
 - [x] Smoke inventory is checked against the PRODUCTION catalog.
 - [x] Performance, provenance, governance, syntax, and integrity checks remain enforced.
+- [x] Math Mission has a dedicated fast regression gate covering generated-question correctness, adaptivity/mastery, and cloud round trips (#121).
+- [x] Math Mission learner behavior is exercised in Chromium, including diagnostic persistence and miss -> guided retry (#122).
+- [x] Math Mission scratchwork browser coverage asserts rendered pointer drawing, Undo restoration, and Clear behavior (#124).
 
 ### Information architecture
 
@@ -74,14 +80,15 @@ This means the public Pages deployment does **not** need Cloudflare Access for `
 - [x] Curriculum map and correction workflow.
 - [x] Evidence-backed review metadata recorded only where supported.
 - [x] StudyHub map/icon provenance and attribution chain documented.
-- [ ] CHD surgical-atlas creator/source/license/permission remains unresolved (#41).
+- [x] CHD surgical-atlas provenance resolved from project-owner evidence and recorded in PR #73 / issue #41.
 - [ ] Six clinical modules still need real review evidence (#42).
 
 ### StudyHub reproducibility
 
-- [x] Versioned cloud-save migration with RLS/browser-role restrictions.
+- [x] Versioned cloud-save migration with RLS/browser-role restrictions in source.
 - [x] Two-device/offline acceptance checklist.
 - [x] Privacy-safe event vocabulary defined; custom telemetry remains disabled pending an approved endpoint/retention policy.
+- [ ] Live backend administration and real-device acceptance remain unverified (#39).
 
 ## Recent merged checkpoints
 
@@ -92,47 +99,43 @@ This means the public Pages deployment does **not** need Cloudflare Access for `
 - #58 — bounded concurrency inside site smoke.
 - #59 — complete homepage footer/correction routing.
 - #60 — better 404 recovery navigation.
+- #69 — automatic live production verification after pushes to `main`.
+- #73 — CHD atlas provenance resolved from project-owner evidence.
+- #121 — Math Mission dedicated CI plus executable adaptive cloud round-trip coverage.
+- #122 — Math Mission real-browser diagnostic/adaptive learner-flow coverage.
+- #124 — Math Mission rendered scratchwork draw/Undo/Clear regression assertions.
+
+## Completed external/evidence gates
+
+### #38 — Live Pages production-only verification
+
+**Complete.** Automated `npm run verify:production` runs have passed against `https://stevetodman.com`, verifying the live production-only contract. The issue is closed. Keep the automated verifier as a continuing regression gate.
+
+### #40 — Search-engine removal
+
+**Complete under the current direct-link-only policy.** Public-search rechecks found no `stevetodman.com` results surfacing, so there was no remaining surfaced URL requiring accelerated removal. Reopen if search results recur.
+
+### #41 — CHD surgical-atlas provenance
+
+**Complete.** PR #73 recorded project-owner evidence that the surgical illustrations are project-generated, AI-assisted educational assets created specifically for PedCardSurg under Steve Todman's direction, with human selection, clinical review, and project integration documented. Preserve the specific provenance record; do not generalize it to unrelated assets without evidence.
 
 ## Remaining gates — execute in this order
 
-### 1. #38 — Live Pages cutover verification
+### 1. #39 — StudyHub live cloud-save acceptance
 
-Repository code should make the live setup minimal:
+Repository implementation is present; this gate requires live Supabase/edge and real-device evidence.
 
-- [ ] Build command = `npm run build`.
-- [ ] Output directory = `dist`.
-- [ ] Production branch = `main`.
-- [ ] PREVIEW, INTERNAL, and SOURCE_ONLY routes return 404.
-- [ ] Live responses carry version-controlled noindex/security headers.
-- [ ] `robots.txt` permits recrawling for noindex processing.
-- [ ] No sitemap is published.
-- [ ] `npm run verify:production` / Production verification workflow passes against the live site.
+- [ ] Verify/apply the live migration and RLS/browser-role restrictions.
+- [ ] Confirm `public`, `anon`, and `authenticated` have no unintended direct table CRUD access.
+- [ ] Verify the deployed `studyhub-save` Edge Function is the intended application path.
+- [ ] Add/verify rate limiting appropriate for a family game endpoint without CAPTCHA/login friction.
+- [ ] Add/verify error/5xx monitoring.
+- [ ] Run the complete two-device/offline merge acceptance sequence in `study/CLOUD_SAVE_ACCEPTANCE.md`.
+- [ ] Confirm the token fragment is scrubbed after adoption and never paste the family token into public logs/issues.
 
-No Access policy is required for the main Pages deployment because INTERNAL routes are excluded.
+Do not mark this complete from repository evidence alone.
 
-### 2. #40 — Remove existing Google/Bing results
-
-Start only after #38 proves the live noindex response.
-
-- [ ] Use Google Search Console tools as appropriate.
-- [ ] Use Bing Webmaster tools as appropriate.
-- [ ] Recheck public search until site content no longer surfaces.
-- [ ] Keep public crawling enabled while noindex is processed.
-
-### 3. #39 — StudyHub live cloud-save acceptance
-
-- [ ] Apply/verify the live migration and RLS/browser-role restrictions.
-- [ ] Verify the deployed Edge Function is the intended application path.
-- [ ] Add appropriate rate limiting and error monitoring without CAPTCHA/login friction.
-- [ ] Run the complete two-device/offline merge acceptance sequence.
-- [ ] Never paste the family token into public logs/issues.
-
-### 4. #41 — CHD surgical-atlas provenance
-
-- [ ] Recover creator/upstream source and permission/license evidence.
-- [ ] If evidence cannot be established before broader redistribution, replace the images with clearly owned/licensed material.
-
-### 5. #42 — Clinical review evidence
+### 2. #42 — Clinical review evidence
 
 Still unresolved:
 
@@ -143,7 +146,7 @@ Still unresolved:
 - [ ] cardiovascular prevention/dyslipidemia
 - [ ] Myocarditis
 
-Do not use commit dates or passing software tests as clinical sign-off.
+For each module, record a real review date/scope/source set only when supported by durable evidence. If no review evidence exists, perform the appropriate review rather than backdating metadata. Passing software tests or commit dates are not clinical sign-off.
 
 ## Longer-term backlog
 
@@ -155,10 +158,7 @@ Do not use commit dates or passing software tests as clinical sign-off.
 
 ## Definition of done
 
-The repository implementation is healthy. The broader program is complete when:
+The repository implementation and public deployment/search boundary are healthy. The remaining program is complete when:
 
-1. live Pages production-only deployment verification passes;
-2. search-engine results disappear while noindex remains active;
-3. StudyHub live backend/device acceptance passes;
-4. CHD atlas provenance is established or assets are replaced;
-5. all unresolved clinical modules have evidence-backed review records.
+1. StudyHub live backend/device acceptance passes with the intended security and abuse controls; and
+2. all six unresolved clinical modules have evidence-backed review records.
