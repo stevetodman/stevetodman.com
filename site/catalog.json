@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "searchPolicy": "noindex",
-  "updated": "2026-08-30",
+  "updated": "2026-09-01",
   "classes": ["PRODUCTION", "PREVIEW", "INTERNAL", "SOURCE_ONLY", "ARCHIVED"],
   "items": [
     {"id":"home","title":"Steve Todman, MD","route":"/","class":"PRODUCTION","audience":"all","category":"home"},
@@ -14,6 +14,7 @@
     {"id":"tools","title":"Clinical Tools","route":"/tools/","class":"PRODUCTION","audience":"clinicians","category":"clinical-tools"},
     {"id":"bp-calculator","title":"Pediatric BP Percentile Calculator","route":"/tools/bp-percentile-calculator.html","class":"PRODUCTION","audience":"clinicians","category":"clinical-tools"},
     {"id":"bp-validation","title":"BP Calculator Validation","route":"/tools/bp-calculator-validation.html","class":"PRODUCTION","audience":"clinicians","category":"clinical-tools"},
+    {"id":"pediatric-hypertriglyceridemia","title":"Pediatric Hypertriglyceridemia Decision Tool","route":"/tools/pediatric-hypertriglyceridemia.html","class":"PRODUCTION","audience":"clinicians","category":"clinical-tools"},
     {"id":"abpm-preview","title":"Pediatric ABPM Pathway Preview","route":"/tools/pediatric-abpm-pathway-preview.html","class":"PREVIEW","audience":"clinicians","category":"clinical-tools"},
 
     {"id":"phs","title":"Pediatric Hospital Simulator","route":"/phs/","class":"PRODUCTION","audience":"residents","category":"simulation"},

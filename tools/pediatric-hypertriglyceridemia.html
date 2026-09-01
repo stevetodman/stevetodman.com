@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Source-locked visual guideline, calculator, and next-steps tool for pediatric hypertriglyceridemia based on the 2026 American Heart Association scientific statement.">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <title>Pediatric Hypertriglyceridemia | Clinical Decision Tool</title>
+  <style>
+    :root {
+      --bg: #08111f;
+      --panel: #0f1d30;
+      --panel-2: #13263d;
+      --text: #f6f8fb;
+      --muted: #aebbd0;
+      --line: rgba(255,255,255,.12);
+      --accent: #67e8d4;
+      --accent-2: #8bb7ff;
+      --good: #55d68b;
+      --watch: #d8d86c;
+      --caution: #f0aa57;
+      --danger: #ef6e69;
+      --critical: #dc5b8b;
+      --shadow: 0 20px 60px rgba(0,0,0,.24);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 18% -5%, rgba(103,232,212,.13), transparent 28rem),
+        radial-gradient(circle at 90% 12%, rgba(139,183,255,.10), transparent 30rem),
+        var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.45;
+    }
+    a { color: var(--accent); }
+    button, input, select { font: inherit; }
+    button, .tab { touch-action: manipulation; }
+    button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, [role="tab"]:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+    }
+    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 22px 0 72px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 26px; }
+    .back { text-decoration: none; font-weight: 650; color: var(--muted); }
+    .source-chip { border: 1px solid rgba(103,232,212,.35); background: rgba(103,232,212,.08); color: #b9fff3; border-radius: 999px; padding: 7px 11px; font-size: .78rem; font-weight: 800; letter-spacing: .02em; white-space: nowrap; }
+    .hero { display: grid; grid-template-columns: 1.45fr .55fr; gap: 22px; align-items: end; margin-bottom: 26px; }
+    .eyebrow { color: var(--accent); font-weight: 800; font-size: .82rem; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px; }
+    h1 { margin: 0; font-size: clamp(2rem, 5vw, 4.25rem); letter-spacing: -.045em; line-height: .98; max-width: 900px; }
+    .deck { color: var(--muted); max-width: 780px; margin: 16px 0 0; font-size: 1.04rem; }
+    .hero-note { background: linear-gradient(155deg, rgba(103,232,212,.1), rgba(139,183,255,.08)); border: 1px solid var(--line); border-radius: 18px; padding: 17px; color: #dce7f5; font-size: .9rem; }
+    .hero-note strong { display: block; color: #fff; margin-bottom: 5px; }
+
+    .tabs-wrap { position: sticky; top: 0; z-index: 20; padding: 10px 0; margin: 0 0 18px; background: linear-gradient(var(--bg) 70%, transparent); }
+    .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 3px; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { flex: 0 0 auto; border: 1px solid var(--line); color: var(--muted); background: rgba(15,29,48,.86); border-radius: 999px; padding: 10px 15px; cursor: pointer; font-weight: 750; }
+    .tab[aria-selected="true"] { color: #06151a; background: var(--accent); border-color: var(--accent); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin: 22px 0 14px; }
+    h2 { margin: 0; font-size: clamp(1.35rem, 3vw, 2rem); letter-spacing: -.025em; }
+    .section-copy { color: var(--muted); margin: 5px 0 0; max-width: 760px; }
+
+    .risk-rail { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; align-items: stretch; }
+    .band { position: relative; overflow: hidden; border-radius: 18px; border: 1px solid var(--line); background: var(--panel); min-height: 260px; padding: 18px 16px 16px; box-shadow: var(--shadow); }
+    .band::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--band-color); }
+    .band.good { --band-color: var(--good); }
+    .band.watch { --band-color: var(--watch); }
+    .band.caution { --band-color: var(--caution); }
+    .band.danger { --band-color: var(--danger); }
+    .band.critical { --band-color: var(--critical); }
+    .band .num { font-size: 1.22rem; font-weight: 850; margin: 6px 0 2px; }
+    .band .label { color: var(--band-color); font-size: .82rem; font-weight: 850; text-transform: uppercase; letter-spacing: .045em; }
+    .band .goal { margin: 15px 0 12px; padding: 8px 9px; border-radius: 10px; background: rgba(255,255,255,.05); font-size: .82rem; }
+    .band .mini { color: var(--muted); font-size: .82rem; margin-top: 9px; }
+    .band .mini b { color: #fff; }
+    .workflow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .flow-card { border: 1px solid var(--line); background: var(--panel); border-radius: 16px; padding: 17px; }
+    .flow-card .step { color: var(--accent-2); text-transform: uppercase; letter-spacing: .07em; font-weight: 850; font-size: .74rem; }
+    .flow-card h3 { margin: 5px 0 7px; font-size: 1rem; }
+    .flow-card p { color: var(--muted); margin: 0; font-size: .9rem; }
+
+    .calc-layout { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); gap: 18px; align-items: start; }
+    .card { background: rgba(15,29,48,.95); border: 1px solid var(--line); border-radius: 20px; padding: 20px; box-shadow: var(--shadow); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .field { display: grid; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+    label, .label-text { font-size: .82rem; color: #d9e3f1; font-weight: 750; }
+    input[type="number"], select {
+      width: 100%; min-height: 46px; border-radius: 12px; border: 1px solid rgba(255,255,255,.16); background: #0a1727; color: #fff; padding: 10px 12px;
+    }
+    .segmented { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .segmented label { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; background: #0a1727; }
+    .segmented input { accent-color: var(--accent); }
+    .check { display: flex; align-items: flex-start; gap: 10px; color: #d9e3f1; font-size: .88rem; }
+    .check input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); }
+    .helper { color: var(--muted); font-size: .76rem; }
+    .actions { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 16px; }
+    .primary, .secondary { border-radius: 12px; min-height: 45px; padding: 10px 15px; cursor: pointer; font-weight: 850; }
+    .primary { border: 0; background: var(--accent); color: #07151a; }
+    .secondary { border: 1px solid var(--line); background: transparent; color: #eaf0f8; }
+    .result-empty { display: grid; min-height: 370px; place-items: center; text-align: center; color: var(--muted); border: 1px dashed rgba(255,255,255,.18); border-radius: 15px; padding: 32px; }
+    .result-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; padding-bottom: 15px; border-bottom: 1px solid var(--line); }
+    .result-kicker { color: var(--muted); font-size: .77rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
+    .result-title { margin: 4px 0 4px; font-size: clamp(1.5rem, 4vw, 2.35rem); letter-spacing: -.03em; }
+    .result-range { color: var(--muted); }
+    .goal-pill { flex: 0 0 auto; padding: 8px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.05); font-size: .78rem; font-weight: 800; }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 14px 0; }
+    .metric { background: #0a1727; border-radius: 12px; padding: 11px; border: 1px solid rgba(255,255,255,.07); }
+    .metric span { display: block; color: var(--muted); font-size: .72rem; }
+    .metric b { display: block; margin-top: 3px; font-size: .98rem; }
+    .result-section { margin-top: 17px; }
+    .result-section h3 { margin: 0 0 8px; font-size: .95rem; color: #fff; }
+    .result-section ul { margin: 0; padding-left: 19px; color: #dce4ef; }
+    .result-section li { margin: 7px 0; }
+    .conditional { border-left: 3px solid var(--caution); padding-left: 13px; }
+    .lab-list { display: flex; flex-wrap: wrap; gap: 7px; }
+    .lab { border: 1px solid rgba(139,183,255,.24); background: rgba(139,183,255,.08); color: #dbe8ff; border-radius: 999px; padding: 6px 9px; font-size: .8rem; font-weight: 800; }
+    .copy-row { display: flex; justify-content: flex-end; margin-top: 15px; }
+    .inline-alert { border: 1px solid rgba(240,170,87,.34); background: rgba(240,170,87,.08); border-radius: 13px; padding: 12px; color: #f8dfbd; margin-top: 14px; font-size: .86rem; }
+
+    .cause-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .cause-card { border-radius: 16px; border: 1px solid var(--line); background: var(--panel); padding: 17px; }
+    .cause-card h3 { margin: 0 0 11px; font-size: 1rem; }
+    .cause-card ul { margin: 0; padding-left: 19px; color: var(--muted); }
+    .cause-card li { margin: 5px 0; }
+
+    .source-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 14px; }
+    .citation { font-size: .95rem; color: #e6eef7; }
+    .doi { display: inline-block; margin-top: 8px; color: var(--accent); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .84rem; }
+    .source-list { margin: 12px 0 0; padding-left: 20px; color: var(--muted); }
+    .source-list li { margin: 8px 0; }
+    .note-box { border-left: 4px solid var(--accent-2); background: rgba(139,183,255,.07); padding: 14px 15px; border-radius: 0 12px 12px 0; color: #d8e5f8; font-size: .9rem; }
+    .footer { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+    @media (max-width: 900px) {
+      .hero, .calc-layout, .source-grid { grid-template-columns: 1fr; }
+      .risk-rail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .workflow { grid-template-columns: 1fr; }
+      .hero-note { max-width: 650px; }
+    }
+    @media (max-width: 620px) {
+      .shell { width: min(100% - 20px, 1180px); padding-top: 14px; }
+      .topbar { margin-bottom: 18px; }
+      .source-chip { font-size: .7rem; }
+      .hero { margin-bottom: 18px; }
+      .deck { font-size: .94rem; }
+      .tabs-wrap { margin-left: -2px; margin-right: -2px; }
+      .risk-rail { grid-template-columns: 1fr; }
+      .band { min-height: 0; }
+      .form-grid, .metrics, .cause-grid { grid-template-columns: 1fr; }
+      .result-header { display: block; }
+      .goal-pill { display: inline-block; margin-top: 10px; }
+      .card { padding: 16px; border-radius: 16px; }
+      .section-head { display: block; }
+    }
+    @media print {
+      body { background: #fff; color: #111; }
+      .shell { width: 100%; padding: 0; }
+      .topbar, .tabs-wrap, #calculator, .footer { display: none !important; }
+      .panel { display: block !important; break-inside: avoid; }
+      #guide { display: block !important; }
+      #secondary, #source { margin-top: 24px; }
+      .band, .flow-card, .cause-card, .card { background: #fff; color: #111; box-shadow: none; border: 1px solid #bbb; }
+      .band .mini, .section-copy, .cause-card ul, .source-list { color: #333; }
+      h1 { font-size: 30pt; }
+      .hero-note { color: #111; border: 1px solid #bbb; background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <a class="back" href="/tools/">← Clinical Tools</a>
+      <span class="source-chip">SOURCE-LOCKED · AHA 2026</span>
+    </div>
+
+    <header class="hero">
+      <div>
+        <div class="eyebrow">Pediatric lipid decision support</div>
+        <h1>Pediatric Hypertriglyceridemia</h1>
+        <p class="deck">An original visual guideline, deterministic calculator, and next-steps tool derived from the 2026 American Heart Association scientific statement. The statement—not an LLM—is the runtime source of clinical logic.</p>
+      </div>
+      <aside class="hero-note">
+        <strong>Clinical scope</strong>
+        Clinician-facing reference for screening, fasting TG classification, secondary-cause evaluation, lifestyle targets, specialist/referral branches, and conditional pharmacotherapy considerations. No medication doses are generated.
+      </aside>
+    </header>
+
+    <div class="tabs-wrap">
+      <nav class="tabs" role="tablist" aria-label="Pediatric hypertriglyceridemia tool views">
+        <button class="tab" role="tab" id="tab-guide" aria-controls="guide" aria-selected="true">Visual guide</button>
+        <button class="tab" role="tab" id="tab-calculator" aria-controls="calculator" aria-selected="false">Calculator + next steps</button>
+        <button class="tab" role="tab" id="tab-secondary" aria-controls="secondary" aria-selected="false">Secondary causes</button>
+        <button class="tab" role="tab" id="tab-source" aria-controls="source" aria-selected="false">Source + implementation</button>
+      </nav>
+    </div>
+
+    <section id="guide" class="panel active" role="tabpanel" aria-labelledby="tab-guide">
+      <div class="section-head">
+        <div>
+          <h2>Fasting triglyceride severity map</h2>
+          <p class="section-copy">Table 1 defines the five bands. The therapeutic emphasis transitions from ASCVD prevention to pancreatitis prevention as chylomicrons become prominent.</p>
+        </div>
+      </div>
+      <div id="riskRail" class="risk-rail" aria-label="Triglyceride severity categories"></div>
+
+      <div class="section-head">
+        <div>
+          <h2>Clinical workflow</h2>
+          <p class="section-copy">A simplified original rendering of the statement's Figure 3 workflow, with Table 1 governing severity cut points.</p>
+        </div>
+      </div>
+      <div class="workflow">
+        <article class="flow-card">
+          <div class="step">Step 1 · Screen</div>
+          <h3>Nonfasting lipid panel</h3>
+          <p>Figure 3 routes nonfasting non–HDL-C ≥145 mg/dL or TG ≥200 mg/dL to a fasting lipid panel. The narrative also says a fasting panel can be considered when HDL-C is &lt;40 mg/dL.</p>
+        </article>
+        <article class="flow-card">
+          <div class="step">Step 2 · Classify</div>
+          <h3>Use fasting TG for treatment decisions</h3>
+          <p>Apply the five Table 1 ranges: acceptable, mildly elevated, moderately elevated, severely elevated, and very severely elevated.</p>
+        </article>
+        <article class="flow-card">
+          <div class="step">Step 3 · Act</div>
+          <h3>Match risk, workup, diet, and follow-up</h3>
+          <p>Evaluate secondary causes for hypertriglyceridemia, use range-specific lifestyle targets, and escalate to lipid-specialist/genetic/pancreatitis branches as severity rises.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="calculator" class="panel" role="tabpanel" aria-labelledby="tab-calculator" hidden>
+      <div class="section-head">
+        <div>
+          <h2>Calculator + next steps</h2>
+          <p class="section-copy">Enter only the information needed to select the statement's pathway. This tool does not store or transmit patient data.</p>
+        </div>
+      </div>
+      <div class="calc-layout">
+        <form id="calcForm" class="card" novalidate>
+          <div class="form-grid">
+            <div class="field full">
+              <span class="label-text">Sample state</span>
+              <div class="segmented">
+                <label><input type="radio" name="fasting" value="yes" checked> Fasting</label>
+                <label><input type="radio" name="fasting" value="no"> Nonfasting</label>
+              </div>
+            </div>
+            <div class="field">
+              <label for="age">Age (years)</label>
+              <input id="age" name="age" type="number" min="0" max="21" step="1" inputmode="numeric" placeholder="e.g. 12">
+              <span class="helper">Needed for the age ≥8 statin-consideration branch.</span>
+            </div>
+            <div class="field">
+              <label for="tg">Triglycerides (mg/dL)</label>
+              <input id="tg" name="tg" type="number" min="0" step="1" inputmode="decimal" required placeholder="e.g. 275">
+            </div>
+            <div class="field">
+              <label for="tc">Total cholesterol (mg/dL)</label>
+              <input id="tc" name="tc" type="number" min="0" step="1" inputmode="decimal" placeholder="optional">
+            </div>
+            <div class="field">
+              <label for="hdl">HDL-C (mg/dL)</label>
+              <input id="hdl" name="hdl" type="number" min="0" step="1" inputmode="decimal" placeholder="optional">
+              <span class="helper">Total cholesterol + HDL-C allow non–HDL-C calculation.</span>
+            </div>
+            <div class="field full" id="persistenceField">
+              <label for="persistent">Persistently abnormal after lifestyle management?</label>
+              <select id="persistent" name="persistent">
+                <option value="unknown">Unknown / not yet reassessed</option>
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label class="check"><input id="pancreatitis" name="pancreatitis" type="checkbox"> <span>Symptoms concerning for pancreatitis (for example abdominal pain with nausea/vomiting)</span></label>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" type="submit">Interpret pathway</button>
+            <button class="secondary" type="reset">Clear</button>
+          </div>
+          <div class="inline-alert">Treatment decisions in the statement are generally based on fasting triglycerides. A nonfasting entry produces a screening/confirmation pathway rather than a fasting severity classification.</div>
+        </form>
+
+        <section id="resultCard" class="card" aria-live="polite" aria-atomic="false">
+          <div class="result-empty">
+            <div>
+              <strong style="display:block;color:#fff;margin-bottom:6px;">Enter lipid data</strong>
+              The result will show the applicable AHA 2026 pathway, source-derived next steps, follow-up branch, and conditional decisions.
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="secondary" class="panel" role="tabpanel" aria-labelledby="tab-secondary" hidden>
+      <div class="section-head">
+        <div>
+          <h2>Secondary causes checklist</h2>
+          <p class="section-copy">Directly organized from Table 3. The statement advises evaluating secondary causes and other ASCVD risk factors even when a genetic cause is suggested.</p>
+        </div>
+      </div>
+      <div id="causeGrid" class="cause-grid"></div>
+    </section>
+
+    <section id="source" class="panel" role="tabpanel" aria-labelledby="tab-source" hidden>
+      <div class="section-head">
+        <div>
+          <h2>Primary source + implementation boundary</h2>
+          <p class="section-copy">The tool is intentionally source-locked. Other guidelines are not used to overwrite this statement's decision logic.</p>
+        </div>
+      </div>
+      <div class="source-grid">
+        <article class="card">
+          <div class="eyebrow">Canonical source</div>
+          <p id="sourceCitation" class="citation"></p>
+          <span id="sourceDoi" class="doi"></span>
+          <ul class="source-list">
+            <li><strong>Table 1:</strong> fasting TG severity categories, predominant lipoprotein, lifestyle targets, pharmacotherapy considerations, and primary goal.</li>
+            <li><strong>Figure 3:</strong> screening trigger, fasting-panel workflow, laboratory/referral branches, and follow-up intervals.</li>
+            <li><strong>Table 3:</strong> secondary causes.</li>
+            <li><strong>Narrative:</strong> clarification and expansion of abbreviated management language.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <div class="eyebrow">Explicit implementation choices</div>
+          <div id="implementationNotes"></div>
+        </article>
+      </div>
+      <div class="note-box" style="margin-top:14px;">This is an original clinical decision aid. It does not reproduce or modify the AHA's published figure artwork. It translates source-supported clinical rules into a deterministic interface and records known internal source discrepancies rather than silently reconciling them.</div>
+    </section>
+
+    <footer class="footer">
+      <span>Clinician-facing educational decision support · No PHI storage · No runtime AI</span>
+      <span><a href="/tools/">Clinical Tools</a> · <a href="/contact/">Contact / corrections</a></span>
+    </footer>
+  </main>
+
+  <script type="module">
+    import {
+      SOURCE,
+      TG_BANDS,
+      SECONDARY_CAUSES,
+      IMPLEMENTATION_NOTES,
+      assessNonfastingScreen,
+      buildFastingPlan,
+    } from './pediatric-hypertriglyceridemia-core.js';
+
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+    const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const num = (value) => value === '' ? null : Number(value);
+    const fmt = (value) => value === null || !Number.isFinite(value) ? '—' : Number.isInteger(value) ? String(value) : value.toFixed(1);
+
+    function activateTab(tab) {
+      const id = tab.getAttribute('aria-controls');
+      $$('.tab').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+      $$('.panel').forEach((panel) => {
+        const active = panel.id === id;
+        panel.classList.toggle('active', active);
+        panel.hidden = !active;
+      });
+      history.replaceState(null, '', `#${id}`);
+    }
+
+    $$('.tab').forEach((tab) => tab.addEventListener('click', () => activateTab(tab)));
+    const requested = location.hash.slice(1);
+    const initial = requested && $(`#tab-${CSS.escape(requested)}`);
+    if (initial) activateTab(initial);
+
+    $('#riskRail').innerHTML = TG_BANDS.map((band) => `
+      <article class="band ${esc(band.tone)}">
+        <div class="label">${esc(band.label)}</div>
+        <div class="num">${esc(band.rangeLabel)}</div>
+        <div class="goal"><strong>${esc(band.goal)}</strong></div>
+        <div class="mini"><b>Predominant particle:</b><br>${esc(band.lipoprotein)}</div>
+        <div class="mini"><b>Diet anchor:</b><br>${esc(band.lifestyle.find((x) => /dietary fat|no-fat|sugar/i.test(x)) || band.lifestyle[0])}</div>
+      </article>
+    `).join('');
+
+    $('#causeGrid').innerHTML = SECONDARY_CAUSES.map((group) => `
+      <article class="cause-card">
+        <h3>${esc(group.group)}</h3>
+        <ul>${group.items.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+      </article>
+    `).join('');
+
+    $('#sourceCitation').textContent = `${SOURCE.citation} ${SOURCE.title}`;
+    $('#sourceDoi').textContent = `DOI: ${SOURCE.doi}`;
+    $('#implementationNotes').innerHTML = IMPLEMENTATION_NOTES.map((note) => `<div class="note-box" style="margin-bottom:10px;">${esc(note)}</div>`).join('');
+
+    const form = $('#calcForm');
+    const result = $('#resultCard');
+    let copyText = '';
+
+    function readInputs() {
+      const fasting = $('input[name="fasting"]:checked').value === 'yes';
+      return {
+        fasting,
+        age: num($('#age').value),
+        triglycerides: num($('#tg').value),
+        totalCholesterol: num($('#tc').value),
+        hdl: num($('#hdl').value),
+        persistentAfterLifestyle: $('#persistent').value,
+        pancreatitisSymptoms: $('#pancreatitis').checked,
+      };
+    }
+
+    function list(items) {
+      return `<ul>${items.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>`;
+    }
+
+    function showError(message) {
+      result.innerHTML = `<div class="result-empty"><div><strong style="display:block;color:#fff;margin-bottom:6px;">Check the inputs</strong>${esc(message)}</div></div>`;
+      copyText = '';
+    }
+
+    function renderNonfasting(input) {
+      const screen = assessNonfastingScreen(input);
+      const reasons = [...screen.figure3Reasons, ...screen.narrativeReasons];
+      const next = screen.considerFastingPanel
+        ? ['Obtain/consider a confirmatory fasting lipid panel before applying the treatment pathway.', 'Use the fasting triglyceride result for the severity classification and treatment pathway.']
+        : ['No fasting-confirmation trigger from the entered values is identified by the statement pathways encoded in this tool.', 'Continue to interpret the lipid panel in the broader clinical screening context.'];
+      result.innerHTML = `
+        <div class="result-header">
+          <div><div class="result-kicker">Nonfasting screening pathway</div><h3 class="result-title">${screen.considerFastingPanel ? 'Confirm fasting lipids' : 'No encoded confirmation trigger'}</h3><div class="result-range">Treatment decisions are generally based on fasting TG.</div></div>
+          <span class="goal-pill">Screen → confirm</span>
+        </div>
+        <div class="metrics">
+          <div class="metric"><span>Nonfasting TG</span><b>${fmt(input.triglycerides)} mg/dL</b></div>
+          <div class="metric"><span>Non–HDL-C</span><b>${fmt(screen.nonHDL)} mg/dL</b></div>
+          <div class="metric"><span>HDL-C</span><b>${fmt(input.hdl)} mg/dL</b></div>
+        </div>
+        <div class="result-section"><h3>Trigger(s)</h3>${reasons.length ? list(reasons) : '<p class="section-copy">None from the entered values.</p>'}</div>
+        <div class="result-section"><h3>Next steps</h3>${list(next)}</div>
+        <div class="copy-row"><button class="secondary" id="copyResult" type="button">Copy summary</button></div>`;
+      copyText = [`Pediatric hypertriglyceridemia — AHA 2026 nonfasting pathway`, `TG: ${fmt(input.triglycerides)} mg/dL`, `Non-HDL-C: ${fmt(screen.nonHDL)} mg/dL`, `Triggers: ${reasons.join('; ') || 'none from entered values'}`, `Next: ${next.join(' ')}`].join('\n');
+    }
+
+    function renderFasting(input) {
+      const plan = buildFastingPlan(input);
+      if (!plan) return showError('Enter a valid triglyceride value.');
+      const band = plan.band;
+      const lipids = [
+        `<div class="metric"><span>Fasting TG</span><b>${fmt(input.triglycerides)} mg/dL</b></div>`,
+        `<div class="metric"><span>Non–HDL-C</span><b>${fmt(plan.nonHDL)} mg/dL</b></div>`,
+        `<div class="metric"><span>Primary goal</span><b>${esc(band.goal.replace('Prevent ', ''))}</b></div>`,
+      ].join('');
+      result.innerHTML = `
+        <div class="result-header">
+          <div><div class="result-kicker">Fasting TG classification</div><h3 class="result-title">${esc(band.label)}</h3><div class="result-range">${esc(band.rangeLabel)} · ${esc(band.lipoprotein)}</div></div>
+          <span class="goal-pill">${esc(band.goal)}</span>
+        </div>
+        <div class="metrics">${lipids}</div>
+        <div class="result-section"><h3>Next steps</h3>${list(plan.steps)}</div>
+        ${plan.labs.length ? `<div class="result-section"><h3>Figure 3 laboratory branch</h3><div class="lab-list">${plan.labs.map((lab) => `<span class="lab">${esc(lab)}</span>`).join('')}</div></div>` : ''}
+        <div class="result-section conditional"><h3>Conditional decisions</h3>${list(plan.conditional.length ? plan.conditional : band.pharmacotherapy)}</div>
+        <div class="result-section"><h3>Follow-up</h3><p class="section-copy">${esc(plan.followUp)}</p></div>
+        <div class="copy-row"><button class="secondary" id="copyResult" type="button">Copy summary</button></div>`;
+      copyText = [
+        `Pediatric hypertriglyceridemia — AHA 2026`,
+        `Fasting TG: ${fmt(input.triglycerides)} mg/dL — ${band.label} (${band.rangeLabel})`,
+        `Non-HDL-C: ${fmt(plan.nonHDL)} mg/dL`,
+        `Primary goal: ${band.goal}`,
+        `Next steps: ${plan.steps.join(' ')}`,
+        plan.labs.length ? `Labs: ${plan.labs.join(', ')}` : '',
+        plan.conditional.length ? `Conditional: ${plan.conditional.join(' ')}` : '',
+        `Follow-up: ${plan.followUp}`,
+      ].filter(Boolean).join('\n');
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const input = readInputs();
+      if (input.triglycerides === null || !Number.isFinite(input.triglycerides) || input.triglycerides < 0) return showError('Triglycerides are required and must be zero or greater.');
+      if (input.totalCholesterol !== null && input.hdl !== null && input.totalCholesterol < input.hdl) return showError('Total cholesterol cannot be lower than HDL-C.');
+      input.fasting ? renderFasting(input) : renderNonfasting(input);
+    });
+
+    result.addEventListener('click', async (event) => {
+      if (event.target?.id !== 'copyResult' || !copyText) return;
+      try {
+        await navigator.clipboard.writeText(copyText);
+        event.target.textContent = 'Copied';
+        setTimeout(() => { event.target.textContent = 'Copy summary'; }, 1300);
+      } catch {
+        event.target.textContent = 'Copy unavailable';
+      }
+    });
+
+    form.addEventListener('reset', () => {
+      setTimeout(() => {
+        result.innerHTML = '<div class="result-empty"><div><strong style="display:block;color:#fff;margin-bottom:6px;">Enter lipid data</strong>The result will show the applicable AHA 2026 pathway, source-derived next steps, follow-up branch, and conditional decisions.</div></div>';
+        copyText = '';
+      }, 0);
+    });
+  </script>
+</body>
+</html>
