@@ -22,6 +22,11 @@ test("current-week powers-of-ten questions remain independently answerable acros
         assert.equal(question.skill, "place");
         assert.equal(question.audit.kind, "scale");
         assert.equal(question.scratch, "place");
+        assert.equal(question.workspace.type, "place-value");
+        assert.equal(question.workspace.operation, question.audit.operation);
+        assert.equal(question.workspace.value, question.audit.a);
+        assert.equal(question.workspace.factor, question.audit.factor);
+        assert.ok([1, 2, 3].includes(question.workspace.shift));
         assert.equal(isCorrectAnswer(question.answer, question), true, question.prompt);
       }
     }
@@ -43,11 +48,13 @@ test("advanced weekly practice includes direct place-value reasoning, reverse re
   assert.ok(questions.every(question => /10<sup>[123]<\/sup>/.test(question.prompt)), "weekly questions should expose powers-of-ten notation");
 });
 
-test("guided weekly questions expose the place-value-chart scaffold while independent questions do not", () => {
+test("guided weekly questions expose the place-value scaffold while independent questions do not", () => {
   const guided = generateCurrentWeekQuestion("powers_divide", 2, seededRandom(2), { assisted: true });
   const independent = generateCurrentWeekQuestion("powers_divide", 2, seededRandom(2));
   assert.match(guided.scaffoldText, /place-value chart/i);
   assert.match(guided.scaffoldText, /digit/i);
+  assert.equal(guided.workspace.type, "place-value");
+  assert.equal(independent.workspace.type, "place-value");
   assert.equal(independent.scaffoldText, "");
 });
 
