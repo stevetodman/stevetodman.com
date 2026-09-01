@@ -33,6 +33,38 @@ async function canvasSnapshot(page) {
   return page.locator('#scratch-canvas').evaluate(canvas => canvas.toDataURL());
 }
 
+async function drawPenStroke(page) {
+  await page.locator('#scratch-canvas').evaluate(canvas => {
+    const rect = canvas.getBoundingClientRect();
+    const points = [
+      [rect.left + rect.width * 0.25, rect.top + rect.height * 0.30],
+      [rect.left + rect.width * 0.40, rect.top + rect.height * 0.42],
+      [rect.left + rect.width * 0.55, rect.top + rect.height * 0.54],
+      [rect.left + rect.width * 0.70, rect.top + rect.height * 0.66]
+    ];
+    const originalCapture = canvas.setPointerCapture;
+    canvas.setPointerCapture = () => {};
+    try {
+      const emit = (type, [clientX, clientY]) => canvas.dispatchEvent(new PointerEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 17,
+        pointerType: 'pen',
+        button: 0,
+        buttons: type === 'pointerup' ? 0 : 1,
+        clientX,
+        clientY
+      }));
+      emit('pointerdown', points[0]);
+      emit('pointermove', points[1]);
+      emit('pointermove', points[2]);
+      emit('pointerup', points[3]);
+    } finally {
+      canvas.setPointerCapture = originalCapture;
+    }
+  });
+}
+
 test('diagnostic answer persists, feedback renders, scratchwork works, and the session advances', async () => {
   const { context, page, errors } = await openMath();
   try {
@@ -50,10 +82,7 @@ test('diagnostic answer persists, feedback renders, scratchwork works, and the s
     assert.ok(box && box.width > 0 && box.height > 0, 'scratch canvas should be visible and sized');
 
     const beforeStroke = await canvasSnapshot(page);
-    await page.mouse.move(box.x + box.width * 0.3, box.y + box.height * 0.35);
-    await page.mouse.down();
-    await page.mouse.move(box.x + box.width * 0.7, box.y + box.height * 0.65, { steps: 8 });
-    await page.mouse.up();
+    await drawPenStroke(page);
     const afterStroke = await canvasSnapshot(page);
     assert.notEqual(afterStroke, beforeStroke, 'pointer input should visibly change the scratch canvas');
 
