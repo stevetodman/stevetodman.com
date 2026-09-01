@@ -169,9 +169,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
+
+      - name: Install test dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Run Math Mission regression suite
-        run: npm run test:math
+        run: npm run test:math && npm run test:math:browser
 
   browser_tests:
     name: ${{ matrix.name }}
