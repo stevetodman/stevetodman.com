@@ -1,10 +1,10 @@
 export const SKILLS = {
   place: { name: "Place value & powers of 10", lessons: "Lessons 1–4", topic: "Topic A" },
   forms: { name: "Decimal forms & comparison", lessons: "Lessons 5–6", topic: "Topic B" },
-  round: { name: "Rounding decimals", lessons: "Lessons 7–8", topic: "Topic B" },
-  addsub: { name: "Add & subtract decimals", lessons: "Lessons 9–10", topic: "Topic C" },
-  multiply: { name: "Multiply decimals", lessons: "Lessons 11–12", topic: "Topic D" },
-  divide: { name: "Divide decimals", lessons: "Lessons 13–16", topic: "Topic E" }
+  round: { name: "Rounding decimals", lessons: "Lessons 7–8", topic: "Topic C" },
+  addsub: { name: "Add & subtract decimals", lessons: "Lessons 9–10", topic: "Topic D" },
+  multiply: { name: "Multiply decimals", lessons: "Lessons 11–12", topic: "Topic E" },
+  divide: { name: "Divide decimals", lessons: "Lessons 13–16", topic: "Topic F" }
 };
 
 export const MICRO_SKILLS = {
@@ -32,6 +32,7 @@ export const PREREQUISITE_MICROS = [];
 
 const PLACE_INDEX = { tenths: 0, hundredths: 1, thousandths: 2 };
 const PLACE_DIVISOR = { tenths: 10, hundredths: 100, thousandths: 1000 };
+const UNIT_NAMES = { 0: "ones", 1: "tenths", 2: "hundredths", 3: "thousandths" };
 const randomInt = (random, min, max) => Math.floor(random() * (max - min + 1)) + min;
 const numberText = (scaled, places) => {
   const divisor = 10 ** places;
@@ -79,12 +80,12 @@ export function diagnostic() {
     choice("place_value", `What is the value of the digit in the hundredths place in <span class="math">4.731</span>?`, ["0.3", "0.03", "0.003", "3"], "0.03", "The hundredths digit is 3, so its value is 3 hundredths, or 0.03.", { kind: "digitValue", numberText: "4.731", place: "hundredths" }),
     input("powers_multiply", `Multiply: <span class="math">4.7 × 10³</span>`, "4700", "Multiplying by 10³ makes every digit worth 1,000 times as much: 4.7 × 1,000 = 4,700.", { kind: "scale", operation: "multiply", a: 4.7, factor: 1000 }, { placeholder: "Number only" }),
     input("powers_divide", `Divide: <span class="math">36.4 ÷ 10²</span>`, "0.364", "Dividing by 10² makes every digit worth one hundredth as much: 36.4 ÷ 100 = 0.364.", { kind: "scale", operation: "divide", a: 36.4, factor: 100 }, { placeholder: "Number only" }),
-    input("metric_conversion", `Convert <span class="math">3.6 meters</span> to centimeters.`, "360", "One meter is 100 centimeters, so 3.6 × 100 = 360 centimeters.", { kind: "metric", a: 3.6, factor: 100 }, { transfer: true, placeholder: "Number only" }),
+    input("metric_conversion", `Convert <span class="math">3.6 meters</span> to centimeters.`, "360", "One meter is 100 centimeters, so 3.6 × 100 = 360 centimeters.", { kind: "metric", operation: "multiply", a: 3.6, factor: 100 }, { transfer: true, placeholder: "Number only" }),
     input("decimal_forms", `Write <span class="math">0.305</span> in expanded form using decimals.`, "0.3 + 0.005", "The 3 is three tenths, the 0 holds the hundredths place, and the 5 is five thousandths.", { kind: "expanded", expected: 0.305 }, { transfer: true, placeholder: "Example: 0.2 + 0.04" }),
     choice("decimal_compare", `Choose the true comparison.`, ["0.507 < 0.57", "0.507 = 0.57", "0.507 > 0.57"], "0.507 < 0.57", "Write equal places: 0.507 and 0.570. Compare from left to right.", { kind: "compare", aScaled: 507, bScaled: 570, left: "0.507", right: "0.57" }),
     input("decimal_round", `Round <span class="math">18.376</span> to the nearest hundredth.`, "18.38", "The hundredths digit is 7. The thousandths digit is 6, so round the 7 up to 8.", { kind: "round", thousandths: 18376, digits: 2 }, { placeholder: "Number only" }),
-    input("decimal_add", `Find the sum: <span class="math">6.48 + 13.7</span>`, "20.18", "Align decimal points: 6.48 + 13.70 = 20.18.", { kind: "add", aScaled: 648, bScaled: 1370, places: 2 }, { placeholder: "Number only" }),
-    input("decimal_subtract", `Find the difference: <span class="math">20 − 3.86</span>`, "16.14", "Write 20 as 20.00, align decimal points, then subtract.", { kind: "subtract", aScaled: 2000, bScaled: 386, places: 2 }, { placeholder: "Number only" }),
+    input("decimal_add", `Find the sum: <span class="math">6.48 + 13.7</span>`, "20.18", "Combine like place-value units: 6.48 + 13.70 = 20.18.", { kind: "add", aScaled: 648, bScaled: 1370, places: 2 }, { placeholder: "Number only" }),
+    input("decimal_subtract", `Find the difference: <span class="math">20 − 3.86</span>`, "16.14", "Write 20 as 20.00 so like place-value units are aligned, then subtract to get 16.14.", { kind: "subtract", aScaled: 2000, bScaled: 386, places: 2 }, { placeholder: "Number only" }),
     input("decimal_multiply", `Find the product: <span class="math">0.42 × 6</span>`, "2.52", "42 hundredths × 6 = 252 hundredths = 2.52.", { kind: "product", aScaled: 42, aPlaces: 2, bScaled: 6, bPlaces: 0 }, { transfer: true, placeholder: "Number only" }),
     input("decimal_divide", `Find the quotient: <span class="math">7.56 ÷ 6</span>`, "1.26", "756 hundredths ÷ 6 = 126 hundredths = 1.26. Check: 1.26 × 6 = 7.56.", { kind: "quotient", dividendScaled: 756, dividendPlaces: 2, divisor: 6 }, { transfer: true, placeholder: "Number only" })
   ];
@@ -101,14 +102,14 @@ const scaffoldFor = micro => ({
   place_value: "First identify the digit, then write its value as a decimal.",
   powers_multiply: "Use the chart: multiplying makes every digit shift left.",
   powers_divide: "Use the chart: dividing makes every digit shift right.",
-  metric_conversion: "Write the conversion factor before calculating.",
+  metric_conversion: "Decide whether you are renaming to smaller or larger units, then write the power-of-10 relationship.",
   decimal_forms: "Match each nonzero digit to its place-value amount.",
   decimal_compare: "Add placeholder zeros, then compare from left to right.",
   decimal_round: "Mark the target place and inspect only the digit immediately to its right.",
-  decimal_add: "Stack the numbers with decimal points aligned.",
-  decimal_subtract: "Stack the numbers and add placeholder zeros.",
-  decimal_multiply: "Multiply first, then count decimal places.",
-  decimal_divide: "Check the quotient by multiplying it by the divisor."
+  decimal_add: "Line up like place-value units: ones with ones, tenths with tenths, and hundredths with hundredths.",
+  decimal_subtract: "Line up like place-value units and rename with placeholder zeros when needed.",
+  decimal_multiply: "Estimate first. Multiply using place-value units, then use the estimate to confirm the decimal's position.",
+  decimal_divide: "Rename the dividend in place-value units as needed, divide those units, then multiply to check."
 })[micro];
 
 export function generate(micro, difficulty = 2, random = Math.random, flags = {}) {
@@ -156,11 +157,28 @@ export function generate(micro, difficulty = 2, random = Math.random, flags = {}
   }
 
   if (micro === "metric_conversion") {
-    const conversions = d === 1 ? [["meters", "centimeters", 100], ["centimeters", "millimeters", 10]] : [["meters", "centimeters", 100], ["kilometers", "meters", 1000], ["centimeters", "millimeters", 10]];
-    const [from, to, factor] = conversions[ri(0, conversions.length - 1)];
-    const a = ri(11, d === 3 ? 999 : 199) / (d === 1 ? 1 : 10);
+    const conversions = d === 1
+      ? [["meters", "centimeters", 100, "multiply"], ["centimeters", "millimeters", 10, "multiply"]]
+      : [
+          ["meters", "centimeters", 100, "multiply"],
+          ["kilometers", "meters", 1000, "multiply"],
+          ["centimeters", "millimeters", 10, "multiply"],
+          ["centimeters", "meters", 100, "divide"],
+          ["millimeters", "centimeters", 10, "divide"],
+          ["meters", "kilometers", 1000, "divide"],
+          ["millimeters", "meters", 1000, "divide"]
+        ];
+    const [from, to, factor, operation] = conversions[ri(0, conversions.length - 1)];
+    const a = operation === "divide"
+      ? ri(1, d === 3 ? 999 : 199)
+      : ri(11, d === 3 ? 999 : 199) / (d === 1 ? 1 : 10);
+    const answer = operation === "multiply" ? a * factor : a / factor;
     const directionPrompt = d === 3 ? `<br><small>Write an equation using a power of 10 to justify your answer.</small>` : "";
-    return input(micro, `Convert <span class="math">${formatDecimal(a)} ${from}</span> to ${to}.${directionPrompt}`, formatDecimal(a * factor), `One ${from.slice(0, -1)} equals ${factor.toLocaleString()} ${to}, so ${formatDecimal(a)} × 10<sup>${Math.log10(factor)}</sup> = ${formatDecimal(a * factor)}.`, { kind: "metric", a, factor }, extras);
+    const exponent = Math.log10(factor);
+    const why = operation === "multiply"
+      ? `One ${from.slice(0, -1)} equals ${factor.toLocaleString()} ${to}, so ${formatDecimal(a)} × 10<sup>${exponent}</sup> = ${formatDecimal(answer)}.`
+      : `One ${to.slice(0, -1)} equals ${factor.toLocaleString()} ${from}, so ${formatDecimal(a)} ÷ 10<sup>${exponent}</sup> = ${formatDecimal(answer)}.`;
+    return input(micro, `Convert <span class="math">${formatDecimal(a)} ${from}</span> to ${to}.${directionPrompt}`, formatDecimal(answer), why, { kind: "metric", operation, a, factor }, extras);
   }
 
   if (micro === "decimal_forms") {
@@ -174,15 +192,19 @@ export function generate(micro, difficulty = 2, random = Math.random, flags = {}
   }
 
   if (micro === "decimal_compare") {
-    const places = d === 3 ? 4 : 3;
-    const aScaled = ri(1, d === 3 ? 9999 : 999), bScaled = ri(1, d === 3 ? 9999 : 999);
+    const places = d === 1 ? 1 : d === 2 ? 2 : 3;
+    const maxScaled = (10 ** places) - 1;
+    const aScaled = ri(1, maxScaled), bScaled = ri(1, maxScaled);
     const left = formatDecimal(aScaled / (10 ** places)), right = formatDecimal(bScaled / (10 ** places));
     if (d === 3 && random() < .4) {
-      const values = [...new Set([aScaled, bScaled, ri(1, 9999), ri(1, 9999)])];
-      while (values.length < 4) values.push(values.at(-1) + 1);
-      const shown = shuffled(values.map(value => formatDecimal(value / 10000)), random);
+      const values = [...new Set([aScaled, bScaled, ri(1, 999), ri(1, 999)])];
+      while (values.length < 4) {
+        const candidate = ri(1, 999);
+        if (!values.includes(candidate)) values.push(candidate);
+      }
+      const shown = shuffled(values.map(value => formatDecimal(value / 1000)), random);
       const answer = [...shown].sort((a, b) => Number(a) - Number(b)).join(", ");
-      return input(micro, `Order from least to greatest: <span class="math">${shown.join(", ")}</span>`, answer, `Write each number to four decimal places, then compare from left to right. The order is ${answer}.`, { kind: "order", values: shown }, { ...extras, placeholder: "Separate the four numbers with commas" });
+      return input(micro, `Order from least to greatest: <span class="math">${shown.join(", ")}</span>`, answer, `Write each number to three decimal places, then compare from left to right. The order is ${answer}.`, { kind: "order", values: shown }, { ...extras, placeholder: "Separate the four numbers with commas" });
     }
     const operator = aScaled < bScaled ? "<" : aScaled > bScaled ? ">" : "=";
     return choice(micro, "Choose the true comparison.", [`${left} < ${right}`, `${left} = ${right}`, `${left} > ${right}`], `${left} ${operator} ${right}`, "Write equal decimal places, then compare digits from left to right.", { kind: "compare", aScaled, bScaled, left, right }, extras);
@@ -215,29 +237,33 @@ export function generate(micro, difficulty = 2, random = Math.random, flags = {}
         : `A container held <span class="math">${a} liters</span>. After <span class="math">${b} liters</span> were used, how many liters remained?`;
       return input(micro, `${prompt}<br><small>Use a tape diagram, and show your calculation.</small>`, resultText, `The situation calls for ${operation === "add" ? "addition" : "subtraction"}: ${a} ${symbol} ${b} = ${resultText}.`, { kind: operation, aScaled, bScaled, places: 2 }, { ...extras, scratch: "tape" });
     }
-    return input(micro, `Calculate: <span class="math">${formatDecimal(aScaled / 100)} ${symbol} ${formatDecimal(bScaled / 100)}</span>`, formatDecimal(result / 100), `Align decimal points and use zeros as placeholders before you ${operation}.`, { kind: operation, aScaled, bScaled, places: 2 }, extras);
+    return input(micro, `Calculate: <span class="math">${formatDecimal(aScaled / 100)} ${symbol} ${formatDecimal(bScaled / 100)}</span>`, formatDecimal(result / 100), `Combine like place-value units and use zeros to rename missing units before you ${operation}.`, { kind: operation, aScaled, bScaled, places: 2 }, extras);
   }
 
   if (micro === "decimal_multiply") {
-    const aPlaces = d === 1 ? 1 : 2, bPlaces = d === 3 ? 1 : 0;
-    const aScaled = ri(11, d === 1 ? 99 : 499), bScaled = ri(2, d === 3 ? 19 : 9);
-    const answer = (aScaled * bScaled) / (10 ** (aPlaces + bPlaces));
-    const left = numberText(aScaled, aPlaces), right = bPlaces ? numberText(bScaled, bPlaces) : String(bScaled), answerText = formatDecimal(answer);
+    const aPlaces = d === 1 ? 1 : d === 2 ? 2 : 3;
+    const aScaled = ri(d === 3 ? 101 : 11, d === 1 ? 99 : d === 2 ? 499 : 9999), bScaled = ri(2, 9), bPlaces = 0;
+    const productScaled = aScaled * bScaled;
+    const answer = productScaled / (10 ** aPlaces);
+    const left = numberText(aScaled, aPlaces), right = String(bScaled), answerText = formatDecimal(answer);
     if (d >= 2 && random() < .45) {
       const wrongA = formatDecimal(answer / 10), wrongB = formatDecimal(answer * 10), wrongC = formatDecimal(answer * 100);
-      return choice(micro, `Without calculating first, choose the reasonable product for <span class="math">${left} × ${right}</span>.`, shuffled([answerText, wrongA, wrongB, wrongC], random), answerText, `Estimate ${left} and ${right} with nearby whole numbers. The reasonable magnitude is ${answerText}; the other choices place the decimal incorrectly.`, { kind: "product", aScaled, aPlaces, bScaled, bPlaces }, extras);
+      return choice(micro, `Without calculating first, choose the reasonable product for <span class="math">${left} × ${right}</span>.`, shuffled([answerText, wrongA, wrongB, wrongC], random), answerText, `Estimate ${left} with a nearby whole number and multiply by ${right}. The reasonable magnitude is ${answerText}; the other choices do not fit the estimate.`, { kind: "product", aScaled, aPlaces, bScaled, bPlaces }, extras);
     }
-    return input(micro, `Find the product: <span class="math">${left} × ${right}</span>`, answerText, `Multiply as whole numbers, then place ${aPlaces + bPlaces} decimal place${aPlaces + bPlaces === 1 ? "" : "s"} in the product.`, { kind: "product", aScaled, aPlaces, bScaled, bPlaces }, extras);
+    const units = UNIT_NAMES[aPlaces];
+    return input(micro, `Find the product: <span class="math">${left} × ${right}</span>`, answerText, `${aScaled.toLocaleString()} ${units} × ${right} = ${productScaled.toLocaleString()} ${units} = ${answerText}. Use an estimate to check that the decimal is in a reasonable position.`, { kind: "product", aScaled, aPlaces, bScaled, bPlaces }, extras);
   }
 
-  const divisor = ri(2, 9), quotientPlaces = d === 1 ? 1 : 2, quotientScaled = ri(11, d === 3 ? 499 : 199);
+  const divisor = ri(2, 9), quotientPlaces = d === 1 ? 1 : d === 2 ? 2 : 3;
+  const quotientScaled = ri(d === 3 ? 101 : 11, d === 1 ? 99 : d === 2 ? 199 : 4999);
   const dividendScaled = divisor * quotientScaled, dividend = numberText(dividendScaled, quotientPlaces), answer = quotientScaled / (10 ** quotientPlaces);
   if (d === 3 && random() < .35) {
-    const usedScaled = ri(10, 90), totalScaled = dividendScaled + usedScaled, total = numberText(totalScaled, quotientPlaces), used = numberText(usedScaled, quotientPlaces);
+    const usedScaled = ri(10, 900), totalScaled = dividendScaled + usedScaled, total = numberText(totalScaled, quotientPlaces), used = numberText(usedScaled, quotientPlaces);
     return input("decimal_divide", `A baker had <span class="math">${total} kilograms</span> of flour and used <span class="math">${used} kilograms</span>. The rest was shared equally among <span class="math">${divisor}</span> bins. How many kilograms went in each bin?<br><small>Use a tape diagram, and show both calculations.</small>`, formatDecimal(answer), `First subtract: ${total} − ${used} = ${dividend}. Then divide: ${dividend} ÷ ${divisor} = ${formatDecimal(answer)}.`, { kind: "subtractDivide", totalScaled, usedScaled, places: quotientPlaces, divisor }, { ...extras, scratch: "tape" });
   }
   if (d === 3 && random() < .6) return input("decimal_divide", `A baker shares <span class="math">${dividend} kilograms</span> of flour equally among <span class="math">${divisor}</span> bins. How many kilograms go in each bin?<br><small>Use a tape diagram, and show your calculation.</small>`, formatDecimal(answer), `Divide the total into ${divisor} equal groups: ${dividend} ÷ ${divisor} = ${formatDecimal(answer)}. Check by multiplying.`, { kind: "quotient", dividendScaled, dividendPlaces: quotientPlaces, divisor }, { ...extras, scratch: "tape" });
-  return input("decimal_divide", `Find the quotient: <span class="math">${dividend} ÷ ${divisor}</span>`, formatDecimal(answer), `Divide, then check by multiplying: ${formatDecimal(answer)} × ${divisor} = ${dividend}.`, { kind: "quotient", dividendScaled, dividendPlaces: quotientPlaces, divisor }, extras);
+  const units = UNIT_NAMES[quotientPlaces];
+  return input("decimal_divide", `Find the quotient: <span class="math">${dividend} ÷ ${divisor}</span>`, formatDecimal(answer), `${dividendScaled.toLocaleString()} ${units} ÷ ${divisor} = ${quotientScaled.toLocaleString()} ${units} = ${formatDecimal(answer)}. Check by multiplying.`, { kind: "quotient", dividendScaled, dividendPlaces: quotientPlaces, divisor }, extras);
 }
 
 function parseNumber(value) {
@@ -261,7 +287,7 @@ export function independentlySolve(audit) {
     case "digitAtPlace": return String(digitAtPlace(audit.numberText, audit.place));
     case "digitValue": return formatDecimal(valueAtPlace(audit.numberText, audit.place));
     case "scale": return formatDecimal(audit.operation === "multiply" ? audit.a * audit.factor : audit.a / audit.factor);
-    case "metric": return formatDecimal(audit.a * audit.factor);
+    case "metric": return formatDecimal(audit.operation === "divide" ? audit.a / audit.factor : audit.a * audit.factor);
     case "sum": return formatDecimal(audit.values.reduce((sum, value) => sum + value, 0));
     case "expanded": return formatDecimal(audit.expected);
     case "compare": return `${audit.left} ${audit.aScaled < audit.bScaled ? "<" : audit.aScaled > audit.bScaled ? ">" : "="} ${audit.right}`;

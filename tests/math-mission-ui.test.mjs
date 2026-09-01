@@ -5,6 +5,13 @@ import test from "node:test";
 const root = new URL("../", import.meta.url);
 const read = path => readFile(new URL(path, root), "utf8");
 
+test("Math Mission names the actual Module 1 scope without claiming an unverified weekly pace", async () => {
+  const html = await read("math/index.html");
+  assert.match(html, /Module 1 · Place Value & Decimal Fractions/);
+  assert.match(html, /Focused on Module 1 Lessons 1–16/);
+  assert.doesNotMatch(html, /this week/i);
+});
+
 test("scratchwork supports pointer input, Apple Pencil semantics, undo, clear, and responsive guides", async () => {
   const [html, css, scratch] = await Promise.all([read("math/index.html"), read("math/assets/mission1.css"), read("math/assets/mission1-scratch.mjs")]);
   assert.match(html, /id="scratch-canvas"/);

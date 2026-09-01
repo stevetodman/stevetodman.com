@@ -130,7 +130,8 @@ test('an adaptive-practice miss immediately schedules a guided retry of the same
     assert.equal(await page.locator('#question-title').innerText(), 'Guided try');
     assert.match(await page.locator('#skill-tag').innerText(), /Add decimals.*Guided/i);
     assert.equal(await page.locator('#scaffold-note').isHidden(), false);
-    assert.match(await page.locator('#scaffold-note').innerText(), /decimal points aligned/i);
+    assert.match(await page.locator('#scaffold-note').innerText(), /like place-value units/i);
+    assert.doesNotMatch(await page.locator('#scaffold-note').innerText(), /line up (?:the )?decimals/i);
     assert.deepEqual(errors, [], `runtime errors:\n${errors.join('\n')}`);
   } finally {
     await context.close();
