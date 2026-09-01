@@ -29,11 +29,8 @@ async function openMath(initialData = null, viewport = { width: 390, height: 844
   return { context, page, errors };
 }
 
-async function canvasCenterPixel(page) {
-  return page.locator('#scratch-canvas').evaluate(canvas => {
-    const context = canvas.getContext('2d');
-    return Array.from(context.getImageData(Math.floor(canvas.width / 2), Math.floor(canvas.height / 2), 1, 1).data);
-  });
+async function canvasSnapshot(page) {
+  return page.locator('#scratch-canvas').evaluate(canvas => canvas.toDataURL());
 }
 
 test('diagnostic answer persists, feedback renders, scratchwork works, and the session advances', async () => {
@@ -52,18 +49,18 @@ test('diagnostic answer persists, feedback renders, scratchwork works, and the s
     const box = await canvas.boundingBox();
     assert.ok(box && box.width > 0 && box.height > 0, 'scratch canvas should be visible and sized');
 
-    const beforeStroke = await canvasCenterPixel(page);
+    const beforeStroke = await canvasSnapshot(page);
     await page.mouse.move(box.x + box.width * 0.3, box.y + box.height * 0.35);
     await page.mouse.down();
     await page.mouse.move(box.x + box.width * 0.7, box.y + box.height * 0.65, { steps: 8 });
     await page.mouse.up();
-    const afterStroke = await canvasCenterPixel(page);
-    assert.notDeepEqual(afterStroke, beforeStroke, 'pointer input should visibly change the scratch canvas');
+    const afterStroke = await canvasSnapshot(page);
+    assert.notEqual(afterStroke, beforeStroke, 'pointer input should visibly change the scratch canvas');
 
     await page.locator('#scratch-undo').click();
-    assert.deepEqual(await canvasCenterPixel(page), beforeStroke, 'Undo should restore the guide beneath the latest stroke');
+    assert.equal(await canvasSnapshot(page), beforeStroke, 'Undo should restore the guide beneath the latest stroke');
     await page.locator('#scratch-clear').click();
-    assert.deepEqual(await canvasCenterPixel(page), beforeStroke, 'Clear should leave the underlying guide intact');
+    assert.equal(await canvasSnapshot(page), beforeStroke, 'Clear should leave the underlying guide intact');
 
     await page.locator('.choice[data-value="8"]').click();
     await page.locator('#check-button').click();
