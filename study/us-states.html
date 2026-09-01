@@ -264,7 +264,6 @@ var subScore = { spell: 0, spellTotal: 0, map: 0, mapTotal: 0 };
 var missed = [];          // [{code, name, type}]
 var zoomed = false;
 var roundLabel = "";      // heading for the current round, e.g. "Quick Round"
-var retriedThisRound = {};// codes already re-queued once, so a miss cannot loop forever
 
 /* ── HELPERS ── */
 function shuffle(arr) {
@@ -774,7 +773,15 @@ function getSavedRound() {
   if (!data.activeProfile) return null;
   var r = data.profiles[data.activeProfile].round;
   if (!r || !r.queue || !r.queue.length) return null;
-  if (r.qIndex <= 0 || r.qIndex >= r.queue.length) return null;  // nothing meaningful to resume
+  /* Older versions inserted missed states into the active queue. Discard only
+     that in-progress snapshot so a legacy retry cannot make a resumed round
+     grow again; all of the learner's saved mastery remains untouched. */
+  if (r.queue.some(function(item) { return item && item.retry; })) {
+    data.profiles[data.activeProfile].round = null;
+    saveData(data);
+    return null;
+  }
+  if (!Number.isInteger(r.qIndex) || r.qIndex < 0 || r.qIndex > r.queue.length) return null;
   return r;
 }
 function snapshotRound() {
@@ -1093,20 +1100,18 @@ function mapWrapHTML(svgHTML, id) {
   return '<div class="map-wrap" id="' + id + '">' + svgHTML + '</div>';
 }
 
-/* ── SMALL-STATE ZOOM (data-driven, not a hardcoded region list) ──
-   "Small on the map" isn't the same as "small bounding box" — a diagonal
-   or spread-out shape (like Hawaii's islands) can have a huge bounding box
-   around mostly empty space, and a compact, boxy state (like Ohio) can have
-   a bounding box close to its true size. What actually determines whether a
-   state is hard to tap is its FILLED pixel area, so that's rasterized on an
-   offscreen canvas rather than approximated from getBBox(). getBBox() is
-   still used separately to frame a tight zoom viewport once a state is
-   known to be small. */
+/* ── SMALL-STATE ZOOM ──
+   Keep the measured land-area order in source instead of rasterizing all 50
+   paths on first use. The old canvas pass read and scanned more than seven
+   million pixels synchronously, which could make the first map question look
+   frozen on a phone. Bounds are now measured lazily, and only for a small
+   state that actually needs an inset. */
 var MAP_VIEWBOX = { x: 174, y: 100, w: 959, h: 593 };
 var STATE_BBOX = null;
-var SMALL_STATE_CODES = null;
-var SMALL_STATE_ORDER = null;
-var SMALL_STATE_COUNT = 15;
+/* The 15 smallest states by land area, largest first. */
+var SMALL_STATE_ORDER = ["TN", "KY", "IN", "ME", "SC", "WV", "MD", "HI", "MA", "VT", "NH", "NJ", "CT", "DE", "RI"];
+var SMALL_STATE_CODES = {};
+SMALL_STATE_ORDER.forEach(function(code) { SMALL_STATE_CODES[code] = true; });
 /* Enlarged tap targets are deliberately given to a smaller set than the zoom
    inset. A fat target steals area from its neighbours, so it is worth it only
    for the very smallest states: measured across the northeast, covering the
@@ -1123,6 +1128,7 @@ function ensureStateBBoxes() {
   document.body.appendChild(holder);
   var svgNS = "http://www.w3.org/2000/svg";
   holder.querySelectorAll("path.state").forEach(function(p) {
+    if (!SMALL_STATE_CODES[p.dataset.code]) return;
     try {
       /* A state whose shape is several disconnected pieces (e.g. Hawaii's
          islands) has a bbox spanning the open water between them, which
@@ -1150,42 +1156,12 @@ function ensureStateBBoxes() {
     } catch (e) {}
   });
   document.body.removeChild(holder);
-
-  var scale = 0.5;
-  var canvas = document.createElement("canvas");
-  canvas.width = Math.round(MAP_VIEWBOX.w * scale);
-  canvas.height = Math.round(MAP_VIEWBOX.h * scale);
-  var ctx = canvas.getContext("2d");
-  var areas = {};
-  for (var i = 0; i < STATES.length; i++) {
-    var s = STATES[i];
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.setTransform(scale, 0, 0, scale, -MAP_VIEWBOX.x * scale, -MAP_VIEWBOX.y * scale);
-    ctx.fillStyle = "#000";
-    ctx.fill(new Path2D(s.d));
-    var data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    var count = 0;
-    for (var px = 3; px < data.length; px += 4) { if (data[px] > 0) count++; }
-    areas[s.code] = count;
-  }
-  var entries = Object.keys(areas).map(function(c) { return { code: c, area: areas[c] }; });
-  entries.sort(function(a, b) { return a.area - b.area; });
-  SMALL_STATE_CODES = {};
-  SMALL_STATE_ORDER = [];
-  entries.slice(0, SMALL_STATE_COUNT).forEach(function(e) { SMALL_STATE_CODES[e.code] = true; });
-  // Largest of the small states first: painted in this order, the smallest
-  // ends up on top and wins any overlap between neighbouring tap targets.
-  SMALL_STATE_ORDER = entries.slice(0, SMALL_STATE_COUNT).map(function(e) { return e.code; }).reverse();
 }
 function isSmallState(code) {
-  ensureStateBBoxes();
   return !!SMALL_STATE_CODES[code];
 }
 function smallStatesBySizeDesc() {
-  ensureStateBBoxes();
-  var order = SMALL_STATE_ORDER || [];
-  return order.slice(Math.max(0, order.length - HIT_TARGET_COUNT));  // the smallest N, largest of them first
+  return SMALL_STATE_ORDER.slice(Math.max(0, SMALL_STATE_ORDER.length - HIT_TARGET_COUNT));
 }
 /* A tight viewBox centered on one state, padded generously so its
    neighbors stay visible for orientation, with a floor so an ultra-tiny
@@ -1297,6 +1273,8 @@ function showMenu() {
   var lastState = lastCode ? byCode(lastCode) : null;
   var bossCount = getBossStates(p).length;
   var savedRound = getSavedRound();
+  var savedRemaining = savedRound ? savedRound.queue.length - savedRound.qIndex : 0;
+  var savedReady = savedRound && savedRemaining === 0;
 
   app.innerHTML =
     '<div class="player-strip">' + avatarFor(activeName, p) + ' Playing as <strong>' + esc(activeName) + '</strong> &middot; ' +
@@ -1318,9 +1296,9 @@ function showMenu() {
       (savedRound ? (
         '<button type="button" class="menu-card" data-mode="resume">' +
           '<div class="card-icon">⏭️</div>' +
-          '<span class="badge badge-resume">' + (savedRound.queue.length - savedRound.qIndex) + ' left</span>' +
+          '<span class="badge badge-resume">' + (savedReady ? 'Results ready' : savedRemaining + ' left') + '</span>' +
           '<h2>Resume ' + esc(savedRound.label || "Round") + '</h2>' +
-          '<p>Pick up where you left off &mdash; question ' + (savedRound.qIndex + 1) + ' of ' + savedRound.queue.length + '</p>' +
+          '<p>' + (savedReady ? 'Open your completed round results' : 'Pick up where you left off &mdash; question ' + (savedRound.qIndex + 1) + ' of ' + savedRound.queue.length) + '</p>' +
         '</button>'
       ) : '') +
       '<button type="button" class="menu-card" data-mode="quick">' +
@@ -1571,6 +1549,7 @@ function renderBossQuestion() {
     answered = true;
     var correct = normalize(input.value) === normalize(s.name);
     input.disabled = true;
+    input.blur();
     var fb = document.getElementById("feedback");
     var mres = recordAnswer(s.code, correct);
     bumpStreak(correct);
@@ -1596,7 +1575,7 @@ function renderBossQuestion() {
 
     var next = makeNextButton("Continue →", renderBossQuestion);
     fb.parentNode.insertBefore(next.el, fb.nextSibling);
-    if (correct) scheduleAutoAdvance(next.go, advanceDelayFor(lastFactShown));
+    if (correct) scheduleAutoAdvance(next.go);
   });
 }
 
@@ -1667,7 +1646,6 @@ function startQueue(m, pool, label) {
   qIndex = 0;
   score = 0;
   missed = [];
-  retriedThisRound = {};
   subScore = { spell: 0, spellTotal: 0, map: 0, mapTotal: 0 };
   renderQueueQuestion();
 }
@@ -1692,7 +1670,6 @@ function startQuickRound(size) {
   score = 0;
   subScore = { spell: 0, spellTotal: 0, map: 0, mapTotal: 0 };
   missed = [];
-  retriedThisRound = {};
   renderTestQuestion();
 }
 
@@ -1714,20 +1691,18 @@ function renderQueueQuestion() {
   else renderMapQuestion(item, afterQueueAnswer);
 }
 
-/* Near-miss recovery: a state they just missed comes back a few questions
-   later in the same round. Getting it the second time turns a failure into a
-   success while it is still fresh, which is both better practice and much
-   better for morale than only seeing it again in the "review these" list. */
-function queueRetry(item) {
-  if (retriedThisRound[item.code]) return;      // at most one retry per state per round
-  retriedThisRound[item.code] = true;
-  var at = Math.min(queue.length, qIndex + 3 + Math.floor(Math.random() * 2));
-  queue.splice(at, 0, { code: item.code, name: item.name, type: item.type, retry: true });
-}
-
 function afterQueueAnswer(correct, item) {
   if (correct) score++;
-  else { missed.push(item); queueRetry(item); }
+  else missed.push(item);
+}
+
+/* Commit the answer and next position before showing the feedback delay.
+   If iOS backgrounds or reloads the page during that delay, Resume opens the
+   next unanswered question instead of recording the same answer twice. */
+function commitAnsweredQuestion(correct, item, onDone) {
+  onDone(correct, item);
+  qIndex++;
+  saveRound(snapshotRound());
 }
 
 function renderQueueResults() {
@@ -1782,6 +1757,7 @@ function renderSpellQuestion(item, onDone) {
     answered = true;
     var correct = normalize(input.value) === normalize(s.name);
     input.disabled = true;
+    input.blur();
     var fb = document.getElementById("feedback");
     var pathEl = document.querySelector('#qMap path.state[data-code="' + s.code + '"]');
     var mres = recordAnswer(s.code, correct);
@@ -1801,11 +1777,8 @@ function renderSpellQuestion(item, onDone) {
     document.getElementById("masteryPips").innerHTML =
       masteryPipsHTML(s.code, mres.justMastered) + (correct ? factLineHTML(s.code) : "");
 
-    var next = makeNextButton(qIndex + 1 >= queue.length ? "See Results" : "Next →", function() {
-      qIndex++;
-      onDone(correct, item);
-      advanceQuestion();
-    });
+    commitAnsweredQuestion(correct, item, onDone);
+    var next = makeNextButton(qIndex >= queue.length ? "See Results" : "Next →", advanceQuestion);
     fb.parentNode.insertBefore(next.el, fb.nextSibling);
     if (correct) scheduleAutoAdvance(next.go);
   });
@@ -1875,11 +1848,8 @@ function renderMapQuestion(item, onDone) {
         document.getElementById("masteryPips").innerHTML =
           masteryPipsHTML(s.code, mres.justMastered) + (correct ? factLineHTML(s.code) : "");
 
-        var next = makeNextButton(qIndex + 1 >= queue.length ? "See Results" : "Next →", function() {
-          qIndex++;
-          onDone(correct, item);
-          advanceQuestion();
-        });
+        commitAnsweredQuestion(correct, item, onDone);
+        var next = makeNextButton(qIndex >= queue.length ? "See Results" : "Next →", advanceQuestion);
         fb.parentNode.insertBefore(next.el, fb.nextSibling);
         if (correct) scheduleAutoAdvance(next.go, advanceDelayFor(lastFactShown));
       });
@@ -1900,7 +1870,6 @@ function startTest() {
   queue = shuffle(queue);
   qIndex = 0;
   score = 0;
-  retriedThisRound = {};
   subScore = { spell: 0, spellTotal: 0, map: 0, mapTotal: 0 };
   missed = [];
   renderTestQuestion();
@@ -1927,7 +1896,6 @@ function afterTestAnswer(correct, item) {
     if (item.type === "spell") subScore.spell++; else subScore.map++;
   } else {
     missed.push(item);
-    queueRetry(item);
   }
 }
 
@@ -2037,12 +2005,18 @@ window.addEventListener("error", function(e) {
 (function boot() {
   var adopted = adoptTokenFromHash();
   showMenu();
+  /* Keep the exact initial view node as a guard. cloudPull may update status
+     text inside it, but starting a round replaces it. A late response can
+     refresh the initial menu/profile picker without ever ejecting a learner
+     from a question they already started. */
+  var initialView = app.firstElementChild;
+  function initialViewStillOpen() { return app.firstElementChild === initialView; }
   if (adopted) {
     // A share link was just opened: pull that family's progress in, then show
     // the menu again so the road trip reflects it.
-    cloudPull().then(function() { showMenu(); });
+    cloudPull().then(function() { if (initialViewStillOpen()) showMenu(); });
   } else if (cloudToken(false)) {
-    cloudPull().then(function(found) { if (found) showMenu(); });
+    cloudPull().then(function(found) { if (found && initialViewStillOpen()) showMenu(); });
   }
 })();
 </script>
