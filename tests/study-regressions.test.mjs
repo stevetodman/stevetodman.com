@@ -91,6 +91,16 @@ test('Study releases have an explicit contract, dedicated CI gate, live canary, 
   assert.match(liveWorkflow, /schedule:/);
   assert.match(liveWorkflow, /workflow_dispatch:/);
 
+  const cloudWorkflow = read('.github/workflows/study-cloud-canary.yml');
+  assert.match(cloudWorkflow, /name: Study cloud canary/);
+  assert.match(cloudWorkflow, /cron: '23 \* \* \* \*'/);
+  assert.match(cloudWorkflow, /issues: write/);
+  assert.match(cloudWorkflow, /bash scripts\/verify-study-cloud\.sh/);
+  assert.match(cloudWorkflow, /Alert on cloud canary failure/);
+  assert.match(cloudWorkflow, /Close recovered cloud canary alert/);
+  assert.match(cloudWorkflow, /\[automation\] StudyHub cloud canary failing/);
+  assert.match(cloudWorkflow, /github\.event_name != 'pull_request'/);
+
   const packageJson = JSON.parse(read('package.json'));
   assert.equal(packageJson.scripts['verify:study-production'], 'node scripts/verify-study-release.mjs');
   assert.equal(packageJson.scripts['verify:study-production:browser'], 'node scripts/verify-study-production.mjs');
