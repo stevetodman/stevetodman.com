@@ -25,11 +25,17 @@ async function openChallenge({ cloudToken = false, breakCanvas = false } = {}) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   await page.addInitScript(({ profile, cloudToken, breakCanvas }) => {
-    localStorage.setItem('usStatesRoadTrip', JSON.stringify({
-      activeProfile: 'Luke',
-      profiles: { Luke: profile, Samantha: { ...profile, avatar: '🦄' } },
-    }));
-    if (cloudToken) localStorage.setItem('usStatesCloudToken', '0123456789abcdef0123456789abcdef');
+    // addInitScript runs on every navigation. Seed once so a simulated close
+    // and reopen does not erase the very round this suite is trying to resume.
+    if (!localStorage.getItem('usStatesRoadTrip')) {
+      localStorage.setItem('usStatesRoadTrip', JSON.stringify({
+        activeProfile: 'Luke',
+        profiles: { Luke: profile, Samantha: { ...profile, avatar: '🦄' } },
+      }));
+    }
+    if (cloudToken && !localStorage.getItem('usStatesCloudToken')) {
+      localStorage.setItem('usStatesCloudToken', '0123456789abcdef0123456789abcdef');
+    }
     if (breakCanvas) {
       HTMLCanvasElement.prototype.getContext = function getContext() {
         throw new Error('50-state map must not rasterize through canvas');
@@ -62,10 +68,7 @@ test('a missed Full Test question stays 1 of exactly 50 and resumes at question 
   });
   assert.deepEqual(committed, { liveLength: 50, liveIndex: 1, savedLength: 50, savedIndex: 1 });
 
-  // Simulate closing and reopening the challenge. A fresh navigation avoids
-  // browser reload/BFCache behavior while preserving the origin's storage.
-  await page.goto('about:blank');
-  await page.goto(`${server.origin}/study/us-states.html`);
+  await page.reload();
   await page.click('[data-mode="resume"]');
   await page.waitForSelector('.score-line');
   assert.match(await page.locator('.score-line').innerText(), /Question 2 of 50/);
