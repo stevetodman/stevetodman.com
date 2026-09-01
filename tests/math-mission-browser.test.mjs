@@ -83,15 +83,15 @@ test('diagnostic answer persists, feedback renders, scratchwork works, and the s
   }
 });
 
-test('an adaptive-practice miss immediately schedules a guided retry of the same micro-skill', async () => {
+test('a current-focus miss immediately schedules a guided retry of the same powers-of-ten micro-skill', async () => {
   const seeded = {
     luke: {
       diagnostic: true,
       diagnosticVersion: 2,
       sessions: 1,
       attempts: [{
-        skill: 'addsub',
-        micro: 'decimal_add',
+        skill: 'place',
+        micro: 'powers_divide',
         correct: false,
         assisted: false,
         recovery: false,
@@ -99,18 +99,18 @@ test('an adaptive-practice miss immediately schedules a guided retry of the same
         transfer: false,
         date: '2026-08-31',
         at: 1788137000000,
-        cloudId: 'seed-decimal-add-miss'
+        cloudId: 'seed-powers-divide-miss'
       }]
     }
   };
   const { context, page, errors } = await openMath(seeded);
   try {
     await page.locator('[data-profile="luke"]').click();
-    assert.match(await page.locator('#primary-card').innerText(), /Strengthen add decimals/i);
-    assert.match(await page.locator('#primary-card').innerText(), /Starts at level 1/i);
+    assert.match(await page.locator('#primary-card').innerText(), /Current focus.*Lessons 1–2.*5\.NBT\.1–2/is);
+    assert.match(await page.locator('#primary-card').innerText(), /Strengthen divide by powers of 10/i);
     await page.locator('[data-start="practice"]').click();
 
-    assert.match(await page.locator('#skill-tag').innerText(), /Add decimals/i);
+    assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10/i);
     await page.locator('#answer-input').fill('999999');
     await page.locator('#check-button').click();
     await page.locator('#feedback.bad').waitFor();
@@ -119,16 +119,15 @@ test('an adaptive-practice miss immediately schedules a guided retry of the same
 
     const attempts = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts);
     assert.equal(attempts.length, 2);
-    assert.equal(attempts[1].micro, 'decimal_add');
+    assert.equal(attempts[1].micro, 'powers_divide');
     assert.equal(attempts[1].correct, false);
     assert.equal(attempts[1].assisted, false);
 
     await page.locator('[data-next]').click();
     assert.equal(await page.locator('#question-title').innerText(), 'Guided try');
-    assert.match(await page.locator('#skill-tag').innerText(), /Add decimals.*Guided/i);
+    assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10.*Guided/i);
     assert.equal(await page.locator('#scaffold-note').isHidden(), false);
-    assert.match(await page.locator('#scaffold-note').innerText(), /like place-value units/i);
-    assert.doesNotMatch(await page.locator('#scaffold-note').innerText(), /line up (?:the )?decimals/i);
+    assert.match(await page.locator('#scaffold-note').innerText(), /dividing makes every digit shift right/i);
     assert.deepEqual(errors, [], `runtime errors:\n${errors.join('\n')}`);
   } finally {
     await context.close();
