@@ -1,12 +1,13 @@
-import { DOMAIN_MICROS, MICRO_SKILLS, SKILLS, diagnostic, isCorrectAnswer } from "./mission1-content.mjs?v=20260831-weekly3";
-import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260831-focus1";
-import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, diagnosticIsCurrent, difficultyForScore, domainStats, microScore, microStats, nextMicro, projectedScore } from "./mission1-adaptive.mjs?v=20260831-focus1";
+import { MICRO_SKILLS, diagnostic, isCorrectAnswer } from "./mission1-content.mjs?v=20260831-weekly3";
+import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260901-child-ux1";
+import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, diagnosticIsCurrent, difficultyForScore, microScore, nextMicro, projectedScore } from "./mission1-adaptive.mjs?v=20260831-focus1";
 import { createScratchpad } from "./mission1-scratch.mjs?v=20260831-weekly3";
+import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901-child-ux1";
 
 "use strict";
 (() => {
   const KEY = "mathmission.m1.v1";
-  const state = { profile: null, mode: null, queue: [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [] };
+  const state = { profile: null, mode: null, queue: [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [], answered: false };
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
   const today = () => new Date().toISOString().slice(0, 10);
@@ -17,54 +18,65 @@ import { createScratchpad } from "./mission1-scratch.mjs?v=20260831-weekly3";
   function update(fn) { const all = load(), profile = all[state.profile] || emptyProfile(); profile.attempts = Array.isArray(profile.attempts) ? profile.attempts : []; fn(profile); all[state.profile] = profile; save(all); }
   function profileName() { return state.profile === "luke" ? "Luke" : "Samantha"; }
   function show(id) { $$(".screen").forEach(screen => screen.classList.toggle("active", screen.id === id)); scrollTo({ top: 0, behavior: "smooth" }); }
+  function currentQuestion() { return state.queue[state.index]; }
 
   const scratchpad = createScratchpad({ panel: $("#scratch-panel"), body: $("#scratch-body"), toggle: $("#scratch-toggle"), canvas: $("#scratch-canvas"), clear: $("#scratch-clear"), undo: $("#scratch-undo"), guide: $("#scratch-guide") });
+  const placeValue = createPlaceValueWorkspace({
+    root: $("#place-value-workspace"),
+    onGuidedReady() {
+      const question = currentQuestion();
+      if (!question?.assisted) return;
+      const input = $("#answer-input");
+      if (input) input.disabled = false;
+      $("#check-button").disabled = false;
+      $("#answer-form").classList.remove("guided-locked");
+      setTimeout(() => input?.focus(), 0);
+    }
+  });
 
   function picker() {
     const all = load();
     $$(".profile").forEach(button => {
       const profile = all[button.dataset.profile], status = button.querySelector(".profile-status");
-      status.textContent = diagnosticIsCurrent(profile) ? `${profile.sessions || 0} mission${profile.sessions === 1 ? "" : "s"} completed` : "Start Mission 1";
+      status.textContent = diagnosticIsCurrent(profile) ? "Ready for today’s mission" : "Start with a quick check";
     });
     show("picker");
   }
 
   function dashboard() {
     const profile = pdata(), name = profileName(), current = diagnosticIsCurrent(profile), card = $("#primary-card");
-    $("#learner-pill").textContent = name; $("#hello").textContent = `Ready, ${name}?`;
-    if (!current) card.innerHTML = `<div class="label">First assignment · about 10 minutes</div><h2>Find your starting point</h2><p>12 independently checked questions establish a broad Module 1 baseline. After that, adaptive practice prioritizes the school’s current Lessons 1–2 / 5.NBT.1–2 work.</p><button class="primary-button" data-start="diagnostic">Start diagnostic</button>`;
-    else {
-      const micro = nextMicro(profile), score = microScore(profile, micro);
-      card.innerHTML = `<div class="label">Current focus · Lessons 1–2 · 5.NBT.1–2</div><h2>Strengthen ${MICRO_SKILLS[micro].name.toLowerCase()}</h2><p>Practice prioritizes adjacent base-ten relationships and multiplying/dividing by powers of 10. Weak review skills can surface briefly without displacing the current lesson focus.</p><button class="primary-button" data-start="practice">Start adaptive mission</button>`;
+    $("#learner-pill").textContent = name;
+    $("#hello").textContent = `Ready, ${name}?`;
+    if (!current) {
+      card.innerHTML = `
+        <div class="label">First mission</div>
+        <h2>Quick starting check</h2>
+        <p class="mission-meta">12 questions · about 10 minutes</p>
+        <p>This gives Math Mission a starting point so the next practice knows what to teach.</p>
+        <button class="primary-button" data-start="diagnostic">Start</button>`;
+    } else {
+      card.innerHTML = `
+        <div class="label">Current focus · Lessons 1–2 · 5.NBT.1–2</div>
+        <h2>Powers of 10</h2>
+        <p class="mission-meta">${PRACTICE_TARGET} independent questions · about 10 minutes</p>
+        <p>Use place value to understand what happens when numbers are multiplied or divided by 10, 100, and 1,000.</p>
+        <button class="primary-button" data-start="practice">Start today’s mission</button>`;
     }
-    renderSkills(profile); show("dashboard");
-  }
-
-  function renderSkills(profile) {
-    let mastered = 0;
-    $("#skill-list").innerHTML = Object.entries(SKILLS).map(([skill, data]) => {
-      const stats = domainStats(profile, skill); mastered += stats.mastered;
-      const status = stats.mastered === stats.total ? "Mastered" : stats.score >= 70 ? "Building" : stats.score < 40 ? "Focus next" : "Learning";
-      const cls = stats.mastered === stats.total ? "strong" : stats.score < 40 ? "focus" : "";
-      return `<div class="skill-row"><div><div class="skill-name">${data.name}</div><div class="skill-meta">${data.topic} · ${data.lessons} · ${stats.mastered}/${stats.total} micro-skills · level ${stats.score}</div></div><span class="status ${cls}">${status}</span></div>`;
-    }).join("");
-    $("#mastery-count").textContent = `${mastered} of ${Object.keys(MICRO_SKILLS).length} mastered`;
-    if (!diagnosticIsCurrent(profile)) { $("#parent-report").textContent = "Complete the new diagnostic first. It independently checks every specific Mission 1 skill."; return; }
-    const ordered = Object.keys(MICRO_SKILLS).map(micro => ({ micro, stats: microStats(profile, micro) })).sort((a, b) => a.stats.score - b.stats.score);
-    const strongest = [...ordered].reverse()[0], learning = ordered[0];
-    $("#parent-report").innerHTML = `<strong>Strongest:</strong> ${MICRO_SKILLS[strongest.micro].name} · ${strongest.stats.score}<br><strong>Learning:</strong> ${MICRO_SKILLS[learning.micro].name} · ${learning.stats.score}<br><strong>How it adapts:</strong> recent independent work controls difficulty. Guided answers help learning but count only slightly toward mastery.`;
+    show("dashboard");
   }
 
   function start(mode) {
-    Object.assign(state, { mode, queue: mode === "diagnostic" ? diagnostic() : [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [] });
+    Object.assign(state, { mode, queue: mode === "diagnostic" ? diagnostic() : [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [], answered: false });
     if (mode === "practice") state.queue.push(nextAdaptiveQuestion());
-    show("session"); renderQuestion();
+    show("session");
+    renderQuestion();
   }
 
   function nextAdaptiveQuestion() {
     const profile = pdata();
     if (state.immediateScaffold) {
-      const micro = state.immediateScaffold; state.immediateScaffold = null;
+      const micro = state.immediateScaffold;
+      state.immediateScaffold = null;
       return generateCurrentWeekQuestion(micro, Math.max(1, difficultyForScore(microScore(profile, micro)) - 1), Math.random, { assisted: true });
     }
     const ready = state.recoveries.findIndex(item => item.delay <= 0);
@@ -79,80 +91,176 @@ import { createScratchpad } from "./mission1-scratch.mjs?v=20260831-weekly3";
   }
 
   function renderQuestion() {
-    const question = state.queue[state.index]; state.selected = null; state.recentMicros.push(question.micro);
-    const domain = SKILLS[question.skill], guided = question.assisted ? " · Guided" : question.recovery ? " · Recovery" : ` · Level ${question.difficulty}`;
-    $("#skill-tag").textContent = `${domain.topic} · ${MICRO_SKILLS[question.micro].name}${guided}`;
-    $("#question-title").textContent = state.mode === "diagnostic" ? `Question ${state.index + 1} of ${state.queue.length}` : question.assisted ? "Guided try" : `Learning question ${Math.min(state.independentCount + 1, PRACTICE_TARGET)} of ${PRACTICE_TARGET}`;
+    const question = currentQuestion();
+    state.selected = null;
+    state.answered = false;
+    state.recentMicros.push(question.micro);
+
+    const stateLabel = question.assisted ? " · Guided" : question.recovery ? " · Try again" : "";
+    $("#skill-tag").textContent = `${MICRO_SKILLS[question.micro].name}${stateLabel}`;
+    $("#question-title").textContent = state.mode === "diagnostic"
+      ? `Question ${state.index + 1} of ${state.queue.length}`
+      : question.assisted
+        ? "Guided step"
+        : question.recovery
+          ? "Try it again"
+          : `Question ${Math.min(state.independentCount + 1, PRACTICE_TARGET)}`;
     $("#question-body").innerHTML = question.prompt;
-    const scaffold = $("#scaffold-note"); scaffold.hidden = !question.scaffoldText; scaffold.textContent = question.scaffoldText;
+
+    const scaffold = $("#scaffold-note");
+    const workspaceOwnsScaffold = question.workspace?.type === "place-value";
+    scaffold.hidden = !question.scaffoldText || workspaceOwnsScaffold;
+    scaffold.textContent = question.scaffoldText;
+
     const area = $("#answer-area"), keyboard = question.answer.includes("+") ? "text" : "decimal";
-    area.innerHTML = question.options ? `<div class="choice-grid">${question.options.map(option => `<button class="choice" type="button" data-value="${option}">${option}</button>`).join("")}</div>` : `<label class="skip" for="answer-input">Your answer</label><input id="answer-input" class="answer-input" inputmode="${keyboard}" enterkeyhint="done" autocomplete="off" placeholder="${question.placeholder}">`;
-    $("#answer-form").hidden = false; $("#feedback").hidden = true; $("#feedback").className = "feedback";
-    $("#session-score").textContent = `${state.correct} independent correct`; renderPips(); scratchpad.setQuestion(question);
-    if (!question.options) setTimeout(() => $("#answer-input")?.focus(), 50);
+    const guidedWorkspace = !!question.assisted && workspaceOwnsScaffold;
+    area.innerHTML = question.options
+      ? `<div class="choice-grid">${question.options.map(option => `<button class="choice" type="button" data-value="${option}">${option}</button>`).join("")}</div>`
+      : `<label class="answer-label" for="answer-input">Your answer</label><input id="answer-input" class="answer-input" inputmode="${keyboard}" enterkeyhint="done" autocomplete="off" placeholder="${question.placeholder}" ${guidedWorkspace ? "disabled" : ""}>`;
+
+    $("#check-button").disabled = guidedWorkspace;
+    $("#answer-form").classList.toggle("guided-locked", guidedWorkspace);
+    $("#answer-form").hidden = false;
+    $("#feedback").hidden = true;
+    $("#feedback").className = "feedback";
+
+    placeValue.setQuestion(question);
+    scratchpad.setQuestion(question);
+    renderProgress();
+
+    if (!question.options && !guidedWorkspace) setTimeout(() => $("#answer-input")?.focus(), 50);
   }
 
-  function renderPips() {
+  function renderProgress() {
+    const question = currentQuestion();
     const count = state.mode === "diagnostic" ? state.queue.length : PRACTICE_TARGET;
-    const completed = state.mode === "diagnostic" ? state.index : state.independentCount;
-    $("#progress-pips").innerHTML = Array.from({ length: count }, (_, index) => `<span class="pip ${index < completed ? "done" : index === completed ? "current" : ""}"></span>`).join("");
+    const completed = state.mode === "diagnostic"
+      ? Math.min(state.index + (state.answered ? 1 : 0), count)
+      : Math.min(state.independentCount, count);
+    const display = state.mode === "diagnostic"
+      ? state.answered ? `${completed} of ${count} complete` : `${Math.min(state.index + 1, count)} of ${count}`
+      : question?.assisted || state.answered
+        ? `${completed} of ${count} complete`
+        : `${Math.min(completed + 1, count)} of ${count}`;
+    $("#progress-text").textContent = display;
+    $("#session-mode").textContent = state.mode === "diagnostic" ? "Starting check" : question?.assisted ? "Guided step" : question?.recovery ? "Independent retry" : "Independent";
+    $("#progress-fill").style.width = `${Math.round((completed / count) * 100)}%`;
   }
 
   function submit(event) {
     event.preventDefault();
-    const question = state.queue[state.index], raw = question.options ? state.selected : $("#answer-input")?.value;
+    const question = currentQuestion();
+    if (question.assisted && question.workspace && !placeValue.isReady()) return;
+    const raw = question.options ? state.selected : $("#answer-input")?.value;
     if (!raw) { announce("Choose or enter an answer first.", "bad"); return; }
+
     const correct = isCorrectAnswer(raw, question), at = Date.now();
     const attempt = { skill: question.skill, micro: question.micro, correct, assisted: question.assisted, recovery: question.recovery, difficulty: question.difficulty, transfer: question.transfer, date: today(), at, cloudId: `${at.toString(36)}-${Math.random().toString(36).slice(2, 8)}` };
     const score = projectedScore(pdata(), attempt);
     update(profile => profile.attempts.push(attempt));
     state.results.push({ ...attempt, before: score.before, after: score.after });
-    if (!question.assisted) { state.independentCount += 1; if (correct) state.correct += 1; }
+
+    if (!question.assisted) {
+      state.independentCount += 1;
+      if (correct) state.correct += 1;
+    }
     if (state.mode === "practice" && !correct && !question.assisted) {
       state.immediateScaffold = question.micro;
       if (!state.recoveries.some(item => item.micro === question.micro)) state.recoveries.push({ micro: question.micro, delay: 1 });
     }
+    state.answered = true;
+
     if (correct) {
-      const lead = question.assisted ? "Guided try complete." : question.recovery ? "Recovered independently." : "Correct.";
-      announce(`<strong>${lead}</strong><div>${question.why}</div><div class="score-shift">Skill level ${score.before} → ${score.after}</div><button class="primary-button" data-next>Next question</button>`, "good");
+      const lead = question.assisted ? "Exactly." : question.recovery ? "You got it independently this time." : "Yes.";
+      const explanation = question.assisted ? question.why : `You used ${MICRO_SKILLS[question.micro].name.toLowerCase()} correctly.`;
+      announce(`<strong>${lead}</strong><div>${explanation}</div><button class="primary-button" data-next>Next</button>`, "good");
+    } else if (state.mode === "practice" && !question.assisted && question.workspace?.type === "place-value") {
+      const operationCue = question.workspace.operation === "divide"
+        ? `Division by ${question.workspace.factor.toLocaleString()} should make the value smaller.`
+        : `Multiplication by ${question.workspace.factor.toLocaleString()} should make the value larger.`;
+      announce(`<strong>Not yet.</strong><div>${operationCue} Check what happens to each digit’s value.</div><button class="primary-button" data-next>Show me with the place-value chart</button>`, "bad");
+    } else if (question.assisted && question.workspace?.type === "place-value") {
+      announce(`<strong>Almost.</strong><div>Read the number you built on the chart carefully. The answer is ${question.answer}.</div><div class="worked">${question.why}</div><button class="primary-button" data-next>Continue</button>`, "bad");
     } else {
-      const nextText = state.mode === "practice" && !question.assisted ? "A guided problem is next, followed later by a fresh recovery." : "Review the worked explanation before continuing.";
-      announce(`<strong>Not yet. The answer is ${question.answer}.</strong><div class="worked">${question.why}</div><div class="score-shift">${nextText}</div><button class="primary-button" data-next>Continue</button>`, "bad");
+      const nextText = state.mode === "practice" && !question.assisted ? "A guided problem is next, followed later by a fresh independent retry." : "Review the explanation, then continue.";
+      announce(`<strong>Not yet. The answer is ${question.answer}.</strong><div class="worked">${question.why}</div><div class="feedback-note">${nextText}</div><button class="primary-button" data-next>Continue</button>`, "bad");
     }
     $("#answer-form").hidden = true;
+    renderProgress();
   }
 
-  function announce(html, kind) { const feedback = $("#feedback"); feedback.innerHTML = html; feedback.className = `feedback ${kind}`; feedback.hidden = false; }
-  function shouldFinishPractice() { return state.results.length >= PRACTICE_MAX || (state.independentCount >= PRACTICE_TARGET && !state.immediateScaffold && state.recoveries.length === 0); }
+  function announce(html, kind) {
+    const feedback = $("#feedback");
+    feedback.innerHTML = html;
+    feedback.className = `feedback ${kind}`;
+    feedback.hidden = false;
+  }
+
+  function shouldFinishPractice() {
+    return state.results.length >= PRACTICE_MAX || (state.independentCount >= PRACTICE_TARGET && !state.immediateScaffold && state.recoveries.length === 0);
+  }
+
   function next() {
     state.index += 1;
-    if (state.mode === "diagnostic") { state.index >= state.queue.length ? finish() : renderQuestion(); return; }
-    if (shouldFinishPractice()) { finish(); return; }
+    if (state.mode === "diagnostic") {
+      state.index >= state.queue.length ? finish() : renderQuestion();
+      return;
+    }
+    if (shouldFinishPractice()) {
+      finish();
+      return;
+    }
     if (state.index >= state.queue.length) state.queue.push(nextAdaptiveQuestion());
     renderQuestion();
   }
 
   function finish() {
-    update(profile => { if (state.mode === "diagnostic") { profile.diagnostic = true; profile.diagnosticVersion = DIAGNOSTIC_VERSION; } profile.sessions = (profile.sessions || 0) + 1; profile.last = today(); });
-    const independent = state.results.filter(result => !result.assisted), groups = {};
-    independent.forEach(result => { groups[result.micro] ??= { n: 0, c: 0, after: result.after }; groups[result.micro].n += 1; groups[result.micro].c += result.correct ? 1 : 0; groups[result.micro].after = result.after; });
-    $("#result-score").textContent = `${independent.filter(result => result.correct).length} of ${independent.length} correct independently.`;
-    $("#result-analysis").innerHTML = Object.entries(groups).map(([micro, value]) => `<div class="result-item"><span>${MICRO_SKILLS[micro].name}</span><strong>${value.c}/${value.n} · level ${value.after}</strong></div>`).join("");
-    const pending = state.recoveries.length > 0; $("#result-title").textContent = pending ? "Good work. Recovery continues next time." : independent.filter(result => result.correct).length / independent.length >= .85 ? "Strong finish." : "Now the next mission knows what to teach.";
+    update(profile => {
+      if (state.mode === "diagnostic") {
+        profile.diagnostic = true;
+        profile.diagnosticVersion = DIAGNOSTIC_VERSION;
+      }
+      profile.sessions = (profile.sessions || 0) + 1;
+      profile.last = today();
+    });
+
+    const independent = state.results.filter(result => !result.assisted);
+    const correct = independent.filter(result => result.correct).length;
+    const pending = state.recoveries.length > 0;
+    $("#result-score").textContent = `You finished ${independent.length} independent question${independent.length === 1 ? "" : "s"}.`;
+    $("#result-analysis").innerHTML = `<div class="result-message">${pending
+      ? "We’ll bring back anything that still needs another look."
+      : correct === independent.length
+        ? "You handled today’s work independently."
+        : "Your next mission will know what to practice again."}</div>`;
+    $("#result-title").textContent = pending ? "Good work." : correct === independent.length ? "Strong finish." : "Mission complete.";
+    placeValue.reset();
     show("results");
   }
 
   document.addEventListener("click", event => {
-    const profile = event.target.closest("[data-profile]"); if (profile) { state.profile = profile.dataset.profile; dashboard(); return; }
-    const startButton = event.target.closest("[data-start]"); if (startButton) { start(startButton.dataset.start); return; }
-    const choiceButton = event.target.closest(".choice"); if (choiceButton) { $$(".choice").forEach(button => button.classList.remove("selected")); choiceButton.classList.add("selected"); state.selected = choiceButton.dataset.value; return; }
+    const profile = event.target.closest("[data-profile]");
+    if (profile) { state.profile = profile.dataset.profile; dashboard(); return; }
+    const startButton = event.target.closest("[data-start]");
+    if (startButton) { start(startButton.dataset.start); return; }
+    const choiceButton = event.target.closest(".choice");
+    if (choiceButton) {
+      $$(".choice").forEach(button => button.classList.remove("selected"));
+      choiceButton.classList.add("selected");
+      state.selected = choiceButton.dataset.value;
+      return;
+    }
     if (event.target.closest("[data-next]")) { next(); return; }
     const action = event.target.closest("[data-action]")?.dataset.action;
     if (action === "switch") picker();
     if (action === "dashboard") dashboard();
-    if (action === "share-device") window.MathMissionCloud?.share();
     if (action === "quit" && confirm("Exit this mission? Completed answers are still saved.")) dashboard();
   });
-  window.addEventListener("mathmission:cloud-updated", () => { if ($("#picker").classList.contains("active")) picker(); else if (state.profile && $("#dashboard").classList.contains("active")) dashboard(); });
-  $("#answer-form").addEventListener("submit", submit); picker();
+
+  window.addEventListener("mathmission:cloud-updated", () => {
+    if ($("#picker").classList.contains("active")) picker();
+    else if (state.profile && $("#dashboard").classList.contains("active")) dashboard();
+  });
+  $("#answer-form").addEventListener("submit", submit);
+  picker();
 })();

@@ -7,8 +7,8 @@
   <title>Math Mission — Luke & Samantha</title>
   <meta name="description" content="Short, adaptive Grade 5 practice for Eureka Math Module 1: Place Value and Decimal Fractions.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/mission1.css?v=20260901-focus1">
-  <script src="assets/mission1.js?v=20260901-focus1" type="module"></script>
+  <link rel="stylesheet" href="assets/mission1.css?v=20260901-child-ux1">
+  <script src="assets/mission1.js?v=20260901-child-ux1" type="module"></script>
   <script src="assets/math-cloud.js?v=20260901-focus1" defer></script>
 </head>
 <body>
@@ -19,33 +19,42 @@
   </header>
   <main id="app" tabindex="-1">
     <section id="picker" class="screen active" aria-labelledby="pick-title">
-      <div class="eyebrow">Caddo Math Lab</div>
+      <div class="eyebrow">Math Mission</div>
       <h1 id="pick-title">Who’s practicing?</h1>
-      <p class="lede">One short mission. The questions adapt to what needs work.</p>
+      <p class="lede">Pick your name and start today’s mission.</p>
       <div class="profiles">
-        <button class="profile luke" data-profile="luke"><span class="avatar">L</span><span><strong>Luke</strong><small class="profile-status">Start Mission 1</small></span><b>→</b></button>
-        <button class="profile samantha" data-profile="samantha"><span class="avatar">S</span><span><strong>Samantha</strong><small class="profile-status">Start Mission 1</small></span><b>→</b></button>
+        <button class="profile luke" data-profile="luke"><span class="avatar">L</span><span><strong>Luke</strong><small class="profile-status">Ready for today’s mission</small></span><b>→</b></button>
+        <button class="profile samantha" data-profile="samantha"><span class="avatar">S</span><span><strong>Samantha</strong><small class="profile-status">Ready for today’s mission</small></span><b>→</b></button>
       </div>
-      <aside class="why"><strong>Current focus: Lessons 1–2 / 5.NBT.1–2.</strong> The diagnostic keeps a broad Module 1 baseline; adaptive practice prioritizes the school’s current place-value and powers-of-10 work, with targeted review only when needed.</aside>
+      <p class="week-note"><strong>Current focus: Lessons 1–2 / 5.NBT.1–2.</strong> Powers of 10 and place value.</p>
     </section>
+
     <section id="dashboard" class="screen" aria-labelledby="hello">
       <div class="topline"><button class="back" data-action="switch">← Switch</button><span id="learner-pill"></span></div>
-      <div class="eyebrow">Today’s assignment</div><h2 id="hello" class="screen-heading">Ready?</h2>
+      <div class="eyebrow">Today’s Mission</div>
+      <h2 id="hello" class="screen-heading">Ready?</h2>
       <div id="primary-card" class="mission-card"></div>
-      <div class="skill-panel">
-        <div class="section-title"><h2>Module 1 skills</h2><span id="mastery-count"></span></div>
-        <div id="skill-list" class="skill-list"></div>
-      </div>
-      <details class="parent-summary"><summary>Parent summary</summary><div id="parent-report"></div><div class="sync-row"><span data-math-cloud-status aria-live="polite">Saved on this device</span><button type="button" class="sync-button" data-action="share-device">Connect another device</button></div></details>
-      <a class="archive-link" href="fractions/">Open the original Fractions Lab · saved for Missions 3–4</a>
     </section>
+
     <section id="session" class="screen" aria-labelledby="question-title">
-      <div class="session-head"><button class="back" data-action="quit">← Exit</button><div id="progress-pips" class="pips" aria-label="Session progress"></div><span id="session-score">0 correct</span></div>
+      <div class="session-head">
+        <button class="back" data-action="quit">← Exit</button>
+        <div class="progress-cluster" aria-label="Mission progress">
+          <div class="progress-copy"><strong id="progress-text">1 of 10</strong><span id="session-mode">Independent</span></div>
+          <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+        </div>
+      </div>
       <div class="question-wrap">
         <div class="question-main">
-          <div id="skill-tag" class="eyebrow"></div><h2 id="question-title" class="screen-heading">Question</h2>
-          <div id="scaffold-note" class="scaffold-note" hidden></div><div id="question-body" class="question-body"></div>
-          <form id="answer-form" novalidate><div id="answer-area"></div><button id="check-button" class="primary-button" type="submit">Check answer</button></form>
+          <div id="skill-tag" class="eyebrow"></div>
+          <h2 id="question-title" class="screen-heading">Question</h2>
+          <div id="scaffold-note" class="scaffold-note" hidden></div>
+          <div id="question-body" class="question-body"></div>
+          <section id="place-value-workspace" class="place-value-workspace" aria-label="Interactive place-value workspace" hidden></section>
+          <form id="answer-form" novalidate>
+            <div id="answer-area"></div>
+            <button id="check-button" class="primary-button" type="submit">Check answer</button>
+          </form>
           <div id="feedback" class="feedback" aria-live="polite" hidden></div>
         </div>
         <section id="scratch-panel" class="scratch-panel" aria-labelledby="scratch-title">
@@ -54,8 +63,14 @@
         </section>
       </div>
     </section>
+
     <section id="results" class="screen" aria-labelledby="result-title">
-      <div class="result-mark">✓</div><div class="eyebrow">Mission complete</div><h2 id="result-title" class="screen-heading">Nice work.</h2><p id="result-score" class="result-score"></p><div id="result-analysis" class="result-analysis"></div><button class="primary-button" data-action="dashboard">See what’s next</button>
+      <div class="result-mark">✓</div>
+      <div class="eyebrow">Mission complete</div>
+      <h2 id="result-title" class="screen-heading">Nice work.</h2>
+      <p id="result-score" class="result-score"></p>
+      <div id="result-analysis" class="result-analysis"></div>
+      <button class="primary-button" data-action="dashboard">Done</button>
     </section>
   </main>
   <footer>Grade 5 Eureka Math · Module 1: Place Value and Decimal Fractions · <span data-math-cloud-status>Saved on this device</span></footer>

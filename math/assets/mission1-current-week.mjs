@@ -21,6 +21,18 @@ function scaffold(operation, shift, factor) {
   return `Use a place-value chart. Dividing by ${factor.toLocaleString()} makes each digit's value 1/${factor.toLocaleString()} as large, so each digit shifts ${shift} place${shift === 1 ? "" : "s"} right.`;
 }
 
+function workspaceFor(audit) {
+  if (audit?.kind !== "scale") return null;
+  const shift = Math.round(Math.log10(audit.factor));
+  return {
+    type: "place-value",
+    operation: audit.operation,
+    value: audit.a,
+    factor: audit.factor,
+    shift
+  };
+}
+
 function makeQuestion(micro, prompt, answer, why, audit, difficulty, flags, scaffoldText = "") {
   return {
     micro,
@@ -30,6 +42,7 @@ function makeQuestion(micro, prompt, answer, why, audit, difficulty, flags, scaf
     why,
     options: null,
     audit,
+    workspace: workspaceFor(audit),
     difficulty,
     assisted: !!flags.assisted,
     recovery: !!flags.recovery,
