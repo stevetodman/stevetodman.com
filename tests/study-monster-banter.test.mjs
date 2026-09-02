@@ -24,6 +24,20 @@ async function currentWord(page){
   });
 }
 
+async function pinPreVocabDate(page){
+  await page.addInitScript(() => {
+    const RealDate=Date;
+    const fixed='2026-08-31T12:00:00-05:00';
+    class FixedDate extends RealDate {
+      constructor(...args){super(...(args.length?args:[fixed]));}
+      static now(){return new RealDate(fixed).getTime();}
+    }
+    FixedDate.parse=RealDate.parse;
+    FixedDate.UTC=RealDate.UTC;
+    window.Date=FixedDate;
+  });
+}
+
 test('banter stays silly without insulting the child or owning learning state', () => {
   const source=fs.readFileSync(path.join(repoRoot,'study/unit-1/monster-banter.js'),'utf8');
   const unitHtml=fs.readFileSync(path.join(repoRoot,'study/unit-1/index.html'),'utf8');
@@ -52,6 +66,7 @@ test('banter stays silly without insulting the child or owning learning state', 
 test('Word Expedition gives a wrong-answer roast, counterattack, and recovered hit', async () => {
   const context=await browser.newContext({viewport:{width:390,height:844}});
   const page=await context.newPage();
+  await pinPreVocabDate(page);
   const errors=watchForErrors(page);
   await page.goto(server.origin+'/study/unit-1/',{waitUntil:'networkidle'});
   await page.locator('[data-profile="Luke"]').click();
@@ -77,6 +92,7 @@ test('Word Expedition gives a wrong-answer roast, counterattack, and recovered h
 test('Word Expedition correct answer lands a hit and makes the monster a frustrated loser without delaying Next', async () => {
   const context=await browser.newContext({viewport:{width:390,height:844}});
   const page=await context.newPage();
+  await pinPreVocabDate(page);
   const errors=watchForErrors(page);
   await page.goto(server.origin+'/study/unit-1/',{waitUntil:'networkidle'});
   await page.locator('[data-profile="Samantha"]').click();
