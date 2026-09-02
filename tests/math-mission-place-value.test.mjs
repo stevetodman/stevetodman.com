@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   PLACE_VALUE_COLUMNS,
   expectedPlaceValueDelta,
+  placeValueNumberForTokens,
   placeValueTokensFor,
   shiftPlaceValueTokens,
   visiblePlaceValueColumns
@@ -38,6 +39,8 @@ test("shifting changes digit place values while the decimal point remains a fixe
     { digit: "4", exponent: -1 },
     { digit: "3", exponent: -2 }
   ]);
+  assert.equal(placeValueNumberForTokens(left), "7430");
+  assert.equal(placeValueNumberForTokens(right), "7.43");
   assert.ok(PLACE_VALUE_COLUMNS.some(column => column.exponent === 0 && column.label === "Ones"));
   assert.equal(PLACE_VALUE_COLUMNS.some(column => Object.hasOwn(column, "decimal")), false, "decimal point is not a movable digit token");
 });
