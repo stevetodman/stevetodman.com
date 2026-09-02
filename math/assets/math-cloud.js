@@ -20,6 +20,7 @@
   function request(data){return fetch(CLOUD_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(data)}).then(function(res){return res.json().then(function(body){if(!res.ok){var e=new Error(body.error||("cloud "+res.status));e.status=res.status;throw e}return body})})}
   function safeId(v){return String(v||"").replace(/[^A-Za-z0-9_-]/g,"").slice(0,40)}
   function safeMisconception(v){return VALID_MISCONCEPTIONS.indexOf(v)>=0?v:""}
+  function attemptById(profile,id){return profile.attempts.find(function(a){return safeId(a.cloudId)===id})}
 
   function payload(){
     var local=read(),out={},changed=false;
@@ -67,7 +68,12 @@
           var recheckId=safeId(parts[11]);if(!recheckId||seen.has(recheckId))return;seen.add(recheckId);
           p.attempts.push({skill:parts[1],micro:parts[2],correct:parts[3]==="1",assisted:parts[4]==="1",recovery:parts[5]==="1",difficulty:Math.max(1,Math.min(3,Number(parts[6])||1)),transfer:parts[7]==="1",recheck:parts[8]==="1",date:/^\d{4}-\d{2}-\d{2}$/.test(parts[9])?parts[9]:"unknown",at:Number(parts[10])||0,cloudId:recheckId});
         }else if(parts[0]==="math1d"&&parts.length===13&&VALID_SKILLS.indexOf(parts[1])>=0&&VALID_MICROS.indexOf(parts[2])>=0&&safeMisconception(parts[9])&&st.mastered){
-          var evidenceId=safeId(parts[12]);if(!evidenceId||seen.has(evidenceId))return;seen.add(evidenceId);
+          var evidenceId=safeId(parts[12]);if(!evidenceId)return;
+          if(seen.has(evidenceId)){
+            var existing=attemptById(p,evidenceId);if(existing&&!existing.misconception)existing.misconception=parts[9];
+            return;
+          }
+          seen.add(evidenceId);
           p.attempts.push({skill:parts[1],micro:parts[2],correct:parts[3]==="1",assisted:parts[4]==="1",recovery:parts[5]==="1",difficulty:Math.max(1,Math.min(3,Number(parts[6])||1)),transfer:parts[7]==="1",recheck:parts[8]==="1",misconception:parts[9],date:/^\d{4}-\d{2}-\d{2}$/.test(parts[10])?parts[10]:"unknown",at:Number(parts[11])||0,cloudId:evidenceId});
         }
       });
