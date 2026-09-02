@@ -32,21 +32,25 @@ test("difficulty responds to current skill level", () => {
   assert.equal(difficultyForScore(75), 3);
 });
 
-test("the complete Module 1 packet is active without changing the stable micro-skill model", () => {
-  assert.deepEqual(CURRENT_WEEK_MICROS, [
-    "place_digit", "place_value", "powers_multiply", "powers_divide",
-    "metric_conversion", "decimal_forms", "decimal_compare", "decimal_round",
-    "decimal_add", "decimal_subtract", "decimal_multiply", "decimal_divide"
-  ]);
-  assert.deepEqual(REVIEW_MICROS, []);
-  assert.equal(nextMicro({ attempts: [] }), "place_digit", "curriculum order breaks a true evidence tie");
+test("current classroom work is the adaptive priority and maintenance stays secondary", () => {
+  assert.deepEqual(CURRENT_WEEK_MICROS, ["powers_multiply", "powers_divide"]);
+  assert.deepEqual(REVIEW_MICROS, ["metric_conversion", "decimal_forms", "decimal_compare"]);
+  assert.equal(nextMicro({ attempts: [] }), "powers_multiply", "new learners should start on current classroom work");
 });
 
-test("packet selection follows learner evidence and avoids immediate repetition", () => {
+test("future Module 1 weakness cannot displace an unsecured current lesson", () => {
   const profile = { attempts: [attempt("decimal_divide", false, { at: 1 })] };
   assert.equal(microScore(profile, "decimal_divide"), 27);
-  assert.equal(nextMicro(profile), "decimal_divide");
-  assert.notEqual(nextMicro(profile, { avoid: ["decimal_divide"] }), "decimal_divide");
+  assert.ok(CURRENT_WEEK_MICROS.includes(nextMicro(profile)));
+});
+
+test("maintenance can surface after both current-focus skills are secure", () => {
+  const attempts = [];
+  for (const micro of CURRENT_WEEK_MICROS) {
+    for (let index = 0; index < 4; index += 1) attempts.push(attempt(micro, true, { difficulty: 3, at: index + (micro === "powers_divide" ? 10 : 0) }));
+  }
+  attempts.push(attempt("metric_conversion", false, { at: 30 }));
+  assert.equal(nextMicro({ attempts }), "metric_conversion");
 });
 
 test("mastery requires sustained independent advanced work on two days", () => {
