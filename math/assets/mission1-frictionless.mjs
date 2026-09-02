@@ -1,3 +1,5 @@
+import { CURRENT_FOCUS } from "./mission1-focus.mjs?v=20260902-focus1";
+
 const DATA_KEY = "mathmission.m1.v1";
 
 const MICRO_BY_LABEL = new Map([
@@ -65,6 +67,16 @@ function syncChartAnswer(root) {
   if (label) label.textContent = "Answer from your chart";
 }
 
+function syncDashboard(card) {
+  if (!card?.querySelector('[data-start="practice"]')) return;
+  const label = card.querySelector(".label");
+  const heading = card.querySelector("h2");
+  const description = [...card.querySelectorAll("p")].find(node => !node.classList.contains("mission-meta"));
+  if (label) label.textContent = `Current focus · ${CURRENT_FOCUS.module} · ${CURRENT_FOCUS.lessons}`;
+  if (heading) heading.textContent = CURRENT_FOCUS.title;
+  if (description) description.textContent = "Math Mission will stay on the current lesson first, then bring back closely related review when it helps.";
+}
+
 function activeMicro() {
   const label = String(document.querySelector("#skill-tag")?.textContent || "").replace(/\s*·.*$/, "").trim();
   return MICRO_BY_LABEL.get(label) || null;
@@ -123,6 +135,12 @@ function install() {
     });
   }
 
+  const card = document.querySelector("#primary-card");
+  if (card) {
+    new MutationObserver(() => syncDashboard(card)).observe(card, { childList: true, subtree: true });
+    syncDashboard(card);
+  }
+
   const form = document.querySelector("#answer-form");
   if (form) {
     form.addEventListener("submit", () => {
@@ -135,4 +153,4 @@ function install() {
 
 if (typeof document !== "undefined") install();
 
-export { chartNumber, inferMisconception };
+export { chartNumber, inferMisconception, syncDashboard };
