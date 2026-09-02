@@ -226,46 +226,35 @@ test('spelling final mock is audio-only and writes misses back to adaptive evide
   assert.match(source, /Missed words are now higher priority in adaptive practice/);
 });
 
-test('Mastery Quest is a one-button vocabulary control loop with mastered-word suppression', () => {
+test('Mastery Quest is a 12-word audio spelling quiz without answer leakage', () => {
   const html = read('study/unit-1/mastery-quest.html');
   const source = read('study/unit-1/mastery-quest.js');
   const css = read('study/unit-1/mastery-quest.css');
-  assert.match(html, /Monday mastery/);
+  assert.match(html, /Unit 1 Spelling Quest/);
   assert.match(html, /unit1-mastery\.js/);
   assert.match(html, /unit1-cloud\.js/);
-  assert.match(source, /Start Mastery Quest/);
-  assert.match(source, /Mastered-word suppression/);
-  assert.match(source, /at most one already-ready retention check/);
-  assert.match(source, /candidateTasks/);
-  assert.match(source, /M\.vocabReady/);
-  assert.match(source, /M\.weakness/);
-  assert.match(source, /M\.vocabDomains/);
+  assert.match(source, /12-word spelling quiz/);
+  assert.match(source, /order:shuffle\(M\.BANK\)/);
+  assert.match(source, /No answers until the end/);
+  assert.match(source, /SpeechSynthesisUtterance/);
+  assert.match(source, /autocorrect="off"/);
+  assert.match(source, /spellcheck="false"/);
+  assert.match(source, /mastery-spelling-quiz/);
+  assert.match(source, /M\.spellingError/);
+  assert.match(source, /independent:true/);
   assert.match(css, /\.quest-rune/);
   assert.match(css, /min-height:48px/);
   assert.match(css, /safe-area-inset-top/);
 });
 
-test('Mastery Quest turns misses into hidden repair plus delayed retrieval', () => {
+test('Mastery Quest repairs spelling misses with hidden exact recall and assisted evidence', () => {
   const source = read('study/unit-1/mastery-quest.js');
-  assert.match(source, /insertDelayed\(task\)/);
-  assert.match(source, /The answer is/);
-  assert.match(source, /Rebuild from memory/);
-  assert.match(source, /mastery-quest-repair/);
+  assert.match(source, /Study the exact spelling once/);
+  assert.match(source, /Hide word/);
+  assert.match(source, /Spell the word from memory/);
+  assert.match(source, /mastery-spelling-repair/);
   assert.match(source, /assisted:true,independent:false/);
-  assert.match(source, /mastery-quest-bank/);
-});
-
-test('Mastery Quest has 12 runes, weak-word bosses, Sunday Final Boss, and Monday confidence mode', () => {
-  const source = read('study/unit-1/mastery-quest.js');
-  assert.match(source, /Recover all 12 Word Runes/);
-  assert.match(source, /Weak-word boss/);
-  assert.match(source, /2026-08-30/);
-  assert.match(source, /2026-08-31/);
-  assert.match(source, /Face the Sunday Final Boss/);
-  assert.match(source, /startConfidence/);
-  assert.match(source, /Monday confidence check/);
-  assert.match(source, /No coaching until the end/);
-  assert.match(source, /Stop studying/);
+  assert.match(source, /future independent spelling attempt counts toward mastery/);
 });
 
 test('vocabulary readiness is aligned to the actual word-bank test instead of requiring harder free recall', () => {
