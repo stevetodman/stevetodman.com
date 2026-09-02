@@ -130,6 +130,26 @@ test("misconception evidence survives a cloud payload/apply round trip", () => {
   assert.equal(restored.misconception, "wrong_direction");
 });
 
+test("richer misconception evidence upgrades an already-synced attempt instead of duplicating it", () => {
+  const cloudId = "same-attempt";
+  const source = loadCloud({ luke: { attempts: [{
+    skill: "place", micro: "powers_divide", correct: false, assisted: false,
+    recovery: false, recheck: false, difficulty: 2, transfer: false,
+    misconception: "wrong_direction", date: "2026-09-02", at: 1788310800000, cloudId
+  }] } });
+  const payload = source.cloud.payload();
+  const target = loadCloud({ luke: { attempts: [{
+    skill: "place", micro: "powers_divide", correct: false, assisted: false,
+    recovery: false, difficulty: 2, transfer: false,
+    date: "2026-09-02", at: 1788310800000, cloudId
+  }] } });
+
+  target.cloud.apply(payload);
+  const attempts = readData(target.localStorage).luke.attempts;
+  assert.equal(attempts.length, 1);
+  assert.equal(attempts[0].misconception, "wrong_direction");
+});
+
 test("applying the same remote state twice does not duplicate attempts", () => {
   const source = loadCloud({
     luke: {
