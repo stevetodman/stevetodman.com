@@ -348,7 +348,12 @@ function enhance() {
 if (typeof document !== "undefined") {
   const area = document.querySelector("#answer-area");
   if (area) {
-    new MutationObserver(enhance).observe(area, { childList: true });
+    new MutationObserver(records => {
+      if (records.some(record => record.removedNodes.length)) {
+        delete area.dataset.lowFriction;
+      }
+      enhance();
+    }).observe(area, { childList: true });
     enhance();
   }
 }
