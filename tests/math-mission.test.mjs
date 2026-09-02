@@ -30,11 +30,13 @@ function independentExpected(audit) {
     case "order": return [...audit.values].sort((a, b) => Number(a) - Number(b)).join(", ");
     case "round": { const divisor = 10 ** (3 - audit.digits); return String(Math.floor((audit.thousandths + divisor / 2) / divisor) * divisor / 1000); }
     case "roundMinimum": return String((audit.targetTenths * 10 - 5) / 100);
+    case "roundMaximum": return String((audit.targetTenths * 10 + 4) / 100);
     case "add": return String((audit.aScaled + audit.bScaled) / (10 ** audit.places));
     case "subtract": return String((audit.aScaled - audit.bScaled) / (10 ** audit.places));
     case "product": return String((audit.aScaled * audit.bScaled) / (10 ** (audit.aPlaces + audit.bPlaces)));
     case "quotient": return String((audit.dividendScaled / (10 ** audit.dividendPlaces)) / audit.divisor);
     case "subtractDivide": return String(((audit.totalScaled - audit.usedScaled) / (10 ** audit.places)) / audit.divisor);
+    case "mixtureShare": return String(((audit.firstScaled + audit.secondScaled - audit.leftoverScaled) / (10 ** audit.places)) / audit.bags);
     default: throw new Error(`Unhandled audit kind: ${audit.kind}`);
   }
 }
@@ -48,7 +50,7 @@ function assertQuestion(question) {
 
   const independentlySolved = independentExpected(question.audit);
   if (question.audit.kind === "expanded") assert.equal(numeric(question.answer.split("+").reduce((sum, term) => sum + numeric(term), 0)), numeric(independentlySolved));
-  else if (/^(?:digitAtPlace|digitValue|scale|metric|sum|round|roundMinimum|add|subtract|product|quotient|subtractDivide)$/.test(question.audit.kind)) assert.ok(Math.abs(numeric(question.answer) - numeric(independentlySolved)) < 1e-9, `${question.prompt}: ${question.answer} !== ${independentlySolved}`);
+  else if (/^(?:digitAtPlace|digitValue|scale|metric|sum|round|roundMinimum|roundMaximum|add|subtract|product|quotient|subtractDivide|mixtureShare)$/.test(question.audit.kind)) assert.ok(Math.abs(numeric(question.answer) - numeric(independentlySolved)) < 1e-9, `${question.prompt}: ${question.answer} !== ${independentlySolved}`);
   else assert.equal(question.answer.replaceAll(" ", ""), independentlySolved.replaceAll(" ", ""));
 
   if (question.micro === "decimal_compare") {
@@ -124,6 +126,11 @@ test("Module 1 generators include Eureka-style models and both directions of mea
   assert.ok(samples.some(question => /reasonable product/i.test(question.prompt)));
   assert.ok(samples.some(question => /Complete the pattern/i.test(question.prompt)));
   assert.ok(samples.some(question => /smallest possible number/i.test(question.prompt)));
+  assert.ok(samples.some(question => /greatest possible number/i.test(question.prompt)));
+  assert.ok(samples.some(question => /write in standard form/i.test(question.prompt)));
+  assert.ok(samples.some(question => /decompose .* as .* ones and .* hundredths/i.test(question.prompt)));
+  assert.ok(samples.some(question => /rename a remainder/i.test(question.prompt)));
+  assert.ok(samples.some(question => /show the total, subtraction, and division/i.test(question.prompt)));
   assert.ok(samples.some(question => /show both calculations/i.test(question.prompt)));
   const conversions = samples.filter(question => question.micro === "metric_conversion");
   assert.ok(conversions.some(question => question.audit.operation === "multiply"), "needs larger-to-smaller conversion practice");

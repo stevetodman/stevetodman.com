@@ -1,6 +1,6 @@
-import { MICRO_SKILLS, diagnostic, isCorrectAnswer } from "./mission1-content.mjs?v=20260831-weekly3";
-import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260901-child-ux1";
-import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, diagnosticIsCurrent, difficultyForScore, microScore, migrateAffectedRechecks, nextMicro, pendingRechecks, projectedScore } from "./mission1-adaptive.mjs?v=20260901-mastery1";
+import { CURRENT_PACKET, MICRO_SKILLS, diagnostic, isCorrectAnswer, scaffoldFor } from "./mission1-content.mjs?v=20260902-packet1";
+import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260902-packet1";
+import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, diagnosticIsCurrent, difficultyForScore, microScore, migrateAffectedRechecks, nextMicro, pendingRechecks, projectedScore } from "./mission1-adaptive.mjs?v=20260902-packet1";
 import { createScratchpad } from "./mission1-scratch.mjs?v=20260901-mastery1";
 import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901-mastery1";
 
@@ -62,10 +62,10 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
         <button class="primary-button" data-start="diagnostic">Start</button>`;
     } else {
       card.innerHTML = `
-        <div class="label">Current focus · Lessons 1–2 · 5.NBT.1–2</div>
-        <h2>Powers of 10</h2>
+        <div class="label">Current packet · ${CURRENT_PACKET.module} · ${CURRENT_PACKET.lessons}</div>
+        <h2>${CURRENT_PACKET.title}</h2>
         <p class="mission-meta">${PRACTICE_TARGET} independent questions · about 10 minutes</p>
-        <p>Use place value to understand what happens when numbers are multiplied or divided by 10, 100, and 1,000.</p>
+        <p>Math Mission will choose the part of the packet that will help you most today.</p>
         <button class="primary-button" data-start="practice">Start today’s mission</button>`;
     }
     show("dashboard");
@@ -83,7 +83,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
     if (state.immediateScaffold) {
       const missed = state.immediateScaffold;
       state.immediateScaffold = null;
-      return { ...missed, assisted: true, recovery: false, transfer: false, recheck: false, scaffoldText: "" };
+      return { ...missed, assisted: true, recovery: false, transfer: false, recheck: false, scaffoldText: scaffoldFor(missed.micro) };
     }
     const ready = state.recoveries.findIndex(item => item.delay <= 0);
     if (ready >= 0) {
@@ -186,13 +186,19 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
       const lead = question.assisted ? "Exactly." : question.recovery ? "You got it independently this time." : "Yes.";
       const explanation = question.assisted ? question.why : `You used ${MICRO_SKILLS[question.micro].name.toLowerCase()} correctly.`;
       announce(`<strong>${lead}</strong><div>${explanation}</div><button class="primary-button" data-next>Next</button>`, "good");
-    } else if (state.mode === "practice" && !question.assisted && question.workspace?.type === "place-value") {
-      const operationCue = question.workspace.operation === "divide"
-        ? `Division by ${question.workspace.factor.toLocaleString()} should make the value smaller.`
-        : `Multiplication by ${question.workspace.factor.toLocaleString()} should make the value larger.`;
-      announce(`<strong>Not yet.</strong><div>${operationCue} Check what happens to each digit’s value.</div><button class="primary-button" data-next>Show me with the place-value chart</button>`, "bad");
-    } else if (question.assisted && question.workspace?.type === "place-value") {
-      announce(`<strong>Almost.</strong><div>Read the number you built on the chart carefully. The answer is ${question.answer}.</div><div class="worked">${question.why}</div><button class="primary-button" data-next>Continue</button>`, "bad");
+    } else if (state.mode === "practice" && !question.assisted) {
+      const workspaceCue = question.workspace?.type === "place-value"
+        ? question.workspace.operation === "divide"
+          ? `Division by ${question.workspace.factor.toLocaleString()} should make the value smaller. Check what happens to each digit’s value.`
+          : `Multiplication by ${question.workspace.factor.toLocaleString()} should make the value larger. Check what happens to each digit’s value.`
+        : scaffoldFor(question.micro);
+      const nextLabel = question.workspace?.type === "place-value" ? "Show me with the place-value chart" : "Show me a step";
+      announce(`<strong>Not yet.</strong><div>${workspaceCue}</div><button class="primary-button" data-next>${nextLabel}</button>`, "bad");
+    } else if (question.assisted) {
+      const cue = question.workspace?.type === "place-value"
+        ? "Read the number you built on the chart carefully."
+        : "Use the guided step, then compare it with the worked relationship.";
+      announce(`<strong>Almost.</strong><div>${cue} The answer is ${question.answer}.</div><div class="worked">${question.why}</div><button class="primary-button" data-next>Continue</button>`, "bad");
     } else {
       const nextText = state.mode === "practice" && !question.assisted ? "A guided problem is next, followed later by a fresh independent retry." : "Review the explanation, then continue.";
       announce(`<strong>Not yet. The answer is ${question.answer}.</strong><div class="worked">${question.why}</div><div class="feedback-note">${nextText}</div><button class="primary-button" data-next>Continue</button>`, "bad");

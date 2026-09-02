@@ -6,25 +6,18 @@ import { parseOrderItems, sequenceAnswer } from "../math/assets/mission1-low-fri
 const root = new URL("../", import.meta.url);
 const read = path => readFile(new URL(path, root), "utf8");
 
-test("Math Mission keeps the verified weekly focus while removing adult analytics from the child path", async () => {
-  const [html, app, weekly, plan] = await Promise.all([
+test("Math Mission presents the complete current packet in the child view", async () => {
+  const [html, app] = await Promise.all([
     read("math/index.html"),
-    read("math/assets/mission1.js"),
-    read("math/CURRENT_WEEK.md"),
-    read("math/WORLD_CLASS_CHILD_UX_PLAN.md")
+    read("math/assets/mission1.js")
   ]);
   assert.match(html, /Module 1 · Place Value & Decimal Fractions/);
-  assert.match(html, /Current focus: Lessons 1–2 \/ 5\.NBT\.1–2/);
+  assert.match(html, /Current packet: Module 1, Lessons 1–16/);
   assert.match(html, /Today’s Mission/);
   assert.doesNotMatch(html, /id="skill-list"|id="mastery-count"|parent-summary/);
   assert.doesNotMatch(app, /Skill level|domainStats|microStats|parent-report/);
-  assert.match(app, /Current focus · Lessons 1–2 · 5\.NBT\.1–2/);
-  assert.doesNotMatch(app, /This week · Lessons 1–16/);
-  assert.match(weekly, /Adaptive practice should prioritize Lessons 1–2 \/ 5\.NBT\.1–2 first/);
-  assert.match(weekly, /Do not describe all Lessons 1–16 as "this week\."/);
-  assert.match(plan, /Status: \*\*LOCKED IMPLEMENTATION PLAN\*\*/);
-  assert.match(plan, /Parent mode or parent dashboard redesign/);
-  assert.match(plan, /If a proposed change does not improve the current child learning loop, it does not belong/);
+  assert.match(app, /Current packet ·/);
+  assert.match(app, /CURRENT_PACKET\.lessons/);
 });
 
 test("the learning screen has explicit independent progress and an interactive fixed-decimal place-value workspace", async () => {
@@ -52,9 +45,11 @@ test("the learning screen has explicit independent progress and an interactive f
   assert.match(css, /grid-template-columns:var\(--pv-columns\)/);
 });
 
-test("wrong-answer UX does not immediately reveal the answer for current powers-of-ten practice", async () => {
+test("wrong-answer UX scaffolds every packet skill before revealing the answer", async () => {
   const [app, html] = await Promise.all([read("math/assets/mission1.js"), read("math/index.html")]);
   assert.match(app, /Show me with the place-value chart/);
+  assert.match(app, /Show me a step/);
+  assert.match(app, /scaffoldFor\(question\.micro\)/);
   assert.match(app, /Check what happens to each digit’s value/);
   assert.match(app, /question\.workspace\?\.type === "place-value"/);
   assert.match(app, /state\.immediateScaffold = question/);

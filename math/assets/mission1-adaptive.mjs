@@ -1,11 +1,12 @@
-import { DOMAIN_MICROS } from "./mission1-content.mjs";
+import { CURRENT_WEEK_MICROS as PACKET_MICROS, DOMAIN_MICROS } from "./mission1-content.mjs?v=20260902-packet1";
 
 export const DIAGNOSTIC_VERSION = 2;
 export const RECHECK_VERSION = 1;
 export const PRACTICE_TARGET = 10;
 export const PRACTICE_MAX = 12;
-export const CURRENT_WEEK_MICROS = ["powers_multiply", "powers_divide"];
-export const REVIEW_MICROS = ["metric_conversion", "decimal_forms", "decimal_compare"];
+export const CURRENT_WEEK_MICROS = [...PACKET_MICROS];
+export const REVIEW_MICROS = [];
+const RECHECK_MICROS = ["powers_multiply", "powers_divide"];
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const relevantAttempts = (profile, micro) => (profile?.attempts || []).filter(attempt => attempt.micro === micro).sort((a, b) => (Number(a.at) || 0) - (Number(b.at) || 0)).slice(-12);
 
@@ -40,7 +41,7 @@ export function domainStats(profile, skill) {
 export function migrateAffectedRechecks(profile) {
   if (!profile || Number(profile.recheckVersion) >= RECHECK_VERSION) return false;
   profile.rechecks = profile.rechecks && typeof profile.rechecks === "object" ? profile.rechecks : {};
-  for (const micro of CURRENT_WEEK_MICROS) {
+  for (const micro of RECHECK_MICROS) {
     const attempts = (profile.attempts || []).filter(attempt => attempt.micro === micro);
     const hasCompletedRecheck = attempts.some(attempt => attempt.recheck && !attempt.assisted);
     if (attempts.length && !hasCompletedRecheck) profile.rechecks[micro] = { version: RECHECK_VERSION, status: "pending" };
@@ -50,20 +51,14 @@ export function migrateAffectedRechecks(profile) {
 }
 
 export function pendingRechecks(profile) {
-  return CURRENT_WEEK_MICROS.filter(micro => profile?.rechecks?.[micro]?.status === "pending");
+  return RECHECK_MICROS.filter(micro => profile?.rechecks?.[micro]?.status === "pending");
 }
 
 export function nextMicro(profile, options = {}) {
   const avoid = new Set(options.avoid || []);
   const rechecks = pendingRechecks(profile).filter(micro => !avoid.has(micro));
   if (rechecks.length) return rechecks.sort((a, b) => microScore(profile, a) - microScore(profile, b))[0];
-  const currentNeedsWork = CURRENT_WEEK_MICROS.some(micro => microScore(profile, micro) < 75);
-  const urgentReview = REVIEW_MICROS.filter(micro => microScore(profile, micro) < 25);
-  const ordinaryReview = REVIEW_MICROS.filter(micro => microScore(profile, micro) < 55);
-  const pool = currentNeedsWork
-    ? [...CURRENT_WEEK_MICROS, ...urgentReview]
-    : [...CURRENT_WEEK_MICROS, ...ordinaryReview];
-  const uniquePool = [...new Set(pool)];
+  const uniquePool = [...CURRENT_WEEK_MICROS];
   const candidates = uniquePool.map((micro, order) => {
     const stats = microStats(profile, micro);
     const latest = relevantAttempts(profile, micro).at(-1)?.at || 0;

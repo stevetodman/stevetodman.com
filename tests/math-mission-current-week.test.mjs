@@ -58,7 +58,7 @@ test("guided weekly questions expose the place-value scaffold while independent 
   assert.equal(independent.scaffoldText, "");
 });
 
-test("secondary review skills still delegate to the full Module 1 generator", () => {
+test("non-powers packet skills delegate to the full Module 1 generator", () => {
   const question = generateCurrentWeekQuestion("metric_conversion", 3, seededRandom(9));
   assert.equal(question.micro, "metric_conversion");
   assert.equal(isCorrectAnswer(question.answer, question), true);
