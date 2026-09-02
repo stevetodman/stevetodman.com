@@ -210,10 +210,11 @@ test('packet miss becomes guided place-value action and later independent recove
     assert.doesNotMatch(missFeedback, /The answer is/i, 'independent current-focus miss must not dump the answer');
 
     const attemptsAfterMiss = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts);
-    assert.equal(attemptsAfterMiss.length, 2);
-    assert.equal(attemptsAfterMiss[1].micro, 'powers_divide');
-    assert.equal(attemptsAfterMiss[1].correct, false);
-    assert.equal(attemptsAfterMiss[1].assisted, false);
+    assert.equal(attemptsAfterMiss.length, strongerPacketMicros.length + 2);
+    const latestAttempt = attemptsAfterMiss.at(-1);
+    assert.equal(latestAttempt.micro, 'powers_divide');
+    assert.equal(latestAttempt.correct, false);
+    assert.equal(latestAttempt.assisted, false);
 
     await page.locator('[data-next]').click();
     assert.equal(await page.locator('#question-title').innerText(), 'Guided step');
