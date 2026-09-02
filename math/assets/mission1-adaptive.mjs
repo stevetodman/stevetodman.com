@@ -1,11 +1,12 @@
-import { CURRENT_WEEK_MICROS as PACKET_MICROS, DOMAIN_MICROS } from "./mission1-content.mjs?v=20260902-packet1";
+import { DOMAIN_MICROS } from "./mission1-content.mjs?v=20260902-packet1";
+import { CURRENT_FOCUS, CURRENT_SECURE_SCORE, MAINTENANCE_MICROS, MAINTENANCE_NEEDS_WORK_SCORE } from "./mission1-focus.mjs?v=20260902-focus1";
 
 export const DIAGNOSTIC_VERSION = 2;
 export const RECHECK_VERSION = 1;
 export const PRACTICE_TARGET = 10;
 export const PRACTICE_MAX = 12;
-export const CURRENT_WEEK_MICROS = [...PACKET_MICROS];
-export const REVIEW_MICROS = [];
+export const CURRENT_WEEK_MICROS = [...CURRENT_FOCUS.micros];
+export const REVIEW_MICROS = [...MAINTENANCE_MICROS];
 const RECHECK_MICROS = ["powers_multiply", "powers_divide"];
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const relevantAttempts = (profile, micro) => (profile?.attempts || []).filter(attempt => attempt.micro === micro).sort((a, b) => (Number(a.at) || 0) - (Number(b.at) || 0)).slice(-12);
@@ -54,19 +55,25 @@ export function pendingRechecks(profile) {
   return RECHECK_MICROS.filter(micro => profile?.rechecks?.[micro]?.status === "pending");
 }
 
+function ranked(profile, pool, avoid) {
+  return [...new Set(pool)].map((micro, order) => {
+    const stats = microStats(profile, micro);
+    const latest = relevantAttempts(profile, micro).at(-1)?.at || 0;
+    return { micro, score: stats.score, attempts: stats.attempts, latest, avoided: avoid.has(micro) ? 1 : 0, order };
+  }).sort((a, b) => a.avoided - b.avoided || a.score - b.score || a.attempts - b.attempts || a.latest - b.latest || a.order - b.order);
+}
+
 export function nextMicro(profile, options = {}) {
   const avoid = new Set(options.avoid || []);
   const rechecks = pendingRechecks(profile).filter(micro => !avoid.has(micro));
   if (rechecks.length) return rechecks.sort((a, b) => microScore(profile, a) - microScore(profile, b))[0];
-  const uniquePool = [...CURRENT_WEEK_MICROS];
-  const candidates = uniquePool.map((micro, order) => {
-    const stats = microStats(profile, micro);
-    const latest = relevantAttempts(profile, micro).at(-1)?.at || 0;
-    const isCurrent = CURRENT_WEEK_MICROS.includes(micro);
-    return { micro, score: stats.score, attempts: stats.attempts, latest, avoided: avoid.has(micro) ? 1 : 0, isCurrent: isCurrent ? 0 : 1, order };
-  });
-  candidates.sort((a, b) => a.avoided - b.avoided || a.score - b.score || a.isCurrent - b.isCurrent || a.attempts - b.attempts || a.latest - b.latest || a.order - b.order);
-  return candidates[0].micro;
+
+  const currentNeedsWork = CURRENT_WEEK_MICROS.some(micro => microScore(profile, micro) < CURRENT_SECURE_SCORE);
+  if (currentNeedsWork) return ranked(profile, CURRENT_WEEK_MICROS, avoid)[0].micro;
+
+  const maintenanceNeedsWork = REVIEW_MICROS.filter(micro => microScore(profile, micro) < MAINTENANCE_NEEDS_WORK_SCORE);
+  const pool = maintenanceNeedsWork.length ? [...CURRENT_WEEK_MICROS, ...maintenanceNeedsWork] : CURRENT_WEEK_MICROS;
+  return ranked(profile, pool, avoid)[0].micro;
 }
 
 export function projectedScore(profile, attempt) {
