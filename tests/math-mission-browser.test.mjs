@@ -137,7 +137,8 @@ test('diagnostic stays child-simple, persists evidence, and keeps Apple Pencil s
   }
 });
 
-test('current-focus miss becomes guided place-value action and later independent recovery without stretching progress', async () => {
+test('packet miss becomes guided place-value action and later independent recovery without stretching progress', async () => {
+  const strongerPacketMicros = ['place_digit', 'place_value', 'metric_conversion', 'decimal_forms', 'decimal_compare', 'decimal_round', 'decimal_add', 'decimal_subtract', 'decimal_multiply', 'decimal_divide'];
   const seeded = {
     luke: {
       diagnostic: true,
@@ -145,7 +146,22 @@ test('current-focus miss becomes guided place-value action and later independent
       recheckVersion: 1,
       rechecks: {},
       sessions: 1,
-      attempts: [{
+      attempts: strongerPacketMicros.map((micro, index) => ({
+        skill: ['place_digit', 'place_value', 'metric_conversion'].includes(micro) ? 'place' :
+          ['decimal_forms', 'decimal_compare'].includes(micro) ? 'forms' :
+            micro === 'decimal_round' ? 'round' :
+              ['decimal_add', 'decimal_subtract'].includes(micro) ? 'addsub' :
+                micro === 'decimal_multiply' ? 'multiply' : 'divide',
+        micro,
+        correct: true,
+        assisted: false,
+        recovery: false,
+        difficulty: 2,
+        transfer: false,
+        date: '2026-08-31',
+        at: 1788136000000 + index,
+        cloudId: `seed-${micro}`
+      })).concat({
         skill: 'place',
         micro: 'powers_divide',
         correct: false,
@@ -156,7 +172,7 @@ test('current-focus miss becomes guided place-value action and later independent
         date: '2026-08-31',
         at: 1788137000000,
         cloudId: 'seed-powers-divide-miss'
-      }]
+      })
     }
   };
   const { context, page, errors } = await openMath(seeded, { width: 390, height: 844 }, 0.1);
@@ -164,8 +180,8 @@ test('current-focus miss becomes guided place-value action and later independent
     await page.locator('[data-profile="luke"]').click();
     await page.waitForTimeout(25);
     assert.equal(await page.evaluate(() => document.activeElement?.id), 'hello', 'screen changes should put focus on the new heading');
-    assert.match(await page.locator('#primary-card').innerText(), /Current focus.*Lessons 1–2.*5\.NBT\.1–2/is);
-    assert.match(await page.locator('#primary-card').innerText(), /Powers of 10/i);
+    assert.match(await page.locator('#primary-card').innerText(), /Current packet.*Module 1.*Lessons 1–16/is);
+    assert.match(await page.locator('#primary-card').innerText(), /Place value & decimal operations/i);
     assert.doesNotMatch(await page.locator('#dashboard').innerText(), /level \d|micro-skills|Parent summary/i);
     await page.locator('[data-start="practice"]').click();
     await page.waitForTimeout(25);
@@ -194,10 +210,11 @@ test('current-focus miss becomes guided place-value action and later independent
     assert.doesNotMatch(missFeedback, /The answer is/i, 'independent current-focus miss must not dump the answer');
 
     const attemptsAfterMiss = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts);
-    assert.equal(attemptsAfterMiss.length, 2);
-    assert.equal(attemptsAfterMiss[1].micro, 'powers_divide');
-    assert.equal(attemptsAfterMiss[1].correct, false);
-    assert.equal(attemptsAfterMiss[1].assisted, false);
+    assert.equal(attemptsAfterMiss.length, strongerPacketMicros.length + 2);
+    const latestAttempt = attemptsAfterMiss.at(-1);
+    assert.equal(latestAttempt.micro, 'powers_divide');
+    assert.equal(latestAttempt.correct, false);
+    assert.equal(latestAttempt.assisted, false);
 
     await page.locator('[data-next]').click();
     assert.equal(await page.locator('#question-title').innerText(), 'Guided step');
@@ -246,8 +263,37 @@ test('current-focus miss becomes guided place-value action and later independent
   }
 });
 
+test('an ordinary packet miss gets a guided step before the answer is revealed', async () => {
+  const seeded = { luke: { diagnostic: true, diagnosticVersion: 2, recheckVersion: 1, rechecks: {}, sessions: 1, attempts: [{
+    skill: 'divide', micro: 'decimal_divide', correct: false, assisted: false, recovery: false,
+    difficulty: 2, transfer: false, date: '2026-08-31', at: 1788137000100,
+    cloudId: 'seed-decimal-divide-miss'
+  }] } };
+  const { context, page, errors } = await openMath(seeded, { width: 390, height: 844 }, 0.1);
+  try {
+    await page.locator('[data-profile="luke"]').click();
+    await page.locator('[data-start="practice"]').click();
+    assert.match(await page.locator('#skill-tag').innerText(), /Divide decimals/i);
+    await page.locator('#answer-input').fill('999999');
+    await page.locator('#check-button').click();
+    const feedback = await page.locator('#feedback.bad').innerText();
+    assert.match(feedback, /Not yet\./);
+    assert.match(feedback, /Show me a step/i);
+    assert.doesNotMatch(feedback, /The answer is/i);
+
+    await page.locator('[data-next]').click();
+    assert.equal(await page.locator('#question-title').innerText(), 'Guided step');
+    assert.match(await page.locator('#scaffold-note').innerText(), /rename the dividend/i);
+    assert.equal(await page.locator('#progress-text').innerText(), '1 of 10 complete');
+    assert.equal(await page.locator('#answer-input').isDisabled(), false);
+    assert.deepEqual(errors, [], `runtime errors:\n${errors.join('\n')}`);
+  } finally {
+    await context.close();
+  }
+});
+
 test('iPad keeps the mathematical workspace available while scratchwork stays optional', async () => {
-  const seeded = { luke: { diagnostic: true, diagnosticVersion: 2, sessions: 1, attempts: [] } };
+  const seeded = { luke: { diagnostic: true, diagnosticVersion: 2, recheckVersion: 1, rechecks: { powers_multiply: { version: 1, status: 'pending' } }, sessions: 1, attempts: [] } };
   const { context, page, errors } = await openMath(seeded, { width: 1024, height: 1366 }, 0.1);
   try {
     await page.locator('[data-profile="luke"]').click();

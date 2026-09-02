@@ -1,4 +1,4 @@
-import { formatDecimal, generate as generateModuleQuestion } from "./mission1-content.mjs";
+import { formatDecimal, generate as generateModuleQuestion } from "./mission1-content.mjs?v=20260902-packet1";
 
 const CURRENT_MICROS = new Set(["powers_multiply", "powers_divide"]);
 const randomInt = (random, min, max) => Math.floor(random() * (max - min + 1)) + min;

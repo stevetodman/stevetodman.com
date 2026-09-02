@@ -7,6 +7,14 @@ export const SKILLS = {
   divide: { name: "Divide decimals", lessons: "Lessons 13–16", topic: "Topic F" }
 };
 
+export const CURRENT_PACKET = {
+  effective: "2026-08-31",
+  module: "Module 1",
+  lessons: "Lessons 1–16",
+  title: "Place value & decimal operations",
+  standards: ["5.NBT.1", "5.NBT.2", "5.NBT.3", "5.NBT.4", "5.NBT.7", "5.MD.1"]
+};
+
 export const MICRO_SKILLS = {
   place_digit: { name: "Identify a decimal place", skill: "place", scratch: "place" },
   place_value: { name: "Find a digit’s value", skill: "place", scratch: "place" },
@@ -97,7 +105,7 @@ const placeForDifficulty = (difficulty, random) => {
 };
 const choicesAround = (answer, candidates) => [...new Set([String(answer), ...candidates.map(String)])].slice(0, 4);
 const shuffled = (values, random) => values.map(value => [random(), value]).sort((a, b) => a[0] - b[0]).map(item => item[1]);
-const scaffoldFor = micro => ({
+export const scaffoldFor = micro => ({
   place_digit: "Use the place-value chart. Start immediately to the right of the decimal point.",
   place_value: "First identify the digit, then write its value as a decimal.",
   powers_multiply: "Use the chart: multiplying makes every digit shift left.",
@@ -110,7 +118,7 @@ const scaffoldFor = micro => ({
   decimal_subtract: "Line up like place-value units and rename with placeholder zeros when needed.",
   decimal_multiply: "Estimate first. Multiply using place-value units, then use the estimate to confirm the decimal's position.",
   decimal_divide: "Rename the dividend in place-value units as needed, divide those units, then multiply to check."
-})[micro];
+})[micro] || "Break the problem into place-value units, complete one step at a time, and check the result.";
 
 export function generate(micro, difficulty = 2, random = Math.random, flags = {}) {
   if (!MICRO_SKILLS[micro]) throw new Error(`Unknown math micro-skill: ${micro}`);
@@ -184,9 +192,26 @@ export function generate(micro, difficulty = 2, random = Math.random, flags = {}
   if (micro === "decimal_forms") {
     const whole = ri(0, d === 3 ? 19 : 8), tenths = ri(1, 9), hundredths = ri(0, 9), thousandths = ri(1, 9);
     const expected = whole + tenths / 10 + hundredths / 100 + thousandths / 1000;
-    if (d >= 2 && random() < 0.5) {
+    const formRoll = random();
+    if (d >= 2 && formRoll < 0.34) {
       const terms = [whole, tenths / 10, hundredths / 100, thousandths / 1000].filter(value => value !== 0);
       return input(micro, `Write <span class="math">${formatDecimal(expected)}</span> in expanded form using decimals.`, terms.map(formatDecimal).join(" + "), "Write the value of each nonzero digit, then add the parts.", { kind: "expanded", expected }, { ...extras, placeholder: "Example: 4 + 0.2 + 0.006" });
+    }
+    if (d >= 2 && formRoll < 0.68) {
+      const unitParts = [
+        [whole, whole === 1 ? "one" : "ones"],
+        [tenths, tenths === 1 ? "tenth" : "tenths"],
+        [hundredths, hundredths === 1 ? "hundredth" : "hundredths"],
+        [thousandths, thousandths === 1 ? "thousandth" : "thousandths"]
+      ].filter(([count]) => count > 0);
+      return input(
+        micro,
+        `Write in standard form: <span class="math">${unitParts.map(([count, unit]) => `${count} ${unit}`).join(" + ")}</span>`,
+        formatDecimal(expected),
+        "Place each unit in its matching column. Keep a zero as a placeholder when a place has no units.",
+        { kind: "sum", values: [whole, tenths / 10, hundredths / 100, thousandths / 1000] },
+        extras
+      );
     }
     return input(micro, `Write as a decimal: <span class="math">${whole} + ${tenths}/10 + ${hundredths}/100 + ${thousandths}/1000</span>`, formatDecimal(expected), "Place tenths, hundredths, and thousandths in their matching positions.", { kind: "sum", values: [whole, tenths / 10, hundredths / 100, thousandths / 1000] }, extras);
   }
@@ -216,10 +241,16 @@ export function generate(micro, difficulty = 2, random = Math.random, flags = {}
     const [digits, place] = places[ri(0, places.length - 1)];
     const divisor = 10 ** (3 - digits);
     const answer = Math.floor((thousandths + divisor / 2) / divisor) * divisor / 1000;
-    if (d === 3 && random() < .35) {
+    const boundaryRoll = random();
+    if (d === 3 && boundaryRoll < .25) {
       const targetTenths = ri(11, 998), target = targetTenths / 10, minimum = (targetTenths * 10 - 5) / 100;
       const options = shuffled([minimum, minimum - .01, minimum + .01, target + .05].map(formatDecimal), random);
       return choice(micro, `A number with exactly two decimal places rounds to <span class="math">${formatDecimal(target)}</span> to the nearest tenth. What is the smallest possible number?`, options, formatDecimal(minimum), `The midpoint below ${formatDecimal(target)} is ${formatDecimal(minimum)}. It rounds up to ${formatDecimal(target)}, so it is the smallest possible hundredth.`, { kind: "roundMinimum", targetTenths }, extras);
+    }
+    if (d === 3 && boundaryRoll < .5) {
+      const targetTenths = ri(11, 998), target = targetTenths / 10, maximum = (targetTenths * 10 + 4) / 100;
+      const options = shuffled([maximum, maximum - .01, maximum + .01, target - .05].map(formatDecimal), random);
+      return choice(micro, `A number with exactly two decimal places rounds to <span class="math">${formatDecimal(target)}</span> to the nearest tenth. What is the greatest possible number?`, options, formatDecimal(maximum), `The next hundredth, ${formatDecimal(maximum + .01)}, reaches the upper midpoint and rounds to the next tenth. Therefore ${formatDecimal(maximum)} is the greatest possible hundredth that still rounds to ${formatDecimal(target)}.`, { kind: "roundMaximum", targetTenths }, extras);
     }
     return input(micro, `Round <span class="math">${numberText(thousandths, 3)}</span> to the nearest ${place}.`, formatDecimal(answer), `Mark the ${place} place, then inspect the digit immediately to its right.`, { kind: "round", thousandths, digits }, extras);
   }
@@ -228,9 +259,41 @@ export function generate(micro, difficulty = 2, random = Math.random, flags = {}
     let aScaled = ri(100, d === 3 ? 9999 : 5000), bScaled = ri(10, d === 1 ? 999 : 2999);
     const operation = micro === "decimal_add" ? "add" : "subtract";
     if (operation === "subtract" && bScaled > aScaled) [aScaled, bScaled] = [bScaled, aScaled];
+    if (operation === "subtract" && bScaled === aScaled) aScaled += 1;
     const result = operation === "add" ? aScaled + bScaled : aScaled - bScaled;
     const symbol = operation === "add" ? "+" : "−";
-    if (d === 3 && random() < .55) {
+    const familyRoll = random();
+    if (d >= 2 && familyRoll < .28) {
+      const places = d === 2 ? ri(1, 2) : ri(1, 3);
+      let leftUnits = ri(5, d === 3 ? 70 : 40);
+      let rightUnits = ri(1, Math.min(30, leftUnits - 1));
+      if (operation === "add") rightUnits = ri(1, 30);
+      const unitResult = operation === "add" ? leftUnits + rightUnits : leftUnits - rightUnits;
+      const unit = UNIT_NAMES[places];
+      return input(
+        micro,
+        `Combine the like units, then write the answer in standard form: <span class="math">${leftUnits} ${unit} ${symbol} ${rightUnits} ${unit}</span>`,
+        formatDecimal(unitResult / (10 ** places)),
+        `First ${operation} the ${unit}: ${leftUnits} ${symbol} ${rightUnits} = ${unitResult} ${unit}. Then rename that amount in standard form.`,
+        { kind: operation, aScaled: leftUnits, bScaled: rightUnits, places },
+        { ...extras, scratch: "place" }
+      );
+    }
+    if (d === 3 && familyRoll < .48) {
+      const wholeScaled = ri(2, 50) * 100;
+      const smallScaled = ri(1, 9);
+      const correctScaled = operation === "add" ? wholeScaled + smallScaled : wholeScaled - smallScaled;
+      const wrongScaled = operation === "add" ? wholeScaled + smallScaled * 10 : wholeScaled - smallScaled * 10;
+      return input(
+        micro,
+        `A student treats ${formatDecimal(smallScaled / 100)} as ${formatDecimal(smallScaled / 10)} and says <span class="math">${formatDecimal(wholeScaled / 100)} ${symbol} ${formatDecimal(smallScaled / 100)} = ${formatDecimal(wrongScaled / 100)}</span>. What is the correct result?`,
+        formatDecimal(correctScaled / 100),
+        `${smallScaled} hundredths is ${formatDecimal(smallScaled / 100)}, not ${smallScaled} tenths. Keep the empty tenths place, then ${operation} like units to get ${formatDecimal(correctScaled / 100)}.`,
+        { kind: operation, aScaled: wholeScaled, bScaled: smallScaled, places: 2 },
+        extras
+      );
+    }
+    if (d === 3 && familyRoll < .78) {
       const a = formatDecimal(aScaled / 100), b = formatDecimal(bScaled / 100), resultText = formatDecimal(result / 100);
       const prompt = operation === "add"
         ? `A runner completed <span class="math">${a} km</span> on Monday and <span class="math">${b} km</span> on Tuesday. How many kilometers did the runner complete altogether?`
@@ -246,7 +309,34 @@ export function generate(micro, difficulty = 2, random = Math.random, flags = {}
     const productScaled = aScaled * bScaled;
     const answer = productScaled / (10 ** aPlaces);
     const left = numberText(aScaled, aPlaces), right = String(bScaled), answerText = formatDecimal(answer);
-    if (d >= 2 && random() < .45) {
+    const familyRoll = random();
+    if (d <= 2 && familyRoll < .36) {
+      const places = d === 1 ? 1 : ri(1, 3);
+      const unitsPerCopy = ri(1, d === 1 ? 9 : 24);
+      const copies = ri(2, 9);
+      const productUnits = unitsPerCopy * copies;
+      const unit = unitsPerCopy === 1 ? UNIT_NAMES[places].slice(0, -1) : UNIT_NAMES[places];
+      return input(
+        micro,
+        `Find the product and write it in standard form: <span class="math">${copies} copies of ${unitsPerCopy} ${unit}</span>.`,
+        formatDecimal(productUnits / (10 ** places)),
+        `${copies} × ${unitsPerCopy} ${UNIT_NAMES[places]} = ${productUnits} ${UNIT_NAMES[places]} = ${formatDecimal(productUnits / (10 ** places))}.`,
+        { kind: "product", aScaled: unitsPerCopy, aPlaces: places, bScaled: copies, bPlaces: 0 },
+        { ...extras, scratch: "place" }
+      );
+    }
+    if (d === 3 && familyRoll < .28) {
+      const wrong = formatDecimal(answer * 10);
+      return input(
+        micro,
+        `A student says <span class="math">${left} × ${right} = ${wrong}</span>. Estimate first, then find the correct product.`,
+        answerText,
+        `${left} is about ${Math.round(Number(left))}. That estimate shows the product should be near ${Math.round(Number(left)) * Number(right)}, not ${wrong}. The exact product is ${answerText}.`,
+        { kind: "product", aScaled, aPlaces, bScaled, bPlaces },
+        extras
+      );
+    }
+    if (d >= 2 && familyRoll < .66) {
       const wrongA = formatDecimal(answer / 10), wrongB = formatDecimal(answer * 10), wrongC = formatDecimal(answer * 100);
       return choice(micro, `Without calculating first, choose the reasonable product for <span class="math">${left} × ${right}</span>.`, shuffled([answerText, wrongA, wrongB, wrongC], random), answerText, `Estimate ${left} with a nearby whole number and multiply by ${right}. The reasonable magnitude is ${answerText}; the other choices do not fit the estimate.`, { kind: "product", aScaled, aPlaces, bScaled, bPlaces }, extras);
     }
@@ -254,10 +344,67 @@ export function generate(micro, difficulty = 2, random = Math.random, flags = {}
     return input(micro, `Find the product: <span class="math">${left} × ${right}</span>`, answerText, `${aScaled.toLocaleString()} ${units} × ${right} = ${productScaled.toLocaleString()} ${units} = ${answerText}. Use an estimate to check that the decimal is in a reasonable position.`, { kind: "product", aScaled, aPlaces, bScaled, bPlaces }, extras);
   }
 
+  const familyRoll = random();
+  if (familyRoll < (d === 1 ? .6 : .32)) {
+    const divisor = ri(2, 9);
+    const onesPerGroup = ri(1, d === 1 ? 4 : 12);
+    const hundredthsPerGroup = ri(1, Math.min(d === 1 ? 9 : 18, Math.floor(99 / divisor)));
+    const wholeOnes = onesPerGroup * divisor;
+    const hundredths = hundredthsPerGroup * divisor;
+    const dividendScaled = wholeOnes * 100 + hundredths;
+    const quotientScaled = onesPerGroup * 100 + hundredthsPerGroup;
+    const dividend = numberText(dividendScaled, 2);
+    return input(
+      "decimal_divide",
+      `Find <span class="math">${dividend} ÷ ${divisor}</span>. Decompose ${dividend} as ${wholeOnes} ones and ${hundredths} hundredths, then divide both parts.`,
+      formatDecimal(quotientScaled / 100),
+      `${wholeOnes} ones ÷ ${divisor} = ${onesPerGroup} ones, and ${hundredths} hundredths ÷ ${divisor} = ${hundredthsPerGroup} hundredths. Combine both quotient parts: ${formatDecimal(quotientScaled / 100)}.`,
+      { kind: "quotient", dividendScaled, dividendPlaces: 2, divisor },
+      { ...extras, scratch: "place" }
+    );
+  }
+
+  if (d >= 2 && familyRoll < .55) {
+    const [divisor, step] = [[2, 50], [4, 25], [5, 20], [8, 25]][ri(0, 3)];
+    let multiplier = ri(5, 160);
+    if ((multiplier * step) % 100 === 0) multiplier += 1;
+    const quotientScaled = multiplier * step;
+    const dividendTenths = quotientScaled * divisor / 100;
+    const dividend = formatDecimal(dividendTenths / 10);
+    const answer = formatDecimal(quotientScaled / 1000);
+    return input(
+      "decimal_divide",
+      `Find <span class="math">${dividend} ÷ ${divisor}</span>. Rename a remainder into the next smaller place-value unit until the quotient is complete.`,
+      answer,
+      `${dividend} is ${dividendTenths * 100} thousandths. ${dividendTenths * 100} thousandths ÷ ${divisor} = ${quotientScaled} thousandths, or ${answer}. Check: ${answer} × ${divisor} = ${dividend}.`,
+      { kind: "quotient", dividendScaled: dividendTenths, dividendPlaces: 1, divisor },
+      { ...extras, scratch: "vertical" }
+    );
+  }
+
+  if (d === 3 && familyRoll < .78) {
+    const bags = ri(4, 8);
+    const perBagScaled = ri(80, 250);
+    const leftoverScaled = ri(10, 75);
+    const totalScaled = bags * perBagScaled + leftoverScaled;
+    const firstScaled = ri(100, totalScaled - 100);
+    const secondScaled = totalScaled - firstScaled;
+    const first = numberText(firstScaled, 2), second = numberText(secondScaled, 2), leftover = numberText(leftoverScaled, 2);
+    const answer = formatDecimal(perBagScaled / 100);
+    return input(
+      "decimal_divide",
+      `A snack maker combines <span class="math">${first} kg</span> of one ingredient and <span class="math">${second} kg</span> of another. After filling ${bags} equal bags, ${leftover} kg remains. How many kilograms are in each full bag?<br><small>Show the total, subtraction, and division.</small>`,
+      answer,
+      `Add ${first} + ${second} = ${formatDecimal(totalScaled / 100)}. Subtract the remainder: ${formatDecimal(totalScaled / 100)} − ${leftover} = ${formatDecimal((totalScaled - leftoverScaled) / 100)}. Divide by ${bags}: each bag holds ${answer} kg.`,
+      { kind: "mixtureShare", firstScaled, secondScaled, leftoverScaled, bags, places: 2 },
+      { ...extras, scratch: "tape" }
+    );
+  }
+
   const divisor = ri(2, 9), quotientPlaces = d === 1 ? 1 : d === 2 ? 2 : 3;
   const quotientScaled = ri(d === 3 ? 101 : 11, d === 1 ? 99 : d === 2 ? 199 : 4999);
   const dividendScaled = divisor * quotientScaled, dividend = numberText(dividendScaled, quotientPlaces), answer = quotientScaled / (10 ** quotientPlaces);
-  if (d === 3 && random() < .35) {
+  if (d === 3 && familyRoll < .9) {
     const usedScaled = ri(10, 900), totalScaled = dividendScaled + usedScaled, total = numberText(totalScaled, quotientPlaces), used = numberText(usedScaled, quotientPlaces);
     return input("decimal_divide", `A baker had <span class="math">${total} kilograms</span> of flour and used <span class="math">${used} kilograms</span>. The rest was shared equally among <span class="math">${divisor}</span> bins. How many kilograms went in each bin?<br><small>Use a tape diagram, and show both calculations.</small>`, formatDecimal(answer), `First subtract: ${total} − ${used} = ${dividend}. Then divide: ${dividend} ÷ ${divisor} = ${formatDecimal(answer)}.`, { kind: "subtractDivide", totalScaled, usedScaled, places: quotientPlaces, divisor }, { ...extras, scratch: "tape" });
   }
@@ -294,11 +441,13 @@ export function independentlySolve(audit) {
     case "order": return [...audit.values].sort((a, b) => Number(a) - Number(b)).join(", ");
     case "round": { const divisor = 10 ** (3 - audit.digits); return formatDecimal(Math.floor((audit.thousandths + divisor / 2) / divisor) * divisor / 1000); }
     case "roundMinimum": return formatDecimal((audit.targetTenths * 10 - 5) / 100);
+    case "roundMaximum": return formatDecimal((audit.targetTenths * 10 + 4) / 100);
     case "add": return formatDecimal((audit.aScaled + audit.bScaled) / (10 ** audit.places));
     case "subtract": return formatDecimal((audit.aScaled - audit.bScaled) / (10 ** audit.places));
     case "product": return formatDecimal((audit.aScaled * audit.bScaled) / (10 ** (audit.aPlaces + audit.bPlaces)));
     case "quotient": return formatDecimal((audit.dividendScaled / (10 ** audit.dividendPlaces)) / audit.divisor);
     case "subtractDivide": return formatDecimal(((audit.totalScaled - audit.usedScaled) / (10 ** audit.places)) / audit.divisor);
+    case "mixtureShare": return formatDecimal(((audit.firstScaled + audit.secondScaled - audit.leftoverScaled) / (10 ** audit.places)) / audit.bags);
     default: throw new Error(`Unsupported audit kind: ${audit.kind}`);
   }
 }
