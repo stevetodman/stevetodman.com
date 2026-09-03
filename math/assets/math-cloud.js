@@ -41,7 +41,10 @@
         stats[key]={streak:1,correct:a.correct?1:0,wrong:a.correct?0:1,mastered:true};
       });
       stats.math1sessions={streak:Number(p.sessions)||0,correct:Number(p.sessions)||0,wrong:0,mastered:false};
-      if(p.diagnostic)stats[p.diagnosticVersion===2?"math1diagnostic2":"math1diagnostic"]={streak:1,correct:1,wrong:0,mastered:true};
+      if(p.diagnostic){
+        var diagnosticKey=p.diagnosticVersion===3?"math1diagnostic3":p.diagnosticVersion===2?"math1diagnostic2":"math1diagnostic";
+        stats[diagnosticKey]={streak:1,correct:1,wrong:0,mastered:true};
+      }
       out[PROFILES[name]]={stateStats:stats,masteredOrder:[]};
     });
     if(changed)write(local);return out;
@@ -57,6 +60,7 @@
         var st=stats[key]||{},parts=key.split("|");
         if(key==="math1diagnostic"&&st.mastered)p.diagnostic=true;
         else if(key==="math1diagnostic2"&&st.mastered){p.diagnostic=true;p.diagnosticVersion=2}
+        else if(key==="math1diagnostic3"&&st.mastered){p.diagnostic=true;p.diagnosticVersion=3}
         else if(key==="math1sessions")p.sessions=Math.max(Number(p.sessions)||0,Number(st.correct)||0,Number(st.streak)||0);
         else if(parts[0]==="math1a"&&parts.length===7&&VALID_SKILLS.indexOf(parts[1])>=0&&st.mastered){
           var legacyId=safeId(parts[6]);if(!legacyId||seen.has(legacyId))return;seen.add(legacyId);
