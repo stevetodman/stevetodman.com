@@ -8,9 +8,11 @@ export interface HospitalWorkDefinition {
   description: string;
   location: HospitalLocation;
   priority: WorkPriority;
+  durationMinutes: number;
 }
 
 export const WORKROOM_HANDOFF_TASK_ID = "work-overnight-handoff";
+export const WORKROOM_HANDOFF_DURATION_MINUTES = 12;
 
 const WORK_DEFINITIONS: Record<string, HospitalWorkDefinition> = {
   [WORKROOM_HANDOFF_TASK_ID]: {
@@ -19,6 +21,7 @@ const WORK_DEFINITIONS: Record<string, HospitalWorkDefinition> = {
     description: "Open the service handoff list at a team-room workstation before noon conference.",
     location: "workroom",
     priority: "routine",
+    durationMinutes: WORKROOM_HANDOFF_DURATION_MINUTES,
   },
 };
 

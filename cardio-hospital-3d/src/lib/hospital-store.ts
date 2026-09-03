@@ -6,6 +6,7 @@ import {
   type HospitalState,
   type InitialHospitalOptions,
 } from "./hospital-engine";
+import { reconcileHospitalConsequences } from "./hospital-consequences";
 import {
   clearHospitalState,
   loadHospitalState,
@@ -23,8 +24,12 @@ interface HospitalStoreState {
 
 const initialHospital = createInitialHospitalState();
 
+function reconcileCanonicalState(state: HospitalState): HospitalState {
+  return reconcileHospitalConsequences(reconcileHospitalSchedule(state));
+}
+
 function applyCanonicalEvent(state: HospitalState, event: HospitalEvent): HospitalState {
-  return reconcileHospitalSchedule(reduceHospitalState(state, event));
+  return reconcileCanonicalState(reduceHospitalState(state, event));
 }
 
 export const useHospitalStore = create<HospitalStoreState>((set, get) => ({
@@ -43,7 +48,7 @@ export const useHospitalStore = create<HospitalStoreState>((set, get) => ({
     if (get().hydrated) return;
     const persisted = loadHospitalState();
     const source = persisted ?? get().hospital;
-    const hospital = reconcileHospitalSchedule(source);
+    const hospital = reconcileCanonicalState(source);
     set({ hospital, hydrated: true });
     if (hospital !== source) saveHospitalState(hospital);
   },

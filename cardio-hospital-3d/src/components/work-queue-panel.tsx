@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   formatHospitalTime,
   getOpenTasks,
+  hasTaskMissedDeadline,
   isTaskOverdue,
   type HospitalTaskState,
 } from "@/lib/hospital-engine";
@@ -68,7 +69,8 @@ export default function WorkQueuePanel() {
               {openTasks.map((task) => {
                 const label = taskLabel(task);
                 const priority = task.priority ?? "routine";
-                const overdue = isTaskOverdue(hospital, task);
+                const missed = hasTaskMissedDeadline(task);
+                const overdue = missed || isTaskOverdue(hospital, task);
                 return (
                   <article key={task.taskId} className={`work-queue-item ${task.kind} ${task.status} ${priority}${overdue ? " overdue" : ""}`}>
                     <div className="work-queue-meta">
@@ -76,9 +78,10 @@ export default function WorkQueuePanel() {
                       <span>{task.kind}</span>
                       <span>{task.location.replaceAll("-", " ")}</span>
                       <span>{task.status.replace("-", " ")}</span>
+                      {typeof task.durationMinutes === "number" && <span>{task.durationMinutes} min</span>}
                       {typeof task.dueAtMinute === "number" && (
                         <span className={overdue ? "due-overdue" : undefined}>
-                          {overdue ? "overdue" : "due"} {formatHospitalTime(task.dueAtMinute)}
+                          {missed ? "missed" : overdue ? "overdue" : "due"} {formatHospitalTime(task.dueAtMinute)}
                         </span>
                       )}
                     </div>

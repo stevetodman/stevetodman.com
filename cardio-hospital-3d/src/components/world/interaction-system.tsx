@@ -2,7 +2,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useRef } from "react";
 import { getActiveEncounter, getTask } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
-import { WORKROOM_HANDOFF_TASK_ID } from "@/lib/hospital-work";
+import { getHospitalWorkDefinition, WORKROOM_HANDOFF_TASK_ID } from "@/lib/hospital-work";
 import { HCM_CASE_ID, HCM_PATIENT_ID, HCM_ROOM, HCM_TASK_ID } from "@/lib/scenario-ids";
 import { useSimulationStore } from "@/lib/simulation-store";
 
@@ -64,7 +64,12 @@ export function InteractionSystem() {
     if (active.current === "handoff") {
       const handoffTask = getTask(useHospitalStore.getState().hospital, WORKROOM_HANDOFF_TASK_ID);
       if (!handoffTask || (handoffTask.status !== "assigned" && handoffTask.status !== "in-progress")) return;
+      const durationMinutes = handoffTask.durationMinutes
+        ?? getHospitalWorkDefinition(WORKROOM_HANDOFF_TASK_ID)?.durationMinutes;
       if (handoffTask.status === "assigned") dispatch({ type: "TASK_STARTED", taskId: WORKROOM_HANDOFF_TASK_ID });
+      if (typeof durationMinutes === "number" && durationMinutes > 0) {
+        dispatch({ type: "TIME_ADVANCED", minutes: durationMinutes });
+      }
       dispatch({ type: "TASK_COMPLETED", taskId: WORKROOM_HANDOFF_TASK_ID });
       return;
     }

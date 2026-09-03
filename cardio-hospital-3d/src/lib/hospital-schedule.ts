@@ -1,6 +1,6 @@
 import { reduceHospitalState, type HospitalState, type TaskPriority } from "./hospital-engine.ts";
 import { HANDOFF_REVIEW_PAGE_ID } from "./hospital-pages.ts";
-import { WORKROOM_HANDOFF_TASK_ID } from "./hospital-work.ts";
+import { WORKROOM_HANDOFF_DURATION_MINUTES, WORKROOM_HANDOFF_TASK_ID } from "./hospital-work.ts";
 
 interface ScheduledWorkRelease {
   scheduleId: string;
@@ -13,6 +13,7 @@ interface ScheduledWorkRelease {
     location: string;
     priority: TaskPriority;
     dueAtMinute?: number;
+    durationMinutes?: number;
   };
 }
 
@@ -28,6 +29,7 @@ const HOSPITAL_SCHEDULE: ScheduledWorkRelease[] = [
       location: "workroom",
       priority: "routine",
       dueAtMinute: 12 * 60,
+      durationMinutes: WORKROOM_HANDOFF_DURATION_MINUTES,
     },
   },
 ];
@@ -56,6 +58,7 @@ export function reconcileHospitalSchedule(state: HospitalState): HospitalState {
         location: release.task.location,
         priority: release.task.priority,
         dueAtMinute: release.task.dueAtMinute,
+        durationMinutes: release.task.durationMinutes,
       });
     }
   }

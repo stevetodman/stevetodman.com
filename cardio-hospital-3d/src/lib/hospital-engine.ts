@@ -1,6 +1,6 @@
 import type { DiscloseKey } from "./cases-data";
 
-export const HOSPITAL_SCHEMA_VERSION = 2 as const;
+export const HOSPITAL_SCHEMA_VERSION = 3 as const;
 
 export type HospitalLocation =
   | "lobby"
@@ -65,6 +65,9 @@ export interface HospitalTaskState {
   priority?: TaskPriority;
   createdAtMinute?: number;
   dueAtMinute?: number;
+  durationMinutes?: number;
+  completedAtMinute?: number;
+  deadlineMissedAtMinute?: number;
 }
 
 export interface PatientRuntimeState {
@@ -107,11 +110,12 @@ export type HospitalEvent =
   | { type: "PAGE_RECEIVED"; pageId: string }
   | { type: "PAGE_ACKNOWLEDGED"; pageId: string }
   | { type: "PATIENT_ARRIVED"; patientId: string; caseId: string; location: HospitalLocation }
-  | { type: "TASK_CREATED"; taskId: string; kind: "consult"; caseId: string; patientId: string; location: HospitalLocation; priority?: TaskPriority; dueAtMinute?: number }
-  | { type: "TASK_CREATED"; taskId: string; kind: "work"; location: HospitalLocation; priority?: TaskPriority; dueAtMinute?: number }
+  | { type: "TASK_CREATED"; taskId: string; kind: "consult"; caseId: string; patientId: string; location: HospitalLocation; priority?: TaskPriority; dueAtMinute?: number; durationMinutes?: number }
+  | { type: "TASK_CREATED"; taskId: string; kind: "work"; location: HospitalLocation; priority?: TaskPriority; dueAtMinute?: number; durationMinutes?: number }
   | { type: "TASK_ASSIGNED"; taskId: string }
   | { type: "TASK_STARTED"; taskId: string }
   | { type: "TASK_COMPLETED"; taskId: string }
+  | { type: "TASK_DEADLINE_MISSED"; taskId: string }
   | {
       type: "ENCOUNTER_STARTED";
       encounterId: string;
@@ -203,7 +207,14 @@ function updateTask(state: HospitalState, taskId: string, status: TaskStatus): H
   if (!task || task.status === status) return state;
   return {
     ...state,
-    tasks: { ...state.tasks, [taskId]: { ...task, status } },
+    tasks: {
+      ...state.tasks,
+      [taskId]: {
+        ...task,
+        status,
+        completedAtMinute: status === "complete" ? state.shift.clockMinutes : undefined,
+      },
+    },
   };
 }
 
@@ -271,6 +282,9 @@ function applyEvent(state: HospitalState, event: HospitalEvent): HospitalState {
       const dueAtMinute = typeof event.dueAtMinute === "number" && Number.isFinite(event.dueAtMinute)
         ? Math.floor(event.dueAtMinute)
         : undefined;
+      const durationMinutes = typeof event.durationMinutes === "number" && Number.isFinite(event.durationMinutes) && event.durationMinutes > 0
+        ? Math.floor(event.durationMinutes)
+        : undefined;
       return {
         ...state,
         tasks: {
@@ -285,6 +299,7 @@ function applyEvent(state: HospitalState, event: HospitalEvent): HospitalState {
             priority: event.priority ?? "routine",
             createdAtMinute: state.shift.clockMinutes,
             dueAtMinute,
+            durationMinutes,
           },
         },
       };
@@ -298,6 +313,19 @@ function applyEvent(state: HospitalState, event: HospitalEvent): HospitalState {
 
     case "TASK_COMPLETED":
       return updateTask(state, event.taskId, "complete");
+
+    case "TASK_DEADLINE_MISSED": {
+      const task = state.tasks[event.taskId];
+      if (!task || task.status === "complete" || typeof task.deadlineMissedAtMinute === "number") return state;
+      if (typeof task.dueAtMinute !== "number" || state.shift.clockMinutes <= task.dueAtMinute) return state;
+      return {
+        ...state,
+        tasks: {
+          ...state.tasks,
+          [event.taskId]: { ...task, deadlineMissedAtMinute: state.shift.clockMinutes },
+        },
+      };
+    }
 
     case "ENCOUNTER_STARTED": {
       if (state.encounters[event.encounterId]) return state;
@@ -334,7 +362,7 @@ function applyEvent(state: HospitalState, event: HospitalEvent): HospitalState {
           [event.patientId]: { ...existingPatient, ...patient },
         },
         tasks: task
-          ? { ...state.tasks, [task.taskId]: { ...task, status: "in-progress" } }
+          ? { ...state.tasks, [task.taskId]: { ...task, status: "in-progress", completedAtMinute: undefined } }
           : state.tasks,
         encounters: { ...state.encounters, [event.encounterId]: encounter },
       };
@@ -429,7 +457,14 @@ function applyEvent(state: HospitalState, event: HospitalEvent): HospitalState {
           completedCaseIds: uniquePush(state.learner.completedCaseIds, encounter.caseId),
         },
         tasks: linkedTask
-          ? { ...state.tasks, [linkedTask.taskId]: { ...linkedTask, status: "complete" } }
+          ? {
+              ...state.tasks,
+              [linkedTask.taskId]: {
+                ...linkedTask,
+                status: "complete",
+                completedAtMinute: state.shift.clockMinutes,
+              },
+            }
           : state.tasks,
         encounters: {
           ...state.encounters,
@@ -486,6 +521,10 @@ export function isTaskOverdue(state: HospitalState, task: HospitalTaskState): bo
   return task.status !== "complete"
     && typeof task.dueAtMinute === "number"
     && state.shift.clockMinutes > task.dueAtMinute;
+}
+
+export function hasTaskMissedDeadline(task: HospitalTaskState): boolean {
+  return typeof task.deadlineMissedAtMinute === "number";
 }
 
 export function getOpenTasks(state: HospitalState): HospitalTaskState[] {

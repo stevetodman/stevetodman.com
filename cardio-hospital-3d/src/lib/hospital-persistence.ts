@@ -1,12 +1,24 @@
 import {
   HOSPITAL_SCHEMA_VERSION,
   type HospitalState,
-} from "./hospital-engine";
+  type HospitalTaskState,
+} from "./hospital-engine.ts";
+import { getHospitalWorkDefinition } from "./hospital-work.ts";
 
 export const HOSPITAL_STORAGE_KEY = "cardio_hospital:unified:state";
 
 type LegacyHospitalStateV1 = Omit<HospitalState, "schemaVersion" | "tasks"> & {
   schemaVersion: 1;
+};
+
+type LegacyHospitalTaskStateV2 = Omit<
+  HospitalTaskState,
+  "durationMinutes" | "completedAtMinute" | "deadlineMissedAtMinute"
+>;
+
+type LegacyHospitalStateV2 = Omit<HospitalState, "schemaVersion" | "tasks"> & {
+  schemaVersion: 2;
+  tasks: Record<string, LegacyHospitalTaskStateV2>;
 };
 
 interface PersistedHospitalEnvelope {
@@ -39,7 +51,14 @@ function isHospitalStateV1(value: unknown): value is LegacyHospitalStateV1 {
   return isRecord(value) && value.schemaVersion === 1 && hasCommonHospitalShape(value);
 }
 
-function isHospitalStateV2(value: unknown): value is HospitalState {
+function isHospitalStateV2(value: unknown): value is LegacyHospitalStateV2 {
+  return isRecord(value)
+    && value.schemaVersion === 2
+    && hasCommonHospitalShape(value)
+    && isRecord(value.tasks);
+}
+
+function isHospitalStateV3(value: unknown): value is HospitalState {
   return isRecord(value)
     && value.schemaVersion === HOSPITAL_SCHEMA_VERSION
     && hasCommonHospitalShape(value)
@@ -54,6 +73,27 @@ function migrateV1(state: LegacyHospitalStateV1): HospitalState {
   };
 }
 
+function migrateV2(state: LegacyHospitalStateV2): HospitalState {
+  const tasks = Object.fromEntries(
+    Object.entries(state.tasks).map(([taskId, task]) => {
+      const workDefinition = task.kind === "work" ? getHospitalWorkDefinition(taskId) : undefined;
+      return [
+        taskId,
+        {
+          ...task,
+          durationMinutes: workDefinition?.durationMinutes,
+        },
+      ];
+    })
+  );
+
+  return {
+    ...state,
+    schemaVersion: HOSPITAL_SCHEMA_VERSION,
+    tasks,
+  };
+}
+
 export function migratePersistedHospitalState(input: unknown): HospitalState | undefined {
   if (!isRecord(input)) return undefined;
   const envelope = input as unknown as PersistedHospitalEnvelope;
@@ -61,7 +101,10 @@ export function migratePersistedHospitalState(input: unknown): HospitalState | u
   if (envelope.schemaVersion === 1 && isHospitalStateV1(envelope.state)) {
     return migrateV1(envelope.state);
   }
-  if (envelope.schemaVersion === HOSPITAL_SCHEMA_VERSION && isHospitalStateV2(envelope.state)) {
+  if (envelope.schemaVersion === 2 && isHospitalStateV2(envelope.state)) {
+    return migrateV2(envelope.state);
+  }
+  if (envelope.schemaVersion === HOSPITAL_SCHEMA_VERSION && isHospitalStateV3(envelope.state)) {
     return envelope.state;
   }
   return undefined;
