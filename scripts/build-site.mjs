@@ -44,7 +44,7 @@ fs.writeFileSync(path.join(dist, 'site/catalog.json'), `${JSON.stringify(publicC
 
 const routeRoots = new Set();
 for (const item of catalog.items) {
-  if (!item.route || item.class !== 'PRODUCTION') continue;
+  if (!item.route || item.class !== 'PRODUCTION' || item.generated === true) continue;
   if (item.route === '/') continue;
   routeRoots.add(item.route.replace(/^\//, '').split('/')[0]);
 }
