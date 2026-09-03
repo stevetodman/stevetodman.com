@@ -2,13 +2,11 @@
 
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect } from "react";
-import { CASES } from "@/lib/cases-data";
-import { formatHospitalTime, getActiveEncounter } from "@/lib/hospital-engine";
+import { formatHospitalTime } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
 import { useSimulationStore } from "@/lib/simulation-store";
+import HcmEncounter from "./clinical/hcm-encounter";
 import HospitalWorld from "./world/hospital-world";
-
-const hcmCase = CASES.find((clinicalCase) => clinicalCase.id === "case-hcm");
 
 function EntryScreen() {
   const setEntered = useSimulationStore((state) => state.setEntered);
@@ -86,24 +84,6 @@ function BriefingPanel() {
   );
 }
 
-function EncounterPanel() {
-  const phase = useSimulationStore((state) => state.phase);
-  const activeEncounter = useHospitalStore((state) => getActiveEncounter(state.hospital));
-  if (phase !== "encounter" || !hcmCase) return null;
-  return (
-    <section className="encounter-panel">
-      <p className="eyebrow">Clinic Room 3</p>
-      <h2>{hcmCase.patientName}</h2>
-      <p>{hcmCase.age}-year-old {hcmCase.sex === "M" ? "boy" : "girl"} · {hcmCase.chiefComplaint}</p>
-      <div className="encounter-status">
-        <span>Patient and parent present</span>
-        <span>{activeEncounter ? `Canonical encounter · ${activeEncounter.stage}` : "Opening encounter"}</span>
-      </div>
-      <p className="encounter-note">The complete interview and examination interface is the next vertical-slice increment.</p>
-    </section>
-  );
-}
-
 function SimulationHud() {
   const phase = useSimulationStore((state) => state.phase);
   const prompt = useSimulationStore((state) => state.prompt);
@@ -113,7 +93,7 @@ function SimulationHud() {
     arrival: "Meet Dr. Patel in the team room",
     briefing: "Receive your first patient",
     assigned: "Walk to Clinic Room 3",
-    encounter: "Begin the patient encounter",
+    encounter: "Evaluate the patient",
   } as const;
 
   return (
@@ -130,13 +110,14 @@ function SimulationHud() {
       </div>
       {locked && <div className="crosshair" aria-hidden="true"><i /><i /></div>}
       {prompt && <div className="interaction-prompt">{prompt}</div>}
-      {!locked && phase !== "briefing" && <div className="lock-hint">Click inside the hospital to look around</div>}
+      {!locked && phase !== "briefing" && phase !== "encounter" && <div className="lock-hint">Click inside the hospital to look around</div>}
     </div>
   );
 }
 
 export default function CardioHospital() {
   const entered = useSimulationStore((state) => state.entered);
+  const phase = useSimulationStore((state) => state.phase);
   const hydrateHospital = useHospitalStore((state) => state.hydrate);
 
   useEffect(() => {
@@ -159,7 +140,7 @@ export default function CardioHospital() {
       {!entered && <EntryScreen />}
       {entered && <SimulationHud />}
       {entered && <BriefingPanel />}
-      {entered && <EncounterPanel />}
+      {entered && phase === "encounter" && <HcmEncounter />}
     </main>
   );
 }
