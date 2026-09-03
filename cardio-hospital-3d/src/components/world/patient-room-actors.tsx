@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { getPatient } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
-import { HCM_CASE_ID, HCM_PATIENT_ID } from "@/lib/scenario-ids";
+import { HCM_CASE_ID, HCM_PATIENT_ID, HCM_ROOM } from "@/lib/scenario-ids";
 import { Box, Cylinder } from "./primitives";
 
 function Head({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
@@ -64,11 +64,11 @@ export function HcmRoomActors() {
       .sort((left, right) => right.startedAtMinute - left.startedAtMinute)[0];
   }, [encounters, patient?.activeEncounterId]);
 
-  if (!patient) return null;
-  const parentInRoom = patient.disposition !== "complete" && !currentEncounter?.confidentialInterviewDone;
+  if (!patient || patient.disposition === "complete" || patient.currentLocation !== HCM_ROOM) return null;
+  const parentInRoom = !currentEncounter?.confidentialInterviewDone;
 
   return (
-    <group userData={{ room: "clinic-room-3", canonicalPatientId: HCM_PATIENT_ID }}>
+    <group userData={{ room: HCM_ROOM, canonicalPatientId: HCM_PATIENT_ID }}>
       <SeatedAdolescent />
       {parentInRoom && <ParentActor />}
     </group>
