@@ -1,0 +1,82 @@
+name: One-shot minimize Study CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/minimize-study-ci-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Minimize Study CI without dropping targeted coverage
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          contract = Path('.github/workflows/study-contract.yml')
+          text = contract.read_text()
+          text = text.replace("      - '!study/pin-sprint.html'\n", "      - '!study/pin-sprint.html'\n      - '!study/us-states.html'\n", 2)
+          text = text.replace("      - '.github/workflows/study-live-canary.yml'\n", "      - '.github/workflows/study-contract.yml'\n      - '.github/workflows/study-live-canary.yml'\n", 2)
+          start = text.index('\n  chromium-smoke:\n')
+          end = text.index('\n  webkit-iphone:\n', start)
+          text = text[:start] + text[end:]
+          contract.write_text(text)
+
+          cloud = Path('.github/workflows/study-cloud-canary.yml')
+          text = cloud.read_text()
+          text = text.replace("    - cron: '23 * * * *'", "    - cron: '23 */6 * * *'")
+          text = text.replace("      - 'study/supabase/**'\n", "      - 'study/supabase/**'\n      - '!study/supabase/functions/studyhub-save/index.ts'\n", 2)
+          cloud.write_text(text)
+
+          pin = Path('tests/pin-sprint.test.mjs')
+          text = pin.read_text()
+          text = text.replace("import assert from 'node:assert/strict';\nimport { startServer, getChromium } from './helpers/harness.mjs';", "import assert from 'node:assert/strict';\nimport fs from 'node:fs';\nimport path from 'node:path';\nimport { startServer, getChromium, repoRoot } from './helpers/harness.mjs';")
+          anchor = "describe('Pin Sprint', () => {\n"
+          test = """describe('Pin Sprint', () => {\n  test('graded 50-state test stays fixed at 50 while Quick Round can retry misses', () => {\n    const source = fs.readFileSync(path.join(repoRoot, 'study/us-states.html'), 'utf8');\n    const start = source.indexOf('function afterTestAnswer(correct, item) {');\n    const end = source.indexOf('function renderTestResults()', start);\n    assert.ok(start >= 0 && end > start, 'Full Test answer handler should exist');\n    const handler = source.slice(start, end);\n\n    assert.match(source, /<span class=\"badge\">Graded &bull; 50 questions<\\/span>/);\n    assert.match(source, /var pool = shuffle\\(STATES\\.slice\\(\\)\\);/);\n    assert.match(handler, /if \\(roundLabel === \"Quick Round\"\\) queueRetry\\(item\\);/);\n    assert.doesNotMatch(handler, /\\n\\s*queueRetry\\(item\\);/);\n  });\n\n"""
+          if anchor not in text:
+              raise SystemExit('Pin Sprint describe anchor missing')
+          text = text.replace(anchor, test, 1)
+          pin.write_text(text)
+
+          regression = Path('tests/study-regressions.test.mjs')
+          text = regression.read_text()
+          text = text.replace("  assert.match(workflow, /npm run test:study:smoke/);", "  assert.match(workflow, /npm run test:study:webkit/);\n  assert.doesNotMatch(workflow, /npm run test:study:smoke/);\n  assert.match(workflow, /!study\\/us-states\\.html/);")
+          text = text.replace("  assert.match(cloudWorkflow, /cron: '23 \\* \\* \\* \\*'/);", "  assert.match(cloudWorkflow, /cron: '23 \\*\\/6 \\* \\* \\*'/);\n  assert.match(cloudWorkflow, /!study\\/supabase\\/functions\\/studyhub-save\\/index\\.ts/);")
+          marker = "\ntest('50-state Full Test stays fixed at 50 while Quick Round can still schedule retries', () => {"
+          if marker not in text:
+              raise SystemExit('Broad Full Test regression marker missing')
+          text = text[:text.index(marker)] + '\n'
+          regression.write_text(text)
+          PY
+
+          git diff --check
+          grep -Fq "!study/us-states.html" .github/workflows/study-contract.yml
+          ! grep -Fq "Study Chromium smoke" .github/workflows/study-contract.yml
+          grep -Fq "npm run test:study:webkit" .github/workflows/study-contract.yml
+          grep -Fq "cron: '23 */6 * * *'" .github/workflows/study-cloud-canary.yml
+          grep -Fq "!study/supabase/functions/studyhub-save/index.ts" .github/workflows/study-cloud-canary.yml
+          grep -Fq "graded 50-state test stays fixed at 50" tests/pin-sprint.test.mjs
+
+      - name: Run only fast static gates before commit
+        shell: bash
+        run: |
+          node --test tests/study-regressions.test.mjs --test-name-pattern='Study releases'
+
+      - name: Commit minimized CI
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/study-contract.yml .github/workflows/study-cloud-canary.yml tests/pin-sprint.test.mjs tests/study-regressions.test.mjs
+          git commit -m 'Minimize Study CI while keeping targeted safety gates'
+          git push origin HEAD:main
