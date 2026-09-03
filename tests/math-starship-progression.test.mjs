@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { patchState, routeState, unlockedPatchIds } from "../math/assets/starship-progression-core.mjs";
+import { sectorForSessions } from "../math/assets/starship-economy-core.mjs";
+import { ROUTE_STOPS, patchState, routeState, unlockedPatchIds } from "../math/assets/starship-progression-core.mjs";
 
 test("star chart advances only at completed-mission route boundaries", () => {
   assert.equal(routeState({ sessions: 0 }).current.id, "launch-bay");
@@ -9,6 +10,14 @@ test("star chart advances only at completed-mission route boundaries", () => {
   assert.equal(routeState({ sessions: 5 }).current.id, "asteroid-belt");
   assert.equal(routeState({ sessions: 9 }).current.id, "nebula-gate");
   assert.equal(routeState({ sessions: 14 }).current.id, "deep-space");
+});
+
+test("star chart landmarks stay aligned with the economy sector model", () => {
+  for (const stop of ROUTE_STOPS) {
+    const sector = sectorForSessions(stop.sessions);
+    assert.equal(sector.id, stop.id);
+    assert.equal(sector.name, stop.name);
+  }
 });
 
 test("patches reward independent evidence and ignore assisted or missed work", () => {
