@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Pediatric Hospital">
+  <rect width="512" height="512" rx="112" fill="#0b1215"/>
+  <rect x="84" y="96" width="344" height="320" rx="54" fill="#153a40" stroke="#62d6d2" stroke-width="18"/>
+  <path d="M256 148v216M148 256h216" stroke="#eaf3f4" stroke-width="54" stroke-linecap="round"/>
+  <path d="M256 356c-48-29-94-70-94-118 0-32 22-54 52-54 19 0 34 9 42 24 8-15 23-24 42-24 30 0 52 22 52 54 0 48-46 89-94 118Z" fill="#f3b85c" opacity="0.98"/>
+</svg>
