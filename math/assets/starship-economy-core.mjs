@@ -28,6 +28,11 @@ function nonNegativeInteger(value) {
   return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0;
 }
 
+function timestamp(value) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0;
+}
+
 function starterOwned() {
   return new Set(Object.values(STARTER_EQUIPMENT));
 }
@@ -83,8 +88,7 @@ export function sanitizeGameProfile(raw = {}) {
   for (const [id, record] of Object.entries(incomingPurchases || {})) {
     const item = CATALOG[id];
     if (!item || item.starter) continue;
-    const at = Number(record?.at);
-    purchases[id] = { at: Number.isFinite(at) && at > 0 ? Math.floor(at) : 0 };
+    purchases[id] = { at: timestamp(record?.at) };
   }
 
   const owned = starterOwned();
@@ -96,7 +100,7 @@ export function sanitizeGameProfile(raw = {}) {
     if (owned.has(id) && CATALOG[id]?.slot === slot) equipped[slot] = id;
   }
 
-  return { version: GAME_VERSION, purchases, equipped };
+  return { version: GAME_VERSION, purchases, equipped, updatedAt: timestamp(raw?.updatedAt) };
 }
 
 export function spentCredits(gameProfile = {}) {
@@ -124,7 +128,8 @@ export function deriveProgress(mathProfile = {}, gameProfile = {}) {
     creditsSpent: spent,
     credits: Math.max(0, earned - spent),
     equipped: { ...profile.equipped },
-    purchases: { ...profile.purchases }
+    purchases: { ...profile.purchases },
+    updatedAt: profile.updatedAt
   };
 }
 
@@ -135,16 +140,18 @@ export function purchaseItem(gameProfile = {}, mathProfile = {}, itemId, at = Da
   if (profile.purchases[itemId]) return { ok: false, reason: "already-owned", profile };
   const progress = deriveProgress(mathProfile, profile);
   if (progress.credits < item.price) return { ok: false, reason: "not-enough-credits", profile };
+  const stamp = timestamp(at) || Date.now();
 
   const next = sanitizeGameProfile({
     ...profile,
-    purchases: { ...profile.purchases, [itemId]: { at: Number.isFinite(Number(at)) ? Number(at) : Date.now() } },
-    equipped: { ...profile.equipped, [item.slot]: itemId }
+    purchases: { ...profile.purchases, [itemId]: { at: stamp } },
+    equipped: { ...profile.equipped, [item.slot]: itemId },
+    updatedAt: stamp
   });
   return { ok: true, reason: "purchased", item, profile: next };
 }
 
-export function equipItem(gameProfile = {}, itemId) {
+export function equipItem(gameProfile = {}, itemId, at = Date.now()) {
   const profile = sanitizeGameProfile(gameProfile);
   const item = CATALOG[itemId];
   if (!item) return { ok: false, reason: "unavailable", profile };
@@ -152,10 +159,11 @@ export function equipItem(gameProfile = {}, itemId) {
   Object.keys(profile.purchases).forEach(id => owned.add(id));
   if (!owned.has(itemId)) return { ok: false, reason: "not-owned", profile };
   if (profile.equipped[item.slot] === itemId) return { ok: true, reason: "already-equipped", item, profile };
+  const stamp = timestamp(at) || Date.now();
   return {
     ok: true,
     reason: "equipped",
     item,
-    profile: sanitizeGameProfile({ ...profile, equipped: { ...profile.equipped, [item.slot]: itemId } })
+    profile: sanitizeGameProfile({ ...profile, equipped: { ...profile.equipped, [item.slot]: itemId }, updatedAt: stamp })
   };
 }
