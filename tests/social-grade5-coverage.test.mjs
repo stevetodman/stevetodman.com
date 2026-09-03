@@ -33,4 +33,5 @@ test('historical thinking includes sources, chronology, data, and multi-answer s
   assert.ok(SOCIAL_ITEMS.filter(item => item.type === 'multi').length >= 6);
   assert.ok(SOCIAL_ITEMS.filter(item => item.practices?.includes('5.2')).length >= 10);
   assert.ok(SOCIAL_ITEMS.filter(item => item.practices?.includes('5.5')).length >= 10);
+  assert.ok(SOCIAL_ITEMS.every(item => item.sourceFamily));
 });

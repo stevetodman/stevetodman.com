@@ -41,6 +41,11 @@ for (const [route, config] of [
     const repaired = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), config.storageKey);
     assert.equal(repaired.active.Luke.queue.length, 9);
     assert.equal(repaired.active.Luke.recoveryIds.length, 1);
+    await page.reload();
+    await page.locator('[data-learner="Luke"]').click();
+    assert.equal(await page.locator('.feedback-card.repair').isVisible(), true);
+    const feedbackResume = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), config.storageKey);
+    assert.equal(feedbackResume.learners.Luke.attempts.length, 1, 'feedback reload must not duplicate evidence');
 
     await page.locator('[data-action="next"]').click();
     const secondPrompt = await page.locator('.question-card h2').innerText();

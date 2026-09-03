@@ -1,5 +1,5 @@
 const q = (id, unit, skill, standard, practices, prompt, choices, answer, explanation, extra = {}) => ({
-  id, unit, skill, standard, practices, prompt, choices, answer, explanation, ...extra
+  id, unit, skill, standard, practices, sourceFamily: skill, prompt, choices, answer, explanation, ...extra
 });
 const multi = (id, unit, skill, standard, practices, prompt, choices, answer, explanation, extra = {}) => q(
   id, unit, skill, standard, practices, prompt, choices, answer, explanation, { type: 'multi', ...extra }

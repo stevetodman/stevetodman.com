@@ -1,5 +1,5 @@
 const choice = (id, skill, standard, prompt, choices, answer, explanation, extra = {}) => ({
-  id, skill, standard, prompt, choices, answer, explanation, ...extra
+  id, skill, standard, sourceFamily: skill, prompt, choices, answer, explanation, ...extra
 });
 
 const multi = (id, skill, standard, prompt, options, answer, explanation, extra = {}) => choice(

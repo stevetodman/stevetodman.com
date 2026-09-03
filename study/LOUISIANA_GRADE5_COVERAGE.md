@@ -10,7 +10,7 @@ This contract is the content ceiling and coverage checklist for the two Grade 5 
 
 - One learner selection followed by one recommended action.
 - Eight independent items per standard session; missed skills receive instruction and a delayed alternate-form recheck.
-- Separate Luke/Samantha evidence, device-local active-round recovery, and compatibility with the existing family cloud token.
+- Separate Luke/Samantha evidence and device-local active-round recovery. Cloud synchronization is a future enhancement, not a launch dependency.
 - Skill strength must distinguish independent evidence from guided correction and require evidence on more than one date for mastery.
 - Sessions mix factual retrieval with models, tables, graphs, sequences, maps, sources, claims, evidence, cause/effect, and comparison.
 - The current classroom unit is the default, never the only available content.

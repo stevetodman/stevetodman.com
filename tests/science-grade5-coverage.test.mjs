@@ -29,6 +29,7 @@ test('each skill can schedule a different recovery task', () => {
   for (const [skill, matching] of groups) {
     assert.ok(matching.length >= 3, `${skill} lacks alternate task forms`);
     assert.equal(new Set(matching.map(item => item.prompt)).size, matching.length);
+    assert.ok(matching.every(item => item.sourceFamily), `${skill} lacks a source-family identifier`);
   }
 });
 

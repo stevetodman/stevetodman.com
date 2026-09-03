@@ -185,6 +185,7 @@ export function mountGrade5Learning(config) {
     setScreen("question");
     const item = itemById.get(session.queue[session.index]);
     if (!item) { session.index += 1; save(); return renderQuestion(); }
+    if (session.feedback) return renderFeedback(item, Boolean(session.feedback.correct));
     const selected = Array.isArray(session.selected) ? session.selected : [];
     const multi = Array.isArray(item.answer);
     const completed = session.index;
