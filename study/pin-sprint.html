@@ -306,7 +306,12 @@
     var hasMapHistory = entries.some(function(e) { return e.seen > 0; });
     if (!hasMapHistory) return engine.quickRoundStates(p, n);
 
-    var weak = entries.filter(function(e) { return e.wrong > 0; });
+    /* A miss does not brand a state "weak" forever. Once first-try map
+       accuracy has recovered to at least 80% over 3+ attempts, it graduates
+       into maintenance and stops consuming the weak-state quota. */
+    var weak = entries.filter(function(e) {
+      return e.wrong > 0 && (e.seen < 3 || e.accuracy < 0.8);
+    });
     var strong = entries.filter(function(e) { return e.seen >= 3 && e.accuracy >= 0.8; });
     var medium = entries.filter(function(e) {
       return e.seen > 0 && strong.indexOf(e) === -1 && weak.indexOf(e) === -1;
@@ -342,12 +347,10 @@
     addUnique(picks, used, unseen, Math.max(0, n - picks.length - maintenanceTarget));
     addUnique(picks, used, strong, Math.min(maintenanceTarget, n - picks.length));
 
-    // If any category was small, backfill from the full priority order.
     var rest = weak.concat(medium, unseen, strong).concat(entries);
     addUnique(picks, used, rest, n - picks.length);
 
     picks = engine.shuffle ? engine.shuffle(picks) : picks.sort(function() { return Math.random() - 0.5; });
-    // Whenever possible, open on a demonstrated strong state for an early win.
     var opener = -1;
     for (var i = 0; i < picks.length; i++) {
       if (picks[i].seen >= 3 && picks[i].accuracy >= 0.8) { opener = i; break; }
@@ -375,8 +378,6 @@
     if (!activeProfile || !data.profiles[activeProfile]) { showPlayerPicker(); return; }
     var p = data.profiles[activeProfile];
 
-    // Cross-device map evidence is merged opportunistically. Local evidence is
-    // always immediately available, so a network failure never blocks play.
     pullMapEvidence();
 
     var n = engine.quickRoundSize ? engine.quickRoundSize(p) : 10;
@@ -425,6 +426,12 @@
     var wrap = document.getElementById("pinMap");
     var svgEl = wrap.querySelector("svg");
     if (!svgEl) { showLoadError(); return; }
+    /* The correction from the first miss stays green for normal progress, but
+       a delayed retrieval check must not reveal its own answer. */
+    if (state.retry) {
+      var retryPath = svgEl.querySelector('path.state[data-code="' + state.code + '"]');
+      if (retryPath) retryPath.classList.remove("pin-solved");
+    }
     svgEl.setAttribute("aria-label", "Map of the United States");
     svgEl.querySelectorAll("path.state").forEach(function(path) {
       path.setAttribute("tabindex", "0");
@@ -486,9 +493,6 @@
     return mres;
   }
 
-  /* A first miss is tested again after several other prompts, not immediately
-     as the next scored item. At most two such retrieval checks are inserted so
-     a short practice session remains short. */
   function scheduleDelayedRetry(target) {
     if (target.retry || retryScheduled[target.code] || delayedRetries >= MAX_DELAYED_RETRIES) return;
     retryScheduled[target.code] = true;
@@ -609,8 +613,6 @@
 
   document.getElementById("startPin").addEventListener("click", begin);
 
-  /* Expose round state for behavioural tests. Expected answers come from this
-     data model, never from the visible DOM. */
   window.__pinSprintState = function() {
     return {
       activeProfile: activeProfile,
