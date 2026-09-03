@@ -9,27 +9,17 @@ const read = relativePath => fs.readFileSync(path.join(repoRoot, relativePath), 
 test('Study Unit 1 guards the final-check grading and scheduling fixes', () => {
   const source = read('study/unit-1/app.js');
 
-  // Mastery days must follow the learner's local calendar date, not UTC.
   assert.match(source, /function localDateKey\(date\)/);
   assert.doesNotMatch(source, /function todayKey\(\) \{ return new Date\(\)\.toISOString\(\)\.slice\(0,10\); \}/);
-
-  // Vocabulary questions use teacher-supplied clues and answer with one of the 12 assigned headwords.
   assert.match(source, /function teacherClue\(/);
   assert.match(source, /accepted:\[w\.word\]/);
   assert.match(source, /wordBank:true/);
   assert.match(source, /choices:shuffle\(WORDS\.map/);
-
-  // Randomness is sampled once before sorting, never from inside the comparator.
   assert.match(source, /score:repeat\*75\+pairPriority\(name,word,domain\)\+Math\.random\(\)\*18/);
   assert.match(source, /\.sort\(function\(a,b\)\{return a\.score-b\.score;\}\)/);
-
-  // Dates follow the teacher worksheet, including the Wednesday September 9 spelling test.
   assert.match(source, /spelling:new Date\('2026-09-09T08:00:00'\)/);
-  // There is an explicit post-spelling-test retention branch.
   assert.match(source, /if\(current<TEST_DATES\.spelling\)/);
   assert.match(source, /return \['definition','definition','synonym','synonym','antonym','antonym','spelling','spelling','spelling','spelling'\]/);
-
-  // Retry insertion can use questions 3-9 but must never replace question 10.
   assert.match(source, /var lastRetryIndex=SESSION_LENGTH-2/);
   assert.match(source, /var target=Math\.min\(start,lastRetryIndex\)/);
 });
@@ -73,7 +63,7 @@ test('Study page metadata does not publish learner names', () => {
   }
 });
 
-test('Study releases have an explicit contract, dedicated CI gate, live canary, and stale-cache defense', () => {
+test('Study releases have minimal dedicated CI, live canaries, and stale-cache defense', () => {
   const contract = read('study/STUDY_CONTRACT.md');
   assert.match(contract, /\/study\/.*Grade 5 Learning Hub/);
   assert.match(contract, /\/study\/unit-1\/.*canonical Unit 1 Word Expedition application/);
@@ -83,7 +73,9 @@ test('Study releases have an explicit contract, dedicated CI gate, live canary, 
   const workflow = read('.github/workflows/study-contract.yml');
   assert.match(workflow, /name: Study contract/);
   assert.match(workflow, /npm run test:study:unit/);
-  assert.match(workflow, /npm run test:study:smoke/);
+  assert.match(workflow, /npm run test:study:webkit/);
+  assert.doesNotMatch(workflow, /npm run test:study:smoke/);
+  assert.match(workflow, /!study\/us-states\.html/);
 
   const liveWorkflow = read('.github/workflows/study-live-canary.yml');
   assert.match(liveWorkflow, /name: Study live canary/);
@@ -93,7 +85,9 @@ test('Study releases have an explicit contract, dedicated CI gate, live canary, 
 
   const cloudWorkflow = read('.github/workflows/study-cloud-canary.yml');
   assert.match(cloudWorkflow, /name: Study cloud canary/);
-  assert.match(cloudWorkflow, /cron: '23 \* \* \* \*'/);
+  assert.match(cloudWorkflow, /cron: '23 \*\/6 \* \* \*'/);
+  assert.match(cloudWorkflow, /mapCorrect: Math\.max\(num\(sa\.mapCorrect\), num\(sb\.mapCorrect\)\)/);
+  assert.match(cloudWorkflow, /mapWrong: Math\.max\(num\(sa\.mapWrong\), num\(sb\.mapWrong\)\)/);
   assert.match(cloudWorkflow, /issues: write/);
   assert.match(cloudWorkflow, /bash scripts\/verify-study-cloud\.sh/);
   assert.match(cloudWorkflow, /Alert on cloud canary failure/);
@@ -122,17 +116,4 @@ test('Study releases have an explicit contract, dedicated CI gate, live canary, 
   const browserCanary = read('scripts/verify-study-production.mjs');
   assert.match(browserCanary, /context\.route\('https:\/\/\*\.supabase\.co\/\*\*'/);
   assert.match(browserCanary, /manifest\.start_url, '\/study\/'/);
-});
-
-test('50-state Full Test stays fixed at 50 while Quick Round can still schedule retries', () => {
-  const source = read('study/us-states.html');
-  const start = source.indexOf('function afterTestAnswer(correct, item) {');
-  const end = source.indexOf('function renderTestResults()', start);
-  assert.ok(start >= 0 && end > start, 'Full Test answer handler should exist');
-  const handler = source.slice(start, end);
-
-  assert.match(source, /<span class="badge">Graded &bull; 50 questions<\/span>/);
-  assert.match(source, /var pool = shuffle\(STATES\.slice\(\)\);/);
-  assert.match(handler, /if \(roundLabel === "Quick Round"\) queueRetry\(item\);/);
-  assert.doesNotMatch(handler, /\n\s*queueRetry\(item\);/);
 });

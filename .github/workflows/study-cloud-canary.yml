@@ -2,7 +2,7 @@ name: Study cloud canary
 
 on:
   schedule:
-    - cron: '23 * * * *'
+    - cron: '23 */6 * * *'
   push:
     branches: [main]
     paths:
@@ -36,6 +36,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verify Pin Sprint map-stat merge contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          file='study/supabase/functions/studyhub-save/index.ts'
+          grep -Fq 'mapCorrect?: number;' "$file"
+          grep -Fq 'mapWrong?: number;' "$file"
+          grep -Fq 'mapCorrect: Math.max(num(sa.mapCorrect), num(sb.mapCorrect))' "$file"
+          grep -Fq 'mapWrong: Math.max(num(sa.mapWrong), num(sb.mapWrong))' "$file"
       - name: Verify live Study cloud save
         run: bash scripts/verify-study-cloud.sh
       - name: Verify durable reward ledger with synthetic data

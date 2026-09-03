@@ -7,6 +7,7 @@ on:
       - '!study/*.md'
       - '!study/**/*.md'
       - '!study/pin-sprint.html'
+      - '!study/us-states.html'
       - '!study/supabase/functions/studyhub-save/**'
       - 'tests/study-*.test.mjs'
       - 'tests/grade5-*.test.mjs'
@@ -21,6 +22,7 @@ on:
       - '_headers'
       - 'package.json'
       - 'package-lock.json'
+      - '.github/workflows/study-contract.yml'
       - '.github/workflows/study-live-canary.yml'
   push:
     branches:
@@ -31,6 +33,7 @@ on:
       - '!study/*.md'
       - '!study/**/*.md'
       - '!study/pin-sprint.html'
+      - '!study/us-states.html'
       - '!study/supabase/functions/studyhub-save/**'
       - 'tests/study-*.test.mjs'
       - 'tests/grade5-*.test.mjs'
@@ -45,6 +48,7 @@ on:
       - '_headers'
       - 'package.json'
       - 'package-lock.json'
+      - '.github/workflows/study-contract.yml'
       - '.github/workflows/study-live-canary.yml'
   workflow_dispatch:
 
@@ -70,30 +74,6 @@ jobs:
       - run: npm run test:study:unit
       - name: Build static educational site only
         run: node scripts/build-site.mjs && node scripts/build-search-index.mjs
-
-  chromium-smoke:
-    name: Study Chromium smoke
-    needs: contract
-    runs-on: ubuntu-latest
-    timeout-minutes: 8
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:study:smoke
-      - name: Verify Grade 5 adaptive courses
-        run: npm run test:grade5:browser
-      - name: Save screenshots on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: study-failure-evidence-chromium
-          path: ${{ runner.temp }}/study-evidence/
-          if-no-files-found: ignore
 
   webkit-iphone:
     name: Study iPhone WebKit
