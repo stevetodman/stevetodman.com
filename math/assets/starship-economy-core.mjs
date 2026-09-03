@@ -14,6 +14,7 @@ export const CATALOG = Object.freeze({
   "ion-wake": Object.freeze({ id: "ion-wake", slot: "trail", name: "Ion Wake", price: 0, starter: true, description: "A clean blue engine wake." }),
   "meteor-wake": Object.freeze({ id: "meteor-wake", slot: "trail", name: "Meteor Wake", price: 10, description: "A bright, fast-burning trail." }),
   "aurora-wake": Object.freeze({ id: "aurora-wake", slot: "trail", name: "Aurora Wake", price: 16, description: "A shimmering twin-band engine trail." }),
+  "none": Object.freeze({ id: "none", slot: "companion", name: "No companion", price: 0, starter: true, description: "Fly solo with a clean outer orbit." }),
   "orbit-bot": Object.freeze({ id: "orbit-bot", slot: "companion", name: "Orbit Bot", price: 12, description: "A small navigation bot that circles your ship." }),
   "beacon-drone": Object.freeze({ id: "beacon-drone", slot: "companion", name: "Beacon Drone", price: 18, description: "A long-range survey drone for the next sector." })
 });
