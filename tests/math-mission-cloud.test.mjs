@@ -15,8 +15,11 @@ function makeStorage(initial = {}) {
   };
 }
 
-function loadCloud(initialData = {}) {
-  const localStorage = makeStorage({ "mathmission.m1.v1": JSON.stringify(initialData) });
+function loadCloud(initialData = {}, initialGame = {}) {
+  const localStorage = makeStorage({
+    "mathmission.m1.v1": JSON.stringify(initialData),
+    "mathmission.starship.v1": JSON.stringify(initialGame)
+  });
   const window = { addEventListener() {}, dispatchEvent() {} };
   const document = {
     hidden: false,
@@ -55,6 +58,10 @@ function loadCloud(initialData = {}) {
 
 function readData(storage) {
   return JSON.parse(storage.getItem("mathmission.m1.v1") || "{}");
+}
+
+function readGame(storage) {
+  return JSON.parse(storage.getItem("mathmission.starship.v1") || "{}");
 }
 
 test("adaptive v2 attempts survive a cloud payload/apply round trip", () => {
@@ -159,4 +166,69 @@ test("a completed repair recheck is retained across devices", () => {
   const restored = readData(target.localStorage).luke.attempts[0];
   assert.equal(restored.recheck, true);
   assert.equal(restored.micro, "powers_multiply");
+});
+
+test("starship purchases and equipped cosmetics survive a cloud round trip", () => {
+  const source = loadCloud(
+    { luke: { attempts: [], sessions: 3 } },
+    {
+      version: 1,
+      profiles: {
+        luke: {
+          version: 1,
+          purchases: { "meteor-wake": { at: 1788397000000 }, "orbit-bot": { at: 1788397100000 } },
+          equipped: { hull: "comet-scout", trail: "meteor-wake", companion: "orbit-bot" },
+          updatedAt: 1788397100000
+        }
+      }
+    }
+  );
+
+  const payload = source.cloud.payload();
+  const stats = payload["math-mission-luke"].stateStats;
+  assert.ok(Object.keys(stats).some(key => key === "mathstar1p|meteor-wake|1788397000000"));
+  assert.ok(Object.keys(stats).some(key => key === "mathstar1p|orbit-bot|1788397100000"));
+  assert.ok(Object.keys(stats).some(key => key === "mathstar1e|1788397100000|comet-scout|meteor-wake|orbit-bot"));
+
+  const target = loadCloud({});
+  target.cloud.apply(payload);
+  const restored = readGame(target.localStorage).profiles.luke;
+  assert.equal(restored.purchases["meteor-wake"].at, 1788397000000);
+  assert.equal(restored.purchases["orbit-bot"].at, 1788397100000);
+  assert.deepEqual(restored.equipped, { hull: "comet-scout", trail: "meteor-wake", companion: "orbit-bot" });
+  assert.equal(restored.updatedAt, 1788397100000);
+});
+
+test("latest starship loadout wins while purchases remain monotonic", () => {
+  const target = loadCloud(
+    {},
+    {
+      version: 1,
+      profiles: {
+        luke: {
+          version: 1,
+          purchases: { "orbit-bot": { at: 100 } },
+          equipped: { hull: "comet-scout", trail: "ion-wake", companion: "orbit-bot" },
+          updatedAt: 150
+        }
+      }
+    }
+  );
+  const mastered = { streak: 1, correct: 1, wrong: 0, mastered: true };
+  target.cloud.apply({
+    "math-mission-luke": {
+      stateStats: {
+        "mathstar1p|meteor-wake|120": mastered,
+        "mathstar1e|100|comet-scout|meteor-wake|orbit-bot": mastered,
+        "mathstar1e|200|comet-scout|meteor-wake|none": mastered
+      },
+      masteredOrder: []
+    }
+  });
+
+  const restored = readGame(target.localStorage).profiles.luke;
+  assert.equal(restored.purchases["orbit-bot"].at, 100);
+  assert.equal(restored.purchases["meteor-wake"].at, 120);
+  assert.deepEqual(restored.equipped, { hull: "comet-scout", trail: "meteor-wake", companion: "none" });
+  assert.equal(restored.updatedAt, 200);
 });
