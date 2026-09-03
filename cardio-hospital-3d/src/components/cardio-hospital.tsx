@@ -16,6 +16,7 @@ import { useSimulationStore } from "@/lib/simulation-store";
 import HcmEncounter from "./clinical/hcm-encounter";
 import MobileControls from "./mobile-controls";
 import PagerPanel from "./pager-panel";
+import WorkQueuePanel from "./work-queue-panel";
 import HospitalWorld from "./world/hospital-world";
 
 function EntryScreen() {
@@ -169,6 +170,7 @@ export default function CardioHospital() {
       {!entered && <EntryScreen />}
       {entered && <SimulationHud />}
       {entered && <PagerPanel />}
+      {entered && <WorkQueuePanel />}
       {entered && <MobileControls />}
       {entered && <BriefingPanel />}
       {entered && encounterOpen && <HcmEncounter />}
