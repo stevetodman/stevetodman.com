@@ -190,6 +190,20 @@ export function createPlaceValueWorkspace({ root, onGuidedReady = () => {} }) {
     isReady() {
       return !question?.assisted || !question?.workspace || ready;
     },
+    evidence() {
+      const workspace = question?.workspace;
+      if (!workspace || workspace.type !== "place-value") return null;
+      const expectedDelta = expectedPlaceValueDelta(workspace);
+      return {
+        delta,
+        expectedDelta,
+        operation: workspace.operation,
+        shift: workspace.shift,
+        factor: workspace.factor,
+        wrongDirection: delta !== 0 && Math.sign(delta) !== Math.sign(expectedDelta),
+        correctPosition: delta === expectedDelta
+      };
+    },
     reset() {
       question = null;
       baseTokens = [];

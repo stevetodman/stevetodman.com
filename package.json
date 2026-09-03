@@ -10,7 +10,7 @@
     "verify:study-production": "node scripts/verify-study-release.mjs",
     "verify:study-production:browser": "node scripts/verify-study-production.mjs",
     "test": "node --test tests/*.test.mjs",
-    "test:math": "node --test tests/math-mission.test.mjs tests/math-mission-adaptive.test.mjs tests/math-mission-current-week.test.mjs tests/math-mission-diagnostic.test.mjs tests/math-mission-diagnostic-cloud.test.mjs tests/math-mission-place-value.test.mjs tests/math-mission-cloud.test.mjs tests/math-mission-ui.test.mjs",
+    "test:math": "node --test tests/math-mission.test.mjs tests/math-mission-adaptive.test.mjs tests/math-mission-current-week.test.mjs tests/math-mission-diagnostic.test.mjs tests/math-mission-diagnostic-cloud.test.mjs tests/math-mission-scaffolds.test.mjs tests/math-mission-place-value.test.mjs tests/math-mission-cloud.test.mjs tests/math-mission-ui.test.mjs",
     "test:math:browser": "node --test tests/math-mission-browser.test.mjs",
     "test:study": "node --test tests/study-cloud-client.test.mjs tests/study-word-mission.test.mjs tests/study-battle-visibility.test.mjs tests/study-ios-audio.test.mjs tests/study-regressions.test.mjs tests/study-game.test.mjs tests/study-quality.test.mjs tests/study-aaa-polish.test.mjs tests/study-monster-banter.test.mjs tests/study-test-practice.test.mjs",
     "test:study:unit": "node --test tests/study-cloud-client.test.mjs tests/study-regressions.test.mjs tests/study-game.test.mjs tests/study-quality.test.mjs tests/study-aaa-polish.test.mjs tests/study-test-practice.test.mjs",

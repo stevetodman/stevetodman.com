@@ -197,7 +197,7 @@ test('progressive diagnostic adds only prerequisite place-value probes after a c
   }
 });
 
-test('current-focus miss becomes guided place-value action and later independent recovery without transcription', async () => {
+test('current-focus miss gets a non-scoring reasoning checkpoint, guided chart, then independent recovery', async () => {
   const seeded = {
     luke: {
       diagnostic: true,
@@ -243,19 +243,33 @@ test('current-focus miss becomes guided place-value action and later independent
     await page.locator('#feedback.bad').waitFor();
     const missFeedback = await page.locator('#feedback').innerText();
     assert.match(missFeedback, /Not yet\./);
-    assert.match(missFeedback, /Show me with the place-value chart/i);
+    assert.match(missFeedback, /Check the reasoning/i);
     assert.doesNotMatch(missFeedback, /The answer is/i, 'independent current-focus miss must not dump the answer');
-    await page.waitForTimeout(10);
 
     const latestAttempt = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts.at(-1));
     assert.equal(latestAttempt.micro, 'powers_divide');
     assert.equal(latestAttempt.correct, false);
     assert.equal(latestAttempt.assisted, false);
     assert.equal(latestAttempt.misconception, 'place_value_result');
+    const attemptsBeforeCheckpoint = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts.length);
+
+    await page.locator('[data-next]').click();
+    assert.equal(await page.locator('#question-title').innerText(), 'Reasoning check');
+    assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10.*Reasoning/i);
+    assert.equal(await page.locator('#progress-text').innerText(), '1 of 10 complete');
+    assert.equal(await page.locator('#session-mode').innerText(), 'Reasoning check');
+    assert.equal(await page.locator('#place-value-workspace').isHidden(), true);
+    assert.match(await page.locator('#question-body').innerText(), /which relationship must be true/i);
+    await page.locator('.choice[data-value="new value < starting value"]').click();
+    await page.locator('#check-button').click();
+    await page.locator('#feedback.good').waitFor();
+    assert.match(await page.locator('#feedback').innerText(), /Now show that idea on the place-value chart/i);
+    const attemptsAfterCheckpoint = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts.length);
+    assert.equal(attemptsAfterCheckpoint, attemptsBeforeCheckpoint, 'reasoning checkpoint must not become mastery evidence');
 
     await page.locator('[data-next]').click();
     assert.equal(await page.locator('#question-title').innerText(), 'Guided step');
-    assert.equal(await page.locator('#question-body').innerHTML(), missedPrompt, 'guided help must use the exact item the child missed');
+    assert.equal(await page.locator('#question-body').innerHTML(), missedPrompt, 'guided build must return to the exact item the child missed');
     assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10.*Guided/i);
     assert.equal(await page.locator('#progress-text').innerText(), '1 of 10 complete');
     assert.equal(await page.locator('#session-mode').innerText(), 'Guided step');
@@ -292,6 +306,55 @@ test('current-focus miss becomes guided place-value action and later independent
     assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10.*Try again/i);
     assert.equal(await page.locator('#session-mode').innerText(), 'Independent retry');
     assert.equal(await page.locator('#progress-text').innerText(), '3 of 10');
+    assert.deepEqual(errors, [], `runtime errors:\n${errors.join('\n')}`);
+  } finally {
+    await context.close();
+  }
+});
+
+test('wrong shift count routes to a place-count checkpoint before the guided chart', async () => {
+  const seeded = { luke: {
+    diagnostic: true,
+    diagnosticVersion: 3,
+    recheckVersion: 1,
+    rechecks: { powers_divide: { version: 1, status: 'pending' } },
+    sessions: 1,
+    attempts: [{
+      skill: 'place', micro: 'powers_divide', correct: true, assisted: false,
+      recovery: false, difficulty: 2, transfer: false, date: '2026-09-01',
+      at: 1788220000000, cloudId: 'seed-powers-divide-correct'
+    }]
+  } };
+  const { context, page, errors } = await openMath(seeded, { width: 390, height: 844 }, 0.9);
+  try {
+    await page.locator('[data-profile="luke"]').click();
+    await page.locator('[data-start="practice"]').click();
+    assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10.*Check again/i);
+    assert.match(await page.locator('#question-body').innerHTML(), /10<sup>2<\/sup>/i);
+
+    await page.locator('[data-pv-shift="right"]').click();
+    assert.match(await page.locator('.pv-move-count').innerText(), /1 place right/i);
+    await page.locator('#check-button').click();
+    await page.locator('#feedback.bad').waitFor();
+    assert.match(await page.locator('#feedback').innerText(), /power of 10.*how many places/is);
+
+    const latestAttempt = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts.at(-1));
+    assert.equal(latestAttempt.misconception, 'wrong_shift_count');
+    const attemptCount = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts.length);
+
+    await page.locator('[data-next]').click();
+    assert.equal(await page.locator('#question-title').innerText(), 'Reasoning check');
+    assert.match(await page.locator('#question-body').innerText(), /how many places/i);
+    assert.deepEqual(await page.locator('.choice').allTextContents(), ['1', '2', '3']);
+    await page.locator('.choice[data-value="2"]').click();
+    await page.locator('#check-button').click();
+    await page.locator('#feedback.good').waitFor();
+    assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts.length), attemptCount);
+
+    await page.locator('[data-next]').click();
+    assert.equal(await page.locator('#question-title').innerText(), 'Guided step');
+    assert.equal(await page.locator('#place-value-workspace').isHidden(), false);
+    assert.match(await page.locator('.pv-status').innerText(), /2 place-value shifts/i);
     assert.deepEqual(errors, [], `runtime errors:\n${errors.join('\n')}`);
   } finally {
     await context.close();
