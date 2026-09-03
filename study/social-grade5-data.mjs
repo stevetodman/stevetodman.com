@@ -162,8 +162,10 @@ export const SOCIAL_CONFIG = {
   title: 'World Lab',
   eyebrow: 'Louisiana Grade 5 social studies',
   intro: 'Study the full Bayou Bridges course through maps, sources, timelines, comparison, and evidence-based claims.',
+  coverageLabel: '6 units · 14 content and recurring-practice standards',
   storageKey: 'g5-social-v1',
   currentUnit: 'west-africa',
+  skills: Object.fromEntries(units.flatMap(unit => unit.skills.map(skill => [skill.id, skill.label]))),
   units,
   items
 };

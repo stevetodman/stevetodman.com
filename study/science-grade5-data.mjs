@@ -173,10 +173,12 @@ export const SCIENCE_CONFIG = {
   title: 'Science Lab',
   eyebrow: 'Louisiana Grade 5 science',
   intro: 'Investigate the full course through models, data, explanations, and engineering decisions.',
+  coverageLabel: '5 units · 16 science and engineering expectations',
   icon: '🔬',
   storageKey: 'g5-science-v1',
   hubHref: '/study/',
   currentUnit: 'matter',
+  skills: Object.fromEntries(units.flatMap(unit => unit.skills.map(skill => [skill.id, skill.label]))),
   units,
   items,
   encouragement: ['Think like a scientist.', 'Use the evidence.', 'Models make the invisible visible.', 'Test the claim.']

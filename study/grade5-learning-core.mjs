@@ -146,7 +146,7 @@ export function mountGrade5Learning(config) {
 
   function renderPicker() {
     setScreen("picker");
-    shell(`<main class="learner-screen"><p class="eyebrow">${esc(config.eyebrow)}</p><h1 tabindex="-1">${esc(config.title)}</h1><p class="lede">${esc(config.intro)}</p><section class="learner-grid" aria-label="Who is practicing?"><button data-learner="Luke"><span class="learner-mark luke">L</span><span><strong>Luke</strong><small>${resumeCopy("Luke")}</small></span><b>→</b></button><button data-learner="Samantha"><span class="learner-mark samantha">S</span><span><strong>Samantha</strong><small>${resumeCopy("Samantha")}</small></span><b>→</b></button></section><p class="coverage-note">${config.units.length} units · ${unique(config.items.map(item => item.standard)).length} standards · progress saved on this device</p></main>`);
+    shell(`<main class="learner-screen"><p class="eyebrow">${esc(config.eyebrow)}</p><h1 tabindex="-1">${esc(config.title)}</h1><p class="lede">${esc(config.intro)}</p><section class="learner-grid" aria-label="Who is practicing?"><button class="menu-card" data-learner="Luke"><span class="learner-mark luke">L</span><span><strong>Luke</strong><small>${resumeCopy("Luke")}</small></span><b>→</b></button><button class="menu-card" data-learner="Samantha"><span class="learner-mark samantha">S</span><span><strong>Samantha</strong><small>${resumeCopy("Samantha")}</small></span><b>→</b></button></section><p class="coverage-note">${config.coverageLabel || `${config.units.length} units · ${unique(config.items.map(item => item.standard)).length} standards`} · progress saved on this device</p></main>`);
   }
 
   function resumeCopy(name) { return root.active[name] ? "Continue your saved mission" : `Start ${currentUnit().title}`; }
@@ -188,7 +188,8 @@ export function mountGrade5Learning(config) {
     const selected = Array.isArray(session.selected) ? session.selected : [];
     const multi = Array.isArray(item.answer);
     const completed = session.index;
-    shell(`<main class="practice-screen"><div class="session-head"><button class="text-button" data-action="pause">← Pause</button><div class="progress-copy"><strong>${completed + 1} of ${session.queue.length}</strong><span>${esc(item.standard)}</span></div></div><div class="progress-track" aria-label="Mission progress"><span style="width:${Math.round(completed / session.queue.length * 100)}%"></span></div><article class="question-card"><p class="skill-label">${esc(config.skills[item.skill] || item.skill)}${session.recoveryIds.includes(item.id) ? " · independent recheck" : ""}</p>${stimulusMarkup(item.stimulus)}<h2 tabindex="-1">${esc(item.prompt)}</h2><div class="choice-list${multi ? " multi" : ""}" role="group" aria-label="Answer choices">${item.choices.map((choice, index) => `<button type="button" class="choice${selected.includes(index) ? " selected" : ""}" data-choice="${index}" aria-pressed="${selected.includes(index)}">${esc(choice)}</button>`).join("")}</div>${multi ? `<p class="select-note">Select ${item.answer.length} answers.</p>` : ""}<button class="primary-button check-button" data-action="check" ${selected.length ? "" : "disabled"}>Check answer</button></article></main>`);
+    const ready = multi ? selected.length === item.answer.length : selected.length === 1;
+    shell(`<main class="practice-screen"><div class="session-head"><button class="text-button" data-action="pause">← Pause</button><div class="progress-copy"><strong>${completed + 1} of ${session.queue.length}</strong><span>${esc(item.standard)}</span></div></div><div class="progress-track" aria-label="Mission progress"><span style="width:${Math.round(completed / session.queue.length * 100)}%"></span></div><article class="question-card"><p class="skill-label">${esc(config.skills[item.skill] || item.skill)}${session.recoveryIds.includes(item.id) ? " · independent recheck" : ""}</p>${stimulusMarkup(item.stimulus)}<h2 tabindex="-1">${esc(item.prompt)}</h2><div class="choice-list${multi ? " multi" : ""}" role="group" aria-label="Answer choices">${item.choices.map((choice, index) => `<button type="button" class="choice${selected.includes(index) ? " selected" : ""}" data-choice="${index}" aria-pressed="${selected.includes(index)}">${esc(choice)}</button>`).join("")}</div>${multi ? `<p class="select-note">Select ${item.answer.length} answers.</p>` : ""}<button class="primary-button check-button" data-action="check" ${ready ? "" : "disabled"}>Check answer</button></article></main>`);
   }
 
   function selectChoice(index) {
@@ -286,4 +287,3 @@ export function mountGrade5Learning(config) {
   renderPicker();
   return { getState: () => root, skillStatus: skill => skillStatus(profile(), skill), render: renderPicker };
 }
-
