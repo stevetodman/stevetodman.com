@@ -1,20 +1,59 @@
-name: Hospital Live Runtime Smoke
+name: Hospital Production Runtime Smoke
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Production verification
+    types:
+      - completed
+
+concurrency:
+  group: hospital-production-runtime-smoke
+  cancel-in-progress: true
 
 jobs:
   live-runtime-smoke:
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' ||
+          (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 2
+      - name: Detect hospital-affecting production change
+        id: changes
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "relevant=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          base="$(git rev-parse HEAD^ 2>/dev/null || true)"
+          if [ -z "$base" ]; then
+            echo "relevant=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if git diff --name-only "$base" HEAD | grep -Eq '^(_headers|cardio-hospital-3d/|scripts/build-hospital\.mjs|scripts/diagnose-hospital-live\.mjs|\.github/workflows/hospital-live-runtime-diagnosis\.yml|package\.json)$'; then
+            echo "relevant=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "relevant=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-node@v4
+        if: steps.changes.outputs.relevant == 'true'
         with:
           node-version: 22
       - name: Install Playwright
+        if: steps.changes.outputs.relevant == 'true'
         run: npm install --no-save --no-audit --no-fund playwright@1.56.1
       - name: Install Chromium and WebKit
+        if: steps.changes.outputs.relevant == 'true'
         run: npx playwright install --with-deps chromium webkit
       - name: Verify live hospital starts in Chromium and WebKit
+        if: steps.changes.outputs.relevant == 'true'
         run: node scripts/diagnose-hospital-live.mjs
