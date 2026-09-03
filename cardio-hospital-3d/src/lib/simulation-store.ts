@@ -14,6 +14,7 @@ interface SimulationState {
   beginBriefing: () => void;
   acceptAssignment: () => void;
   startEncounter: () => void;
+  resumeWorld: () => void;
   closeBriefing: () => void;
 }
 
@@ -28,6 +29,7 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   setPrompt: (prompt) => set({ prompt }),
   beginBriefing: () => set({ phase: "briefing", briefingOpen: true, controlsLocked: false }),
   acceptAssignment: () => set({ phase: "assigned", briefingOpen: false }),
-  startEncounter: () => set({ phase: "encounter" }),
+  startEncounter: () => set({ phase: "encounter", controlsLocked: false }),
+  resumeWorld: () => set({ phase: "assigned", prompt: null }),
   closeBriefing: () => set({ briefingOpen: false }),
 }));
