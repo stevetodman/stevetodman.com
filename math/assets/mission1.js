@@ -1,6 +1,7 @@
-import { CURRENT_PACKET, MICRO_SKILLS, diagnostic, isCorrectAnswer, scaffoldFor } from "./mission1-content.mjs?v=20260902-packet1";
+import { CURRENT_PACKET, MICRO_SKILLS, isCorrectAnswer, scaffoldFor } from "./mission1-content.mjs?v=20260902-packet1";
 import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260902-packet1";
-import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, diagnosticIsCurrent, difficultyForScore, microScore, migrateAffectedRechecks, nextMicro, pendingRechecks, projectedScore } from "./mission1-adaptive.mjs?v=20260902-packet1";
+import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, diagnosticIsCurrent, difficultyForScore, microScore, migrateAffectedRechecks, nextMicro, pendingRechecks, projectedScore } from "./mission1-adaptive.mjs?v=20260903-diagnostic1";
+import { DIAGNOSTIC_MAX, DIAGNOSTIC_MIN, diagnosticExpansion, startDiagnostic } from "./mission1-diagnostic.mjs?v=20260903-diagnostic1";
 import { createScratchpad } from "./mission1-scratch.mjs?v=20260901-mastery1";
 import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901-mastery1";
 
@@ -57,8 +58,8 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
       card.innerHTML = `
         <div class="label">First mission</div>
         <h2>Quick starting check</h2>
-        <p class="mission-meta">12 questions · about 10 minutes</p>
-        <p>This gives Math Mission a starting point so the next practice knows what to teach.</p>
+        <p class="mission-meta">${DIAGNOSTIC_MIN} questions to start · up to ${DIAGNOSTIC_MAX} if needed</p>
+        <p>Start with today’s powers-of-10 work. Math Mission checks prerequisite place value only if an answer shows it would help.</p>
         <button class="primary-button" data-start="diagnostic">Start</button>`;
     } else {
       card.innerHTML = `
@@ -72,7 +73,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
   }
 
   function start(mode) {
-    Object.assign(state, { mode, queue: mode === "diagnostic" ? diagnostic() : [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [], answered: false });
+    Object.assign(state, { mode, queue: mode === "diagnostic" ? startDiagnostic() : [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [], answered: false });
     if (mode === "practice") state.queue.push(nextAdaptiveQuestion());
     show("session");
     renderQuestion();
@@ -222,6 +223,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
   function next() {
     state.index += 1;
     if (state.mode === "diagnostic") {
+      if (state.index >= state.queue.length) state.queue.push(...diagnosticExpansion(state.queue, state.results));
       state.index >= state.queue.length ? finish() : renderQuestion();
       return;
     }
