@@ -6,6 +6,16 @@ import { WORKROOM_HANDOFF_TASK_ID } from "@/lib/hospital-work";
 import { HCM_CASE_ID, HCM_PATIENT_ID, HCM_ROOM, HCM_TASK_ID } from "@/lib/scenario-ids";
 import { useSimulationStore } from "@/lib/simulation-store";
 
+const TEAM_ROOM_WORKSTATIONS: Array<[number, number]> = [
+  [-4.45, 6.1],
+  [-4.45, 7.8],
+  [-4.45, 9.5],
+];
+
+function nearestWorkstationDistance(x: number, z: number): number {
+  return Math.min(...TEAM_ROOM_WORKSTATIONS.map(([workstationX, workstationZ]) => Math.hypot(x - workstationX, z - workstationZ)));
+}
+
 export function InteractionSystem() {
   const { camera } = useThree();
   const taskStatus = useHospitalStore((state) => getTask(state.hospital, HCM_TASK_ID)?.status);
@@ -23,7 +33,7 @@ export function InteractionSystem() {
   useFrame(() => {
     const attendingDistance = Math.hypot(camera.position.x, camera.position.z - 10.25);
     const examDistance = Math.hypot(camera.position.x - 2.2, camera.position.z + 3);
-    const handoffDistance = Math.hypot(camera.position.x + 4.45, camera.position.z - 7.8);
+    const handoffDistance = nearestWorkstationDistance(camera.position.x, camera.position.z);
     let next: "attending" | "exam" | "handoff" | null = null;
     let prompt: string | null = null;
 
