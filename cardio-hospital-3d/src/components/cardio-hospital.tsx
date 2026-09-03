@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect } from "react";
-import { formatHospitalTime } from "@/lib/hospital-engine";
+import { formatHospitalTime, getActiveEncounter } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
 import { useSimulationStore } from "@/lib/simulation-store";
 import HcmEncounter from "./clinical/hcm-encounter";
@@ -10,7 +10,9 @@ import HospitalWorld from "./world/hospital-world";
 
 function EntryScreen() {
   const setEntered = useSimulationStore((state) => state.setEntered);
+  const startEncounter = useSimulationStore((state) => state.startEncounter);
   const shiftStatus = useHospitalStore((state) => state.hospital.shift.status);
+  const activeEncounter = useHospitalStore((state) => getActiveEncounter(state.hospital));
   const dispatch = useHospitalStore((state) => state.dispatch);
 
   const enterHospital = () => {
@@ -24,6 +26,7 @@ function EntryScreen() {
       });
     }
     setEntered(true);
+    if (activeEncounter) startEncounter();
   };
 
   return (
@@ -31,17 +34,19 @@ function EntryScreen() {
       <div className="entry-vignette" />
       <div className="entry-content">
         <p className="eyebrow">LSU Health Shreveport · Pediatric Cardiology</p>
-        <h1>Cardio Hospital</h1>
-        <p className="entry-lead">Your first clinic patient is waiting.</p>
+        <h1>Pediatric<br />Hospital</h1>
+        <p className="entry-lead">
+          {activeEncounter ? "Your patient encounter is saved and ready to resume." : "Your pediatric cardiology shift is ready."}
+        </p>
         <div className="shift-card">
           <span>Monday</span>
           <strong>7:42 AM</strong>
           <span>Cardiology rotation · Day 1</span>
         </div>
         <button className="primary-action" onClick={enterHospital}>
-          Enter the hospital
+          {activeEncounter ? "Resume patient" : "Enter the hospital"}
         </button>
-        <p className="entry-help">Desktop Chrome recommended · headphones improve auscultation</p>
+        <p className="entry-help">Unified development build · headphones improve auscultation</p>
       </div>
     </section>
   );
@@ -66,7 +71,7 @@ function BriefingPanel() {
         </div>
         <div className="dialogue-copy">
           <p>Morning. We have a fourteen-year-old in Room 3 who fainted during basketball practice.</p>
-          <p>I want you to see him first. Decide whether this is benign syncope or whether he needs immediate restriction and further evaluation.</p>
+          <p>I want you to see him first. Decide whether this is benign syncope or a high-risk cardiac presentation that needs urgent evaluation.</p>
         </div>
         <div className="assignment-card">
           <span>Room 3</span>
@@ -101,7 +106,7 @@ function SimulationHud() {
       <div className="hud-top">
         <div className="location-card">
           <span>{formatHospitalTime(clockMinutes)}</span>
-          <strong>Pediatric Cardiology</strong>
+          <strong>Pediatric Hospital · Cardiology</strong>
           <span>{objectives[phase]}</span>
         </div>
         <div className="controls-card">
