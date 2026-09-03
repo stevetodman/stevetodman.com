@@ -1,5 +1,5 @@
 const CACHE_NAME = "pediatric-hospital-shell-v1";
-const DURABLE_SHELL_ASSETS = ["/hospital-icon.svg", "/manifest.webmanifest"];
+const DURABLE_SHELL_ASSETS = ["/hospital/hospital-icon.svg", "/hospital/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
