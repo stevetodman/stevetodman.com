@@ -1,6 +1,6 @@
 import { PointerLockControls } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ComponentRef } from "react";
 import { useSimulationStore } from "@/lib/simulation-store";
 import { HospitalArchitecture } from "./architecture";
 import { InteractionSystem } from "./interaction-system";
@@ -10,7 +10,7 @@ export default function HospitalWorld() {
   const setControlsLocked = useSimulationStore((state) => state.setControlsLocked);
   const briefingOpen = useSimulationStore((state) => state.briefingOpen);
   const phase = useSimulationStore((state) => state.phase);
-  const controls = useRef<{ unlock: () => void } | null>(null);
+  const controls = useRef<ComponentRef<typeof PointerLockControls>>(null);
 
   useEffect(() => {
     if (briefingOpen || phase === "encounter") controls.current?.unlock();
