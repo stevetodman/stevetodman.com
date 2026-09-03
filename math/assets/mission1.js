@@ -86,7 +86,7 @@ import { TEACHER_WEEK, explanationForMicro } from "./teacher-week.mjs?v=20260903
     if (state.immediateScaffold) {
       const missed = state.immediateScaffold;
       state.immediateScaffold = null;
-      return { ...missed, assisted: true, recovery: false, transfer: false, recheck: false };
+      return { ...missed, assisted: true, recovery: false, transfer: false, recheck: false, scaffoldText: missed.scaffoldText || explanationForMicro(missed.micro) };
     }
     const ready = state.recoveries.findIndex(item => item.delay <= 0);
     if (ready >= 0) {
