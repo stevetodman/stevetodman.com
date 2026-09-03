@@ -122,6 +122,15 @@ function render(attempt = null) {
   }
 }
 
+function arrivalPulse() {
+  if (!$("#results")?.classList.contains("active")) return;
+  const card = $("#starship-result");
+  if (!card) return;
+  card.classList.remove("lm-arrival");
+  requestAnimationFrame(() => card.classList.add("lm-arrival"));
+  setTimeout(() => card.classList.remove("lm-arrival"), 900);
+}
+
 function hide() {
   const root = $("#live-mission");
   if (root) root.hidden = true;
@@ -169,7 +178,10 @@ document.addEventListener("click", event => {
     return;
   }
 
-  if (event.target.closest("[data-next]")) setTimeout(render, 0);
+  if (event.target.closest("[data-next]")) setTimeout(() => {
+    render();
+    arrivalPulse();
+  }, 0);
 
   if (event.target.closest("[data-action='switch'], [data-action='confirm-exit']")) {
     hide();
