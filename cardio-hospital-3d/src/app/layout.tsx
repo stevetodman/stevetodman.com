@@ -12,9 +12,9 @@ export const metadata: Metadata = {
   title: "Pediatric Hospital | Clinical Simulation",
   applicationName: "Pediatric Hospital",
   description: "An immersive pediatric clinical reasoning simulation.",
-  manifest: "/manifest.webmanifest",
+  manifest: "/hospital/manifest.webmanifest",
   icons: {
-    icon: "/hospital-icon.svg",
+    icon: "/hospital/hospital-icon.svg",
   },
   appleWebApp: {
     capable: true,
