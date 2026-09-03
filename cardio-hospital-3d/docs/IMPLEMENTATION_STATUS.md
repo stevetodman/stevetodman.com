@@ -6,11 +6,11 @@ Product: **Pediatric Hospital**
 
 ## Resume here
 
-The unified application now has one canonical hospital engine, a complete HCM clinical vertical slice, Room 3/world integration, replay-safe attempts, first-class touch controls, an installable PWA shell, and the first end-to-end hospital workload slice. The old assignment/task migration described in earlier handoffs is finished and must not be repeated.
+The unified application now has one canonical hospital engine, a complete HCM clinical vertical slice, Room 3/world integration, replay-safe attempts, first-class touch controls, an installable PWA shell, and the first end-to-end hospital workload system. The old assignment/task migration described in earlier handoffs is finished and must not be repeated.
 
 **Current milestone: M5 — Hospital work system (IN PROGRESS).**
 
-M3 exit criteria are met. M4 is implemented in code but still requires physical-device acceptance. M5 now has a canonical visible pager plus a real secondary task that can be accepted from the pager and completed at the existing team-room workstations.
+M3 exit criteria are met. M4 is implemented in code but still requires physical-device acceptance. M5 now has a canonical visible pager, a first-class worklist derived from canonical tasks, and a real secondary task that can be accepted from the pager and completed at the existing team-room workstations.
 
 ## Milestone state
 
@@ -129,9 +129,11 @@ Completed first vertical slice:
 - canonical `PAGE_RECEIVED` and `PAGE_ACKNOWLEDGED` behavior with idempotent reducer semantics;
 - acknowledgement state persists through the existing hospital persistence path;
 - pager messages can link to canonical task entities;
-- task model now supports both patient `consult` tasks and non-patient `work` tasks without introducing a second domain store;
+- task model supports both patient `consult` tasks and non-patient `work` tasks without introducing a second domain store;
 - explicit canonical `TASK_COMPLETED` event;
 - `getOpenTasks()` selector exposes the cross-hospital worklist while the HCM workflow selector remains consult-specific;
+- first-class collapsible Worklist UI is a read-only projection of `hospital.tasks`, independent of pager-message state;
+- Worklist shows open consult and work tasks, location, and canonical status;
 - first competing routine task: overnight cardiology handoff review;
 - learner accepts that task from the pager;
 - HUD shows it as a secondary objective without replacing the HCM objective;
@@ -140,12 +142,11 @@ Completed first vertical slice:
 
 Still required for M5 exit:
 
-- a first-class work-queue/prioritization surface independent of pager history;
-- priority/deadline metadata in the canonical task model;
+- priority/deadline metadata in the canonical task model and deterministic worklist ordering;
 - simulation-clock-driven page/task arrival rather than only shift-entry seeding;
 - timing/consequence rules that remain deterministic and persist across reloads;
 - at least one additional competing clinical consult once its department/world and clinical content are validated;
-- mobile/desktop behavioral smoke test of pager → accept → workstation → completion;
+- mobile/desktop behavioral smoke test of pager → accept → worklist → workstation → completion;
 - regression coverage for task ordering/timing once those semantics exist.
 
 ## Clinical-content state
@@ -163,14 +164,14 @@ CI performs both:
 1. `npm run test:engine` — focused canonical reducer/workflow regression checks;
 2. `npm run build` — production Next.js build.
 
-The pager-only checkpoint `1f4e541a1f854882361b1e42d52a703653401c0a` passed the unified build. The first competing-work checkpoint `103f236cea29a52b3f75ccf0f07ddc1f797c7471` also passed. Confirm the actual current branch head is green before merge or handoff.
+The pager checkpoint `1f4e541a1f854882361b1e42d52a703653401c0a`, competing-work checkpoint `103f236cea29a52b3f75ccf0f07ddc1f797c7471`, workstation checkpoint `e1fce286d977bb6b0ccaaa918080f49cc18df795`, and M5 documentation checkpoint `4c04ade44024414f662ea9bab5f26de71959f9e0` passed the unified build. Confirm the actual current branch head is green before merge or handoff.
 
 ## Next actions — exact order
 
 1. Complete the real-device M4 acceptance checklist above when a target iPhone is available; fix only demonstrated mobile/desktop regressions.
-2. Add a compact first-class M5 work queue derived from canonical tasks, not pager-message UI state.
-3. Add task priority and due-time semantics with deterministic selectors and minimal regression coverage.
-4. Add clock-driven release of future pages/tasks; do not use wall-clock timers as domain truth.
+2. Add canonical task priority and due-time semantics plus deterministic Worklist ordering.
+3. Add clock-driven release of future pages/tasks; do not use wall-clock timers as domain truth.
+4. Add minimal regression coverage for ordering, due-time state, and release idempotency.
 5. Only then add a second clinical consult, after its world location and teaching content are validated.
 6. Expand departments incrementally under M6 after the work system is stable.
 7. Defer photorealistic/Needle asset work until architecture, mobile interaction, workload flow, and department boundaries are stable.
@@ -200,12 +201,13 @@ Any agent resuming this project should read, in order:
 9. `src/lib/hospital-work.ts`
 10. `src/lib/clinical-policy/hcm-2024.ts`
 11. `src/components/pager-panel.tsx`
-12. `src/components/clinical/hcm-encounter.tsx`
-13. `src/components/clinical/hcm-assessment-stage.tsx`
-14. `src/components/world/interaction-system.tsx`
-15. `src/components/world/patient-room-actors.tsx`
-16. `src/components/mobile-controls.tsx`
-17. `src/components/world/touch-look-controls.tsx`
-18. `scripts/hospital-engine.test.mjs`
+12. `src/components/work-queue-panel.tsx`
+13. `src/components/clinical/hcm-encounter.tsx`
+14. `src/components/clinical/hcm-assessment-stage.tsx`
+15. `src/components/world/interaction-system.tsx`
+16. `src/components/world/patient-room-actors.tsx`
+17. `src/components/mobile-controls.tsx`
+18. `src/components/world/touch-look-controls.tsx`
+19. `scripts/hospital-engine.test.mjs`
 
 Then continue from the first incomplete item under **Next actions**, keep commits coherent, and update this ledger whenever milestone state or the next action changes materially.
