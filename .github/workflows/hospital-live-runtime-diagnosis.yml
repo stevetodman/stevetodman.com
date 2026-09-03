@@ -39,7 +39,7 @@ jobs:
             exit 0
           fi
 
-          if git diff --name-only "$base" HEAD | grep -Eq '^(_headers|cardio-hospital-3d/|scripts/build-hospital\.mjs|scripts/diagnose-hospital-live\.mjs|\.github/workflows/hospital-live-runtime-diagnosis\.yml|package\.json)$'; then
+          if git diff --name-only "$base" HEAD | grep -Eq '^(_headers|cardio-hospital-3d/|scripts/build-hospital\.mjs|scripts/diagnose-hospital-live\.mjs|scripts/verify-production\.mjs|tests/hospital-csp\.test\.mjs|tests/production-verifier\.test\.mjs|\.github/workflows/production-verify\.yml|\.github/workflows/hospital-live-runtime-diagnosis\.yml|\.github/workflows/hospital-production-guard\.yml|package\.json|package-lock\.json)$'; then
             echo "relevant=true" >> "$GITHUB_OUTPUT"
           else
             echo "relevant=false" >> "$GITHUB_OUTPUT"

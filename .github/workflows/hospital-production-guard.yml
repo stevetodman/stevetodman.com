@@ -1,0 +1,53 @@
+name: Hospital Production Guard
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '_headers'
+      - 'cardio-hospital-3d/**'
+      - 'scripts/build-hospital.mjs'
+      - 'scripts/diagnose-hospital-live.mjs'
+      - 'scripts/verify-production.mjs'
+      - 'tests/hospital-csp.test.mjs'
+      - 'tests/production-verifier.test.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/hospital-production-guard.yml'
+      - '.github/workflows/production-verify.yml'
+      - '.github/workflows/hospital-live-runtime-diagnosis.yml'
+  pull_request:
+    paths:
+      - '_headers'
+      - 'cardio-hospital-3d/**'
+      - 'scripts/build-hospital.mjs'
+      - 'scripts/diagnose-hospital-live.mjs'
+      - 'scripts/verify-production.mjs'
+      - 'tests/hospital-csp.test.mjs'
+      - 'tests/production-verifier.test.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/hospital-production-guard.yml'
+      - '.github/workflows/production-verify.yml'
+      - '.github/workflows/hospital-live-runtime-diagnosis.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: hospital-production-guard-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify hospital CSP and production contract
+        run: node --test tests/hospital-csp.test.mjs tests/production-verifier.test.mjs
