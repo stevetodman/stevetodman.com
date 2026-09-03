@@ -10,9 +10,9 @@ test("world location zones distinguish both clinic rooms, corridor, and workroom
   assert.equal(locationForWorldPosition(-9, -3), null);
 });
 
-test("clinic doorway transition resolves to corridor before entering either room", () => {
-  assert.equal(locationForWorldPosition(-2.3, -3), "clinic-corridor");
-  assert.equal(locationForWorldPosition(-2.5, -3), "clinic-room-1");
-  assert.equal(locationForWorldPosition(2.3, -3), "clinic-room-3");
+test("clinic doorway transition resolves symmetrically between corridor and room zones", () => {
+  assert.equal(locationForWorldPosition(-2.1, -3), "clinic-corridor");
+  assert.equal(locationForWorldPosition(-2.3, -3), "clinic-room-1");
   assert.equal(locationForWorldPosition(2.1, -3), "clinic-corridor");
+  assert.equal(locationForWorldPosition(2.3, -3), "clinic-room-3");
 });
