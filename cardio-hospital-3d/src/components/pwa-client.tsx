@@ -7,7 +7,7 @@ export default function PwaClient() {
     if (process.env.NODE_ENV !== "production" || !("serviceWorker" in navigator)) return;
 
     const register = () => {
-      void navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch((error) => {
+      void navigator.serviceWorker.register("/hospital/sw.js", { scope: "/hospital/" }).catch((error) => {
         console.warn("Pediatric Hospital service worker registration failed.", error);
       });
     };
