@@ -2,6 +2,20 @@
 
 These rules are the operating contract for every agent and contributor working on the unified pediatric hospital simulator.
 
+## Primary project precedence
+
+The **primary active implementation** is:
+
+- Repository: `stevetodman/stevetodman.com`
+- Application: `cardio-hospital-3d/`
+- Branch: `hospital-unified`
+
+This repository/application/branch is the default source of truth for current hospital-simulator development unless the owner explicitly promotes another target.
+
+All other GitHub hospital/simulator-related repositories, branches, sites, prototypes, demos, and legacy implementations are **secondary/reference only by default**. They may be used for assets, historical behavior, comparison, or migration reference, but must not supersede the primary implementation or receive new hospital product work unless explicitly directed.
+
+In particular, `/cardiohospital/` and `stevetodman/pediatric-hospital-world` are secondary/reference implementations during the migration. Do not fork current work back into them.
+
 ## Product invariant
 
 There is **one product**: Pediatric Hospital.
