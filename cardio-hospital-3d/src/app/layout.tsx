@@ -4,8 +4,8 @@ import "./clinical.css";
 import "./clinical-ecg.css";
 
 export const metadata: Metadata = {
-  title: "Cardio Hospital | Pediatric Cardiology Simulation",
-  description: "An immersive pediatric cardiology clinical reasoning simulation.",
+  title: "Pediatric Hospital | Clinical Simulation",
+  description: "A persistent pediatric hospital clinical reasoning simulation.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
