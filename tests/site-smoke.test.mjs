@@ -11,6 +11,13 @@ import path from 'node:path';
 import { startServer, getChromium, watchForErrors, SITE_PAGES, repoRoot } from './helpers/harness.mjs';
 
 let server, browser;
+const siteCatalog = JSON.parse(fs.readFileSync(path.join(repoRoot, 'site/catalog.json'), 'utf8'));
+const generatedProductionRoutes = new Set(
+  siteCatalog.items
+    .filter(item => item.class === 'PRODUCTION' && item.route && item.generated === true)
+    .map(item => item.route)
+);
+const sourceBackedPages = SITE_PAGES.filter(pagePath => !generatedProductionRoutes.has(pagePath));
 const conventionExceptions = JSON.parse(
   fs.readFileSync(path.join(repoRoot, 'site/convention-exceptions.json'), 'utf8')
 ).exceptions || {};
@@ -78,8 +85,8 @@ async function inspectPage(pagePath, viewport) {
   return { status: response?.status(), errors: [...new Set(errors)], ...info };
 }
 
-describe('every page loads cleanly', { concurrency: 6 }, () => {
-  for (const pagePath of SITE_PAGES) {
+describe('every source-backed page loads cleanly', { concurrency: 6 }, () => {
+  for (const pagePath of sourceBackedPages) {
     test(pagePath, async () => {
       const r = await inspect(pagePath);
       assert.equal(r.status, 200);
@@ -88,8 +95,8 @@ describe('every page loads cleanly', { concurrency: 6 }, () => {
   }
 });
 
-describe('page conventions', () => {
-  for (const pagePath of SITE_PAGES) {
+describe('source-backed page conventions', () => {
+  for (const pagePath of sourceBackedPages) {
     test(pagePath, async () => {
       const r = await inspect(pagePath);
       assert.equal(r.lang, 'en', 'needs a lang attribute');
@@ -108,7 +115,7 @@ describe('no external network dependencies', () => {
   // Production pages should be self-contained. A source-only exception is
   // permitted only when it is explicitly documented and the classified-build
   // policy tests prove the deployed artifact removes that dependency.
-  for (const pagePath of SITE_PAGES) {
+  for (const pagePath of sourceBackedPages) {
     test(pagePath, async () => {
       const r = await inspect(pagePath);
       if (excepts(pagePath, 'externalSubresources')) {
@@ -123,23 +130,35 @@ describe('no external network dependencies', () => {
 });
 
 describe('internal links resolve', () => {
-  test('no link points at a missing page', async () => {
+  test('no link points at a missing source page or an unclassified generated route', async () => {
     const broken = [];
-    for (const pagePath of SITE_PAGES) {
+    for (const pagePath of sourceBackedPages) {
       const { internalLinks } = await inspect(pagePath);
       const base = pagePath.endsWith('/') ? pagePath : pagePath.replace(/[^/]*$/, '');
       for (const href of internalLinks) {
         const target = (href.startsWith('/') ? href : base + href).replace(/\/\.\//g, '/').split('#')[0];
+        // Generated apps do not exist in repoRoot until their dedicated build
+        // runs. A source page may link one only when the exact target is a
+        // cataloged generated PRODUCTION route; build/platform/production tests
+        // then verify the generated artifact itself.
+        if (generatedProductionRoutes.has(target)) continue;
         const response = await fetch(server.origin + target);
         if (!response.ok) broken.push(`${pagePath} -> ${href} (${response.status})`);
       }
     }
     assert.deepEqual(broken, [], `broken links:\n${broken.join('\n')}`);
   });
+
+  test('generated production routes are explicit catalog entries', () => {
+    assert.ok(generatedProductionRoutes.size > 0, 'expected at least one generated production route');
+    for (const route of generatedProductionRoutes) {
+      assert.ok(route.startsWith('/') && route.endsWith('/'), `${route} must be a canonical absolute route`);
+    }
+  });
 });
 
 describe('mobile layout', { concurrency: 6 }, () => {
-  for (const pagePath of SITE_PAGES) {
+  for (const pagePath of sourceBackedPages) {
     test(`${pagePath} does not scroll horizontally at 375px`, async () => {
       const r = await inspect(pagePath, { width: 375, height: 812 });
       assert.ok(r.scrollWidth <= r.clientWidth + 2,
@@ -152,7 +171,7 @@ describe('study tools are keyboard operable', { concurrency: 4 }, () => {
   // Regression: mode selection used click-handled <div>s, so the entry screen of
   // every quiz had zero tabbable elements and was unusable without a mouse.
   // grade5.html is a compatibility navigation page, not a quiz mode selector.
-  const tools = SITE_PAGES.filter(p => p.startsWith('/study/') && p.endsWith('.html') && p !== '/study/grade5.html');
+  const tools = sourceBackedPages.filter(p => p.startsWith('/study/') && p.endsWith('.html') && p !== '/study/grade5.html');
   for (const tool of tools) {
     test(tool, async () => {
       const context = await browser.newContext();
@@ -225,7 +244,7 @@ describe('repository hygiene', () => {
     }
   });
 
-  test('the simulator entrypoint only references the current version', () => {
+  test('the legacy simulator entrypoint only references its current archived version', () => {
     const html = fs.readFileSync(path.join(repoRoot, 'phs/index.html'), 'utf8');
     const refs = [...html.matchAll(/(?:src|href)="([^"]+\.(?:js|css))[^"]*"/g)].map(m => m[1]);
     assert.ok(refs.length > 0, 'expected script and stylesheet references');
