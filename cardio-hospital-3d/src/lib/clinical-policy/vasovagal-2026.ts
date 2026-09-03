@@ -27,6 +27,20 @@ export const VASOVAGAL_TEACHING_POLICY = {
     "Post-exertional vasovagal syncope",
   ],
 
+  // Machine-readable projection of the physician-approved history requirements.
+  // These keys all correspond to facts that already exist in the immutable
+  // synthetic case. Broader history domains below are taught without inventing
+  // patient-specific answers that are not supplied in cases-data.ts.
+  requiredHistoryKeys: [
+    "exertional_timing",
+    "prodrome",
+    "triggers",
+    "family_sudden_death",
+    "palpitations",
+    "substance_use",
+  ],
+  requiredInitialTests: ["ECG"],
+
   initialEvaluation: [
     "Detailed event history, including whether loss of consciousness occurred during exercise, while slowing, after crossing the finish line, after stopping, or while walking afterward",
     "Witness description of the collapse, duration of loss of consciousness, abnormal movements or injury, and recovery to baseline",
