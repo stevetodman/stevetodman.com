@@ -6,6 +6,8 @@ on:
       - hospital-unified
     paths:
       - .github/workflows/hospital-desktop-acceptance.yml
+      - cardio-hospital-3d/src/**
+      - cardio-hospital-3d/scripts/desktop-acceptance.mjs
   workflow_dispatch:
 
 jobs:
