@@ -137,8 +137,7 @@ test('diagnostic stays child-simple, persists evidence, and keeps Apple Pencil s
   }
 });
 
-test('packet miss becomes guided place-value action and later independent recovery without stretching progress', async () => {
-  const strongerPacketMicros = ['place_digit', 'place_value', 'metric_conversion', 'decimal_forms', 'decimal_compare', 'decimal_round', 'decimal_add', 'decimal_subtract', 'decimal_multiply', 'decimal_divide'];
+test('current-focus miss becomes guided place-value action and later independent recovery without transcription', async () => {
   const seeded = {
     luke: {
       diagnostic: true,
@@ -146,33 +145,11 @@ test('packet miss becomes guided place-value action and later independent recove
       recheckVersion: 1,
       rechecks: {},
       sessions: 1,
-      attempts: strongerPacketMicros.map((micro, index) => ({
-        skill: ['place_digit', 'place_value', 'metric_conversion'].includes(micro) ? 'place' :
-          ['decimal_forms', 'decimal_compare'].includes(micro) ? 'forms' :
-            micro === 'decimal_round' ? 'round' :
-              ['decimal_add', 'decimal_subtract'].includes(micro) ? 'addsub' :
-                micro === 'decimal_multiply' ? 'multiply' : 'divide',
-        micro,
-        correct: true,
-        assisted: false,
-        recovery: false,
-        difficulty: 2,
-        transfer: false,
-        date: '2026-08-31',
-        at: 1788136000000 + index,
-        cloudId: `seed-${micro}`
-      })).concat({
-        skill: 'place',
-        micro: 'powers_divide',
-        correct: false,
-        assisted: false,
-        recovery: false,
-        difficulty: 2,
-        transfer: false,
-        date: '2026-08-31',
-        at: 1788137000000,
-        cloudId: 'seed-powers-divide-miss'
-      })
+      attempts: [{
+        skill: 'place', micro: 'powers_divide', correct: false, assisted: false,
+        recovery: false, difficulty: 2, transfer: false, date: '2026-08-31',
+        at: 1788137000000, cloudId: 'seed-powers-divide-miss'
+      }]
     }
   };
   const { context, page, errors } = await openMath(seeded, { width: 390, height: 844 }, 0.1);
@@ -180,8 +157,8 @@ test('packet miss becomes guided place-value action and later independent recove
     await page.locator('[data-profile="luke"]').click();
     await page.waitForTimeout(25);
     assert.equal(await page.evaluate(() => document.activeElement?.id), 'hello', 'screen changes should put focus on the new heading');
-    assert.match(await page.locator('#primary-card').innerText(), /Current packet.*Module 1.*Lessons 1–16/is);
-    assert.match(await page.locator('#primary-card').innerText(), /Place value & decimal operations/i);
+    assert.match(await page.locator('#primary-card').innerText(), /Current focus.*Module 1.*Lessons 1–2/is);
+    assert.match(await page.locator('#primary-card').innerText(), /Powers of 10.*place value/i);
     assert.doesNotMatch(await page.locator('#dashboard').innerText(), /level \d|micro-skills|Parent summary/i);
     await page.locator('[data-start="practice"]').click();
     await page.waitForTimeout(25);
@@ -208,13 +185,13 @@ test('packet miss becomes guided place-value action and later independent recove
     assert.match(missFeedback, /Not yet\./);
     assert.match(missFeedback, /Show me with the place-value chart/i);
     assert.doesNotMatch(missFeedback, /The answer is/i, 'independent current-focus miss must not dump the answer');
+    await page.waitForTimeout(10);
 
-    const attemptsAfterMiss = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts);
-    assert.equal(attemptsAfterMiss.length, strongerPacketMicros.length + 2);
-    const latestAttempt = attemptsAfterMiss.at(-1);
+    const latestAttempt = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts.at(-1));
     assert.equal(latestAttempt.micro, 'powers_divide');
     assert.equal(latestAttempt.correct, false);
     assert.equal(latestAttempt.assisted, false);
+    assert.equal(latestAttempt.misconception, 'place_value_result');
 
     await page.locator('[data-next]').click();
     assert.equal(await page.locator('#question-title').innerText(), 'Guided step');
@@ -232,10 +209,9 @@ test('packet miss becomes guided place-value action and later independent recove
     await page.locator('[data-pv-shift="right"]').click();
     assert.match(await page.locator('.pv-status').innerText(), /Exactly.*1\/10 as valuable/is);
     assert.equal(await page.locator('#answer-input').isDisabled(), false);
-    assert.equal(await page.locator('#check-button').isDisabled(), false);
-
-    const guidedAnswer = await chartValue(page);
-    await page.locator('#answer-input').fill(guidedAnswer);
+    assert.equal(await page.locator('#answer-input').isEditable(), false, 'the chart should own the answer instead of asking for retyping');
+    assert.equal(await page.locator('#answer-input').inputValue(), await chartValue(page));
+    assert.equal(await page.locator('#place-value-workspace [data-pv-use]').count(), 0, 'no redundant Use chart answer click should remain');
     await page.locator('#check-button').click();
     await page.locator('#feedback.good').waitFor();
     assert.equal(await page.evaluate(() => document.activeElement?.dataset?.next), '', 'feedback should move focus to the Next action');
@@ -246,8 +222,8 @@ test('packet miss becomes guided place-value action and later independent recove
     assert.match(await page.locator('#skill-tag').innerText(), /Multiply by powers of 10/i);
     assert.equal(await page.locator('#progress-text').innerText(), '2 of 10');
     await page.locator('[data-pv-shift="left"]').click();
-    const independentAnswer = await chartValue(page);
-    await page.locator('#answer-input').fill(independentAnswer);
+    assert.equal(await page.locator('#answer-input').inputValue(), await chartValue(page));
+    assert.equal(await page.locator('#answer-input').isEditable(), false);
     await page.locator('#check-button').click();
     await page.locator('#feedback.good').waitFor();
     await page.locator('[data-next]').click();
@@ -256,14 +232,13 @@ test('packet miss becomes guided place-value action and later independent recove
     assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10.*Try again/i);
     assert.equal(await page.locator('#session-mode').innerText(), 'Independent retry');
     assert.equal(await page.locator('#progress-text').innerText(), '3 of 10');
-    assert.equal(await page.locator('#answer-input').isDisabled(), false);
     assert.deepEqual(errors, [], `runtime errors:\n${errors.join('\n')}`);
   } finally {
     await context.close();
   }
 });
 
-test('an ordinary packet miss gets a guided step before the answer is revealed', async () => {
+test('a future packet weakness cannot displace unsecured current classroom work', async () => {
   const seeded = { luke: { diagnostic: true, diagnosticVersion: 2, recheckVersion: 1, rechecks: {}, sessions: 1, attempts: [{
     skill: 'divide', micro: 'decimal_divide', correct: false, assisted: false, recovery: false,
     difficulty: 2, transfer: false, date: '2026-08-31', at: 1788137000100,
@@ -273,19 +248,9 @@ test('an ordinary packet miss gets a guided step before the answer is revealed',
   try {
     await page.locator('[data-profile="luke"]').click();
     await page.locator('[data-start="practice"]').click();
-    assert.match(await page.locator('#skill-tag').innerText(), /Divide decimals/i);
-    await page.locator('#answer-input').fill('999999');
-    await page.locator('#check-button').click();
-    const feedback = await page.locator('#feedback.bad').innerText();
-    assert.match(feedback, /Not yet\./);
-    assert.match(feedback, /Show me a step/i);
-    assert.doesNotMatch(feedback, /The answer is/i);
-
-    await page.locator('[data-next]').click();
-    assert.equal(await page.locator('#question-title').innerText(), 'Guided step');
-    assert.match(await page.locator('#scaffold-note').innerText(), /rename the dividend/i);
-    assert.equal(await page.locator('#progress-text').innerText(), '1 of 10 complete');
-    assert.equal(await page.locator('#answer-input').isDisabled(), false);
+    assert.match(await page.locator('#skill-tag').innerText(), /powers of 10/i);
+    assert.doesNotMatch(await page.locator('#skill-tag').innerText(), /Divide decimals/i);
+    assert.equal(await page.locator('#place-value-workspace').isHidden(), false);
     assert.deepEqual(errors, [], `runtime errors:\n${errors.join('\n')}`);
   } finally {
     await context.close();

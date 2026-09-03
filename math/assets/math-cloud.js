@@ -6,6 +6,7 @@
   var PROFILES={luke:"math-mission-luke",samantha:"math-mission-samantha"};
   var VALID_SKILLS=["place","forms","round","addsub","multiply","divide"];
   var VALID_MICROS=["place_digit","place_value","powers_multiply","powers_divide","metric_conversion","decimal_forms","decimal_compare","decimal_round","decimal_add","decimal_subtract","decimal_multiply","decimal_divide"];
+  var VALID_MISCONCEPTIONS=["wrong_direction","wrong_shift_count","place_value_result","place_identification","digit_value","unit_scale_relation","decimal_form_place_value","comparison_relation","rounding_rule","addition_place_value_or_computation","subtraction_place_value_or_computation","multiplication_place_value_or_computation","division_place_value_or_computation","unknown_misconception"];
   var status=ENABLED?"loading":"local",timer=null,inFlight=false,queued=false,lastLocal="";
 
   function isObj(v){return !!v&&typeof v==="object"&&!Array.isArray(v)}
@@ -18,6 +19,8 @@
   function setStatus(next){status=next;document.querySelectorAll("[data-math-cloud-status]").forEach(function(el){el.textContent=statusText();el.dataset.state=status})}
   function request(data){return fetch(CLOUD_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(data)}).then(function(res){return res.json().then(function(body){if(!res.ok){var e=new Error(body.error||("cloud "+res.status));e.status=res.status;throw e}return body})})}
   function safeId(v){return String(v||"").replace(/[^A-Za-z0-9_-]/g,"").slice(0,40)}
+  function safeMisconception(v){return VALID_MISCONCEPTIONS.indexOf(v)>=0?v:""}
+  function attemptById(profile,id){return profile.attempts.find(function(a){return safeId(a.cloudId)===id})}
 
   function payload(){
     var local=read(),out={},changed=false;
@@ -25,11 +28,16 @@
       var p=isObj(local[name])?local[name]:{},stats={};
       (Array.isArray(p.attempts)?p.attempts:[]).forEach(function(a,i){
         if(!isObj(a)||VALID_SKILLS.indexOf(a.skill)<0)return;
-        var date=/^\d{4}-\d{2}-\d{2}$/.test(a.date)?a.date:"unknown",at=Number(a.at)||0,id=safeId(a.cloudId);
+        var date=/^\d{4}-\d{2}-\d{2}$/.test(a.date)?a.date:"unknown",at=Number(a.at)||0,id=safeId(a.cloudId),misconception=safeMisconception(a.misconception);
         if(!id){id=at+"-"+i;a.cloudId=id;changed=true}
-        var key=VALID_MICROS.indexOf(a.micro)>=0
-          ?[a.recheck?"math1c":"math1b",a.skill,a.micro,a.correct?1:0,a.assisted?1:0,a.recovery?1:0,Math.max(1,Math.min(3,Number(a.difficulty)||1)),a.transfer?1:0,a.recheck?1:0,date,at,id].filter(function(part,index){return a.recheck||index!==8}).join("|")
-          :["math1a",a.skill,a.correct?1:0,a.transfer?1:0,date,at,id].join("|");
+        var key;
+        if(VALID_MICROS.indexOf(a.micro)>=0&&misconception){
+          key=["math1d",a.skill,a.micro,a.correct?1:0,a.assisted?1:0,a.recovery?1:0,Math.max(1,Math.min(3,Number(a.difficulty)||1)),a.transfer?1:0,a.recheck?1:0,misconception,date,at,id].join("|");
+        }else if(VALID_MICROS.indexOf(a.micro)>=0){
+          key=[a.recheck?"math1c":"math1b",a.skill,a.micro,a.correct?1:0,a.assisted?1:0,a.recovery?1:0,Math.max(1,Math.min(3,Number(a.difficulty)||1)),a.transfer?1:0,a.recheck?1:0,date,at,id].filter(function(part,index){return a.recheck||index!==8}).join("|");
+        }else{
+          key=["math1a",a.skill,a.correct?1:0,a.transfer?1:0,date,at,id].join("|");
+        }
         stats[key]={streak:1,correct:a.correct?1:0,wrong:a.correct?0:1,mastered:true};
       });
       stats.math1sessions={streak:Number(p.sessions)||0,correct:Number(p.sessions)||0,wrong:0,mastered:false};
@@ -59,6 +67,14 @@
         }else if(parts[0]==="math1c"&&parts.length===12&&VALID_SKILLS.indexOf(parts[1])>=0&&VALID_MICROS.indexOf(parts[2])>=0&&st.mastered){
           var recheckId=safeId(parts[11]);if(!recheckId||seen.has(recheckId))return;seen.add(recheckId);
           p.attempts.push({skill:parts[1],micro:parts[2],correct:parts[3]==="1",assisted:parts[4]==="1",recovery:parts[5]==="1",difficulty:Math.max(1,Math.min(3,Number(parts[6])||1)),transfer:parts[7]==="1",recheck:parts[8]==="1",date:/^\d{4}-\d{2}-\d{2}$/.test(parts[9])?parts[9]:"unknown",at:Number(parts[10])||0,cloudId:recheckId});
+        }else if(parts[0]==="math1d"&&parts.length===13&&VALID_SKILLS.indexOf(parts[1])>=0&&VALID_MICROS.indexOf(parts[2])>=0&&safeMisconception(parts[9])&&st.mastered){
+          var evidenceId=safeId(parts[12]);if(!evidenceId)return;
+          if(seen.has(evidenceId)){
+            var existing=attemptById(p,evidenceId);if(existing&&!existing.misconception)existing.misconception=parts[9];
+            return;
+          }
+          seen.add(evidenceId);
+          p.attempts.push({skill:parts[1],micro:parts[2],correct:parts[3]==="1",assisted:parts[4]==="1",recovery:parts[5]==="1",difficulty:Math.max(1,Math.min(3,Number(parts[6])||1)),transfer:parts[7]==="1",recheck:parts[8]==="1",misconception:parts[9],date:/^\d{4}-\d{2}-\d{2}$/.test(parts[10])?parts[10]:"unknown",at:Number(parts[11])||0,cloudId:evidenceId});
         }
       });
       p.attempts.sort(function(a,b){return (Number(a.at)||0)-(Number(b.at)||0)});local[name]=p;
