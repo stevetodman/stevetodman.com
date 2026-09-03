@@ -96,7 +96,7 @@
 }
 
 .pager-message.acknowledged {
-  opacity: 0.72;
+  opacity: 0.78;
 }
 
 .pager-message-meta {
@@ -153,6 +153,17 @@
   color: var(--teal);
   font-size: 10px;
   font-weight: 800;
+}
+
+.pager-task-status {
+  color: var(--teal);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pager-task-status.complete {
+  color: var(--muted);
 }
 
 @media (hover: none) and (pointer: coarse) {

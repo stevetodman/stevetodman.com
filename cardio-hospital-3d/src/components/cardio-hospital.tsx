@@ -8,8 +8,9 @@ import {
   getHospitalWorkflowPhase,
   getTask,
 } from "@/lib/hospital-engine";
-import { SERVICE_PAGER_PAGE_ID } from "@/lib/hospital-pages";
+import { HANDOFF_REVIEW_PAGE_ID } from "@/lib/hospital-pages";
 import { useHospitalStore } from "@/lib/hospital-store";
+import { WORKROOM_HANDOFF_TASK_ID } from "@/lib/hospital-work";
 import { HCM_CASE_ID, HCM_PATIENT_ID, HCM_ROOM, HCM_TASK_ID } from "@/lib/scenario-ids";
 import { useSimulationStore } from "@/lib/simulation-store";
 import HcmEncounter from "./clinical/hcm-encounter";
@@ -30,7 +31,8 @@ function EntryScreen() {
     if (hospital.shift.status === "not-started") {
       dispatch({ type: "SHIFT_STARTED", shiftId: "shift-1", day: 1, startMinute: 7 * 60 + 42, location: "workroom" });
     }
-    dispatch({ type: "PAGE_RECEIVED", pageId: SERVICE_PAGER_PAGE_ID });
+    dispatch({ type: "PAGE_RECEIVED", pageId: HANDOFF_REVIEW_PAGE_ID });
+    dispatch({ type: "TASK_CREATED", taskId: WORKROOM_HANDOFF_TASK_ID, kind: "work", location: "workroom" });
     dispatch({ type: "PATIENT_ARRIVED", patientId: HCM_PATIENT_ID, caseId: HCM_CASE_ID, location: HCM_ROOM });
     dispatch({ type: "TASK_CREATED", taskId: HCM_TASK_ID, kind: "consult", caseId: HCM_CASE_ID, patientId: HCM_PATIENT_ID, location: HCM_ROOM });
     if (activeEncounter) dispatch({ type: "TASK_STARTED", taskId: HCM_TASK_ID });
@@ -109,6 +111,7 @@ function SimulationHud() {
   const encounterOpen = useSimulationStore((state) => state.encounterOpen);
   const hospital = useHospitalStore((state) => state.hospital);
   const task = getTask(hospital, HCM_TASK_ID);
+  const handoffTask = getTask(hospital, WORKROOM_HANDOFF_TASK_ID);
   const activeEncounter = getActiveEncounter(hospital);
   const workflow = getHospitalWorkflowPhase(hospital);
 
@@ -119,6 +122,12 @@ function SimulationHud() {
   else if (workflow === "assigned" || task?.status === "assigned") objective = "Walk to Clinic Room 3";
   else if (workflow === "complete") objective = "Patient encounter complete";
 
+  const secondaryObjective = handoffTask && (handoffTask.status === "assigned" || handoffTask.status === "in-progress")
+    ? "Secondary · Review overnight handoff at a team-room workstation"
+    : handoffTask?.status === "complete"
+      ? "Secondary · Overnight handoff reviewed"
+      : null;
+
   return (
     <div className="hud" aria-live="polite">
       <div className="hud-top">
@@ -126,6 +135,7 @@ function SimulationHud() {
           <span>{formatHospitalTime(hospital.shift.clockMinutes)}</span>
           <strong>Pediatric Hospital · Cardiology</strong>
           <span>{objective}</span>
+          {secondaryObjective && <span>{secondaryObjective}</span>}
         </div>
         <div className="controls-card">
           <span>WASD move</span><span>Mouse look</span><span>E interact</span><span>Shift faster</span>

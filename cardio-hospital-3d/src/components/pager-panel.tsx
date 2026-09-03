@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { formatHospitalTime } from "@/lib/hospital-engine";
+import { formatHospitalTime, getTask } from "@/lib/hospital-engine";
 import { getReceivedHospitalPages, getUnreadPagerCount } from "@/lib/hospital-pages";
 import { useHospitalStore } from "@/lib/hospital-store";
 
@@ -38,28 +38,38 @@ export default function PagerPanel() {
           </header>
 
           <div className="pager-list">
-            {pages.map((page) => (
-              <article key={page.pageId} className={`pager-message ${page.priority}${page.acknowledged ? " acknowledged" : " unread"}`}>
-                <div className="pager-message-meta">
-                  <span>{formatHospitalTime(page.receivedAtMinute)}</span>
-                  <span>{page.priority}</span>
-                  {page.location && <span>{page.location.replaceAll("-", " ")}</span>}
-                </div>
-                <h3>{page.title}</h3>
-                <p>{page.message}</p>
-                <footer>
-                  <span>{page.from}</span>
-                  {!page.acknowledged && (
-                    <button
-                      type="button"
-                      onClick={() => dispatch({ type: "PAGE_ACKNOWLEDGED", pageId: page.pageId })}
-                    >
-                      Acknowledge
-                    </button>
-                  )}
-                </footer>
-              </article>
-            ))}
+            {pages.map((page) => {
+              const linkedTask = page.taskId ? getTask(hospital, page.taskId) : undefined;
+              const acceptTask = () => {
+                if (!linkedTask || linkedTask.status !== "available") return;
+                dispatch({ type: "PAGE_ACKNOWLEDGED", pageId: page.pageId });
+                dispatch({ type: "TASK_ASSIGNED", taskId: linkedTask.taskId });
+              };
+
+              return (
+                <article key={page.pageId} className={`pager-message ${page.priority}${page.acknowledged ? " acknowledged" : " unread"}`}>
+                  <div className="pager-message-meta">
+                    <span>{formatHospitalTime(page.receivedAtMinute)}</span>
+                    <span>{page.priority}</span>
+                    {page.location && <span>{page.location.replaceAll("-", " ")}</span>}
+                  </div>
+                  <h3>{page.title}</h3>
+                  <p>{page.message}</p>
+                  <footer>
+                    <span>{page.from}</span>
+                    {linkedTask?.status === "available" ? (
+                      <button type="button" onClick={acceptTask}>Accept task</button>
+                    ) : linkedTask ? (
+                      <strong className={`pager-task-status ${linkedTask.status}`}>{linkedTask.status.replace("-", " ")}</strong>
+                    ) : !page.acknowledged ? (
+                      <button type="button" onClick={() => dispatch({ type: "PAGE_ACKNOWLEDGED", pageId: page.pageId })}>
+                        Acknowledge
+                      </button>
+                    ) : null}
+                  </footer>
+                </article>
+              );
+            })}
           </div>
         </section>
       )}

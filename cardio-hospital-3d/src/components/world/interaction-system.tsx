@@ -2,26 +2,29 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useRef } from "react";
 import { getActiveEncounter, getTask } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
+import { WORKROOM_HANDOFF_TASK_ID } from "@/lib/hospital-work";
 import { HCM_CASE_ID, HCM_PATIENT_ID, HCM_ROOM, HCM_TASK_ID } from "@/lib/scenario-ids";
 import { useSimulationStore } from "@/lib/simulation-store";
 
 export function InteractionSystem() {
   const { camera } = useThree();
   const taskStatus = useHospitalStore((state) => getTask(state.hospital, HCM_TASK_ID)?.status);
+  const handoffTaskStatus = useHospitalStore((state) => getTask(state.hospital, WORKROOM_HANDOFF_TASK_ID)?.status);
   const hasActiveEncounter = useHospitalStore((state) => Boolean(getActiveEncounter(state.hospital)));
   const setPrompt = useSimulationStore((state) => state.setPrompt);
   const openBriefing = useSimulationStore((state) => state.openBriefing);
   const openEncounter = useSimulationStore((state) => state.openEncounter);
   const interactSequence = useSimulationStore((state) => state.interactSequence);
   const dispatch = useHospitalStore((state) => state.dispatch);
-  const active = useRef<"attending" | "exam" | null>(null);
+  const active = useRef<"attending" | "exam" | "handoff" | null>(null);
   const priorPrompt = useRef<string | null>(null);
   const handledInteractSequence = useRef(interactSequence);
 
   useFrame(() => {
     const attendingDistance = Math.hypot(camera.position.x, camera.position.z - 10.25);
     const examDistance = Math.hypot(camera.position.x - 2.2, camera.position.z + 3);
-    let next: "attending" | "exam" | null = null;
+    const handoffDistance = Math.hypot(camera.position.x + 4.45, camera.position.z - 7.8);
+    let next: "attending" | "exam" | "handoff" | null = null;
     let prompt: string | null = null;
 
     if (taskStatus === "available" && attendingDistance < 2.1) {
@@ -30,6 +33,9 @@ export function InteractionSystem() {
     } else if ((taskStatus === "assigned" || taskStatus === "in-progress" || hasActiveEncounter) && examDistance < 2.2) {
       next = "exam";
       prompt = hasActiveEncounter ? "Interact · Continue patient encounter" : "Interact · Enter Clinic Room 3";
+    } else if ((handoffTaskStatus === "assigned" || handoffTaskStatus === "in-progress") && handoffDistance < 1.8) {
+      next = "handoff";
+      prompt = "Interact · Review overnight handoff";
     }
 
     active.current = next;
@@ -44,6 +50,15 @@ export function InteractionSystem() {
       openBriefing();
       return;
     }
+
+    if (active.current === "handoff") {
+      const handoffTask = getTask(useHospitalStore.getState().hospital, WORKROOM_HANDOFF_TASK_ID);
+      if (!handoffTask || (handoffTask.status !== "assigned" && handoffTask.status !== "in-progress")) return;
+      if (handoffTask.status === "assigned") dispatch({ type: "TASK_STARTED", taskId: WORKROOM_HANDOFF_TASK_ID });
+      dispatch({ type: "TASK_COMPLETED", taskId: WORKROOM_HANDOFF_TASK_ID });
+      return;
+    }
+
     if (active.current !== "exam") return;
 
     const hospital = useHospitalStore.getState().hospital;

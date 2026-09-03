@@ -4,6 +4,7 @@ import {
   createInitialHospitalState,
   getActiveEncounter,
   getHospitalWorkflowPhase,
+  getOpenTasks,
   reduceHospitalState,
 } from "../src/lib/hospital-engine.ts";
 
@@ -99,4 +100,29 @@ test("pager receipt and acknowledgement are idempotent canonical events", () => 
   assert.equal(hospital.revision, revisionAfterAcknowledge);
   assert.equal(hospital.timeline.length, timelineAfterAcknowledge);
   assert.deepEqual(hospital.pager.acknowledgedIds, ["service-pager-active"]);
+});
+
+test("work tasks can compete with the consult without hijacking the clinical workflow selector", () => {
+  let hospital = createInitialHospitalState({ startMinute: 462, location: "workroom" });
+  hospital = reduceHospitalState(hospital, {
+    type: "TASK_CREATED",
+    taskId: "work-overnight-handoff",
+    kind: "work",
+    location: "workroom",
+  });
+
+  assert.equal(getHospitalWorkflowPhase(hospital), "arrival");
+  assert.equal(getOpenTasks(hospital).length, 1);
+  assert.equal(hospital.tasks["work-overnight-handoff"].status, "available");
+
+  hospital = apply(
+    hospital,
+    { type: "TASK_ASSIGNED", taskId: "work-overnight-handoff" },
+    { type: "TASK_STARTED", taskId: "work-overnight-handoff" },
+    { type: "TASK_COMPLETED", taskId: "work-overnight-handoff" }
+  );
+
+  assert.equal(hospital.tasks["work-overnight-handoff"].status, "complete");
+  assert.equal(getOpenTasks(hospital).length, 0);
+  assert.equal(getHospitalWorkflowPhase(hospital), "arrival");
 });

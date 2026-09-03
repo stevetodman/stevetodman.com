@@ -27,6 +27,7 @@ export type EncounterStage =
   | "debrief"
   | "complete";
 export type PatientDisposition = "waiting" | "in-encounter" | "transferred" | "complete";
+export type TaskKind = "consult" | "work";
 export type TaskStatus = "available" | "assigned" | "in-progress" | "complete";
 export type HospitalWorkflowPhase = "arrival" | "assigned" | "encounter" | "complete";
 
@@ -55,11 +56,12 @@ export interface PagerState {
 
 export interface HospitalTaskState {
   taskId: string;
-  kind: "consult";
-  caseId: string;
-  patientId: string;
+  kind: TaskKind;
+  caseId?: string;
+  patientId?: string;
   location: HospitalLocation;
   status: TaskStatus;
+  createdAtMinute?: number;
 }
 
 export interface PatientRuntimeState {
@@ -103,8 +105,10 @@ export type HospitalEvent =
   | { type: "PAGE_ACKNOWLEDGED"; pageId: string }
   | { type: "PATIENT_ARRIVED"; patientId: string; caseId: string; location: HospitalLocation }
   | { type: "TASK_CREATED"; taskId: string; kind: "consult"; caseId: string; patientId: string; location: HospitalLocation }
+  | { type: "TASK_CREATED"; taskId: string; kind: "work"; location: HospitalLocation }
   | { type: "TASK_ASSIGNED"; taskId: string }
   | { type: "TASK_STARTED"; taskId: string }
+  | { type: "TASK_COMPLETED"; taskId: string }
   | {
       type: "ENCOUNTER_STARTED";
       encounterId: string;
@@ -268,10 +272,11 @@ function applyEvent(state: HospitalState, event: HospitalEvent): HospitalState {
           [event.taskId]: {
             taskId: event.taskId,
             kind: event.kind,
-            caseId: event.caseId,
-            patientId: event.patientId,
+            caseId: event.kind === "consult" ? event.caseId : undefined,
+            patientId: event.kind === "consult" ? event.patientId : undefined,
             location: event.location,
             status: "available",
+            createdAtMinute: state.shift.clockMinutes,
           },
         },
       };
@@ -282,6 +287,9 @@ function applyEvent(state: HospitalState, event: HospitalEvent): HospitalState {
 
     case "TASK_STARTED":
       return updateTask(state, event.taskId, "in-progress");
+
+    case "TASK_COMPLETED":
+      return updateTask(state, event.taskId, "complete");
 
     case "ENCOUNTER_STARTED": {
       if (state.encounters[event.encounterId]) return state;
@@ -404,7 +412,7 @@ function applyEvent(state: HospitalState, event: HospitalEvent): HospitalState {
       const linkedTask = encounter.taskId
         ? state.tasks[encounter.taskId]
         : Object.values(state.tasks).find(
-            (task) => task.patientId === encounter.patientId && task.caseId === encounter.caseId && task.status !== "complete"
+            (task) => task.kind === "consult" && task.patientId === encounter.patientId && task.caseId === encounter.caseId && task.status !== "complete"
           );
       return {
         ...state,
@@ -462,9 +470,15 @@ export function getTask(state: HospitalState, taskId: string): HospitalTaskState
   return state.tasks[taskId];
 }
 
+export function getOpenTasks(state: HospitalState): HospitalTaskState[] {
+  return Object.values(state.tasks)
+    .filter((task) => task.status !== "complete")
+    .sort((left, right) => (left.createdAtMinute ?? 0) - (right.createdAtMinute ?? 0));
+}
+
 export function getPrimaryTask(state: HospitalState): HospitalTaskState | undefined {
-  return Object.values(state.tasks).find((task) => task.status !== "complete")
-    ?? Object.values(state.tasks).at(-1);
+  const consultTasks = Object.values(state.tasks).filter((task) => task.kind === "consult");
+  return consultTasks.find((task) => task.status !== "complete") ?? consultTasks.at(-1);
 }
 
 export function getHospitalWorkflowPhase(state: HospitalState): HospitalWorkflowPhase {
