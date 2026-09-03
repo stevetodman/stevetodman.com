@@ -1,9 +1,5 @@
 const POWER_MICROS = new Set(["powers_multiply", "powers_divide"]);
 
-function optionSet(answer, candidates) {
-  return [...new Set([String(answer), ...candidates.map(String)])].slice(0, 4);
-}
-
 export function misconceptionForAttempt(question, workspaceEvidence = null) {
   if (!POWER_MICROS.has(question?.micro) || !question?.workspace || question.workspace.type !== "place-value") return null;
   const delta = Number(workspaceEvidence?.delta) || 0;
@@ -21,12 +17,11 @@ export function checkpointFor(question, misconception) {
   const directionAnswer = operation === "multiply" ? "larger" : "smaller";
 
   if (misconception === "wrong_shift_count") {
-    const candidates = [1, 2, 3, Math.max(1, shift - 1), shift + 1];
     return {
       ...question,
       prompt: `Before rebuilding the number: <strong>how many places</strong> should every digit move when ${operation === "multiply" ? "multiplying" : "dividing"} by <span class="math">${workspace.factor.toLocaleString()}</span>?`,
       answer: String(shift),
-      options: optionSet(shift, candidates),
+      options: ["1", "2", "3"],
       why: `${workspace.factor.toLocaleString()} is 10 multiplied by itself ${shift} time${shift === 1 ? "" : "s"}, so every digit moves ${shift} place${shift === 1 ? "" : "s"}.`,
       workspace: null,
       assisted: true,
