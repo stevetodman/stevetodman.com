@@ -1,0 +1,195 @@
+/* Mobile clinical surfaces need height-aware rules in addition to width-based breakpoints.
+   Modern iPhones in landscape are wider than 720px but have a short dynamic viewport. */
+
+@supports (height: 100dvh) {
+  .ecg-reader {
+    max-height: calc(100dvh - 36px);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
+  .entry-content {
+    width: calc(100% - max(20px, env(safe-area-inset-left)) - max(20px, env(safe-area-inset-right)));
+    padding: 18px 22px;
+  }
+
+  .entry-content h1 {
+    font-size: clamp(44px, 8vw, 68px);
+  }
+
+  .entry-lead {
+    margin: 14px 0 16px;
+    font-size: 17px;
+  }
+
+  .shift-card {
+    margin-bottom: 14px;
+    padding: 12px 14px;
+  }
+
+  .hud-top {
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(10px, env(safe-area-inset-right))
+      8px
+      max(10px, env(safe-area-inset-left));
+  }
+
+  .location-card {
+    min-width: 0;
+    max-width: min(310px, 48vw);
+    padding: 9px 11px;
+  }
+
+  .controls-card {
+    display: none;
+  }
+
+  .dialog-backdrop {
+    padding:
+      max(7px, env(safe-area-inset-top))
+      max(7px, env(safe-area-inset-right))
+      max(7px, env(safe-area-inset-bottom))
+      max(7px, env(safe-area-inset-left));
+  }
+
+  .briefing-panel {
+    max-height: calc(100dvh - max(14px, env(safe-area-inset-top)) - max(14px, env(safe-area-inset-bottom)));
+    overflow: auto;
+    padding: 18px;
+  }
+
+  .dialogue-copy {
+    margin: 14px 0;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .dialog-actions {
+    margin-top: 14px;
+  }
+
+  .encounter-workspace {
+    inset:
+      max(6px, env(safe-area-inset-top))
+      max(6px, env(safe-area-inset-right))
+      max(6px, env(safe-area-inset-bottom))
+      max(6px, env(safe-area-inset-left));
+    border-radius: 10px;
+  }
+
+  .encounter-workspace-header {
+    gap: 14px;
+    padding: 11px 14px 9px;
+  }
+
+  .encounter-workspace-header h2 {
+    font-size: clamp(21px, 3vw, 28px);
+  }
+
+  .encounter-close {
+    width: 38px;
+    height: 38px;
+  }
+
+  .encounter-progress {
+    padding: 7px 14px;
+  }
+
+  .clinical-stage {
+    padding: 13px 14px;
+  }
+
+  .clinical-stage-heading {
+    gap: 14px;
+    margin-bottom: 13px;
+  }
+
+  .clinical-stage-heading h3 {
+    font-size: clamp(18px, 2.4vw, 23px);
+  }
+
+  .clinical-response {
+    min-height: 0;
+    margin-top: 11px;
+    padding: 11px 13px;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .clinical-stage-footer {
+    margin-top: 11px;
+    padding-top: 11px;
+  }
+
+  .history-privacy {
+    gap: 12px;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+  }
+
+  .vital-strip {
+    margin-bottom: 10px;
+  }
+
+  .vital-strip span {
+    padding: 8px 10px;
+  }
+
+  .auscultation-workbench {
+    gap: 12px;
+    margin-top: 10px;
+    padding: 12px;
+  }
+
+  .assessment-block {
+    margin-bottom: 12px;
+    padding: 12px;
+  }
+
+  .ecg-backdrop {
+    padding:
+      max(5px, env(safe-area-inset-top))
+      max(5px, env(safe-area-inset-right))
+      max(5px, env(safe-area-inset-bottom))
+      max(5px, env(safe-area-inset-left));
+  }
+
+  .ecg-reader {
+    max-height: 100dvh;
+    border-radius: 10px;
+  }
+
+  .ecg-reader-header {
+    padding: 9px 12px;
+  }
+
+  .ecg-reader-header h3 {
+    font-size: 20px;
+  }
+
+  .ecg-toolbar {
+    gap: 8px 12px;
+    padding: 6px 12px;
+  }
+
+  .ecg-interpretation {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 0.7fr);
+    gap: 10px;
+    max-height: 40dvh;
+    overflow: auto;
+    padding: 9px 12px;
+  }
+
+  .finding-grid {
+    gap: 4px 10px;
+  }
+
+  .finding-grid label {
+    min-height: 30px;
+  }
+
+  .simulation-disclaimer {
+    padding: 0 12px 7px;
+  }
+}
