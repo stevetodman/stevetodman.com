@@ -9,6 +9,12 @@ export interface EncounterScore {
   diagnosisCorrect: boolean;
 }
 
+export interface EncounterScoringPolicy {
+  appropriateTests: readonly string[];
+  unnecessaryTests: readonly string[];
+  correctManagement: readonly string[];
+}
+
 function clampScore(value: number, minimum = 0): number {
   return Math.max(minimum, Math.min(100, Math.round(value)));
 }
@@ -19,7 +25,8 @@ function isDiagnosticTest(label: string): boolean {
 
 export function scoreCanonicalEncounter(
   encounter: EncounterRuntimeState,
-  clinicalCase: ClinicalCase
+  clinicalCase: ClinicalCase,
+  policy?: EncounterScoringPolicy
 ): EncounterScore {
   const redFlagsAsked = clinicalCase.redFlagKeys.filter((key) =>
     encounter.askedHistoryKeys.includes(key)
@@ -41,11 +48,20 @@ export function scoreCanonicalEncounter(
   ].filter(Boolean).length;
   const physicalExam = clampScore((coreExamCompleted / 4) * 100);
 
-  const appropriateTests = clinicalCase.appropriateTests.filter(isDiagnosticTest);
+  const appropriateTests = policy
+    ? [...policy.appropriateTests]
+    : clinicalCase.appropriateTests.filter(isDiagnosticTest);
+  const unnecessaryCatalog = policy
+    ? [...policy.unnecessaryTests]
+    : clinicalCase.unnecessaryTests;
+  const correctManagement = policy
+    ? [...policy.correctManagement]
+    : clinicalCase.correctManagement;
+
   const appropriateOrdered = appropriateTests.filter((test) =>
     encounter.orderedTests.includes(test)
   ).length;
-  const unnecessaryTests = clinicalCase.unnecessaryTests.filter((test) =>
+  const unnecessaryTests = unnecessaryCatalog.filter((test) =>
     encounter.orderedTests.includes(test)
   );
   const testSelection = clampScore(
@@ -59,12 +75,12 @@ export function scoreCanonicalEncounter(
     (diagnosisCorrect ? 70 : 20) + (diagnosisCorrect ? ecgContribution : ecgContribution / 3)
   );
 
-  const correctManagementSelected = clinicalCase.correctManagement.filter((item) =>
+  const correctManagementSelected = correctManagement.filter((item) =>
     encounter.management.includes(item)
   ).length;
   const safety = clampScore(
     50
-      + (correctManagementSelected / Math.max(1, clinicalCase.correctManagement.length)) * 50
+      + (correctManagementSelected / Math.max(1, correctManagement.length)) * 50
       - encounter.safetyEvents.length * 20,
     10
   );
