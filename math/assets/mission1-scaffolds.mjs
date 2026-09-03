@@ -21,7 +21,6 @@ export function checkpointFor(question, misconception) {
   const workspace = question.workspace;
   const shift = Number(workspace.shift) || 1;
   const operation = workspace.operation;
-  const directionAnswer = operation === "multiply" ? "larger" : "smaller";
 
   if (misconception === "wrong_shift_count") {
     return {
@@ -29,6 +28,7 @@ export function checkpointFor(question, misconception) {
       prompt: `Before rebuilding the number: <strong>how many places</strong> should every digit move when ${operation === "multiply" ? "multiplying" : "dividing"} by <span class="math">${workspace.factor.toLocaleString()}</span>?`,
       answer: String(shift),
       options: ["1", "2", "3"],
+      audit: { kind: "sum", values: [shift] },
       why: `${workspace.factor.toLocaleString()} is 10 multiplied by itself ${shift} time${shift === 1 ? "" : "s"}, so every digit moves ${shift} place${shift === 1 ? "" : "s"}.`,
       workspace: null,
       assisted: true,
@@ -41,12 +41,20 @@ export function checkpointFor(question, misconception) {
     };
   }
 
+  const relationship = operation === "multiply" ? "new value > starting value" : "new value < starting value";
   return {
     ...question,
-    prompt: `Before moving any digits: should the new number be <strong>larger or smaller</strong> than <span class="math">${workspace.value}</span>?`,
-    answer: directionAnswer,
-    options: ["larger", "smaller"],
-    why: `${operation === "multiply" ? "Multiplication" : "Division"} by ${workspace.factor.toLocaleString()} makes the value ${directionAnswer}.`,
+    prompt: `Before moving any digits: <strong>which relationship must be true</strong> after ${operation === "multiply" ? "multiplying" : "dividing"} by <span class="math">${workspace.factor.toLocaleString()}</span>?`,
+    answer: relationship,
+    options: ["new value > starting value", "new value < starting value"],
+    audit: {
+      kind: "compare",
+      aScaled: operation === "multiply" ? 2 : 1,
+      bScaled: operation === "multiply" ? 1 : 2,
+      left: "new value",
+      right: "starting value"
+    },
+    why: `${operation === "multiply" ? "Multiplication" : "Division"} by ${workspace.factor.toLocaleString()} makes this positive value ${operation === "multiply" ? "larger" : "smaller"}.`,
     workspace: null,
     assisted: true,
     recovery: false,
