@@ -29,10 +29,8 @@ function install() {
     const question = window.MathMissionCurrentQuestion;
     const guided = /\bGuided\b/i.test(skillTag.textContent || "");
     if (!guided || !question) {
-      if (!root.hidden || lastKey) {
-        controller.reset();
-        lastKey = "";
-      }
+      if (!root.hidden || lastKey) freshRoot();
+      lastKey = "";
       return;
     }
 
