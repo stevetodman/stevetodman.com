@@ -11,11 +11,13 @@ const STORAGE_KEY = "mathmission.education-game-budget.v1";
 const MATH_KEY = "mathmission.m1.v1";
 const PROFILE_IDS = new Set(["luke", "samantha"]);
 const TICK_MS = 250;
+const PERSIST_MS = 2000;
 const MAX_TICK_DELTA_MS = 1000;
 
 let activeProfile = null;
 let budget = sanitizeBudget();
 let lastTick = performance.now();
+let lastPersist = performance.now();
 let dirty = false;
 
 const $ = selector => document.querySelector(selector);
@@ -40,13 +42,15 @@ function loadBudget(profileId) {
   return sanitizeBudget(root?.profiles?.[profileId] || {});
 }
 
-function persistBudget() {
-  if (!activeProfile || !dirty) return;
+function persistBudget(force = false) {
+  const now = performance.now();
+  if (!activeProfile || !dirty || (!force && now - lastPersist < PERSIST_MS)) return;
   const root = readRoot();
   const profiles = root?.profiles && typeof root.profiles === "object" ? root.profiles : {};
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, profiles: { ...profiles, [activeProfile]: budget } }));
     dirty = false;
+    lastPersist = now;
   } catch {}
 }
 
@@ -54,7 +58,7 @@ function beginMissionBudget() {
   if (!activeProfile) return;
   budget = { cycleId: `${activeProfile}:${sessionCount(activeProfile) + 1}`, educationMs: 0, gameMs: 0 };
   dirty = true;
-  persistBudget();
+  persistBudget(true);
 }
 
 function gameSurfaceOpen() {
@@ -125,10 +129,11 @@ function tick() {
 
 function setProfile(profileId) {
   if (!PROFILE_IDS.has(profileId)) return;
-  persistBudget();
+  persistBudget(true);
   activeProfile = profileId;
   budget = loadBudget(profileId);
   lastTick = performance.now();
+  lastPersist = performance.now();
 }
 
 document.addEventListener("click", event => {
@@ -136,7 +141,7 @@ document.addEventListener("click", event => {
   if (profile) setProfile(profile.dataset.profile);
 
   if (event.target.closest("[data-action='switch']")) {
-    persistBudget();
+    persistBudget(true);
     activeProfile = null;
     budget = sanitizeBudget();
     return;
@@ -170,8 +175,8 @@ document.addEventListener("toggle", event => {
   }
 }, true);
 
-window.addEventListener("pagehide", persistBudget);
-window.addEventListener("beforeunload", persistBudget);
+window.addEventListener("pagehide", () => persistBudget(true));
+window.addEventListener("beforeunload", () => persistBudget(true));
 window.addEventListener("storage", event => {
   if (event.key !== STORAGE_KEY || !activeProfile) return;
   budget = loadBudget(activeProfile);
@@ -179,7 +184,7 @@ window.addEventListener("storage", event => {
 
 setInterval(() => {
   tick();
-  if (dirty) persistBudget();
+  persistBudget(false);
 }, TICK_MS);
 
 window.MathMissionEducationGameBudget = Object.freeze({
