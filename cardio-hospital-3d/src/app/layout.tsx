@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./clinical.css";
+import "./clinical-ecg.css";
 
 export const metadata: Metadata = {
   title: "Cardio Hospital | Pediatric Cardiology Simulation",
