@@ -18,6 +18,16 @@ export const MISSION_PATCHES = Object.freeze([
   Object.freeze({ id: "deep-space-explorer", name: "Deep-Space Explorer", mark: "✦", description: "Reach Deep Space." })
 ]);
 
+const DECIMAL_MICROS = new Set([
+  "decimal_forms",
+  "decimal_compare",
+  "decimal_round",
+  "decimal_add",
+  "decimal_subtract",
+  "decimal_multiply",
+  "decimal_divide"
+]);
+
 function attemptsOf(mathProfile = {}) {
   return Array.isArray(mathProfile?.attempts) ? mathProfile.attempts : [];
 }
@@ -58,6 +68,7 @@ export function unlockedPatchIds(mathProfile = {}) {
   const sessions = sessionsOf(mathProfile);
   const independent = attempts.filter(independentCorrect);
   const micros = new Set(independent.map(item => item?.micro).filter(Boolean));
+  const decimalMicros = new Set(independent.map(item => item?.micro).filter(micro => DECIMAL_MICROS.has(micro)));
   const advancedCorrect = independent.filter(item => Number(item?.difficulty) >= 3).length;
   const unlocked = new Set();
 
@@ -67,7 +78,7 @@ export function unlockedPatchIds(mathProfile = {}) {
   if (independent.some(item => item?.recheck)) unlocked.add("repair-specialist");
   if (micros.has("powers_multiply") && micros.has("powers_divide")) unlocked.add("powers-navigator");
   if (advancedCorrect >= 3) unlocked.add("precision-pilot");
-  if (micros.size >= 4) unlocked.add("decimal-cartographer");
+  if (decimalMicros.size >= 4) unlocked.add("decimal-cartographer");
   if (sessions >= 10) unlocked.add("mission-veteran");
   if (sessions >= 14) unlocked.add("deep-space-explorer");
   return unlocked;
