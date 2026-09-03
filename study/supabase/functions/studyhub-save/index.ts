@@ -85,7 +85,17 @@ async function hashToken(token: string): Promise<string> {
    can store its own state under a profile without this function needing to
    understand it. */
 
-type Stat = { streak?: number; correct?: number; wrong?: number; mastered?: boolean };
+type Stat = {
+  streak?: number;
+  correct?: number;
+  wrong?: number;
+  mastered?: boolean;
+  // Pin Sprint records map-location evidence separately from the combined
+  // spelling/map counters. These counters are monotonic and therefore safe to
+  // merge with the same max-per-device strategy as the legacy totals.
+  mapCorrect?: number;
+  mapWrong?: number;
+};
 
 function isObj(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === "object" && !Array.isArray(v);
@@ -104,6 +114,8 @@ function mergeStats(a: unknown, b: unknown): Record<string, Stat> {
       correct: Math.max(num(sa.correct), num(sb.correct)),
       wrong: Math.max(num(sa.wrong), num(sb.wrong)),
       mastered: !!(sa.mastered || sb.mastered),
+      mapCorrect: Math.max(num(sa.mapCorrect), num(sb.mapCorrect)),
+      mapWrong: Math.max(num(sa.mapWrong), num(sb.mapWrong)),
     };
   }
   return out;
