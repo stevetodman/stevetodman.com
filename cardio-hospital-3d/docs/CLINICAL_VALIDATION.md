@@ -4,7 +4,7 @@ Last reviewed: 2026-09-03
 
 This document prevents technically successful migration from silently preserving outdated or overconfident medical teaching. The unified app must not merge to production until the clinical-content items below are reconciled deliberately.
 
-## Current primary reference
+## Current primary HCM reference
 
 Ommen SR, Ho CY, Asif IM, et al. **2024 AHA/ACC/AMSSM/HRS/PACES/SCMR Guideline for the Management of Hypertrophic Cardiomyopathy.** J Am Coll Cardiol. 2024;83(23):2324-2405. Circulation. 2024. The AHA guideline hub lists this guideline as current/reaffirmed.
 
@@ -40,10 +40,55 @@ The current teaching phrase "HCM until proven otherwise" overstates diagnostic c
 
 **Migration requirement:** teach "high-risk cardiac syncope requiring urgent evaluation for HCM and other arrhythmic/structural causes" until the case's ECG/echo data establish HCM.
 
+## Second-consult candidate: post-exertional vasovagal syncope
+
+Candidate: legacy `case-vasovagal` (Ava Rodriguez, Room 1).
+
+Evidence reviewed for this migration gate:
+
+- Shen WK, Sheldon RS, Benditt DG, et al. **2017 ACC/AHA/HRS Guideline for the Evaluation and Management of Patients With Syncope.** Circulation. 2017;136:e60-e122.
+- Kim JH, Baggish AL, Levine BD, et al. **Clinical Considerations for Competitive Sports Participation for Athletes With Cardiovascular Abnormalities: A Scientific Statement From the American Heart Association and American College of Cardiology.** Circulation. 2025;151:e716-e761.
+- Gilpin K, Goode Z. **Syncope.** Pediatr Rev. 2024;45(10):606-608.
+
+### 1. The case is suitable as the low-risk contrast to the urgent HCM consult
+
+The synthetic facts support a post-exertional neurally mediated pattern: collapse after finishing exercise, a typical prodrome, dehydration/fasting/heat contributors, no reported concerning family history, a normal cardiovascular examination, and a resting ECG without a pathologic finding.
+
+**Migration requirement:** preserve those supplied facts, but do not let the diagnosis hinge on exercise timing alone. The initial pediatric syncope evaluation must explicitly incorporate event/family history, physical examination, and a resting 12-lead ECG.
+
+### 2. "During vs after exercise is the single most important discriminating feature" is too absolute
+
+Mid-exertional syncope is an important cardiac warning feature, while post-exertional collapse with a typical prodrome can support neurally mediated syncope. However, neither timing nor prodrome should be taught as a stand-alone diagnostic rule.
+
+**Migration requirement:** replace the "single most important" language with a multifeature risk assessment. High-risk features such as syncope during exercise, absent prodrome, abrupt palpitations, exertional chest discomfort/dyspnea, concerning family history, abnormal examination, or abnormal ECG should alter the pathway.
+
+### 3. Sports return must follow the reassuring initial evaluation
+
+The 2025 AHA/ACC competitive-sports statement says athletes with nonexertional syncope whose history, physical examination, and resting ECG support neurally mediated syncope or postexertional collapse can return to competitive sports without further cardiac evaluation. This is more precise than simply teaching "continue competitive sports" based on the story alone.
+
+**Migration requirement:** teach that return to competitive running is reasonable **after** the supplied history, examination, and ECG are reassuring and no concerning features are present. Do not turn this into blanket clearance for all post-exertional syncope.
+
+### 4. Additional cardiac testing should be context-dependent rather than categorically "unnecessary"
+
+Routine broad imaging/monitoring is low yield when the initial evaluation supports benign neurally mediated syncope. Echocardiography, ambulatory rhythm monitoring, exercise testing, or other cardiac investigations become appropriate when cardiac disease or arrhythmia is suspected or uncertainty remains.
+
+**Migration requirement:** the unified policy may mark echo, CMR, Holter, troponin, and BNP as **not routine after this synthetic case's reassuring initial evaluation**, but must not teach that those tests are universally wrong in pediatric syncope.
+
+### 5. Management should emphasize education and reversible triggers
+
+Pediatric vasovagal management includes reassurance/education, recognition of prodromal symptoms, and avoidance/correction of precipitating factors such as dehydration and heat; increased fluid and, in selected patients, salt intake may be reasonable.
+
+**Migration requirement:** retain hydration/nutrition counseling and return precautions. Avoid medication teaching in this single uncomplicated synthetic episode.
+
+### Runtime gate for `case-vasovagal`
+
+`src/lib/clinical-policy/vasovagal-2026.ts` contains the evidence-reviewed policy draft. It must remain marked `awaiting-physician-signoff` and must **not** become runtime truth until physician sign-off is explicitly recorded here. Clinical sign-off and engineering wiring must remain separate commits.
+
 ## Content-change discipline
 
 - Technical parity work may continue on the isolated branch.
-- Do not merge the HCM clinical teaching to production until the items above are corrected and physician-reviewed.
+- Do not merge the HCM clinical teaching to production until the HCM items above are corrected and physician-reviewed.
+- Do not activate `case-vasovagal` in the unified runtime until its policy is physician-signed-off and its Room 1 world path has passed behavioral validation.
 - Make clinical-content corrections in dedicated commits separate from engineering refactors.
 - Do not use a clinical-content correction as an excuse to invent new patient-specific data that are absent from the synthetic case definition.
 - Re-run the same validation process for each additional case before that case becomes part of the unified production experience.
