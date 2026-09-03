@@ -55,8 +55,8 @@ jobs:
           marker = "\ntest('50-state Full Test stays fixed at 50 while Quick Round can still schedule retries', () => {"
           if marker not in text:
               raise SystemExit('Broad Full Test regression marker missing')
-          text = text[:text.index(marker)] + '\n'
-          regression.write_text(text)
+          text = text[:text.index(marker)]
+          regression.write_text(text.rstrip() + '\n')
           PY
 
           git diff --check
@@ -70,7 +70,7 @@ jobs:
       - name: Run only fast static gates before commit
         shell: bash
         run: |
-          node --test tests/study-regressions.test.mjs --test-name-pattern='Study releases'
+          node --test --test-name-pattern='Study releases' tests/study-regressions.test.mjs
 
       - name: Commit minimized CI
         shell: bash
