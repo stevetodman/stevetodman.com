@@ -9,6 +9,13 @@ export function misconceptionForAttempt(question, workspaceEvidence = null) {
   return "place_value_result";
 }
 
+export function missCueFor(question, misconception) {
+  if (!POWER_MICROS.has(question?.micro) || !question?.workspace) return null;
+  if (misconception === "wrong_direction") return "The direction of the move does not match how the operation should change the size of the number.";
+  if (misconception === "wrong_shift_count") return "The direction is plausible, but the power of 10 determines exactly how many places each digit should move.";
+  return "Check how the operation should change the size of the number before rebuilding it.";
+}
+
 export function checkpointFor(question, misconception) {
   if (!POWER_MICROS.has(question?.micro) || !question?.workspace) return null;
   const workspace = question.workspace;
