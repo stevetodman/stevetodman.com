@@ -3,7 +3,16 @@ import { useCallback, useEffect, useRef } from "react";
 import { getActiveEncounter, getTask } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
 import { getHospitalWorkDefinition, WORKROOM_HANDOFF_TASK_ID } from "@/lib/hospital-work";
-import { HCM_CASE_ID, HCM_PATIENT_ID, HCM_ROOM, HCM_TASK_ID } from "@/lib/scenario-ids";
+import {
+  HCM_CASE_ID,
+  HCM_PATIENT_ID,
+  HCM_ROOM,
+  HCM_TASK_ID,
+  VASOVAGAL_CASE_ID,
+  VASOVAGAL_PATIENT_ID,
+  VASOVAGAL_ROOM,
+  VASOVAGAL_TASK_ID,
+} from "@/lib/scenario-ids";
 import { useSimulationStore } from "@/lib/simulation-store";
 
 const TEAM_ROOM_WORKSTATIONS: Array<[number, number]> = [
@@ -12,37 +21,67 @@ const TEAM_ROOM_WORKSTATIONS: Array<[number, number]> = [
   [-4.45, 9.5],
 ];
 
+type ActiveInteraction = "attending" | "hcm-exam" | "vasovagal-exam" | "handoff" | null;
+
+const CONSULTS = {
+  "hcm-exam": {
+    caseId: HCM_CASE_ID,
+    patientId: HCM_PATIENT_ID,
+    taskId: HCM_TASK_ID,
+    room: HCM_ROOM,
+    label: "Clinic Room 3",
+  },
+  "vasovagal-exam": {
+    caseId: VASOVAGAL_CASE_ID,
+    patientId: VASOVAGAL_PATIENT_ID,
+    taskId: VASOVAGAL_TASK_ID,
+    room: VASOVAGAL_ROOM,
+    label: "Clinic Room 1",
+  },
+} as const;
+
 function nearestWorkstationDistance(x: number, z: number): number {
   return Math.min(...TEAM_ROOM_WORKSTATIONS.map(([workstationX, workstationZ]) => Math.hypot(x - workstationX, z - workstationZ)));
 }
 
 export function InteractionSystem() {
   const { camera } = useThree();
-  const taskStatus = useHospitalStore((state) => getTask(state.hospital, HCM_TASK_ID)?.status);
+  const hcmTaskStatus = useHospitalStore((state) => getTask(state.hospital, HCM_TASK_ID)?.status);
+  const vasovagalTaskStatus = useHospitalStore((state) => getTask(state.hospital, VASOVAGAL_TASK_ID)?.status);
   const handoffTaskStatus = useHospitalStore((state) => getTask(state.hospital, WORKROOM_HANDOFF_TASK_ID)?.status);
-  const hasActiveEncounter = useHospitalStore((state) => Boolean(getActiveEncounter(state.hospital)));
+  const activeEncounter = useHospitalStore((state) => getActiveEncounter(state.hospital));
   const setPrompt = useSimulationStore((state) => state.setPrompt);
   const openBriefing = useSimulationStore((state) => state.openBriefing);
   const openEncounter = useSimulationStore((state) => state.openEncounter);
   const interactSequence = useSimulationStore((state) => state.interactSequence);
   const dispatch = useHospitalStore((state) => state.dispatch);
-  const active = useRef<"attending" | "exam" | "handoff" | null>(null);
+  const active = useRef<ActiveInteraction>(null);
   const priorPrompt = useRef<string | null>(null);
   const handledInteractSequence = useRef(interactSequence);
 
   useFrame(() => {
     const attendingDistance = Math.hypot(camera.position.x, camera.position.z - 10.25);
-    const examDistance = Math.hypot(camera.position.x - 2.2, camera.position.z + 3);
+    const hcmRoomDistance = Math.hypot(camera.position.x - 2.2, camera.position.z + 3);
+    const vasovagalRoomDistance = Math.hypot(camera.position.x + 2.2, camera.position.z + 3);
     const handoffDistance = nearestWorkstationDistance(camera.position.x, camera.position.z);
-    let next: "attending" | "exam" | "handoff" | null = null;
+    let next: ActiveInteraction = null;
     let prompt: string | null = null;
 
-    if (taskStatus === "available" && attendingDistance < 2.1) {
+    if (hcmTaskStatus === "available" && attendingDistance < 2.1) {
       next = "attending";
       prompt = "Interact · Speak with Dr. Patel";
-    } else if ((taskStatus === "assigned" || taskStatus === "in-progress" || hasActiveEncounter) && examDistance < 2.2) {
-      next = "exam";
-      prompt = hasActiveEncounter ? "Interact · Continue patient encounter" : "Interact · Enter Clinic Room 3";
+    } else if (activeEncounter?.caseId === HCM_CASE_ID && hcmRoomDistance < 2.2) {
+      next = "hcm-exam";
+      prompt = "Interact · Continue Marcus Chen encounter";
+    } else if (activeEncounter?.caseId === VASOVAGAL_CASE_ID && vasovagalRoomDistance < 2.2) {
+      next = "vasovagal-exam";
+      prompt = "Interact · Continue Ava Rodriguez encounter";
+    } else if (!activeEncounter && (hcmTaskStatus === "assigned" || hcmTaskStatus === "in-progress") && hcmRoomDistance < 2.2) {
+      next = "hcm-exam";
+      prompt = "Interact · Enter Clinic Room 3";
+    } else if (!activeEncounter && (vasovagalTaskStatus === "assigned" || vasovagalTaskStatus === "in-progress") && vasovagalRoomDistance < 2.2) {
+      next = "vasovagal-exam";
+      prompt = "Interact · Enter Clinic Room 1";
     } else if ((handoffTaskStatus === "assigned" || handoffTaskStatus === "in-progress") && handoffDistance < 1.8) {
       next = "handoff";
       prompt = "Interact · Review overnight handoff";
@@ -74,22 +113,24 @@ export function InteractionSystem() {
       return;
     }
 
-    if (active.current !== "exam") return;
-
+    if (active.current !== "hcm-exam" && active.current !== "vasovagal-exam") return;
+    const consult = CONSULTS[active.current];
     const hospital = useHospitalStore.getState().hospital;
     const current = getActiveEncounter(hospital);
+    if (current && current.caseId !== consult.caseId) return;
+
     if (!current) {
-      const priorHcmAttempts = Object.values(hospital.encounters).filter((encounter) => encounter.caseId === HCM_CASE_ID).length;
+      const priorAttempts = Object.values(hospital.encounters).filter((encounter) => encounter.caseId === consult.caseId).length;
       dispatch({
         type: "ENCOUNTER_STARTED",
-        encounterId: `encounter-case-hcm-${priorHcmAttempts + 1}`,
-        taskId: HCM_TASK_ID,
-        patientId: HCM_PATIENT_ID,
-        caseId: HCM_CASE_ID,
-        location: HCM_ROOM,
+        encounterId: `encounter-${consult.caseId}-${priorAttempts + 1}`,
+        taskId: consult.taskId,
+        patientId: consult.patientId,
+        caseId: consult.caseId,
+        location: consult.room,
       });
-    } else {
-      dispatch({ type: "TASK_STARTED", taskId: HCM_TASK_ID });
+    } else if (current.taskId) {
+      dispatch({ type: "TASK_STARTED", taskId: current.taskId });
     }
     openEncounter();
   }, [dispatch, openBriefing, openEncounter]);

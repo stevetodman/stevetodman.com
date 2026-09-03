@@ -5,14 +5,21 @@ import { Suspense, useEffect } from "react";
 import {
   formatHospitalTime,
   getActiveEncounter,
-  getHospitalWorkflowPhase,
   getTask,
 } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
 import { WORKROOM_HANDOFF_TASK_ID } from "@/lib/hospital-work";
-import { HCM_CASE_ID, HCM_PATIENT_ID, HCM_ROOM, HCM_TASK_ID } from "@/lib/scenario-ids";
+import {
+  HCM_CASE_ID,
+  HCM_PATIENT_ID,
+  HCM_ROOM,
+  HCM_TASK_ID,
+  VASOVAGAL_CASE_ID,
+  VASOVAGAL_TASK_ID,
+} from "@/lib/scenario-ids";
 import { useSimulationStore } from "@/lib/simulation-store";
 import HcmEncounter from "./clinical/hcm-encounter";
+import VasovagalEncounter from "./clinical/vasovagal-encounter";
 import MobileControls from "./mobile-controls";
 import PagerPanel from "./pager-panel";
 import WorkQueuePanel from "./work-queue-panel";
@@ -33,7 +40,7 @@ function EntryScreen() {
     }
     dispatch({ type: "PATIENT_ARRIVED", patientId: HCM_PATIENT_ID, caseId: HCM_CASE_ID, location: HCM_ROOM });
     dispatch({ type: "TASK_CREATED", taskId: HCM_TASK_ID, kind: "consult", caseId: HCM_CASE_ID, patientId: HCM_PATIENT_ID, location: HCM_ROOM, priority: "urgent" });
-    if (activeEncounter) dispatch({ type: "TASK_STARTED", taskId: HCM_TASK_ID });
+    if (activeEncounter?.taskId) dispatch({ type: "TASK_STARTED", taskId: activeEncounter.taskId });
     setEntered(true);
     if (activeEncounter) openEncounter();
   };
@@ -108,17 +115,21 @@ function SimulationHud() {
   const briefingOpen = useSimulationStore((state) => state.briefingOpen);
   const encounterOpen = useSimulationStore((state) => state.encounterOpen);
   const hospital = useHospitalStore((state) => state.hospital);
-  const task = getTask(hospital, HCM_TASK_ID);
+  const hcmTask = getTask(hospital, HCM_TASK_ID);
+  const vasovagalTask = getTask(hospital, VASOVAGAL_TASK_ID);
   const handoffTask = getTask(hospital, WORKROOM_HANDOFF_TASK_ID);
   const activeEncounter = getActiveEncounter(hospital);
-  const workflow = getHospitalWorkflowPhase(hospital);
 
   let objective = "Meet Dr. Patel in the team room";
   if (briefingOpen) objective = "Receive your first patient";
-  else if (activeEncounter && encounterOpen) objective = "Evaluate the patient";
-  else if (activeEncounter) objective = "Continue Marcus Chen's encounter in Room 3";
-  else if (workflow === "assigned" || task?.status === "assigned") objective = "Walk to Clinic Room 3";
-  else if (workflow === "complete") objective = "Patient encounter complete";
+  else if (activeEncounter?.caseId === HCM_CASE_ID && encounterOpen) objective = "Evaluate Marcus Chen";
+  else if (activeEncounter?.caseId === VASOVAGAL_CASE_ID && encounterOpen) objective = "Evaluate Ava Rodriguez";
+  else if (activeEncounter?.caseId === HCM_CASE_ID) objective = "Continue Marcus Chen's encounter in Room 3";
+  else if (activeEncounter?.caseId === VASOVAGAL_CASE_ID) objective = "Continue Ava Rodriguez's encounter in Room 1";
+  else if (hcmTask?.status === "assigned" || hcmTask?.status === "in-progress") objective = "Walk to Clinic Room 3";
+  else if (vasovagalTask?.status === "available") objective = "Review the pager for the new Room 1 consult";
+  else if (vasovagalTask?.status === "assigned" || vasovagalTask?.status === "in-progress") objective = "Walk to Clinic Room 1";
+  else if (hcmTask?.status === "complete" && vasovagalTask?.status === "complete") objective = "Clinical consults complete";
 
   const secondaryObjective = handoffTask && (handoffTask.status === "assigned" || handoffTask.status === "in-progress")
     ? "Secondary · Review overnight handoff at a team-room workstation"
@@ -149,6 +160,7 @@ function SimulationHud() {
 export default function CardioHospital() {
   const entered = useSimulationStore((state) => state.entered);
   const encounterOpen = useSimulationStore((state) => state.encounterOpen);
+  const activeCaseId = useHospitalStore((state) => getActiveEncounter(state.hospital)?.caseId);
   const hydrateHospital = useHospitalStore((state) => state.hydrate);
 
   useEffect(() => { hydrateHospital(); }, [hydrateHospital]);
@@ -170,7 +182,8 @@ export default function CardioHospital() {
       {entered && <WorkQueuePanel />}
       {entered && <MobileControls />}
       {entered && <BriefingPanel />}
-      {entered && encounterOpen && <HcmEncounter />}
+      {entered && encounterOpen && activeCaseId === HCM_CASE_ID && <HcmEncounter />}
+      {entered && encounterOpen && activeCaseId === VASOVAGAL_CASE_ID && <VasovagalEncounter />}
     </main>
   );
 }

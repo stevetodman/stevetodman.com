@@ -1,4 +1,5 @@
 import type { HospitalLocation, HospitalState } from "./hospital-engine";
+import { VASOVAGAL_TASK_ID } from "./scenario-ids";
 import { WORKROOM_HANDOFF_TASK_ID } from "./hospital-work.ts";
 
 export type HospitalPagePriority = "routine" | "urgent";
@@ -20,6 +21,7 @@ export interface ReceivedHospitalPage extends HospitalPageDefinition {
 
 export const SERVICE_PAGER_PAGE_ID = "service-pager-active";
 export const HANDOFF_REVIEW_PAGE_ID = "overnight-handoff-review";
+export const VASOVAGAL_CONSULT_PAGE_ID = "room-1-post-exertional-syncope-consult";
 
 const PAGE_DEFINITIONS: Record<string, HospitalPageDefinition> = {
   [SERVICE_PAGER_PAGE_ID]: {
@@ -38,6 +40,15 @@ const PAGE_DEFINITIONS: Record<string, HospitalPageDefinition> = {
     priority: "routine",
     location: "workroom",
     taskId: WORKROOM_HANDOFF_TASK_ID,
+  },
+  [VASOVAGAL_CONSULT_PAGE_ID]: {
+    pageId: VASOVAGAL_CONSULT_PAGE_ID,
+    title: "New clinic consult · Room 1",
+    message: "A 15-year-old cross-country runner is waiting after a recent syncopal episode following a race. Please evaluate her before she returns to training.",
+    from: "Cardiology clinic RN",
+    priority: "routine",
+    location: "clinic-room-1",
+    taskId: VASOVAGAL_TASK_ID,
   },
 };
 

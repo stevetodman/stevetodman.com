@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ComponentRef } from "react";
 import { useSimulationStore } from "@/lib/simulation-store";
 import { HospitalArchitecture } from "./architecture";
 import { InteractionSystem } from "./interaction-system";
+import { VasovagalRoomActors } from "./patient-room-actors";
 import { PlayerController } from "./player-controller";
 import { TouchLookControls } from "./touch-look-controls";
 
@@ -46,6 +47,7 @@ export default function HospitalWorld() {
         <HospitalArchitecture />
         <PlayerController />
       </Physics>
+      <VasovagalRoomActors />
       <InteractionSystem />
       <TouchLookControls />
       {desktopPointerLock && (

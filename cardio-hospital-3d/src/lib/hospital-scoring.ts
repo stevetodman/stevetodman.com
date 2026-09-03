@@ -1,10 +1,11 @@
-import type { ClinicalCase } from "./cases-data";
-import type { EncounterRuntimeState } from "./hospital-engine";
+import type { ClinicalCase, DiscloseKey } from "./cases-data.ts";
+import type { EncounterRuntimeState } from "./hospital-engine.ts";
 
 export interface EncounterScore {
   dimensions: Record<string, number>;
   overall: number;
   missedRedFlags: string[];
+  missedHistoryKeys: DiscloseKey[];
   unnecessaryTests: string[];
   diagnosisCorrect: boolean;
 }
@@ -14,6 +15,8 @@ export interface EncounterScoringPolicy {
   nonPenalizedTests?: readonly string[];
   unnecessaryTests: readonly string[];
   correctManagement: readonly string[];
+  acceptedDiagnoses?: readonly string[];
+  requiredHistoryKeys?: readonly DiscloseKey[];
 }
 
 function clampScore(value: number, minimum = 0): number {
@@ -35,10 +38,19 @@ export function scoreCanonicalEncounter(
   const missedRedFlags = clinicalCase.redFlagKeys.filter(
     (key) => !encounter.askedHistoryKeys.includes(key)
   );
+  const requiredHistoryKeys = policy?.requiredHistoryKeys
+    ? [...policy.requiredHistoryKeys]
+    : [...clinicalCase.redFlagKeys];
+  const requiredHistoryAsked = requiredHistoryKeys.filter((key) =>
+    encounter.askedHistoryKeys.includes(key)
+  );
+  const missedHistoryKeys = requiredHistoryKeys.filter(
+    (key) => !encounter.askedHistoryKeys.includes(key)
+  );
   const historyBase = encounter.askedHistoryKeys.length >= 3 ? 40 : 20;
   const history = clampScore(
     historyBase
-      + (redFlagsAsked.length / Math.max(1, clinicalCase.redFlagKeys.length)) * 60
+      + (requiredHistoryAsked.length / Math.max(1, requiredHistoryKeys.length)) * 60
   );
 
   const coreExamCompleted = [
@@ -71,7 +83,12 @@ export function scoreCanonicalEncounter(
       - unnecessaryTests.length * 15
   );
 
-  const diagnosisCorrect = encounter.diagnosis === clinicalCase.correctDiagnosis;
+  const acceptedDiagnoses = policy?.acceptedDiagnoses?.length
+    ? policy.acceptedDiagnoses
+    : [clinicalCase.correctDiagnosis];
+  const diagnosisCorrect = Boolean(
+    encounter.diagnosis && acceptedDiagnoses.includes(encounter.diagnosis)
+  );
   const ecgContribution = (encounter.ecgInterpretation?.score ?? 0) * 0.3;
   const clinicalReasoning = clampScore(
     (diagnosisCorrect ? 70 : 20) + (diagnosisCorrect ? ecgContribution : ecgContribution / 3)
@@ -118,6 +135,7 @@ export function scoreCanonicalEncounter(
     dimensions,
     overall,
     missedRedFlags,
+    missedHistoryKeys,
     unnecessaryTests,
     diagnosisCorrect,
   };
