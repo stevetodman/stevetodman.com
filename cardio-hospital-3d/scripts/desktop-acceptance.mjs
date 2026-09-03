@@ -202,6 +202,7 @@ try {
 
   await page.getByRole("button", { name: "Return to the 3D hospital" }).click();
   await waitForPrompt(page, "Continue Ava Rodriguez encounter");
+  await screenshot(page, "04-room1-after-confidential");
   await page.keyboard.press("e");
   await avaEncounter.waitFor({ state: "visible" });
   await page
@@ -221,7 +222,7 @@ try {
   assert.ok(preEncounter.askedHistoryKeys.length >= 4);
   const preEncounterId = preEncounter.encounterId;
   const preAsked = JSON.stringify(preEncounter.askedHistoryKeys);
-  await screenshot(page, "04-ava-before-reload");
+  await screenshot(page, "05-ava-before-reload");
 
   await page.reload({ waitUntil: "domcontentloaded" });
   await page
@@ -275,10 +276,12 @@ try {
   pass(
     "Reload resumes the exact Ava encounter/stage/work and creates no duplicate encounter, patient/task, or page state.",
   );
-  await screenshot(page, "05-ava-after-reload");
+  await screenshot(page, "06-ava-after-reload");
 
+  // Reload restores the clinical encounter but intentionally resets transient 3D camera state
+  // to the hospital entrance. Close the encounter there to inspect competing work, then use
+  // the persisted Resume patient path again to continue the same encounter.
   await page.getByRole("button", { name: "Return to the 3D hospital" }).click();
-  await waitForPrompt(page, "Continue Ava Rodriguez encounter");
   await page.getByRole("button", { name: /Worklist/ }).click();
   const hydratedWorklist = page.locator("#hospital-work-queue");
   await assertTextIncludes(hydratedWorklist, "Ava Rodriguez · Cardiology consult");
@@ -286,8 +289,20 @@ try {
   assert.equal(await hydratedWorklist.locator("article.work-queue-item").count(), 2);
   await page.getByRole("button", { name: /Worklist/ }).click();
   pass("Ava + unfinished handoff Worklist invariant survives reload.");
-  await page.keyboard.press("e");
+
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page
+    .getByRole("button", { name: "Resume patient" })
+    .waitFor({ state: "visible", timeout: 15000 });
+  await page.getByRole("button", { name: "Resume patient" }).click();
   await avaEncounter.waitFor({ state: "visible" });
+  state = await persistedState(page);
+  const resumedAgain = Object.values(state.encounters).filter(
+    (encounter) => encounter.caseId === "case-vasovagal",
+  );
+  assert.equal(resumedAgain.length, 1, "Second resume must still have exactly one Ava encounter");
+  assert.equal(resumedAgain[0].encounterId, preEncounterId, "Second resume must preserve Ava encounter id");
+  assert.equal(JSON.stringify(resumedAgain[0].askedHistoryKeys), preAsked, "Second resume must preserve history work");
 
   await completeAvaFromHistory(page);
   pass("Ava progressed through history, exam, ECG/testing, assessment/management, and debrief.");
@@ -297,7 +312,8 @@ try {
     .getByRole("region", { name: "Ava Rodriguez clinical encounter" })
     .waitFor({ state: "visible" });
   await page.getByText("Her father is still in the room.", { exact: false }).waitFor({ state: "visible" });
-  await page.getByRole("button", { name: "Ask parent to step out" }).waitFor({ state: "visible" });
+  const replayStepOut = page.getByRole("button", { name: "Ask parent to step out" });
+  await replayStepOut.waitFor({ state: "visible" });
   state = await persistedState(page);
   const replayAttempts = Object.values(state.encounters).filter(
     (encounter) => encounter.caseId === "case-vasovagal",
@@ -312,8 +328,12 @@ try {
   assert.equal(activeReplay.confidentialInterviewDone, false, "Replay must restore parent/confidential state");
   assert.equal(activeReplay.askedHistoryKeys.length, 0, "Replay must reset history work");
   pass("Replay creates a fresh Ava attempt with father/confidential state reset.");
-  await screenshot(page, "06-ava-replay-fresh");
+  await screenshot(page, "07-ava-replay-fresh");
 
+  await replayStepOut.click();
+  await page
+    .getByText("Ava is being interviewed privately.", { exact: false })
+    .waitFor({ state: "visible" });
   await completeAvaFromHistory(page);
   await page.getByRole("button", { name: "Complete encounter and return to hospital" }).click();
   state = await persistedState(page);
@@ -330,7 +350,11 @@ try {
   );
   await page.getByText("Clinical consults complete", { exact: false }).waitFor({ state: "visible" });
   pass("Final Ava completion leaves no active consult; canonical disposition removes Ava from world projection.");
-  await screenshot(page, "07-final-hospital-state");
+
+  // Move back toward Room 1 after final completion and capture the world state for visual QA.
+  await move(page, "w", 5000);
+  await move(page, "a", 2600);
+  await screenshot(page, "08-final-room1-world");
 
   if (browserErrors.length > 0) {
     throw new Error(`Browser page errors occurred:\n${browserErrors.join("\n")}`);
