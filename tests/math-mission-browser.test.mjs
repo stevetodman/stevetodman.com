@@ -86,17 +86,20 @@ async function chartValue(page) {
   });
 }
 
-test('diagnostic stays child-simple, persists evidence, and keeps Apple Pencil scratchwork', async () => {
+test('progressive diagnostic stays child-simple, exits after two secure probes, and keeps Apple Pencil scratchwork', async () => {
   const { context, page, errors } = await openMath();
   try {
     await page.locator('[data-profile="luke"]').click();
-    assert.match(await page.locator('#primary-card').innerText(), /Quick starting check/i);
+    const card = await page.locator('#primary-card').innerText();
+    assert.match(card, /Quick starting check/i);
+    assert.match(card, /2 questions to start.*up to 4 if needed/is);
     assert.equal(await page.locator('#dashboard').locator('#skill-list').count(), 0, 'child dashboard should not expose the adult skill matrix');
     await page.locator('[data-start="diagnostic"]').click();
 
-    assert.match(await page.locator('#question-body').innerText(), /hundredths place.*6\.282/i);
-    assert.match(await page.locator('#question-title').innerText(), /Question 1 of 12/i);
-    assert.equal(await page.locator('#progress-text').innerText(), '1 of 12');
+    assert.match(await page.locator('#skill-tag').innerText(), /Multiply by powers of 10/i);
+    assert.match(await page.locator('#question-body').innerText(), /4\.7.*10³/i);
+    assert.match(await page.locator('#question-title').innerText(), /Question 1 of 2/i);
+    assert.equal(await page.locator('#progress-text').innerText(), '1 of 2');
 
     const toggle = page.locator('#scratch-toggle');
     if (await page.locator('#scratch-body').getAttribute('hidden') !== null) await toggle.click();
@@ -115,22 +118,79 @@ test('diagnostic stays child-simple, persists evidence, and keeps Apple Pencil s
     await page.locator('#scratch-clear').click();
     assert.equal(await canvasSnapshot(page), beforeStroke, 'Clear should leave the underlying guide intact');
 
-    await page.locator('.choice[data-value="8"]').click();
+    await page.locator('#answer-input').fill('4700');
     await page.locator('#check-button').click();
     await page.locator('#feedback.good').waitFor();
     assert.match(await page.locator('#feedback').innerText(), /^Yes\./);
     assert.doesNotMatch(await page.locator('#feedback').innerText(), /Skill level|→/);
 
-    const attempt = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts[0]);
-    assert.equal(attempt.micro, 'place_digit');
-    assert.equal(attempt.correct, true);
-    assert.equal(attempt.assisted, false);
-    assert.ok(attempt.cloudId, 'completed answer should receive a cloud-stable id');
+    const firstAttempt = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts[0]);
+    assert.equal(firstAttempt.micro, 'powers_multiply');
+    assert.equal(firstAttempt.correct, true);
+    assert.equal(firstAttempt.assisted, false);
+    assert.ok(firstAttempt.cloudId, 'completed answer should receive a cloud-stable id');
 
     await page.locator('[data-next]').click();
-    assert.match(await page.locator('#question-title').innerText(), /Question 2 of 12/i);
-    assert.equal(await page.locator('#progress-text').innerText(), '2 of 12');
+    assert.match(await page.locator('#question-title').innerText(), /Question 2 of 2/i);
+    assert.equal(await page.locator('#progress-text').innerText(), '2 of 2');
+    assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10/i);
+    assert.match(await page.locator('#question-body').innerText(), /36\.4.*10²/i);
+
+    await page.locator('#answer-input').fill('0.364');
+    await page.locator('#check-button').click();
+    await page.locator('#feedback.good').waitFor();
+    await page.locator('[data-next]').click();
+
+    assert.equal(await page.locator('#results').isVisible(), true);
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke);
+    assert.equal(stored.diagnostic, true);
+    assert.equal(stored.diagnosticVersion, 3);
+    assert.deepEqual(stored.attempts.map(attempt => attempt.micro), ['powers_multiply', 'powers_divide']);
+    assert.deepEqual(errors, [], `runtime errors:\n${errors.join('\n')}`);
+  } finally {
+    await context.close();
+  }
+});
+
+test('progressive diagnostic adds only prerequisite place-value probes after a current-focus miss', async () => {
+  const { context, page, errors } = await openMath();
+  try {
+    await page.locator('[data-profile="luke"]').click();
+    await page.locator('[data-start="diagnostic"]').click();
+
+    await page.locator('#answer-input').fill('999999');
+    await page.locator('#check-button').click();
+    await page.locator('#feedback.bad').waitFor();
+    await page.locator('[data-next]').click();
+
+    assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10/i);
+    await page.locator('#answer-input').fill('0.364');
+    await page.locator('#check-button').click();
+    await page.locator('#feedback.good').waitFor();
+    await page.locator('[data-next]').click();
+
+    assert.match(await page.locator('#question-title').innerText(), /Question 3 of 4/i);
+    assert.match(await page.locator('#skill-tag').innerText(), /Identify a decimal place/i);
+    assert.match(await page.locator('#question-body').innerText(), /hundredths place.*6\.282/i);
+    assert.doesNotMatch(await page.locator('#skill-tag').innerText(), /round|add|subtract|multiply decimals|divide decimals|metric/i);
+
+    await page.locator('.choice[data-value="8"]').click();
+    await page.locator('#check-button').click();
+    await page.locator('#feedback.good').waitFor();
+    await page.locator('[data-next]').click();
+
+    assert.match(await page.locator('#question-title').innerText(), /Question 4 of 4/i);
+    assert.match(await page.locator('#skill-tag').innerText(), /Find a digit’s value/i);
     assert.match(await page.locator('#question-body').innerText(), /4\.731/);
+    await page.locator('.choice[data-value="0.03"]').click();
+    await page.locator('#check-button').click();
+    await page.locator('#feedback.good').waitFor();
+    await page.locator('[data-next]').click();
+
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke);
+    assert.equal(stored.diagnosticVersion, 3);
+    assert.deepEqual(stored.attempts.map(attempt => attempt.micro), ['powers_multiply', 'powers_divide', 'place_digit', 'place_value']);
+    assert.equal(stored.attempts.some(attempt => ['metric_conversion', 'decimal_forms', 'decimal_compare', 'decimal_round', 'decimal_add', 'decimal_subtract', 'decimal_multiply', 'decimal_divide'].includes(attempt.micro)), false);
     assert.deepEqual(errors, [], `runtime errors:\n${errors.join('\n')}`);
   } finally {
     await context.close();
@@ -141,7 +201,7 @@ test('current-focus miss becomes guided place-value action and later independent
   const seeded = {
     luke: {
       diagnostic: true,
-      diagnosticVersion: 2,
+      diagnosticVersion: 3,
       recheckVersion: 1,
       rechecks: {},
       sessions: 1,
@@ -239,7 +299,7 @@ test('current-focus miss becomes guided place-value action and later independent
 });
 
 test('a future packet weakness cannot displace unsecured current classroom work', async () => {
-  const seeded = { luke: { diagnostic: true, diagnosticVersion: 2, recheckVersion: 1, rechecks: {}, sessions: 1, attempts: [{
+  const seeded = { luke: { diagnostic: true, diagnosticVersion: 3, recheckVersion: 1, rechecks: {}, sessions: 1, attempts: [{
     skill: 'divide', micro: 'decimal_divide', correct: false, assisted: false, recovery: false,
     difficulty: 2, transfer: false, date: '2026-08-31', at: 1788137000100,
     cloudId: 'seed-decimal-divide-miss'
@@ -258,7 +318,7 @@ test('a future packet weakness cannot displace unsecured current classroom work'
 });
 
 test('iPad keeps the mathematical workspace available while scratchwork stays optional', async () => {
-  const seeded = { luke: { diagnostic: true, diagnosticVersion: 2, recheckVersion: 1, rechecks: { powers_multiply: { version: 1, status: 'pending' } }, sessions: 1, attempts: [] } };
+  const seeded = { luke: { diagnostic: true, diagnosticVersion: 3, recheckVersion: 1, rechecks: { powers_multiply: { version: 1, status: 'pending' } }, sessions: 1, attempts: [] } };
   const { context, page, errors } = await openMath(seeded, { width: 1024, height: 1366 }, 0.1);
   try {
     await page.locator('[data-profile="luke"]').click();
