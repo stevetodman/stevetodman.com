@@ -48,6 +48,9 @@ export function expectedPlaceValueDelta(workspace) {
   return workspace.operation === "multiply" ? workspace.shift : -workspace.shift;
 }
 
+// Keep the chart small enough to read before asking a child to scroll. Two
+// nearby empty places on either side leave room for a move without rendering a
+// permanently wide ten-column worksheet.
 export function visiblePlaceValueColumns(tokens, padding = 2) {
   const exponents = tokens.map(token => token.exponent);
   const highest = Math.min(MAX_EXPONENT, Math.max(...exponents) + padding);
