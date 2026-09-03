@@ -1,13 +1,14 @@
 "use client";
 
 import { CASES } from "@/lib/cases-data";
+import { HCM_TEACHING_POLICY } from "@/lib/clinical-policy/hcm-2024";
 import { getActiveEncounter } from "@/lib/hospital-engine";
 import { scoreCanonicalEncounter } from "@/lib/hospital-scoring";
 import { useHospitalStore } from "@/lib/hospital-store";
 import { useSimulationStore } from "@/lib/simulation-store";
 
 const hcmCase = CASES.find((clinicalCase) => clinicalCase.id === "case-hcm");
-const UNSAFE_RETURN_TO_PLAY = "Reassure and return to competitive sports";
+const UNSAFE_RETURN_TO_PLAY = HCM_TEACHING_POLICY.unsafeReturnToPlay;
 
 export function HcmAssessmentStage() {
   const encounter = useHospitalStore((state) => getActiveEncounter(state.hospital));
@@ -15,7 +16,10 @@ export function HcmAssessmentStage() {
 
   if (!hcmCase || !encounter) return null;
 
-  const managementOptions = [...hcmCase.correctManagement, UNSAFE_RETURN_TO_PLAY];
+  const managementOptions = [
+    ...HCM_TEACHING_POLICY.correctManagement,
+    UNSAFE_RETURN_TO_PLAY,
+  ];
   const canPresent = Boolean(encounter.diagnosis && encounter.management.length > 0);
 
   const toggleManagement = (item: string) => {
@@ -35,7 +39,8 @@ export function HcmAssessmentStage() {
       dispatch({
         type: "SAFETY_EVENT_RECORDED",
         encounterId: encounter.encounterId,
-        description: "Return to competitive sports selected despite high-risk exertional syncope",
+        description:
+          "Immediate unrestricted return to competitive basketball selected despite unexplained mid-exertional syncope and newly established HCM",
       });
     }
     dispatch({
@@ -112,7 +117,11 @@ export function HcmDebriefStage() {
 
   if (!hcmCase || !encounter) return null;
 
-  const score = scoreCanonicalEncounter(encounter, hcmCase);
+  const score = scoreCanonicalEncounter(encounter, hcmCase, {
+    appropriateTests: HCM_TEACHING_POLICY.diagnosticCoreTests,
+    unnecessaryTests: HCM_TEACHING_POLICY.unnecessaryTests,
+    correctManagement: HCM_TEACHING_POLICY.correctManagement,
+  });
   const headline = score.overall >= 85
     ? "Strong clinical judgment"
     : score.overall >= 70
@@ -163,7 +172,8 @@ export function HcmDebriefStage() {
         </section>
       )}
 
-      <blockquote>{hcmCase.teachingPoint}</blockquote>
+      <blockquote>{HCM_TEACHING_POLICY.teachingPoint}</blockquote>
+      <p className="policy-version">Teaching policy: {HCM_TEACHING_POLICY.version}</p>
 
       <div className="clinical-stage-footer">
         <span>Encounter state is saved and will persist after you leave the room.</span>
