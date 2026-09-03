@@ -1,171 +1,18 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="robots" content="noindex, nofollow, noarchive">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Grade 5 matter practice: properties, mystery ingredients, particles, and physical vs chemical change.">
-<title>Matter Lab</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🧪%3C/text%3E%3C/svg%3E">
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #eef6f4; color: #1d3a36; min-height: 100vh; display: flex; justify-content: center; padding: 20px; }
-  .container { max-width: 600px; width: 100%; }
-  h1 { text-align: center; font-size: 1.6rem; margin-bottom: 6px; color: #0f3d38; }
-  .subtitle { text-align: center; color: #4f6d68; font-size: 0.95rem; margin-bottom: 24px; }
-  .progress-bar { background: #d7e8e4; border-radius: 999px; height: 10px; margin-bottom: 20px; overflow: hidden; }
-  .progress-fill { background: linear-gradient(90deg, #0f766e, #14b8a6); height: 100%; border-radius: 999px; transition: width 0.4s ease; }
-  .score-line { display: flex; justify-content: space-between; font-size: 0.9rem; color: #4a5568; margin-bottom: 16px; }
-  .card { background: #fff; border-radius: 16px; padding: 28px 24px; box-shadow: 0 4px 16px rgba(15,61,56,0.08); margin-bottom: 20px; }
-  .q-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #7a9a95; margin-bottom: 8px; }
-  .q-text { font-size: 1.15rem; line-height: 1.55; color: #1d3a36; margin-bottom: 24px; }
-  .choices { display: flex; flex-direction: column; gap: 10px; }
-  .choice-btn { display: block; width: 100%; padding: 14px 18px; font-size: 1.05rem; border: 2px solid #d7e8e4; border-radius: 12px; background: #fff; color: #1d3a36; cursor: pointer; text-align: left; }
-  .choice-btn:hover:not(:disabled) { border-color: #0f766e; background: #f3fbf9; }
-  .choice-btn:disabled { cursor: default; }
-  .choice-btn.correct { border-color: #047857; background: #ecfdf5; color: #065f46; font-weight: 600; }
-  .choice-btn.wrong { border-color: #dc2626; background: #fef2f2; color: #991b1b; }
-  .choice-btn.reveal { border-color: #047857; background: #ecfdf5; color: #065f46; }
-  .feedback { text-align: center; font-size: 1.1rem; font-weight: 600; margin-top: 18px; min-height: 28px; }
-  .feedback.correct-fb { color: #047857; }
-  .feedback.wrong-fb { color: #dc2626; }
-  .explain-box { margin-top: 14px; padding: 14px 16px; border-radius: 10px; font-size: 0.95rem; line-height: 1.55; }
-  .explain-box.wrong-ex { background: #fef2f2; border-left: 4px solid #dc2626; color: #7f1d1d; }
-  .explain-box.correct-ex { background: #ecfdf5; border-left: 4px solid #047857; color: #064e3b; }
-  .next-btn { display: block; margin: 16px auto 0; padding: 12px 32px; font-size: 1rem; font-weight: 600; border: none; border-radius: 10px; background: linear-gradient(135deg, #0f766e, #14b8a6); color: #fff; cursor: pointer; }
-  .results { text-align: center; }
-  .results .score-big { font-size: 3.5rem; font-weight: 700; color: #0f766e; margin: 12px 0 4px; }
-  .results .score-label { font-size: 1.1rem; color: #4f6d68; margin-bottom: 20px; }
-  .results .message { font-size: 1.15rem; margin-bottom: 24px; line-height: 1.5; }
-  .missed-list { text-align: left; margin: 0 auto 24px; max-width: 480px; }
-  .missed-list h3 { font-size: 1rem; color: #dc2626; margin-bottom: 10px; }
-  .missed-item { padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; line-height: 1.4; }
-  .missed-item .mi-answer { color: #047857; font-weight: 600; }
-  .missed-item .mi-explain { color: #4f6d68; font-size: 0.88rem; margin-top: 4px; }
-  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .btn-row button { padding: 12px 28px; font-size: 1rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; }
-  .btn-retry-missed { background: #dc2626; color: #fff; }
-  .btn-restart { background: linear-gradient(135deg, #0f766e, #14b8a6); color: #fff; }
-  .btn-home { background: #334155; color: #fff; }
-  .menu-cards { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
-  .menu-card { appearance: none; font: inherit; text-align: left; width: 100%; color: inherit; background: #fff; border-radius: 14px; padding: 22px 20px; box-shadow: 0 2px 12px rgba(15,61,56,0.07); cursor: pointer; border: 2px solid transparent; }
-  .menu-card:hover { border-color: #0f766e; }
-  .menu-card h2 { font-size: 1.15rem; color: #0f3d38; margin-bottom: 4px; }
-  .menu-card p { font-size: 0.9rem; color: #4f6d68; line-height: 1.4; }
-  .menu-card .badge { display: inline-block; background: #0f766e; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px; }
-  .concept-card { background: #fff; border-radius: 14px; padding: 20px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(15,61,56,0.06); border-left: 4px solid #0f766e; }
-  .concept-card h3 { font-size: 1.05rem; color: #0f3d38; margin-bottom: 8px; }
-  .concept-card p { font-size: 0.92rem; color: #334155; line-height: 1.6; }
-  .study-nav { display: flex; gap: 12px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
-  .study-nav button { padding: 10px 24px; font-size: 0.95rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; }
-  .back-link { display: block; text-align: center; color: #0f766e; font-size: 0.9rem; margin-top: 12px; font-weight: 700; text-decoration: none; }
-  .menu-card:focus-visible, .choice-btn:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #0f766e; outline-offset: 2px; }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Science Lab · Louisiana Grade 5</title>
+  <meta name="description" content="Adaptive, full-year Louisiana Grade 5 science practice with models, data, explanations, and engineering challenges.">
+  <link rel="stylesheet" href="/study/grade5-learning.css?v=20260903">
 </head>
-<body>
-<main>
-<div class="container" id="app"></div>
-</main>
-<script>
-var VOCAB = [
-  { question: "A property of a substance is something you can\u2026", choices: ["observe or measure about it", "only imagine in a story", "change by wishing", "see only with a telescope"], answer: "observe or measure about it", explain: "Color, hardness, smell, whether it dissolves, and whether it fizzes are properties. Scientists use properties to tell materials apart.", tag: "Vocab" },
-  { question: "A substance is\u2026", choices: ["a particular kind of matter with its own properties", "any object that is heavy", "only a liquid", "a tool used to measure mass"], answer: "a particular kind of matter with its own properties", explain: "Salt, sugar, baking soda, and water are different substances. Each one has a set of properties that stay the same.", tag: "Vocab" },
-  { question: "Matter is made of particles that are\u2026", choices: ["too small to see", "always visible as specks", "only found in solids", "destroyed when something dissolves"], answer: "too small to see", explain: "5th-grade science says matter is made of particles too small to see. When sugar seems to vanish in water, the particles are still there, spread out.", tag: "Particles" },
-  { question: "When sugar dissolves in water, the sugar\u2026", choices: ["breaks into particles that mix through the water", "is destroyed and gone forever", "turns into a brand-new element", "floats above the cup as a gas you cannot smell"], answer: "breaks into particles that mix through the water", explain: "Dissolving is usually a physical change. The sugar particles spread between the water particles. If you evaporated the water, the sugar would still be there.", tag: "Dissolve" },
-  { question: "A mixture is\u2026", choices: ["two or more substances put together that keep their own properties", "a brand-new substance with new properties", "only something that fizzes", "a substance made of one kind of particle"], answer: "two or more substances put together that keep their own properties", explain: "Trail mix and salt water are mixtures. You can often separate a mixture again because the original substances are still there.", tag: "Vocab" },
-  { question: "In a chemical reaction, substances\u2026", choices: ["change into one or more new substances", "only change shape", "always disappear so mass is lost", "stay exactly the same"], answer: "change into one or more new substances", explain: "A chemical change makes a new substance. Clues can include fizzing, a new smell, light, or a solid forming. The particles rearrange; they are not just mixed.", tag: "Chemical change" },
-  { question: "Conservation of matter means that when you heat, cool, or mix substances\u2026", choices: ["the total amount of matter stays the same", "matter is created from heat", "some matter always vanishes", "only liquids keep their mass"], answer: "the total amount of matter stays the same", explain: "Mass does not appear or disappear. If a powder dissolves or two powders mix, the mass of everything together stays the same if nothing leaves the container.", tag: "Conservation" },
-  { question: "Evidence is\u2026", choices: ["information from observations or measurements that supports a claim", "a guess you have not tested", "the first idea that pops into your head", "a rule a teacher makes up"], answer: "information from observations or measurements that supports a claim", explain: "In Mystery Science, you test ingredients and use what you see as evidence. A claim without evidence is only a guess.", tag: "Vocab" },
-  { question: "A scientific model is useful because it\u2026", choices: ["helps explain something you cannot see directly", "has to be the exact size of the real thing", "replaces the need for evidence", "is only a drawing for art class"], answer: "helps explain something you cannot see directly", explain: "A particle model of dissolving is not a photograph. It is a way to explain how tiny bits of matter can spread through water.", tag: "Vocab" },
-  { question: "A claim in science is\u2026", choices: ["a statement you can support with evidence", "a joke about an experiment", "any answer that sounds smart", "a list of materials"], answer: "a statement you can support with evidence", explain: "Example: This powder is baking soda. That claim needs evidence, such as it fizzed with vinegar.", tag: "Vocab" }
-];
-var INGREDIENTS = [
-  { question: "A white powder fizzes and makes bubbles when vinegar is added. Which mystery ingredient is it most likely to be?", choices: ["baking soda", "sugar", "cornstarch", "salt"], answer: "baking soda", explain: "Baking soda reacts with vinegar and releases a gas, so you see fizzing. Sugar, salt, and cornstarch do not fizz with vinegar in the same way.", tag: "Mystery ingredient" },
-  { question: "A white powder feels silky and makes a thick paste with a little water, but it does not fizz with vinegar. What is it most likely?", choices: ["cornstarch", "baking soda", "vinegar", "pepper"], answer: "cornstarch", explain: "Cornstarch feels smooth and can make a gooey mix with water. It does not fizz with vinegar, so that test helps you rule out baking soda.", tag: "Mystery ingredient" },
-  { question: "Why do scientists test mystery ingredients instead of just looking at them?", choices: ["Many white powders look alike, so properties help identify them", "Looking is never allowed in science", "All powders have identical properties", "Tests destroy the need for observations"], answer: "Many white powders look alike, so properties help identify them", explain: "Salt, sugar, baking soda, and cornstarch can all look white and powdery. Taste is not a safe classroom test. Properties like dissolving or fizzing are safer clues.", tag: "Properties" },
-  { question: "Which test would best help you tell baking soda apart from sugar?", choices: ["Add vinegar and watch for fizzing", "See that both are white", "Check that both can be poured", "Put both in the sun"], answer: "Add vinegar and watch for fizzing", explain: "Color and powdery are shared properties. Baking soda fizzes with vinegar; sugar does not. The distinguishing property is the useful one.", tag: "Properties" },
-  { question: "Salt dissolves in water. After it dissolves, the salt\u2026", choices: ["is still there as tiny particles in the water", "has turned into water", "has left the cup as smoke", "has been used up like food"], answer: "is still there as tiny particles in the water", explain: "The water may look clear, but the salt particles are mixed through it. If you evaporated the water, you would still find salt.", tag: "Dissolve" }
-];
-var CHANGES = [
-  { question: "Ice melting into water is a\u2026", choices: ["physical change", "chemical change", "change that destroys matter", "change that creates new atoms"], answer: "physical change", explain: "Melting changes the form, not the kind of substance. Ice and liquid water are both water. No new substance is made.", tag: "Physical vs chemical" },
-  { question: "Vinegar mixed with baking soda makes bubbles of gas. That is a\u2026", choices: ["chemical change", "physical change only", "change of color with no new substance", "way to freeze matter"], answer: "chemical change", explain: "The fizz means a new gas is being produced. Baking soda and vinegar react and make new substances, including carbon dioxide gas.", tag: "Physical vs chemical" },
-  { question: "Tearing paper into smaller pieces is a\u2026", choices: ["physical change", "chemical change", "sign that paper became a new substance", "conservation violation"], answer: "physical change", explain: "The pieces are still paper. Shape changed, but the substance did not.", tag: "Physical vs chemical" },
-  { question: "You put 10 grams of sugar into 100 grams of water and it all dissolves. If nothing splashes out, the mass of the sugar water should be about\u2026", choices: ["110 grams", "100 grams", "10 grams", "90 grams"], answer: "110 grams", explain: "Matter is conserved. 10 g + 100 g = 110 g. The sugar did not vanish; it mixed into the water.", tag: "Conservation" },
-  { question: "Alchemists long ago tried to turn cheap metals into gold. What is the 5th-grade science idea hidden in those stories?", choices: ["People have long tested whether mixing substances can make something new", "Gold can be made by stirring water", "All metals are the same substance", "Mass disappears when metal is heated"], answer: "People have long tested whether mixing substances can make something new", explain: "Alchemists did not make gold that way, but they were asking whether one substance can become another. Today we test that with evidence.", tag: "Alchemists" }
-];
-var ALL_QUESTIONS = VOCAB.concat(INGREDIENTS).concat(CHANGES);
-function shuffle(arr) { var a = arr.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
-function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;").replace(/</g, "&lt;"); }
-function unesc(s) { var d = document.createElement("div"); d.innerHTML = s; return d.textContent; }
-var questions, current, score, missed, answered, quizMode;
-function showMenu() {
-  var app = document.getElementById("app");
-  app.innerHTML = "<h1>Matter Lab</h1><p class=\"subtitle\">Grade 5 science \u00b7 mystery ingredients, particles, and change</p><div class=\"menu-cards\"><button type=\"button\" class=\"menu-card\" data-mode=\"study\"><span class=\"badge\">Study</span><h2>Quick ideas</h2><p>The few rules that unlock the Alchemists and Mystery Ingredient lessons</p></button><button type=\"button\" class=\"menu-card\" data-mode=\"ten\"><span class=\"badge\">10 questions</span><h2>Tonight's round</h2><p>A short mixed set \u2014 one tap from question 1</p></button><button type=\"button\" class=\"menu-card\" data-mode=\"ingredients\"><span class=\"badge\">5 questions</span><h2>Mystery ingredients</h2><p>Use properties to tell look-alike powders apart</p></button><button type=\"button\" class=\"menu-card\" data-mode=\"changes\"><span class=\"badge\">5 questions</span><h2>Physical or chemical?</h2><p>Melting, dissolving, fizzing, and conservation</p></button><button type=\"button\" class=\"menu-card\" data-mode=\"all\"><span class=\"badge\">20 questions</span><h2>Full lab</h2><p>Vocab + ingredients + changes together</p></button></div><a class=\"back-link\" href=\"/study/grade5.html\">Grade 5 hub</a><a class=\"back-link\" href=\"/study/archive/\">Past practice</a>";
-  app.querySelectorAll(".menu-card").forEach(function(card) {
-    card.addEventListener("click", function() {
-      quizMode = card.dataset.mode;
-      if (quizMode === "study") { showStudy(); return; }
-      var pool;
-      if (quizMode === "ingredients") pool = INGREDIENTS.slice();
-      else if (quizMode === "changes") pool = CHANGES.slice();
-      else if (quizMode === "ten") pool = shuffle(ALL_QUESTIONS).slice(0, 10);
-      else pool = ALL_QUESTIONS.slice();
-      startQuiz(pool);
-    });
-  });
-}
-function showStudy() {
-  var app = document.getElementById("app");
-  app.innerHTML = "<h1>Matter Lab</h1><p class=\"subtitle\">Hold these ideas in your head during class</p><div class=\"concept-card\"><h3>1. Look-alike powders are not the same</h3><p>Salt, sugar, baking soda, and cornstarch can all look white. Identify them by properties: dissolve, feel, and whether they fizz with vinegar.</p></div><div class=\"concept-card\"><h3>2. Particles are still there</h3><p>When something dissolves, it does not get destroyed. Its particles spread through the liquid. That is why the mass stays the same.</p></div><div class=\"concept-card\"><h3>3. Physical change vs chemical change</h3><p>Physical: same substance, different form or mix (melt, tear, dissolve). Chemical: a new substance forms (fizz, burn, new smell that will not go back easily).</p></div><div class=\"concept-card\"><h3>4. Claims need tests</h3><p>Alchemists wanted to turn things into gold. Scientists still ask whether a new substance formed, but they answer with evidence.</p></div><div class=\"study-nav\"><button class=\"btn-restart\" id=\"toQuiz\">Tonight's round</button><button class=\"btn-home\" id=\"toMenu\">Back to menu</button></div>";
-  document.getElementById("toQuiz").addEventListener("click", function() { quizMode = "ten"; startQuiz(shuffle(ALL_QUESTIONS).slice(0, 10)); });
-  document.getElementById("toMenu").addEventListener("click", showMenu);
-}
-function startQuiz(pool) { questions = shuffle(pool); current = 0; score = 0; missed = []; answered = false; renderQuestion(); }
-function renderQuestion() {
-  var app = document.getElementById("app");
-  if (current >= questions.length) { renderResults(app); return; }
-  var q = questions[current];
-  var pct = Math.round((current / questions.length) * 100);
-  var opts = shuffle(q.choices.slice());
-  var choicesHTML = opts.map(function(c) { return "<button class=\"choice-btn\" data-val=\"" + esc(c) + "\">" + c + "</button>"; }).join("");
-  app.innerHTML = "<h1>Matter Lab</h1><p class=\"subtitle\">Grade 5 science</p><div class=\"progress-bar\"><div class=\"progress-fill\" style=\"width:" + pct + "%\"></div></div><div class=\"score-line\"><span>Question " + (current + 1) + " of " + questions.length + "</span><span>" + score + " correct</span></div><div class=\"card\"><div class=\"q-label\">" + q.tag + "</div><div class=\"q-text\">" + q.question + "</div><div class=\"choices\">" + choicesHTML + "</div><div class=\"feedback\" id=\"feedback\"></div><div id=\"explainArea\"></div></div>";
-  document.querySelectorAll(".choice-btn").forEach(function(btn) { btn.addEventListener("click", function() { handleAnswer(btn, q); }); });
-}
-function handleAnswer(btn, q) {
-  if (answered) return;
-  answered = true;
-  var chosen = unesc(btn.dataset.val);
-  var isCorrect = chosen === q.answer;
-  var fb = document.getElementById("feedback");
-  document.querySelectorAll(".choice-btn").forEach(function(b) { b.disabled = true; if (unesc(b.dataset.val) === q.answer) b.classList.add(isCorrect ? "correct" : "reveal"); });
-  if (isCorrect) { btn.classList.add("correct"); fb.textContent = "Correct!"; fb.className = "feedback correct-fb"; score++; }
-  else { btn.classList.add("wrong"); fb.textContent = "Not quite!"; fb.className = "feedback wrong-fb"; missed.push(q); }
-  document.getElementById("explainArea").innerHTML = "<div class=\"explain-box " + (isCorrect ? "correct-ex" : "wrong-ex") + "\"><strong>" + (isCorrect ? "Nice!" : "Here's why:") + "</strong> " + q.explain + "</div>";
-  var nextBtn = document.createElement("button");
-  nextBtn.className = "next-btn";
-  nextBtn.textContent = current + 1 < questions.length ? "Next" : "See Results";
-  nextBtn.addEventListener("click", function() { current++; answered = false; renderQuestion(); });
-  document.querySelector(".card").appendChild(nextBtn);
-}
-function renderResults(app) {
-  var pct = Math.round((score / questions.length) * 100);
-  var msg = pct === 100 ? "Perfect. You can explain the mystery powders." : pct >= 80 ? "Strong. Review the missed ones once." : pct >= 60 ? "Good start. Read the explanations and retry missed." : "Use Quick ideas, then try tonight's round again.";
-  var missedHTML = "";
-  if (missed.length) {
-    missedHTML = "<div class=\"missed-list\"><h3>To review (" + missed.length + ")</h3>" + missed.map(function(m) { return "<div class=\"missed-item\"><strong>" + m.question + "</strong><br><span class=\"mi-answer\">Answer: " + m.answer + "</span><div class=\"mi-explain\">" + m.explain + "</div></div>"; }).join("") + "</div>";
-  }
-  var retryBtn = missed.length ? "<button class=\"btn-retry-missed\" id=\"retryMissed\">Retry missed (" + missed.length + ")</button>" : "";
-  app.innerHTML = "<h1>Matter Lab</h1><p class=\"subtitle\">Grade 5 science</p><div class=\"progress-bar\"><div class=\"progress-fill\" style=\"width:100%\"></div></div><div class=\"card results\"><div class=\"score-big\">" + pct + "%</div><div class=\"score-label\">" + score + " out of " + questions.length + " correct</div><div class=\"message\">" + msg + "</div>" + missedHTML + "<div class=\"btn-row\">" + retryBtn + "<button class=\"btn-restart\" id=\"restart\">Play again</button><button class=\"btn-home\" id=\"home\">Back to menu</button></div></div>";
-  document.getElementById("restart").addEventListener("click", function() {
-    if (quizMode === "ingredients") startQuiz(INGREDIENTS.slice());
-    else if (quizMode === "changes") startQuiz(CHANGES.slice());
-    else if (quizMode === "ten") startQuiz(shuffle(ALL_QUESTIONS).slice(0, 10));
-    else startQuiz(ALL_QUESTIONS.slice());
-  });
-  document.getElementById("home").addEventListener("click", showMenu);
-  if (missed.length) document.getElementById("retryMissed").addEventListener("click", function() { startQuiz(missed.slice()); });
-}
-showMenu();
-</script>
+<body class="g5-science">
+  <main id="app"></main>
+  <script type="module">
+    import { mountGrade5Learning } from '/study/grade5-learning-core.mjs?v=20260903';
+    import { SCIENCE_CONFIG } from '/study/science-grade5-data.mjs?v=20260903';
+    mountGrade5Learning(SCIENCE_CONFIG);
+  </script>
 </body>
 </html>
