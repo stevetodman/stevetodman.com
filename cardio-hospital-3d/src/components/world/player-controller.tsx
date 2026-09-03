@@ -4,18 +4,12 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { HospitalLocation } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
+import { locationForWorldPosition } from "@/lib/hospital-world-layout";
 import { useSimulationStore } from "@/lib/simulation-store";
 
 const WALK_SPEED = 2.25;
 const FAST_SPEED = 3.6;
 const MOBILE_DEAD_ZONE = 0.08;
-
-function locationForPosition(x: number, z: number): HospitalLocation | null {
-  if (x > -4.9 && x < 4.9 && z > 4.2 && z < 11.9) return "workroom";
-  if (x > 2.2 && x < 8.5 && z > -6.1 && z < 0.1) return "clinic-room-3";
-  if (x > -2.4 && x < 2.4 && z > -8.1 && z <= 4.2) return "clinic-corridor";
-  return null;
-}
 
 export function PlayerController() {
   const body = useRef<RapierRigidBody>(null);
@@ -86,7 +80,7 @@ export function PlayerController() {
     camera.position.set(position.x, position.y + 0.62, position.z);
 
     if (shiftStatus === "active") {
-      const location = locationForPosition(position.x, position.z);
+      const location = locationForWorldPosition(position.x, position.z);
       if (location && location !== lastLocation.current) {
         lastLocation.current = location;
         dispatch({ type: "LOCATION_CHANGED", location });

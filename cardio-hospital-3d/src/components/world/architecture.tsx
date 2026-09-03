@@ -103,16 +103,44 @@ export function ClinicCorridor() {
   return (
     <group>
       <StaticBox size={[4.5, 0.12, 12]} position={[0, -0.06, -2]} color="#d9dedc" roughness={0.82} />
-      <StaticBox size={[0.16, 3, 12]} position={[-2.25, 1.5, -2]} color="#f0eee8" />
+      <StaticBox size={[0.16, 3, 5.1]} position={[-2.25, 1.5, 1.45]} color="#f0eee8" />
+      <StaticBox size={[0.16, 3, 3.7]} position={[-2.25, 1.5, -6.15]} color="#f0eee8" />
       <StaticBox size={[0.16, 3, 5.1]} position={[2.25, 1.5, 1.45]} color="#f0eee8" />
       <StaticBox size={[0.16, 3, 3.7]} position={[2.25, 1.5, -6.15]} color="#f0eee8" />
       <StaticBox size={[4.5, 3, 0.16]} position={[0, 1.5, -8]} color="#f0eee8" />
-      <Box size={[0.13, 0.18, 11.6]} position={[-2.12, 1.0, -2]} color="#89979c" metalness={0.42} />
+      <Box size={[0.13, 0.18, 5]} position={[-2.12, 1.0, 1.45]} color="#89979c" metalness={0.42} />
+      <Box size={[0.13, 0.18, 3.6]} position={[-2.12, 1.0, -6.15]} color="#89979c" metalness={0.42} />
       <Box size={[0.13, 0.18, 5]} position={[2.12, 1.0, 1.45]} color="#89979c" metalness={0.42} />
       <Box size={[0.13, 0.18, 3.6]} position={[2.12, 1.0, -6.15]} color="#89979c" metalness={0.42} />
+      <Box size={[0.08, 2.35, 1.65]} position={[-2.28, 1.18, -3]} color="#b58b54" roughness={0.62} />
+      <Box size={[0.05, 0.11, 0.58]} position={[-2.22, 1.02, -3]} color="#6b7376" metalness={0.5} />
       <Box size={[0.08, 2.35, 1.65]} position={[2.28, 1.18, -3]} color="#b58b54" roughness={0.62} />
       <Box size={[0.05, 0.11, 0.58]} position={[2.22, 1.02, -3]} color="#6b7376" metalness={0.5} />
       <CeilingLights positions={[[0, 2.92, 2.8], [0, 2.92, 0.3], [0, 2.92, -2.2], [0, 2.92, -4.7], [0, 2.92, -7]]} />
+    </group>
+  );
+}
+
+export function ExamRoomOne() {
+  return (
+    <group>
+      <StaticBox size={[6.2, 0.12, 6]} position={[-5.35, -0.06, -3]} color="#cfc6b9" roughness={0.9} />
+      <StaticBox size={[6.2, 3, 0.16]} position={[-5.35, 1.5, 0]} color="#e9eee8" />
+      <StaticBox size={[6.2, 3, 0.16]} position={[-5.35, 1.5, -6]} color="#d9e7ea" />
+      <StaticBox size={[0.16, 3, 6]} position={[-8.45, 1.5, -3]} color="#d9e7ea" />
+      <StaticBox size={[0.16, 3, 2.1]} position={[-2.25, 1.5, -1.05]} color="#e9eee8" />
+      <StaticBox size={[0.16, 3, 2.1]} position={[-2.25, 1.5, -4.95]} color="#e9eee8" />
+
+      <ExamTable position={[-7.25, 0, -3.7]} rotation={[0, Math.PI, 0]} />
+      <Stool position={[-5.65, 0, -2.25]} />
+      <StaticBox size={[2.65, 0.86, 0.68]} position={[-6.4, 0.43, -5.55]} color="#5d666a" />
+      <Box size={[2.55, 0.72, 0.05]} position={[-6.4, 1.18, -5.83]} color="#e6e0d5" />
+      <Box size={[1.75, 0.09, 0.75]} position={[-4.05, 0.76, -5.45]} color="#59636b" />
+      <Box size={[0.75, 0.52, 0.06]} position={[-4.05, 1.15, -5.72]} color="#10181c" />
+      <Box size={[0.65, 0.42, 0.025]} position={[-4.05, 1.15, -5.68]} color="#224f5d" roughness={0.24} />
+      <Box size={[0.42, 0.56, 0.2]} position={[-8.25, 1.65, -1.1]} color="#edf0eb" />
+      <Box size={[0.22, 0.34, 0.1]} position={[-8.12, 1.65, -0.98]} color="#1f2528" />
+      <CeilingLights positions={[[ -4.2, 2.92, -1.4], [-6.9, 2.92, -1.4], [-4.2, 2.92, -4.6], [-6.9, 2.92, -4.6]]} />
     </group>
   );
 }
@@ -147,6 +175,7 @@ export function HospitalArchitecture() {
     <>
       <TeamRoom />
       <ClinicCorridor />
+      <ExamRoomOne />
       <ExamRoom />
     </>
   );
