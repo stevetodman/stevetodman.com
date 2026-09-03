@@ -11,6 +11,7 @@ export interface EncounterScore {
 
 export interface EncounterScoringPolicy {
   appropriateTests: readonly string[];
+  nonPenalizedTests?: readonly string[];
   unnecessaryTests: readonly string[];
   correctManagement: readonly string[];
 }
@@ -51,6 +52,7 @@ export function scoreCanonicalEncounter(
   const appropriateTests = policy
     ? [...policy.appropriateTests]
     : clinicalCase.appropriateTests.filter(isDiagnosticTest);
+  const nonPenalizedTests = policy ? [...(policy.nonPenalizedTests ?? [])] : [];
   const unnecessaryCatalog = policy
     ? [...policy.unnecessaryTests]
     : clinicalCase.unnecessaryTests;
@@ -85,10 +87,12 @@ export function scoreCanonicalEncounter(
     10
   );
 
+  const acceptedTestSet = new Set([...appropriateTests, ...nonPenalizedTests]);
+  const unsupportedExtraTests = encounter.orderedTests.filter(
+    (test) => !acceptedTestSet.has(test) && !unnecessaryCatalog.includes(test)
+  );
   const efficiency = clampScore(
-    100
-      - unnecessaryTests.length * 12
-      - Math.max(0, encounter.orderedTests.length - appropriateTests.length) * 3,
+    100 - unnecessaryTests.length * 12 - unsupportedExtraTests.length * 3,
     30
   );
 
