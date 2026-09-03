@@ -5,7 +5,7 @@
   "description": "Personal website and tools. Static site; this manifest exists only to pin the test tooling.",
   "scripts": {
     "dev": "node scripts/dev-static-server.mjs",
-    "build": "node scripts/build-site.mjs && node scripts/build-search-index.mjs",
+    "build": "node scripts/build-site.mjs && node scripts/build-hospital.mjs && node scripts/build-search-index.mjs",
     "verify:production": "node scripts/verify-production.mjs",
     "verify:study-production": "node scripts/verify-study-release.mjs",
     "verify:study-production:browser": "node scripts/verify-study-production.mjs",
