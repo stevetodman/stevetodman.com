@@ -67,14 +67,18 @@ function syncChartAnswer(root) {
   if (label) label.textContent = "Answer from your chart";
 }
 
+function setTextIfChanged(node, text) {
+  if (node && node.textContent !== text) node.textContent = text;
+}
+
 function syncDashboard(card) {
   if (!card?.querySelector('[data-start="practice"]')) return;
   const label = card.querySelector(".label");
   const heading = card.querySelector("h2");
   const description = [...card.querySelectorAll("p")].find(node => !node.classList.contains("mission-meta"));
-  if (label) label.textContent = `Current focus · ${CURRENT_FOCUS.module} · ${CURRENT_FOCUS.lessons}`;
-  if (heading) heading.textContent = CURRENT_FOCUS.title;
-  if (description) description.textContent = "Math Mission will stay on the current lesson first, then bring back closely related review when it helps.";
+  setTextIfChanged(label, `Current focus · ${CURRENT_FOCUS.module} · ${CURRENT_FOCUS.lessons}`);
+  setTextIfChanged(heading, CURRENT_FOCUS.title);
+  setTextIfChanged(description, "Math Mission will stay on the current lesson first, then bring back closely related review when it helps.");
 }
 
 function activeMicro() {
