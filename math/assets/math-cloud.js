@@ -59,8 +59,8 @@
       Object.keys(stats).forEach(function(key){
         var st=stats[key]||{},parts=key.split("|");
         if(key==="math1diagnostic"&&st.mastered)p.diagnostic=true;
-        else if(key==="math1diagnostic2"&&st.mastered){p.diagnostic=true;p.diagnosticVersion=2}
-        else if(key==="math1diagnostic3"&&st.mastered){p.diagnostic=true;p.diagnosticVersion=3}
+        else if(key==="math1diagnostic2"&&st.mastered){p.diagnostic=true;if((Number(p.diagnosticVersion)||0)<2)p.diagnosticVersion=2}
+        else if(key==="math1diagnostic3"&&st.mastered){p.diagnostic=true;if((Number(p.diagnosticVersion)||0)<3)p.diagnosticVersion=3}
         else if(key==="math1sessions")p.sessions=Math.max(Number(p.sessions)||0,Number(st.correct)||0,Number(st.streak)||0);
         else if(parts[0]==="math1a"&&parts.length===7&&VALID_SKILLS.indexOf(parts[1])>=0&&st.mastered){
           var legacyId=safeId(parts[6]);if(!legacyId||seen.has(legacyId))return;seen.add(legacyId);
