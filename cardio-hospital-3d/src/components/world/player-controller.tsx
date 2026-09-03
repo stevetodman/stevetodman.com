@@ -60,15 +60,15 @@ export function PlayerController() {
       if (keyboardActive) {
         if (keys.current.KeyW || keys.current.ArrowUp) movement.current.add(forward.current);
         if (keys.current.KeyS || keys.current.ArrowDown) movement.current.sub(forward.current);
-        if (keys.current.KeyD || keys.current.ArrowRight) movement.current.sub(right.current);
-        if (keys.current.KeyA || keys.current.ArrowLeft) movement.current.add(right.current);
+        if (keys.current.KeyD || keys.current.ArrowRight) movement.current.add(right.current);
+        if (keys.current.KeyA || keys.current.ArrowLeft) movement.current.sub(right.current);
         if (movement.current.lengthSq() > 0) movement.current.normalize().multiplyScalar(speed);
       } else {
         const { x, y } = ui.mobileMove;
         const magnitude = Math.min(1, Math.hypot(x, y));
         if (magnitude > MOBILE_DEAD_ZONE) {
           movement.current.addScaledVector(forward.current, y);
-          movement.current.addScaledVector(right.current, -x);
+          movement.current.addScaledVector(right.current, x);
           if (movement.current.lengthSq() > 1) movement.current.normalize();
           movement.current.multiplyScalar(speed);
         }
