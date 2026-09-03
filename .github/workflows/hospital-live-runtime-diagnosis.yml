@@ -1,0 +1,24 @@
+name: Hospital Live Runtime Diagnosis
+
+on:
+  pull_request:
+    paths:
+      - scripts/diagnose-hospital-live.mjs
+      - .github/workflows/hospital-live-runtime-diagnosis.yml
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: npm install --no-save --no-audit --no-fund playwright@1.56.1
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
+      - name: Diagnose live hospital
+        run: node scripts/diagnose-hospital-live.mjs
