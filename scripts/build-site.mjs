@@ -23,7 +23,7 @@ const routeArtifact = (route) => route === '/'
 rm(dist);
 mkdir(dist);
 
-for (const file of ['index.html', '404.html', 'robots.txt', '_headers']) copy(file);
+for (const file of ['index.html', '404.html', 'robots.txt', '_headers', '_redirects']) copy(file);
 copy('.well-known');
 
 for (const file of [
