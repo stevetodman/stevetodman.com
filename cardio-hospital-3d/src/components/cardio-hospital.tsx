@@ -1,8 +1,10 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { CASES } from "@/lib/cases-data";
+import { formatHospitalTime, getActiveEncounter } from "@/lib/hospital-engine";
+import { useHospitalStore } from "@/lib/hospital-store";
 import { useSimulationStore } from "@/lib/simulation-store";
 import HospitalWorld from "./world/hospital-world";
 
@@ -10,6 +12,22 @@ const hcmCase = CASES.find((clinicalCase) => clinicalCase.id === "case-hcm");
 
 function EntryScreen() {
   const setEntered = useSimulationStore((state) => state.setEntered);
+  const shiftStatus = useHospitalStore((state) => state.hospital.shift.status);
+  const dispatch = useHospitalStore((state) => state.dispatch);
+
+  const enterHospital = () => {
+    if (shiftStatus === "not-started") {
+      dispatch({
+        type: "SHIFT_STARTED",
+        shiftId: "shift-1",
+        day: 1,
+        startMinute: 7 * 60 + 42,
+        location: "workroom",
+      });
+    }
+    setEntered(true);
+  };
+
   return (
     <section className="entry-screen">
       <div className="entry-vignette" />
@@ -22,7 +40,7 @@ function EntryScreen() {
           <strong>7:42 AM</strong>
           <span>Cardiology rotation · Day 1</span>
         </div>
-        <button className="primary-action" onClick={() => setEntered(true)}>
+        <button className="primary-action" onClick={enterHospital}>
           Enter the hospital
         </button>
         <p className="entry-help">Desktop Chrome recommended · headphones improve auscultation</p>
@@ -70,6 +88,7 @@ function BriefingPanel() {
 
 function EncounterPanel() {
   const phase = useSimulationStore((state) => state.phase);
+  const activeEncounter = useHospitalStore((state) => getActiveEncounter(state.hospital));
   if (phase !== "encounter" || !hcmCase) return null;
   return (
     <section className="encounter-panel">
@@ -78,7 +97,7 @@ function EncounterPanel() {
       <p>{hcmCase.age}-year-old {hcmCase.sex === "M" ? "boy" : "girl"} · {hcmCase.chiefComplaint}</p>
       <div className="encounter-status">
         <span>Patient and parent present</span>
-        <span>History engine connected</span>
+        <span>{activeEncounter ? `Canonical encounter · ${activeEncounter.stage}` : "Opening encounter"}</span>
       </div>
       <p className="encounter-note">The complete interview and examination interface is the next vertical-slice increment.</p>
     </section>
@@ -89,6 +108,7 @@ function SimulationHud() {
   const phase = useSimulationStore((state) => state.phase);
   const prompt = useSimulationStore((state) => state.prompt);
   const locked = useSimulationStore((state) => state.controlsLocked);
+  const clockMinutes = useHospitalStore((state) => state.hospital.shift.clockMinutes);
   const objectives = {
     arrival: "Meet Dr. Patel in the team room",
     briefing: "Receive your first patient",
@@ -100,7 +120,7 @@ function SimulationHud() {
     <div className="hud" aria-live="polite">
       <div className="hud-top">
         <div className="location-card">
-          <span>7:42 AM</span>
+          <span>{formatHospitalTime(clockMinutes)}</span>
           <strong>Pediatric Cardiology</strong>
           <span>{objectives[phase]}</span>
         </div>
@@ -117,6 +137,12 @@ function SimulationHud() {
 
 export default function CardioHospital() {
   const entered = useSimulationStore((state) => state.entered);
+  const hydrateHospital = useHospitalStore((state) => state.hydrate);
+
+  useEffect(() => {
+    hydrateHospital();
+  }, [hydrateHospital]);
+
   return (
     <main className="simulation-shell">
       <Canvas
