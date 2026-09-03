@@ -88,10 +88,10 @@
   <p class="subtitle">Find the state, tap it, keep moving. No countdown while you play.</p>
   <div class="menu-cards">
     <button type="button" class="menu-card" id="startPin">
-      <span class="badge">5–10 states</span>
+      <span class="badge">Adaptive map practice</span>
       <div class="card-icon">🗺️</div>
       <h2>Start Pin Sprint</h2>
-      <p>Fast map practice with the same Luke/Samantha progress and adaptive state mix as the 50 States Challenge.</p>
+      <p>Your tougher map states come up more often, with familiar states mixed in so the whole map stays fresh.</p>
     </button>
   </div>
   <a class="back-link" href="us-states.html">Full 50 States Challenge</a>
@@ -116,11 +116,95 @@
   var activeProfile = "";
   var advancing = false;
   var tinyCodes = {};
+  var initialRoundSize = 0;
+  var delayedRetries = 0;
+  var retryScheduled = {};
+  var MAX_DELAYED_RETRIES = 2;
+  var MAP_STATS_KEY = "pinSprintMapStatsV1";
 
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function(c) {
       return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
     });
+  }
+
+  function loadMapStats() {
+    var raw = null;
+    try { raw = localStorage.getItem(MAP_STATS_KEY); } catch (e) {}
+    var data = null;
+    if (raw) { try { data = JSON.parse(raw); } catch (e) { data = null; } }
+    if (!data || typeof data !== "object") data = {};
+    return data;
+  }
+
+  function saveMapStats(data) {
+    try { localStorage.setItem(MAP_STATS_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+
+  function profileMapStats(name) {
+    var data = loadMapStats();
+    if (!data[name] || typeof data[name] !== "object") data[name] = {};
+    return { all: data, stats: data[name] };
+  }
+
+  function mapEvidence(code) {
+    var box = profileMapStats(activeProfile);
+    var stat = box.stats[code] || {};
+    return {
+      correct: Number(stat.correct) || 0,
+      wrong: Number(stat.wrong) || 0
+    };
+  }
+
+  function updateMapEvidence(code, correct) {
+    if (!activeProfile) return;
+    var box = profileMapStats(activeProfile);
+    var stat = box.stats[code] || (box.stats[code] = { correct: 0, wrong: 0 });
+    if (correct) stat.correct = (Number(stat.correct) || 0) + 1;
+    else stat.wrong = (Number(stat.wrong) || 0) + 1;
+    saveMapStats(box.all);
+    pushMapEvidence(code, stat);
+  }
+
+  /* Pull map-only counters directly rather than routing them through the
+     legacy 50 States profile merger, which predates these skill-specific
+     fields. This keeps Pin Sprint adaptive across family devices without
+     changing or resetting any existing spelling/mastery history. */
+  function pullMapEvidence() {
+    try {
+      if (!engine || !engine.cloudRequest || !engine.cloudToken) return Promise.resolve(false);
+      var token = engine.cloudToken(false);
+      if (!token) return Promise.resolve(false);
+      return engine.cloudRequest({ token: token, action: "pull" }).then(function(res) {
+        if (!res || !res.found || !res.data || !activeProfile || !res.data[activeProfile]) return false;
+        var remoteStats = res.data[activeProfile].stateStats || {};
+        var box = profileMapStats(activeProfile);
+        Object.keys(remoteStats).forEach(function(code) {
+          var r = remoteStats[code] || {};
+          var local = box.stats[code] || (box.stats[code] = { correct: 0, wrong: 0 });
+          local.correct = Math.max(Number(local.correct) || 0, Number(r.mapCorrect) || 0);
+          local.wrong = Math.max(Number(local.wrong) || 0, Number(r.mapWrong) || 0);
+        });
+        saveMapStats(box.all);
+        return true;
+      }).catch(function() { return false; });
+    } catch (e) { return Promise.resolve(false); }
+  }
+
+  function pushMapEvidence(code, stat) {
+    try {
+      if (!engine || !engine.cloudRequest || !engine.cloudToken || !activeProfile) return;
+      var token = engine.cloudToken(false);
+      if (!token) return;
+      var stateStats = {};
+      stateStats[code] = {
+        mapCorrect: Number(stat.correct) || 0,
+        mapWrong: Number(stat.wrong) || 0
+      };
+      var family = {};
+      family[activeProfile] = { stateStats: stateStats };
+      engine.cloudRequest({ token: token, action: "push", data: family }).catch(function() {});
+    } catch (e) {}
   }
 
   function loadEngine() {
@@ -182,6 +266,98 @@
     });
   }
 
+  function addUnique(picks, used, entries, count) {
+    for (var i = 0; i < entries.length && count > 0; i++) {
+      var e = entries[i];
+      if (used[e.s.code]) continue;
+      used[e.s.code] = true;
+      picks.push(e);
+      count--;
+    }
+  }
+
+  /* Map-only adaptive mix. About two-thirds of a round comes from states with
+     demonstrated map misses when enough exist. The remainder keeps medium,
+     unseen, and strong states circulating so practice does not collapse into
+     a discouraging loop of only hard items. Before map-specific evidence has
+     accumulated, the existing combined history is used as a bootstrap. */
+  function adaptiveMapStates(p, n) {
+    var entries = engine.STATES.map(function(s) {
+      var map = mapEvidence(s.code);
+      var mapSeen = map.correct + map.wrong;
+      var legacy = (p.stateStats && p.stateStats[s.code]) || {};
+      var legacyWrong = Number(legacy.wrong) || 0;
+      var accuracy = mapSeen ? map.correct / mapSeen : null;
+      var weakness = mapSeen
+        ? (map.wrong * 3) + ((1 - accuracy) * 5) - Math.min(map.correct, 5) * 0.2
+        : Math.min(legacyWrong, 4) * 0.45;
+      return {
+        s: s,
+        correct: map.correct,
+        wrong: map.wrong,
+        seen: mapSeen,
+        accuracy: accuracy,
+        weakness: weakness,
+        mastered: !!legacy.mastered,
+        jitter: Math.random()
+      };
+    });
+
+    var hasMapHistory = entries.some(function(e) { return e.seen > 0; });
+    if (!hasMapHistory) return engine.quickRoundStates(p, n);
+
+    var weak = entries.filter(function(e) { return e.wrong > 0; });
+    var strong = entries.filter(function(e) { return e.seen >= 3 && e.accuracy >= 0.8; });
+    var medium = entries.filter(function(e) {
+      return e.seen > 0 && strong.indexOf(e) === -1 && weak.indexOf(e) === -1;
+    });
+    var unseen = entries.filter(function(e) { return e.seen === 0; });
+
+    weak.sort(function(a, b) {
+      if (b.weakness !== a.weakness) return b.weakness - a.weakness;
+      if (b.wrong !== a.wrong) return b.wrong - a.wrong;
+      return a.jitter - b.jitter;
+    });
+    medium.sort(function(a, b) {
+      if (a.accuracy !== b.accuracy) return a.accuracy - b.accuracy;
+      if (a.seen !== b.seen) return a.seen - b.seen;
+      return a.jitter - b.jitter;
+    });
+    unseen.sort(function(a, b) {
+      if (b.weakness !== a.weakness) return b.weakness - a.weakness;
+      return a.jitter - b.jitter;
+    });
+    strong.sort(function(a, b) {
+      if (a.seen !== b.seen) return a.seen - b.seen;
+      return a.jitter - b.jitter;
+    });
+
+    var picks = [], used = {};
+    var weakTarget = Math.min(weak.length, Math.max(1, Math.round(n * 0.65)));
+    addUnique(picks, used, weak, weakTarget);
+
+    var maintenanceTarget = Math.min(strong.length, Math.max(1, Math.round(n * 0.2)));
+    var remainingBeforeStrong = Math.max(0, n - picks.length - maintenanceTarget);
+    addUnique(picks, used, medium, remainingBeforeStrong);
+    addUnique(picks, used, unseen, Math.max(0, n - picks.length - maintenanceTarget));
+    addUnique(picks, used, strong, Math.min(maintenanceTarget, n - picks.length));
+
+    // If any category was small, backfill from the full priority order.
+    var rest = weak.concat(medium, unseen, strong).concat(entries);
+    addUnique(picks, used, rest, n - picks.length);
+
+    picks = engine.shuffle ? engine.shuffle(picks) : picks.sort(function() { return Math.random() - 0.5; });
+    // Whenever possible, open on a demonstrated strong state for an early win.
+    var opener = -1;
+    for (var i = 0; i < picks.length; i++) {
+      if (picks[i].seen >= 3 && picks[i].accuracy >= 0.8) { opener = i; break; }
+    }
+    if (opener > 0) {
+      var t = picks[0]; picks[0] = picks[opener]; picks[opener] = t;
+    }
+    return picks.slice(0, n).map(function(e) { return e.s; });
+  }
+
   function startRound() {
     advancing = false;
     solvedCodes = {};
@@ -190,14 +366,22 @@
     currentIndex = 0;
     attempts = 0;
     tinyCodes = {};
+    delayedRetries = 0;
+    retryScheduled = {};
     try { engine.cancelAutoAdvance(); engine.streakCount = 0; } catch (e) {}
 
     var data = engine.loadData();
     activeProfile = data.activeProfile;
     if (!activeProfile || !data.profiles[activeProfile]) { showPlayerPicker(); return; }
     var p = data.profiles[activeProfile];
+
+    // Cross-device map evidence is merged opportunistically. Local evidence is
+    // always immediately available, so a network failure never blocks play.
+    pullMapEvidence();
+
     var n = engine.quickRoundSize ? engine.quickRoundSize(p) : 10;
-    roundStates = engine.quickRoundStates(p, n).map(function(s) { return { code: s.code, name: s.name }; });
+    roundStates = adaptiveMapStates(p, n).map(function(s) { return { code: s.code, name: s.name, retry: false }; });
+    initialRoundSize = roundStates.length;
     startingMastered = {};
     (p.masteredOrder || []).forEach(function(code) { startingMastered[code] = true; });
     roundStartedAt = Date.now();
@@ -219,7 +403,7 @@
       '<div class="pin-progress"><div style="width:' + pct + '%"></div></div>' +
       '<div class="pin-meta"><span>' + (currentIndex + 1) + ' of ' + roundStates.length + '</span><span>' +
         (streak >= 2 ? '🔥 ' + streak + ' &middot; ' : '') + firstTryScore + ' first try</span></div>' +
-      '<div class="pin-prompt"><div class="label">Find</div><div class="state-name">' + esc(state.name) + '</div></div>' +
+      '<div class="pin-prompt"><div class="label">' + (state.retry ? 'Find again' : 'Find') + '</div><div class="state-name">' + esc(state.name) + '</div></div>' +
       '</div>';
   }
 
@@ -292,6 +476,7 @@
 
   function recordFirstAttempt(target, correct) {
     var mres = { justMastered: false };
+    updateMapEvidence(target.code, correct);
     try {
       mres = engine.recordAnswer(target.code, correct) || mres;
       engine.bumpStreak(correct);
@@ -299,6 +484,17 @@
       if (engine.schedulePush) engine.schedulePush(0);
     } catch (e) {}
     return mres;
+  }
+
+  /* A first miss is tested again after several other prompts, not immediately
+     as the next scored item. At most two such retrieval checks are inserted so
+     a short practice session remains short. */
+  function scheduleDelayedRetry(target) {
+    if (target.retry || retryScheduled[target.code] || delayedRetries >= MAX_DELAYED_RETRIES) return;
+    retryScheduled[target.code] = true;
+    delayedRetries++;
+    var at = Math.min(roundStates.length, currentIndex + 3 + Math.floor(Math.random() * 2));
+    roundStates.splice(at, 0, { code: target.code, name: target.name, retry: true });
   }
 
   function handleChoice(code, target, svgEl) {
@@ -310,19 +506,23 @@
     if (correct) {
       var firstTry = attempts === 0;
       var mres = firstTry ? recordFirstAttempt(target, true) : { justMastered: false };
-      if (firstTry) firstTryScore++;
+      if (firstTry && !target.retry) firstTryScore++;
       solvedCodes[target.code] = true;
       if (path) { path.classList.remove("pin-hint", "pin-wrong"); path.classList.add("pin-correct"); }
       fb.className = "pin-feedback good";
-      fb.textContent = (firstTry ? "✓ " : "💪 Got it — ") + target.name + (mres.justMastered ? " — state mastered!" : "");
-      tip.textContent = mres.justMastered ? "⭐ That state is now filled in on your mastery map." : "";
+      fb.textContent = (target.retry && firstTry ? "✓ Remembered it — " : firstTry ? "✓ " : "💪 Got it — ") + target.name + (mres.justMastered ? " — state mastered!" : "");
+      tip.textContent = target.retry && firstTry ? "That delayed review helps lock the location in." :
+                        mres.justMastered ? "⭐ That state is now filled in on your mastery map." : "";
       advancing = true;
       setTimeout(function() { currentIndex++; renderQuestion(); }, mres.justMastered ? 950 : 560);
       return;
     }
 
     var firstMiss = attempts === 0;
-    if (firstMiss) recordFirstAttempt(target, false);
+    if (firstMiss) {
+      recordFirstAttempt(target, false);
+      scheduleDelayedRetry(target);
+    }
     attempts++;
     wrongCodes[code] = true;
     if (path) path.classList.add("pin-wrong");
@@ -373,7 +573,7 @@
     var p = data.profiles[activeProfile];
     var masteredNow = p && p.masteredOrder ? p.masteredOrder.length : 0;
     var newlyMastered = (p && p.masteredOrder ? p.masteredOrder : []).filter(function(code) { return !startingMastered[code]; });
-    var perfect = firstTryScore === roundStates.length;
+    var perfect = firstTryScore === initialRoundSize;
     try {
       if (perfect && engine.soundVictory) engine.soundVictory();
       if (perfect && engine.burstConfetti) engine.burstConfetti(46);
@@ -381,17 +581,18 @@
     } catch (e) {}
 
     var message = perfect ? "Perfect first-try sprint!" :
-                  firstTryScore >= Math.ceil(roundStates.length * .7) ? "Strong run — keep the map moving." :
-                  "Good practice. The states you missed were taught again before the round moved on.";
+                  firstTryScore >= Math.ceil(initialRoundSize * .7) ? "Strong run — keep the map moving." :
+                  "Good practice. The states you missed will carry extra weight in future sprints.";
     var masteredLine = newlyMastered.length ?
       '<div class="result-message">⭐ New mastery: ' + newlyMastered.map(function(code) { var s = engine.byCode(code); return s ? esc(s.name) : code; }).join(", ") + '</div>' : '';
+    var reviewLine = delayedRetries ? '<span>↻ ' + delayedRetries + ' delayed review' + (delayedRetries === 1 ? '' : 's') + '</span>' : '';
 
     app.innerHTML =
       '<h1>📍 Pin Sprint Complete</h1>' +
       '<div class="results"><div class="result-card">' +
-        '<div class="score-big">' + firstTryScore + '/' + roundStates.length + '</div>' +
-        '<div class="result-label">first try</div>' +
-        '<div class="result-stats"><span>⏱️ ' + formatTime(seconds) + '</span><span>🗺️ ' + masteredNow + '/50 mastered</span></div>' +
+        '<div class="score-big">' + firstTryScore + '/' + initialRoundSize + '</div>' +
+        '<div class="result-label">first try on the original states</div>' +
+        '<div class="result-stats"><span>⏱️ ' + formatTime(seconds) + '</span><span>🗺️ ' + masteredNow + '/50 mastered</span>' + reviewLine + '</div>' +
         '<div class="result-message">' + message + '</div>' + masteredLine +
         '<div class="btn-row"><button type="button" class="btn btn-primary" id="again">Play another sprint</button>' +
         '<a class="btn btn-secondary" href="us-states.html">50 States menu</a></div>' +
@@ -416,7 +617,9 @@
       currentIndex: currentIndex,
       firstTryScore: firstTryScore,
       attempts: attempts,
-      roundStates: roundStates.map(function(s) { return { code: s.code, name: s.name }; })
+      initialRoundSize: initialRoundSize,
+      delayedRetries: delayedRetries,
+      roundStates: roundStates.map(function(s) { return { code: s.code, name: s.name, retry: !!s.retry }; })
     };
   };
 })();
