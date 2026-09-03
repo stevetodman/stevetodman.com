@@ -8,11 +8,13 @@ import {
   getHospitalWorkflowPhase,
   getTask,
 } from "@/lib/hospital-engine";
+import { SERVICE_PAGER_PAGE_ID } from "@/lib/hospital-pages";
 import { useHospitalStore } from "@/lib/hospital-store";
 import { HCM_CASE_ID, HCM_PATIENT_ID, HCM_ROOM, HCM_TASK_ID } from "@/lib/scenario-ids";
 import { useSimulationStore } from "@/lib/simulation-store";
 import HcmEncounter from "./clinical/hcm-encounter";
 import MobileControls from "./mobile-controls";
+import PagerPanel from "./pager-panel";
 import HospitalWorld from "./world/hospital-world";
 
 function EntryScreen() {
@@ -28,6 +30,7 @@ function EntryScreen() {
     if (hospital.shift.status === "not-started") {
       dispatch({ type: "SHIFT_STARTED", shiftId: "shift-1", day: 1, startMinute: 7 * 60 + 42, location: "workroom" });
     }
+    dispatch({ type: "PAGE_RECEIVED", pageId: SERVICE_PAGER_PAGE_ID });
     dispatch({ type: "PATIENT_ARRIVED", patientId: HCM_PATIENT_ID, caseId: HCM_CASE_ID, location: HCM_ROOM });
     dispatch({ type: "TASK_CREATED", taskId: HCM_TASK_ID, kind: "consult", caseId: HCM_CASE_ID, patientId: HCM_PATIENT_ID, location: HCM_ROOM });
     if (activeEncounter) dispatch({ type: "TASK_STARTED", taskId: HCM_TASK_ID });
@@ -155,6 +158,7 @@ export default function CardioHospital() {
       </Canvas>
       {!entered && <EntryScreen />}
       {entered && <SimulationHud />}
+      {entered && <PagerPanel />}
       {entered && <MobileControls />}
       {entered && <BriefingPanel />}
       {entered && encounterOpen && <HcmEncounter />}

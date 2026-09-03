@@ -227,17 +227,19 @@ function applyEvent(state: HospitalState, event: HospitalEvent): HospitalState {
         : { ...state, world: { currentLocation: event.location } };
 
     case "PAGE_RECEIVED":
+      if (state.pager.receivedIds.includes(event.pageId)) return state;
       return {
         ...state,
-        pager: { ...state.pager, receivedIds: uniquePush(state.pager.receivedIds, event.pageId) },
+        pager: { ...state.pager, receivedIds: [...state.pager.receivedIds, event.pageId] },
       };
 
     case "PAGE_ACKNOWLEDGED":
+      if (state.pager.acknowledgedIds.includes(event.pageId)) return state;
       return {
         ...state,
         pager: {
           receivedIds: uniquePush(state.pager.receivedIds, event.pageId),
-          acknowledgedIds: uniquePush(state.pager.acknowledgedIds, event.pageId),
+          acknowledgedIds: [...state.pager.acknowledgedIds, event.pageId],
         },
       };
 

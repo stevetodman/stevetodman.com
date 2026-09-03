@@ -79,3 +79,24 @@ test("canonical workflow survives completion and replay without overwriting the 
   assert.equal(hospital.tasks["task-case-hcm"].status, "in-progress");
   assert.equal(hospital.timeline.at(-1).sequence, hospital.revision);
 });
+
+test("pager receipt and acknowledgement are idempotent canonical events", () => {
+  let hospital = createInitialHospitalState({ startMinute: 462, location: "workroom" });
+  hospital = reduceHospitalState(hospital, { type: "PAGE_RECEIVED", pageId: "service-pager-active" });
+  const revisionAfterReceipt = hospital.revision;
+  const timelineAfterReceipt = hospital.timeline.length;
+
+  hospital = reduceHospitalState(hospital, { type: "PAGE_RECEIVED", pageId: "service-pager-active" });
+  assert.equal(hospital.revision, revisionAfterReceipt);
+  assert.equal(hospital.timeline.length, timelineAfterReceipt);
+  assert.deepEqual(hospital.pager.receivedIds, ["service-pager-active"]);
+
+  hospital = reduceHospitalState(hospital, { type: "PAGE_ACKNOWLEDGED", pageId: "service-pager-active" });
+  const revisionAfterAcknowledge = hospital.revision;
+  const timelineAfterAcknowledge = hospital.timeline.length;
+
+  hospital = reduceHospitalState(hospital, { type: "PAGE_ACKNOWLEDGED", pageId: "service-pager-active" });
+  assert.equal(hospital.revision, revisionAfterAcknowledge);
+  assert.equal(hospital.timeline.length, timelineAfterAcknowledge);
+  assert.deepEqual(hospital.pager.acknowledgedIds, ["service-pager-active"]);
+});

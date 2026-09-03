@@ -5,6 +5,7 @@ import "./clinical.css";
 import "./clinical-ecg.css";
 import "./mobile.css";
 import "./mobile-clinical.css";
+import "./pager.css";
 
 export const metadata: Metadata = {
   title: "Pediatric Hospital | Clinical Simulation",
