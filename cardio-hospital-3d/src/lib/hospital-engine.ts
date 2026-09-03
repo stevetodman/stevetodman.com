@@ -494,8 +494,12 @@ export function getOpenTasks(state: HospitalState): HospitalTaskState[] {
     .sort((left, right) => {
       const priorityDifference = taskPriorityRank(left) - taskPriorityRank(right);
       if (priorityDifference !== 0) return priorityDifference;
-      const dueDifference = (left.dueAtMinute ?? Number.POSITIVE_INFINITY) - (right.dueAtMinute ?? Number.POSITIVE_INFINITY);
-      if (dueDifference !== 0) return dueDifference;
+      if (left.dueAtMinute !== right.dueAtMinute) {
+        if (typeof left.dueAtMinute !== "number") return 1;
+        if (typeof right.dueAtMinute !== "number") return -1;
+        const dueDifference = left.dueAtMinute - right.dueAtMinute;
+        if (dueDifference !== 0) return dueDifference;
+      }
       const createdDifference = (left.createdAtMinute ?? 0) - (right.createdAtMinute ?? 0);
       if (createdDifference !== 0) return createdDifference;
       return left.taskId.localeCompare(right.taskId);

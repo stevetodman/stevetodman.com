@@ -134,12 +134,13 @@ test("open tasks sort deterministically by priority, due time, creation time, an
     hospital,
     { type: "TASK_CREATED", taskId: "routine-later", kind: "work", location: "workroom", priority: "routine", dueAtMinute: 720 },
     { type: "TASK_CREATED", taskId: "routine-sooner", kind: "work", location: "workroom", priority: "routine", dueAtMinute: 600 },
-    { type: "TASK_CREATED", taskId: "urgent-no-deadline", kind: "work", location: "workroom", priority: "urgent" }
+    { type: "TASK_CREATED", taskId: "urgent-z", kind: "work", location: "workroom", priority: "urgent" },
+    { type: "TASK_CREATED", taskId: "urgent-a", kind: "work", location: "workroom", priority: "urgent" }
   );
 
   assert.deepEqual(
     getOpenTasks(hospital).map((task) => task.taskId),
-    ["urgent-no-deadline", "routine-sooner", "routine-later"]
+    ["urgent-a", "urgent-z", "routine-sooner", "routine-later"]
   );
 
   hospital = reduceHospitalState(hospital, { type: "TIME_ADVANCED", minutes: 139 });
