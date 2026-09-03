@@ -99,6 +99,8 @@ test("scratchwork supports pointer input, Apple Pencil semantics, undo, clear, a
   assert.match(scratch, /guideType === "tape"/);
   assert.match(css, /touch-action:none/);
   assert.match(css, /@media\(max-width:899px\)/);
+  assert.match(css, /@media\(min-width:900px\)\{html\{font-size:112\.5%\}/, "Chromebooks should use the larger desktop type scale");
+  assert.match(css, /\.question-body\{font-size:1\.22rem\}/, "question text should be prominent on Chromebook");
 });
 
 test("cloud format preserves adaptive evidence and diagnostic version", async () => {
