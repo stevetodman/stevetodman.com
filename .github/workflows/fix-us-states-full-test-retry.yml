@@ -1,0 +1,68 @@
+name: One-shot Full Test retry fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-us-states-full-test-retry.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch Full Test retry behavior
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('study/us-states.html')
+          text = path.read_text()
+          old = '''function afterTestAnswer(correct, item) {
+            if (correct) {
+              score++;
+              if (item.type === "spell") subScore.spell++; else subScore.map++;
+            } else {
+              missed.push(item);
+              queueRetry(item);
+            }
+          }
+          '''
+          new = '''function afterTestAnswer(correct, item) {
+            if (correct) {
+              score++;
+              if (item.type === "spell") subScore.spell++; else subScore.map++;
+            } else {
+              missed.push(item);
+              if (roundLabel === "Quick Round") queueRetry(item);
+            }
+          }
+          '''
+          if text.count(old) != 1:
+              raise SystemExit(f'Expected exactly one Full Test answer handler, found {text.count(old)}')
+          path.write_text(text.replace(old, new, 1))
+          PY
+
+          git diff --check
+          grep -F 'if (roundLabel === "Quick Round") queueRetry(item);' study/us-states.html
+
+      - name: Commit patch
+        shell: bash
+        run: |
+          if git diff --quiet -- study/us-states.html; then
+            echo 'No change to commit'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add study/us-states.html
+          git commit -m 'Fix Full Test to remain exactly 50 questions'
+          git push origin HEAD:main
