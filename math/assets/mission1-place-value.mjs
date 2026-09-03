@@ -48,9 +48,6 @@ export function expectedPlaceValueDelta(workspace) {
   return workspace.operation === "multiply" ? workspace.shift : -workspace.shift;
 }
 
-// Keep the chart small enough to read before asking a child to scroll. Two
-// nearby empty places on either side leave room for a move without rendering a
-// permanently wide ten-column worksheet.
 export function visiblePlaceValueColumns(tokens, padding = 2) {
   const exponents = tokens.map(token => token.exponent);
   const highest = Math.min(MAX_EXPONENT, Math.max(...exponents) + padding);
@@ -189,6 +186,20 @@ export function createPlaceValueWorkspace({ root, onGuidedReady = () => {} }) {
     },
     isReady() {
       return !question?.assisted || !question?.workspace || ready;
+    },
+    evidence() {
+      const workspace = question?.workspace;
+      if (!workspace || workspace.type !== "place-value") return null;
+      const expectedDelta = expectedPlaceValueDelta(workspace);
+      return {
+        delta,
+        expectedDelta,
+        operation: workspace.operation,
+        shift: workspace.shift,
+        factor: workspace.factor,
+        wrongDirection: delta !== 0 && Math.sign(delta) !== Math.sign(expectedDelta),
+        correctPosition: delta === expectedDelta
+      };
     },
     reset() {
       question = null;
