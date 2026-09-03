@@ -16,7 +16,7 @@
     "test:study:unit": "node --test tests/study-cloud-client.test.mjs tests/study-regressions.test.mjs tests/study-game.test.mjs tests/study-quality.test.mjs tests/study-aaa-polish.test.mjs tests/study-test-practice.test.mjs",
     "test:study:webkit": "node --test tests/study-ios-webkit.test.mjs tests/study-test-practice-webkit.test.mjs",
     "test:steven-os": "node --test tests/steven-os.test.mjs",
-    "test:platform": "node --test tests/platform-policy.test.mjs tests/production-verifier.test.mjs tests/governance.test.mjs tests/asset-provenance.test.mjs tests/performance-budget.test.mjs tests/search-index.test.mjs",
+    "test:platform": "node --test tests/platform-policy.test.mjs tests/hospital-csp.test.mjs tests/production-verifier.test.mjs tests/governance.test.mjs tests/asset-provenance.test.mjs tests/performance-budget.test.mjs tests/search-index.test.mjs",
     "test:a11y": "node --test tests/accessibility.test.mjs",
     "test:phs": "node --test tests/phs-scenarios.test.mjs",
     "test:bp": "node --test tests/bp-calculator.test.mjs",
