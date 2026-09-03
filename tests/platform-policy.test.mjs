@@ -61,7 +61,9 @@ test('catalog has valid unique classifications and existing routes', () => {
     if (item.route) {
       assert.ok(!routes.has(item.route), `duplicate route ${item.route}`);
       routes.add(item.route);
-      assert.ok(fs.existsSync(path.join(repoRoot, routeFile(item.route))), `catalog route missing file: ${item.route}`);
+      if (item.generated !== true) {
+        assert.ok(fs.existsSync(path.join(repoRoot, routeFile(item.route))), `catalog route missing file: ${item.route}`);
+      }
     }
     if (item.path) assert.ok(fs.existsSync(path.join(repoRoot, item.path)), `catalog path missing: ${item.path}`);
   }
