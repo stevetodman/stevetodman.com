@@ -10,7 +10,7 @@ import {
 } from "@/lib/hospital-engine";
 import { getHospitalWorkDefinition } from "@/lib/hospital-work";
 import { useHospitalStore } from "@/lib/hospital-store";
-import { HCM_CASE_ID } from "@/lib/scenario-ids";
+import { HCM_CASE_ID, VASOVAGAL_CASE_ID } from "@/lib/scenario-ids";
 
 function taskLabel(task: HospitalTaskState): { title: string; detail: string } {
   if (task.kind === "work") {
@@ -25,6 +25,13 @@ function taskLabel(task: HospitalTaskState): { title: string; detail: string } {
     return {
       title: "Marcus Chen · Cardiology consult",
       detail: "Exertional syncope · Clinic Room 3",
+    };
+  }
+
+  if (task.caseId === VASOVAGAL_CASE_ID) {
+    return {
+      title: "Ava Rodriguez · Cardiology consult",
+      detail: "Post-race syncope · Clinic Room 1",
     };
   }
 
