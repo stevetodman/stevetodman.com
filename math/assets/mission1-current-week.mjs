@@ -3,6 +3,14 @@ import { formatDecimal, generate as generateModuleQuestion } from "./mission1-co
 const CURRENT_MICROS = new Set(["powers_multiply", "powers_divide"]);
 const randomInt = (random, min, max) => Math.floor(random() * (max - min + 1)) + min;
 
+function publishQuestion(question) {
+  if (typeof window !== "undefined") {
+    window.MathMissionCurrentQuestion = question;
+    window.dispatchEvent(new CustomEvent("mathmission:question-generated", { detail: { micro: question?.micro || null } }));
+  }
+  return question;
+}
+
 function factorForDifficulty(difficulty, random) {
   const shifts = difficulty <= 1 ? [1] : difficulty === 2 ? [1, 2] : [1, 2, 3];
   const shift = shifts[randomInt(random, 0, shifts.length - 1)];
@@ -34,7 +42,7 @@ function workspaceFor(audit) {
 }
 
 function makeQuestion(micro, prompt, answer, why, audit, difficulty, flags, scaffoldText = "") {
-  return {
+  return publishQuestion({
     micro,
     skill: "place",
     prompt,
@@ -50,11 +58,11 @@ function makeQuestion(micro, prompt, answer, why, audit, difficulty, flags, scaf
     placeholder: "Number only",
     scratch: "place",
     scaffoldText: flags.assisted ? scaffoldText : ""
-  };
+  });
 }
 
 export function generateCurrentWeekQuestion(micro, difficulty = 2, random = Math.random, flags = {}) {
-  if (!CURRENT_MICROS.has(micro)) return generateModuleQuestion(micro, difficulty, random, flags);
+  if (!CURRENT_MICROS.has(micro)) return publishQuestion(generateModuleQuestion(micro, difficulty, random, flags));
 
   const d = Math.max(1, Math.min(3, Number(difficulty) || 1));
   const { shift, factor } = factorForDifficulty(d, random);
