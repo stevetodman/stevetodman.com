@@ -4,7 +4,21 @@
 
 Cloudflare Pages should publish the **generated `dist/` artifact**, not the repository root.
 
-Repository source can contain tests, migrations, backend functions, developer tools, previews, and internal projects. `scripts/build-site.mjs` is the deployment boundary: only catalog items classified `PRODUCTION` reach Pages. `PREVIEW`, `INTERNAL`, `SOURCE_ONLY`, and `ARCHIVED` material stays in source unless it is explicitly promoted.
+Repository source can contain tests, migrations, backend functions, developer tools, previews, and internal projects. `scripts/build-site.mjs` establishes the classified static-site boundary; `scripts/build-hospital.mjs` then builds the approved unified Pediatric Hospital source into the generated `/hospital/` production artifact. `PREVIEW`, `INTERNAL`, `SOURCE_ONLY`, and `ARCHIVED` source material stays out of Pages unless it is explicitly promoted.
+
+### Unified Pediatric Hospital
+
+The primary resident-facing hospital simulator is generated from:
+
+- source: `cardio-hospital-3d/`
+- development branch: `hospital-unified`
+- public production route after merge/deploy: `/hospital/`
+
+The source directory itself remains `SOURCE_ONLY`; Pages must never expose `/cardio-hospital-3d/`. The production build runs the hospital's focused canonical-engine tests and static Next.js export, then copies only the generated export into `dist/hospital/`.
+
+The former `/phs/` simulator is archived/reference-only and `/cardiohospital/` remains internal/reference-only. Do not restore either as the primary Resident Education hospital link unless Steve explicitly reverses this promotion.
+
+Publishing `/hospital/` does **not** by itself close the physical-iPhone M4/M5 acceptance gate. Device acceptance remains a separate product-quality requirement.
 
 ## Cloudflare Pages settings
 
@@ -50,15 +64,15 @@ This removes the need for Cloudflare Access on the main Pages deployment. If an 
 
 ## Source-only material
 
-The `dist/` build must also exclude repository/backend material such as:
+The `dist/` build must also exclude repository/backend source such as:
 
-- `cardio-hospital-3d/`
+- `cardio-hospital-3d/` source (only its generated `dist/hospital/` export is public)
 - `clipboard-sanitizer/`
 - `study/supabase/`
 - Steven OS source/backend files
 - repository tests
 
-`npm run test:platform` builds `dist/` and fails if non-production routes or source-only paths leak into the artifact.
+`npm run test:platform` builds the classified static shell and fails if non-production routes or source-only paths leak into the artifact. The full `npm run build` additionally generates the unified hospital export before search-index generation.
 
 ## Security headers
 
@@ -105,9 +119,9 @@ It must verify:
 2. deployed public HTML carries `meta name="robots"` with `noindex`, `nofollow`, and `noarchive`;
 3. crawler access remains compatible with the noindex directive;
 4. no `/sitemap.xml` is published while direct-link-only mode is active;
-5. public canonical routes return 200;
+5. public canonical routes return 200, including `/hospital/` after promotion;
 6. PREVIEW and INTERNAL routes return 404;
-7. SOURCE_ONLY routes return 404;
+7. SOURCE_ONLY routes return 404, including `/cardio-hospital-3d/`;
 8. custom 404 behavior works.
 
 Do not schedule the production verifier automatically until the initial cutover passes.
