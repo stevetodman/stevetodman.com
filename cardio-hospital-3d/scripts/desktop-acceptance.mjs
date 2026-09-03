@@ -176,8 +176,6 @@ try {
   await screenshot(page, "02-worklist-ava-plus-handoff");
   await page.getByRole("button", { name: /Worklist/ }).click();
 
-  // Traverse the Room 1 doorway from corridor -> room. If the wall collider blocks the
-  // doorway, the Room 1 prompt remains visible instead of disappearing deep in-room.
   await move(page, "a", 2600);
   assert.equal(
     await page.locator(".interaction-prompt").count(),
@@ -186,8 +184,6 @@ try {
   );
   pass("Room 1 doorway permits corridor-to-room passage.");
 
-  // Traverse back out. Reacquiring the prompt proves the reverse passage returns to the
-  // doorway interaction zone rather than remaining trapped behind collision.
   await move(page, "d", 1500);
   await waitForPrompt(page, "Enter Clinic Room 1");
   pass("Room 1 doorway permits room-to-corridor passage and reacquires the interaction prompt.");
@@ -281,6 +277,8 @@ try {
   );
   await screenshot(page, "05-ava-after-reload");
 
+  await page.getByRole("button", { name: "Return to the 3D hospital" }).click();
+  await waitForPrompt(page, "Continue Ava Rodriguez encounter");
   await page.getByRole("button", { name: /Worklist/ }).click();
   const hydratedWorklist = page.locator("#hospital-work-queue");
   await assertTextIncludes(hydratedWorklist, "Ava Rodriguez · Cardiology consult");
@@ -288,6 +286,8 @@ try {
   assert.equal(await hydratedWorklist.locator("article.work-queue-item").count(), 2);
   await page.getByRole("button", { name: /Worklist/ }).click();
   pass("Ava + unfinished handoff Worklist invariant survives reload.");
+  await page.keyboard.press("e");
+  await avaEncounter.waitFor({ state: "visible" });
 
   await completeAvaFromHistory(page);
   pass("Ava progressed through history, exam, ECG/testing, assessment/management, and debrief.");
