@@ -119,6 +119,7 @@ export function HcmDebriefStage() {
 
   const score = scoreCanonicalEncounter(encounter, hcmCase, {
     appropriateTests: HCM_TEACHING_POLICY.diagnosticCoreTests,
+    nonPenalizedTests: HCM_TEACHING_POLICY.riskStratificationTests,
     unnecessaryTests: HCM_TEACHING_POLICY.unnecessaryTests,
     correctManagement: HCM_TEACHING_POLICY.correctManagement,
   });
