@@ -5,11 +5,13 @@ import { VASOVAGAL_TEACHING_POLICY } from "../src/lib/clinical-policy/vasovagal-
 import {
   createInitialHospitalState,
   getActiveEncounter,
+  getOpenTasks,
   reduceHospitalState,
 } from "../src/lib/hospital-engine.ts";
 import { scoreCanonicalEncounter } from "../src/lib/hospital-scoring.ts";
 import { VASOVAGAL_CONSULT_PAGE_ID } from "../src/lib/hospital-pages.ts";
 import { reconcileHospitalSchedule } from "../src/lib/hospital-schedule.ts";
+import { WORKROOM_HANDOFF_TASK_ID } from "../src/lib/hospital-work.ts";
 import {
   HCM_CASE_ID,
   HCM_PATIENT_ID,
@@ -27,7 +29,7 @@ function apply(state, ...events) {
   return events.reduce((next, event) => reduceHospitalState(next, event), state);
 }
 
-test("second consult releases only after the first HCM consult completes and remains idempotent", () => {
+test("second consult releases only after the first HCM consult completes, remains idempotent, and does not consume competing work", () => {
   let hospital = createInitialHospitalState({ startMinute: 462, location: "workroom" });
   hospital = apply(
     hospital,
@@ -40,6 +42,7 @@ test("second consult releases only after the first HCM consult completes and rem
   assert.equal(Boolean(hospital.tasks[VASOVAGAL_TASK_ID]), false);
   assert.equal(Boolean(hospital.patients[VASOVAGAL_PATIENT_ID]), false);
   assert.equal(hospital.pager.receivedIds.includes(VASOVAGAL_CONSULT_PAGE_ID), false);
+  assert.equal(hospital.tasks[WORKROOM_HANDOFF_TASK_ID].status, "available");
 
   hospital = apply(
     hospital,
@@ -56,6 +59,11 @@ test("second consult releases only after the first HCM consult completes and rem
   assert.equal(hospital.patients[VASOVAGAL_PATIENT_ID].disposition, "waiting");
   assert.equal(hospital.patients[VASOVAGAL_PATIENT_ID].currentLocation, VASOVAGAL_ROOM);
   assert.equal(hospital.pager.receivedIds.includes(VASOVAGAL_CONSULT_PAGE_ID), true);
+  assert.equal(hospital.tasks[WORKROOM_HANDOFF_TASK_ID].status, "available");
+  assert.deepEqual(
+    getOpenTasks(hospital).map((task) => task.taskId),
+    [WORKROOM_HANDOFF_TASK_ID, VASOVAGAL_TASK_ID]
+  );
 
   const revisionAfterRelease = hospital.revision;
   const timelineAfterRelease = hospital.timeline.length;
@@ -74,6 +82,8 @@ test("second consult releases only after the first HCM consult completes and rem
   assert.equal(hospital.encounters["encounter-case-hcm-1"].stage, "complete");
   assert.equal(hospital.encounters["encounter-case-vasovagal-1"].stage, "complete");
   assert.equal(hospital.patients[VASOVAGAL_PATIENT_ID].disposition, "complete");
+  assert.equal(hospital.tasks[WORKROOM_HANDOFF_TASK_ID].status, "available");
+  assert.deepEqual(getOpenTasks(hospital).map((task) => task.taskId), [WORKROOM_HANDOFF_TASK_ID]);
 
   hospital = apply(
     hospital,
@@ -84,6 +94,7 @@ test("second consult releases only after the first HCM consult completes and rem
   assert.equal(hospital.encounters["encounter-case-vasovagal-1"].stage, "complete");
   assert.equal(hospital.encounters["encounter-case-vasovagal-2"].stage, "history");
   assert.equal(hospital.encounters["encounter-case-hcm-1"].stage, "complete");
+  assert.equal(hospital.tasks[WORKROOM_HANDOFF_TASK_ID].status, "available");
 });
 
 test("Ava scoring uses the physician-approved phenotype instead of legacy exact-match teaching", () => {
