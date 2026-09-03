@@ -30,7 +30,11 @@ for (const [name, engine] of engines) {
   });
 
   const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45_000 });
+  const csp = response?.headers()['content-security-policy'] || '';
+  const allowsWasm = /(?:^|[\s;,])'wasm-unsafe-eval'(?=[\s;,]|$)/.test(csp);
+  const allowsGeneralEval = /(?:^|[\s;,])'unsafe-eval'(?=[\s;,]|$)/.test(csp);
   console.log(`NAV ${response?.status()} ${page.url()}`);
+  console.log(`CSP wasm-unsafe-eval=${allowsWasm} unsafe-eval=${allowsGeneralEval} ${csp}`);
   await page.waitForTimeout(12_000);
 
   const bodyText = await page.locator('body').innerText().catch(() => '');
@@ -60,8 +64,11 @@ for (const [name, engine] of engines) {
 
   const fatal = /The clinical world could not load\./.test(bodyText);
   const entry = /Pediatric Hospital/.test(bodyText) && /Enter the hospital|Resume patient|Loading saved shift/.test(bodyText);
-  console.log(`RESULT fatal=${fatal} entry=${entry} eventCount=${events.length}`);
-  if (fatal || !entry) failed = true;
+  const wasmCspError = events.some((event) => /WebAssembly|wasm-unsafe-eval|unsafe-eval/.test(event));
+  console.log(
+    `RESULT fatal=${fatal} entry=${entry} allowsWasm=${allowsWasm} allowsGeneralEval=${allowsGeneralEval} wasmCspError=${wasmCspError} eventCount=${events.length}`,
+  );
+  if (fatal || !entry || !allowsWasm || allowsGeneralEval || wasmCspError) failed = true;
 
   await page.screenshot({ path: `/tmp/hospital-${name}.png`, fullPage: true }).catch(() => {});
   await browser.close();
