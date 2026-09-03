@@ -1,5 +1,5 @@
 import type { HospitalLocation, HospitalState } from "./hospital-engine";
-import { WORKROOM_HANDOFF_TASK_ID } from "./hospital-work";
+import { WORKROOM_HANDOFF_TASK_ID } from "./hospital-work.ts";
 
 export type HospitalPagePriority = "routine" | "urgent";
 

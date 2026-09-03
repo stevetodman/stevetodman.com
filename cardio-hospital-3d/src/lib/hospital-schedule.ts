@@ -1,6 +1,6 @@
-import { reduceHospitalState, type HospitalState, type TaskPriority } from "./hospital-engine";
-import { HANDOFF_REVIEW_PAGE_ID } from "./hospital-pages";
-import { WORKROOM_HANDOFF_TASK_ID } from "./hospital-work";
+import { reduceHospitalState, type HospitalState, type TaskPriority } from "./hospital-engine.ts";
+import { HANDOFF_REVIEW_PAGE_ID } from "./hospital-pages.ts";
+import { WORKROOM_HANDOFF_TASK_ID } from "./hospital-work.ts";
 
 interface ScheduledWorkRelease {
   scheduleId: string;
