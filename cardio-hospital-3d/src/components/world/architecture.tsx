@@ -1,6 +1,7 @@
 import { RigidBody } from "@react-three/rapier";
 import { Box, Cylinder } from "./primitives";
 import { ConferenceTable, ExamTable, OfficeChair, Stool, Workstation } from "./furniture";
+import { HcmRoomActors } from "./patient-room-actors";
 
 function StaticBox(props: React.ComponentProps<typeof Box>) {
   return (
@@ -128,6 +129,7 @@ export function ExamRoom() {
 
       <ExamTable position={[7.25, 0, -3.7]} />
       <Stool position={[5.65, 0, -2.25]} />
+      <HcmRoomActors />
       <StaticBox size={[2.65, 0.86, 0.68]} position={[6.4, 0.43, -5.55]} color="#5d666a" />
       <Box size={[2.55, 0.72, 0.05]} position={[6.4, 1.18, -5.83]} color="#e6e0d5" />
       <Box size={[1.75, 0.09, 0.75]} position={[4.05, 0.76, -5.45]} color="#59636b" />
