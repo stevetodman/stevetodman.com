@@ -180,20 +180,22 @@ test('parent readiness dashboard routes the primary action through Mastery Quest
   assert.match(source, /Run vocabulary Final Boss/);
 });
 
-test('final mocks use approved 12-for-12 paragraphs and withhold feedback until submission', () => {
+test('final mock exposes only the active teacher-style vocabulary exam', () => {
   const source = read('study/unit-1/mock-test.js');
-  const contexts = read('study/unit-1/unit1-contexts.js');
   const html = read('study/unit-1/mock-test.html');
   assert.match(html, /Final verification/);
-  assert.match(contexts, /The \{1\} ranger had worked the canyon alone for years/);
-  assert.match(contexts, /The \{1\} pilot did not \{2\} the flight/);
-  assert.match(source, /f\.id!==last/);
+  assert.match(source, /startTeacherExam/);
   assert.match(source, /Submit entire vocabulary mock/);
-  assert.match(source, /Nothing above is graded until Submit/);
-  assert.match(source, /none given/);
-  assert.match(source, /mock-context/);
-  assert.match(source, /mock-synonym/);
-  assert.match(source, /mock-antonym/);
+  assert.match(source, /Nothing is graded until Submit/);
+  assert.match(source, /teacher-mock-context/);
+  assert.match(source, /teacher-mock-synonym/);
+  assert.match(source, /teacher-mock-antonym/);
+  assert.doesNotMatch(source, /function startVocab\(/);
+  assert.doesNotMatch(source, /function renderVocab\(/);
+  assert.doesNotMatch(source, /function chooseForm\(/);
+  assert.doesNotMatch(source, /type:'mock-context'/);
+  assert.doesNotMatch(source, /type:'mock-synonym'/);
+  assert.doesNotMatch(source, /type:'mock-antonym'/);
 });
 
 test('teacher-style exam mirrors all three supplied worksheet formats', () => {
@@ -215,15 +217,33 @@ test('teacher-style exam mirrors all three supplied worksheet formats', () => {
   assert.match(source, /Every missed concept was retrieved correctly/);
 });
 
-test('spelling final mock is audio-only and writes misses back to adaptive evidence', () => {
+test('shared spelling engine owns audio, normalization, shuffling, and grading', () => {
+  const helper = read('study/unit-1/unit1-spelling.js');
+  assert.match(helper, /SpeechSynthesisUtterance/);
+  assert.match(helper, /DEFAULT_RATE=\.95/);
+  assert.match(helper, /v\.lang==='en-US'&&v\.localService/);
+  assert.match(helper, /Audio is unavailable\. Ask an adult to say the word aloud without showing the spelling/);
+  assert.match(helper, /function grade\(/);
+  assert.match(helper, /function shuffle\(/);
+  assert.match(helper, /function normalize\(/);
+});
+
+test('spelling final mock uses the shared audio engine and writes misses back to adaptive evidence', () => {
   const source = read('study/unit-1/mock-test.js');
+  const html = read('study/unit-1/mock-test.html');
+  assert.match(html, /unit1-spelling\.js/);
+  assert.ok(html.indexOf('unit1-spelling.js') < html.indexOf('mock-test.js'));
   assert.match(source, /Audio only/);
   assert.match(source, /No spelling answer will be shown until all 12 are finished/);
-  assert.match(source, /SpeechSynthesisUtterance/);
+  assert.match(source, /S\.shuffle\(M\.BANK\)/);
+  assert.match(source, /S\.speak\(/);
+  assert.match(source, /S\.grade\(/);
   assert.match(source, /autocorrect="off"/);
   assert.match(source, /mock-spelling/);
   assert.match(source, /M\.spellingError/);
   assert.match(source, /Missed words are now higher priority in adaptive practice/);
+  assert.match(source, /two different days/);
+  assert.doesNotMatch(source, /SpeechSynthesisUtterance/);
 });
 
 test('Mastery Quest is a 12-word audio spelling quiz without answer leakage', () => {
@@ -233,15 +253,20 @@ test('Mastery Quest is a 12-word audio spelling quiz without answer leakage', ()
   assert.match(html, /Unit 1 Spelling Quest/);
   assert.match(html, /unit1-mastery\.js/);
   assert.match(html, /unit1-cloud\.js/);
+  assert.match(html, /unit1-spelling\.js/);
+  assert.ok(html.indexOf('unit1-spelling.js') < html.indexOf('mastery-quest.js'));
   assert.match(source, /12-word spelling quiz/);
-  assert.match(source, /order:shuffle\(M\.BANK\)/);
+  assert.match(source, /order:S\.shuffle\(M\.BANK\)/);
   assert.match(source, /No answers until the end/);
-  assert.match(source, /SpeechSynthesisUtterance/);
+  assert.match(source, /S\.speak\(/);
+  assert.match(source, /S\.grade\(/);
   assert.match(source, /autocorrect="off"/);
   assert.match(source, /spellcheck="false"/);
   assert.match(source, /mastery-spelling-quiz/);
   assert.match(source, /M\.spellingError/);
   assert.match(source, /independent:true/);
+  assert.match(source, /two different days/);
+  assert.doesNotMatch(source, /SpeechSynthesisUtterance/);
   assert.match(css, /\.quest-rune/);
   assert.match(css, /min-height:48px/);
   assert.match(css, /safe-area-inset-top/);
