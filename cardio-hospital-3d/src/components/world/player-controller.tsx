@@ -4,9 +4,11 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { HospitalLocation } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
+import { useSimulationStore } from "@/lib/simulation-store";
 
 const WALK_SPEED = 2.25;
 const FAST_SPEED = 3.6;
+const MOBILE_DEAD_ZONE = 0.08;
 
 function locationForPosition(x: number, z: number): HospitalLocation | null {
   if (x > -4.9 && x < 4.9 && z > 4.2 && z < 11.9) return "workroom";
@@ -45,6 +47,7 @@ export function PlayerController() {
     const rigidBody = body.current;
     if (!rigidBody) return;
     const velocity = rigidBody.linvel();
+    const ui = useSimulationStore.getState();
     const speed = keys.current.ShiftLeft || keys.current.ShiftRight ? FAST_SPEED : WALK_SPEED;
 
     camera.getWorldDirection(forward.current);
@@ -53,11 +56,30 @@ export function PlayerController() {
     right.current.crossVectors(forward.current, camera.up).normalize();
 
     movement.current.set(0, 0, 0);
-    if (keys.current.KeyW || keys.current.ArrowUp) movement.current.add(forward.current);
-    if (keys.current.KeyS || keys.current.ArrowDown) movement.current.sub(forward.current);
-    if (keys.current.KeyD || keys.current.ArrowRight) movement.current.sub(right.current);
-    if (keys.current.KeyA || keys.current.ArrowLeft) movement.current.add(right.current);
-    if (movement.current.lengthSq() > 0) movement.current.normalize().multiplyScalar(speed);
+    const keyboardActive =
+      keys.current.KeyW || keys.current.ArrowUp ||
+      keys.current.KeyS || keys.current.ArrowDown ||
+      keys.current.KeyD || keys.current.ArrowRight ||
+      keys.current.KeyA || keys.current.ArrowLeft;
+
+    if (!ui.briefingOpen && !ui.encounterOpen) {
+      if (keyboardActive) {
+        if (keys.current.KeyW || keys.current.ArrowUp) movement.current.add(forward.current);
+        if (keys.current.KeyS || keys.current.ArrowDown) movement.current.sub(forward.current);
+        if (keys.current.KeyD || keys.current.ArrowRight) movement.current.sub(right.current);
+        if (keys.current.KeyA || keys.current.ArrowLeft) movement.current.add(right.current);
+        if (movement.current.lengthSq() > 0) movement.current.normalize().multiplyScalar(speed);
+      } else {
+        const { x, y } = ui.mobileMove;
+        const magnitude = Math.min(1, Math.hypot(x, y));
+        if (magnitude > MOBILE_DEAD_ZONE) {
+          movement.current.addScaledVector(forward.current, y);
+          movement.current.addScaledVector(right.current, -x);
+          if (movement.current.lengthSq() > 1) movement.current.normalize();
+          movement.current.multiplyScalar(speed);
+        }
+      }
+    }
 
     rigidBody.setLinvel({ x: movement.current.x, y: velocity.y, z: movement.current.z }, true);
     const position = rigidBody.translation();

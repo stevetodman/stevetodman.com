@@ -1,5 +1,5 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { getActiveEncounter, getTask } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
 import { HCM_CASE_ID, HCM_PATIENT_ID, HCM_ROOM, HCM_TASK_ID } from "@/lib/scenario-ids";
@@ -12,9 +12,11 @@ export function InteractionSystem() {
   const setPrompt = useSimulationStore((state) => state.setPrompt);
   const openBriefing = useSimulationStore((state) => state.openBriefing);
   const openEncounter = useSimulationStore((state) => state.openEncounter);
+  const interactSequence = useSimulationStore((state) => state.interactSequence);
   const dispatch = useHospitalStore((state) => state.dispatch);
   const active = useRef<"attending" | "exam" | null>(null);
   const priorPrompt = useRef<string | null>(null);
+  const handledInteractSequence = useRef(interactSequence);
 
   useFrame(() => {
     const attendingDistance = Math.hypot(camera.position.x, camera.position.z - 10.25);
@@ -24,10 +26,10 @@ export function InteractionSystem() {
 
     if (taskStatus === "available" && attendingDistance < 2.1) {
       next = "attending";
-      prompt = "E  Speak with Dr. Patel";
+      prompt = "Interact · Speak with Dr. Patel";
     } else if ((taskStatus === "assigned" || taskStatus === "in-progress" || hasActiveEncounter) && examDistance < 2.2) {
       next = "exam";
-      prompt = hasActiveEncounter ? "E  Continue patient encounter" : "E  Enter Clinic Room 3";
+      prompt = hasActiveEncounter ? "Interact · Continue patient encounter" : "Interact · Enter Clinic Room 3";
     }
 
     active.current = next;
@@ -37,32 +39,45 @@ export function InteractionSystem() {
     }
   });
 
+  const performInteraction = useCallback(() => {
+    if (active.current === "attending") {
+      openBriefing();
+      return;
+    }
+    if (active.current !== "exam") return;
+
+    const hospital = useHospitalStore.getState().hospital;
+    const current = getActiveEncounter(hospital);
+    if (!current) {
+      const priorHcmAttempts = Object.values(hospital.encounters).filter((encounter) => encounter.caseId === HCM_CASE_ID).length;
+      dispatch({
+        type: "ENCOUNTER_STARTED",
+        encounterId: `encounter-case-hcm-${priorHcmAttempts + 1}`,
+        taskId: HCM_TASK_ID,
+        patientId: HCM_PATIENT_ID,
+        caseId: HCM_CASE_ID,
+        location: HCM_ROOM,
+      });
+    } else {
+      dispatch({ type: "TASK_STARTED", taskId: HCM_TASK_ID });
+    }
+    openEncounter();
+  }, [dispatch, openBriefing, openEncounter]);
+
   useEffect(() => {
     const interact = (event: KeyboardEvent) => {
       if (event.code !== "KeyE" || event.repeat) return;
-      if (active.current === "attending") openBriefing();
-      if (active.current === "exam") {
-        const hospital = useHospitalStore.getState().hospital;
-        const current = getActiveEncounter(hospital);
-        if (!current) {
-          const priorHcmAttempts = Object.values(hospital.encounters).filter((encounter) => encounter.caseId === HCM_CASE_ID).length;
-          dispatch({
-            type: "ENCOUNTER_STARTED",
-            encounterId: `encounter-case-hcm-${priorHcmAttempts + 1}`,
-            taskId: HCM_TASK_ID,
-            patientId: HCM_PATIENT_ID,
-            caseId: HCM_CASE_ID,
-            location: HCM_ROOM,
-          });
-        } else {
-          dispatch({ type: "TASK_STARTED", taskId: HCM_TASK_ID });
-        }
-        openEncounter();
-      }
+      performInteraction();
     };
     window.addEventListener("keydown", interact);
     return () => window.removeEventListener("keydown", interact);
-  }, [dispatch, openBriefing, openEncounter]);
+  }, [performInteraction]);
+
+  useEffect(() => {
+    if (interactSequence === handledInteractSequence.current) return;
+    handledInteractSequence.current = interactSequence;
+    performInteraction();
+  }, [interactSequence, performInteraction]);
 
   return null;
 }
