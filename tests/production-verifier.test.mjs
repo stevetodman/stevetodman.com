@@ -10,8 +10,9 @@ const catalog = JSON.parse(fs.readFileSync(path.join(repoRoot, 'site/catalog.jso
 const PUBLIC_HTML_PATHS = new Set(
   catalog.items.filter((item) => item.route && item.class === 'PRODUCTION').map((item) => item.route)
 );
+const LEGACY_REDIRECTS = new Map([['/phs/', '/hospital/']]);
 const EXCLUDED_PATHS = new Set([
-  ...catalog.items.filter((item) => item.route && item.class !== 'PRODUCTION').map((item) => item.route),
+  ...catalog.items.filter((item) => item.route && item.class !== 'PRODUCTION' && !LEGACY_REDIRECTS.has(item.route)).map((item) => item.route),
   ...catalog.items.filter((item) => item.path && item.class === 'SOURCE_ONLY')
     .map((item) => `/${item.path.replace(/^\/+|\/+$/g, '')}/`),
 ]);
@@ -22,9 +23,16 @@ const HEADERS = {
   'content-security-policy': "default-src 'self'",
 };
 
-async function startFixture({ missingMetaPath = '', missingPublicPath = '', sitemapStatus = 404, exposedPath = '', canonicalHtml = false, redirectTarget = '' } = {}) {
+async function startFixture({ missingMetaPath = '', missingPublicPath = '', sitemapStatus = 404, exposedPath = '', canonicalHtml = false, redirectTarget = '', legacyRedirectTarget = '' } = {}) {
   const server = http.createServer((request, response) => {
     const pathname = new URL(request.url, 'http://fixture.invalid').pathname;
+
+    if (LEGACY_REDIRECTS.has(pathname)) {
+      response.writeHead(301, { ...HEADERS, location: legacyRedirectTarget || LEGACY_REDIRECTS.get(pathname) });
+      response.end();
+      return;
+    }
+
     if (canonicalHtml && PUBLIC_HTML_PATHS.has(pathname) && pathname.endsWith('.html')) {
       response.writeHead(308,{...HEADERS,location:redirectTarget || pathname.slice(0,-5)});
       response.end();return;
@@ -116,6 +124,14 @@ test('production verifier rejects unrelated same-origin and cross-origin redirec
     const result=await runVerifier(fixture.origin);assert.equal(result.code,1);
     assert.match(result.stderr,/unexpected canonical redirect/);
   }
+});
+
+test('production verifier rejects an incorrect legacy hospital redirect', async (t) => {
+  const fixture = await startFixture({ legacyRedirectTarget: '/' });
+  t.after(fixture.close);
+  const result = await runVerifier(fixture.origin);
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /\/phs\/ redirects to an unexpected destination/);
 });
 
 test('production verifier rejects a cataloged production route that is missing', async (t) => {
