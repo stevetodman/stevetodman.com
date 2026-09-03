@@ -1,8 +1,9 @@
 import { MICRO_SKILLS, diagnostic, isCorrectAnswer } from "./mission1-content.mjs?v=20260831-weekly3";
-import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260901-child-ux1";
-import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, diagnosticIsCurrent, difficultyForScore, microScore, migrateAffectedRechecks, nextMicro, pendingRechecks, projectedScore } from "./mission1-adaptive.mjs?v=20260901-mastery1";
+import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260903-teacher1";
+import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, diagnosticIsCurrent, difficultyForScore, microScore, migrateAffectedRechecks, nextMicro, pendingRechecks, projectedScore } from "./mission1-adaptive.mjs?v=20260903-teacher1";
 import { createScratchpad } from "./mission1-scratch.mjs?v=20260901-mastery1";
 import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901-mastery1";
+import { TEACHER_WEEK, explanationForMicro } from "./teacher-week.mjs?v=20260903-teacher1";
 
 "use strict";
 (() => {
@@ -12,6 +13,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
   const $$ = selector => [...document.querySelectorAll(selector)];
   const today = () => new Date().toISOString().slice(0, 10);
   const emptyProfile = () => ({ diagnostic: false, diagnosticVersion: 0, attempts: [], sessions: 0, recheckVersion: 1, rechecks: {} });
+  const weeklyDiagnostic = () => diagnostic().filter(question => TEACHER_WEEK.diagnosticMicros.includes(question.micro));
   function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } }
   function save(data) { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch {} }
   function pdata() { const all = load(); return all[state.profile] || emptyProfile(); }
@@ -54,25 +56,26 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
     $("#learner-pill").textContent = name;
     $("#hello").textContent = `Ready, ${name}?`;
     if (!current) {
+      const checkCount = weeklyDiagnostic().length;
       card.innerHTML = `
-        <div class="label">First mission</div>
+        <div class="label">First mission · ${TEACHER_WEEK.label}</div>
         <h2>Quick starting check</h2>
-        <p class="mission-meta">12 questions · about 10 minutes</p>
-        <p>This gives Math Mission a starting point so the next practice knows what to teach.</p>
+        <p class="mission-meta">${checkCount} questions · current class material only</p>
+        <p>This checks the place-value ideas needed for this week so Math Mission knows what to explain and practice.</p>
         <button class="primary-button" data-start="diagnostic">Start</button>`;
     } else {
       card.innerHTML = `
-        <div class="label">Current focus · Lessons 1–2 · 5.NBT.1–2</div>
-        <h2>Powers of 10</h2>
+        <div class="label">Current focus · ${TEACHER_WEEK.label}</div>
+        <h2>${TEACHER_WEEK.title}</h2>
         <p class="mission-meta">${PRACTICE_TARGET} independent questions · about 10 minutes</p>
-        <p>Use place value to understand what happens when numbers are multiplied or divided by 10, 100, and 1,000.</p>
+        <p>${TEACHER_WEEK.summary}</p>
         <button class="primary-button" data-start="practice">Start today’s mission</button>`;
     }
     show("dashboard");
   }
 
   function start(mode) {
-    Object.assign(state, { mode, queue: mode === "diagnostic" ? diagnostic() : [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [], answered: false });
+    Object.assign(state, { mode, queue: mode === "diagnostic" ? weeklyDiagnostic() : [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [], answered: false });
     if (mode === "practice") state.queue.push(nextAdaptiveQuestion());
     show("session");
     renderQuestion();
@@ -83,7 +86,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
     if (state.immediateScaffold) {
       const missed = state.immediateScaffold;
       state.immediateScaffold = null;
-      return { ...missed, assisted: true, recovery: false, transfer: false, recheck: false, scaffoldText: "" };
+      return { ...missed, assisted: true, recovery: false, transfer: false, recheck: false };
     }
     const ready = state.recoveries.findIndex(item => item.delay <= 0);
     if (ready >= 0) {
@@ -113,7 +116,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
           ? "Try it again"
           : question.recheck
             ? "Check it again"
-          : `Question ${Math.min(state.independentCount + 1, PRACTICE_TARGET)}`;
+            : `Question ${Math.min(state.independentCount + 1, PRACTICE_TARGET)}`;
     $("#question-body").innerHTML = question.prompt;
 
     const scaffold = $("#scaffold-note");
@@ -186,16 +189,14 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
       const lead = question.assisted ? "Exactly." : question.recovery ? "You got it independently this time." : "Yes.";
       const explanation = question.assisted ? question.why : `You used ${MICRO_SKILLS[question.micro].name.toLowerCase()} correctly.`;
       announce(`<strong>${lead}</strong><div>${explanation}</div><button class="primary-button" data-next>Next</button>`, "good");
-    } else if (state.mode === "practice" && !question.assisted && question.workspace?.type === "place-value") {
-      const operationCue = question.workspace.operation === "divide"
-        ? `Division by ${question.workspace.factor.toLocaleString()} should make the value smaller.`
-        : `Multiplication by ${question.workspace.factor.toLocaleString()} should make the value larger.`;
-      announce(`<strong>Not yet.</strong><div>${operationCue} Check what happens to each digit’s value.</div><button class="primary-button" data-next>Show me with the place-value chart</button>`, "bad");
+    } else if (state.mode === "practice" && !question.assisted) {
+      const concept = explanationForMicro(question.micro);
+      const nextAction = question.workspace?.type === "place-value" ? "Show me with the place-value chart" : "Show me step by step";
+      announce(`<strong>Not yet. Here’s the idea.</strong><div class="worked">${concept}</div><div class="feedback-note">Now we’ll work through the same concept together, then you’ll try it independently again.</div><button class="primary-button" data-next>${nextAction}</button>`, "bad");
     } else if (question.assisted && question.workspace?.type === "place-value") {
       announce(`<strong>Almost.</strong><div>Read the number you built on the chart carefully. The answer is ${question.answer}.</div><div class="worked">${question.why}</div><button class="primary-button" data-next>Continue</button>`, "bad");
     } else {
-      const nextText = state.mode === "practice" && !question.assisted ? "A guided problem is next, followed later by a fresh independent retry." : "Review the explanation, then continue.";
-      announce(`<strong>Not yet. The answer is ${question.answer}.</strong><div class="worked">${question.why}</div><div class="feedback-note">${nextText}</div><button class="primary-button" data-next>Continue</button>`, "bad");
+      announce(`<strong>Not yet. The answer is ${question.answer}.</strong><div class="worked">${question.why}</div><div class="feedback-note">Review the explanation, then continue.</div><button class="primary-button" data-next>Continue</button>`, "bad");
     }
     $("#answer-form").hidden = true;
     renderProgress();
@@ -245,7 +246,7 @@ import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901
       ? "We’ll bring back anything that still needs another look."
       : correct === independent.length
         ? "You handled today’s work independently."
-        : "Your next mission will know what to practice again."}</div>`;
+        : "Your next mission will know what to explain and practice again."}</div>`;
     $("#result-title").textContent = pending ? "Good work." : correct === independent.length ? "Strong finish." : "Mission complete.";
     placeValue.reset();
     show("results");
