@@ -4,6 +4,10 @@ on:
   pull_request:
     paths:
       - 'study/**'
+      - '!study/*.md'
+      - '!study/**/*.md'
+      - '!study/pin-sprint.html'
+      - '!study/supabase/functions/studyhub-save/**'
       - 'tests/study-*.test.mjs'
       - 'tests/grade5-*.test.mjs'
       - 'tests/science-grade5-*.test.mjs'
@@ -17,7 +21,6 @@ on:
       - '_headers'
       - 'package.json'
       - 'package-lock.json'
-      - '.github/workflows/study-contract.yml'
       - '.github/workflows/study-live-canary.yml'
   push:
     branches:
@@ -25,6 +28,10 @@ on:
       - 'study/quality-*'
     paths:
       - 'study/**'
+      - '!study/*.md'
+      - '!study/**/*.md'
+      - '!study/pin-sprint.html'
+      - '!study/supabase/functions/studyhub-save/**'
       - 'tests/study-*.test.mjs'
       - 'tests/grade5-*.test.mjs'
       - 'tests/science-grade5-*.test.mjs'
@@ -38,7 +45,6 @@ on:
       - '_headers'
       - 'package.json'
       - 'package-lock.json'
-      - '.github/workflows/study-contract.yml'
       - '.github/workflows/study-live-canary.yml'
   workflow_dispatch:
 
