@@ -12,6 +12,7 @@ import {
   type AuscultationSite,
 } from "@/lib/murmur-audio";
 import { useSimulationStore } from "@/lib/simulation-store";
+import { HcmAssessmentStage, HcmDebriefStage } from "./hcm-assessment-stage";
 import HcmTestsStage from "./hcm-tests-stage";
 
 const hcmCase = CASES.find((clinicalCase) => clinicalCase.id === "case-hcm");
@@ -270,37 +271,6 @@ function ExamStage() {
   );
 }
 
-function MigrationStageNotice() {
-  const encounter = useHospitalStore((state) => getActiveEncounter(state.hospital));
-  const dispatch = useHospitalStore((state) => state.dispatch);
-  if (!encounter) return null;
-
-  return (
-    <div className="clinical-stage clinical-stage-placeholder">
-      <p className="eyebrow">{encounter.stage}</p>
-      <h3>This stage is being ported into the same canonical encounter.</h3>
-      <p>
-        History, examination, auscultation, ECG interpretation, and test ordering
-        now share one persistent patient state. The next increment ports the
-        committed assessment, management, and debrief.
-      </p>
-      <button
-        type="button"
-        className="secondary-action"
-        onClick={() =>
-          dispatch({
-            type: "ENCOUNTER_STAGE_CHANGED",
-            encounterId: encounter.encounterId,
-            stage: "tests",
-          })
-        }
-      >
-        Return to diagnostic testing
-      </button>
-    </div>
-  );
-}
-
 export default function HcmEncounter() {
   const encounter = useHospitalStore((state) => getActiveEncounter(state.hospital));
   const resumeWorld = useSimulationStore((state) => state.resumeWorld);
@@ -335,7 +305,8 @@ export default function HcmEncounter() {
       {encounter.stage === "history" && <HistoryStage />}
       {encounter.stage === "exam" && <ExamStage />}
       {encounter.stage === "tests" && <HcmTestsStage />}
-      {encounter.stage !== "history" && encounter.stage !== "exam" && encounter.stage !== "tests" && <MigrationStageNotice />}
+      {encounter.stage === "assessment" && <HcmAssessmentStage />}
+      {encounter.stage === "debrief" && <HcmDebriefStage />}
     </section>
   );
 }
