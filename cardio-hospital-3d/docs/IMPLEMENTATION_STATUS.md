@@ -10,9 +10,9 @@ The unified application now has one canonical hospital engine, a complete HCM cl
 
 **Current milestone: M5 — Hospital work system (IN PROGRESS).**
 
-Do **not** repeat the old assignment/task migration, pager migration, Worklist build, priority/deadline work, schedule reconciler, or first duration/consequence increment. Those are complete. The next M5 product increment is the second competing clinical consult, but it must not be wired into runtime until both its physical world location and its clinical teaching content pass their validation gates.
+Do **not** repeat the old assignment/task migration, pager migration, Worklist build, priority/deadline work, schedule reconciler, first duration/consequence increment, Room 1 geometry build, or vasovagal evidence-review pass. Those are complete. The next M5 runtime increment is the second competing clinical consult, but it must remain blocked until the vasovagal teaching policy receives explicit physician sign-off. Physical/browser behavioral validation of Room 1 and the complete workload loop also remains required before M5 can be called complete.
 
-M3 exit criteria are met. M4 is implemented in code but still requires physical-device acceptance. M5 now includes canonical pager/task state, competing work, a first-class Worklist, deterministic priority/deadline ordering, simulation-time-driven schedule release, deterministic non-clinical work duration, and persisted missed-deadline consequences.
+M3 exit criteria are met. M4 is implemented in code but still requires physical-device acceptance. M5 now includes canonical pager/task state, competing work, a first-class Worklist, deterministic priority/deadline ordering, simulation-time-driven schedule release, deterministic non-clinical work duration, persisted missed-deadline consequences, a second physical clinic room in code, and an evidence-reviewed second-case policy draft.
 
 ## Milestone state
 
@@ -153,41 +153,52 @@ Completed:
 - canonical `TASK_DEADLINE_MISSED` is persisted, replayable, and idempotent;
 - schema v2 saves migrate explicitly to schema v3 and recover known deterministic work duration without discarding prior state;
 - Worklist displays task duration and distinguishes a persisted missed deadline from merely approaching a due time;
-- regression checks cover pager idempotency, work-task lifecycle, deterministic ordering, overdue transition, schedule release/idempotency, duration-driven time consumption, on-time versus late completion, consequence idempotency, completion timestamps/replay behavior, and v2 → v3 persistence migration.
+- regression checks cover pager idempotency, work-task lifecycle, deterministic ordering, overdue transition, schedule release/idempotency, duration-driven time consumption, on-time versus late completion, consequence idempotency, completion timestamps/replay behavior, and v2 → v3 persistence migration;
+- reusable physical Room 1 geometry now exists west of the clinic corridor, with its own walls, doorway, floor, exam furniture, workstation, and lighting while leaving Room 3/HCM actors untouched;
+- canonical world-zone projection now distinguishes `clinic-room-1`, `clinic-room-3`, clinic corridor, and workroom through a pure testable selector;
+- Room 1/Room 3 doorway boundary tests run with the canonical reducer suite; the first Room 1 test correctly failed on an asymmetric assertion, the assertion was corrected without changing production geometry, and the follow-up run passed all tests and the production build;
+- legacy `case-vasovagal` was selected as the preferred low-complexity second consult because it contrasts post-exertional neurally mediated syncope with the urgent HCM case;
+- a dedicated evidence-review pass modernized the vasovagal teaching boundaries in `src/lib/clinical-policy/vasovagal-2026.ts` and `docs/CLINICAL_VALIDATION.md` without importing that policy into runtime;
+- the vasovagal policy explicitly requires event/family history, examination, and resting ECG; treats additional cardiac testing as context-dependent rather than universally wrong; and makes sports return conditional on a reassuring initial evaluation rather than post-exertional timing alone;
+- the policy remains intentionally marked `awaiting-physician-signoff`.
 
-Second-consult readiness audit:
+Second-consult readiness status:
 
-- legacy `case-vasovagal` is the current preferred low-complexity candidate for the second competing cardiology consult because it contrasts a routine post-exertional syncope evaluation with the urgent HCM case;
-- its legacy metadata/content is reference material only and requires a dedicated current clinical-policy validation/correction before runtime use;
-- its intended location is Room 1, but the unified 3D architecture currently contains only one physical exam room (the HCM Room 3); `clinic-room-1`/`clinic-room-2` currently exist only as canonical location identifiers, not validated physical rooms;
-- therefore a second consult must not be scheduled or rendered yet.
+- **World/code gate:** implemented and CI-green. Room 1 exists physically in the unified 3D architecture and canonical location mapping is regression-tested. Actual desktop/iPhone navigation/collision ergonomics still require behavioral smoke testing and are not being claimed from CI alone.
+- **Clinical evidence-review gate:** complete and CI-green. The dedicated policy draft is separated from immutable synthetic patient facts and from runtime wiring.
+- **Clinical approval gate:** NOT COMPLETE. Explicit physician sign-off has not yet been recorded, so the second consult must not be scheduled, rendered as a patient, scored, or exposed through the pager yet.
 
 Still required for M5 exit:
 
-- build and validate a second physical clinic exam room without disturbing Room 3 or the corridor collision/interaction geometry;
-- complete a dedicated current clinical validation/correction pass for the selected second case, separate from engineering commits;
-- only after both gates pass, add the second consult to canonical pager/task scheduling and world interaction;
-- mobile/desktop behavioral smoke test of pager → accept → Worklist → workstation/clinical room → completion;
+- explicit physician sign-off of `src/lib/clinical-policy/vasovagal-2026.ts` and the corresponding vasovagal section of `docs/CLINICAL_VALIDATION.md`;
+- after sign-off, add the second consult to canonical pager/task/patient/encounter scheduling and world interaction without introducing a second state path;
+- focused regression coverage for second-consult release, ordering, persistence, and noninterference with HCM/replay state;
+- desktop/mobile behavioral smoke test of Room 1 doorway/navigation and pager → accept → Worklist → workstation/clinical room → completion;
 - physical-device M4 acceptance remains a prerequisite to calling the overall mobile experience complete.
 
 ## Clinical-content state
 
-A versioned HCM teaching policy lives separately from immutable synthetic patient facts:
+Versioned teaching policies live separately from immutable synthetic patient facts:
 
 - `src/lib/clinical-policy/hcm-2024.ts`
+- `src/lib/clinical-policy/vasovagal-2026.ts`
 
-The unified path intentionally uses that policy rather than copying legacy management strings. Legacy `cases-data.ts`, `rotation-store.ts`, `pager-store.ts`, and longitudinal/adaptive modules contain older or separate state/content paths; treat them as references only and do not reconnect them as runtime truth. Any future clinical pager scenario must pass the same clinical validation gate as a full encounter.
+The unified path intentionally uses policy modules rather than copying legacy management strings. Legacy `cases-data.ts`, `rotation-store.ts`, `pager-store.ts`, and longitudinal/adaptive modules contain older or separate state/content paths; treat them as references only and do not reconnect them as runtime truth. Any future clinical pager scenario must pass the same clinical validation gate as a full encounter.
 
-The current second-consult candidate is legacy `case-vasovagal`, but it is **not yet runtime-approved**. Its source metadata predates newer sports-participation guidance and its teaching must be reviewed before migration.
+The current second-consult candidate is legacy `case-vasovagal`. Its evidence-review pass is complete, but it is **not yet runtime-approved** because explicit physician sign-off remains outstanding. Do not infer sign-off from the existence of the policy file or from the user's professional role.
 
 ## Build / regression status
 
 CI performs both:
 
-1. `npm run test:engine` — focused canonical reducer/workflow regression checks;
+1. `npm run test:engine` — focused canonical reducer/workflow/world-zone regression checks;
 2. `npm run build` — production Next.js build.
 
-Current verified M5 checkpoint `aee2f8f590af1c4771d8fc52855460bf5c3041d0` passed both the expanded engine regression suite and the production build in **Unified Hospital Build run 63**. The branch was advanced to this commit by non-forced fast-forward only.
+Current branch clinical-validation checkpoint `126e35b050946110654d12fa1d0517f3b22059a7` passed both gates in **Unified Hospital Build run 67**.
+
+Room 1 corrected geometry checkpoint `da8c7403c106f7ea0a42668fc51479f005d074de` passed the expanded 10-test suite and the production build in **Unified Hospital Build run 66**. Its parent `bcf239a11a09ff61c023376b3bf4bb708b5a806c` correctly failed before build because one new doorway-boundary assertion expected `clinic-corridor` for a coordinate intentionally inside Room 1; only that assertion was corrected.
+
+Duration/consequence runtime checkpoint `aee2f8f590af1c4771d8fc52855460bf5c3041d0` passed both the engine regression suite and the production build in **Unified Hospital Build run 63**.
 
 The prior scheduler/import checkpoint `d645583e2b09bdd5e0d97f0f2c213628bd974337` also passed both gates; the immediately preceding scheduler commit failed only because Node's stripped-TypeScript test runner could not resolve extensionless runtime TypeScript imports, and that boundary was corrected without changing scheduler semantics.
 
@@ -196,13 +207,12 @@ Before merge or final handoff, confirm the actual current branch head is green.
 ## Next actions — exact order
 
 1. Complete the real-device M4 acceptance checklist above when a target iPhone is available; fix only demonstrated mobile/desktop regressions.
-2. Build the smallest reusable second clinic exam-room geometry and validate collision/navigation/interaction boundaries; do not attach a clinical case yet.
-3. In a separate clinical-content commit, validate and modernize the selected second case against current pediatric syncope and competitive-sports guidance; do not invent patient facts.
-4. Only after both gates pass, add the second consult as a canonical scheduled page/task/patient/encounter and make it compete with existing work.
-5. Add focused regression coverage for second-consult release, ordering, persistence, and noninterference with the HCM encounter.
-6. Run desktop/mobile behavioral smoke testing of the complete M5 workload loop.
-7. Expand departments incrementally under M6 only after M5 is stable.
-8. Defer photorealistic/Needle asset work until architecture, mobile interaction, workload flow, and department boundaries are stable.
+2. Obtain explicit physician sign-off on the vasovagal policy; if changes are requested, make them in a clinical-content-only commit and rerun CI.
+3. After sign-off, add the second consult as a canonical scheduled page/task/patient/encounter in Room 1 and make it compete with existing HCM/workload state.
+4. Add focused regression coverage for second-consult release, ordering, persistence, completion/replay behavior, and noninterference with the HCM encounter.
+5. Run desktop/mobile behavioral smoke testing of the complete M5 workload loop, including Room 1 doorway/navigation/collision behavior.
+6. Expand departments incrementally under M6 only after M5 is stable.
+7. Defer photorealistic/Needle asset work until architecture, mobile interaction, workload flow, and department boundaries are stable.
 
 ## Do not do yet
 
@@ -213,7 +223,8 @@ Before merge or final handoff, confirm the actual current branch head is green.
 - Do not add a backend.
 - Do not reconnect `pager-store.ts` or `rotation-store.ts` as competing runtime state.
 - Do not copy legacy HCM, vasovagal, or urgent pager management content into new unified code without clinical validation.
-- Do not schedule the second consult until its actual world location exists and its clinical policy is approved.
+- Do not treat evidence review as physician sign-off.
+- Do not schedule/render/score the vasovagal second consult until its policy is explicitly approved.
 
 ## Handoff reading order
 
@@ -231,15 +242,19 @@ Any agent resuming this project should read, in order:
 10. `src/lib/hospital-pages.ts`
 11. `src/lib/hospital-work.ts`
 12. `src/lib/clinical-policy/hcm-2024.ts`
-13. `src/components/pager-panel.tsx`
-14. `src/components/work-queue-panel.tsx`
-15. `src/components/clinical/hcm-encounter.tsx`
-16. `src/components/clinical/hcm-assessment-stage.tsx`
-17. `src/components/world/architecture.tsx`
-18. `src/components/world/interaction-system.tsx`
-19. `src/components/world/patient-room-actors.tsx`
-20. `src/components/mobile-controls.tsx`
-21. `src/components/world/touch-look-controls.tsx`
-22. `scripts/hospital-engine.test.mjs`
+13. `src/lib/clinical-policy/vasovagal-2026.ts`
+14. `src/lib/hospital-world-layout.ts`
+15. `src/components/pager-panel.tsx`
+16. `src/components/work-queue-panel.tsx`
+17. `src/components/clinical/hcm-encounter.tsx`
+18. `src/components/clinical/hcm-assessment-stage.tsx`
+19. `src/components/world/architecture.tsx`
+20. `src/components/world/player-controller.tsx`
+21. `src/components/world/interaction-system.tsx`
+22. `src/components/world/patient-room-actors.tsx`
+23. `src/components/mobile-controls.tsx`
+24. `src/components/world/touch-look-controls.tsx`
+25. `scripts/hospital-engine.test.mjs`
+26. `scripts/hospital-world-layout.test.mjs`
 
 Then continue from the first incomplete item under **Next actions**, keep commits coherent, and update this ledger whenever milestone state or the next action changes materially.
