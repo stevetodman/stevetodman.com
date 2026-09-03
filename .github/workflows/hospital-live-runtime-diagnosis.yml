@@ -1,0 +1,20 @@
+name: Hospital Live Runtime Smoke
+
+on:
+  workflow_dispatch:
+
+jobs:
+  live-runtime-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: npm install --no-save --no-audit --no-fund playwright@1.56.1
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
+      - name: Verify live hospital starts in Chromium and WebKit
+        run: node scripts/diagnose-hospital-live.mjs
