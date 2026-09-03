@@ -8,6 +8,7 @@ import {
   isTaskOverdue,
   reduceHospitalState,
 } from "../src/lib/hospital-engine.ts";
+import { reconcileHospitalSchedule } from "../src/lib/hospital-schedule.ts";
 
 function apply(state, ...events) {
   return events.reduce((next, event) => reduceHospitalState(next, event), state);
@@ -147,4 +148,32 @@ test("open tasks sort deterministically by priority, due time, creation time, an
   assert.equal(hospital.shift.clockMinutes, 601);
   assert.equal(isTaskOverdue(hospital, hospital.tasks["routine-sooner"]), true);
   assert.equal(isTaskOverdue(hospital, hospital.tasks["routine-later"]), false);
+});
+
+test("scheduled hospital work releases only when canonical simulation time reaches the release time", () => {
+  let hospital = createInitialHospitalState({ startMinute: 461, location: "workroom" });
+  hospital = reduceHospitalState(hospital, {
+    type: "SHIFT_STARTED",
+    shiftId: "shift-schedule-test",
+    day: 1,
+    startMinute: 461,
+    location: "workroom",
+  });
+
+  hospital = reconcileHospitalSchedule(hospital);
+  assert.equal(hospital.pager.receivedIds.includes("overnight-handoff-review"), false);
+  assert.equal(Boolean(hospital.tasks["work-overnight-handoff"]), false);
+
+  hospital = reduceHospitalState(hospital, { type: "TIME_ADVANCED", minutes: 1 });
+  hospital = reconcileHospitalSchedule(hospital);
+  assert.equal(hospital.shift.clockMinutes, 462);
+  assert.equal(hospital.pager.receivedIds.includes("overnight-handoff-review"), true);
+  assert.equal(hospital.tasks["work-overnight-handoff"].status, "available");
+  assert.equal(hospital.tasks["work-overnight-handoff"].dueAtMinute, 720);
+
+  const revisionAfterRelease = hospital.revision;
+  const timelineAfterRelease = hospital.timeline.length;
+  hospital = reconcileHospitalSchedule(hospital);
+  assert.equal(hospital.revision, revisionAfterRelease);
+  assert.equal(hospital.timeline.length, timelineAfterRelease);
 });

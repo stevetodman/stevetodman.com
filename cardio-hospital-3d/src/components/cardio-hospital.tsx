@@ -8,7 +8,6 @@ import {
   getHospitalWorkflowPhase,
   getTask,
 } from "@/lib/hospital-engine";
-import { HANDOFF_REVIEW_PAGE_ID } from "@/lib/hospital-pages";
 import { useHospitalStore } from "@/lib/hospital-store";
 import { WORKROOM_HANDOFF_TASK_ID } from "@/lib/hospital-work";
 import { HCM_CASE_ID, HCM_PATIENT_ID, HCM_ROOM, HCM_TASK_ID } from "@/lib/scenario-ids";
@@ -32,8 +31,6 @@ function EntryScreen() {
     if (hospital.shift.status === "not-started") {
       dispatch({ type: "SHIFT_STARTED", shiftId: "shift-1", day: 1, startMinute: 7 * 60 + 42, location: "workroom" });
     }
-    dispatch({ type: "PAGE_RECEIVED", pageId: HANDOFF_REVIEW_PAGE_ID });
-    dispatch({ type: "TASK_CREATED", taskId: WORKROOM_HANDOFF_TASK_ID, kind: "work", location: "workroom", priority: "routine", dueAtMinute: 12 * 60 });
     dispatch({ type: "PATIENT_ARRIVED", patientId: HCM_PATIENT_ID, caseId: HCM_CASE_ID, location: HCM_ROOM });
     dispatch({ type: "TASK_CREATED", taskId: HCM_TASK_ID, kind: "consult", caseId: HCM_CASE_ID, patientId: HCM_PATIENT_ID, location: HCM_ROOM, priority: "urgent" });
     if (activeEncounter) dispatch({ type: "TASK_STARTED", taskId: HCM_TASK_ID });
