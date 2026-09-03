@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 
 import {
   STARTER_EQUIPMENT,
@@ -11,6 +12,9 @@ import {
   sectorForSessions,
   xpForAttempt
 } from "../math/assets/starship-economy-core.mjs";
+
+const root = new URL("../", import.meta.url);
+const read = path => readFile(new URL(path, root), "utf8");
 
 test("starship XP rewards independent learning without rewarding misses or assisted work", () => {
   assert.equal(xpForAttempt({ correct: true }), 5);
@@ -86,4 +90,27 @@ test("owned upgrades can be re-equipped without changing their purchase cost", (
   assert.equal(reequipped.ok, true);
   assert.equal(reequipped.profile.equipped.trail, "meteor-wake");
   assert.equal(deriveProgress(mathProfile, reequipped.profile).credits, 4);
+});
+
+test("learner can return to the starter solo loadout after buying a companion", () => {
+  const mathProfile = { sessions: 2, attempts: [] };
+  const bought = purchaseItem({}, mathProfile, "orbit-bot", 100);
+  assert.equal(bought.ok, true);
+  assert.equal(bought.profile.equipped.companion, "orbit-bot");
+
+  const solo = equipItem(bought.profile, "none");
+  assert.equal(solo.ok, true);
+  assert.equal(solo.profile.equipped.companion, "none");
+  assert.equal(deriveProgress(mathProfile, solo.profile).credits, 8);
+});
+
+test("economy loads as an additive layer and never writes the math mastery key", async () => {
+  const [html, ui] = await Promise.all([
+    read("math/index.html"),
+    read("math/assets/starship-economy.mjs")
+  ]);
+  assert.match(html, /starship-economy\.css/);
+  assert.match(html, /starship-economy\.mjs/);
+  assert.match(ui, /localStorage\.setItem\(GAME_KEY/);
+  assert.doesNotMatch(ui, /localStorage\.setItem\(MATH_KEY/);
 });
