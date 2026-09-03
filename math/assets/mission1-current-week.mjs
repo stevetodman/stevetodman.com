@@ -1,6 +1,7 @@
 import { formatDecimal, generate as generateModuleQuestion } from "./mission1-content.mjs";
+import { isTeacherAllowedMicro } from "./teacher-week.mjs";
 
-const CURRENT_MICROS = new Set(["powers_multiply", "powers_divide"]);
+const CUSTOM_WEEKLY_MICROS = new Set(["powers_multiply", "powers_divide"]);
 const randomInt = (random, min, max) => Math.floor(random() * (max - min + 1)) + min;
 
 function factorForDifficulty(difficulty, random) {
@@ -12,7 +13,7 @@ function factorForDifficulty(difficulty, random) {
 function valueFor(random, maxPlaces = 3, forceDecimal = false) {
   const minimumPlaces = forceDecimal ? 1 : 0;
   const places = randomInt(random, minimumPlaces, Math.max(minimumPlaces, maxPlaces));
-  const scaled = randomInt(random, 11, places === 0 ? 9999 : 9999);
+  const scaled = randomInt(random, 11, 9999);
   return scaled / (10 ** places);
 }
 
@@ -54,7 +55,8 @@ function makeQuestion(micro, prompt, answer, why, audit, difficulty, flags, scaf
 }
 
 export function generateCurrentWeekQuestion(micro, difficulty = 2, random = Math.random, flags = {}) {
-  if (!CURRENT_MICROS.has(micro)) return generateModuleQuestion(micro, difficulty, random, flags);
+  if (!isTeacherAllowedMicro(micro)) throw new Error(`Math Mission cannot generate ${micro}: it is outside this week's teacher-provided scope.`);
+  if (!CUSTOM_WEEKLY_MICROS.has(micro)) return generateModuleQuestion(micro, difficulty, random, flags);
 
   const d = Math.max(1, Math.min(3, Number(difficulty) || 1));
   const { shift, factor } = factorForDifficulty(d, random);

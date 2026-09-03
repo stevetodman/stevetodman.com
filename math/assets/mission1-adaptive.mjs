@@ -1,11 +1,12 @@
 import { DOMAIN_MICROS } from "./mission1-content.mjs";
+import { TEACHER_WEEK } from "./teacher-week.mjs";
 
 export const DIAGNOSTIC_VERSION = 2;
 export const RECHECK_VERSION = 1;
 export const PRACTICE_TARGET = 10;
 export const PRACTICE_MAX = 12;
-export const CURRENT_WEEK_MICROS = ["powers_multiply", "powers_divide"];
-export const REVIEW_MICROS = ["metric_conversion", "decimal_forms", "decimal_compare"];
+export const CURRENT_WEEK_MICROS = [...TEACHER_WEEK.currentMicros];
+export const REVIEW_MICROS = [...TEACHER_WEEK.supportMicros];
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const relevantAttempts = (profile, micro) => (profile?.attempts || []).filter(attempt => attempt.micro === micro).sort((a, b) => (Number(a.at) || 0) - (Number(b.at) || 0)).slice(-12);
 
@@ -57,12 +58,15 @@ export function nextMicro(profile, options = {}) {
   const avoid = new Set(options.avoid || []);
   const rechecks = pendingRechecks(profile).filter(micro => !avoid.has(micro));
   if (rechecks.length) return rechecks.sort((a, b) => microScore(profile, a) - microScore(profile, b))[0];
-  const currentNeedsWork = CURRENT_WEEK_MICROS.some(micro => microScore(profile, micro) < 75);
-  const urgentReview = REVIEW_MICROS.filter(micro => microScore(profile, micro) < 25);
-  const ordinaryReview = REVIEW_MICROS.filter(micro => microScore(profile, micro) < 55);
-  const pool = currentNeedsWork
-    ? [...CURRENT_WEEK_MICROS, ...urgentReview]
-    : [...CURRENT_WEEK_MICROS, ...ordinaryReview];
+
+  // Teacher material defines the ceiling. Support skills may surface only when
+  // the learner has actual evidence of a prerequisite gap; future lesson skills
+  // are never added by the adaptive engine on its own.
+  const supportGaps = REVIEW_MICROS.filter(micro => {
+    const stats = microStats(profile, micro);
+    return stats.attempts > 0 && stats.score < 45;
+  });
+  const pool = [...CURRENT_WEEK_MICROS, ...supportGaps];
   const uniquePool = [...new Set(pool)];
   const candidates = uniquePool.map((micro, order) => {
     const stats = microStats(profile, micro);

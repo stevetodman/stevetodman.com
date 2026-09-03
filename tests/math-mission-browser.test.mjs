@@ -86,17 +86,20 @@ async function chartValue(page) {
   });
 }
 
-test('diagnostic stays child-simple, persists evidence, and keeps Apple Pencil scratchwork', async () => {
+test('starting check stays inside the teacher week, persists evidence, and keeps Apple Pencil scratchwork', async () => {
   const { context, page, errors } = await openMath();
   try {
+    assert.match(await page.locator('.week-note').innerText(), /Lessons 1–2.*Powers of 10/i);
     await page.locator('[data-profile="luke"]').click();
-    assert.match(await page.locator('#primary-card').innerText(), /Quick starting check/i);
+    const card = await page.locator('#primary-card').innerText();
+    assert.match(card, /Quick starting check/i);
+    assert.match(card, /4 questions.*current class material only/is);
     assert.equal(await page.locator('#dashboard').locator('#skill-list').count(), 0, 'child dashboard should not expose the adult skill matrix');
     await page.locator('[data-start="diagnostic"]').click();
 
     assert.match(await page.locator('#question-body').innerText(), /hundredths place.*6\.282/i);
-    assert.match(await page.locator('#question-title').innerText(), /Question 1 of 12/i);
-    assert.equal(await page.locator('#progress-text').innerText(), '1 of 12');
+    assert.match(await page.locator('#question-title').innerText(), /Question 1 of 4/i);
+    assert.equal(await page.locator('#progress-text').innerText(), '1 of 4');
 
     const toggle = page.locator('#scratch-toggle');
     if (await page.locator('#scratch-body').getAttribute('hidden') !== null) await toggle.click();
@@ -128,8 +131,8 @@ test('diagnostic stays child-simple, persists evidence, and keeps Apple Pencil s
     assert.ok(attempt.cloudId, 'completed answer should receive a cloud-stable id');
 
     await page.locator('[data-next]').click();
-    assert.match(await page.locator('#question-title').innerText(), /Question 2 of 12/i);
-    assert.equal(await page.locator('#progress-text').innerText(), '2 of 12');
+    assert.match(await page.locator('#question-title').innerText(), /Question 2 of 4/i);
+    assert.equal(await page.locator('#progress-text').innerText(), '2 of 4');
     assert.match(await page.locator('#question-body').innerText(), /4\.731/);
     assert.deepEqual(errors, [], `runtime errors:\n${errors.join('\n')}`);
   } finally {
@@ -137,7 +140,7 @@ test('diagnostic stays child-simple, persists evidence, and keeps Apple Pencil s
   }
 });
 
-test('current-focus miss becomes guided place-value action and later independent recovery without stretching progress', async () => {
+test('current-focus miss explains the concept, becomes guided action, and later gets an independent recovery', async () => {
   const seeded = {
     luke: {
       diagnostic: true,
@@ -190,9 +193,11 @@ test('current-focus miss becomes guided place-value action and later independent
     await page.locator('#check-button').click();
     await page.locator('#feedback.bad').waitFor();
     const missFeedback = await page.locator('#feedback').innerText();
-    assert.match(missFeedback, /Not yet\./);
+    assert.match(missFeedback, /Not yet\. Here’s the idea/i);
+    assert.match(missFeedback, /Dividing by a power of 10 makes the number smaller/i);
+    assert.match(missFeedback, /one tenth as much/i);
     assert.match(missFeedback, /Show me with the place-value chart/i);
-    assert.doesNotMatch(missFeedback, /The answer is/i, 'independent current-focus miss must not dump the answer');
+    assert.doesNotMatch(missFeedback, /The answer is/i, 'independent current-focus miss must teach before revealing the answer');
 
     const attemptsAfterMiss = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts);
     assert.equal(attemptsAfterMiss.length, 2);

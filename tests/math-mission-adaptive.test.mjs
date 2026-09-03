@@ -32,9 +32,9 @@ test("difficulty responds to current skill level", () => {
   assert.equal(difficultyForScore(75), 3);
 });
 
-test("current school focus is Lessons 1-2 powers-of-ten work with a separate review layer", () => {
+test("adaptive scope comes from this week's teacher material plus explicit prerequisites", () => {
   assert.deepEqual(CURRENT_WEEK_MICROS, ["powers_multiply", "powers_divide"]);
-  assert.deepEqual(REVIEW_MICROS, ["metric_conversion", "decimal_forms", "decimal_compare"]);
+  assert.deepEqual(REVIEW_MICROS, ["place_digit", "place_value"]);
   assert.equal(nextMicro({ attempts: [] }), "powers_multiply");
 
   const attempts = [attempt("powers_multiply", true, { at: 1 }), attempt("powers_divide", false, { at: 2 })];
@@ -42,29 +42,37 @@ test("current school focus is Lessons 1-2 powers-of-ten work with a separate rev
   assert.notEqual(nextMicro({ attempts }, { avoid: ["powers_divide"] }), "powers_divide");
 });
 
-test("ordinary review weakness does not displace unfinished Lessons 1-2", () => {
-  const profile = { attempts: [attempt("metric_conversion", false, { at: 1 })] };
-  assert.equal(microScore(profile, "metric_conversion"), 27);
+test("a demonstrated prerequisite gap can surface within the teacher week", () => {
+  const profile = { attempts: [
+    attempt("place_value", false, { at: 1 }),
+    attempt("place_value", false, { at: 2 })
+  ] };
+  assert.equal(microScore(profile, "place_value"), 14);
+  assert.equal(nextMicro(profile), "place_value");
+});
+
+test("future lesson weakness never enters the weekly adaptive queue", () => {
+  const profile = { attempts: [
+    attempt("metric_conversion", false, { at: 1 }),
+    attempt("metric_conversion", false, { at: 2 }),
+    attempt("decimal_add", false, { at: 3 }),
+    attempt("decimal_add", false, { at: 4 })
+  ] };
+  assert.equal(microScore(profile, "metric_conversion"), 14);
+  assert.equal(microScore(profile, "decimal_add"), 14);
   assert.ok(CURRENT_WEEK_MICROS.includes(nextMicro(profile)));
 });
 
-test("a severe review gap can interrupt briefly even while current lessons are unfinished", () => {
-  const profile = { attempts: [
-    attempt("metric_conversion", false, { at: 1 }),
-    attempt("metric_conversion", false, { at: 2 })
-  ] };
-  assert.equal(microScore(profile, "metric_conversion"), 14);
-  assert.equal(nextMicro(profile), "metric_conversion");
-});
-
-test("once current Lessons 1-2 are secure, weak review skills surface", () => {
+test("once current work is secure, the engine still does not advance beyond teacher scope", () => {
   const attempts = [];
   for (const micro of CURRENT_WEEK_MICROS) {
     for (let index = 0; index < 4; index += 1) attempts.push(attempt(micro, true, { difficulty: 3, date: index < 2 ? "2026-08-29" : "2026-08-30", at: attempts.length + 1 }));
   }
+  attempts.push(attempt("decimal_add", false, { at: 100 }));
+  attempts.push(attempt("decimal_add", false, { at: 101 }));
   const profile = { attempts };
   assert.ok(CURRENT_WEEK_MICROS.every(micro => microScore(profile, micro) >= 75));
-  assert.equal(nextMicro(profile), "metric_conversion");
+  assert.ok(CURRENT_WEEK_MICROS.includes(nextMicro(profile)));
 });
 
 test("mastery requires sustained independent advanced work on two days", () => {
@@ -86,7 +94,7 @@ test("only the independently checked diagnostic version is current", () => {
   assert.equal(diagnosticIsCurrent({ diagnostic: true, diagnosticVersion: 2 }), true);
 });
 
-test("the repair migration preserves history and schedules only affected prior work for an independent recheck", () => {
+test("the repair migration preserves history and schedules only affected current-week work for an independent recheck", () => {
   const profile = { attempts: [attempt("powers_divide", false), attempt("decimal_add", true)] };
   assert.equal(migrateAffectedRechecks(profile), true);
   assert.deepEqual(pendingRechecks(profile), ["powers_divide"]);
