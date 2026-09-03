@@ -3,12 +3,11 @@ name: Study contract
 on:
   pull_request:
     paths:
-      - 'study/*.html'
-      - 'study/unit-1/**'
-      - 'study/icons/**'
-      - 'study/*.webmanifest'
-      - 'study/sw.js'
+      - 'study/**'
       - 'tests/study-*.test.mjs'
+      - 'tests/grade5-*.test.mjs'
+      - 'tests/science-grade5-*.test.mjs'
+      - 'tests/social-grade5-*.test.mjs'
       - 'tests/site-smoke.test.mjs'
       - 'site/catalog.json'
       - 'scripts/build-site.mjs'
@@ -25,12 +24,11 @@ on:
       - main
       - 'study/quality-*'
     paths:
-      - 'study/*.html'
-      - 'study/unit-1/**'
-      - 'study/icons/**'
-      - 'study/*.webmanifest'
-      - 'study/sw.js'
+      - 'study/**'
       - 'tests/study-*.test.mjs'
+      - 'tests/grade5-*.test.mjs'
+      - 'tests/science-grade5-*.test.mjs'
+      - 'tests/social-grade5-*.test.mjs'
       - 'tests/site-smoke.test.mjs'
       - 'site/catalog.json'
       - 'scripts/build-site.mjs'
@@ -64,7 +62,8 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run test:study:unit
-      - run: npm run build
+      - name: Build static educational site only
+        run: node scripts/build-site.mjs && node scripts/build-search-index.mjs
 
   chromium-smoke:
     name: Study Chromium smoke
@@ -80,6 +79,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
       - run: npm run test:study:smoke
+      - name: Verify Grade 5 adaptive courses
+        run: npm run test:grade5:browser
       - name: Save screenshots on failure
         if: failure()
         uses: actions/upload-artifact@v4

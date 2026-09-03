@@ -16,6 +16,10 @@ permissions:
   checks: read
   issues: write
 
+concurrency:
+  group: production-verification-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
