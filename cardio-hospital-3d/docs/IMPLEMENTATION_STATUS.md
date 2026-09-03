@@ -6,11 +6,11 @@ Product: **Pediatric Hospital**
 
 ## Resume here
 
-The unified application now has one canonical hospital engine, a complete HCM clinical vertical slice, Room 3/world integration, replay-safe attempts, first-class touch controls, and an installable PWA shell. The old assignment/task migration described in earlier handoffs is finished and must not be repeated.
+The unified application now has one canonical hospital engine, a complete HCM clinical vertical slice, Room 3/world integration, replay-safe attempts, first-class touch controls, an installable PWA shell, and the first end-to-end hospital workload slice. The old assignment/task migration described in earlier handoffs is finished and must not be repeated.
 
-**Current milestone: M4 — One-product mobile/PWA shell (implemented in code; physical-device acceptance remains).**
+**Current milestone: M5 — Hospital work system (IN PROGRESS).**
 
-M3 exit criteria are now met: Room 3, its patient/family actors, workflow prompts, task state, encounter state, persistence, completion, and replay all project from the same canonical state/event model.
+M3 exit criteria are met. M4 is implemented in code but still requires physical-device acceptance. M5 now has a canonical visible pager plus a real secondary task that can be accepted from the pager and completed at the existing team-room workstations.
 
 ## Milestone state
 
@@ -31,7 +31,7 @@ Implemented:
   - typed domain events;
   - pure deterministic reducer;
   - timeline/event history;
-  - canonical patient/task/encounter runtime state;
+  - canonical patient/task/encounter/pager runtime state;
   - selectors and simulation time formatting.
 - `src/lib/hospital-persistence.ts`
   - versioned local persistence envelope;
@@ -40,7 +40,7 @@ Implemented:
 - `src/lib/hospital-store.ts`
   - Zustand adapter around the canonical engine.
 - `src/lib/simulation-store.ts`
-  - transient UI/input state only; no assignment or clinical domain truth.
+  - transient UI/input state only; no assignment, pager, workload, or clinical domain truth.
 - Canonical state persists across reloads and active encounters can be resumed.
 - Entry is blocked until persistence hydration completes, preventing an early tap from overwriting a saved encounter.
 
@@ -88,9 +88,8 @@ Completed:
 
 Deferred to later milestones, not blockers for M3:
 
-- richer equipment/workstation actions;
-- multiple simultaneous task queues and competing work;
-- department-specific world entities.
+- richer department-specific equipment actions;
+- additional clinical departments/world entities.
 
 ### M4 — One-product mobile/PWA shell: IMPLEMENTED IN CODE; DEVICE ACCEPTANCE REMAINS
 
@@ -121,16 +120,33 @@ Acceptance still required before calling M4 fully complete:
 - desktop regression smoke test;
 - performance/thermal check on a real iPhone.
 
-### M5 — Hospital work system: NEXT
+### M5 — Hospital work system: IN PROGRESS
 
-Planned next increment:
+Completed first vertical slice:
 
-- integrate pager state into visible gameplay;
-- model multiple location-aware consult tasks;
-- add a prioritization/work queue;
-- use the existing simulation clock for task timing and consequences;
-- preserve all task/page state across reloads;
-- keep all workload truth in `hospital-engine.ts`, not UI stores.
+- visible in-world pager surface with desktop/mobile-safe layout;
+- immutable page definitions separated from canonical runtime state;
+- canonical `PAGE_RECEIVED` and `PAGE_ACKNOWLEDGED` behavior with idempotent reducer semantics;
+- acknowledgement state persists through the existing hospital persistence path;
+- pager messages can link to canonical task entities;
+- task model now supports both patient `consult` tasks and non-patient `work` tasks without introducing a second domain store;
+- explicit canonical `TASK_COMPLETED` event;
+- `getOpenTasks()` selector exposes the cross-hospital worklist while the HCM workflow selector remains consult-specific;
+- first competing routine task: overnight cardiology handoff review;
+- learner accepts that task from the pager;
+- HUD shows it as a secondary objective without replacing the HCM objective;
+- all three existing team-room workstations can complete the task through the same keyboard/touch interaction path;
+- reducer regression checks cover pager idempotency and the work-task lifecycle.
+
+Still required for M5 exit:
+
+- a first-class work-queue/prioritization surface independent of pager history;
+- priority/deadline metadata in the canonical task model;
+- simulation-clock-driven page/task arrival rather than only shift-entry seeding;
+- timing/consequence rules that remain deterministic and persist across reloads;
+- at least one additional competing clinical consult once its department/world and clinical content are validated;
+- mobile/desktop behavioral smoke test of pager → accept → workstation → completion;
+- regression coverage for task ordering/timing once those semantics exist.
 
 ## Clinical-content state
 
@@ -138,27 +154,26 @@ A versioned HCM teaching policy lives separately from immutable synthetic patien
 
 - `src/lib/clinical-policy/hcm-2024.ts`
 
-The unified path intentionally uses that policy rather than copying legacy management strings. Legacy `cases-data.ts`, `rotation-store.ts`, and longitudinal/adaptive modules still contain older HCM wording/assumptions in places; reconcile those deliberately before production and do not let them leak back into the unified path by accident.
+The unified path intentionally uses that policy rather than copying legacy management strings. Legacy `cases-data.ts`, `rotation-store.ts`, `pager-store.ts`, and longitudinal/adaptive modules contain older or separate state/content paths; treat them as references only and do not reconnect them as runtime truth. Any future urgent clinical pager scenario must pass the same clinical validation gate as a full encounter.
 
 ## Build / regression status
 
-CI now performs both:
+CI performs both:
 
-1. `npm run test:engine` — concise canonical workflow regression;
+1. `npm run test:engine` — focused canonical reducer/workflow regression checks;
 2. `npm run build` — production Next.js build.
 
-For commit `e3149dd54947ab9de92151b8dd22698c89234093`, both the engine regression step and production build completed successfully.
-
-Every coherent branch change should continue to trigger `Unified Hospital Build`. Before merge or final handoff, confirm the actual current branch head is green.
+The pager-only checkpoint `1f4e541a1f854882361b1e42d52a703653401c0a` passed the unified build. The first competing-work checkpoint `103f236cea29a52b3f75ccf0f07ddc1f797c7471` also passed. Confirm the actual current branch head is green before merge or handoff.
 
 ## Next actions — exact order
 
-1. Complete the real-device M4 acceptance checklist above; fix only demonstrated mobile/desktop regressions.
-2. Add the first M5 pager/work-queue vertical slice using the existing canonical `pager`, `tasks`, `patients`, `world`, and simulation clock state.
-3. Make the first competing task location-aware and visible in the world/HUD without introducing another domain store.
-4. Add only the smallest regression coverage needed for prioritization/persistence behavior.
-5. Expand departments incrementally under M6 after the work system is stable.
-6. Defer photorealistic/Needle asset work until architecture, mobile interaction, workload flow, and department boundaries are stable.
+1. Complete the real-device M4 acceptance checklist above when a target iPhone is available; fix only demonstrated mobile/desktop regressions.
+2. Add a compact first-class M5 work queue derived from canonical tasks, not pager-message UI state.
+3. Add task priority and due-time semantics with deterministic selectors and minimal regression coverage.
+4. Add clock-driven release of future pages/tasks; do not use wall-clock timers as domain truth.
+5. Only then add a second clinical consult, after its world location and teaching content are validated.
+6. Expand departments incrementally under M6 after the work system is stable.
+7. Defer photorealistic/Needle asset work until architecture, mobile interaction, workload flow, and department boundaries are stable.
 
 ## Do not do yet
 
@@ -167,7 +182,8 @@ Every coherent branch change should continue to trigger `Unified Hospital Build`
 - Do not merge `hospital-unified` to main without explicit approval and a green parity/clinical validation checkpoint.
 - Do not perform a photorealism/asset-generation pass yet.
 - Do not add a backend.
-- Do not copy legacy HCM management strings into new unified code without checking the versioned teaching policy.
+- Do not reconnect `pager-store.ts` or `rotation-store.ts` as competing runtime state.
+- Do not copy legacy HCM or urgent pager management content into new unified code without clinical validation.
 
 ## Handoff reading order
 
@@ -180,13 +196,16 @@ Any agent resuming this project should read, in order:
 5. `src/lib/hospital-engine.ts`
 6. `src/lib/hospital-persistence.ts`
 7. `src/lib/hospital-store.ts`
-8. `src/lib/clinical-policy/hcm-2024.ts`
-9. `src/components/clinical/hcm-encounter.tsx`
-10. `src/components/clinical/hcm-assessment-stage.tsx`
-11. `src/components/world/interaction-system.tsx`
-12. `src/components/world/patient-room-actors.tsx`
-13. `src/components/mobile-controls.tsx`
-14. `src/components/world/touch-look-controls.tsx`
-15. `scripts/hospital-engine.test.mjs`
+8. `src/lib/hospital-pages.ts`
+9. `src/lib/hospital-work.ts`
+10. `src/lib/clinical-policy/hcm-2024.ts`
+11. `src/components/pager-panel.tsx`
+12. `src/components/clinical/hcm-encounter.tsx`
+13. `src/components/clinical/hcm-assessment-stage.tsx`
+14. `src/components/world/interaction-system.tsx`
+15. `src/components/world/patient-room-actors.tsx`
+16. `src/components/mobile-controls.tsx`
+17. `src/components/world/touch-look-controls.tsx`
+18. `scripts/hospital-engine.test.mjs`
 
 Then continue from the first incomplete item under **Next actions**, keep commits coherent, and update this ledger whenever milestone state or the next action changes materially.
