@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:engine": "node --experimental-strip-types --test scripts/hospital-engine.test.mjs"
   },
   "dependencies": {
     "@react-three/drei": "10.7.8",
