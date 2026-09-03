@@ -1,7 +1,7 @@
 import { DOMAIN_MICROS } from "./mission1-content.mjs?v=20260902-packet1";
 import { CURRENT_FOCUS, CURRENT_SECURE_SCORE, MAINTENANCE_MICROS, MAINTENANCE_NEEDS_WORK_SCORE } from "./mission1-focus.mjs?v=20260902-focus1";
 
-export const DIAGNOSTIC_VERSION = 2;
+export const DIAGNOSTIC_VERSION = 3;
 export const RECHECK_VERSION = 1;
 export const PRACTICE_TARGET = 10;
 export const PRACTICE_MAX = 12;
