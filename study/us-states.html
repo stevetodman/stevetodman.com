@@ -1927,7 +1927,7 @@ function afterTestAnswer(correct, item) {
     if (item.type === "spell") subScore.spell++; else subScore.map++;
   } else {
     missed.push(item);
-    queueRetry(item);
+    if (roundLabel === "Quick Round") queueRetry(item);
   }
 }
 
