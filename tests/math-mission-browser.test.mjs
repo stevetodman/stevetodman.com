@@ -330,7 +330,7 @@ test('wrong shift count routes to a place-count checkpoint before the guided cha
     await page.locator('[data-profile="luke"]').click();
     await page.locator('[data-start="practice"]').click();
     assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10.*Check again/i);
-    assert.match(await page.locator('.pv-status').innerText(), /2 place-value shifts/i);
+    assert.match(await page.locator('#question-body').innerHTML(), /10<sup>2<\/sup>/i);
 
     await page.locator('[data-pv-shift="right"]').click();
     assert.match(await page.locator('.pv-move-count').innerText(), /1 place right/i);
