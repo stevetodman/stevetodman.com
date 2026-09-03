@@ -1,4 +1,4 @@
-import { MISSION_PATCHES, ROUTE_STOPS, patchState, routeState } from "./starship-progression-core.mjs?v=20260903-chart1";
+import { ROUTE_STOPS, patchState, routeState } from "./starship-progression-core.mjs?v=20260903-chart2";
 
 const MATH_KEY = "mathmission.m1.v1";
 const PROFILE_IDS = new Set(["luke", "samantha"]);
@@ -44,18 +44,21 @@ function renderChart() {
   if (!activeProfile || !$("#dashboard")?.classList.contains("active")) return;
   const chart = ensureChart();
   if (!chart) return;
-  const route = routeState(readMathProfile());
-  const patches = patchState(readMathProfile());
+  const profile = readMathProfile();
+  const route = routeState(profile);
+  const patches = patchState(profile);
+  const remaining = route.next ? Math.max(0, route.next.sessions - route.sessions) : 0;
   const nextCopy = route.next
-    ? `${Math.max(0, route.next.sessions - route.sessions)} mission${route.next.sessions - route.sessions === 1 ? "" : "s"} to ${route.next.name}`
+    ? `${remaining} mission${remaining === 1 ? "" : "s"} to ${route.next.name}`
     : "Deep Space is open";
+  const overallProgress = Math.round(((route.currentIndex + route.legProgress) / (ROUTE_STOPS.length - 1)) * 100);
   chart.innerHTML = `<details>
     <summary>
       <span><b>Star chart</b><small>${route.current.name} · ${nextCopy}</small></span>
       <span class="ssp-summary-count">${patches.unlockedCount}/${patches.total} patches</span>
     </summary>
     <div class="ssp-route-wrap">
-      <div class="ssp-route-line" aria-hidden="true"><span style="width:${Math.round(((route.currentIndex + route.legProgress) / (ROUTE_STOPS.length - 1)) * 100)}%"></span></div>
+      <div class="ssp-route-line" aria-hidden="true"><span style="width:${overallProgress}%"></span></div>
       <ol class="ssp-route">${ROUTE_STOPS.map((stop, index) => routeNode(stop, index, route)).join("")}</ol>
     </div>
   </details>`;
@@ -108,7 +111,7 @@ document.addEventListener("click", event => {
     return;
   }
   if (event.target.closest("[data-action='dashboard'], [data-next]")) setTimeout(renderVisible, 0);
-  if (event.target.closest("[data-ss-open-hangar]")) setTimeout(renderPatchWall, 0);
+  if (event.target.closest("[data-ss-open-hangar], [data-ss-buy], [data-ss-equip]")) setTimeout(renderPatchWall, 0);
 });
 
 window.addEventListener("storage", event => {
