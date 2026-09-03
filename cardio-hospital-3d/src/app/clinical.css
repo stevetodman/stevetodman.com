@@ -1,0 +1,111 @@
+.vital-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.vital-strip span {
+  display: grid;
+  gap: 3px;
+  padding: 11px 12px;
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vital-strip strong {
+  color: var(--ink);
+  font-size: 16px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.exam-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.auscultation-workbench {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(280px, 1.2fr);
+  gap: 18px;
+  margin-top: 16px;
+  padding: 18px;
+  border: 1px solid rgba(98, 214, 210, 0.2);
+  border-radius: 12px;
+  background: rgba(5, 21, 24, 0.68);
+}
+
+.auscultation-workbench h4 {
+  margin: 0 0 12px;
+  font-size: 24px;
+}
+
+.site-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.site-button {
+  min-height: 46px;
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #d9e8e8;
+  font-weight: 760;
+}
+
+.site-button:hover,
+.site-button.selected {
+  border-color: rgba(98, 214, 210, 0.58);
+  background: rgba(98, 214, 210, 0.1);
+}
+
+.site-button.used::after {
+  content: " · heard";
+  color: #83c9c6;
+  font-size: 10px;
+  font-weight: 620;
+}
+
+.auscultation-controls {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.auscultation-controls p {
+  min-height: 52px;
+  margin: 0;
+  color: #d3e0e1;
+  line-height: 1.5;
+}
+
+.auscultation-controls label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #c6d4d5;
+  font-size: 13px;
+}
+
+.auscultation-controls small {
+  color: #7f9496;
+  line-height: 1.45;
+}
+
+@media (max-width: 720px) {
+  .vital-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .exam-actions,
+  .auscultation-workbench {
+    grid-template-columns: 1fr;
+  }
+}
