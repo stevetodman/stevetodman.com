@@ -78,3 +78,20 @@ test("progressive diagnostic v3 completion survives cloud payload/apply round tr
   assert.equal(restored.diagnosticVersion, 3);
   assert.deepEqual(restored.attempts.map(attempt => attempt.micro), ["powers_multiply", "powers_divide"]);
 });
+
+test("coexisting cloud diagnostic markers keep the highest completed version", () => {
+  const target = loadCloud({});
+  target.cloud.apply({
+    "math-mission-luke": {
+      stateStats: {
+        math1diagnostic3: { mastered: true },
+        math1diagnostic2: { mastered: true },
+        math1diagnostic: { mastered: true }
+      }
+    }
+  });
+
+  const restored = readData(target.localStorage).luke;
+  assert.equal(restored.diagnostic, true);
+  assert.equal(restored.diagnosticVersion, 3);
+});
