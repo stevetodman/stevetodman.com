@@ -33,9 +33,9 @@ function EntryScreen() {
       dispatch({ type: "SHIFT_STARTED", shiftId: "shift-1", day: 1, startMinute: 7 * 60 + 42, location: "workroom" });
     }
     dispatch({ type: "PAGE_RECEIVED", pageId: HANDOFF_REVIEW_PAGE_ID });
-    dispatch({ type: "TASK_CREATED", taskId: WORKROOM_HANDOFF_TASK_ID, kind: "work", location: "workroom" });
+    dispatch({ type: "TASK_CREATED", taskId: WORKROOM_HANDOFF_TASK_ID, kind: "work", location: "workroom", priority: "routine", dueAtMinute: 12 * 60 });
     dispatch({ type: "PATIENT_ARRIVED", patientId: HCM_PATIENT_ID, caseId: HCM_CASE_ID, location: HCM_ROOM });
-    dispatch({ type: "TASK_CREATED", taskId: HCM_TASK_ID, kind: "consult", caseId: HCM_CASE_ID, patientId: HCM_PATIENT_ID, location: HCM_ROOM });
+    dispatch({ type: "TASK_CREATED", taskId: HCM_TASK_ID, kind: "consult", caseId: HCM_CASE_ID, patientId: HCM_PATIENT_ID, location: HCM_ROOM, priority: "urgent" });
     if (activeEncounter) dispatch({ type: "TASK_STARTED", taskId: HCM_TASK_ID });
     setEntered(true);
     if (activeEncounter) openEncounter();

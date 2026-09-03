@@ -5,6 +5,7 @@ import {
   getActiveEncounter,
   getHospitalWorkflowPhase,
   getOpenTasks,
+  isTaskOverdue,
   reduceHospitalState,
 } from "../src/lib/hospital-engine.ts";
 
@@ -125,4 +126,24 @@ test("work tasks can compete with the consult without hijacking the clinical wor
   assert.equal(hospital.tasks["work-overnight-handoff"].status, "complete");
   assert.equal(getOpenTasks(hospital).length, 0);
   assert.equal(getHospitalWorkflowPhase(hospital), "arrival");
+});
+
+test("open tasks sort deterministically by priority, due time, creation time, and task id", () => {
+  let hospital = createInitialHospitalState({ startMinute: 462, location: "workroom" });
+  hospital = apply(
+    hospital,
+    { type: "TASK_CREATED", taskId: "routine-later", kind: "work", location: "workroom", priority: "routine", dueAtMinute: 720 },
+    { type: "TASK_CREATED", taskId: "routine-sooner", kind: "work", location: "workroom", priority: "routine", dueAtMinute: 600 },
+    { type: "TASK_CREATED", taskId: "urgent-no-deadline", kind: "work", location: "workroom", priority: "urgent" }
+  );
+
+  assert.deepEqual(
+    getOpenTasks(hospital).map((task) => task.taskId),
+    ["urgent-no-deadline", "routine-sooner", "routine-later"]
+  );
+
+  hospital = reduceHospitalState(hospital, { type: "TIME_ADVANCED", minutes: 139 });
+  assert.equal(hospital.shift.clockMinutes, 601);
+  assert.equal(isTaskOverdue(hospital, hospital.tasks["routine-sooner"]), true);
+  assert.equal(isTaskOverdue(hospital, hospital.tasks["routine-later"]), false);
 });

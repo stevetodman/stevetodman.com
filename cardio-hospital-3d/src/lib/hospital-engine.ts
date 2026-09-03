@@ -28,6 +28,7 @@ export type EncounterStage =
   | "complete";
 export type PatientDisposition = "waiting" | "in-encounter" | "transferred" | "complete";
 export type TaskKind = "consult" | "work";
+export type TaskPriority = "routine" | "urgent";
 export type TaskStatus = "available" | "assigned" | "in-progress" | "complete";
 export type HospitalWorkflowPhase = "arrival" | "assigned" | "encounter" | "complete";
 
@@ -61,7 +62,9 @@ export interface HospitalTaskState {
   patientId?: string;
   location: HospitalLocation;
   status: TaskStatus;
+  priority?: TaskPriority;
   createdAtMinute?: number;
+  dueAtMinute?: number;
 }
 
 export interface PatientRuntimeState {
@@ -104,8 +107,8 @@ export type HospitalEvent =
   | { type: "PAGE_RECEIVED"; pageId: string }
   | { type: "PAGE_ACKNOWLEDGED"; pageId: string }
   | { type: "PATIENT_ARRIVED"; patientId: string; caseId: string; location: HospitalLocation }
-  | { type: "TASK_CREATED"; taskId: string; kind: "consult"; caseId: string; patientId: string; location: HospitalLocation }
-  | { type: "TASK_CREATED"; taskId: string; kind: "work"; location: HospitalLocation }
+  | { type: "TASK_CREATED"; taskId: string; kind: "consult"; caseId: string; patientId: string; location: HospitalLocation; priority?: TaskPriority; dueAtMinute?: number }
+  | { type: "TASK_CREATED"; taskId: string; kind: "work"; location: HospitalLocation; priority?: TaskPriority; dueAtMinute?: number }
   | { type: "TASK_ASSIGNED"; taskId: string }
   | { type: "TASK_STARTED"; taskId: string }
   | { type: "TASK_COMPLETED"; taskId: string }
@@ -265,6 +268,9 @@ function applyEvent(state: HospitalState, event: HospitalEvent): HospitalState {
 
     case "TASK_CREATED": {
       if (state.tasks[event.taskId]) return state;
+      const dueAtMinute = typeof event.dueAtMinute === "number" && Number.isFinite(event.dueAtMinute)
+        ? Math.floor(event.dueAtMinute)
+        : undefined;
       return {
         ...state,
         tasks: {
@@ -276,7 +282,9 @@ function applyEvent(state: HospitalState, event: HospitalEvent): HospitalState {
             patientId: event.kind === "consult" ? event.patientId : undefined,
             location: event.location,
             status: "available",
+            priority: event.priority ?? "routine",
             createdAtMinute: state.shift.clockMinutes,
+            dueAtMinute,
           },
         },
       };
@@ -470,10 +478,28 @@ export function getTask(state: HospitalState, taskId: string): HospitalTaskState
   return state.tasks[taskId];
 }
 
+function taskPriorityRank(task: HospitalTaskState): number {
+  return task.priority === "urgent" ? 0 : 1;
+}
+
+export function isTaskOverdue(state: HospitalState, task: HospitalTaskState): boolean {
+  return task.status !== "complete"
+    && typeof task.dueAtMinute === "number"
+    && state.shift.clockMinutes > task.dueAtMinute;
+}
+
 export function getOpenTasks(state: HospitalState): HospitalTaskState[] {
   return Object.values(state.tasks)
     .filter((task) => task.status !== "complete")
-    .sort((left, right) => (left.createdAtMinute ?? 0) - (right.createdAtMinute ?? 0));
+    .sort((left, right) => {
+      const priorityDifference = taskPriorityRank(left) - taskPriorityRank(right);
+      if (priorityDifference !== 0) return priorityDifference;
+      const dueDifference = (left.dueAtMinute ?? Number.POSITIVE_INFINITY) - (right.dueAtMinute ?? Number.POSITIVE_INFINITY);
+      if (dueDifference !== 0) return dueDifference;
+      const createdDifference = (left.createdAtMinute ?? 0) - (right.createdAtMinute ?? 0);
+      if (createdDifference !== 0) return createdDifference;
+      return left.taskId.localeCompare(right.taskId);
+    });
 }
 
 export function getPrimaryTask(state: HospitalState): HospitalTaskState | undefined {

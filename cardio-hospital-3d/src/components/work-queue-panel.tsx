@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { getOpenTasks, type HospitalTaskState } from "@/lib/hospital-engine";
+import {
+  formatHospitalTime,
+  getOpenTasks,
+  isTaskOverdue,
+  type HospitalTaskState,
+} from "@/lib/hospital-engine";
 import { getHospitalWorkDefinition } from "@/lib/hospital-work";
 import { useHospitalStore } from "@/lib/hospital-store";
 import { HCM_CASE_ID } from "@/lib/scenario-ids";
@@ -62,12 +67,20 @@ export default function WorkQueuePanel() {
             <div className="work-queue-list">
               {openTasks.map((task) => {
                 const label = taskLabel(task);
+                const priority = task.priority ?? "routine";
+                const overdue = isTaskOverdue(hospital, task);
                 return (
-                  <article key={task.taskId} className={`work-queue-item ${task.kind} ${task.status}`}>
+                  <article key={task.taskId} className={`work-queue-item ${task.kind} ${task.status} ${priority}${overdue ? " overdue" : ""}`}>
                     <div className="work-queue-meta">
+                      <span className={`priority-${priority}`}>{priority}</span>
                       <span>{task.kind}</span>
                       <span>{task.location.replaceAll("-", " ")}</span>
                       <span>{task.status.replace("-", " ")}</span>
+                      {typeof task.dueAtMinute === "number" && (
+                        <span className={overdue ? "due-overdue" : undefined}>
+                          {overdue ? "overdue" : "due"} {formatHospitalTime(task.dueAtMinute)}
+                        </span>
+                      )}
                     </div>
                     <h3>{label.title}</h3>
                     <p>{label.detail}</p>

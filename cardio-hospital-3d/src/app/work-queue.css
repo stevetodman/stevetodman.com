@@ -98,8 +98,13 @@
 }
 
 .work-queue-item.consult.assigned,
-.work-queue-item.consult.in-progress {
+.work-queue-item.consult.in-progress,
+.work-queue-item.urgent {
   border-left-color: var(--amber);
+}
+
+.work-queue-item.overdue {
+  border-color: rgba(243, 123, 111, 0.48);
 }
 
 .work-queue-meta {
@@ -118,6 +123,16 @@
   font-weight: 750;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.work-queue-meta .priority-urgent {
+  background: rgba(241, 188, 87, 0.12);
+  color: var(--amber);
+}
+
+.work-queue-meta .due-overdue {
+  background: rgba(243, 123, 111, 0.1);
+  color: var(--danger);
 }
 
 .work-queue-item h3 {
