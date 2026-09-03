@@ -12,18 +12,23 @@ The unified application now has one canonical hospital engine, a complete HCM cl
 
 ### Current safe checkpoint
 
-- Branch head at this handoff: `517bc02e6db15063372cc9ab8286001bdbaaf3e2`.
-- Latest validated workflow: **Unified Hospital Build run 76 — PASS**.
-- Run 76 passed both `npm run test:engine` and `npm run build`.
+- Latest validated functional checkpoint before this ledger refresh: `e4d3b45426c229d0d08d98234276c839ae43e63f`.
+- Latest validated workflow: **Unified Hospital Build run 79 — PASS**.
+- Run 79 passed both `npm run test:engine` and `npm run build`.
+- Acceptance-prep source audit found and corrected reversed horizontal movement on both keyboard strafing and the mobile joystick in `a0fb3436d21f31cd193eb8f8bee7df15c92ab77b`; run 78 passed.
+- Acceptance-prep source audit also found that the PWA manifest forced landscape-only orientation despite the required portrait + landscape iPhone acceptance. `e4d3b45426c229d0d08d98234276c839ae43e63f` changed the manifest orientation to `any`; run 79 passed.
+- The canonical persistence, pager/Worklist, Room 1 actor/interaction, responsive overlay, ECG scrolling, service-worker shell, and Web Audio lifecycle paths were source-audited without another demonstrated deterministic regression.
+- This source audit is **not** a substitute for actual desktop browser or physical-iPhone behavioral acceptance. Those gates remain open.
 - The latest focused regression explicitly verifies that unfinished overnight handoff work remains open while Ava is released and completed.
-- The Worklist now labels Ava explicitly as **Ava Rodriguez · Cardiology consult — Post-race syncope · Clinic Room 1** instead of generic `Clinical consult`.
-- A suspected Room 1 actor regression was investigated and rejected: `HospitalWorld` already renders `VasovagalRoomActors` at scene root, so Ava/father are mounted without duplicating them inside `architecture.tsx`.
+- The Worklist labels Ava explicitly as **Ava Rodriguez · Cardiology consult — Post-race syncope · Clinic Room 1** instead of generic `Clinical consult`.
+- `HospitalWorld` renders `VasovagalRoomActors` at scene root, so Ava/father are mounted without duplicating them inside `architecture.tsx`.
 - No merge to `main` has occurred.
 - `/cardiohospital/` and the separate `pediatric-hospital-world` repository remain untouched.
+- This ledger refresh is documentation-only and may create a newer branch-head SHA/run; the next agent must re-check the actual branch head and its CI before editing.
 
 ### Do not redo completed work
 
-Do **not** repeat the old assignment/task migration, pager migration, Worklist build, priority/deadline work, schedule reconciler, first duration/consequence increment, Room 1 geometry build, vasovagal evidence review, physician sign-off, Ava runtime migration, Ava Worklist labeling fix, or Ava/handoff noninterference regression coverage. Those are complete.
+Do **not** repeat the old assignment/task migration, pager migration, Worklist build, priority/deadline work, schedule reconciler, first duration/consequence increment, Room 1 geometry build, vasovagal evidence review, physician sign-off, Ava runtime migration, Ava Worklist labeling fix, Ava/handoff noninterference regression coverage, horizontal-control sign correction, or PWA orientation correction. Those are complete.
 
 The remaining work is **behavioral acceptance** of the complete M4/M5 loop in actual target browsers/devices and correction of demonstrated interaction problems only.
 
@@ -144,8 +149,10 @@ Implemented:
 - safe-area-aware controls;
 - mobile clinical overlay rules;
 - height-aware iPhone-landscape clinical/ECG layout hardening;
+- corrected camera-relative horizontal movement so keyboard A/D and mobile joystick left/right match the displayed direction;
 - `viewport-fit=cover` and Apple web-app metadata;
 - web app manifest and application icon;
+- PWA orientation permits both portrait and landscape instead of forcing landscape-only;
 - production service-worker registration and conservative durable-shell asset cache;
 - unified Pediatric Hospital app identity.
 
@@ -252,6 +259,9 @@ CI performs both:
 
 ### Latest green chain
 
+- `e4d3b45426c229d0d08d98234276c839ae43e63f` — **Allow portrait and landscape PWA orientation** — Unified Hospital Build **run 79 PASS**.
+- `a0fb3436d21f31cd193eb8f8bee7df15c92ab77b` — **Fix reversed horizontal hospital movement** — Unified Hospital Build **run 78 PASS**.
+- `798b897c6bf303a5cd5b7c6ff8e736100183c2db` — **Refresh unified hospital handoff checkpoint** — Unified Hospital Build **run 77 PASS**.
 - `517bc02e6db15063372cc9ab8286001bdbaaf3e2` — **Cover Ava and handoff workload noninterference** — Unified Hospital Build **run 76 PASS**.
 - `249d24d956ceaf94bc2de48e56e86253203ea44b` — **Label Ava explicitly in unified hospital worklist** — Unified Hospital Build **run 75 PASS**.
 - `785e2eba6e2d9f5626033a8d52b3a59396fe0652` — **Advance M5 ledger after Ava runtime activation** — Unified Hospital Build **run 74 PASS**.
@@ -277,6 +287,14 @@ Known non-blocking CI/build warnings at this checkpoint:
 6. **Close milestones only after behavioral acceptance.** Once desktop and iPhone gates pass, update this ledger and mark M4/M5 complete.
 7. **Then begin M6.** Start with outpatient-clinic depth under the existing engine; do not create a new state subsystem. Every new case must pass the same clinical validation gate before activation.
 8. Defer photorealistic/Needle asset work until architecture, mobile interaction, workload flow, and department boundaries are stable.
+
+### 2026-09-03 acceptance-prep source audit — not behavioral acceptance
+
+- Audited the canonical engine/persistence/reconciliation path, pager/Worklist projections, Room 1/Room 3 interactions and actors, responsive mobile/short-landscape CSS, clinical/ECG scrolling and stacking, PWA manifest/service worker, and HCM Web Audio lifecycle.
+- Reproduced a camera-relative horizontal movement sign error in source: keyboard D/Right and A/Left were reversed, and the mobile joystick horizontal axis used the same reversed sign. Fixed in `a0fb3436d21f31cd193eb8f8bee7df15c92ab77b`; run 78 passed.
+- Identified an acceptance-contract mismatch in the install manifest: `orientation: "landscape"` conflicted with the required portrait + landscape iPhone product. Changed to `orientation: "any"` in `e4d3b45426c229d0d08d98234276c839ae43e63f`; run 79 passed.
+- No additional deterministic state, interaction, responsive-layout, ECG, service-worker, or Web Audio lifecycle defect was demonstrated by source audit.
+- The available execution environment did not provide a controllable target browser or physical iPhone, and direct repository checkout was unavailable there. Therefore **no desktop-browser, collision-ergonomics, iPhone, Add-to-Home-Screen, audio-output, performance, or thermal acceptance item is marked passed from this audit**.
 
 ## Acceptance evidence to record
 
