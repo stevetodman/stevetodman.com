@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "An immersive pediatric clinical reasoning simulation.",
     start_url: "/",
     display: "standalone",
-    orientation: "landscape",
+    orientation: "any",
     background_color: "#0b1215",
     theme_color: "#0b1215",
     icons: [
