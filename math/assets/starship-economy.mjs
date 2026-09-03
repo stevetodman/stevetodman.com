@@ -7,7 +7,7 @@ import {
   purchaseItem,
   sanitizeGameProfile,
   xpForAttempt
-} from "./starship-economy-core.mjs?v=20260903-starship1";
+} from "./starship-economy-core.mjs?v=20260903-starship2";
 
 const MATH_KEY = "mathmission.m1.v1";
 const PROFILE_IDS = new Set(["luke", "samantha"]);
@@ -309,3 +309,4 @@ document.addEventListener("click", event => {
 window.addEventListener("storage", event => {
   if (event.key === MATH_KEY || event.key === GAME_KEY) renderVisibleGameUi();
 });
+window.addEventListener("mathmission:cloud-updated", renderVisibleGameUi);
