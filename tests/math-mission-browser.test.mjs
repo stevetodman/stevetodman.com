@@ -166,7 +166,8 @@ test('current-focus miss becomes guided place-value action and later independent
     assert.equal(await page.evaluate(() => document.activeElement?.id), 'hello', 'screen changes should put focus on the new heading');
     assert.match(await page.locator('#primary-card').innerText(), /Current focus.*Lessons 1–2.*5\.NBT\.1–2/is);
     assert.match(await page.locator('#primary-card').innerText(), /Powers of 10/i);
-    assert.doesNotMatch(await page.locator('#dashboard').innerText(), /level \d|micro-skills|Parent summary/i);
+    assert.match(await page.locator('#starship-dock').innerText(), /Level \d+.*Star Credits/is);
+    assert.doesNotMatch(await page.locator('#dashboard').innerText(), /micro-skills|Parent summary/i);
     await page.locator('[data-start="practice"]').click();
     await page.waitForTimeout(25);
 
