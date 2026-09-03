@@ -6,11 +6,11 @@ Product: **Pediatric Hospital**
 
 ## Resume here
 
-The project is now past the architecture-only stage. The HCM patient has a complete React clinical loop running on the canonical event/state engine, and Room 3 has patient/family actors tied back to that same encounter state.
+The unified application now has one canonical hospital engine, a complete HCM clinical vertical slice, Room 3/world integration, replay-safe attempts, first-class touch controls, and an installable PWA shell. The old assignment/task migration described in earlier handoffs is finished and must not be repeated.
 
-**Current milestone: M3 — World/encounter integration.**
+**Current milestone: M4 — One-product mobile/PWA shell (implemented in code; physical-device acceptance remains).**
 
-The next agent should preserve the current working HCM loop and continue by removing the remaining domain-level duplication from `simulation-store.ts`, then make mobile/iPhone interaction a first-class shell.
+M3 exit criteria are now met: Room 3, its patient/family actors, workflow prompts, task state, encounter state, persistence, completion, and replay all project from the same canonical state/event model.
 
 ## Milestone state
 
@@ -20,7 +20,7 @@ The next agent should preserve the current working HCM loop and continue by remo
 - `PROJECT-RULES.md` defines product, safety, migration, engineering, and commit invariants.
 - `docs/HOSPITAL_MASTER_PLAN.md` defines the one-product architecture and milestone sequence.
 - `docs/CLINICAL_VALIDATION.md` establishes the medical-content validation gate.
-- Focused GitHub Actions build workflow added for this branch.
+- Focused GitHub Actions workflow runs on unified-hospital changes.
 
 ### M1 — Canonical engine foundation: COMPLETE
 
@@ -31,17 +31,22 @@ Implemented:
   - typed domain events;
   - pure deterministic reducer;
   - timeline/event history;
+  - canonical patient/task/encounter runtime state;
   - selectors and simulation time formatting.
 - `src/lib/hospital-persistence.ts`
   - versioned local persistence envelope;
+  - schema-v1 → schema-v2 migration;
   - explicit migration/validation boundary.
 - `src/lib/hospital-store.ts`
   - Zustand adapter around the canonical engine.
+- `src/lib/simulation-store.ts`
+  - transient UI/input state only; no assignment or clinical domain truth.
 - Canonical state persists across reloads and active encounters can be resumed.
+- Entry is blocked until persistence hydration completes, preventing an early tap from overwriting a saved encounter.
 
-### M2 — HCM React clinical parity: FUNCTIONALLY IMPLEMENTED; PARITY AUDIT REMAINS
+### M2 — HCM React clinical loop: FUNCTIONALLY COMPLETE
 
-The unified React app now includes the complete HCM vertical-slice loop:
+The unified React app now reproduces and extends the working HCM vertical-slice loop without depending on `/cardiohospital/`:
 
 - history and red-flag recognition;
 - confidential adolescent interview gating;
@@ -53,77 +58,107 @@ The unified React app now includes the complete HCM vertical-slice loop:
 - safety-event recording;
 - deterministic multidimensional scoring;
 - attending debrief;
-- encounter completion and replay-safe encounter IDs.
+- encounter completion;
+- **Replay this case** with the prior encounter preserved and a new encounter ID created.
 
-Still required before declaring strict parity:
+Code-level parity review against `/cardiohospital/` is complete. Intentional differences remain where the legacy implementation conflicts with the versioned unified teaching policy or where the unified architecture is safer/better (canonical persistence, confidential-interview state, and non-destructive replay).
 
-- browser-by-browser behavioral comparison against legacy `/cardiohospital/`;
-- visual/usability comparison of every HCM stage;
-- verify audio lifecycle and ECG behavior across repeat/reload flows.
+Still required as validation rather than migration work:
 
-### M3 — World/encounter integration: IN PROGRESS
+- browser/device behavioral comparison of every HCM stage;
+- verify audio lifecycle and ECG behavior across repeat/reload flows on real target browsers;
+- final visual/usability parity review belongs to M8.
+
+### M3 — World/encounter integration: COMPLETE
 
 Completed:
 
-- Room 3 interaction opens/resumes the canonical HCM encounter.
-- Walking through the existing world updates canonical hospital location.
-- Leaving the clinical overlay and returning preserves encounter state.
-- Reload can resume the same active patient.
-- Room 3 now contains a patient actor and parent actor.
-- The parent actor reads canonical encounter state: after `CONFIDENTIAL_INTERVIEW_STARTED`, the parent is absent from the 3D room when the learner returns.
-- Patient/family actors carry stable entity metadata but do not own clinical truth.
+- explicit canonical `PATIENT_ARRIVED`, `TASK_CREATED`, `TASK_ASSIGNED`, `TASK_STARTED`, `ENCOUNTER_STARTED`, and `ENCOUNTER_COMPLETED` lifecycle;
+- schema-v2 task state plus v1 → v2 persistence migration;
+- Room 3 interaction opens/resumes the canonical HCM encounter;
+- HUD objective and interaction availability derive from canonical selectors;
+- walking through the world updates canonical hospital location;
+- leaving the clinical overlay and returning preserves encounter state;
+- reload resumes the same active patient;
+- Room 3 patient/family actors are projections of canonical patient/encounter state;
+- confidential interview removes the parent from the room when the learner returns;
+- completed/transferred-away patients no longer remain incorrectly rendered in Room 3;
+- replay preserves completed encounter history while beginning a fresh canonical encounter;
+- focused reducer regression check covers arrival → assignment → encounter → completion → replay and runs in CI.
 
-Remaining:
+Deferred to later milestones, not blockers for M3:
 
-- move assignment/workflow domain state out of the temporary `simulation-store.ts` phase field and derive it from canonical hospital/task state;
-- make patient arrival/assignment an explicit canonical event rather than relying on scene composition before encounter start;
-- make prompts/objectives derive from canonical task/encounter selectors;
-- bind additional room equipment/workstations to domain events;
-- add one concise world↔clinical regression check once the task model is stable.
+- richer equipment/workstation actions;
+- multiple simultaneous task queues and competing work;
+- department-specific world entities.
 
-### M4 — One-product mobile/PWA shell: NOT STARTED
+### M4 — One-product mobile/PWA shell: IMPLEMENTED IN CODE; DEVICE ACCEPTANCE REMAINS
 
-Required next:
+Implemented:
 
-- iPhone touch movement joystick;
-- touch-look gesture;
+- device-agnostic movement/interaction path;
+- iPhone/coarse-pointer movement joystick;
+- touch-look gesture on the world canvas;
 - persistent on-screen interact control;
-- mobile-safe clinical overlay behavior;
-- orientation/safe-area handling audit;
-- PWA/install strategy;
-- one production launch path and app identity.
+- desktop pointer-lock behavior kept separate from touch input;
+- safe-area-aware controls;
+- mobile clinical overlay rules;
+- height-aware iPhone-landscape clinical/ECG layout hardening;
+- `viewport-fit=cover` and Apple web-app metadata;
+- web app manifest and application icon;
+- production service-worker registration and conservative durable-shell asset cache;
+- unified Pediatric Hospital app identity.
+
+Acceptance still required before calling M4 fully complete:
+
+- real iPhone Safari portrait + landscape smoke test;
+- Add to Home Screen launch test;
+- movement/look/interact ergonomics check;
+- clinical overlay scrolling/tap-target check;
+- auscultation/Web Audio lifecycle check;
+- ECG pan/scroll/control check;
+- reload/resume check;
+- desktop regression smoke test;
+- performance/thermal check on a real iPhone.
+
+### M5 — Hospital work system: NEXT
+
+Planned next increment:
+
+- integrate pager state into visible gameplay;
+- model multiple location-aware consult tasks;
+- add a prioritization/work queue;
+- use the existing simulation clock for task timing and consequences;
+- preserve all task/page state across reloads;
+- keep all workload truth in `hospital-engine.ts`, not UI stores.
 
 ## Clinical-content state
 
-A current 2024 multisociety HCM teaching policy now lives separately from immutable synthetic patient facts:
+A versioned HCM teaching policy lives separately from immutable synthetic patient facts:
 
 - `src/lib/clinical-policy/hcm-2024.ts`
 
-The unified HCM path now avoids several legacy traps:
+The unified path intentionally uses that policy rather than copying legacy management strings. Legacy `cases-data.ts`, `rotation-store.ts`, and longitudinal/adaptive modules still contain older HCM wording/assumptions in places; reconcile those deliberately before production and do not let them leak back into the unified path by accident.
 
-- no blanket teaching that all HCM patients are permanently excluded from competitive sports;
-- no blanket penalty that cardiac MRI is an unnecessary HCM test;
-- ambulatory ECG and CMR are represented as pediatric risk-stratification tools rather than required core diagnostic tests;
-- ICD teaching is framed as pediatric HCM/EP risk stratification and shared decision-making;
-- the initial presentation is described as high-risk cardiac syncope until ECG/echo establish HCM.
+## Build / regression status
 
-**Important:** legacy `cases-data.ts`, `rotation-store.ts`, and longitudinal/adaptive modules still contain older HCM wording/assumptions in places. Do not allow those legacy fields to leak back into the unified teaching path. Reconcile them deliberately in dedicated clinical-content commits before production.
+CI now performs both:
 
-## Build status
+1. `npm run test:engine` — concise canonical workflow regression;
+2. `npm run build` — production Next.js build.
 
-- The unified branch build has previously passed after the canonical engine/clinical migration.
-- Every subsequent coherent change is pushed as its own commit and triggers `Unified Hospital Build`.
-- Before merge or handoff, confirm the current branch head has a successful run; fix failures before proceeding.
+For commit `e3149dd54947ab9de92151b8dd22698c89234093`, both the engine regression step and production build completed successfully.
+
+Every coherent branch change should continue to trigger `Unified Hospital Build`. Before merge or final handoff, confirm the actual current branch head is green.
 
 ## Next actions — exact order
 
-1. Confirm CI for the current branch head and fix any TypeScript/build failure.
-2. Introduce a canonical **task/assignment** model (versioned state + migration) so arrival → briefing → assignment → encounter is no longer domain state inside `simulation-store.ts`.
-3. Derive HUD objective and Room 3 interaction availability from canonical selectors.
-4. Add explicit canonical patient arrival/assignment event and make the Room 3 actor render from that patient state.
-5. Run a focused HCM parity audit against `/cardiohospital/` and record discrepancies in this file.
-6. Begin M4 iPhone controls using `pediatric-hospital-world` only as a behavior/reference source; do not adopt its compressed-payload architecture.
-7. After mobile movement/interact works, integrate pager/competing work into the same canonical engine.
+1. Complete the real-device M4 acceptance checklist above; fix only demonstrated mobile/desktop regressions.
+2. Add the first M5 pager/work-queue vertical slice using the existing canonical `pager`, `tasks`, `patients`, `world`, and simulation clock state.
+3. Make the first competing task location-aware and visible in the world/HUD without introducing another domain store.
+4. Add only the smallest regression coverage needed for prioritization/persistence behavior.
+5. Expand departments incrementally under M6 after the work system is stable.
+6. Defer photorealistic/Needle asset work until architecture, mobile interaction, workload flow, and department boundaries are stable.
 
 ## Do not do yet
 
@@ -147,7 +182,11 @@ Any agent resuming this project should read, in order:
 7. `src/lib/hospital-store.ts`
 8. `src/lib/clinical-policy/hcm-2024.ts`
 9. `src/components/clinical/hcm-encounter.tsx`
-10. `src/components/world/interaction-system.tsx`
-11. `src/components/world/patient-room-actors.tsx`
+10. `src/components/clinical/hcm-assessment-stage.tsx`
+11. `src/components/world/interaction-system.tsx`
+12. `src/components/world/patient-room-actors.tsx`
+13. `src/components/mobile-controls.tsx`
+14. `src/components/world/touch-look-controls.tsx`
+15. `scripts/hospital-engine.test.mjs`
 
-Then continue from the first incomplete item under **Next actions**, commit each coherent step before starting the next, and update this ledger whenever milestone state or the next action changes materially.
+Then continue from the first incomplete item under **Next actions**, keep commits coherent, and update this ledger whenever milestone state or the next action changes materially.
