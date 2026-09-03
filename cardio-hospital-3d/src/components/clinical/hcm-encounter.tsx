@@ -23,10 +23,12 @@ function HistoryStage() {
 
   if (!hcmCase || !encounter) return null;
 
-  const visibleFacts = hcmCase.history.filter((fact) => !fact.confidential);
+  const visibleFacts = hcmCase.history.filter(
+    (fact) => !fact.confidential || encounter.confidentialInterviewDone
+  );
   const asked = encounter.askedHistoryKeys;
   const latestKey = asked[asked.length - 1];
-  const latestFact = visibleFacts.find((fact) => fact.key === latestKey);
+  const latestFact = hcmCase.history.find((fact) => fact.key === latestKey);
   const recognizedRedFlags = hcmCase.redFlagKeys.filter((key) => asked.includes(key)).length;
   const canContinue = asked.length >= 3;
 
@@ -47,6 +49,33 @@ function HistoryStage() {
         <strong className="clinical-signal">{clinicalSignal}</strong>
       </div>
 
+      {hcmCase.allowConfidentialInterview && (
+        <div className="history-privacy">
+          <div>
+            <strong>Adolescent confidentiality</strong>
+            <span>
+              {encounter.confidentialInterviewDone
+                ? "Marcus is being interviewed privately. Confidential questions are now available."
+                : "His mother is still in the room. Ask her to step out before confidential adolescent history."}
+            </span>
+          </div>
+          {!encounter.confidentialInterviewDone && (
+            <button
+              type="button"
+              className="secondary-action"
+              onClick={() =>
+                dispatch({
+                  type: "CONFIDENTIAL_INTERVIEW_STARTED",
+                  encounterId: encounter.encounterId,
+                })
+              }
+            >
+              Ask parent to step out
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="clinical-action-grid">
         {visibleFacts.map((fact) => {
           const used = asked.includes(fact.key);
@@ -54,7 +83,7 @@ function HistoryStage() {
             <button
               key={fact.key}
               type="button"
-              className={`clinical-action${used ? " used" : ""}`}
+              className={`clinical-action${fact.confidential ? " confidential" : ""}${used ? " used" : ""}`}
               onClick={() =>
                 dispatch({
                   type: "HISTORY_ASKED",
@@ -103,7 +132,7 @@ function ExamStage() {
     .filter((action) => action.startsWith("auscultation:") && action !== "auscultation:valsalva")
     .at(-1);
   const [selectedSite, setSelectedSite] = useState<AuscultationSite>(
-    priorSiteAction?.split(":")[1] as AuscultationSite || "LLSB"
+    (priorSiteAction?.split(":")[1] as AuscultationSite) || "LLSB"
   );
   const [listening, setListening] = useState(false);
   const [valsalva, setValsalva] = useState(false);
