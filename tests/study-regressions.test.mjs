@@ -123,3 +123,16 @@ test('Study releases have an explicit contract, dedicated CI gate, live canary, 
   assert.match(browserCanary, /context\.route\('https:\/\/\*\.supabase\.co\/\*\*'/);
   assert.match(browserCanary, /manifest\.start_url, '\/study\/'/);
 });
+
+test('50-state Full Test stays fixed at 50 while Quick Round can still schedule retries', () => {
+  const source = read('study/us-states.html');
+  const start = source.indexOf('function afterTestAnswer(correct, item) {');
+  const end = source.indexOf('function renderTestResults()', start);
+  assert.ok(start >= 0 && end > start, 'Full Test answer handler should exist');
+  const handler = source.slice(start, end);
+
+  assert.match(source, /<span class="badge">Graded &bull; 50 questions<\/span>/);
+  assert.match(source, /var pool = shuffle\(STATES\.slice\(\)\);/);
+  assert.match(handler, /if \(roundLabel === "Quick Round"\) queueRetry\(item\);/);
+  assert.doesNotMatch(handler, /\n\s*queueRetry\(item\);/);
+});
