@@ -12,6 +12,7 @@ import { useHospitalStore } from "@/lib/hospital-store";
 import { HCM_CASE_ID, HCM_PATIENT_ID, HCM_ROOM, HCM_TASK_ID } from "@/lib/scenario-ids";
 import { useSimulationStore } from "@/lib/simulation-store";
 import HcmEncounter from "./clinical/hcm-encounter";
+import MobileControls from "./mobile-controls";
 import HospitalWorld from "./world/hospital-world";
 
 function EntryScreen() {
@@ -148,6 +149,7 @@ export default function CardioHospital() {
       </Canvas>
       {!entered && <EntryScreen />}
       {entered && <SimulationHud />}
+      {entered && <MobileControls />}
       {entered && <BriefingPanel />}
       {entered && encounterOpen && <HcmEncounter />}
     </main>

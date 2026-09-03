@@ -5,6 +5,7 @@ import { useSimulationStore } from "@/lib/simulation-store";
 import { HospitalArchitecture } from "./architecture";
 import { InteractionSystem } from "./interaction-system";
 import { PlayerController } from "./player-controller";
+import { TouchLookControls } from "./touch-look-controls";
 
 export default function HospitalWorld() {
   const setControlsLocked = useSimulationStore((state) => state.setControlsLocked);
@@ -40,6 +41,7 @@ export default function HospitalWorld() {
         <PlayerController />
       </Physics>
       <InteractionSystem />
+      <TouchLookControls />
       <PointerLockControls
         ref={controls}
         selector="#simulation-canvas"
