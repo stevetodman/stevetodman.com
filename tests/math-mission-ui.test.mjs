@@ -6,20 +6,25 @@ import { parseOrderItems, sequenceAnswer } from "../math/assets/mission1-low-fri
 const root = new URL("../", import.meta.url);
 const read = path => readFile(new URL(path, root), "utf8");
 
-test("Math Mission presents the true current classroom focus in the child view", async () => {
-  const [html, focus, app] = await Promise.all([
+test("Math Mission keeps the verified weekly focus while removing adult analytics from the child path", async () => {
+  const [html, app, weekly, plan] = await Promise.all([
     read("math/index.html"),
-    read("math/assets/mission1-focus.mjs"),
-    read("math/assets/mission1.js")
+    read("math/assets/mission1.js"),
+    read("math/CURRENT_WEEK.md"),
+    read("math/WORLD_CLASS_CHILD_UX_PLAN.md")
   ]);
   assert.match(html, /Module 1 · Place Value & Decimal Fractions/);
-  assert.match(html, /Current focus: Module 1, Lessons 1–2/);
-  assert.doesNotMatch(html, /Current packet: Module 1, Lessons 1–16/);
+  assert.match(html, /Current focus: Lessons 1–2 \/ 5\.NBT\.1–2/);
   assert.match(html, /Today’s Mission/);
-  assert.match(focus, /lessons: "Lessons 1–2"/);
-  assert.match(focus, /powers_multiply.*powers_divide/);
   assert.doesNotMatch(html, /id="skill-list"|id="mastery-count"|parent-summary/);
   assert.doesNotMatch(app, /Skill level|domainStats|microStats|parent-report/);
+  assert.match(app, /Current focus · Lessons 1–2 · 5\.NBT\.1–2/);
+  assert.doesNotMatch(app, /This week · Lessons 1–16/);
+  assert.match(weekly, /Adaptive practice should prioritize Lessons 1–2 \/ 5\.NBT\.1–2 first/);
+  assert.match(weekly, /Do not describe all Lessons 1–16 as "this week\."/);
+  assert.match(plan, /Status: \*\*LOCKED IMPLEMENTATION PLAN\*\*/);
+  assert.match(plan, /Parent mode or parent dashboard redesign/);
+  assert.match(plan, /If a proposed change does not improve the current child learning loop, it does not belong/);
 });
 
 test("the learning screen has explicit independent progress and an interactive fixed-decimal place-value workspace", async () => {
@@ -41,56 +46,27 @@ test("the learning screen has explicit independent progress and an interactive f
   assert.match(workspace, /decimal point stays fixed/i);
   assert.match(workspace, /visiblePlaceValueColumns/);
   assert.match(workspace, /Swipe the chart/);
-  assert.match(workspace, /evidence\(\)/);
   assert.match(css, /\.progress-track/);
   assert.match(css, /\.place-value-workspace/);
   assert.match(css, /position:sticky/);
   assert.match(css, /grid-template-columns:var\(--pv-columns\)/);
 });
 
-test("wrong-answer UX uses misconception-directed reasoning before the guided build", async () => {
-  const [app, scaffolds, html] = await Promise.all([
-    read("math/assets/mission1.js"),
-    read("math/assets/mission1-scaffolds.mjs"),
-    read("math/index.html")
-  ]);
-  assert.match(app, /Check the reasoning/);
-  assert.match(app, /Reasoning check/);
-  assert.match(app, /checkpointFor\(scaffold\.question, scaffold\.misconception\)/);
-  assert.match(app, /state\.immediateScaffold = \{ question, misconception, stage: "checkpoint" \}/);
-  assert.match(scaffolds, /wrong_direction/);
-  assert.match(scaffolds, /wrong_shift_count/);
-  assert.match(scaffolds, /nonScoring: true/);
-  assert.match(scaffolds, /guidedBuildFor/);
+test("wrong-answer UX does not immediately reveal the answer for current powers-of-ten practice", async () => {
+  const [app, html] = await Promise.all([read("math/assets/mission1.js"), read("math/index.html")]);
+  assert.match(app, /Show me with the place-value chart/);
+  assert.match(app, /Check what happens to each digit’s value/);
+  assert.match(app, /question\.workspace\?\.type === "place-value"/);
+  assert.match(app, /state\.immediateScaffold = question/);
   assert.doesNotMatch(app, /confirm\("Exit this mission/);
   assert.match(html, /id="exit-dialog"/);
 });
 
-test("low-friction controls preserve the mathematical decision while removing transcription", async () => {
-  const [html, frictionless] = await Promise.all([
-    read("math/index.html"),
-    read("math/assets/mission1-frictionless.mjs")
-  ]);
+test("low-friction controls preserve the learner's mathematical decision while removing transcription", async () => {
+  const html = await read("math/index.html");
   assert.match(html, /mission1-low-friction\.mjs/);
-  assert.match(html, /mission1-frictionless\.mjs/);
-  assert.match(frictionless, /Answer from your chart/);
-  assert.match(frictionless, /input\.readOnly = true/);
-  assert.match(frictionless, /pv-use-answer/);
   assert.deepEqual(parseOrderItems("0.57, 0.507, 0.6, 0.505"), ["0.57", "0.507", "0.6", "0.505"]);
   assert.equal(sequenceAnswer(["0.505", "0.507", "0.57", "0.6"]), "0.505, 0.507, 0.57, 0.6");
-});
-
-test("misconception evidence is captured at a more specific level than correct or incorrect", async () => {
-  const [app, frictionless] = await Promise.all([
-    read("math/assets/mission1.js"),
-    read("math/assets/mission1-frictionless.mjs")
-  ]);
-  assert.match(app, /misconceptionForAttempt/);
-  assert.match(frictionless, /wrong_direction/);
-  assert.match(frictionless, /wrong_shift_count/);
-  assert.match(frictionless, /comparison_relation/);
-  assert.match(frictionless, /rounding_rule/);
-  assert.match(frictionless, /latest\.misconception = misconception/);
 });
 
 test("scratchwork supports pointer input, Apple Pencil semantics, undo, clear, and responsive guides", async () => {
@@ -108,7 +84,7 @@ test("scratchwork supports pointer input, Apple Pencil semantics, undo, clear, a
   assert.match(css, /@media\(max-width:899px\)/);
 });
 
-test("cloud format preserves adaptive evidence and diagnostic versions", async () => {
+test("cloud format preserves adaptive evidence and diagnostic version", async () => {
   const cloud = await read("math/assets/math-cloud.js");
   assert.match(cloud, /"math1b"/);
   assert.match(cloud, /a\.micro/);
@@ -116,6 +92,5 @@ test("cloud format preserves adaptive evidence and diagnostic versions", async (
   assert.match(cloud, /a\.recovery/);
   assert.match(cloud, /a\.difficulty/);
   assert.match(cloud, /math1diagnostic2/);
-  assert.match(cloud, /math1diagnostic3/);
-  assert.match(cloud, /diagnosticVersion===3/);
+  assert.match(cloud, /diagnosticVersion=2/);
 });
