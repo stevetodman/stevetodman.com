@@ -88,7 +88,8 @@ export function InteractionSystem() {
     }
 
     active.current = next;
-    if (prompt !== priorPrompt.current) {
+    const visiblePrompt = useSimulationStore.getState().prompt;
+    if (prompt !== priorPrompt.current || prompt !== visiblePrompt) {
       priorPrompt.current = prompt;
       setPrompt(prompt);
     }
