@@ -5,6 +5,7 @@ import { HCM_TEACHING_POLICY } from "@/lib/clinical-policy/hcm-2024";
 import { getActiveEncounter } from "@/lib/hospital-engine";
 import { scoreCanonicalEncounter } from "@/lib/hospital-scoring";
 import { useHospitalStore } from "@/lib/hospital-store";
+import { HCM_CASE_ID, HCM_PATIENT_ID, HCM_ROOM, HCM_TASK_ID } from "@/lib/scenario-ids";
 import { useSimulationStore } from "@/lib/simulation-store";
 
 const hcmCase = CASES.find((clinicalCase) => clinicalCase.id === "case-hcm");
@@ -82,6 +83,22 @@ export function HcmDebriefStage() {
   });
   const headline = score.overall >= 85 ? "Strong clinical judgment" : score.overall >= 70 ? "Safe, with missed opportunities" : "Revisit the red flags";
   const missedOpportunityMessages = score.missedRedFlags.map((key) => hcmCase.missedOpportunityTemplate[key]).filter(Boolean);
+
+  const replayEncounter = () => {
+    const hospital = useHospitalStore.getState().hospital;
+    const priorAttempts = Object.values(hospital.encounters).filter((item) => item.caseId === HCM_CASE_ID).length;
+    dispatch({ type: "ENCOUNTER_COMPLETED", encounterId: encounter.encounterId });
+    dispatch({ type: "TASK_ASSIGNED", taskId: HCM_TASK_ID });
+    dispatch({
+      type: "ENCOUNTER_STARTED",
+      encounterId: `encounter-case-hcm-${priorAttempts + 1}`,
+      taskId: HCM_TASK_ID,
+      patientId: HCM_PATIENT_ID,
+      caseId: HCM_CASE_ID,
+      location: HCM_ROOM,
+    });
+  };
+
   const completeEncounter = () => {
     dispatch({ type: "ENCOUNTER_COMPLETED", encounterId: encounter.encounterId });
     closeEncounter();
@@ -109,7 +126,8 @@ export function HcmDebriefStage() {
       <blockquote>{HCM_TEACHING_POLICY.teachingPoint}</blockquote>
       <p className="policy-version">Teaching policy: {HCM_TEACHING_POLICY.version}</p>
       <div className="clinical-stage-footer">
-        <span>Encounter state is saved and will persist after you leave the room.</span>
+        <span>Each completed replay is preserved as a separate encounter attempt.</span>
+        <button type="button" className="secondary-action" onClick={replayEncounter}>Replay this case</button>
         <button type="button" className="primary-action" onClick={completeEncounter}>Complete encounter and return to hospital</button>
       </div>
     </div>
