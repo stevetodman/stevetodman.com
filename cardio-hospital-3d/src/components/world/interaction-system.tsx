@@ -1,15 +1,17 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
-import { getActiveEncounter } from "@/lib/hospital-engine";
+import { getActiveEncounter, getTask } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
+import { HCM_CASE_ID, HCM_PATIENT_ID, HCM_ROOM, HCM_TASK_ID } from "@/lib/scenario-ids";
 import { useSimulationStore } from "@/lib/simulation-store";
 
 export function InteractionSystem() {
   const { camera } = useThree();
-  const phase = useSimulationStore((state) => state.phase);
+  const taskStatus = useHospitalStore((state) => getTask(state.hospital, HCM_TASK_ID)?.status);
+  const hasActiveEncounter = useHospitalStore((state) => Boolean(getActiveEncounter(state.hospital)));
   const setPrompt = useSimulationStore((state) => state.setPrompt);
-  const beginBriefing = useSimulationStore((state) => state.beginBriefing);
-  const startEncounter = useSimulationStore((state) => state.startEncounter);
+  const openBriefing = useSimulationStore((state) => state.openBriefing);
+  const openEncounter = useSimulationStore((state) => state.openEncounter);
   const dispatch = useHospitalStore((state) => state.dispatch);
   const active = useRef<"attending" | "exam" | null>(null);
   const priorPrompt = useRef<string | null>(null);
@@ -20,12 +22,12 @@ export function InteractionSystem() {
     let next: "attending" | "exam" | null = null;
     let prompt: string | null = null;
 
-    if ((phase === "arrival" || phase === "briefing") && attendingDistance < 2.1) {
+    if (taskStatus === "available" && attendingDistance < 2.1) {
       next = "attending";
       prompt = "E  Speak with Dr. Patel";
-    } else if (phase === "assigned" && examDistance < 2.2) {
+    } else if ((taskStatus === "assigned" || taskStatus === "in-progress" || hasActiveEncounter) && examDistance < 2.2) {
       next = "exam";
-      prompt = "E  Enter Clinic Room 3";
+      prompt = hasActiveEncounter ? "E  Continue patient encounter" : "E  Enter Clinic Room 3";
     }
 
     active.current = next;
@@ -38,28 +40,29 @@ export function InteractionSystem() {
   useEffect(() => {
     const interact = (event: KeyboardEvent) => {
       if (event.code !== "KeyE" || event.repeat) return;
-      if (active.current === "attending") beginBriefing();
+      if (active.current === "attending") openBriefing();
       if (active.current === "exam") {
         const hospital = useHospitalStore.getState().hospital;
         const current = getActiveEncounter(hospital);
         if (!current) {
-          const priorHcmAttempts = Object.values(hospital.encounters).filter(
-            (encounter) => encounter.caseId === "case-hcm"
-          ).length;
+          const priorHcmAttempts = Object.values(hospital.encounters).filter((encounter) => encounter.caseId === HCM_CASE_ID).length;
           dispatch({
             type: "ENCOUNTER_STARTED",
             encounterId: `encounter-case-hcm-${priorHcmAttempts + 1}`,
-            patientId: "patient-case-hcm",
-            caseId: "case-hcm",
-            location: "clinic-room-3",
+            taskId: HCM_TASK_ID,
+            patientId: HCM_PATIENT_ID,
+            caseId: HCM_CASE_ID,
+            location: HCM_ROOM,
           });
+        } else {
+          dispatch({ type: "TASK_STARTED", taskId: HCM_TASK_ID });
         }
-        startEncounter();
+        openEncounter();
       }
     };
     window.addEventListener("keydown", interact);
     return () => window.removeEventListener("keydown", interact);
-  }, [beginBriefing, dispatch, startEncounter]);
+  }, [dispatch, openBriefing, openEncounter]);
 
   return null;
 }

@@ -9,12 +9,12 @@ import { PlayerController } from "./player-controller";
 export default function HospitalWorld() {
   const setControlsLocked = useSimulationStore((state) => state.setControlsLocked);
   const briefingOpen = useSimulationStore((state) => state.briefingOpen);
-  const phase = useSimulationStore((state) => state.phase);
+  const encounterOpen = useSimulationStore((state) => state.encounterOpen);
   const controls = useRef<ComponentRef<typeof PointerLockControls>>(null);
 
   useEffect(() => {
-    if (briefingOpen || phase === "encounter") controls.current?.unlock();
-  }, [briefingOpen, phase]);
+    if (briefingOpen || encounterOpen) controls.current?.unlock();
+  }, [briefingOpen, encounterOpen]);
 
   return (
     <>

@@ -5,9 +5,13 @@ import {
 
 export const HOSPITAL_STORAGE_KEY = "cardio_hospital:unified:state";
 
-interface PersistedHospitalEnvelopeV1 {
+type LegacyHospitalStateV1 = Omit<HospitalState, "schemaVersion" | "tasks"> & {
   schemaVersion: 1;
-  state: HospitalState;
+};
+
+interface PersistedHospitalEnvelope {
+  schemaVersion: number;
+  state: unknown;
 }
 
 function storageAvailable(): boolean {
@@ -22,9 +26,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function isHospitalStateV1(value: unknown): value is HospitalState {
-  if (!isRecord(value)) return false;
-  if (value.schemaVersion !== HOSPITAL_SCHEMA_VERSION) return false;
+function hasCommonHospitalShape(value: Record<string, unknown>): boolean {
   if (typeof value.revision !== "number") return false;
   if (!isRecord(value.shift) || !isRecord(value.world)) return false;
   if (!isRecord(value.learner) || !isRecord(value.pager)) return false;
@@ -33,19 +35,36 @@ function isHospitalStateV1(value: unknown): value is HospitalState {
   return true;
 }
 
-export function migratePersistedHospitalState(
-  input: unknown
-): HospitalState | undefined {
-  if (!isRecord(input)) return undefined;
+function isHospitalStateV1(value: unknown): value is LegacyHospitalStateV1 {
+  return isRecord(value) && value.schemaVersion === 1 && hasCommonHospitalShape(value);
+}
 
-  switch (input.schemaVersion) {
-    case 1: {
-      const envelope = input as unknown as PersistedHospitalEnvelopeV1;
-      return isHospitalStateV1(envelope.state) ? envelope.state : undefined;
-    }
-    default:
-      return undefined;
+function isHospitalStateV2(value: unknown): value is HospitalState {
+  return isRecord(value)
+    && value.schemaVersion === HOSPITAL_SCHEMA_VERSION
+    && hasCommonHospitalShape(value)
+    && isRecord(value.tasks);
+}
+
+function migrateV1(state: LegacyHospitalStateV1): HospitalState {
+  return {
+    ...state,
+    schemaVersion: HOSPITAL_SCHEMA_VERSION,
+    tasks: {},
+  };
+}
+
+export function migratePersistedHospitalState(input: unknown): HospitalState | undefined {
+  if (!isRecord(input)) return undefined;
+  const envelope = input as unknown as PersistedHospitalEnvelope;
+
+  if (envelope.schemaVersion === 1 && isHospitalStateV1(envelope.state)) {
+    return migrateV1(envelope.state);
   }
+  if (envelope.schemaVersion === HOSPITAL_SCHEMA_VERSION && isHospitalStateV2(envelope.state)) {
+    return envelope.state;
+  }
+  return undefined;
 }
 
 export function loadHospitalState(): HospitalState | undefined {
@@ -61,15 +80,12 @@ export function loadHospitalState(): HospitalState | undefined {
 
 export function saveHospitalState(state: HospitalState): void {
   if (!storageAvailable()) return;
-  const envelope: PersistedHospitalEnvelopeV1 = {
+  const envelope: PersistedHospitalEnvelope = {
     schemaVersion: HOSPITAL_SCHEMA_VERSION,
     state,
   };
   try {
-    window.localStorage.setItem(
-      HOSPITAL_STORAGE_KEY,
-      JSON.stringify(envelope)
-    );
+    window.localStorage.setItem(HOSPITAL_STORAGE_KEY, JSON.stringify(envelope));
   } catch {
     // The simulation remains usable in memory if storage is unavailable/full.
   }

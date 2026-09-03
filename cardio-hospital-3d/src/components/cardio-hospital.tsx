@@ -2,31 +2,34 @@
 
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect } from "react";
-import { formatHospitalTime, getActiveEncounter } from "@/lib/hospital-engine";
+import {
+  formatHospitalTime,
+  getActiveEncounter,
+  getHospitalWorkflowPhase,
+  getTask,
+} from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
+import { HCM_CASE_ID, HCM_PATIENT_ID, HCM_ROOM, HCM_TASK_ID } from "@/lib/scenario-ids";
 import { useSimulationStore } from "@/lib/simulation-store";
 import HcmEncounter from "./clinical/hcm-encounter";
 import HospitalWorld from "./world/hospital-world";
 
 function EntryScreen() {
   const setEntered = useSimulationStore((state) => state.setEntered);
-  const startEncounter = useSimulationStore((state) => state.startEncounter);
-  const shiftStatus = useHospitalStore((state) => state.hospital.shift.status);
-  const activeEncounter = useHospitalStore((state) => getActiveEncounter(state.hospital));
+  const openEncounter = useSimulationStore((state) => state.openEncounter);
+  const hospital = useHospitalStore((state) => state.hospital);
   const dispatch = useHospitalStore((state) => state.dispatch);
+  const activeEncounter = getActiveEncounter(hospital);
 
   const enterHospital = () => {
-    if (shiftStatus === "not-started") {
-      dispatch({
-        type: "SHIFT_STARTED",
-        shiftId: "shift-1",
-        day: 1,
-        startMinute: 7 * 60 + 42,
-        location: "workroom",
-      });
+    if (hospital.shift.status === "not-started") {
+      dispatch({ type: "SHIFT_STARTED", shiftId: "shift-1", day: 1, startMinute: 7 * 60 + 42, location: "workroom" });
     }
+    dispatch({ type: "PATIENT_ARRIVED", patientId: HCM_PATIENT_ID, caseId: HCM_CASE_ID, location: HCM_ROOM });
+    dispatch({ type: "TASK_CREATED", taskId: HCM_TASK_ID, kind: "consult", caseId: HCM_CASE_ID, patientId: HCM_PATIENT_ID, location: HCM_ROOM });
+    if (activeEncounter) dispatch({ type: "TASK_STARTED", taskId: HCM_TASK_ID });
     setEntered(true);
-    if (activeEncounter) startEncounter();
+    if (activeEncounter) openEncounter();
   };
 
   return (
@@ -54,20 +57,22 @@ function EntryScreen() {
 
 function BriefingPanel() {
   const open = useSimulationStore((state) => state.briefingOpen);
-  const phase = useSimulationStore((state) => state.phase);
-  const acceptAssignment = useSimulationStore((state) => state.acceptAssignment);
   const closeBriefing = useSimulationStore((state) => state.closeBriefing);
+  const task = useHospitalStore((state) => getTask(state.hospital, HCM_TASK_ID));
+  const dispatch = useHospitalStore((state) => state.dispatch);
   if (!open) return null;
+
+  const acceptAssignment = () => {
+    dispatch({ type: "TASK_ASSIGNED", taskId: HCM_TASK_ID });
+    closeBriefing();
+  };
 
   return (
     <div className="dialog-backdrop" role="presentation">
       <section className="briefing-panel" role="dialog" aria-modal="true" aria-label="Morning briefing">
         <div className="speaker-row">
           <div className="speaker-avatar">RP</div>
-          <div>
-            <p className="eyebrow">Attending physician</p>
-            <h2>Dr. Patel</h2>
-          </div>
+          <div><p className="eyebrow">Attending physician</p><h2>Dr. Patel</h2></div>
         </div>
         <div className="dialogue-copy">
           <p>Morning. We have a fourteen-year-old in Room 3 who fainted during basketball practice.</p>
@@ -79,9 +84,7 @@ function BriefingPanel() {
           <span>Referral: exertional syncope</span>
         </div>
         <div className="dialog-actions">
-          {phase === "briefing" && (
-            <button className="primary-action" onClick={acceptAssignment}>Accept patient</button>
-          )}
+          {task?.status === "available" && <button className="primary-action" onClick={acceptAssignment}>Accept patient</button>}
           <button className="secondary-action" onClick={closeBriefing}>Close</button>
         </div>
       </section>
@@ -90,24 +93,29 @@ function BriefingPanel() {
 }
 
 function SimulationHud() {
-  const phase = useSimulationStore((state) => state.phase);
   const prompt = useSimulationStore((state) => state.prompt);
   const locked = useSimulationStore((state) => state.controlsLocked);
-  const clockMinutes = useHospitalStore((state) => state.hospital.shift.clockMinutes);
-  const objectives = {
-    arrival: "Meet Dr. Patel in the team room",
-    briefing: "Receive your first patient",
-    assigned: "Walk to Clinic Room 3",
-    encounter: "Evaluate the patient",
-  } as const;
+  const briefingOpen = useSimulationStore((state) => state.briefingOpen);
+  const encounterOpen = useSimulationStore((state) => state.encounterOpen);
+  const hospital = useHospitalStore((state) => state.hospital);
+  const task = getTask(hospital, HCM_TASK_ID);
+  const activeEncounter = getActiveEncounter(hospital);
+  const workflow = getHospitalWorkflowPhase(hospital);
+
+  let objective = "Meet Dr. Patel in the team room";
+  if (briefingOpen) objective = "Receive your first patient";
+  else if (activeEncounter && encounterOpen) objective = "Evaluate the patient";
+  else if (activeEncounter) objective = "Continue Marcus Chen's encounter in Room 3";
+  else if (workflow === "assigned" || task?.status === "assigned") objective = "Walk to Clinic Room 3";
+  else if (workflow === "complete") objective = "Patient encounter complete";
 
   return (
     <div className="hud" aria-live="polite">
       <div className="hud-top">
         <div className="location-card">
-          <span>{formatHospitalTime(clockMinutes)}</span>
+          <span>{formatHospitalTime(hospital.shift.clockMinutes)}</span>
           <strong>Pediatric Hospital · Cardiology</strong>
-          <span>{objectives[phase]}</span>
+          <span>{objective}</span>
         </div>
         <div className="controls-card">
           <span>WASD move</span><span>Mouse look</span><span>E interact</span><span>Shift faster</span>
@@ -115,19 +123,17 @@ function SimulationHud() {
       </div>
       {locked && <div className="crosshair" aria-hidden="true"><i /><i /></div>}
       {prompt && <div className="interaction-prompt">{prompt}</div>}
-      {!locked && phase !== "briefing" && phase !== "encounter" && <div className="lock-hint">Click inside the hospital to look around</div>}
+      {!locked && !briefingOpen && !encounterOpen && <div className="lock-hint">Click inside the hospital to look around</div>}
     </div>
   );
 }
 
 export default function CardioHospital() {
   const entered = useSimulationStore((state) => state.entered);
-  const phase = useSimulationStore((state) => state.phase);
+  const encounterOpen = useSimulationStore((state) => state.encounterOpen);
   const hydrateHospital = useHospitalStore((state) => state.hydrate);
 
-  useEffect(() => {
-    hydrateHospital();
-  }, [hydrateHospital]);
+  useEffect(() => { hydrateHospital(); }, [hydrateHospital]);
 
   return (
     <main className="simulation-shell">
@@ -138,14 +144,12 @@ export default function CardioHospital() {
         camera={{ fov: 68, near: 0.05, far: 75, position: [0, 1.57, 8.65] }}
         gl={{ antialias: true, powerPreference: "high-performance" }}
       >
-        <Suspense fallback={null}>
-          <HospitalWorld />
-        </Suspense>
+        <Suspense fallback={null}><HospitalWorld /></Suspense>
       </Canvas>
       {!entered && <EntryScreen />}
       {entered && <SimulationHud />}
       {entered && <BriefingPanel />}
-      {entered && phase === "encounter" && <HcmEncounter />}
+      {entered && encounterOpen && <HcmEncounter />}
     </main>
   );
 }

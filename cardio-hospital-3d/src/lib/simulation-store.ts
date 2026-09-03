@@ -1,35 +1,35 @@
 import { create } from "zustand";
 
-export type SimulationPhase = "arrival" | "briefing" | "assigned" | "encounter";
-
-interface SimulationState {
+/**
+ * Transient UI state only. Domain workflow (patient arrival, assignment,
+ * encounter progress, completion) belongs to hospital-engine.ts.
+ */
+interface SimulationUiState {
   entered: boolean;
   controlsLocked: boolean;
-  phase: SimulationPhase;
   prompt: string | null;
   briefingOpen: boolean;
+  encounterOpen: boolean;
   setEntered: (entered: boolean) => void;
   setControlsLocked: (locked: boolean) => void;
   setPrompt: (prompt: string | null) => void;
-  beginBriefing: () => void;
-  acceptAssignment: () => void;
-  startEncounter: () => void;
-  resumeWorld: () => void;
+  openBriefing: () => void;
   closeBriefing: () => void;
+  openEncounter: () => void;
+  closeEncounter: () => void;
 }
 
-export const useSimulationStore = create<SimulationState>((set) => ({
+export const useSimulationStore = create<SimulationUiState>((set) => ({
   entered: false,
   controlsLocked: false,
-  phase: "arrival",
   prompt: null,
   briefingOpen: false,
+  encounterOpen: false,
   setEntered: (entered) => set({ entered }),
   setControlsLocked: (controlsLocked) => set({ controlsLocked }),
   setPrompt: (prompt) => set({ prompt }),
-  beginBriefing: () => set({ phase: "briefing", briefingOpen: true, controlsLocked: false }),
-  acceptAssignment: () => set({ phase: "assigned", briefingOpen: false }),
-  startEncounter: () => set({ phase: "encounter", controlsLocked: false }),
-  resumeWorld: () => set({ phase: "assigned", prompt: null }),
+  openBriefing: () => set({ briefingOpen: true, controlsLocked: false }),
   closeBriefing: () => set({ briefingOpen: false }),
+  openEncounter: () => set({ encounterOpen: true, controlsLocked: false }),
+  closeEncounter: () => set({ encounterOpen: false, prompt: null }),
 }));
