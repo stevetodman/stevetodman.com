@@ -40,11 +40,15 @@ export function InteractionSystem() {
       if (event.code !== "KeyE" || event.repeat) return;
       if (active.current === "attending") beginBriefing();
       if (active.current === "exam") {
-        const current = getActiveEncounter(useHospitalStore.getState().hospital);
+        const hospital = useHospitalStore.getState().hospital;
+        const current = getActiveEncounter(hospital);
         if (!current) {
+          const priorHcmAttempts = Object.values(hospital.encounters).filter(
+            (encounter) => encounter.caseId === "case-hcm"
+          ).length;
           dispatch({
             type: "ENCOUNTER_STARTED",
-            encounterId: "encounter-case-hcm-1",
+            encounterId: `encounter-case-hcm-${priorHcmAttempts + 1}`,
             patientId: "patient-case-hcm",
             caseId: "case-hcm",
             location: "clinic-room-3",
