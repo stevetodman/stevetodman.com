@@ -30,15 +30,15 @@ function SeatedAdolescent() {
       rotation={[0, -Math.PI / 2, 0]}
       userData={{ entityType: "patient", patientId: HCM_PATIENT_ID, caseId: HCM_CASE_ID }}
     >
-      <Cylinder radius={0.2} height={0.72} position={[0, 0.46, 0]} color="#7b2d38" roughness={0.72} />
+      <Cylinder radius={0.2} height={0.72} position={[0, 0.46, 0]} color="#7b2d38" />
       <Box size={[0.46, 0.13, 0.22]} position={[0, 0.74, 0]} color="#efe8dc" roughness={0.8} />
       <Head position={[0, 1.04, 0]} />
 
-      <Cylinder radius={0.055} height={0.58} position={[-0.25, 0.43, 0]} rotation={[0, 0, -0.18]} color="#b97b5a" roughness={0.82} />
-      <Cylinder radius={0.055} height={0.58} position={[0.25, 0.43, 0]} rotation={[0, 0, 0.18]} color="#b97b5a" roughness={0.82} />
+      <Cylinder radius={0.055} height={0.58} position={[-0.25, 0.43, 0]} rotation={[0, 0, -0.18]} color="#b97b5a" />
+      <Cylinder radius={0.055} height={0.58} position={[0.25, 0.43, 0]} rotation={[0, 0, 0.18]} color="#b97b5a" />
 
-      <Cylinder radius={0.07} height={0.72} position={[-0.13, -0.05, 0.17]} rotation={[Math.PI / 2.6, 0, 0]} color="#252b32" roughness={0.85} />
-      <Cylinder radius={0.07} height={0.72} position={[0.13, -0.05, 0.17]} rotation={[Math.PI / 2.6, 0, 0]} color="#252b32" roughness={0.85} />
+      <Cylinder radius={0.07} height={0.72} position={[-0.13, -0.05, 0.17]} rotation={[Math.PI / 2.6, 0, 0]} color="#252b32" />
+      <Cylinder radius={0.07} height={0.72} position={[0.13, -0.05, 0.17]} rotation={[Math.PI / 2.6, 0, 0]} color="#252b32" />
       <Box size={[0.16, 0.09, 0.31]} position={[-0.13, -0.37, 0.46]} color="#e4e7e7" roughness={0.72} />
       <Box size={[0.16, 0.09, 0.31]} position={[0.13, -0.37, 0.46]} color="#e4e7e7" roughness={0.72} />
     </group>
@@ -52,12 +52,12 @@ function ParentActor() {
       rotation={[0, Math.PI * 0.82, 0]}
       userData={{ entityType: "family", relatedPatientId: HCM_PATIENT_ID }}
     >
-      <Cylinder radius={0.19} height={0.68} position={[0, 0.38, 0]} color="#395d68" roughness={0.78} />
+      <Cylinder radius={0.19} height={0.68} position={[0, 0.38, 0]} color="#395d68" />
       <Head position={[0, 0.92, 0]} scale={0.95} />
-      <Cylinder radius={0.05} height={0.5} position={[-0.22, 0.37, 0]} rotation={[0, 0, -0.2]} color="#b97b5a" roughness={0.82} />
-      <Cylinder radius={0.05} height={0.5} position={[0.22, 0.37, 0]} rotation={[0, 0, 0.2]} color="#b97b5a" roughness={0.82} />
-      <Cylinder radius={0.065} height={0.62} position={[-0.1, -0.1, 0.09]} rotation={[Math.PI / 2.8, 0, 0]} color="#2c3236" roughness={0.84} />
-      <Cylinder radius={0.065} height={0.62} position={[0.1, -0.1, 0.09]} rotation={[Math.PI / 2.8, 0, 0]} color="#2c3236" roughness={0.84} />
+      <Cylinder radius={0.05} height={0.5} position={[-0.22, 0.37, 0]} rotation={[0, 0, -0.2]} color="#b97b5a" />
+      <Cylinder radius={0.05} height={0.5} position={[0.22, 0.37, 0]} rotation={[0, 0, 0.2]} color="#b97b5a" />
+      <Cylinder radius={0.065} height={0.62} position={[-0.1, -0.1, 0.09]} rotation={[Math.PI / 2.8, 0, 0]} color="#2c3236" />
+      <Cylinder radius={0.065} height={0.62} position={[0.1, -0.1, 0.09]} rotation={[Math.PI / 2.8, 0, 0]} color="#2c3236" />
     </group>
   );
 }
