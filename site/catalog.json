@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "searchPolicy": "noindex",
-  "updated": "2026-09-01",
+  "updated": "2026-09-03",
   "classes": ["PRODUCTION", "PREVIEW", "INTERNAL", "SOURCE_ONLY", "ARCHIVED"],
   "items": [
     {"id":"home","title":"Steve Todman, MD","route":"/","class":"PRODUCTION","audience":"all","category":"home"},
@@ -17,7 +17,8 @@
     {"id":"pediatric-hypertriglyceridemia","title":"Pediatric Hypertriglyceridemia Decision Tool","route":"/tools/pediatric-hypertriglyceridemia.html","class":"PRODUCTION","audience":"clinicians","category":"clinical-tools"},
     {"id":"abpm-preview","title":"Pediatric ABPM Pathway Preview","route":"/tools/pediatric-abpm-pathway-preview.html","class":"PREVIEW","audience":"clinicians","category":"clinical-tools"},
 
-    {"id":"phs","title":"Pediatric Hospital Simulator","route":"/phs/","class":"PRODUCTION","audience":"residents","category":"simulation"},
+    {"id":"hospital","title":"Pediatric Hospital Simulator","route":"/hospital/","class":"PRODUCTION","audience":"residents","category":"simulation","discoverable":false,"generated":true},
+    {"id":"phs","title":"Legacy Pediatric Hospital Simulator","route":"/phs/","class":"ARCHIVED","audience":"reference","category":"simulation"},
     {"id":"newbornscreen","title":"Newborn CCHD Screening","route":"/newbornscreen/","class":"PRODUCTION","audience":"residents","category":"education"},
     {"id":"kawasaki","title":"Kawasaki Disease Resident Academy","route":"/kawasaki/","class":"PRODUCTION","audience":"residents","category":"education"},
     {"id":"hypertension","title":"Pediatric Hypertension & ABPM Academy","route":"/hypertension/","class":"PRODUCTION","audience":"residents","category":"education"},
