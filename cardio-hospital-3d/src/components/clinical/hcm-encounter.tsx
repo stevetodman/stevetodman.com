@@ -12,6 +12,7 @@ import {
   type AuscultationSite,
 } from "@/lib/murmur-audio";
 import { useSimulationStore } from "@/lib/simulation-store";
+import HcmTestsStage from "./hcm-tests-stage";
 
 const hcmCase = CASES.find((clinicalCase) => clinicalCase.id === "case-hcm");
 
@@ -279,9 +280,9 @@ function MigrationStageNotice() {
       <p className="eyebrow">{encounter.stage}</p>
       <h3>This stage is being ported into the same canonical encounter.</h3>
       <p>
-        History and focused examination now run from one persistent event/state
-        engine. The next committed increment ports diagnostic testing without
-        creating another copy of patient state.
+        History, examination, auscultation, ECG interpretation, and test ordering
+        now share one persistent patient state. The next increment ports the
+        committed assessment, management, and debrief.
       </p>
       <button
         type="button"
@@ -290,11 +291,11 @@ function MigrationStageNotice() {
           dispatch({
             type: "ENCOUNTER_STAGE_CHANGED",
             encounterId: encounter.encounterId,
-            stage: "exam",
+            stage: "tests",
           })
         }
       >
-        Return to examination
+        Return to diagnostic testing
       </button>
     </div>
   );
@@ -333,7 +334,8 @@ export default function HcmEncounter() {
 
       {encounter.stage === "history" && <HistoryStage />}
       {encounter.stage === "exam" && <ExamStage />}
-      {encounter.stage !== "history" && encounter.stage !== "exam" && <MigrationStageNotice />}
+      {encounter.stage === "tests" && <HcmTestsStage />}
+      {encounter.stage !== "history" && encounter.stage !== "exam" && encounter.stage !== "tests" && <MigrationStageNotice />}
     </section>
   );
 }
