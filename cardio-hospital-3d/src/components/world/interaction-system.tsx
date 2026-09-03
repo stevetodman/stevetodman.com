@@ -1,5 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
+import { getActiveEncounter } from "@/lib/hospital-engine";
+import { useHospitalStore } from "@/lib/hospital-store";
 import { useSimulationStore } from "@/lib/simulation-store";
 
 export function InteractionSystem() {
@@ -8,6 +10,7 @@ export function InteractionSystem() {
   const setPrompt = useSimulationStore((state) => state.setPrompt);
   const beginBriefing = useSimulationStore((state) => state.beginBriefing);
   const startEncounter = useSimulationStore((state) => state.startEncounter);
+  const dispatch = useHospitalStore((state) => state.dispatch);
   const active = useRef<"attending" | "exam" | null>(null);
   const priorPrompt = useRef<string | null>(null);
 
@@ -36,11 +39,23 @@ export function InteractionSystem() {
     const interact = (event: KeyboardEvent) => {
       if (event.code !== "KeyE" || event.repeat) return;
       if (active.current === "attending") beginBriefing();
-      if (active.current === "exam") startEncounter();
+      if (active.current === "exam") {
+        const current = getActiveEncounter(useHospitalStore.getState().hospital);
+        if (!current) {
+          dispatch({
+            type: "ENCOUNTER_STARTED",
+            encounterId: "encounter-case-hcm-1",
+            patientId: "patient-case-hcm",
+            caseId: "case-hcm",
+            location: "clinic-room-3",
+          });
+        }
+        startEncounter();
+      }
     };
     window.addEventListener("keydown", interact);
     return () => window.removeEventListener("keydown", interact);
-  }, [beginBriefing, startEncounter]);
+  }, [beginBriefing, dispatch, startEncounter]);
 
   return null;
 }
