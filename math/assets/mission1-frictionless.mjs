@@ -131,11 +131,11 @@ function annotateLatestIncorrectAttempt(profileName, misconception) {
 function install() {
   const workspace = document.querySelector("#place-value-workspace");
   if (workspace) {
-    const observer = new MutationObserver(() => requestAnimationFrame(() => syncChartAnswer(workspace)));
+    const observer = new MutationObserver(() => queueMicrotask(() => syncChartAnswer(workspace)));
     observer.observe(workspace, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["class", "disabled"] });
     workspace.addEventListener("click", event => {
       if (!event.target.closest("[data-pv-shift], [data-pv-reset]")) return;
-      requestAnimationFrame(() => syncChartAnswer(workspace));
+      queueMicrotask(() => syncChartAnswer(workspace));
     });
   }
 
