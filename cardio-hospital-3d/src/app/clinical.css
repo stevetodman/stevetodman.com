@@ -1,3 +1,35 @@
+.history-privacy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
+  padding: 13px 14px;
+  border: 1px solid rgba(243, 184, 92, 0.24);
+  border-radius: 9px;
+  background: rgba(243, 184, 92, 0.06);
+}
+
+.history-privacy > div {
+  display: grid;
+  gap: 4px;
+}
+
+.history-privacy strong {
+  color: #eadcbf;
+  font-size: 12px;
+}
+
+.history-privacy span {
+  color: #aa9f8b;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.clinical-action.confidential {
+  border-color: rgba(243, 184, 92, 0.25);
+}
+
 .vital-strip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -228,6 +260,11 @@
 }
 
 @media (max-width: 720px) {
+  .history-privacy {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .vital-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
