@@ -3,12 +3,13 @@ import fs from 'node:fs';
 const ORIGIN = process.env.SITE_ORIGIN || 'https://stevetodman.com';
 const catalog = JSON.parse(fs.readFileSync(new URL('../site/catalog.json', import.meta.url), 'utf8'));
 const failures = [];
+const legacyRedirects = new Map([['/phs/', '/hospital/']]);
 
 const productionPaths = catalog.items
   .filter((item) => item.route && item.class === 'PRODUCTION')
   .map((item) => item.route);
 const excludedPaths = [
-  ...catalog.items.filter((item) => item.route && item.class !== 'PRODUCTION').map((item) => item.route),
+  ...catalog.items.filter((item) => item.route && item.class !== 'PRODUCTION' && !legacyRedirects.has(item.route)).map((item) => item.route),
   ...catalog.items.filter((item) => item.path && item.class === 'SOURCE_ONLY')
     .map((item) => `/${item.path.replace(/^\/+|\/+$/g, '')}/`),
 ];
@@ -88,6 +89,14 @@ for (const path of productionPaths.filter((path) => path !== '/')) {
   check(r.response.status === 200, `${path} returned ${r.response.status}`);
   check(/noindex/i.test(r.response.headers.get('x-robots-tag') || ''), `${path} is missing noindex response header`);
   checkHtmlNoindex(path, r.text);
+}
+
+for (const [path, destination] of legacyRedirects) {
+  const r = await get(path);
+  check([301,302,307,308].includes(r.response.status), `${path} should redirect to ${destination} but returned ${r.response.status}`);
+  let target;
+  try { target = new URL(r.response.headers.get('location') || '', ORIGIN + path); } catch {}
+  check(target?.href === new URL(ORIGIN + destination).href, `${path} redirects to an unexpected destination`);
 }
 
 for (const path of new Set(excludedPaths)) {
