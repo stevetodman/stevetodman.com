@@ -6,11 +6,13 @@ Product: **Pediatric Hospital**
 
 ## Resume here
 
-The unified application now has one canonical hospital engine, a complete HCM clinical vertical slice, Room 3/world integration, replay-safe attempts, first-class touch controls, an installable PWA shell, and the first end-to-end hospital workload system. The old assignment/task migration described in earlier handoffs is finished and must not be repeated.
+The unified application now has one canonical hospital engine, a complete HCM clinical vertical slice, Room 3/world integration, replay-safe attempts, first-class touch controls, an installable PWA shell, and a real end-to-end hospital workload foundation.
 
 **Current milestone: M5 — Hospital work system (IN PROGRESS).**
 
-M3 exit criteria are met. M4 is implemented in code but still requires physical-device acceptance. M5 now has a canonical visible pager, a first-class worklist derived from canonical tasks, and a real secondary task that can be accepted from the pager and completed at the existing team-room workstations.
+Do **not** repeat the old assignment/task migration, pager migration, Worklist build, priority/deadline work, or schedule reconciler. Those are complete. The next code increment is deterministic **task duration/consequence semantics**, followed by a second clinically validated consult when its world location is ready.
+
+M3 exit criteria are met. M4 is implemented in code but still requires physical-device acceptance. M5 now includes canonical pager/task state, competing work, a first-class Worklist, deterministic priority/deadline ordering, overdue projection, and simulation-time-driven schedule release.
 
 ## Milestone state
 
@@ -38,7 +40,8 @@ Implemented:
   - schema-v1 → schema-v2 migration;
   - explicit migration/validation boundary.
 - `src/lib/hospital-store.ts`
-  - Zustand adapter around the canonical engine.
+  - Zustand adapter around the canonical engine;
+  - schedule reconciliation after canonical transitions and on hydration.
 - `src/lib/simulation-store.ts`
   - transient UI/input state only; no assignment, pager, workload, or clinical domain truth.
 - Canonical state persists across reloads and active encounters can be resumed.
@@ -122,32 +125,37 @@ Acceptance still required before calling M4 fully complete:
 
 ### M5 — Hospital work system: IN PROGRESS
 
-Completed first vertical slice:
+Completed:
 
-- visible in-world pager surface with desktop/mobile-safe layout;
+- visible pager surface with desktop/mobile-safe layout;
 - immutable page definitions separated from canonical runtime state;
 - canonical `PAGE_RECEIVED` and `PAGE_ACKNOWLEDGED` behavior with idempotent reducer semantics;
 - acknowledgement state persists through the existing hospital persistence path;
 - pager messages can link to canonical task entities;
 - task model supports both patient `consult` tasks and non-patient `work` tasks without introducing a second domain store;
 - explicit canonical `TASK_COMPLETED` event;
-- `getOpenTasks()` selector exposes the cross-hospital worklist while the HCM workflow selector remains consult-specific;
+- `getOpenTasks()` exposes the cross-hospital worklist while the HCM workflow selector remains consult-specific;
 - first-class collapsible Worklist UI is a read-only projection of `hospital.tasks`, independent of pager-message state;
-- Worklist shows open consult and work tasks, location, and canonical status;
 - first competing routine task: overnight cardiology handoff review;
 - learner accepts that task from the pager;
 - HUD shows it as a secondary objective without replacing the HCM objective;
 - all three existing team-room workstations can complete the task through the same keyboard/touch interaction path;
-- reducer regression checks cover pager idempotency and the work-task lifecycle.
+- canonical task `priority`, creation time, and optional due time;
+- deterministic Worklist ordering by priority → due time → creation time → task ID;
+- overdue state derives only from canonical simulation time;
+- HCM consult is seeded as urgent; overnight handoff is routine and due before the existing noon-conference boundary;
+- `src/lib/hospital-schedule.ts` materializes due page/task releases from canonical day/time only;
+- schedule reconciliation occurs after canonical transitions and on hydration, so release survives reloads and cannot depend on wall-clock timers;
+- repeated schedule reconciliation is idempotent;
+- regression checks cover pager idempotency, work-task lifecycle, deterministic ordering, overdue transition, schedule release, and release idempotency.
 
 Still required for M5 exit:
 
-- priority/deadline metadata in the canonical task model and deterministic worklist ordering;
-- simulation-clock-driven page/task arrival rather than only shift-entry seeding;
-- timing/consequence rules that remain deterministic and persist across reloads;
-- at least one additional competing clinical consult once its department/world and clinical content are validated;
-- mobile/desktop behavioral smoke test of pager → accept → worklist → workstation → completion;
-- regression coverage for task ordering/timing once those semantics exist.
+- deterministic task/action duration semantics rather than leaving simulation time mostly static during gameplay;
+- explicit consequence rules for missed/overdue work that remain replayable and persisted;
+- at least one additional competing clinical consult after its department/world and clinical content are validated;
+- mobile/desktop behavioral smoke test of pager → accept → Worklist → workstation → completion;
+- physical-device M4 acceptance remains a prerequisite to calling the overall mobile experience complete.
 
 ## Clinical-content state
 
@@ -164,14 +172,16 @@ CI performs both:
 1. `npm run test:engine` — focused canonical reducer/workflow regression checks;
 2. `npm run build` — production Next.js build.
 
-The pager checkpoint `1f4e541a1f854882361b1e42d52a703653401c0a`, competing-work checkpoint `103f236cea29a52b3f75ccf0f07ddc1f797c7471`, workstation checkpoint `e1fce286d977bb6b0ccaaa918080f49cc18df795`, and M5 documentation checkpoint `4c04ade44024414f662ea9bab5f26de71959f9e0` passed the unified build. Confirm the actual current branch head is green before merge or handoff.
+Current scheduler/import checkpoint `d645583e2b09bdd5e0d97f0f2c213628bd974337` passed both the engine regression suite and the production build. The immediately preceding scheduler commit failed only because Node's stripped-TypeScript test runner could not resolve extensionless runtime TypeScript imports; that boundary was corrected without changing scheduler semantics.
+
+Before merge or final handoff, confirm the actual current branch head is green.
 
 ## Next actions — exact order
 
 1. Complete the real-device M4 acceptance checklist above when a target iPhone is available; fix only demonstrated mobile/desktop regressions.
-2. Add canonical task priority and due-time semantics plus deterministic Worklist ordering.
-3. Add clock-driven release of future pages/tasks; do not use wall-clock timers as domain truth.
-4. Add minimal regression coverage for ordering, due-time state, and release idempotency.
+2. Add deterministic duration semantics for selected non-clinical work actions and advance canonical time only through explicit domain events.
+3. Add explicit, persisted consequence state/selectors for overdue/missed work without using wall-clock timers.
+4. Add the smallest regression coverage for those duration/consequence rules.
 5. Only then add a second clinical consult, after its world location and teaching content are validated.
 6. Expand departments incrementally under M6 after the work system is stable.
 7. Defer photorealistic/Needle asset work until architecture, mobile interaction, workload flow, and department boundaries are stable.
@@ -197,17 +207,18 @@ Any agent resuming this project should read, in order:
 5. `src/lib/hospital-engine.ts`
 6. `src/lib/hospital-persistence.ts`
 7. `src/lib/hospital-store.ts`
-8. `src/lib/hospital-pages.ts`
-9. `src/lib/hospital-work.ts`
-10. `src/lib/clinical-policy/hcm-2024.ts`
-11. `src/components/pager-panel.tsx`
-12. `src/components/work-queue-panel.tsx`
-13. `src/components/clinical/hcm-encounter.tsx`
-14. `src/components/clinical/hcm-assessment-stage.tsx`
-15. `src/components/world/interaction-system.tsx`
-16. `src/components/world/patient-room-actors.tsx`
-17. `src/components/mobile-controls.tsx`
-18. `src/components/world/touch-look-controls.tsx`
-19. `scripts/hospital-engine.test.mjs`
+8. `src/lib/hospital-schedule.ts`
+9. `src/lib/hospital-pages.ts`
+10. `src/lib/hospital-work.ts`
+11. `src/lib/clinical-policy/hcm-2024.ts`
+12. `src/components/pager-panel.tsx`
+13. `src/components/work-queue-panel.tsx`
+14. `src/components/clinical/hcm-encounter.tsx`
+15. `src/components/clinical/hcm-assessment-stage.tsx`
+16. `src/components/world/interaction-system.tsx`
+17. `src/components/world/patient-room-actors.tsx`
+18. `src/components/mobile-controls.tsx`
+19. `src/components/world/touch-look-controls.tsx`
+20. `scripts/hospital-engine.test.mjs`
 
 Then continue from the first incomplete item under **Next actions**, keep commits coherent, and update this ledger whenever milestone state or the next action changes materially.
