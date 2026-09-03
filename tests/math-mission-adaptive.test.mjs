@@ -66,10 +66,10 @@ test("mastery requires sustained independent advanced work on two days", () => {
   assert.equal(stats.mastered, true);
 });
 
-test("only the independently checked diagnostic version is current", () => {
-  assert.equal(DIAGNOSTIC_VERSION, 2);
-  assert.equal(diagnosticIsCurrent({ diagnostic: true, diagnosticVersion: 1 }), false);
-  assert.equal(diagnosticIsCurrent({ diagnostic: true, diagnosticVersion: 2 }), true);
+test("only the progressive diagnostic version is current", () => {
+  assert.equal(DIAGNOSTIC_VERSION, 3);
+  assert.equal(diagnosticIsCurrent({ diagnostic: true, diagnosticVersion: 2 }), false);
+  assert.equal(diagnosticIsCurrent({ diagnostic: true, diagnosticVersion: 3 }), true);
 });
 
 test("the repair migration preserves history and schedules only affected prior work for an independent recheck", () => {
