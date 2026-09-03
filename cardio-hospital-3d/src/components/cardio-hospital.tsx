@@ -19,10 +19,12 @@ function EntryScreen() {
   const setEntered = useSimulationStore((state) => state.setEntered);
   const openEncounter = useSimulationStore((state) => state.openEncounter);
   const hospital = useHospitalStore((state) => state.hospital);
+  const hydrated = useHospitalStore((state) => state.hydrated);
   const dispatch = useHospitalStore((state) => state.dispatch);
   const activeEncounter = getActiveEncounter(hospital);
 
   const enterHospital = () => {
+    if (!hydrated) return;
     if (hospital.shift.status === "not-started") {
       dispatch({ type: "SHIFT_STARTED", shiftId: "shift-1", day: 1, startMinute: 7 * 60 + 42, location: "workroom" });
     }
@@ -40,15 +42,19 @@ function EntryScreen() {
         <p className="eyebrow">LSU Health Shreveport · Pediatric Cardiology</p>
         <h1>Pediatric<br />Hospital</h1>
         <p className="entry-lead">
-          {activeEncounter ? "Your patient encounter is saved and ready to resume." : "Your pediatric cardiology shift is ready."}
+          {!hydrated
+            ? "Loading your saved hospital state…"
+            : activeEncounter
+              ? "Your patient encounter is saved and ready to resume."
+              : "Your pediatric cardiology shift is ready."}
         </p>
         <div className="shift-card">
           <span>Monday</span>
           <strong>7:42 AM</strong>
           <span>Cardiology rotation · Day 1</span>
         </div>
-        <button className="primary-action" onClick={enterHospital}>
-          {activeEncounter ? "Resume patient" : "Enter the hospital"}
+        <button className="primary-action" onClick={enterHospital} disabled={!hydrated}>
+          {!hydrated ? "Loading saved shift…" : activeEncounter ? "Resume patient" : "Enter the hospital"}
         </button>
         <p className="entry-help">Unified development build · headphones improve auscultation</p>
       </div>
