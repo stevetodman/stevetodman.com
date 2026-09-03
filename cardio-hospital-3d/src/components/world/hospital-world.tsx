@@ -1,6 +1,6 @@
 import { PointerLockControls } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
-import { useEffect, useRef, type ComponentRef } from "react";
+import { useEffect, useRef, useState, type ComponentRef } from "react";
 import { useSimulationStore } from "@/lib/simulation-store";
 import { HospitalArchitecture } from "./architecture";
 import { InteractionSystem } from "./interaction-system";
@@ -12,6 +12,12 @@ export default function HospitalWorld() {
   const briefingOpen = useSimulationStore((state) => state.briefingOpen);
   const encounterOpen = useSimulationStore((state) => state.encounterOpen);
   const controls = useRef<ComponentRef<typeof PointerLockControls>>(null);
+  const [desktopPointerLock, setDesktopPointerLock] = useState(false);
+
+  useEffect(() => {
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    setDesktopPointerLock(finePointer && "pointerLockElement" in document);
+  }, []);
 
   useEffect(() => {
     if (briefingOpen || encounterOpen) controls.current?.unlock();
@@ -42,12 +48,14 @@ export default function HospitalWorld() {
       </Physics>
       <InteractionSystem />
       <TouchLookControls />
-      <PointerLockControls
-        ref={controls}
-        selector="#simulation-canvas"
-        onLock={() => setControlsLocked(true)}
-        onUnlock={() => setControlsLocked(false)}
-      />
+      {desktopPointerLock && (
+        <PointerLockControls
+          ref={controls}
+          selector="#simulation-canvas"
+          onLock={() => setControlsLocked(true)}
+          onUnlock={() => setControlsLocked(false)}
+        />
+      )}
     </>
   );
 }
