@@ -1,0 +1,277 @@
+.history-privacy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
+  padding: 13px 14px;
+  border: 1px solid rgba(243, 184, 92, 0.24);
+  border-radius: 9px;
+  background: rgba(243, 184, 92, 0.06);
+}
+
+.history-privacy > div {
+  display: grid;
+  gap: 4px;
+}
+
+.history-privacy strong {
+  color: #eadcbf;
+  font-size: 12px;
+}
+
+.history-privacy span {
+  color: #aa9f8b;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.clinical-action.confidential {
+  border-color: rgba(243, 184, 92, 0.25);
+}
+
+.vital-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.vital-strip span {
+  display: grid;
+  gap: 3px;
+  padding: 11px 12px;
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vital-strip strong {
+  color: var(--ink);
+  font-size: 16px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.exam-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.auscultation-workbench {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(280px, 1.2fr);
+  gap: 18px;
+  margin-top: 16px;
+  padding: 18px;
+  border: 1px solid rgba(98, 214, 210, 0.2);
+  border-radius: 12px;
+  background: rgba(5, 21, 24, 0.68);
+}
+
+.auscultation-workbench h4 {
+  margin: 0 0 12px;
+  font-size: 24px;
+}
+
+.site-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.site-button {
+  min-height: 46px;
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #d9e8e8;
+  font-weight: 760;
+}
+
+.site-button:hover,
+.site-button.selected {
+  border-color: rgba(98, 214, 210, 0.58);
+  background: rgba(98, 214, 210, 0.1);
+}
+
+.site-button.used::after {
+  content: " · heard";
+  color: #83c9c6;
+  font-size: 10px;
+  font-weight: 620;
+}
+
+.auscultation-controls {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.auscultation-controls p {
+  min-height: 52px;
+  margin: 0;
+  color: #d3e0e1;
+  line-height: 1.5;
+}
+
+.auscultation-controls label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #c6d4d5;
+  font-size: 13px;
+}
+
+.auscultation-controls small {
+  color: #7f9496;
+  line-height: 1.45;
+}
+
+.result-response {
+  white-space: pre-line;
+}
+
+.assessment-block {
+  margin-bottom: 22px;
+  padding: 18px;
+  border: 1px solid var(--panel-line);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.diagnosis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 9px;
+}
+
+.diagnosis-choice {
+  min-height: 50px;
+  padding: 10px 12px;
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #dce8e9;
+  text-align: left;
+}
+
+.diagnosis-choice:hover,
+.diagnosis-choice.selected {
+  border-color: rgba(98, 214, 210, 0.56);
+  background: rgba(98, 214, 210, 0.1);
+}
+
+.management-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.management-grid label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 52px;
+  padding: 12px;
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+  color: #cedadb;
+  line-height: 1.35;
+}
+
+.management-grid label.selected {
+  border-color: rgba(98, 214, 210, 0.4);
+  background: rgba(98, 214, 210, 0.08);
+}
+
+.overall-score {
+  display: grid;
+  place-items: center;
+  min-width: 84px;
+  min-height: 64px;
+  padding: 10px 14px;
+  border: 1px solid rgba(98, 214, 210, 0.35);
+  border-radius: 12px;
+  background: rgba(98, 214, 210, 0.08);
+  color: #b9efec;
+  font-size: 28px;
+}
+
+.debrief-summary {
+  max-width: 900px;
+  color: #c5d3d4;
+  line-height: 1.65;
+}
+
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 9px;
+  margin: 18px 0;
+}
+
+.score-grid > div {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.score-grid span {
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.score-grid strong {
+  font-size: 22px;
+}
+
+.debrief-opportunities {
+  margin: 18px 0;
+  padding: 16px;
+  border-left: 3px solid var(--amber);
+  border-radius: 4px 9px 9px 4px;
+  background: rgba(243, 184, 92, 0.06);
+}
+
+.debrief-opportunities p:not(.field-label) {
+  margin: 8px 0 0;
+  color: #d6d0c2;
+  line-height: 1.5;
+}
+
+.debrief-stage blockquote {
+  margin: 18px 0;
+  padding: 16px 18px;
+  border: 1px solid rgba(98, 214, 210, 0.2);
+  border-radius: 10px;
+  background: rgba(98, 214, 210, 0.06);
+  color: #d8e8e8;
+  line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .history-privacy {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .vital-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .exam-actions,
+  .auscultation-workbench,
+  .management-grid {
+    grid-template-columns: 1fr;
+  }
+}

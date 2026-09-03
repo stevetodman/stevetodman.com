@@ -1,19 +1,28 @@
 import { PointerLockControls } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, type ComponentRef } from "react";
 import { useSimulationStore } from "@/lib/simulation-store";
 import { HospitalArchitecture } from "./architecture";
 import { InteractionSystem } from "./interaction-system";
+import { VasovagalRoomActors } from "./patient-room-actors";
 import { PlayerController } from "./player-controller";
+import { TouchLookControls } from "./touch-look-controls";
 
 export default function HospitalWorld() {
   const setControlsLocked = useSimulationStore((state) => state.setControlsLocked);
   const briefingOpen = useSimulationStore((state) => state.briefingOpen);
-  const controls = useRef<{ unlock: () => void } | null>(null);
+  const encounterOpen = useSimulationStore((state) => state.encounterOpen);
+  const controls = useRef<ComponentRef<typeof PointerLockControls>>(null);
+  const [desktopPointerLock, setDesktopPointerLock] = useState(false);
 
   useEffect(() => {
-    if (briefingOpen) controls.current?.unlock();
-  }, [briefingOpen]);
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    setDesktopPointerLock(finePointer && "pointerLockElement" in document);
+  }, []);
+
+  useEffect(() => {
+    if (briefingOpen || encounterOpen) controls.current?.unlock();
+  }, [briefingOpen, encounterOpen]);
 
   return (
     <>
@@ -38,13 +47,17 @@ export default function HospitalWorld() {
         <HospitalArchitecture />
         <PlayerController />
       </Physics>
+      <VasovagalRoomActors />
       <InteractionSystem />
-      <PointerLockControls
-        ref={controls}
-        selector="#simulation-canvas"
-        onLock={() => setControlsLocked(true)}
-        onUnlock={() => setControlsLocked(false)}
-      />
+      <TouchLookControls />
+      {desktopPointerLock && (
+        <PointerLockControls
+          ref={controls}
+          selector="#simulation-canvas"
+          onLock={() => setControlsLocked(true)}
+          onUnlock={() => setControlsLocked(false)}
+        />
+      )}
     </>
   );
 }

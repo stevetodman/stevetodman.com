@@ -45,9 +45,9 @@ export function Workstation({ position, rotation = [0, 0, 0] }: { position: [num
   );
 }
 
-export function ExamTable({ position }: { position: [number, number, number] }) {
+export function ExamTable({ position, rotation = [0, 0, 0] }: { position: [number, number, number]; rotation?: [number, number, number] }) {
   return (
-    <group position={position}>
+    <group position={position} rotation={rotation}>
       <Box size={[0.82, 0.62, 1.9]} position={[0, 0.46, 0]} color="#dedbd4" />
       <Box size={[0.88, 0.15, 1.93]} position={[0, 0.82, 0]} color="#b4a08e" roughness={0.82} />
       <Box size={[0.88, 0.15, 0.7]} position={[0, 1.17, 0.6]} rotation={[-0.38, 0, 0]} color="#b4a08e" roughness={0.82} />

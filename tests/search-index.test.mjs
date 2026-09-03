@@ -70,7 +70,11 @@ test('search index is compact enough to remain a lightweight static asset', () =
   assert.ok(fs.statSync(file).size < 2_000_000, 'search index should stay below 2 MB');
 });
 
-test('production build runs the search-index generator after the classified site build', () => {
+test('production build runs the generated hospital build between site classification and search indexing', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(repoRoot, 'package.json'), 'utf8'));
-  assert.match(pkg.scripts.build, /scripts\/build-site\.mjs\s*&&\s*node\s+scripts\/build-search-index\.mjs/);
+  const build = pkg.scripts.build;
+  const site = build.indexOf('scripts/build-site.mjs');
+  const hospital = build.indexOf('scripts/build-hospital.mjs');
+  const search = build.indexOf('scripts/build-search-index.mjs');
+  assert.ok(site >= 0 && hospital > site && search > hospital, 'production build must classify site, build hospital, then index search');
 });

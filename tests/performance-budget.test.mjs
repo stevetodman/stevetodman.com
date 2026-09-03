@@ -23,9 +23,9 @@ function walk(dir, out = []) {
   return out;
 }
 
-test('production HTML stays within the per-page budget', () => {
+test('source-backed production HTML stays within the per-page budget', () => {
   const tooLarge = [];
-  for (const item of catalog.items.filter((x) => x.class === 'PRODUCTION' && x.route)) {
+  for (const item of catalog.items.filter((x) => x.class === 'PRODUCTION' && x.route && x.generated !== true)) {
     const file = path.join(repoRoot, routeFile(item.route));
     const bytes = fs.statSync(file).size;
     if (bytes > budgets.htmlBytes) tooLarge.push(`${item.route}: ${bytes}`);
@@ -33,10 +33,10 @@ test('production HTML stays within the per-page budget', () => {
   assert.deepEqual(tooLarge, [], `HTML budget exceeded:\n${tooLarge.join('\n')}`);
 });
 
-test('deployable JS, CSS, and images stay within per-file budgets', () => {
+test('deployable source JS, CSS, and images stay within per-file budgets', () => {
   const roots = new Set(
     catalog.items
-      .filter((x) => x.route && !['SOURCE_ONLY', 'ARCHIVED'].includes(x.class) && x.route !== '/')
+      .filter((x) => x.route && x.generated !== true && !['SOURCE_ONLY', 'ARCHIVED'].includes(x.class) && x.route !== '/')
       .map((x) => x.route.replace(/^\//, '').split('/')[0])
   );
   const files = [...roots].flatMap((root) => walk(path.join(repoRoot, root)));

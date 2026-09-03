@@ -1,0 +1,68 @@
+name: Hospital Desktop Behavioral Acceptance
+
+on:
+  push:
+    branches:
+      - hospital-unified
+    paths:
+      - .github/workflows/hospital-desktop-acceptance.yml
+      - cardio-hospital-3d/src/**
+      - cardio-hospital-3d/scripts/desktop-acceptance.mjs
+  workflow_dispatch:
+
+jobs:
+  desktop-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: cardio-hospital-3d
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install app dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install focused browser runner
+        run: |
+          npm install --no-save --no-audit --no-fund playwright
+          npx playwright install --with-deps chromium
+
+      - name: Production build
+        run: npm run build
+
+      - name: Start production server
+        run: |
+          nohup npx next start -H 127.0.0.1 -p 3000 > /tmp/hospital-next.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:3000 >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/hospital-next.log
+          exit 1
+
+      - name: Run desktop behavioral acceptance
+        run: node scripts/desktop-acceptance.mjs
+
+      - name: Capture server log
+        if: always()
+        run: |
+          mkdir -p acceptance-artifacts
+          cp /tmp/hospital-next.log acceptance-artifacts/server.log || true
+
+      - name: Upload acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hospital-desktop-acceptance
+          path: cardio-hospital-3d/acceptance-artifacts
+          if-no-files-found: error
