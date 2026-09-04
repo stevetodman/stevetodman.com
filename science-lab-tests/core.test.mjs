@@ -113,7 +113,7 @@ test('M1-M6 keeps curriculum, remediation, representations, phenomena, CER, and 
     assert.ok(item.representationType, `${item.id} needs representation metadata`);
     assert.ok(item.transferLevel, `${item.id} needs transfer metadata`);
     assert.ok(item.sourceFamily?.startsWith('matter:'), `${item.id} needs a Matter context family`);
-    assert.equal(item.transfer, item.transferLevel !== 'none', `${item.id} transfer flag must match explicit transfer level`);
+    assert.equal(item.transfer, item.transferLevel === 'far', `${item.id} only far-transfer evidence should qualify for mastery transfer credit`);
     if (!Array.isArray(item.choices)) continue;
     const answers = new Set(Array.isArray(item.answer) ? item.answer : [item.answer]);
     for (let index = 0; index < item.choices.length; index += 1) {
