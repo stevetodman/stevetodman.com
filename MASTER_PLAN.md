@@ -72,7 +72,7 @@ Canonical hospital:
 - `/cardiohospital/`: internal/reference;
 - `stevetodman/3dworld`, `pediatric-hospital-world`, `the_ward`: predecessor/reference repositories.
 
-Desktop acceptance is complete. Do not rerun it by default. Physical-iPhone M4/M5 acceptance remains the hospital product-quality gate. Hospital-local acceptance details and durable engine invariants now live only in `cardio-hospital-3d/AGENTS.md`.
+Desktop acceptance is complete. Do not rerun it by default. Physical-iPhone M4/M5 acceptance remains the hospital product-quality gate. Hospital-local acceptance details and durable engine invariants live in `cardio-hospital-3d/AGENTS.md`.
 
 ### Study / Math / Science
 
@@ -85,6 +85,10 @@ Desktop acceptance is complete. Do not rerun it by default. Physical-iPhone M4/M
 - Clinical review/provenance remains governed by `clinical/content-registry.json` and issue **#42**.
 - Never infer review dates/sign-off from commits or tests.
 - KD/MIS-C remains an experimental evidence workbench. Do not convert observational associations into invented probabilities or an unvalidated diagnostic score.
+
+### Steven OS
+
+The original Steven OS Cardio Hospital / PR #19 / Unreal ingest pilot is retired. Its hourly/scheduled ingest workflow, PR-specific config, and ingest worker were deleted. The remaining Steven OS UI/schema are experimental/reference only and must not compete with repository-native project state.
 
 ## Hard constraints
 
@@ -135,58 +139,46 @@ Decisions:
 - **REFERENCE:** `3dworld`, `pediatric-hospital-world`, `the_ward`.
 - **ARCHIVE decision pending settings write:** `cooking-timers` — `/cooking/` in the primary repo is canonical and the standalone Pages workflow has only failed runs. Preserve history; do not delete.
 - **Already ARCHIVED:** `audience-response-live`, `audience-response-system`, `ekgquest`, `guessthechd`, `heartquest`, `lecture`, `mossandadams`, `pedisim-svt`, `Septation-Station`, `shunt`, `shuntchatgpt`, `tbank`.
-- **INDEPENDENT / conservatively retained until supersession is proven:** all remaining non-archived repos, including `resident_curriculum` (own `curriculum.stevetodman.com` lifecycle) and `peds-cardio-curriculum` (private lecture/database/CLI system).
+- **INDEPENDENT / conservatively retained until supersession is proven:** all remaining non-archived repos, including `resident_curriculum` and `peds-cardio-curriculum`.
 
 Do not infer archive status from names alone. Archive first; do not mass-delete repositories.
 
-### Root documentation collapse
+### Documentation collapse
 
-- `e50d6d14637b3636bb2cc6e7db977499ebcaca4c` — collapsed `CLAUDE.md` from dynamic status/backlog into stable conventions and pointers.
-- `db60aeceeb7271504be8bde64ce91fdcce816efb` — removed stale, unreferenced `PR_TRIAGE.md`; current PR state lives in GitHub and current program state lives here.
-- `47638c7a566ceb28dc12487a71bed3458089c995` — removed stale branch/issue status from `DEPLOYMENT.md`; retained deployment mechanics/invariants.
-- `REVIEW-2026-08.md` was audited and retained as a dated resolved QA record, not a live handoff.
+- `e50d6d14637b3636bb2cc6e7db977499ebcaca4c` — collapsed `CLAUDE.md` to stable conventions/pointers.
+- `db60aeceeb7271504be8bde64ce91fdcce816efb` — removed stale root `PR_TRIAGE.md`.
+- `47638c7a566ceb28dc12487a71bed3458089c995` — collapsed `DEPLOYMENT.md` to deployment mechanics/invariants.
+- `REVIEW-2026-08.md` retained as dated resolved QA evidence.
+- `e867aa11fa2c2985357249829ffe8833cd2266b2` — made `cardio-hospital-3d/AGENTS.md` the hospital-local operating contract.
+- `cfc9e8399029623412ba6c55441c9db65abddb6c` — removed redundant hospital `PRIMARY_PROJECT.md`.
+- `ddbfce3957d679a45b1582c20ffcefcd50e40385` — removed redundant hospital `PROJECT-RULES.md`.
+- `e963a189d5a8dea4e1a92989922f5322a23eead4` — collapsed `docs/HOSPITAL_MASTER_PLAN.md` to durable architecture/milestone design only.
+- `4846deb06a499b67ab8135897ed6f896d82bb333` — converted `docs/IMPLEMENTATION_STATUS.md` into a historical implementation ledger with no competing resume state.
+- Preserve `docs/BEHAVIORAL_ACCEPTANCE_2026-09-03.md` as completed desktop evidence and `docs/CLINICAL_VALIDATION.md` as clinical evidence/governance.
 
-### Hospital-local documentation collapse
+### CI / workflow simplification
 
-- `e867aa11fa2c2985357249829ffe8833cd2266b2` — rewrote `cardio-hospital-3d/AGENTS.md` as the single hospital-local operating contract: canonical product, engine/clinical invariants, completed desktop evidence boundary, exact physical-iPhone checklist, and fix policy.
-- `cfc9e8399029623412ba6c55441c9db65abddb6c` — removed redundant/stale `cardio-hospital-3d/PRIMARY_PROJECT.md`.
-- `ddbfce3957d679a45b1582c20ffcefcd50e40385` — removed redundant/stale `cardio-hospital-3d/PROJECT-RULES.md` after folding durable rules into local `AGENTS.md`.
-- Preserve `docs/BEHAVIORAL_ACCEPTANCE_2026-09-03.md` as completed evidence and `docs/CLINICAL_VALIDATION.md` as clinical evidence/governance.
-- `docs/HOSPITAL_MASTER_PLAN.md` and `docs/IMPLEMENTATION_STATUS.md` remain to be audited for stale dynamic status versus genuinely useful product history/future milestone design.
+- `292b73705d5959f307857204749d15bbda5cb001` — completed desktop acceptance is manual-only.
+- `09264cbe4c4809564176464ba7cba23bf01c805c` — unified hospital CI retargeted to current `main`/PR development.
+- `99b5c28b201232390d65af837ec38e3f38882603` — corrected hospital focused CI to valid `npm install` because no hospital lockfile exists.
+- `77fe02c10072a5a26f3f71ee56b271dab1dc4a2b` — root documentation no longer triggers broad `Tests`.
+- `ab266cfdc4f8c924a2eb67ddd39a7f20b4db7064` — hospital docs no longer trigger Unified Hospital Build.
+- `68e3b9e1d426411c58d39bf0f1f31a0b3de4dd61` — hospital docs no longer trigger Hospital Production Guard.
+- `67cd3383e28a8558098669528b357b51947bed55` — repaired the manual desktop-acceptance workflow so it no longer assumes a nonexistent hospital lockfile.
+- `8555cc86f83e9bd36189945cf5c0c1c2e59c3ac2` — removed obsolete one-time issue-comment/closure side effects from generic production verification.
+- `a3f7da4f6576f76f5eedc1c7013ec9fc9f47fe42` — removed redundant 6-hour rebuild/browser schedule from exact-SHA Study production verification; periodic Study cloud health remains owned by `study-cloud-canary.yml`.
+- `6c75269cd42c69bcd6a49509f565d5d6aa2fad90` / `ded7ce7d8b11f73ed0d1dc98f38d3f2519ca163a` / `243258f6cb6eaa652d5b0d2c8ad5ef7d6d9dfe0d` — retired the stale Steven OS PR #19/Unreal ingest workflow, config, and worker.
+- `dcbbb2415b358cedc8331f9b040e4b951bf89a32` — stopped KD/MIS-C workbench and myocarditis question-bank changes from also launching the broad general test matrix; their focused workflows remain authoritative.
 
-### CI simplification
+Workflow audit outcome: retain specialized workflows where they protect distinct responsibilities (Science Lab core+phone smoke, Pin Sprint mobile contract, Study cloud canary, external-link canary, hospital engine/build, hospital production contract, hospital post-deploy runtime smoke, KD/MIS-C safety gates, myocarditis question-bank validation, Anatomica evaluation, cooking index generation). Do not collapse them merely to reduce workflow count.
 
-- `292b73705d5959f307857204749d15bbda5cb001` — completed desktop acceptance is **manual-only**; no obsolete-branch automatic reruns.
-- `09264cbe4c4809564176464ba7cba23bf01c805c` — retargeted unified hospital build/engine CI from old branch to current `main` + hospital PR changes.
-- That first run failed because `cardio-hospital-3d` has **no `package-lock.json`** and the workflow incorrectly assumed `npm ci`.
-- `99b5c28b201232390d65af837ec38e3f38882603` — corrected install mode to currently valid `npm install`; focused Unified Hospital Build run **#103 passed**.
-- `77fe02c10072a5a26f3f71ee56b271dab1dc4a2b` — removed root documentation files from the broad `Tests` workflow triggers.
-- `ab266cfdc4f8c924a2eb67ddd39a7f20b4db7064` — narrowed Unified Hospital Build filters to executable/config paths; hospital docs no longer trigger a full hospital build.
-- `68e3b9e1d426411c58d39bf0f1f31a0b3de4dd61` — similarly narrowed Hospital Production Guard filters; hospital docs no longer trigger that guard.
+### Build / command-path simplification
 
-### Build-path simplification
-
-- `5171150c68fe346b099e88da1b47106501b82085` — production hospital build no longer reruns `test:engine`; focused CI owns engine validation. Nested `npm install` remains temporarily because Cloudflare installs the root package only and the hospital has no lockfile.
-- Focused hospital production guard passed on `5171150c…`.
-- A temporary `npm ci` attempt was immediately corrected after the missing-lockfile constraint was reproduced. Do not repeat it without a real lockfile.
+- `5171150c68fe346b099e88da1b47106501b82085` — production hospital build no longer reruns `test:engine`; focused CI owns engine validation.
+- A temporary hospital `npm ci` attempt was immediately corrected after the missing-lockfile constraint was reproduced. Do not repeat it without a real lockfile.
+- `be1fb2eca44d15177fdbf501c0c818cce54a2ec3` — pruned five unreferenced root aliases (`verify:study-production`, `verify:study-production:browser`, `test:study`, `test:grade5:browser`, `test:study:smoke`) while retaining CI-used focused commands.
 
 ## Known remaining technical debt
-
-### Root test interface
-
-Root `package.json` still exposes many manually enumerated test commands. Keep useful focused commands, but reduce change amplification only where simple conventions can replace long synchronized lists.
-
-### Workflow sprawl
-
-Multiple product-specific workflows remain. Audit trigger/environment differences before deleting or consolidating them. Do not target an arbitrary workflow count.
-
-Conceptual target:
-
-```text
-FAST       affected unit/contracts
-PRODUCT    affected product smoke
-PRODUCTION exact deployed-SHA verification
-```
 
 ### Hospital dependency/install path
 
@@ -202,9 +194,13 @@ Do **not** fabricate a lockfile. Generate/commit one only in a valid dependency-
 
 `scripts/build-site.mjs` still uses broad copy followed by pruning. Review only if positive inclusion is demonstrably simpler while preserving production-boundary tests.
 
+### Cooking index workflow
+
+`update-cooking-index.yml` still embeds a large generator directly in YAML. It works and is not redundant, so it was retained during the workflow audit. Move generator logic to a source script only if/when the workflow next needs substantive changes; do not churn it solely for aesthetics.
+
 ### Performance / caching
 
-Performance remains under-measured. Establish a tiny benchmark for `/`, `/education/`, `/hospital/`, `/study/`, `/math/` before optimizing. Versioned Study assets and `/hospital/_next/static/` may be eligible for immutable caching only after baseline/staleness verification.
+Performance remains under-measured. Establish a tiny production benchmark for `/`, `/education/`, `/hospital/`, `/study/`, `/math/` before optimizing. Versioned Study assets and `/hospital/_next/static/` may be eligible for immutable caching only after baseline/staleness verification.
 
 ## Execution queue
 
@@ -225,12 +221,11 @@ Performance remains under-measured. Establish a tiny benchmark for `/`, `/educat
 
 ### Phase C — dead/stale machinery
 
-- [~] Root docs + initial workflow + hospital-local docs audited/cleaned.
-- [x] Remove stale root `PR_TRIAGE.md`.
-- [x] Remove redundant hospital `PRIMARY_PROJECT.md` and `PROJECT-RULES.md` after preserving durable content.
-- [ ] Audit remaining hospital master/status docs and remaining workflows.
-- [ ] Delete/retire further machinery only after proving canonical replacement/no current function.
-- [ ] Preserve clinical/source provenance and useful historical evidence.
+- [x] Root docs audited/cleaned.
+- [x] Hospital-local docs audited/cleaned.
+- [x] Remaining workflows audited for demonstrated redundancy/staleness.
+- [x] Stale Steven OS PR #19/Unreal ingestion retired.
+- [x] Clinical/source provenance and useful historical evidence preserved.
 
 ### Phase D — documentation collapse
 
@@ -238,24 +233,24 @@ Performance remains under-measured. Establish a tiny benchmark for `/`, `/educat
 - [x] Root `CLAUDE.md` collapsed to stable rules.
 - [x] `DEPLOYMENT.md` collapsed to operations only.
 - [x] Dated root QA review retained as historical evidence.
-- [x] Hospital-local active status/rules collapsed into one `cardio-hospital-3d/AGENTS.md`.
-- [ ] Audit `docs/HOSPITAL_MASTER_PLAN.md` and `docs/IMPLEMENTATION_STATUS.md`; retain genuine architecture/history, remove competing resume state.
+- [x] Hospital active rules/status collapsed into local `AGENTS.md`; architecture/history docs demoted to durable/reference roles.
 
 ### Phase E — CI/test simplification
 
-- [~] Workflow inventory underway.
+- [x] Workflow inventory/audit completed.
 - [x] Stop broad CI on root documentation-only changes.
-- [x] Make completed desktop acceptance manual-only.
+- [x] Make completed desktop acceptance manual-only and runnable.
 - [x] Retarget unified hospital CI to current `main`/PR development.
 - [x] Stop hospital docs from triggering focused build/production-guard jobs.
-- [ ] Audit remaining workflows for obsolete triggers/duplicate responsibilities.
-- [ ] Reduce the human-facing root test interface only where it clearly simplifies maintenance.
+- [x] Remove stale periodic/cutover workflow behavior.
+- [x] Remove demonstrated duplicate broad CI for focused clinical workbenches.
+- [x] Reduce unused human-facing root test/verification aliases.
 
 ### Phase F — pure deterministic build
 
 - [x] Move hospital engine validation out of production build path.
 - [ ] Resolve nested dependency installation cleanly; currently blocked by absent hospital lockfile/root-only Cloudflare install.
-- [ ] Keep `npm run build` as obvious production entry point.
+- [x] Keep `npm run build` as obvious production entry point.
 - [ ] Review `build-site.mjs` copy/prune only if a simpler safe design is proven.
 
 ### Phase G — measured runtime performance
@@ -314,8 +309,9 @@ Done means canonical ownership is obvious; superseded repos are archived rather 
 
 ## Exact next action
 
-1. Inspect the **current `main` SHA** and its checks before making any deployment/live claim. At the moment immediately before this checkpoint, the latest executable/CI change `68e3b9e1…` had its focused production guard queued; this documentation checkpoint creates a newer SHA, so verify the new exact SHA rather than relying on that older run.
-2. Audit `cardio-hospital-3d/docs/HOSPITAL_MASTER_PLAN.md` and `docs/IMPLEMENTATION_STATUS.md`. Preserve architecture, historical milestone evidence, and future M6+ design; remove or clearly demote stale competing resume/current-branch language.
-3. Continue the remaining workflow audit; delete/consolidate only when responsibilities are demonstrably redundant.
-4. Do not force the hospital lockfile problem. Generate a real lockfile only through a valid dependency-resolution environment.
-5. Keep testing minimal and **stop when additional simplification has no clear payoff**.
+1. Verify the **current `main` SHA** after this checkpoint: require its Cloudflare Pages deployment and exact-SHA production/browser verification to pass before calling it live-verified.
+2. Do **not** resume structural cleanup by default. The demonstrated high-value stale/redundant machinery has been removed; further churn needs a concrete payoff.
+3. Begin Phase G with a tiny measured production baseline for `/`, `/education/`, `/hospital/`, `/study/`, and `/math/`. Record response/cache behavior and transferred/static asset weight with the smallest practical measurement method.
+4. Use the baseline to identify the single largest measured bottleneck. Optimize only that bottleneck first.
+5. Review immutable caching only for content-addressed/versioned assets after confirming stale-deploy behavior remains safe.
+6. Keep the hospital lockfile issue deferred unless a real dependency-resolution environment produces a valid lockfile cleanly.
