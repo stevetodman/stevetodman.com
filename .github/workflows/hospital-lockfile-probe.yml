@@ -4,7 +4,9 @@ on:
   push:
     branches: [lockfile-cleanup]
     paths:
+      - '.gitignore'
       - '.github/workflows/hospital-lockfile-probe.yml'
+      - 'cardio-hospital-3d/package.json'
   workflow_dispatch:
 
 permissions:
