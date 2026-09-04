@@ -33,6 +33,10 @@ jobs:
         with:
           fetch-depth: 0
           lfs: true
+      - name: Preserve audit tooling outside scanned checkout
+        run: |
+          mkdir -p /tmp/forensic-audit
+          cp scripts/forensic*.py /tmp/forensic-audit/
       - name: Install binary inspection tools
         run: |
           sudo apt-get update
@@ -40,15 +44,15 @@ jobs:
       - name: Scan all branch, tag, and retained PR Git refs
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/forensic_repo_full.py
+        run: python3 /tmp/forensic-audit/forensic_repo_full.py
       - name: Run provider-aware supplemental secret and privacy patterns
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/forensic_audit_extras.py --mode supplemental-git --out audit-out/repo
+        run: python3 /tmp/forensic-audit/forensic_audit_extras.py --mode supplemental-git --out audit-out/repo
       - name: OCR every reachable PDF page
-        run: python3 scripts/forensic_audit_extras.py --mode pdf-ocr --out audit-out/repo
+        run: python3 /tmp/forensic-audit/forensic_audit_extras.py --mode pdf-ocr --out audit-out/repo
       - name: Deep-scan compressed historical archives
-        run: python3 scripts/forensic_audit_extras.py --mode deep-archives --out audit-out/repo
+        run: python3 /tmp/forensic-audit/forensic_audit_extras.py --mode deep-archives --out audit-out/repo
       - uses: actions/upload-artifact@v4
         with:
           name: forensic-repo-history
