@@ -1,6 +1,6 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useRef } from "react";
-import { getActiveEncounter, getTask } from "@/lib/hospital-engine";
+import { getActiveEncounter, getTask, type TaskStatus } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
 import {
   HCM_PARENT_WORLD_POSITION,
@@ -60,6 +60,10 @@ function nearestNpcDistance(
   return Math.min(...anchors.map(([npcX, , npcZ]) => Math.hypot(x - npcX, z - npcZ)));
 }
 
+function consultCanBeOpened(status: TaskStatus | undefined): boolean {
+  return status === "available" || status === "assigned" || status === "in-progress";
+}
+
 export function InteractionSystem() {
   const { camera } = useThree();
   const hcmTaskStatus = useHospitalStore((state) => getTask(state.hospital, HCM_TASK_ID)?.status);
@@ -83,19 +87,19 @@ export function InteractionSystem() {
     let next: ActiveInteraction = null;
     let prompt: string | null = null;
 
-    if (hcmTaskStatus === "available" && attendingDistance < 2.1) {
+    if ((hcmTaskStatus === "available" || hcmTaskStatus === "assigned") && attendingDistance < 2.1) {
       next = "attending";
       prompt = "Interact · Speak with Dr. Patel";
     } else if (activeEncounter?.caseId === HCM_CASE_ID && hcmNpcDistance < NPC_INTERACTION_RADIUS) {
       next = "hcm-exam";
-      prompt = "Interact · Continue Marcus Chen encounter";
+      prompt = "Interact · Speak with Marcus Chen";
     } else if (activeEncounter?.caseId === VASOVAGAL_CASE_ID && vasovagalNpcDistance < NPC_INTERACTION_RADIUS) {
       next = "vasovagal-exam";
-      prompt = "Interact · Continue Ava Rodriguez encounter";
-    } else if (!activeEncounter && (hcmTaskStatus === "assigned" || hcmTaskStatus === "in-progress") && hcmNpcDistance < NPC_INTERACTION_RADIUS) {
+      prompt = "Interact · Speak with Ava Rodriguez";
+    } else if (!activeEncounter && consultCanBeOpened(hcmTaskStatus) && hcmNpcDistance < NPC_INTERACTION_RADIUS) {
       next = "hcm-exam";
       prompt = "Interact · Speak with Marcus Chen";
-    } else if (!activeEncounter && (vasovagalTaskStatus === "assigned" || vasovagalTaskStatus === "in-progress") && vasovagalNpcDistance < NPC_INTERACTION_RADIUS) {
+    } else if (!activeEncounter && consultCanBeOpened(vasovagalTaskStatus) && vasovagalNpcDistance < NPC_INTERACTION_RADIUS) {
       next = "vasovagal-exam";
       prompt = "Interact · Speak with Ava Rodriguez";
     } else if ((handoffTaskStatus === "assigned" || handoffTaskStatus === "in-progress") && handoffDistance < 1.8) {
