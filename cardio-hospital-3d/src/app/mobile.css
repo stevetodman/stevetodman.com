@@ -31,7 +31,6 @@
 
   .mobile-joystick {
     position: absolute;
-    left: max(18px, env(safe-area-inset-left));
     bottom: max(18px, env(safe-area-inset-bottom));
     width: 116px;
     height: 116px;
@@ -42,6 +41,14 @@
     backdrop-filter: blur(10px);
     pointer-events: auto;
     touch-action: none;
+  }
+
+  .mobile-joystick-move {
+    left: max(18px, env(safe-area-inset-left));
+  }
+
+  .mobile-joystick-look {
+    right: max(18px, env(safe-area-inset-right));
   }
 
   .mobile-joystick-ring {
@@ -64,18 +71,32 @@
     will-change: transform;
   }
 
+  .mobile-stick-label {
+    position: absolute;
+    left: 50%;
+    top: -21px;
+    transform: translateX(-50%);
+    color: rgba(226, 243, 244, 0.76);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
   .mobile-interact {
     position: absolute;
-    right: max(18px, env(safe-area-inset-right));
-    bottom: max(18px, env(safe-area-inset-bottom));
+    right: max(21px, env(safe-area-inset-right));
+    bottom: calc(max(18px, env(safe-area-inset-bottom)) + 132px);
     display: grid;
     align-content: center;
     gap: 2px;
-    min-width: 126px;
-    min-height: 62px;
-    padding: 10px 14px;
+    min-width: 110px;
+    min-height: 54px;
+    max-width: 145px;
+    padding: 9px 12px;
     border: 1px solid rgba(131, 236, 231, 0.72);
-    border-radius: 15px;
+    border-radius: 14px;
     background: rgba(15, 74, 77, 0.9);
     color: #eefafa;
     box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3);
@@ -86,12 +107,12 @@
   }
 
   .mobile-interact span {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 800;
   }
 
   .mobile-interact small {
-    max-width: 170px;
+    max-width: 120px;
     overflow: hidden;
     color: #b9d8d8;
     font-size: 9px;
@@ -107,19 +128,6 @@
     opacity: 0.72;
   }
 
-  .mobile-look-hint {
-    position: absolute;
-    right: max(24px, env(safe-area-inset-right));
-    bottom: calc(max(18px, env(safe-area-inset-bottom)) + 78px);
-    padding: 7px 9px;
-    border-radius: 7px;
-    background: rgba(7, 17, 20, 0.5);
-    color: rgba(221, 238, 239, 0.62);
-    font-size: 9px;
-    letter-spacing: 0.02em;
-    pointer-events: none;
-  }
-
   .interaction-prompt,
   .lock-hint {
     display: none;
@@ -128,8 +136,17 @@
 
 @media (hover: none) and (pointer: coarse) and (orientation: landscape) and (max-height: 520px) {
   .mobile-joystick {
+    bottom: max(12px, env(safe-area-inset-bottom));
     width: 100px;
     height: 100px;
+  }
+
+  .mobile-joystick-move {
+    left: max(14px, env(safe-area-inset-left));
+  }
+
+  .mobile-joystick-look {
+    right: max(14px, env(safe-area-inset-right));
   }
 
   .mobile-joystick-ring {
@@ -141,12 +158,17 @@
     height: 46px;
   }
 
-  .mobile-interact {
-    min-width: 112px;
-    min-height: 54px;
+  .mobile-stick-label {
+    top: -18px;
+    font-size: 9px;
   }
 
-  .mobile-look-hint {
-    bottom: calc(max(18px, env(safe-area-inset-bottom)) + 68px);
+  .mobile-interact {
+    right: calc(max(14px, env(safe-area-inset-right)) + 108px);
+    bottom: max(14px, env(safe-area-inset-bottom));
+    min-width: 96px;
+    min-height: 48px;
+    max-width: 116px;
+    padding: 7px 9px;
   }
 }
