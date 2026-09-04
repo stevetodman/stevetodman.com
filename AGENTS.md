@@ -1,3 +1,24 @@
+# Agent entrypoint
+
+## Start here
+
+Read `MASTER_PLAN.md` in full before changing this repository.
+
+`MASTER_PLAN.md` is the canonical cross-window source of truth for:
+
+- Steve's current goals and engineering principles;
+- canonical repositories/products;
+- current known project state;
+- unresolved external/owner gates;
+- technical-debt findings;
+- execution order;
+- exact next action;
+- required end-of-session handoff behavior.
+
+If a new chat/window/agent has no prior conversation context, **do not ask Steve to restate the project history**. Reconstruct current executable state from GitHub, preserve any newer work, and continue from the first incomplete item in `MASTER_PLAN.md` unless Steve gives newer explicit instructions.
+
+After any meaningful work package, update the relevant status/checklist in `MASTER_PLAN.md` before stopping so future agents do not depend on chat memory.
+
 # Production deployment verification
 
 Never use “live” as a synonym for committed, CI-passed, or deployed.
