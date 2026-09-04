@@ -8,6 +8,11 @@ interface WorldLocationZone {
   maxZ: number;
 }
 
+export const HCM_PATIENT_WORLD_POSITION: [number, number, number] = [7.15, 0.82, -3.55];
+export const HCM_PARENT_WORLD_POSITION: [number, number, number] = [5.65, 0.55, -2.25];
+export const VASOVAGAL_PATIENT_WORLD_POSITION: [number, number, number] = [-7.15, 0.82, -3.55];
+export const VASOVAGAL_PARENT_WORLD_POSITION: [number, number, number] = [-5.65, 0.55, -2.25];
+
 export const WORLD_LOCATION_ZONES: readonly WorldLocationZone[] = [
   { location: "workroom", minX: -4.9, maxX: 4.9, minZ: 4.2, maxZ: 11.9 },
   { location: "clinic-room-1", minX: -8.5, maxX: -2.2, minZ: -6.1, maxZ: 0.1 },
