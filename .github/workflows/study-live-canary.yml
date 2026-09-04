@@ -6,26 +6,96 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: study-live-canary
+  group: study-live-canary-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
+  checks: read
 
 jobs:
   live:
-    name: Study live canary
+    name: Study deployment verification
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 20
+    env:
+      TARGET_SHA: a038ca078a3d07aa78e0d869105986e16c81f03a
+      SITE_ORIGIN: https://stevetodman.com
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Guard the isolated verification branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          unexpected="$(git diff --name-only "$TARGET_SHA"..HEAD | grep -Ev '^(.github/workflows/study-live-canary.yml|scripts/verify-study-deployment.mjs)$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Verification branch contains unexpected changes:" >&2
+            echo "$unexpected" >&2
+            exit 1
+          fi
+
+      - name: Confirm current main and exact Cloudflare deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          current_main="$(gh api "repos/${GITHUB_REPOSITORY}/branches/main" --jq '.commit.sha')"
+          if [ "$current_main" != "$TARGET_SHA" ]; then
+            echo "main advanced: expected $TARGET_SHA, found $current_main" >&2
+            exit 1
+          fi
+
+          for attempt in $(seq 1 72); do
+            check_json="$(gh api "repos/${GITHUB_REPOSITORY}/commits/$TARGET_SHA/check-runs?per_page=100")"
+            status="$(jq -r '[.check_runs[] | select(.name == "Cloudflare Pages" and .app.slug == "cloudflare-workers-and-pages")] | sort_by(.started_at) | last | .status // "missing"' <<<"$check_json")"
+            conclusion="$(jq -r '[.check_runs[] | select(.name == "Cloudflare Pages" and .app.slug == "cloudflare-workers-and-pages")] | sort_by(.started_at) | last | .conclusion // ""' <<<"$check_json")"
+            echo "Cloudflare Pages: status=$status conclusion=${conclusion:-pending}"
+
+            if [ "$status" = "completed" ] && [ "$conclusion" = "success" ]; then
+              summary="$(jq -r '[.check_runs[] | select(.name == "Cloudflare Pages" and .app.slug == "cloudflare-workers-and-pages")] | sort_by(.started_at) | last | .output.summary' <<<"$check_json")"
+              deployment_origin="$(grep -oE 'https://[a-f0-9]+\.stevetodman-com\.pages\.dev' <<<"$summary" | head -1)"
+              test -n "$deployment_origin"
+              echo "DEPLOYMENT_ORIGIN=$deployment_origin" >> "$GITHUB_ENV"
+              echo "Exact deployment: $deployment_origin"
+              break
+            fi
+            if [ "$status" = "completed" ]; then
+              echo "Cloudflare deployment failed with conclusion: $conclusion" >&2
+              exit 1
+            fi
+            if [ "$attempt" -eq 72 ]; then
+              echo "Timed out waiting for Cloudflare deployment of $TARGET_SHA" >&2
+              exit 1
+            fi
+            sleep 15
+          done
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify current Study release
-        env:
-          SITE_ORIGIN: https://stevetodman.com
-        run: |
-          npm run verify:study-production && exit 0
-          sleep 30
-          npm run verify:study-production
+          cache: npm
+
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build the target production artifact
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify exact live Study deployment in an iPhone-sized browser
+        run: node scripts/verify-study-deployment.mjs
+
+      - name: Preserve browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: study-production-a038ca0-evidence
+          path: .verification-artifacts/
+          if-no-files-found: warn
+          retention-days: 7
