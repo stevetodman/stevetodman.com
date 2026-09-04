@@ -15,86 +15,20 @@
   });
 
   const evidence2026 = [
-    item({
-      id: 'h26-conjunctivitis', input: 'conjunctivitis', direction: 'kd', tier: 'Exact 2026 target cohort', title: 'Conjunctival injection',
-      effect: 'Non-severe MIS-C 444/769 (58%); unconfirmed iKD 229/372 (62%); confirmed iKD 104/146 (71%); three-group P<.01.',
-      claim: 'Conjunctival injection was less frequent in the non-severe MIS-C group and most frequent in confirmed incomplete KD.',
-      sourceKey: 'harahsheh2026',
-      limitation: 'The P value is an omnibus three-group comparison, not a published pairwise diagnostic likelihood ratio; the finding remains common in MIS-C.'
-    }),
-    item({
-      id: 'h26-rash', input: 'rash', direction: 'kd', tier: 'Exact 2026 target cohort', title: 'Rash',
-      effect: 'Non-severe MIS-C 388/769 (50%); unconfirmed iKD 257/372 (69%); confirmed iKD 99/146 (68%); three-group P<.01.',
-      claim: 'Rash was more frequent in both incomplete-KD groups than in non-severe MIS-C in the target cohort.',
-      sourceKey: 'harahsheh2026',
-      limitation: 'Association only; rash remains frequent in MIS-C and is not a rule-in or rule-out finding.'
-    }),
-    item({
-      id: 'h26-extremity', input: 'extremity', direction: 'kd', tier: 'Exact 2026 target cohort', title: 'Extremity edema',
-      effect: 'Non-severe MIS-C 196/769 (25%); unconfirmed iKD 134/372 (36%); confirmed iKD 47/146 (32%); three-group P<.01.',
-      claim: 'Extremity edema was more frequent in the incomplete-KD groups than in non-severe MIS-C.',
-      sourceKey: 'harahsheh2026',
-      limitation: 'The publication reports an omnibus group comparison; do not convert these frequencies into a patient-level probability.'
-    }),
-    item({
-      id: 'h26-oral', input: 'oral', direction: 'kd', tier: 'Exact 2026 target cohort', title: 'Oral mucosal changes',
-      effect: 'Non-severe MIS-C 277/769 (36%); unconfirmed iKD 161/372 (43%); confirmed iKD 67/146 (46%); three-group P=.01.',
-      claim: 'Oral mucosal changes were less frequent in non-severe MIS-C than in the incomplete-KD groups.',
-      sourceKey: 'harahsheh2026',
-      limitation: 'Association only; oral changes occur in both syndromes.'
-    }),
-    item({
-      id: 'h26-nodes', input: 'nodes', direction: 'context', tier: 'Exact 2026 target cohort — non-discriminating', title: 'Cervical lymphadenopathy',
-      effect: 'Non-severe MIS-C 202/769 (26%); unconfirmed iKD 111/372 (30%); confirmed iKD 32/146 (22%); P=.16.',
-      claim: 'Cervical lymphadenopathy did not significantly distinguish the three target groups.',
-      sourceKey: 'harahsheh2026',
-      limitation: 'Keep as overlap/context rather than directional evidence.'
-    }),
-    item({
-      id: 'h26-abdominal-pain', input: 'abdominal-pain', direction: 'misc', tier: 'Exact 2026 target cohort', title: 'Abdominal pain',
-      effect: 'Non-severe MIS-C 491/769 (64%); unconfirmed iKD 71/372 (19%); confirmed iKD 36/146 (25%); three-group P<.01.',
-      claim: 'Abdominal pain was markedly more frequent in non-severe MIS-C in the target cohort.',
-      sourceKey: 'harahsheh2026',
-      limitation: 'Association only; abdominal pain is nonspecific and does not establish MIS-C.'
-    }),
-    item({
-      id: 'h26-diarrhea', input: 'diarrhea', direction: 'misc', tier: 'Exact 2026 target cohort', title: 'Diarrhea',
-      effect: 'Non-severe MIS-C 361/769 (47%); unconfirmed iKD 102/372 (27%); confirmed iKD 43/146 (29%); three-group P<.01.',
-      claim: 'Diarrhea was more frequent in non-severe MIS-C than in either incomplete-KD group.',
-      sourceKey: 'harahsheh2026',
-      limitation: 'Association only; diarrhea has a broad infectious and inflammatory differential.'
-    }),
-    item({
-      id: 'h26-vomiting', input: 'vomiting', direction: 'misc', tier: 'Exact 2026 target cohort', title: 'Vomiting',
-      effect: 'Non-severe MIS-C 456/769 (59%); unconfirmed iKD 138/372 (37%); confirmed iKD 60/146 (41%); three-group P<.01.',
-      claim: 'Vomiting was more frequent in non-severe MIS-C than in the incomplete-KD groups.',
-      sourceKey: 'harahsheh2026',
-      limitation: 'Association only; vomiting is nonspecific and should not be interpreted in isolation.'
-    }),
-    item({
-      id: 'h26-sore-throat', input: 'sore-throat', direction: 'misc', tier: 'Exact 2026 target cohort', title: 'Sore throat',
-      effect: 'Non-severe MIS-C 174/769 (23%); unconfirmed iKD 50/372 (13%); confirmed iKD 15/146 (10%); three-group P<.01.',
-      claim: 'Sore throat was more frequent in non-severe MIS-C in the target cohort.',
-      sourceKey: 'harahsheh2026',
-      limitation: 'Nonspecific symptom; infection and other causes remain important alternatives.'
-    }),
-    item({
-      id: 'h26-irritability', input: 'irritability', direction: 'kd', tier: 'Exact 2026 target cohort', title: 'Irritability',
-      effect: 'Non-severe MIS-C 162/769 (21%); unconfirmed iKD 131/372 (35%); confirmed iKD 53/146 (36%); three-group P<.01.',
-      claim: 'Irritability was more frequent in the incomplete-KD groups than in non-severe MIS-C.',
-      sourceKey: 'harahsheh2026',
-      limitation: 'Association only; age and ascertainment can affect irritability reporting.'
-    }),
-    item({
-      id: 'h26-coronary-context', input: 'coronary-aneurysm', direction: 'context', tier: 'Exact 2026 target cohort — incorporation-sensitive', title: 'Coronary aneurysm / max Z ≥2.5',
-      effect: 'CAA: non-severe MIS-C 86/769 (11%); unconfirmed iKD 31/372 (8%); confirmed iKD 60/146 (41%); three-group P<.01.',
-      claim: 'The exact target cohort does not support treating aneurysm as a simple MIS-C-versus-all-iKD discriminator: MIS-C and unconfirmed iKD were similar, while confirmed iKD was enriched for coronary involvement.',
-      sourceKey: 'harahsheh2026',
-      limitation: 'Coronary involvement contributes to confirmation of incomplete KD, creating incorporation bias. Aneurysm also occurred in MIS-C.'
-    }),
+    item({ id: 'h26-conjunctivitis', input: 'conjunctivitis', direction: 'kd', tier: 'Exact 2026 target cohort', title: 'Conjunctival injection', effect: 'Non-severe MIS-C 444/769 (58%); unconfirmed iKD 229/372 (62%); confirmed iKD 104/146 (71%); three-group P<.01.', claim: 'Conjunctival injection was less frequent in the non-severe MIS-C group and most frequent in confirmed incomplete KD.', sourceKey: 'harahsheh2026', limitation: 'Omnibus three-group comparison, not a pairwise likelihood ratio; the finding remains common in MIS-C.' }),
+    item({ id: 'h26-rash', input: 'rash', direction: 'kd', tier: 'Exact 2026 target cohort', title: 'Rash', effect: 'Non-severe MIS-C 388/769 (50%); unconfirmed iKD 257/372 (69%); confirmed iKD 99/146 (68%); three-group P<.01.', claim: 'Rash was more frequent in both incomplete-KD groups than in non-severe MIS-C.', sourceKey: 'harahsheh2026', limitation: 'Association only; rash remains frequent in MIS-C and is not a rule-in or rule-out finding.' }),
+    item({ id: 'h26-extremity', input: 'extremity', direction: 'kd', tier: 'Exact 2026 target cohort', title: 'Extremity edema', effect: 'Non-severe MIS-C 196/769 (25%); unconfirmed iKD 134/372 (36%); confirmed iKD 47/146 (32%); three-group P<.01.', claim: 'Extremity edema was more frequent in the incomplete-KD groups than in non-severe MIS-C.', sourceKey: 'harahsheh2026', limitation: 'The publication reports an omnibus group comparison; do not convert these frequencies into a patient-level probability.' }),
+    item({ id: 'h26-oral', input: 'oral', direction: 'kd', tier: 'Exact 2026 target cohort', title: 'Oral mucosal changes', effect: 'Non-severe MIS-C 277/769 (36%); unconfirmed iKD 161/372 (43%); confirmed iKD 67/146 (46%); three-group P=.01.', claim: 'Oral mucosal changes were less frequent in non-severe MIS-C than in the incomplete-KD groups.', sourceKey: 'harahsheh2026', limitation: 'Association only; oral changes occur in both syndromes.' }),
+    item({ id: 'h26-nodes', input: 'nodes', direction: 'context', tier: 'Exact 2026 target cohort — non-discriminating', title: 'Cervical lymphadenopathy', effect: 'Non-severe MIS-C 202/769 (26%); unconfirmed iKD 111/372 (30%); confirmed iKD 32/146 (22%); P=.16.', claim: 'Cervical lymphadenopathy did not significantly distinguish the three target groups.', sourceKey: 'harahsheh2026', limitation: 'Keep as overlap/context rather than directional evidence.' }),
+    item({ id: 'h26-abdominal-pain', input: 'abdominal-pain', direction: 'misc', tier: 'Exact 2026 target cohort', title: 'Abdominal pain', effect: 'Non-severe MIS-C 491/769 (64%); unconfirmed iKD 71/372 (19%); confirmed iKD 36/146 (25%); three-group P<.01.', claim: 'Abdominal pain was markedly more frequent in non-severe MIS-C in the target cohort.', sourceKey: 'harahsheh2026', limitation: 'Association only; abdominal pain is nonspecific and does not establish MIS-C.' }),
+    item({ id: 'h26-diarrhea', input: 'diarrhea', direction: 'misc', tier: 'Exact 2026 target cohort', title: 'Diarrhea', effect: 'Non-severe MIS-C 361/769 (47%); unconfirmed iKD 102/372 (27%); confirmed iKD 43/146 (29%); three-group P<.01.', claim: 'Diarrhea was more frequent in non-severe MIS-C than in either incomplete-KD group.', sourceKey: 'harahsheh2026', limitation: 'Association only; diarrhea has a broad infectious and inflammatory differential.' }),
+    item({ id: 'h26-vomiting', input: 'vomiting', direction: 'misc', tier: 'Exact 2026 target cohort', title: 'Vomiting', effect: 'Non-severe MIS-C 456/769 (59%); unconfirmed iKD 138/372 (37%); confirmed iKD 60/146 (41%); three-group P<.01.', claim: 'Vomiting was more frequent in non-severe MIS-C than in the incomplete-KD groups.', sourceKey: 'harahsheh2026', limitation: 'Association only; vomiting is nonspecific and should not be interpreted in isolation.' }),
+    item({ id: 'h26-sore-throat', input: 'sore-throat', direction: 'misc', tier: 'Exact 2026 target cohort', title: 'Sore throat', effect: 'Non-severe MIS-C 174/769 (23%); unconfirmed iKD 50/372 (13%); confirmed iKD 15/146 (10%); three-group P<.01.', claim: 'Sore throat was more frequent in non-severe MIS-C in the target cohort.', sourceKey: 'harahsheh2026', limitation: 'Nonspecific symptom; infection and other causes remain important alternatives.' }),
+    item({ id: 'h26-irritability', input: 'irritability', direction: 'kd', tier: 'Exact 2026 target cohort', title: 'Irritability', effect: 'Non-severe MIS-C 162/769 (21%); unconfirmed iKD 131/372 (35%); confirmed iKD 53/146 (36%); three-group P<.01.', claim: 'Irritability was more frequent in the incomplete-KD groups than in non-severe MIS-C.', sourceKey: 'harahsheh2026', limitation: 'Association only; age and ascertainment can affect irritability reporting.' }),
+    item({ id: 'h26-coronary-context', input: 'coronary-aneurysm', direction: 'context', tier: 'Exact 2026 target cohort — incorporation-sensitive', title: 'Coronary aneurysm / max Z ≥2.5', effect: 'CAA: non-severe MIS-C 86/769 (11%); unconfirmed iKD 31/372 (8%); confirmed iKD 60/146 (41%); three-group P<.01.', claim: 'The exact target cohort does not support treating aneurysm as a simple MIS-C-versus-all-iKD discriminator: MIS-C and unconfirmed iKD were similar, while confirmed iKD was enriched for coronary involvement.', sourceKey: 'harahsheh2026', limitation: 'Coronary involvement contributes to confirmation of incomplete KD, creating incorporation bias. Aneurysm also occurred in MIS-C.' }),
   ];
 
-  const signals2026 = [
+  const mainSignals2026 = [
     item({ title: '2026 target cohort — Age', direction: 'Older in non-severe MIS-C at group level', detail: 'Median age 7.4 years (IQR 4.2-11.1) vs 2.5 (1.1-4.9) unconfirmed iKD vs 2.3 (0.8-4.3) confirmed iKD; P<.01.', whyNoInput: 'The study did not derive or validate an age cutoff for individual diagnosis.' }),
     item({ title: '2026 target cohort — Total fever duration', direction: 'Shorter in non-severe MIS-C at group level', detail: 'Median 6 days (IQR 5-8) vs 8 (6-11) unconfirmed iKD vs 9 (7-13) confirmed iKD; P<.01.', whyNoInput: 'A group difference in fever duration is not converted into a diagnostic timing cutoff.' }),
     item({ title: '2026 target cohort — WBC', direction: 'Higher across incomplete-KD groups', detail: 'Presentation median 9.0 ×10⁹/L (IQR 6.6-12.4) vs 12.2 (9.2-16.4) vs 17.4 (13.1-20.7); P<.001.', whyNoInput: 'The 2026 paper did not validate a new WBC threshold; the existing Fan threshold remains separately source-attributed.' }),
@@ -104,10 +38,10 @@
     item({ title: '2026 target cohort — CRP', direction: 'Higher in non-severe MIS-C at group level', detail: 'Presentation median 103 mg/L (IQR 58-172) vs 71 (26-138) vs 83 (50-165); P<.001.', whyNoInput: 'The result is a three-group distribution comparison, not a validated iKD-versus-MIS-C diagnostic cutoff.' }),
     item({ title: '2026 target cohort — ESR', direction: 'Lower in non-severe MIS-C at group level', detail: 'Presentation median 48 mm/hr (IQR 29-69) vs 57 (33-81) vs 67 (53-89); P<.001.', whyNoInput: 'No diagnostic ESR threshold was derived.' }),
     item({ title: '2026 target cohort — Ferritin', direction: 'Higher in non-severe MIS-C at group level', detail: 'Presentation median 253 µg/L (IQR 155-449) vs 163 (91-304) vs 178 (112-306); P<.02.', whyNoInput: 'No diagnostic ferritin threshold was derived.' }),
-    item({ title: '2026 target cohort — Hemoglobin', direction: 'Higher in non-severe MIS-C at group level', detail: 'Presentation median 115 g/L (IQR 105-126) vs 109 (101-118) vs 104 (96-113); P<.001.', whyNoInput: 'No diagnostic hemoglobin cutoff was derived.' }),
+    item({ title: '2026 target cohort — Hemoglobin', direction: 'Higher in non-severe MIS-C at presentation', detail: 'Presentation median 115 g/L (IQR 105-126) vs 109 (101-118) vs 104 (96-113); P<.001.', whyNoInput: 'The supplement shows the lowest hemoglobin pattern is not monotonic across the two incomplete-KD groups, so hemoglobin remains a group-level context signal.' }),
     item({ title: '2026 target cohort — Albumin', direction: 'Three-group difference without a monotonic MIS-C↔iKD pattern', detail: 'Presentation median 35 g/L (IQR 30-40) vs 36 (32-40) vs 33 (28-37); P<.001.', whyNoInput: 'The direction is not monotonic across the two incomplete-KD groups, so this is not converted into directional bedside evidence.' }),
-    item({ title: '2026 target cohort — ALT / AST', direction: 'Not significantly different', detail: 'ALT P=.22; AST P=.45 in the three-group presentation comparison.', whyNoInput: 'The final target study does not support using transaminases as directional evidence here.' }),
-    item({ title: '2026 target cohort — Creatinine', direction: 'Higher reported values in non-severe MIS-C', detail: 'Table 3 reports medians 39.8 vs 26.5 vs 24.8 and labels the unit mmol/L; P<.001.', whyNoInput: 'The printed unit is implausible for values of this magnitude, so the numeric result is preserved as a source note but not used as a bedside input pending clarification.' }),
+    item({ title: '2026 target cohort — ALT / AST at presentation', direction: 'Not significantly different', detail: 'ALT P=.22; AST P=.45 in the three-group presentation comparison.', whyNoInput: 'The supplemental peak values reach statistical significance but do not show a clean monotonic MIS-C↔iKD pattern, so transaminases remain non-directional.' }),
+    item({ title: '2026 target cohort — Creatinine', direction: 'Higher reported values in non-severe MIS-C', detail: 'Table 3 reports medians 39.8 vs 26.5 vs 24.8 and labels the unit mmol/L; P<.001.', whyNoInput: 'The printed unit is implausible for values of this magnitude, so the numeric result is preserved as a source note but not used as a bedside input.' }),
     item({ title: '2026 target cohort — Ventricular function', direction: 'Lower LVEF in non-severe MIS-C at group level', detail: 'Lowest LVEF median 60% (IQR 56-64) vs 64% (60-67) vs 64% (60-67); P<.01.', whyNoInput: 'The paper reports distributions, not a new validated LVEF cutoff.' }),
     item({ title: '2026 target cohort — NT-proBNP', direction: 'Higher in non-severe MIS-C at group level', detail: 'Presentation median 776 ng/L (IQR 240-2362) vs 377 (134-1312) vs 510 (154-1993), P<.02; highest median 2022 vs 457 vs 613 ng/L, P<.01.', whyNoInput: 'The 2026 paper does not validate a new NT-proBNP threshold; the existing Walton threshold remains separately source-attributed.' }),
     item({ title: '2026 target cohort — Troponin I', direction: 'Higher in non-severe MIS-C at group level', detail: 'Presentation median 12 ng/L (IQR 10-40) vs 10 (10-17) vs 10 (10-20), P<.01; highest median 20 vs 10 vs 10 ng/L, P<.01.', whyNoInput: 'The 2026 paper does not validate a new troponin threshold; assay and reporting context remain important.' }),
@@ -115,27 +49,52 @@
     item({ title: '2026 target cohort — Unspecified GI symptoms versus component symptoms', direction: 'Component-level MIS-C signal; generic GI remains context', detail: 'Abdominal pain, diarrhea, and vomiting were each significantly more frequent in non-severe MIS-C, while the earlier Fan cohort found its aggregate GI variable non-discriminating.', whyNoInput: 'The workbench uses separate 2026 component inputs and retains the older unspecified aggregate GI field as overlap/context rather than silently changing its meaning.' }),
   ];
 
+  const supplementSignals2026 = [
+    item({ title: '2026 supplement — Highest WBC', direction: 'Higher across incomplete-KD groups', detail: 'Median 12.8 ×10⁹/L (IQR 9.4-17.9) in non-severe MIS-C vs 14.2 (11.1-19.6) unconfirmed iKD vs 19.9 (15.7-24.6) confirmed iKD; P<.01.', whyNoInput: 'Most-extreme values reinforce the group pattern but do not establish a new validated WBC cutoff.' }),
+    item({ title: '2026 supplement — Highest neutrophils', direction: 'Highest in confirmed iKD; MIS-C and unconfirmed iKD overlap substantially', detail: 'Median 8.9 ×10⁹/L (IQR 6.2-13.0) vs 8.6 (5.7-12.4) vs 11.8 (8.5-16.2); P<.01.', whyNoInput: 'The non-severe MIS-C and unconfirmed-iKD distributions are similar, so this is not treated as a simple binary direction.' }),
+    item({ title: '2026 supplement — Highest lymphocytes', direction: 'Higher across incomplete-KD groups', detail: 'Median 3.3 ×10⁹/L (IQR 2.3-5.2) vs 4.6 (2.9-6.7) vs 5.3 (3.5-8.2); P<.01.', whyNoInput: 'No new ALC cutoff was derived; the existing Fan threshold remains separately source-attributed.' }),
+    item({ title: '2026 supplement — Highest platelets', direction: 'Higher across incomplete-KD groups', detail: 'Median 421 ×10⁹/L (IQR 291-548) vs 478 (371-632) vs 602 (480-790); P<.01.', whyNoInput: 'The supplement reinforces the platelet distribution but does not create a new diagnostic threshold.' }),
+    item({ title: '2026 supplement — Highest CRP', direction: 'Higher in non-severe MIS-C at group level', detail: 'Median 139 mg/L (IQR 68-199) vs 90 (32-153) vs 112 (60-188); P<.01.', whyNoInput: 'This is a distributional group signal, not a validated patient-level discriminator cutoff.' }),
+    item({ title: '2026 supplement — Highest ESR', direction: 'Higher across incomplete-KD groups', detail: 'Median 59 mm/hr (IQR 37-84) vs 66 (37-92) vs 73 (57-100); P<.01.', whyNoInput: 'No diagnostic ESR threshold was derived.' }),
+    item({ title: '2026 supplement — Highest ferritin', direction: 'Higher in non-severe MIS-C at group level', detail: 'Median 331 µg/L (IQR 198-588) vs 182 (97-385) vs 200 (122-374); P<.01.', whyNoInput: 'No diagnostic ferritin threshold was derived.' }),
+    item({ title: '2026 supplement — Lowest hemoglobin', direction: 'Three-group difference without a monotonic MIS-C↔iKD pattern', detail: 'Median 97 g/L (IQR 88-109) vs 100 (89-108) vs 93 (85-103); P<.01.', whyNoInput: 'The direction is not coherent across the two incomplete-KD groups and is not converted into directional evidence.' }),
+    item({ title: '2026 supplement — Peak transaminases', direction: 'Statistically different without a clean directional pattern', detail: 'Highest ALT median 38 U/L (IQR 23-67) vs 26 (16-58) vs 35 (17-71), P<.01; AST median 47 U/L (33-71) vs 42 (30-58) vs 46 (29-73), P=.01.', whyNoInput: 'The medians overlap and are not monotonic across groups, so transaminases remain non-directional.' }),
+    item({ title: '2026 supplement — Lowest albumin', direction: 'Three-group difference without a monotonic MIS-C↔iKD pattern', detail: 'Median 29 g/L (IQR 24-33) vs 32 (27-37) vs 29 (25-35); P<.01.', whyNoInput: 'Non-severe MIS-C and confirmed iKD have the same median; this is not converted into directional evidence.' }),
+    item({ title: '2026 supplement — Highest creatinine', direction: 'Higher reported values in non-severe MIS-C', detail: 'Median 43.3 vs 28.3 vs 26.5, with the supplement again labeling the unit mmol/L; P<.01.', whyNoInput: 'The published unit remains implausible for values of this magnitude; preserve the source wording but do not use the numeric result as a bedside input.' }),
+  ];
+
   const exclusions = [
     ...base.excludedFromBedsideEncoding,
     'The 2026 race/ethnicity and zBMI differences are retained for transportability assessment only and are not encoded as bedside diagnostic weights.',
     'The 2026 treatment differences are not predictors: treatment occurs downstream of clinician diagnosis and management decisions.',
-    'No cutoff is inferred from a 2026 median, IQR, or omnibus P value. The final paper did not publish a new multivariable diagnostic model or patient-level probability engine.',
-    'The 2026 supplemental table is still pending source-lock; no peak/trough supplement-only value is encoded yet.',
+    'No cutoff is inferred from a 2026 median, IQR, peak/trough value, or omnibus P value. The final paper did not publish a new multivariable diagnostic model or patient-level probability engine.',
+    'The electronic supplement is source-locked only as group-level most-extreme laboratory distributions; it does not add validated bedside cutoffs or a diagnostic model.',
   ];
 
   window.KDMiscEvidence = freeze({
     ...base,
-    EVIDENCE_VERSION: '0.3-m1b-main',
+    EVIDENCE_VERSION: '0.4-m1b-complete',
     sourceLock: freeze({
-      status: 'M1B_MAIN_ARTICLE_SOURCE_LOCKED_SUPPLEMENT_PENDING',
+      status: 'M1B_FULL_SOURCE_LOCK_COMPLETE',
       checkedOn: '2026-09-04',
       title: 'Incomplete Kawasaki Disease Versus Non-severe Multisystem Inflammatory Syndrome in Children: Distinguishing Features from Contemporaneous Patients',
-      identifier: 'doi:10.1007/s00246-026-04444-4; publisher PDF s00246-026-04444-4.pdf',
-      statement: 'The exact 2026 final main article is source-locked and contributes categorical associations plus group-level signals. Its electronic supplemental table remains pending; no supplement-only value, new continuous cutoff, model coefficient, or synthetic probability is encoded.',
+      identifier: 'doi:10.1007/s00246-026-04444-4; main PDF s00246-026-04444-4.pdf; supplement 246_2026_4444_MOESM1_ESM.docx',
+      statement: 'The exact 2026 final main article and its electronic supplemental table are source-locked. Main-paper categorical associations and main/supplement group-level distributions are displayed without creating new cutoffs, weights, coefficients, or patient-level probabilities.',
     }),
     sources: freeze({ ...base.sources, harahsheh2026 }),
     evidence: freeze([...base.evidence, ...evidence2026]),
-    studySignals: freeze([...base.studySignals, ...signals2026]),
+    studySignals: freeze([...base.studySignals, ...mainSignals2026, ...supplementSignals2026]),
     excludedFromBedsideEncoding: freeze(exclusions),
   });
+
+  const chip = document.querySelector('.status-chip');
+  if (chip) chip.textContent = 'EXPERIMENTAL • CLINICIAN-ONLY • M1B FULL SOURCE-LOCKED';
+  const modelNotes = [...document.querySelectorAll('.model-notes p')];
+  if (modelNotes[1]) modelNotes[1].innerHTML = '<strong>2026 exact target study:</strong> the final main article and electronic supplemental table are source-locked. They provide categorical associations and group-level distributions, not a validated diagnostic score or patient-level probability.';
+  const registryKicker = document.querySelector('.references .section-kicker');
+  if (registryKicker) registryKicker.textContent = 'Evidence registry v0.4-M1B-complete';
+  const pending = document.querySelector('.pending-source');
+  if (pending) pending.innerHTML = '<strong>M1B source lock complete:</strong> the 2026 final article and electronic supplemental table are both source-locked. Supplemental peak/trough laboratory values are displayed as group-level evidence only; no new bedside cutoffs or score are created.';
+  const footerVersion = document.querySelector('footer span');
+  if (footerVersion) footerVersion.textContent = 'Experimental evidence workbench • v0.4-M1B-complete';
 })();
