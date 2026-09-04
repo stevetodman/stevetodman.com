@@ -6,6 +6,7 @@ import { HospitalArchitecture } from "./architecture";
 import { InteractionSystem } from "./interaction-system";
 import { VasovagalRoomActors } from "./patient-room-actors";
 import { PlayerController } from "./player-controller";
+import { RoomSignage } from "./room-signage";
 import { TouchLookControls } from "./touch-look-controls";
 
 export default function HospitalWorld() {
@@ -47,6 +48,7 @@ export default function HospitalWorld() {
         <HospitalArchitecture />
         <PlayerController />
       </Physics>
+      <RoomSignage />
       <VasovagalRoomActors />
       <InteractionSystem />
       <TouchLookControls />
