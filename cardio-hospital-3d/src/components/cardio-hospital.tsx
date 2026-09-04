@@ -1,7 +1,7 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
-import { Suspense, useEffect } from "react";
+import dynamic from "next/dynamic";
+import { useEffect } from "react";
 import {
   formatHospitalTime,
   getActiveEncounter,
@@ -23,7 +23,11 @@ import VasovagalEncounter from "./clinical/vasovagal-encounter";
 import MobileControls from "./mobile-controls";
 import PagerPanel from "./pager-panel";
 import WorkQueuePanel from "./work-queue-panel";
-import HospitalWorld from "./world/hospital-world";
+
+const HospitalWorldCanvas = dynamic(() => import("./world/hospital-world-canvas"), {
+  ssr: false,
+  loading: () => null,
+});
 
 function EntryScreen() {
   const setEntered = useSimulationStore((state) => state.setEntered);
@@ -167,15 +171,7 @@ export default function CardioHospital() {
 
   return (
     <main className="simulation-shell">
-      <Canvas
-        id="simulation-canvas"
-        shadows
-        dpr={[1, 1.65]}
-        camera={{ fov: 68, near: 0.05, far: 75, position: [0, 1.57, 8.65] }}
-        gl={{ antialias: true, powerPreference: "high-performance" }}
-      >
-        <Suspense fallback={null}><HospitalWorld /></Suspense>
-      </Canvas>
+      {entered && <HospitalWorldCanvas />}
       {!entered && <EntryScreen />}
       {entered && <SimulationHud />}
       {entered && <PagerPanel />}
