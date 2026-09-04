@@ -1,31 +1,77 @@
-name: Study live canary
+name: Study production deployment
 
 on:
+  push:
+    branches: [main]
   schedule:
     - cron: '23 */6 * * *'
   workflow_dispatch:
 
 concurrency:
-  group: study-live-canary
+  group: study-production-deployment
   cancel-in-progress: true
 
 permissions:
   contents: read
+  checks: read
 
 jobs:
   live:
-    name: Study live canary
+    name: Exact production + browser verification
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 25
+    env:
+      TARGET_SHA: ${{ github.sha }}
+      SITE_ORIGIN: https://stevetodman.com
+      CLOUDFLARE_PROJECT: stevetodman-com
     steps:
+      - name: Require the production branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/main'
+
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify current Study release
+          cache: npm
+
+      - name: Wait for this exact SHA's Cloudflare production deployment
+        id: cloudflare
         env:
-          SITE_ORIGIN: https://stevetodman.com
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/wait-for-cloudflare-production.mjs
+
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build the exact target artifact
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify the custom domain in a touch-enabled browser
+        run: node scripts/verify-study-deployment.mjs
+
+      - name: Refuse a stale result if main advanced
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
         run: |
-          npm run verify:study-production && exit 0
-          sleep 30
-          npm run verify:study-production
+          set -euo pipefail
+          current_main="$(gh api "repos/${GITHUB_REPOSITORY}/branches/main" --jq '.commit.sha')"
+          test "$current_main" = "$TARGET_SHA"
+          echo "DEPLOYED AND LIVE-VERIFIED: $TARGET_SHA"
+          echo "Cloudflare deployment: ${{ steps.cloudflare.outputs.deployment_origin }}"
+
+      - name: Preserve deployment and browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: study-production-${{ github.sha }}-evidence
+          path: verification-artifacts/
+          if-no-files-found: ignore
+          retention-days: 14

@@ -19,6 +19,8 @@ on:
       - 'scripts/study-release.mjs'
       - 'scripts/verify-study-release.mjs'
       - 'scripts/verify-study-production.mjs'
+      - 'scripts/verify-study-deployment.mjs'
+      - 'scripts/wait-for-cloudflare-production.mjs'
       - '_headers'
       - 'package.json'
       - 'package-lock.json'
@@ -45,6 +47,8 @@ on:
       - 'scripts/study-release.mjs'
       - 'scripts/verify-study-release.mjs'
       - 'scripts/verify-study-production.mjs'
+      - 'scripts/verify-study-deployment.mjs'
+      - 'scripts/wait-for-cloudflare-production.mjs'
       - '_headers'
       - 'package.json'
       - 'package-lock.json'
@@ -71,7 +75,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npm run test:study:unit
+      - run: npm run test:study:unit && node --test tests/study-deployment-guard.test.mjs
       - name: Build static educational site only
         run: node scripts/build-site.mjs && node scripts/build-search-index.mjs
 
