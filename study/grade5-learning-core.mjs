@@ -1,53 +1,18 @@
-const VERSION = 2;
-const SUPPORTED_VERSIONS = new Set([1, 2]);
+const VERSION = 1;
 const SESSION_TARGET = 8;
 const SESSION_MAX = 10;
-const DAY_MS = 86400000;
-const SIBLING_ITEM_COOLDOWN_MS = 2 * DAY_MS;
-const VALID_PROVENANCE = new Set(["independent", "hinted", "guided", "recovery"]);
-const DEFAULT_MASTERY_POLICY = {
-  minScore: 80,
-  minIndependentCorrect: 3,
-  minIndependentDays: 2,
-  requireDelayed: false,
-  requireTransfer: false,
-  countRecoveryForMastery: true,
-  blockRecentIndependentMiss: false
-};
 
 const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 const dayKey = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 const unique = values => [...new Set(values)];
 const shuffle = (values, random = Math.random) => values.map(value => [random(), value]).sort((a, b) => a[0] - b[0]).map(pair => pair[1]);
-const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-
-function normalizePolicy(policy = {}) {
-  return { ...DEFAULT_MASTERY_POLICY, ...(policy || {}) };
-}
-
-function attemptProvenance(attempt = {}) {
-  if (VALID_PROVENANCE.has(attempt.provenance)) return attempt.provenance;
-  return attempt.recovery ? "recovery" : "independent";
-}
-
-function normalizeAttempt(attempt) {
-  if (!attempt || typeof attempt !== "object") return null;
-  const provenance = attemptProvenance(attempt);
-  return {
-    ...attempt,
-    provenance,
-    recovery: provenance === "recovery",
-    delayedRetrieval: Boolean(attempt.delayedRetrieval),
-    transfer: Boolean(attempt.transfer)
-  };
-}
 
 export function blankProfile() {
   return { skills: {}, attempts: [], sessions: [] };
 }
 
 export function normalizeStore(raw) {
-  const root = raw && SUPPORTED_VERSIONS.has(Number(raw.version)) ? raw : {};
+  const root = raw && raw.version === VERSION ? raw : {};
   const learners = root.learners && typeof root.learners === "object" ? root.learners : {};
   return {
     version: VERSION,
@@ -63,7 +28,7 @@ function normalizeProfile(profile) {
   const base = blankProfile();
   if (!profile || typeof profile !== "object") return base;
   base.skills = profile.skills && typeof profile.skills === "object" ? profile.skills : {};
-  base.attempts = Array.isArray(profile.attempts) ? profile.attempts.map(normalizeAttempt).filter(Boolean).slice(-800) : [];
+  base.attempts = Array.isArray(profile.attempts) ? profile.attempts.slice(-800) : [];
   base.sessions = Array.isArray(profile.sessions) ? profile.sessions.slice(-60) : [];
   return base;
 }
@@ -71,118 +36,27 @@ function normalizeProfile(profile) {
 export function skillScore(profile, skill) {
   let score = 40;
   (profile?.attempts || []).filter(attempt => attempt.skill === skill).slice(-10).forEach(attempt => {
-    if (!attempt.correct) {
-      score -= 18;
-    } else {
-      const provenance = attemptProvenance(attempt);
-      const baseCredit = provenance === "independent" ? 12 : provenance === "hinted" ? 8 : provenance === "recovery" ? 9 : 5;
-      const evidenceBonus = provenance === "independent" ? (attempt.delayedRetrieval ? 2 : 0) + (attempt.transfer ? 2 : 0) : 0;
-      score += baseCredit + evidenceBonus;
-    }
-    score = clamp(score, 0, 100);
+    score += attempt.correct ? (attempt.recovery ? 9 : 12) : -18;
+    score = Math.max(0, Math.min(100, score));
   });
   return score;
 }
 
-export function skillStatus(profile, skill, options = {}) {
-  const policy = normalizePolicy(options.policy || options.masteryPolicy);
+export function skillStatus(profile, skill) {
   const attempts = (profile?.attempts || []).filter(attempt => attempt.skill === skill);
-  const independent = attempts.filter(attempt => attemptProvenance(attempt) === "independent");
-  const independentCorrect = independent.filter(attempt => attempt.correct);
-  const allCorrect = attempts.filter(attempt => attempt.correct);
-  const qualifyingCorrect = policy.countRecoveryForMastery ? allCorrect : independentCorrect;
-  const qualifyingDays = unique(qualifyingCorrect.map(attempt => attempt.date).filter(Boolean));
-  const independentDays = unique(independentCorrect.map(attempt => attempt.date).filter(Boolean));
-  const delayedCorrect = independentCorrect.filter(attempt => attempt.delayedRetrieval);
-  const transferCorrect = independentCorrect.filter(attempt => attempt.transfer);
-  const guidedCorrect = attempts.filter(attempt => attempt.correct && attemptProvenance(attempt) !== "independent");
-  const latestIndependent = independent.at(-1);
-  const unresolvedMisconception = Boolean(policy.blockRecentIndependentMiss && latestIndependent && !latestIndependent.correct);
-  const latestIndependentIndex = latestIndependent ? attempts.lastIndexOf(latestIndependent) : -1;
-  const repairAfterMiss = unresolvedMisconception && attempts.slice(latestIndependentIndex + 1).some(attempt => attempt.correct && attemptProvenance(attempt) !== "independent");
+  const correct = attempts.filter(attempt => attempt.correct);
+  const days = unique(correct.map(attempt => attempt.date));
   const score = skillScore(profile, skill);
-  const foundation = score >= policy.minScore && qualifyingCorrect.length >= policy.minIndependentCorrect && qualifyingDays.length >= policy.minIndependentDays;
-  const delayedSatisfied = !policy.requireDelayed || delayedCorrect.length > 0;
-  const transferSatisfied = !policy.requireTransfer || transferCorrect.length > 0;
-  const mastered = foundation && delayedSatisfied && transferSatisfied && !unresolvedMisconception;
-
-  let state = "new";
-  if (mastered) state = "secure";
-  else if (unresolvedMisconception && repairAfterMiss) state = "repaired";
-  else if (unresolvedMisconception) state = "needs-repair";
-  else if (transferCorrect.length) state = "transfer-demonstrated";
-  else if (delayedCorrect.length) state = "retained";
-  else if (guidedCorrect.length) state = "repaired";
-  else if (attempts.length) state = "learning";
-
-  return {
-    score,
-    attempts: attempts.length,
-    correct: allCorrect.length,
-    days: qualifyingDays.length,
-    mastered,
-    state,
-    independentCorrect: independentCorrect.length,
-    independentDays: independentDays.length,
-    delayedCorrect: delayedCorrect.length,
-    transferCorrect: transferCorrect.length,
-    unresolvedMisconception,
-    repairAfterMiss
-  };
+  const mastered = score >= 80 && correct.length >= 3 && days.length >= 2;
+  return { score, attempts: attempts.length, correct: correct.length, days: days.length, mastered };
 }
 
-export function learningStateLabel(state) {
-  return ({
-    new: "New",
-    learning: "Learning",
-    "needs-repair": "Needs repair",
-    repaired: "Repaired",
-    retained: "Retained",
-    "transfer-demonstrated": "Transfer demonstrated",
-    secure: "Secure"
-  })[state] || "Learning";
-}
-
-function legacyItemPriority(profile, item, index, now) {
+function itemPriority(profile, item, index, now) {
   const status = skillStatus(profile, item.skill);
   const skill = profile?.skills?.[item.skill] || {};
   const overdue = !skill.dueAt || Number(skill.dueAt) <= now ? -20 : 0;
   const lastSeen = (profile?.attempts || []).filter(attempt => attempt.itemId === item.id).at(-1)?.at || 0;
   return status.score + overdue + Math.min(status.attempts, 6) * 2 + (lastSeen ? 8 : 0) + index / 1000;
-}
-
-function itemPriority(profile, item, index, now, options = {}) {
-  const status = skillStatus(profile, item.skill, { policy: options.masteryPolicy });
-  const skill = profile?.skills?.[item.skill] || {};
-  const dueAt = Number(skill.dueAt || 0);
-  const overdue = !dueAt || dueAt <= now ? -20 : 0;
-  const lastSeen = (profile?.attempts || []).filter(attempt => attempt.itemId === item.id).at(-1)?.at || 0;
-  const ownSeenPenalty = lastSeen ? (now - lastSeen < 7 * DAY_MS ? 18 : 8) : 0;
-  const siblingLastSeen = (options.siblingProfile?.attempts || []).filter(attempt => attempt.itemId === item.id).at(-1)?.at || 0;
-  const siblingPenalty = siblingLastSeen && now - siblingLastSeen < SIBLING_ITEM_COOLDOWN_MS ? 60 : 0;
-  const stateAdjustment = ({
-    "needs-repair": -30,
-    repaired: -18,
-    learning: -10,
-    new: -8,
-    retained: 4,
-    "transfer-demonstrated": 6,
-    secure: 15
-  })[status.state] || 0;
-  return status.score + overdue + ownSeenPenalty + siblingPenalty + stateAdjustment + index / 1000;
-}
-
-function skillNeed(profile, skill, now, masteryPolicy) {
-  const status = skillStatus(profile, skill, { policy: masteryPolicy });
-  const dueAt = Number(profile?.skills?.[skill]?.dueAt || 0);
-  let need = 100 - status.score;
-  if (!status.attempts) need += 10;
-  if (!dueAt || dueAt <= now) need += 35;
-  if (status.state === "needs-repair") need += 50;
-  else if (status.state === "repaired") need += 30;
-  else if (status.state === "learning") need += 20;
-  else if (status.state === "secure") need -= 20;
-  return Math.max(5, need);
 }
 
 export function buildQueue(config, profile, options = {}) {
@@ -191,65 +65,26 @@ export function buildQueue(config, profile, options = {}) {
   const pool = config.items.filter(item => fullYear || item.unit === unitId);
   const now = options.now || Date.now();
   const random = options.random || Math.random;
-  const weighted = Boolean(config.adaptivePolicy?.weighted || options.weighted);
-
-  if (!weighted) {
-    const bySkill = new Map();
-    pool.forEach((item, index) => {
-      if (!bySkill.has(item.skill)) bySkill.set(item.skill, []);
-      bySkill.get(item.skill).push({ item, index });
-    });
-    const skills = [...bySkill.entries()].map(([skill, entries]) => ({
-      skill,
-      entries,
-      score: skillScore(profile, skill),
-      priority: Math.min(...entries.map(entry => legacyItemPriority(profile, entry.item, entry.index, now)))
-    })).sort((a, b) => a.priority - b.priority || a.skill.localeCompare(b.skill));
-    const selected = [];
-    let round = 0;
-    while (selected.length < SESSION_TARGET && skills.length) {
-      const lane = skills[round % skills.length];
-      const ranked = shuffle(lane.entries, random).sort((a, b) => legacyItemPriority(profile, a.item, a.index, now) - legacyItemPriority(profile, b.item, b.index, now));
-      const candidate = ranked.find(entry => !selected.includes(entry.item.id));
-      if (candidate) selected.push(candidate.item.id);
-      round += 1;
-      if (round > pool.length * 3) break;
-    }
-    return selected;
-  }
-
-  const masteryPolicy = options.masteryPolicy || config.masteryPolicy;
   const bySkill = new Map();
   pool.forEach((item, index) => {
     if (!bySkill.has(item.skill)) bySkill.set(item.skill, []);
     bySkill.get(item.skill).push({ item, index });
   });
-  const lanes = [...bySkill.entries()].map(([skill, entries]) => ({
+  const skills = [...bySkill.entries()].map(([skill, entries]) => ({
     skill,
     entries,
-    need: skillNeed(profile, skill, now, masteryPolicy),
-    priority: Math.min(...entries.map(entry => itemPriority(profile, entry.item, entry.index, now, { masteryPolicy, siblingProfile: options.siblingProfile })))
-  }));
-
+    score: skillScore(profile, skill),
+    priority: Math.min(...entries.map(entry => itemPriority(profile, entry.item, entry.index, now)))
+  })).sort((a, b) => a.priority - b.priority || a.skill.localeCompare(b.skill));
   const selected = [];
-  const picks = new Map();
-  let guard = 0;
-  while (selected.length < SESSION_TARGET && guard < Math.max(1, pool.length * 5)) {
-    const candidates = lanes
-      .map(lane => {
-        const available = lane.entries.filter(entry => !selected.includes(entry.item.id));
-        if (!available.length) return null;
-        const count = picks.get(lane.skill) || 0;
-        return { lane, available, effectiveNeed: lane.need / (1 + count * 0.85) };
-      })
-      .filter(Boolean)
-      .sort((a, b) => b.effectiveNeed - a.effectiveNeed || a.lane.priority - b.lane.priority || a.lane.skill.localeCompare(b.lane.skill));
-    if (!candidates.length) break;
-    const chosen = candidates[0];
-    const ranked = shuffle(chosen.available, random).sort((a, b) => itemPriority(profile, a.item, a.index, now, { masteryPolicy, siblingProfile: options.siblingProfile }) - itemPriority(profile, b.item, b.index, now, { masteryPolicy, siblingProfile: options.siblingProfile }));
-    selected.push(ranked[0].item.id);
-    picks.set(chosen.lane.skill, (picks.get(chosen.lane.skill) || 0) + 1);
-    guard += 1;
+  let round = 0;
+  while (selected.length < SESSION_TARGET && skills.length) {
+    const lane = skills[round % skills.length];
+    const ranked = shuffle(lane.entries, random).sort((a, b) => itemPriority(profile, a.item, a.index, now) - itemPriority(profile, b.item, b.index, now));
+    const candidate = ranked.find(entry => !selected.includes(entry.item.id));
+    if (candidate) selected.push(candidate.item.id);
+    round += 1;
+    if (round > pool.length * 3) break;
   }
   return selected;
 }
@@ -301,8 +136,6 @@ export function mountGrade5Learning(config) {
 
   function profile() { return root.learners[learner]; }
   function active() { return root.active[learner]; }
-  function siblingProfile() { return root.learners[learner === "Luke" ? "Samantha" : "Luke"]; }
-  function statusFor(skill) { return skillStatus(profile(), skill, { policy: config.masteryPolicy }); }
   function focusHeading() { requestAnimationFrame(() => app.querySelector("h1,h2")?.focus()); }
   function setScreen(next) { screen = next; document.body.dataset.learningScreen = next; }
 
@@ -324,28 +157,24 @@ export function mountGrade5Learning(config) {
     const unit = currentUnit();
     const p = profile();
     const unitSkills = unique(config.items.filter(item => item.unit === unit.id).map(item => item.skill));
-    const secure = unitSkills.filter(skill => skillStatus(p, skill, { policy: config.masteryPolicy }).mastered).length;
-    shell(`<main class="dashboard"><button class="text-button" data-action="switch">← Switch learner</button><p class="eyebrow">${esc(learner)} · recommended next</p><h1 tabindex="-1">${esc(unit.title)}</h1><p class="lede">${esc(unit.summary)}</p><section class="mission-card"><div><span class="mission-tag">Current classroom unit</span><h2>${active() ? "Continue your mission" : "Adaptive practice"}</h2><p>${active() ? `Resume at question ${active().index + 1}.` : "Eight questions weighted toward the skills that need the strongest evidence."}</p><p class="mission-meta">${secure}/${unitSkills.length} skills secure</p></div><button class="primary-button" data-action="${active() ? "resume" : "start"}">${active() ? "Continue" : "Start 8 questions"}</button></section><div class="dashboard-actions"><button class="secondary-button" data-action="units">Choose a unit</button><button class="secondary-button" data-action="year">Full-year review</button></div><section class="mastery-strip" aria-label="Current unit mastery">${unitSkills.map(skill => masteryPill(skill, p)).join("")}</section></main>`);
+    const secure = unitSkills.filter(skill => skillStatus(p, skill).mastered).length;
+    shell(`<main class="dashboard"><button class="text-button" data-action="switch">← Switch learner</button><p class="eyebrow">${esc(learner)} · recommended next</p><h1 tabindex="-1">${esc(unit.title)}</h1><p class="lede">${esc(unit.summary)}</p><section class="mission-card"><div><span class="mission-tag">Current classroom unit</span><h2>${active() ? "Continue your mission" : "Adaptive practice"}</h2><p>${active() ? `Resume at question ${active().index + 1}.` : "Eight questions chosen from the skills that need the strongest evidence."}</p><p class="mission-meta">${secure}/${unitSkills.length} skills secure</p></div><button class="primary-button" data-action="${active() ? "resume" : "start"}">${active() ? "Continue" : "Start 8 questions"}</button></section><div class="dashboard-actions"><button class="secondary-button" data-action="units">Choose a unit</button><button class="secondary-button" data-action="year">Full-year review</button></div><section class="mastery-strip" aria-label="Current unit mastery">${unitSkills.map(skill => masteryPill(skill, p)).join("")}</section></main>`);
   }
 
   function masteryPill(skill, p) {
-    const status = skillStatus(p, skill, { policy: config.masteryPolicy });
+    const status = skillStatus(p, skill);
     const label = config.skills[skill] || skill;
-    if (!config.evidenceStates) {
-      return `<div data-level="${status.mastered ? "mastered" : status.score >= 65 ? "growing" : "learning"}"><strong>${esc(label)}</strong><span>${status.mastered ? "Secure" : status.score >= 65 ? "Growing" : "Learning"}</span></div>`;
-    }
-    const level = status.mastered ? "mastered" : ["repaired", "retained", "transfer-demonstrated"].includes(status.state) ? "growing" : "learning";
-    return `<div data-level="${level}"><strong>${esc(label)}</strong><span>${esc(learningStateLabel(status.state))}</span></div>`;
+    return `<div data-level="${status.mastered ? "mastered" : status.score >= 65 ? "growing" : "learning"}"><strong>${esc(label)}</strong><span>${status.mastered ? "Secure" : status.score >= 65 ? "Growing" : "Learning"}</span></div>`;
   }
 
   function renderUnits() {
     setScreen("units");
-    shell(`<main><button class="text-button" data-action="dashboard">← Back</button><p class="eyebrow">Full Louisiana course</p><h1 tabindex="-1">Choose a unit</h1><p class="lede">The current unit stays recommended. Other units are available for assigned work and cumulative review.</p><div class="unit-grid">${config.units.map(unit => { const skills = unique(config.items.filter(item => item.unit === unit.id).map(item => item.skill)); const secure = skills.filter(skill => skillStatus(profile(), skill, { policy: config.masteryPolicy }).mastered).length; return `<button data-unit="${esc(unit.id)}"><span>${unit.id === config.currentUnit ? "Current" : esc(unit.label)}</span><strong>${esc(unit.title)}</strong><small>${esc(unit.summary)}</small><b>${secure}/${skills.length} skills secure</b></button>`; }).join("")}</div></main>`);
+    shell(`<main><button class="text-button" data-action="dashboard">← Back</button><p class="eyebrow">Full Louisiana course</p><h1 tabindex="-1">Choose a unit</h1><p class="lede">The current unit stays recommended. Other units are available for assigned work and cumulative review.</p><div class="unit-grid">${config.units.map(unit => { const skills = unique(config.items.filter(item => item.unit === unit.id).map(item => item.skill)); const secure = skills.filter(skill => skillStatus(profile(), skill).mastered).length; return `<button data-unit="${esc(unit.id)}"><span>${unit.id === config.currentUnit ? "Current" : esc(unit.label)}</span><strong>${esc(unit.title)}</strong><small>${esc(unit.summary)}</small><b>${secure}/${skills.length} skills secure</b></button>`; }).join("")}</div></main>`);
   }
 
   function startSession(mode = "unit", unitId = config.currentUnit) {
-    const queue = buildQueue(config, profile(), { mode, unitId, masteryPolicy: config.masteryPolicy, siblingProfile: config.siblingAware ? siblingProfile() : null });
-    root.active[learner] = { version: 2, id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`, mode, unitId, queue, index: 0, selected: [], feedback: null, results: [], recoveryIds: [] };
+    const queue = buildQueue(config, profile(), { mode, unitId });
+    root.active[learner] = { version: 1, id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`, mode, unitId, queue, index: 0, selected: [], feedback: null, results: [], recoveryIds: [] };
     save();
     renderQuestion();
   }
@@ -361,8 +190,7 @@ export function mountGrade5Learning(config) {
     const multi = Array.isArray(item.answer);
     const completed = session.index;
     const ready = multi ? selected.length === item.answer.length : selected.length === 1;
-    const recoveryLabel = session.recoveryIds.includes(item.id) ? (config.evidenceModelV2 ? " · repair recheck" : " · independent recheck") : "";
-    shell(`<main class="practice-screen"><div class="session-head"><button class="text-button" data-action="pause">← Pause</button><div class="progress-copy"><strong>${completed + 1} of ${session.queue.length}</strong><span>${esc(item.standard)}</span></div></div><div class="progress-track" aria-label="Mission progress"><span style="width:${Math.round(completed / session.queue.length * 100)}%"></span></div><article class="question-card"><p class="skill-label">${esc(config.skills[item.skill] || item.skill)}${recoveryLabel}</p>${stimulusMarkup(item.stimulus)}<h2 tabindex="-1">${esc(item.prompt)}</h2><div class="choice-list${multi ? " multi" : ""}" role="group" aria-label="Answer choices">${item.choices.map((choice, index) => `<button type="button" class="choice${selected.includes(index) ? " selected" : ""}" data-choice="${index}" aria-pressed="${selected.includes(index)}">${esc(choice)}</button>`).join("")}</div>${multi ? `<p class="select-note">Select ${item.answer.length} answers.</p>` : ""}<button class="primary-button check-button" data-action="check" ${ready ? "" : "disabled"}>Check answer</button></article></main>`);
+    shell(`<main class="practice-screen"><div class="session-head"><button class="text-button" data-action="pause">← Pause</button><div class="progress-copy"><strong>${completed + 1} of ${session.queue.length}</strong><span>${esc(item.standard)}</span></div></div><div class="progress-track" aria-label="Mission progress"><span style="width:${Math.round(completed / session.queue.length * 100)}%"></span></div><article class="question-card"><p class="skill-label">${esc(config.skills[item.skill] || item.skill)}${session.recoveryIds.includes(item.id) ? " · independent recheck" : ""}</p>${stimulusMarkup(item.stimulus)}<h2 tabindex="-1">${esc(item.prompt)}</h2><div class="choice-list${multi ? " multi" : ""}" role="group" aria-label="Answer choices">${item.choices.map((choice, index) => `<button type="button" class="choice${selected.includes(index) ? " selected" : ""}" data-choice="${index}" aria-pressed="${selected.includes(index)}">${esc(choice)}</button>`).join("")}</div>${multi ? `<p class="select-note">Select ${item.answer.length} answers.</p>` : ""}<button class="primary-button check-button" data-action="check" ${ready ? "" : "disabled"}>Check answer</button></article></main>`);
   }
 
   function selectChoice(index) {
@@ -385,47 +213,20 @@ export function mountGrade5Learning(config) {
     if (selected.length !== expected.length) return;
     const correct = expected.every((value, index) => value === selected[index]);
     const recovery = session.recoveryIds.includes(item.id);
-    const provenance = recovery ? "recovery" : "independent";
-    const now = Date.now();
-    const priorSkill = profile().skills[item.skill] || {};
-    const priorIndependent = profile().attempts.filter(attempt => attempt.skill === item.skill && attemptProvenance(attempt) === "independent").at(-1);
-    const today = dayKey(new Date(now));
-    const delayedRetrieval = provenance === "independent" && Boolean(priorIndependent) && priorIndependent.date !== today && Number(priorSkill.dueAt || 0) > 0 && Number(priorSkill.dueAt) <= now;
-    const transfer = provenance === "independent" && Boolean(item.transfer === true || item.transferLevel === "transfer");
-    const attempt = {
-      itemId: item.id,
-      unit: item.unit,
-      skill: item.skill,
-      standard: item.standard,
-      sourceFamily: item.sourceFamily || null,
-      correct,
-      provenance,
-      recovery,
-      delayedRetrieval,
-      transfer,
-      date: today,
-      at: now,
-      sessionId: session.id
-    };
+    const attempt = { itemId: item.id, unit: item.unit, skill: item.skill, standard: item.standard, correct, recovery, date: dayKey(), at: Date.now(), sessionId: session.id };
     profile().attempts.push(attempt);
     session.results.push(attempt);
-    updateSkillSchedule(item.skill, correct, attempt);
+    updateSkillSchedule(item.skill, correct);
     if (!correct && session.queue.length < SESSION_MAX) scheduleRecovery(item, session);
     session.feedback = { correct, selected };
     save();
     renderFeedback(item, correct);
   }
 
-  function updateSkillSchedule(skill, correct, attempt) {
-    const status = statusFor(skill);
-    let delayDays = 0;
-    if (correct) {
-      if (attemptProvenance(attempt) !== "independent") delayDays = 1;
-      else if (status.mastered) delayDays = 7;
-      else if (attempt.delayedRetrieval || attempt.transfer) delayDays = 3;
-      else delayDays = status.score >= 65 ? 2 : 1;
-    }
-    profile().skills[skill] = { dueAt: Date.now() + delayDays * DAY_MS, updatedAt: Date.now() };
+  function updateSkillSchedule(skill, correct) {
+    const status = skillStatus(profile(), skill);
+    const delayDays = correct ? (status.mastered ? 7 : status.score >= 65 ? 3 : 1) : 0;
+    profile().skills[skill] = { dueAt: Date.now() + delayDays * 86400000, updatedAt: Date.now() };
   }
 
   function scheduleRecovery(item, session) {
@@ -440,10 +241,7 @@ export function mountGrade5Learning(config) {
   function renderFeedback(item, correct) {
     setScreen("feedback");
     const expected = (Array.isArray(item.answer) ? item.answer : [item.answer]).map(index => item.choices[index]).join(" and ");
-    const repairText = config.evidenceModelV2
-      ? "This repair recheck is useful learning evidence, but later independent recall is still needed."
-      : "The recheck uses different evidence, so remembering this answer is not enough.";
-    shell(`<main class="practice-screen"><div class="progress-track"><span style="width:${Math.round((active().index + 1) / active().queue.length * 100)}%"></span></div><article class="feedback-card ${correct ? "correct" : "repair"}"><p class="eyebrow">${correct ? "Evidence recorded" : "Repair the idea"}</p><h2 tabindex="-1">${correct ? "Correct." : `The answer is ${esc(expected)}.`}</h2><p>${esc(item.explanation)}</p>${!correct ? `<div class="repair-note"><strong>You will see this skill again.</strong><span>${esc(repairText)}</span></div>` : ""}<button class="primary-button" data-action="next">Continue</button></article></main>`);
+    shell(`<main class="practice-screen"><div class="progress-track"><span style="width:${Math.round((active().index + 1) / active().queue.length * 100)}%"></span></div><article class="feedback-card ${correct ? "correct" : "repair"}"><p class="eyebrow">${correct ? "Evidence recorded" : "Repair the idea"}</p><h2 tabindex="-1">${correct ? "Correct." : `The answer is ${esc(expected)}.`}</h2><p>${esc(item.explanation)}</p>${!correct ? `<div class="repair-note"><strong>You will see this skill again.</strong><span>The recheck uses different evidence, so remembering this answer is not enough.</span></div>` : ""}<button class="primary-button" data-action="next">Continue</button></article></main>`);
   }
 
   function nextQuestion() {
@@ -459,14 +257,13 @@ export function mountGrade5Learning(config) {
     const session = active();
     if (!session) return renderDashboard();
     const results = session.results || [];
-    const independentResults = config.evidenceModelV2 ? results.filter(result => attemptProvenance(result) === "independent") : results;
-    const correct = independentResults.filter(result => result.correct).length;
+    const correct = results.filter(result => result.correct).length;
     const missedSkills = unique(results.filter(result => !result.correct).map(result => result.skill));
-    profile().sessions.unshift({ id: session.id, at: new Date().toISOString(), unitId: session.unitId, mode: session.mode, correct, total: results.length, independentTotal: independentResults.length, missedSkills });
+    profile().sessions.unshift({ id: session.id, at: new Date().toISOString(), unitId: session.unitId, mode: session.mode, correct, total: results.length, missedSkills });
     delete root.active[learner];
     save();
     setScreen("summary");
-    shell(`<main class="summary-card"><p class="eyebrow">Mission complete</p><h1 tabindex="-1">${correct}/${independentResults.length} independently correct</h1><p class="lede">${missedSkills.length ? "The missed skills are now scheduled earlier in future practice." : "Clean round. The next session will use new evidence and older due skills."}</p>${missedSkills.length ? `<section class="review-list"><h2>Skills to strengthen</h2>${missedSkills.map(skill => { const status = statusFor(skill); const detail = config.evidenceStates ? learningStateLabel(status.state) : `${status.score}/100 evidence strength`; return `<div><strong>${esc(config.skills[skill] || skill)}</strong><span>${esc(detail)}</span></div>`; }).join("")}</section>` : ""}<div class="summary-actions"><button class="primary-button" data-action="dashboard">Done</button><button class="secondary-button" data-action="start">Practice again</button></div></main>`);
+    shell(`<main class="summary-card"><p class="eyebrow">Mission complete</p><h1 tabindex="-1">${correct}/${results.length} independently correct</h1><p class="lede">${missedSkills.length ? "The missed skills are now scheduled earlier in future practice." : "Clean round. The next session will use new evidence and older due skills."}</p>${missedSkills.length ? `<section class="review-list"><h2>Skills to strengthen</h2>${missedSkills.map(skill => `<div><strong>${esc(config.skills[skill] || skill)}</strong><span>${skillStatus(profile(), skill).score}/100 evidence strength</span></div>`).join("")}</section>` : ""}<div class="summary-actions"><button class="primary-button" data-action="dashboard">Done</button><button class="secondary-button" data-action="start">Practice again</button></div></main>`);
   }
 
   app.addEventListener("click", event => {
@@ -489,5 +286,5 @@ export function mountGrade5Learning(config) {
   });
 
   renderPicker();
-  return { getState: () => root, skillStatus: skill => statusFor(skill), render: renderPicker };
+  return { getState: () => root, skillStatus: skill => skillStatus(profile(), skill), render: renderPicker };
 }
