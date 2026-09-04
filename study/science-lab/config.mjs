@@ -4,25 +4,26 @@ import { M3_ITEM_OVERRIDES } from './representations.mjs';
 import { SCIENCE_PHENOMENA } from './phenomena.mjs';
 import { M6_MATTER_ITEMS, M6_MATTER_METADATA, M6_MATTER_PHENOMENON_METADATA } from './matter-m6.mjs';
 import { M7_EARTH_SKY_ITEMS, M7_EARTH_SKY_OVERRIDES } from './earth-sky-m7.mjs';
+import { M7_LIVING_SYSTEMS_ITEMS, M7_LIVING_SYSTEMS_OVERRIDES } from './living-systems-m7.mjs';
 
+const strictTransferUnits = new Set(['matter', 'earth-sky', 'ecosystems']);
+const itemOverrides = { ...M7_EARTH_SKY_OVERRIDES, ...M7_LIVING_SYSTEMS_OVERRIDES };
 const skillSeen = new Map();
-const expandedItems = [...BASE_CONFIG.items, ...M6_MATTER_ITEMS, ...M7_EARTH_SKY_ITEMS];
+const expandedItems = [...BASE_CONFIG.items, ...M6_MATTER_ITEMS, ...M7_EARTH_SKY_ITEMS, ...M7_LIVING_SYSTEMS_ITEMS];
 const items = expandedItems.map(item => {
   const count = (skillSeen.get(item.skill) || 0) + 1;
   skillSeen.set(item.skill, count);
-  const strictTransfer = item.unit === 'matter' || item.unit === 'earth-sky';
-  const legacyTransfer = !strictTransfer && count === 3 ? { transfer: true, transferLevel: 'near-transfer' } : {};
-  const earthSkyOverride = M7_EARTH_SKY_OVERRIDES[item.id] || {};
-  return {
+  const legacyTransfer = !strictTransferUnits.has(item.unit) && count === 3 ? { transfer: true, transferLevel: 'near-transfer' } : {};
+  const configured = {
     ...item,
     ...legacyTransfer,
     ...(M6_MATTER_METADATA[item.id] || {}),
-    ...earthSkyOverride,
-    ...(item.unit === 'matter' ? { transfer: (M6_MATTER_METADATA[item.id]?.transferLevel || item.transferLevel || 'none') === 'far' } : {}),
-    ...(item.unit === 'earth-sky' ? { transfer: (earthSkyOverride.transferLevel || item.transferLevel || 'none') === 'far' } : {}),
+    ...(itemOverrides[item.id] || {}),
     ...(MATTER_REMEDIATION[item.id] ? { remediation: MATTER_REMEDIATION[item.id] } : {}),
     ...(M3_ITEM_OVERRIDES[item.id] || {})
   };
+  if (strictTransferUnits.has(configured.unit)) configured.transfer = configured.transferLevel === 'far';
+  return configured;
 });
 
 const phenomena = SCIENCE_PHENOMENA.map(phenomenon => {
