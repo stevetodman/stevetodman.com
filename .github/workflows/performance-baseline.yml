@@ -1,0 +1,188 @@
+name: Production performance baseline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/performance-baseline.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: production-performance-baseline
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: read
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TARGET_SHA: ${{ github.sha }}
+      SITE_ORIGIN: https://stevetodman.com
+      CLOUDFLARE_PROJECT: stevetodman-com
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Wait for this exact SHA's Cloudflare production deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/wait-for-cloudflare-production.mjs
+
+      - name: Install pinned browser tooling
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Measure the five production routes
+        run: |
+          mkdir -p verification-artifacts
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { chromium } from 'playwright';
+
+          const origin = process.env.SITE_ORIGIN || 'https://stevetodman.com';
+          const routes = ['/', '/education/', '/hospital/', '/study/', '/math/'];
+          const browser = await chromium.launch({ headless: true });
+          const results = [];
+
+          function summarize(entries) {
+            const nav = entries.navigation;
+            const resources = entries.resources;
+            const sameOrigin = resources.filter((r) => r.sameOrigin);
+            const byType = {};
+            for (const r of sameOrigin) {
+              const type = r.initiatorType || 'other';
+              byType[type] ??= { count: 0, transferBytes: 0, encodedBodyBytes: 0 };
+              byType[type].count += 1;
+              byType[type].transferBytes += r.transferSize || 0;
+              byType[type].encodedBodyBytes += r.encodedBodySize || 0;
+            }
+            const largest = [...sameOrigin]
+              .sort((a, b) => (b.encodedBodySize || 0) - (a.encodedBodySize || 0))
+              .slice(0, 12)
+              .map((r) => ({
+                url: r.name.replace(origin, ''),
+                initiatorType: r.initiatorType,
+                transferBytes: r.transferSize,
+                encodedBodyBytes: r.encodedBodySize,
+                durationMs: Math.round(r.duration),
+              }));
+            return {
+              navigation: {
+                transferBytes: nav?.transferSize || 0,
+                encodedBodyBytes: nav?.encodedBodySize || 0,
+                responseStartMs: Math.round(nav?.responseStart || 0),
+                domContentLoadedMs: Math.round(nav?.domContentLoadedEventEnd || 0),
+                loadMs: Math.round(nav?.loadEventEnd || 0),
+              },
+              sameOriginRequestCount: sameOrigin.length + 1,
+              totalTransferBytes: (nav?.transferSize || 0) + sameOrigin.reduce((n, r) => n + (r.transferSize || 0), 0),
+              totalEncodedBodyBytes: (nav?.encodedBodySize || 0) + sameOrigin.reduce((n, r) => n + (r.encodedBodySize || 0), 0),
+              byType,
+              largest,
+            };
+          }
+
+          async function snapshot(page) {
+            return page.evaluate((origin) => {
+              const nav = performance.getEntriesByType('navigation')[0];
+              const navigation = nav ? {
+                transferSize: nav.transferSize,
+                encodedBodySize: nav.encodedBodySize,
+                responseStart: nav.responseStart,
+                domContentLoadedEventEnd: nav.domContentLoadedEventEnd,
+                loadEventEnd: nav.loadEventEnd,
+              } : null;
+              const resources = performance.getEntriesByType('resource').map((r) => ({
+                name: r.name,
+                initiatorType: r.initiatorType,
+                transferSize: r.transferSize,
+                encodedBodySize: r.encodedBodySize,
+                decodedBodySize: r.decodedBodySize,
+                duration: r.duration,
+                sameOrigin: new URL(r.name, location.href).origin === origin,
+              }));
+              return { navigation, resources };
+            }, origin);
+          }
+
+          for (const route of routes) {
+            const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+            const page = await context.newPage();
+            let phase = 'cold';
+            const headers = { cold: [], warm: [] };
+            page.on('response', async (response) => {
+              try {
+                const u = new URL(response.url());
+                if (u.origin !== origin) return;
+                const h = await response.allHeaders();
+                headers[phase].push({
+                  url: u.pathname + u.search,
+                  type: response.request().resourceType(),
+                  status: response.status(),
+                  cacheControl: h['cache-control'] || '',
+                  cfCacheStatus: h['cf-cache-status'] || '',
+                  age: h.age || '',
+                  contentLength: h['content-length'] || '',
+                });
+              } catch {}
+            });
+
+            const url = origin + route;
+            await page.goto(url, { waitUntil: 'load', timeout: 45_000 });
+            await page.waitForTimeout(3_000);
+            const cold = summarize(await snapshot(page));
+
+            phase = 'warm';
+            await page.reload({ waitUntil: 'load', timeout: 45_000 });
+            await page.waitForTimeout(3_000);
+            const warm = summarize(await snapshot(page));
+
+            const cacheHeaders = {};
+            for (const p of ['cold', 'warm']) {
+              cacheHeaders[p] = headers[p]
+                .filter((r) => r.type === 'document' || /\.(?:js|css|wasm|json|png|jpe?g|webp|svg|woff2?)(?:\?|$)/i.test(r.url))
+                .slice(0, 40);
+            }
+
+            results.push({ route, cold, warm, cacheHeaders });
+            console.log(`${route} cold=${cold.totalTransferBytes}B warm=${warm.totalTransferBytes}B requests=${cold.sameOriginRequestCount}/${warm.sameOriginRequestCount} load=${cold.navigation.loadMs}/${warm.navigation.loadMs}ms`);
+            await context.close();
+          }
+
+          await browser.close();
+          const output = {
+            targetSha: process.env.TARGET_SHA,
+            origin,
+            measuredAt: new Date().toISOString(),
+            viewport: '390x844 touch-enabled Chromium',
+            routes: results,
+          };
+          fs.writeFileSync('verification-artifacts/performance-baseline.json', JSON.stringify(output, null, 2));
+          NODE
+
+      - name: Refuse stale measurement if main advanced
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          current_main="$(gh api "repos/${GITHUB_REPOSITORY}/branches/main" --jq '.commit.sha')"
+          test "$current_main" = "$TARGET_SHA"
+
+      - name: Preserve baseline
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-performance-${{ github.sha }}
+          path: verification-artifacts/performance-baseline.json
+          if-no-files-found: error
+          retention-days: 7
