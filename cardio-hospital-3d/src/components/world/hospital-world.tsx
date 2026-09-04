@@ -5,6 +5,7 @@ import { useSimulationStore } from "@/lib/simulation-store";
 import { HospitalArchitecture } from "./architecture";
 import { HospitalClinicalDetails } from "./hospital-details";
 import { HospitalRealismPass2 } from "./hospital-realism-pass-2";
+import { HospitalRealismPass3 } from "./hospital-realism-pass-3";
 import { InteractionSystem } from "./interaction-system";
 import { VasovagalRoomActors } from "./patient-room-actors";
 import { PlayerController } from "./player-controller";
@@ -52,6 +53,7 @@ export default function HospitalWorld() {
       </Physics>
       <HospitalClinicalDetails />
       <HospitalRealismPass2 />
+      <HospitalRealismPass3 />
       <RoomSignage />
       <VasovagalRoomActors />
       <InteractionSystem />
