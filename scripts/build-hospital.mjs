@@ -14,10 +14,10 @@ if (!fs.existsSync(path.join(app, 'package.json'))) {
   throw new Error('Unified hospital package.json is missing.');
 }
 
-// Cloudflare installs the root package only; until the repository has a simpler
-// nested-dependency install stage, provision the hospital deterministically here.
-// Validation belongs in focused CI, not in the production build path.
-execFileSync(npm, ['ci', '--no-audit', '--no-fund'], {
+// Cloudflare installs the root package only. The hospital currently has no
+// package-lock.json, so its nested dependencies still need provisioning here.
+// Focused engine validation belongs in CI rather than the production build path.
+execFileSync(npm, ['install', '--no-audit', '--no-fund'], {
   cwd: app,
   stdio: 'inherit',
 });
