@@ -5,6 +5,7 @@ on:
     paths:
       - 'tools/kd-misc-experimental/**'
       - 'docs/KD_MISC_EXPERIMENTAL_TOOL_PLAN.md'
+      - 'docs/KD_MISC_M1_SOURCE_LOCK.md'
       - 'tests/kd-misc-experimental.test.mjs'
       - 'site/catalog.json'
       - 'package.json'
@@ -15,6 +16,7 @@ on:
     paths:
       - 'tools/kd-misc-experimental/**'
       - 'docs/KD_MISC_EXPERIMENTAL_TOOL_PLAN.md'
+      - 'docs/KD_MISC_M1_SOURCE_LOCK.md'
       - 'tests/kd-misc-experimental.test.mjs'
       - 'site/catalog.json'
       - 'package.json'
