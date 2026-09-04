@@ -6,7 +6,9 @@ on:
       - 'tools/kd-misc-experimental/**'
       - 'docs/KD_MISC_EXPERIMENTAL_TOOL_PLAN.md'
       - 'docs/KD_MISC_M1_SOURCE_LOCK.md'
+      - 'docs/KD_MISC_M1B_ACQUISITION_GATE.md'
       - 'tests/kd-misc-experimental.test.mjs'
+      - 'tests/kd-misc-m1b-gate.test.mjs'
       - 'site/catalog.json'
       - 'package.json'
       - '.github/workflows/kd-misc-experimental.yml'
@@ -17,7 +19,9 @@ on:
       - 'tools/kd-misc-experimental/**'
       - 'docs/KD_MISC_EXPERIMENTAL_TOOL_PLAN.md'
       - 'docs/KD_MISC_M1_SOURCE_LOCK.md'
+      - 'docs/KD_MISC_M1B_ACQUISITION_GATE.md'
       - 'tests/kd-misc-experimental.test.mjs'
+      - 'tests/kd-misc-m1b-gate.test.mjs'
       - 'site/catalog.json'
       - 'package.json'
       - '.github/workflows/kd-misc-experimental.yml'
@@ -44,5 +48,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Clinical and phone acceptance
         run: npm run test:kd-misc
+      - name: M1B acquisition gate
+        run: node --test tests/kd-misc-m1b-gate.test.mjs
       - name: Production-boundary invariant
         run: node --test tests/platform-policy.test.mjs
