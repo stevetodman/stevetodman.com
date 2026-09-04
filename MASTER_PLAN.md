@@ -6,7 +6,7 @@ Canonical repository: `stevetodman/stevetodman.com`
 Production branch: `main`  
 Production site: `https://stevetodman.com`  
 Updated: 2026-09-04  
-Main SHA when this plan was written: `e5934d976c3ef86557bc72d8513eb9c547a5b0d6`
+Baseline SHA when this plan was created: `e5934d976c3ef86557bc72d8513eb9c547a5b0d6`
 
 ---
 
@@ -21,7 +21,7 @@ If a ChatGPT/Claude/Codex/Copilot/other agent opens this repository with no chat
 3. Inspect current `main`, active PRs/issues, and recent commits before changing anything.
 4. Treat this file as the durable statement of Steve's goals and architecture unless a newer explicit owner instruction supersedes it.
 5. **Do not ask Steve to restate the project history.** Reconstruct the current executable state from GitHub and continue from the first incomplete item in **Section 11 — Execution Queue**.
-6. If repository state has advanced beyond the SHA above, preserve newer completed work and update this plan rather than reverting to this historical SHA.
+6. Preserve newer completed work; do not reset to the historical baseline SHA above.
 7. After each meaningful work package, update the relevant checklist/status in this file so the next window can continue without chat history.
 
 ### Required end-of-session handoff
@@ -92,7 +92,7 @@ Current deployment model:
 
 ### 2.2 Canonical route registry
 
-`site/catalog.json` already contains the essential control-plane metadata:
+`site/catalog.json` contains the essential control-plane metadata:
 
 - stable ID;
 - title;
@@ -103,7 +103,7 @@ Current deployment model:
 - discoverability where needed;
 - generated/source-only flags where needed.
 
-**Do not create `academy-manifest.json`, `module-manifest.json`, or another independent route registry unless the current catalog is proven inadequate.** Prefer extending/deriving from the existing catalog over creating a third source of truth.
+**Confirmed 2026-09-04:** the existing catalog remains sufficient as the single route/deployment registry for the current simplification program. Do **not** create `academy-manifest.json`, `module-manifest.json`, or another independent route registry unless a concrete future requirement proves the catalog inadequate.
 
 ### 2.3 Hospital simulator
 
@@ -114,7 +114,9 @@ Canonical current hospital implementation:
 - production route: `/hospital/`;
 - legacy `/phs/`: archived/reference;
 - legacy `/cardiohospital/`: internal/reference;
-- `stevetodman/pediatric-hospital-world`: secondary/reference only.
+- `stevetodman/pediatric-hospital-world`: secondary/reference only;
+- `stevetodman/3dworld`: predecessor/reference only;
+- `stevetodman/the_ward`: predecessor/reference only.
 
 `cardio-hospital-3d/PRIMARY_PROJECT.md` contains the hospital-specific checkpoint. The unified app is a static Next export with `basePath: /hospital`.
 
@@ -157,7 +159,15 @@ Recent checkpoints on `main`:
 
 Do not convert observational group associations into an invented score/probability. M2 model integration remains blocked until an authoritative deployable KIDMATCH artifact is authenticated with the required implementation details. M3 remains governed/de-identified shadow evaluation, not live clinical inference.
 
-### 2.7 Existing external gates that must survive simplification
+### 2.7 Separate active systems confirmed during repository census
+
+These are deliberately **not** folded into `stevetodman.com` merely to reduce repository count:
+
+- `stevetodman/resident_curriculum` — independent resident curriculum with its own `curriculum.stevetodman.com` deployment and content lifecycle;
+- `stevetodman/peds-cardio-curriculum` — independent private lecture/database/CLI system;
+- other active repositories in Section 12 remain `INDEPENDENT` unless a concrete canonical replacement is verified.
+
+### 2.8 Existing external gates that must survive simplification
 
 **Issue #39 — StudyHub live cloud-save acceptance**
 
@@ -253,7 +263,7 @@ The best solution is the one with the lowest combined burden across:
 
 ## 5. KNOWN TECHNICAL-DEBT FINDINGS
 
-These findings were directly identified before this plan was written and should be treated as real candidates, not speculation.
+These findings were directly identified and should be treated as real candidates, not speculation.
 
 ### 5.1 Test-command proliferation
 
@@ -263,7 +273,7 @@ Root `package.json` contains many explicit application/test-file lists (`test:ma
 
 ### 5.2 CI/workflow proliferation
 
-`.github/workflows/` has accumulated many narrow workflows in addition to a large general `tests.yml` matrix. `tests.yml` also contains a long duplicated `push`/`pull_request` path-filter list.
+`.github/workflows/` has accumulated many narrow workflows in addition to a large general `tests.yml` matrix. A 2026-09-04 inventory reconfirmed multiple hospital-specific workflows plus product-specific, production, and special-purpose workflows.
 
 **Goal:** fewer conceptual gates and less YAML, while preserving genuinely distinct trigger/environment requirements.
 
@@ -317,26 +327,27 @@ The Study build also versions important release assets.
 
 Apply the same principle to `/hospital/_next/static/` where appropriate.
 
-### 5.7 Documentation drift exists
+### 5.7 Documentation drift
 
-Example: root README historically described `/phs/` as the Pediatric Hospital Simulator while the catalog now correctly identifies `/hospital/` as production and `/phs/` as archived.
+**Resolved 2026-09-04:** root README now identifies `/hospital/` as the canonical Pediatric Hospital Simulator and `/phs/` as archived/reference, matching `site/catalog.json`. The README also points the focused hospital test at the current unified engine rather than the legacy `test:phs` command.
 
-There are also multiple overlapping documents across root and product directories (`MASTER_PLAN`, `CLAUDE`, `AGENTS`, `PRIMARY_PROJECT`, `PROJECT-RULES`, implementation-status/handoff docs).
+Remaining documentation debt: overlapping files still exist across root and product directories (`MASTER_PLAN`, `CLAUDE`, `AGENTS`, `PRIMARY_PROJECT`, `PROJECT-RULES`, implementation-status/handoff docs).
 
 **Goal:** each document gets one clear job. Remove stale dynamic state from prose when the repository already has a canonical machine source.
 
 ### 5.8 GitHub account/repository sprawl
 
-Steve has many repositories from experiments, prototypes, prior educational apps, and independent projects. Some are already archived; many remain active.
+The 2026-09-04 owner census found **49 repositories**: **12 already GitHub-archived** and **37 not archived**. Most non-archived repositories are conservatively retained as `INDEPENDENT` because no canonical replacement has yet been proven.
 
-Known examples where duplication/reference status matters:
+Clear lineage/duplication findings:
 
 - `stevetodman/stevetodman.com` — **PRIMARY** for the website;
-- `stevetodman/pediatric-hospital-world` — **REFERENCE/SECONDARY** because the unified hospital is canonical in `stevetodman.com`;
-- `stevetodman/cooking-timers` — review as a likely superseded standalone copy because cooking timers are now production routes inside `stevetodman.com`;
-- already archived repositories should generally remain archived unless there is a demonstrated reason to reactivate them.
+- `stevetodman/3dworld` — **REFERENCE** predecessor in the hospital-simulator line;
+- `stevetodman/pediatric-hospital-world` — **REFERENCE** secondary hospital implementation with its own historical Pages workflow;
+- `stevetodman/the_ward` — **REFERENCE** earlier medical-simulation platform;
+- `stevetodman/cooking-timers` — **ARCHIVE decision**: website copy is canonical and its standalone GitHub Pages workflow has only failed runs; preserve history, do not delete.
 
-Do not mass-delete repositories. Perform a deliberate census and archive uncertain/superseded projects first.
+Do not mass-delete repositories. Archive uncertain/superseded projects first and keep unique source/history available.
 
 ---
 
@@ -403,6 +414,8 @@ Do not automatically add:
 - broad browser matrices;
 
 unless the change touches those risks or a reproduced failure justifies them.
+
+Documentation-only/census-only commits do not require broad runtime tests.
 
 ### Before merge/deploy
 
@@ -481,12 +494,12 @@ This file exists partly to enforce that property.
 
 ## 9. REPOSITORY-CENSUS DECISION MODEL
 
-Every GitHub repository Steve owns should eventually be assigned one of these statuses:
+Every GitHub repository Steve owns is assigned one of these statuses:
 
 1. **PRIMARY** — canonical active implementation for a major current product.
-2. **INDEPENDENT** — legitimately separate lifecycle/deployment/product.
+2. **INDEPENDENT** — legitimately separate lifecycle/deployment/product, or conservatively retained until supersession is proven.
 3. **REFERENCE** — retained for history/assets/migration reference; not active target.
-4. **ARCHIVE** — superseded/abandoned/experiment; GitHub archived.
+4. **ARCHIVE** — superseded/abandoned/experiment; should be GitHub archived or is already archived.
 
 ### Archive criteria
 
@@ -551,22 +564,22 @@ This is the current program. **A new agent should continue from the first unchec
 ### Phase A — Freeze continuity and establish the baseline
 
 - [x] Make this `MASTER_PLAN.md` the canonical cross-window program/handoff document.
-- [ ] Update root `AGENTS.md` so every agent is explicitly directed here while preserving deployment-verification invariants.
-- [ ] Reconcile root `README.md` with current canonical routes (`/hospital/` vs archived `/phs/`) and remove stale dynamic status from it.
-- [ ] Confirm `site/catalog.json` remains sufficient as the single route/deployment registry; **do not add another manifest**.
+- [x] Update root `AGENTS.md` so every agent is explicitly directed here while preserving deployment-verification invariants. (`e5a5ef44d12b5c7bd072cb2c51a743fb9a026677`)
+- [x] Reconcile root `README.md` with current canonical routes (`/hospital/` vs archived `/phs/`) and remove stale dynamic status from it. (`136be62ff94eeb085c1aca88800759a010aad5e4`)
+- [x] Confirm `site/catalog.json` remains sufficient as the single route/deployment registry; **do not add another manifest**.
 
-**Exit:** a fresh agent can understand the canonical system from `README.md` + `AGENTS.md` + this file without chat history.
+**Exit:** COMPLETE. A fresh agent can understand the canonical system from `README.md` + `AGENTS.md` + this file without chat history.
 
 ### Phase B — GitHub repository census and archive pass
 
-- [ ] Inventory all Steve-owned repositories with current archived/public/private status.
-- [ ] Assign `PRIMARY / INDEPENDENT / REFERENCE / ARCHIVE`.
-- [ ] Identify obvious duplicate/superseded repos first (including hospital prototypes and standalone copies now canonical in the main site).
-- [ ] Archive only after confirming no unique live deployment/source is being lost.
-- [ ] Do not delete repositories.
-- [ ] Record the final decisions in **Section 12 — Repository Census** below, not a new document unless the table becomes unmanageably large.
+- [x] Inventory all Steve-owned repositories with current archived/public/private status. **49 total; 12 already archived; 37 not archived.**
+- [x] Assign `PRIMARY / INDEPENDENT / REFERENCE / ARCHIVE` conservatively in Section 12.
+- [x] Identify obvious duplicate/superseded repos first, including hospital predecessors and the standalone cooking-timers copy.
+- [ ] Apply GitHub archive status to verified `ARCHIVE` decisions that are not already archived. **Current blocker:** this GitHub connector exposes repository reads/content writes but no repository-settings/archive mutation. Do not delete as a substitute. `cooking-timers` is the current verified archive action pending a settings-capable interface.
+- [x] Do not delete repositories.
+- [x] Record census decisions in **Section 12 — Repository Census**.
 
-**Exit:** agents no longer have to guess which repo is canonical.
+**Exit:** classification is complete; one repository-settings action remains before Phase B can be called fully complete.
 
 ### Phase C — Dead/stale machinery deletion inside `stevetodman.com`
 
@@ -643,16 +656,61 @@ Do not create perpetual platform work.
 
 ## 12. REPOSITORY CENSUS
 
-This table is intentionally incomplete until Phase B verifies each repository.
+Census performed 2026-09-04 from the authenticated owner repository listing. `INDEPENDENT` is intentionally conservative: it means "do not merge/archive based only on superficial similarity." It does not mean the repository is a current priority.
 
-| Repository | Current decision | Notes |
-| --- | --- | --- |
-| `stevetodman/stevetodman.com` | **PRIMARY** | Canonical website and unified hospital deployment source |
-| `stevetodman/pediatric-hospital-world` | **REFERENCE** | Explicitly secondary to `cardio-hospital-3d/` for current hospital work |
-| `stevetodman/cooking-timers` | **REVIEW → likely ARCHIVE** | Cooking timers now live inside main website; verify no unique desired source/deployment |
-| already GitHub-archived repos | **ARCHIVE** | Keep archived unless a real reason to reactivate appears |
+| Repository | Visibility | GitHub archived | Decision | Notes |
+| --- | --- | --- | --- | --- |
+| `stevetodman/3dworld` | private | no | **REFERENCE** | CardioQuest 3D predecessor; current hospital source is `cardio-hospital-3d/` in the primary repo. Preserve large/unique assets and history. |
+| `stevetodman/arrhythmias-quiz` | public | no | **INDEPENDENT** | Separate Next/Vercel-style quiz app; no verified canonical replacement. |
+| `stevetodman/audience-response-live` | public | yes | **ARCHIVE** | Already archived; leave archived. |
+| `stevetodman/audience-response-system` | private | yes | **ARCHIVE** | Already archived; leave archived. |
+| `stevetodman/autonomous-agent-template` | private | no | **INDEPENDENT** | Reusable agent template, not website product source. |
+| `stevetodman/cardiojeopardy` | public | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/cardiology-briefing` | private | no | **INDEPENDENT** | Personal AI pediatric-cardiology briefing workflow; separate lifecycle. |
+| `stevetodman/cardiomyopathytest` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/cardiotrainer` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/circuit` | public | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/cli-todo-app` | private | no | **INDEPENDENT** | Separate utility/experiment; no replacement evidence. |
+| `stevetodman/clintel` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/codex-control-plane` | private | no | **INDEPENDENT** | Separate development/agent infrastructure. |
+| `stevetodman/cooking-timers` | public | no | **ARCHIVE** | `/cooking/` in primary repo is canonical; standalone Pages workflow has only failed runs. Preserve history, archive when settings write is available. |
+| `stevetodman/ekgassessment` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/ekgquest` | public | yes | **ARCHIVE** | Already archived; leave archived. |
+| `stevetodman/guessthechd` | public | yes | **ARCHIVE** | Already archived; leave archived. |
+| `stevetodman/guidesynth` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/heartquest` | private | yes | **ARCHIVE** | Already archived; leave archived. |
+| `stevetodman/intake-agent` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/lecture` | public | yes | **ARCHIVE** | Already archived; leave archived. |
+| `stevetodman/lecture-generator` | private | no | **INDEPENDENT** | Separate authoring system. |
+| `stevetodman/medqbank` | private | no | **INDEPENDENT** | Separate question-bank project. |
+| `stevetodman/medx` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/mossandadams` | private | yes | **ARCHIVE** | Already archived; leave archived. |
+| `stevetodman/oblit` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/OBLITERATUS` | public | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/pedcards` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/pediatric-cardiac-assessment` | private | no | **INDEPENDENT** | Separate assessment project; no verified replacement. |
+| `stevetodman/pediatric-hospital-world` | public | no | **REFERENCE** | Isolated iPhone-first hospital predecessor with historical GitHub Pages workflow; unified `/hospital/` is canonical. |
+| `stevetodman/pedisim-svt` | public | yes | **ARCHIVE** | Already archived; leave archived. |
+| `stevetodman/peds-cardio-curriculum` | private | no | **INDEPENDENT** | Private evidence-backed lecture/database/CLI system; distinct from website academies. |
+| `stevetodman/peds-ecg-viewer` | public | no | **INDEPENDENT** | Separate ECG viewer; no verified replacement. |
+| `stevetodman/pocket-tts` | public | no | **INDEPENDENT** | Reusable TTS project; separate lifecycle. |
+| `stevetodman/previsit-chatbot-demo` | private | no | **INDEPENDENT** | Separate demo; no verified replacement. |
+| `stevetodman/prove` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/resident_curriculum` | private | no | **INDEPENDENT** | Own resident curriculum and `curriculum.stevetodman.com` deployment; keep separate. |
+| `stevetodman/Septation-Station` | public | yes | **ARCHIVE** | Already archived; leave archived. |
+| `stevetodman/settled-meadow-world-recipe` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/shunt` | private | yes | **ARCHIVE** | Already archived; leave archived. |
+| `stevetodman/shuntchatgpt` | private | yes | **ARCHIVE** | Already archived; leave archived. |
+| `stevetodman/speed-reader` | private | no | **INDEPENDENT** | Separate utility; no verified replacement. |
+| `stevetodman/step1` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/stevetodman.com` | public | no | **PRIMARY** | Canonical website, Study/Math, clinical tools/education, cooking routes, and unified hospital deployment source. |
+| `stevetodman/tbank` | public | yes | **ARCHIVE** | Already archived; leave archived. |
+| `stevetodman/the_ward` | private | no | **REFERENCE** | Earlier Claude-driven medical simulation platform; unified `/hospital/` is current simulator target. |
+| `stevetodman/todmanz` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/uworldinspire` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
+| `stevetodman/zzu-pediatric-ecg` | public | no | **INDEPENDENT** | Separate ECG project; no verified replacement. |
 
-Add verified decisions here during the census. Do not infer status from repository name alone.
+Do not infer future archive decisions from repository name alone. Promote an `INDEPENDENT` repo to `REFERENCE` or `ARCHIVE` only after verifying a real canonical replacement and deployment/source ownership.
 
 ---
 
@@ -671,6 +729,10 @@ Requires real durable clinical-review evidence. Do not infer dates from commits 
 ### Physical-iPhone hospital acceptance
 
 Hospital-specific project docs record this as a remaining product-quality gate. Do not substitute desktop/browser emulation for a physical-device gate if the project acceptance criteria explicitly require a physical device.
+
+### Repository archive mutation
+
+The current GitHub connection used for the 2026-09-04 census can read repository metadata and write repository contents but does not expose repository-settings mutation for the GitHub `archived` flag. `stevetodman/cooking-timers` has a verified **ARCHIVE** decision but still reports `archived: false`. Use a settings-capable GitHub interface to archive it; do not delete it or weaken other repositories as a workaround.
 
 These blockers should not prevent safe repository simplification work that does not claim to close them.
 
@@ -750,10 +812,9 @@ This technical-debt/simplification program is done when:
 
 ## 18. EXACT NEXT ACTION
 
-After this plan lands, the next agent should:
-
-1. update root `AGENTS.md` to point here while preserving its exact-SHA deployment rules;
-2. reconcile root `README.md` with the current catalog, especially `/hospital/` vs archived `/phs/`;
-3. then begin **Phase B — GitHub repository census** before any large refactor.
+1. If a repository-settings-capable GitHub interface is available, archive `stevetodman/cooking-timers` (do **not** delete it); then mark Phase B complete.
+2. Regardless of that settings-only blocker, continue the **read-only Phase C audit** inside `stevetodman.com`: inventory stale source copies, obsolete scripts/workflows, old handoff/status docs, and redundant test commands.
+3. Delete nothing from Phase C until a canonical replacement/no-current-function case is demonstrated.
+4. Keep testing minimal: documentation/census-only changes require no broad suite.
 
 Do **not** start by building a universal academy engine, new manifest system, or CI abstraction layer.
