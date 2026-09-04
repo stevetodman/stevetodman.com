@@ -16,7 +16,7 @@ after(async () => {
   await server?.close();
 });
 
-test('Science Lab phone smoke: repair, graph resume, twin separation', async () => {
+test('Science Lab phone smoke: repair, graph resume, phenomenon resume, twin separation', async () => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   await page.goto(server.origin + '/study/matter-lab.html');
@@ -25,7 +25,9 @@ test('Science Lab phone smoke: repair, graph resume, twin separation', async () 
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
 
   await page.locator('[data-learner="Luke"]').click();
-  await page.locator('[data-action="start"]').click();
+  assert.equal(await page.locator('.science-investigation-link').isVisible(), true, 'unfinished phenomenon should be the recommended action');
+  assert.equal(await page.locator('[data-adaptive-practice]').isVisible(), true, 'short adaptive practice remains available');
+  await page.locator('[data-adaptive-practice]').click();
   const initial = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), SCIENCE_LAB_CONFIG.storageKey);
   assert.equal(initial.active.Luke.queue.length, 8);
 
@@ -70,7 +72,7 @@ test('Science Lab phone smoke: repair, graph resume, twin separation', async () 
   await page.locator('[data-action="pause"]').click();
   await page.locator('[data-action="switch"]').click();
   await page.locator('[data-learner="Samantha"]').click();
-  assert.equal(await page.locator('[data-action="start"]').isVisible(), true);
+  assert.equal(await page.locator('.science-investigation-link').isVisible(), true);
   const isolated = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), SCIENCE_LAB_CONFIG.storageKey);
   assert.ok(isolated.active.Luke);
   assert.equal(isolated.active.Samantha, undefined);
@@ -118,6 +120,52 @@ test('Science Lab phone smoke: repair, graph resume, twin separation', async () 
   assert.equal(graphEvidence.learners.Samantha.attempts.at(-1).responseType, 'graph-build');
   assert.deepEqual(graphEvidence.learners.Samantha.attempts.at(-1).response, { 0: 8, 1: 6, 2: 4, 3: 6 });
   assert.equal(graphEvidence.learners.Samantha.attempts.at(-1).provenance, 'independent');
+
+  const phenomenonUrl = server.origin + '/study/science-lab/investigate.html?learner=Samantha';
+  await page.goto(phenomenonUrl);
+  assert.equal(await page.locator('.phenomenon-card').isVisible(), true);
+  assert.match(await page.locator('.progress-copy span').innerText(), /Where did the sugar go/i);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, 'phenomenon must not overflow 390px');
+
+  await page.locator('[data-phen-action="continue"]').click();
+  await page.locator('[data-phen-choice="0"]').click();
+  await page.locator('[data-phen-action="commit"]').click();
+  assert.equal(await page.locator('.particle-model').isVisible(), true, 'prediction should be committed before particle evidence appears');
+
+  const activityKey = `${SCIENCE_LAB_CONFIG.storageKey}-phenomena`;
+  const beforePhenReload = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), activityKey);
+  assert.equal(beforePhenReload.active.Samantha.stepIndex, 2);
+  assert.equal(beforePhenReload.active.Samantha.responses.predict.selected, 0);
+
+  await page.reload();
+  assert.equal(await page.locator('.particle-model').isVisible(), true, 'reload should resume the exact evidence step');
+  const afterPhenReload = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), activityKey);
+  assert.equal(afterPhenReload.active.Samantha.responses.predict.selected, 0, 'prediction must survive reload before later evidence');
+
+  await page.locator('[data-phen-choice="0"]').click();
+  await page.locator('[data-phen-action="check"]').click();
+  assert.equal(await page.locator('.feedback-card.correct').isVisible(), true);
+  await page.locator('[data-phen-action="feedback-next"]').click();
+  assert.equal(await page.locator('.science-graph').isVisible(), true);
+  await page.locator('[data-phen-choice="0"]').click();
+  await page.locator('[data-phen-action="check"]').click();
+  await page.locator('[data-phen-action="feedback-next"]').click();
+
+  await page.locator('[data-phen-choice="1"]').click();
+  await page.locator('[data-phen-action="check"]').click();
+  assert.match(await page.locator('.feedback-card h2').innerText(), /revised your original model/i);
+  await page.locator('[data-phen-action="feedback-next"]').click();
+  assert.match(await page.locator('.summary-card h1').innerText(), /Where did the sugar go/i);
+
+  const phenomenonEvidence = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), SCIENCE_LAB_CONFIG.storageKey);
+  const sugarAttempts = phenomenonEvidence.learners.Samantha.attempts.filter(attempt => attempt.phenomenonId === 'sugar-disappears');
+  assert.equal(sugarAttempts.length, 2, 'prediction/revision must not inflate mastery evidence');
+  assert.ok(sugarAttempts.every(attempt => attempt.provenance === 'independent'));
+  assert.ok(phenomenonEvidence.learners.Samantha.sessions.some(session => session.kind === 'phenomenon' && session.phenomenonId === 'sugar-disappears'));
+  assert.ok(Number(phenomenonEvidence.learners.Samantha.skills['particle-models'].dueAt) > 0);
+  assert.ok(Number(phenomenonEvidence.learners.Samantha.skills['matter-conservation'].dueAt) > 0);
+  const completedActivity = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), activityKey);
+  assert.equal(completedActivity.active.Samantha, undefined);
 
   await context.close();
 });
