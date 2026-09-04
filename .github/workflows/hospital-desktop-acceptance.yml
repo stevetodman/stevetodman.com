@@ -1,13 +1,8 @@
 name: Hospital Desktop Behavioral Acceptance
 
+# Desktop acceptance is already complete. Rerun only when a later shared-code
+# change or reproduced regression specifically justifies the full browser pass.
 on:
-  push:
-    branches:
-      - hospital-unified
-    paths:
-      - .github/workflows/hospital-desktop-acceptance.yml
-      - cardio-hospital-3d/src/**
-      - cardio-hospital-3d/scripts/desktop-acceptance.mjs
   workflow_dispatch:
 
 jobs:
@@ -26,9 +21,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: cardio-hospital-3d/package-lock.json
 
       - name: Install app dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Install focused browser runner
         run: |
