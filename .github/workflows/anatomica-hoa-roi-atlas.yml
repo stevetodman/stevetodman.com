@@ -1,0 +1,56 @@
+name: Anatomica HOA ROI Atlas
+
+on:
+  push:
+    branches:
+      - anatomica-reference-anatomy-strategy
+    paths:
+      - 'tools/anatomica/hoa_roi_atlas.py'
+      - 'tools/anatomica/requirements-hoa.txt'
+      - '.github/workflows/anatomica-hoa-roi-atlas.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: anatomica-hoa-roi-atlas-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  atlas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: tools/anatomica/requirements-hoa.txt
+
+      - name: Install HOA atlas dependencies
+        run: pip install -r tools/anatomica/requirements-hoa.txt
+
+      - name: Build LADAF ROI atlas
+        run: |
+          python tools/anatomica/hoa_roi_atlas.py \
+            --output hoa_roi_atlas_output \
+            --locator-level 4 \
+            --preview-level 3 \
+            --max-overview-mib 650
+
+      - name: Show atlas report
+        if: always()
+        run: |
+          test -f hoa_roi_atlas_output/ROI_ATLAS_REPORT.md && cat hoa_roi_atlas_output/ROI_ATLAS_REPORT.md || true
+
+      - name: Upload ROI atlas artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: anatomica-hoa-roi-atlas
+          path: hoa_roi_atlas_output/
+          if-no-files-found: error
+          retention-days: 14
