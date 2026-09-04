@@ -8,6 +8,7 @@ interface WorldLocationZone {
   maxZ: number;
 }
 
+export const PLAYER_START_WORLD_POSITION: [number, number, number] = [0, 0.95, 5.4];
 export const HCM_PATIENT_WORLD_POSITION: [number, number, number] = [7.15, 0.82, -3.55];
 export const HCM_PARENT_WORLD_POSITION: [number, number, number] = [5.65, 0.55, -2.25];
 export const VASOVAGAL_PATIENT_WORLD_POSITION: [number, number, number] = [-7.15, 0.82, -3.55];

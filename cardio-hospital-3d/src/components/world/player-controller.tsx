@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { HospitalLocation } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
-import { locationForWorldPosition } from "@/lib/hospital-world-layout";
+import { locationForWorldPosition, PLAYER_START_WORLD_POSITION } from "@/lib/hospital-world-layout";
 import { useSimulationStore } from "@/lib/simulation-store";
 
 const WALK_SPEED = 2.25;
@@ -92,7 +92,7 @@ export function PlayerController() {
     <RigidBody
       ref={body}
       colliders={false}
-      position={[0, 0.95, 8.65]}
+      position={PLAYER_START_WORLD_POSITION}
       enabledRotations={[false, false, false]}
       mass={70}
       friction={0.2}
