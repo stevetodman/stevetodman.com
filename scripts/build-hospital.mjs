@@ -13,11 +13,14 @@ const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 if (!fs.existsSync(path.join(app, 'package.json'))) {
   throw new Error('Unified hospital package.json is missing.');
 }
+if (!fs.existsSync(path.join(app, 'package-lock.json'))) {
+  throw new Error('Unified hospital package-lock.json is missing.');
+}
 
-// Cloudflare installs the root package only. The hospital currently has no
-// package-lock.json, so its nested dependencies still need provisioning here.
+// Cloudflare installs the root package only, so the nested hospital app still
+// provisions its own dependencies. The committed lockfile keeps that install deterministic.
 // Focused engine validation belongs in CI rather than the production build path.
-execFileSync(npm, ['install', '--no-audit', '--no-fund'], {
+execFileSync(npm, ['ci', '--no-audit', '--no-fund'], {
   cwd: app,
   stdio: 'inherit',
 });
