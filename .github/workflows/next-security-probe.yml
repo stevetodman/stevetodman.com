@@ -1,0 +1,53 @@
+name: Next.js security patch probe
+
+on:
+  push:
+    branches: [next-security-16-3-3]
+    paths:
+      - '.github/workflows/next-security-probe.yml'
+      - 'cardio-hospital-3d/package.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: cardio-hospital-3d
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Regenerate lockfile for Next.js 16.3.3
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
+      - name: Prove clean deterministic install
+        run: npm ci --no-audit --no-fund
+
+      - name: Run focused engine tests
+        run: npm run test:engine
+
+      - name: Build hospital
+        run: npm run build
+
+      - name: Commit validated lockfile
+        working-directory: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add cardio-hospital-3d/package-lock.json
+          if git diff --cached --quiet; then
+            echo 'Lockfile already matches.'
+            exit 0
+          fi
+          git commit -m 'Update hospital lockfile for Next.js 16.3.3'
+          git push origin HEAD:next-security-16-3-3
