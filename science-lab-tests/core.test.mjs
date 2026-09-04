@@ -88,59 +88,82 @@ test('M1 avoids a sibling recent item and keeps the current unit bounded', () =>
   assert.equal(queue.includes('pm1'), false, 'recent sibling item should be skipped when equivalent forms exist');
 });
 
-test('M1-M6 keeps curriculum, remediation, representations, phenomena, CER, and the Matter vertical slice coherent', () => {
+test('M1-M7 keeps curriculum, remediation, representations, phenomena, CER, Matter, and Earth/Sky coherent', () => {
   const root = normalizeStore({ version: 2, learners: { Luke: { attempts: [attempt('particle-models', true, '2026-09-03', { misconceptionTag: 'example-tag' })] } } });
   assert.equal(root.learners.Luke.attempts.length, 1);
   assert.equal(root.learners.Luke.attempts[0].misconceptionTag, 'example-tag');
   assert.equal(root.learners.Samantha.attempts.length, 0);
   assert.equal(validateCurriculum(SCIENCE_LAB_CONFIG), true);
-  assert.equal(SCIENCE_LAB_CONFIG.items.length, 68);
+  assert.equal(SCIENCE_LAB_CONFIG.items.length, 83);
   assert.equal(new Set(SCIENCE_LAB_CONFIG.items.map(item => item.standard)).size, 16);
 
-  const matter = SCIENCE_LAB_CONFIG.items.filter(item => item.unit === 'matter');
-  assert.equal(matter.length, 32);
-  const matterSkills = ['particle-models', 'matter-conservation', 'material-properties', 'new-substances'];
-  for (const skill of matterSkills) {
-    const forms = matter.filter(item => item.skill === skill);
-    assert.ok(forms.length >= 8, `${skill} needs at least 8 contexts`);
-    assert.ok(new Set(forms.map(item => item.sourceFamily)).size >= 8, `${skill} contexts must be meaningfully distinct`);
-    assert.ok(forms.some(item => item.transferLevel === 'far' && item.transfer === true), `${skill} needs a genuine far-transfer task`);
-  }
+  const strictUnitChecks = [
+    {
+      unit: 'matter',
+      skills: ['particle-models', 'matter-conservation', 'material-properties', 'new-substances'],
+      standards: ['5-PS1-1', '5-PS1-2', '5-PS1-3', '5-PS1-4'],
+      prefix: 'matter:'
+    },
+    {
+      unit: 'earth-sky',
+      skills: ['gravity', 'star-distance', 'sky-patterns'],
+      standards: ['5-PS2-1', '5-ESS1-1', '5-ESS1-2'],
+      prefix: 'earth-sky:'
+    }
+  ];
 
-  for (const item of matter) {
-    assert.ok(item.sep, `${item.id} needs SEP metadata`);
-    assert.ok(item.ccc, `${item.id} needs CCC metadata`);
-    assert.ok(item.representationType, `${item.id} needs representation metadata`);
-    assert.ok(item.transferLevel, `${item.id} needs transfer metadata`);
-    assert.ok(item.sourceFamily?.startsWith('matter:'), `${item.id} needs a Matter context family`);
-    assert.equal(item.transfer, item.transferLevel === 'far', `${item.id} only far-transfer evidence should qualify for mastery transfer credit`);
-    if (!Array.isArray(item.choices)) continue;
-    const answers = new Set(Array.isArray(item.answer) ? item.answer : [item.answer]);
-    for (let index = 0; index < item.choices.length; index += 1) {
-      if (!answers.has(index)) {
-        assert.ok(item.remediation?.[index]?.tag, `${item.id} distractor ${index} needs a misconception tag`);
-        assert.ok(item.remediation?.[index]?.hint, `${item.id} distractor ${index} needs a hint`);
+  for (const contract of strictUnitChecks) {
+    const unitItems = SCIENCE_LAB_CONFIG.items.filter(item => item.unit === contract.unit);
+    assert.equal(unitItems.length, contract.skills.length * 8, `${contract.unit} should have exactly 8 contexts per skill at this milestone`);
+    for (const skill of contract.skills) {
+      const forms = unitItems.filter(item => item.skill === skill);
+      assert.ok(forms.length >= 8, `${skill} needs at least 8 contexts`);
+      assert.ok(new Set(forms.map(item => item.sourceFamily)).size >= 8, `${skill} contexts must be meaningfully distinct`);
+      assert.ok(forms.some(item => item.transferLevel === 'far' && item.transfer === true), `${skill} needs a genuine far-transfer task`);
+    }
+    for (const item of unitItems) {
+      assert.ok(item.sep, `${item.id} needs SEP metadata`);
+      assert.ok(item.ccc, `${item.id} needs CCC metadata`);
+      assert.ok(item.representationType, `${item.id} needs representation metadata`);
+      assert.ok(item.transferLevel, `${item.id} needs transfer metadata`);
+      assert.ok(item.sourceFamily?.startsWith(contract.prefix), `${item.id} needs a ${contract.unit} context family`);
+      assert.equal(item.transfer, item.transferLevel === 'far', `${item.id} only far-transfer evidence should qualify for mastery transfer credit`);
+      if (!Array.isArray(item.choices)) continue;
+      const answers = new Set(Array.isArray(item.answer) ? item.answer : [item.answer]);
+      for (let index = 0; index < item.choices.length; index += 1) {
+        if (!answers.has(index)) {
+          assert.ok(item.remediation?.[index]?.tag, `${item.id} distractor ${index} needs a misconception tag`);
+          assert.ok(item.remediation?.[index]?.hint, `${item.id} distractor ${index} needs a hint`);
+        }
       }
     }
-  }
-
-  for (const standard of ['5-PS1-1', '5-PS1-2', '5-PS1-3', '5-PS1-4']) {
-    const representations = new Set(matter.filter(item => item.standard === standard).map(item => item.representationType));
-    assert.ok(representations.size >= 3, `${standard} needs representation diversity`);
+    for (const standard of contract.standards) {
+      const representations = new Set(unitItems.filter(item => item.standard === standard).map(item => item.representationType));
+      assert.ok(representations.size >= 3, `${standard} needs representation diversity`);
+    }
   }
 
   const sp2 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'sp2');
   assert.equal(sp2.responseType, 'graph-build');
+  assert.equal(sp2.transfer, false, 'Earth/Sky graph practice should not receive transfer credit unless explicitly far transfer');
   assert.equal(graphBuildComplete(sp2.graphBuild, { 0: 8, 1: 6, 2: 4, 3: 6 }), true);
   assert.equal(graphBuildCorrect(sp2.graphBuild, { 0: 8, 1: 6, 2: 4, 3: 6 }), true);
   assert.equal(graphBuildCorrect(sp2.graphBuild, { 0: 6, 1: 6, 2: 4, 3: 6 }), false);
 
   const sp3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'sp3');
+  const g3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'g3');
+  const sd6 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'sd6');
+  const sd8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'sd8');
   const pm3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'pm3');
   const mc3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'mc3');
   const mc8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'mc8');
   const cy3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'cy3');
   assert.equal(sp3.stimulus.graph.type, 'line');
+  assert.ok(g3.stimulus.systemModel.nodes.length >= 5);
+  assert.equal(sd6.stimulus.graph.type, 'bar');
+  assert.equal(sd6.stimulus.graph.yMin, 0, 'Earth/Sky bar graph should use a zero baseline');
+  assert.equal(sd8.transferLevel, 'far');
+  assert.equal(sd8.transfer, true);
   assert.equal(mc3.stimulus.graph.type, 'bar');
   assert.equal(mc3.stimulus.graph.yMin, 0, 'bar graph should use a zero baseline');
   assert.ok(pm3.stimulus.particleModel.panels.length >= 2);
