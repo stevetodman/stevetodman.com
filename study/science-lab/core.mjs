@@ -1,3 +1,5 @@
+import { graphBuilderMarkup, graphBuildComplete, graphBuildCorrect, visualStimulusMarkup } from './visuals.mjs';
+
 const VERSION = 2;
 const SESSION_TARGET = 8;
 const SESSION_MAX = 10;
@@ -196,6 +198,11 @@ export function validateCurriculum(config) {
     ids.add(item.id);
     if (!unitIds.has(item.unit)) throw new Error(`Unknown unit for ${item.id}`);
     if (!item.skill || !item.standard || !item.prompt || !item.explanation) throw new Error(`Incomplete item: ${item.id}`);
+    if (item.responseType === 'graph-build') {
+      if (!item.graphBuild || !Array.isArray(item.graphBuild.xLabels) || !Array.isArray(item.graphBuild.expected) || item.graphBuild.xLabels.length !== item.graphBuild.expected.length) throw new Error(`Invalid graph-build item: ${item.id}`);
+      if (!Array.isArray(item.graphBuild.allowedValues) || !item.graphBuild.allowedValues.length) throw new Error(`Graph-build values missing: ${item.id}`);
+      return;
+    }
     if (!Array.isArray(item.choices) || item.choices.length < 3) throw new Error(`Item needs choices: ${item.id}`);
     const answers = Array.isArray(item.answer) ? item.answer : [item.answer];
     if (!answers.length || answers.some(answer => !Number.isInteger(answer) || answer < 0 || answer >= item.choices.length)) throw new Error(`Invalid answer: ${item.id}`);
@@ -209,7 +216,8 @@ function stimulusMarkup(stimulus) {
   if (stimulus.table) body += `<div class="data-scroll"><table><thead><tr>${stimulus.table.headers.map(header => `<th scope="col">${esc(header)}</th>`).join('')}</tr></thead><tbody>${stimulus.table.rows.map(row => `<tr>${row.map(cell => `<td>${esc(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
   if (stimulus.flow) body += `<div class="flow-model" aria-label="${esc(stimulus.label || 'Model')}">${stimulus.flow.map((node, index) => `${index ? '<span aria-hidden="true">→</span>' : ''}<strong>${esc(node)}</strong>`).join('')}</div>`;
   if (stimulus.timeline) body += `<ol class="timeline">${stimulus.timeline.map(event => `<li>${esc(event)}</li>`).join('')}</ol>`;
-  return `<section class="stimulus" aria-label="${esc(stimulus.label || 'Evidence')}">${stimulus.label ? `<div class="stimulus-label">${esc(stimulus.label)}</div>` : ''}${body}</section>`;
+  body += visualStimulusMarkup(stimulus);
+  return `<section class="stimulus" aria-label="${esc(stimulus.label || 'Evidence')}">${stimulus.label && !stimulus.graph && !stimulus.particleModel && !stimulus.systemModel ? `<div class="stimulus-label">${esc(stimulus.label)}</div>` : ''}${body}</section>`;
 }
 
 export function mountScienceLab(config) {
@@ -263,7 +271,7 @@ export function mountScienceLab(config) {
 
   function startSession(mode = 'unit', unitId = config.currentUnit) {
     const queue = buildQueue(config, profile(), { mode, unitId, siblingProfile: siblingProfile() });
-    root.active[learner] = { version: VERSION, id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`, mode, unitId, queue, index: 0, selected: [], feedback: null, retry: null, results: [], recoveryIds: [] };
+    root.active[learner] = { version: VERSION, id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`, mode, unitId, queue, index: 0, selected: [], response: {}, feedback: null, retry: null, results: [], recoveryIds: [] };
     save();
     renderQuestion();
   }
@@ -275,13 +283,18 @@ export function mountScienceLab(config) {
     if (!item) { session.index += 1; save(); return renderQuestion(); }
     if (session.feedback) return renderFeedback(item);
     const selected = Array.isArray(session.selected) ? session.selected : [];
-    const multi = Array.isArray(item.answer);
-    const ready = multi ? selected.length === item.answer.length : selected.length === 1;
+    const response = session.response && typeof session.response === 'object' ? session.response : {};
+    const graphBuild = item.responseType === 'graph-build';
+    const multi = !graphBuild && Array.isArray(item.answer);
+    const ready = graphBuild ? graphBuildComplete(item.graphBuild, response) : multi ? selected.length === item.answer.length : selected.length === 1;
     const recovery = session.recoveryIds.includes(item.id);
     const hinted = session.retry?.itemId === item.id && session.retry?.mode === 'hinted';
     const evidenceLabel = recovery ? ' · repair recheck' : hinted ? ' · hinted retry' : '';
     const hint = hinted ? `<div class="repair-note"><strong>Hint</strong><span>${esc(session.retry.hint)}</span></div>` : '';
-    shell(`<main class="practice-screen"><div class="session-head"><button class="text-button" data-action="pause">← Pause</button><div class="progress-copy"><strong>${session.index + 1} of ${session.queue.length}</strong><span>${esc(item.standard)}</span></div></div><div class="progress-track" aria-label="Investigation progress"><span style="width:${Math.round(session.index / session.queue.length * 100)}%"></span></div><article class="question-card"><p class="skill-label">${esc(config.skills[item.skill] || item.skill)}${evidenceLabel}</p>${stimulusMarkup(item.stimulus)}<h2 tabindex="-1">${esc(item.prompt)}</h2>${hint}<div class="choice-list${multi ? ' multi' : ''}" role="group" aria-label="Answer choices">${item.choices.map((choice, index) => `<button type="button" class="choice${selected.includes(index) ? ' selected' : ''}" data-choice="${index}" aria-pressed="${selected.includes(index)}">${esc(choice)}</button>`).join('')}</div>${multi ? `<p class="select-note">Select ${item.answer.length} answers.</p>` : ''}<button class="primary-button check-button" data-action="check" ${ready ? '' : 'disabled'}>Check answer</button></article></main>`);
+    const responseMarkup = graphBuild
+      ? graphBuilderMarkup(item.graphBuild, response)
+      : `<div class="choice-list${multi ? ' multi' : ''}" role="group" aria-label="Answer choices">${item.choices.map((choice, index) => `<button type="button" class="choice${selected.includes(index) ? ' selected' : ''}" data-choice="${index}" aria-pressed="${selected.includes(index)}">${esc(choice)}</button>`).join('')}</div>${multi ? `<p class="select-note">Select ${item.answer.length} answers.</p>` : ''}`;
+    shell(`<main class="practice-screen"><div class="session-head"><button class="text-button" data-action="pause">← Pause</button><div class="progress-copy"><strong>${session.index + 1} of ${session.queue.length}</strong><span>${esc(item.standard)}</span></div></div><div class="progress-track" aria-label="Investigation progress"><span style="width:${Math.round(session.index / session.queue.length * 100)}%"></span></div><article class="question-card"><p class="skill-label">${esc(config.skills[item.skill] || item.skill)}${evidenceLabel}</p>${stimulusMarkup(item.stimulus)}<h2 tabindex="-1">${esc(item.prompt)}</h2>${hint}${responseMarkup}<button class="primary-button check-button" data-action="check" ${ready ? '' : 'disabled'}>Check answer</button></article></main>`);
   }
 
   function selectChoice(index) {
@@ -295,17 +308,36 @@ export function mountScienceLab(config) {
     renderQuestion();
   }
 
+  function selectPlotPoint(xIndex, yValue) {
+    const session = active();
+    const item = itemById.get(session.queue[session.index]);
+    if (item?.responseType !== 'graph-build') return;
+    session.response = session.response && typeof session.response === 'object' ? session.response : {};
+    session.response[String(xIndex)] = Number(yValue);
+    save();
+    renderQuestion();
+  }
+
   function checkAnswer() {
     const session = active();
     const item = itemById.get(session.queue[session.index]);
-    const expected = (Array.isArray(item.answer) ? item.answer : [item.answer]).slice().sort((a, b) => a - b);
+    const graphBuild = item.responseType === 'graph-build';
     const selected = (session.selected || []).slice().sort((a, b) => a - b);
-    if (selected.length !== expected.length) return;
-    const correct = expected.every((value, index) => value === selected[index]);
+    const response = session.response && typeof session.response === 'object' ? session.response : {};
+    let correct;
+    if (graphBuild) {
+      if (!graphBuildComplete(item.graphBuild, response)) return;
+      correct = graphBuildCorrect(item.graphBuild, response);
+    } else {
+      const expected = (Array.isArray(item.answer) ? item.answer : [item.answer]).slice().sort((a, b) => a - b);
+      if (selected.length !== expected.length) return;
+      correct = expected.every((value, index) => value === selected[index]);
+    }
+
     const recovery = session.recoveryIds.includes(item.id);
     const hinted = session.retry?.itemId === item.id && session.retry?.mode === 'hinted';
     const provenance = recovery ? 'recovery' : hinted ? 'hinted' : 'independent';
-    const remediation = correct && hinted
+    const remediation = graphBuild ? null : correct && hinted
       ? { tag: session.retry.misconceptionTag, hint: session.retry.hint }
       : remediationForSelection(item, selected);
     const now = Date.now();
@@ -318,6 +350,8 @@ export function mountScienceLab(config) {
       unit: item.unit,
       skill: item.skill,
       standard: item.standard,
+      responseType: item.responseType || 'choice',
+      response: graphBuild ? { ...response } : [...selected],
       correct,
       provenance,
       recovery: provenance === 'recovery',
@@ -335,13 +369,13 @@ export function mountScienceLab(config) {
 
     if (correct) {
       session.feedback = { kind: hinted ? 'correct-repair' : 'correct', correct: true, selected, misconceptionTag: attempt.misconceptionTag };
-    } else if (provenance === 'independent' && remediation) {
+    } else if (!graphBuild && provenance === 'independent' && remediation) {
       scheduleRecovery(item, session);
       session.retry = { itemId: item.id, mode: 'hinted', misconceptionTag: remediation.tag, hint: remediation.hint };
       session.feedback = { kind: 'hint', correct: false, selected, misconceptionTag: remediation.tag, hint: remediation.hint };
     } else {
       if (provenance === 'independent') scheduleRecovery(item, session);
-      session.feedback = { kind: 'explanation', correct: false, selected, misconceptionTag: attempt.misconceptionTag };
+      session.feedback = { kind: 'explanation', correct: false, selected, graphBuild, misconceptionTag: attempt.misconceptionTag };
     }
 
     save();
@@ -377,7 +411,8 @@ export function mountScienceLab(config) {
 
   function renderFeedback(item) {
     const feedback = active().feedback || {};
-    const expected = (Array.isArray(item.answer) ? item.answer : [item.answer]).map(index => item.choices[index]).join(' and ');
+    const graphBuild = item.responseType === 'graph-build';
+    const expected = graphBuild ? '' : (Array.isArray(item.answer) ? item.answer : [item.answer]).map(index => item.choices[index]).join(' and ');
 
     if (feedback.kind === 'hint') {
       shell(`<main class="practice-screen"><div class="progress-track"><span style="width:${Math.round((active().index + 1) / active().queue.length * 100)}%"></span></div><article class="feedback-card repair"><p class="eyebrow">Repair the idea</p><h2 tabindex="-1">Use one clue, then try again.</h2><p>${esc(feedback.hint)}</p><div class="repair-note"><strong>Your first answer is saved.</strong><span>This retry is for learning, so it will not count as independent mastery evidence.</span></div><button class="primary-button" data-action="retry">Try again</button></article></main>`);
@@ -390,12 +425,14 @@ export function mountScienceLab(config) {
     }
 
     const correct = Boolean(feedback.correct);
-    shell(`<main class="practice-screen"><div class="progress-track"><span style="width:${Math.round((active().index + 1) / active().queue.length * 100)}%"></span></div><article class="feedback-card ${correct ? 'correct' : 'repair'}"><p class="eyebrow">${correct ? 'Evidence recorded' : 'Repair the idea'}</p><h2 tabindex="-1">${correct ? 'Correct.' : `The answer is ${esc(expected)}.`}</h2><p>${esc(item.explanation)}</p>${!correct ? '<div class="repair-note"><strong>You will see this idea again.</strong><span>Later independent recall is still required for Secure.</span></div>' : ''}<button class="primary-button" data-action="next">Continue</button></article></main>`);
+    const wrongHeading = graphBuild ? 'The graph does not match the evidence yet.' : `The answer is ${esc(expected)}.`;
+    shell(`<main class="practice-screen"><div class="progress-track"><span style="width:${Math.round((active().index + 1) / active().queue.length * 100)}%"></span></div><article class="feedback-card ${correct ? 'correct' : 'repair'}"><p class="eyebrow">${correct ? 'Evidence recorded' : 'Repair the idea'}</p><h2 tabindex="-1">${correct ? 'Correct.' : wrongHeading}</h2><p>${esc(item.explanation)}</p>${!correct ? '<div class="repair-note"><strong>You will see this idea again.</strong><span>Later independent recall is still required for Secure.</span></div>' : ''}<button class="primary-button" data-action="next">Continue</button></article></main>`);
   }
 
   function retryQuestion() {
     const session = active();
     session.selected = [];
+    session.response = {};
     session.feedback = null;
     save();
     renderQuestion();
@@ -405,6 +442,7 @@ export function mountScienceLab(config) {
     const session = active();
     session.index += 1;
     session.selected = [];
+    session.response = {};
     session.feedback = null;
     session.retry = null;
     save();
@@ -429,6 +467,8 @@ export function mountScienceLab(config) {
     if (learnerButton) { learner = learnerButton.dataset.learner; active() ? renderQuestion() : renderDashboard(); return; }
     const unitButton = event.target.closest('[data-unit]');
     if (unitButton) { startSession('unit', unitButton.dataset.unit); return; }
+    const plot = event.target.closest('[data-plot-x][data-plot-y]');
+    if (plot) { selectPlotPoint(Number(plot.dataset.plotX), Number(plot.dataset.plotY)); return; }
     const choice = event.target.closest('[data-choice]');
     if (choice) { selectChoice(Number(choice.dataset.choice)); return; }
     const action = event.target.closest('[data-action]')?.dataset.action;

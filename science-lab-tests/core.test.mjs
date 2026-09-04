@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SCIENCE_LAB_CONFIG } from '../study/science-lab/config.mjs';
 import { blankProfile, buildQueue, normalizeStore, remediationForSelection, skillStatus, validateCurriculum } from '../study/science-lab/core.mjs';
+import { graphBuildComplete, graphBuildCorrect } from '../study/science-lab/visuals.mjs';
 
 const NOW = Date.UTC(2026, 8, 3, 18, 0, 0);
 const attempt = (skill, correct, date, extra = {}) => ({
@@ -85,7 +86,7 @@ test('M1 avoids a sibling recent item and keeps the current unit bounded', () =>
   assert.equal(queue.includes('pm1'), false, 'recent sibling item should be skipped when equivalent forms exist');
 });
 
-test('M1/M2 keeps the science contract complete with remediation on every Matter distractor', () => {
+test('M1-M3 keeps curriculum, remediation, graph scoring, and visual representations coherent', () => {
   const root = normalizeStore({ version: 2, learners: { Luke: { attempts: [attempt('particle-models', true, '2026-09-03', { misconceptionTag: 'example-tag' })] } } });
   assert.equal(root.learners.Luke.attempts.length, 1);
   assert.equal(root.learners.Luke.attempts[0].misconceptionTag, 'example-tag');
@@ -93,9 +94,11 @@ test('M1/M2 keeps the science contract complete with remediation on every Matter
   assert.equal(validateCurriculum(SCIENCE_LAB_CONFIG), true);
   assert.equal(SCIENCE_LAB_CONFIG.items.length, 48);
   assert.equal(new Set(SCIENCE_LAB_CONFIG.items.map(item => item.standard)).size, 16);
+
   const matter = SCIENCE_LAB_CONFIG.items.filter(item => item.unit === 'matter');
   assert.equal(matter.length, 12);
   for (const item of matter) {
+    if (!Array.isArray(item.choices)) continue;
     const answers = new Set(Array.isArray(item.answer) ? item.answer : [item.answer]);
     for (let index = 0; index < item.choices.length; index += 1) {
       if (!answers.has(index)) {
@@ -104,4 +107,20 @@ test('M1/M2 keeps the science contract complete with remediation on every Matter
       }
     }
   }
+
+  const sp2 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'sp2');
+  assert.equal(sp2.responseType, 'graph-build');
+  assert.equal(graphBuildComplete(sp2.graphBuild, { 0: 8, 1: 6, 2: 4, 3: 6 }), true);
+  assert.equal(graphBuildCorrect(sp2.graphBuild, { 0: 8, 1: 6, 2: 4, 3: 6 }), true);
+  assert.equal(graphBuildCorrect(sp2.graphBuild, { 0: 6, 1: 6, 2: 4, 3: 6 }), false);
+
+  const sp3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'sp3');
+  const pm3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'pm3');
+  const mc3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'mc3');
+  const cy3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'cy3');
+  assert.equal(sp3.stimulus.graph.type, 'line');
+  assert.equal(mc3.stimulus.graph.type, 'bar');
+  assert.equal(mc3.stimulus.graph.yMin, 0, 'bar graph should use a zero baseline');
+  assert.ok(pm3.stimulus.particleModel.panels.length >= 2);
+  assert.ok(cy3.stimulus.systemModel.nodes.length >= 4);
 });
