@@ -48,11 +48,6 @@ on:
       - 'index.html'
       - 'package.json'
       - 'package-lock.json'
-      - 'README.md'
-      - 'MASTER_PLAN.md'
-      - 'CLAUDE.md'
-      - 'DEPLOYMENT.md'
-      - 'PR_TRIAGE.md'
   pull_request:
     paths:
       - 'phs/**'
@@ -98,11 +93,6 @@ on:
       - 'index.html'
       - 'package.json'
       - 'package-lock.json'
-      - 'README.md'
-      - 'MASTER_PLAN.md'
-      - 'CLAUDE.md'
-      - 'DEPLOYMENT.md'
-      - 'PR_TRIAGE.md'
   workflow_dispatch:
 
 concurrency:
