@@ -88,13 +88,13 @@ test('M1 avoids a sibling recent item and keeps the current unit bounded', () =>
   assert.equal(queue.includes('pm1'), false, 'recent sibling item should be skipped when equivalent forms exist');
 });
 
-test('M1-M7 keeps curriculum, remediation, representations, phenomena, CER, Matter, and Earth/Sky coherent', () => {
+test('M1-M7 keeps curriculum, remediation, representations, phenomena, CER, and scaled unit slices coherent', () => {
   const root = normalizeStore({ version: 2, learners: { Luke: { attempts: [attempt('particle-models', true, '2026-09-03', { misconceptionTag: 'example-tag' })] } } });
   assert.equal(root.learners.Luke.attempts.length, 1);
   assert.equal(root.learners.Luke.attempts[0].misconceptionTag, 'example-tag');
   assert.equal(root.learners.Samantha.attempts.length, 0);
   assert.equal(validateCurriculum(SCIENCE_LAB_CONFIG), true);
-  assert.equal(SCIENCE_LAB_CONFIG.items.length, 83);
+  assert.equal(SCIENCE_LAB_CONFIG.items.length, 98);
   assert.equal(new Set(SCIENCE_LAB_CONFIG.items.map(item => item.standard)).size, 16);
 
   const strictUnitChecks = [
@@ -109,6 +109,12 @@ test('M1-M7 keeps curriculum, remediation, representations, phenomena, CER, Matt
       skills: ['gravity', 'star-distance', 'sky-patterns'],
       standards: ['5-PS2-1', '5-ESS1-1', '5-ESS1-2'],
       prefix: 'earth-sky:'
+    },
+    {
+      unit: 'ecosystems',
+      skills: ['food-energy', 'plant-growth', 'matter-cycle'],
+      standards: ['5-PS3-1', '5-LS1-1', '5-LS2-1'],
+      prefix: 'ecosystems:'
     }
   ];
 
@@ -154,6 +160,10 @@ test('M1-M7 keeps curriculum, remediation, representations, phenomena, CER, Matt
   const g3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'g3');
   const sd6 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'sd6');
   const sd8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'sd8');
+  const pg6 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'pg6');
+  const pg8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'pg8');
+  const fe8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'fe8');
+  const cy8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'cy8');
   const pm3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'pm3');
   const mc3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'mc3');
   const mc8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'mc8');
@@ -164,6 +174,11 @@ test('M1-M7 keeps curriculum, remediation, representations, phenomena, CER, Matt
   assert.equal(sd6.stimulus.graph.yMin, 0, 'Earth/Sky bar graph should use a zero baseline');
   assert.equal(sd8.transferLevel, 'far');
   assert.equal(sd8.transfer, true);
+  assert.equal(pg6.stimulus.graph.type, 'bar');
+  assert.equal(pg6.stimulus.graph.yMin, 0, 'Living Systems bar graph should use a zero baseline');
+  assert.equal(pg8.transfer, true);
+  assert.equal(fe8.transfer, true);
+  assert.equal(cy8.transfer, true);
   assert.equal(mc3.stimulus.graph.type, 'bar');
   assert.equal(mc3.stimulus.graph.yMin, 0, 'bar graph should use a zero baseline');
   assert.ok(pm3.stimulus.particleModel.panels.length >= 2);
