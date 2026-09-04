@@ -3,9 +3,11 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useSimulationStore } from "@/lib/simulation-store";
 
-const LOOK_SENSITIVITY = 0.0032;
+const LOOK_SENSITIVITY_X = 0.0022;
+const LOOK_SENSITIVITY_Y = 0.0018;
 const MAX_PITCH = Math.PI * 0.43;
-const LOOK_ZONE_START = 0.42;
+const LOOK_ZONE_START = 0.5;
+const MAX_POINTER_DELTA_PX = 34;
 
 /**
  * Touch/pen camera look for mobile devices. Desktop mouse look remains owned
@@ -26,7 +28,9 @@ export function TouchLookControls() {
     };
 
     const onPointerDown = (event: PointerEvent) => {
-      if (event.pointerType === "mouse" || !canLook()) return;
+      if (event.pointerType === "mouse" || !event.isPrimary || !canLook()) return;
+      if (activePointer.current !== null) return;
+
       const rect = canvas.getBoundingClientRect();
       const relativeX = event.clientX - rect.left;
       if (relativeX < rect.width * LOOK_ZONE_START) return;
@@ -34,6 +38,7 @@ export function TouchLookControls() {
       event.preventDefault();
       activePointer.current = event.pointerId;
       lastPoint.current = { x: event.clientX, y: event.clientY };
+      euler.current.setFromQuaternion(camera.quaternion, "YXZ");
       try {
         canvas.setPointerCapture(event.pointerId);
       } catch {
@@ -44,14 +49,20 @@ export function TouchLookControls() {
     const onPointerMove = (event: PointerEvent) => {
       if (activePointer.current !== event.pointerId || !canLook()) return;
       event.preventDefault();
-      const dx = event.clientX - lastPoint.current.x;
-      const dy = event.clientY - lastPoint.current.y;
+
+      const rawDx = event.clientX - lastPoint.current.x;
+      const rawDy = event.clientY - lastPoint.current.y;
       lastPoint.current = { x: event.clientX, y: event.clientY };
 
-      euler.current.setFromQuaternion(camera.quaternion, "YXZ");
-      euler.current.y -= dx * LOOK_SENSITIVITY;
+      // WebKit can occasionally report a large pointer jump after capture or
+      // browser-chrome changes. Clamp one-frame deltas so camera movement stays
+      // predictable without making normal drags feel sluggish.
+      const dx = THREE.MathUtils.clamp(rawDx, -MAX_POINTER_DELTA_PX, MAX_POINTER_DELTA_PX);
+      const dy = THREE.MathUtils.clamp(rawDy, -MAX_POINTER_DELTA_PX, MAX_POINTER_DELTA_PX);
+
+      euler.current.y -= dx * LOOK_SENSITIVITY_X;
       euler.current.x = THREE.MathUtils.clamp(
-        euler.current.x - dy * LOOK_SENSITIVITY,
+        euler.current.x - dy * LOOK_SENSITIVITY_Y,
         -MAX_PITCH,
         MAX_PITCH
       );
