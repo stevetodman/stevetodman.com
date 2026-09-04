@@ -134,11 +134,15 @@ Verification of `c72c28b42976d69620a9e6911a932d524a4a3543`:
 - Cloudflare Pages deployment succeeded for the exact SHA;
 - deployment verification workflow passed;
 - live-runtime smoke passed;
-- owner physically confirmed on the actual iPhone that movement now works when entering the hospital from the production website.
+- owner physically confirmed on the actual iPhone that movement works when entering the hospital from the production website;
+- owner physically confirmed right-stick look and simultaneous move + look;
+- owner physically confirmed interactive clinician Speak/briefing behavior;
+- owner physically confirmed visible consult-case interaction at natural proximity;
+- owner physically confirmed furniture and doorway traversal.
 
 Current state: **LIVE-VERIFIED; PHYSICAL ACCEPTANCE OPEN**.
 
-The physical-iPhone movement failure is closed. Do **not** repeat work on spawn/movement unless a new reproducible regression appears. Do not mark M4/M5 complete until the remaining interaction, overlay, orientation, PWA, persistence, audio/ECG, actor-visibility, replay, and sustained-performance checks pass on the actual iPhone.
+The physical-iPhone movement, twin-stick look, clinician briefing, consult proximity, and furniture/doorway checks are closed. Do **not** repeat them unless a new reproducible regression appears. Do not mark M4/M5 complete until the remaining overlay, orientation, PWA, persistence, audio/ECG, actor-visibility, replay, and sustained-performance checks pass on the actual iPhone.
 
 #### Performance-safe realism program
 
@@ -221,7 +225,7 @@ The earlier external hospital ingest pilot is retired. Its scheduled ingest work
 
 ## Known remaining technical debt / external blockers
 
-- **Physical-iPhone hospital acceptance:** highest-priority hospital gate. Movement on the actual iPhone is now confirmed fixed at executable `c72c28b4`; remaining physical checks are interaction proximity/briefing, Pager/Worklist, collision/doorways, portrait/landscape/safe areas, clinical overlays, PWA, persistence/reload, audio/ECG, actor visibility/state transitions, replay, and sustained thermal/battery/frame-rate behavior.
+- **Physical-iPhone hospital acceptance:** highest-priority hospital gate. Confirmed passing on executable `c72c28b4`: movement, right-stick look, simultaneous move/look, clinician briefing interaction, consult-case proximity interaction, and furniture/doorway traversal. Remaining physical checks are Pager/Worklist scrolling/dismissal, portrait/landscape/safe areas, clinical overlays, PWA, persistence/reload, audio/ECG, actor visibility/state transitions, replay, and sustained thermal/battery/frame-rate behavior.
 - **StudyHub #39:** inbound rate limiting + real two-device/offline acceptance.
 - **Clinical #42:** real durable review evidence required; never infer/backdate.
 - **Cooking-timer archive:** requires a settings-capable interface; preserve history, do not delete.
@@ -261,15 +265,11 @@ Do not introduce without demonstrated need:
 
 ## Exact next action
 
-1. Treat physical-iPhone movement as **passed** for executable `c72c28b42976d69620a9e6911a932d524a4a3543`; do not retest or redesign spawn/movement unless a new reproducible defect appears.
-2. Continue the **remaining physical-iPhone interaction-critical path** on the actual device:
-   - confirm right-stick look and simultaneous move + look;
-   - confirm the interactive clinician produces a Speak affordance and opens the briefing;
-   - confirm each visible consult case produces the expected Speak/Interact affordance at natural proximity while its task is available/assigned/in-progress;
-   - confirm the removed decorative clinician is absent;
-   - confirm Pager and Worklist scroll and close correctly above the twin-stick controls;
-   - confirm Interact placement, non-trapping small furniture, tight large-furniture solidity, and doorway traversal in portrait and landscape.
-3. If that path passes, finish the remaining M4/M5 physical checklist in `cardio-hospital-3d/AGENTS.md`: clinical scrolling/tap targets/confidential-state behavior, safe areas/orientation, PWA/Add to Home Screen, reload/resume/no duplicates, auscultation audio, ECG touch, actor visibility/state transitions, replay behavior, and sustained frame-rate/thermal/battery performance.
+1. Treat the following physical-iPhone checks as **passed** for executable `c72c28b42976d69620a9e6911a932d524a4a3543`: movement, right-stick look, simultaneous move + look, clinician Speak/briefing, visible consult-case interaction at natural proximity, and furniture/doorway traversal. Do not repeat them unless a new reproducible defect appears.
+2. Finish the two remaining interaction-critical checks on the actual iPhone:
+   - Pager and Worklist open, scroll, and close correctly above the twin-stick controls;
+   - portrait and landscape both preserve usable controls, safe areas, overlays, doorway traversal, and orientation changes while clinical UI is open.
+3. Then finish the remaining M4/M5 physical checklist in `cardio-hospital-3d/AGENTS.md`: clinical scrolling/tap targets/confidential-state behavior, PWA/Add to Home Screen, reload/resume/no duplicates, auscultation audio, ECG touch, actor visibility/state transitions, replay behavior, and sustained frame-rate/thermal/battery performance.
 4. Record actual device model, iOS/Safari version, portrait/landscape/PWA results, defects, and fix SHAs when supplied. Do not infer any of them.
 5. When every required physical check passes, update the hospital implementation ledger and mark **M4/M5 complete**. Only then begin **M6** using the existing canonical engine; do not rebuild the architecture.
 6. After the physical usability/performance gate is acceptable, the realism program may advance to performance-budgeted optimized animated humans, richer clinically authentic equipment/materials/lighting, ambient activity/audio, and LOD/culling/room streaming. Measure iPhone cost before accepting heavy assets.
