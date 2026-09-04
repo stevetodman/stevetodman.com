@@ -1,4 +1,7 @@
-.simulation-shell,
+.simulation-shell {
+  overscroll-behavior: none;
+}
+
 #simulation-canvas {
   touch-action: none;
   overscroll-behavior: none;
