@@ -1,5 +1,6 @@
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+const isNumeric = value => value !== null && value !== undefined && value !== '' && Number.isFinite(Number(value));
 
 function scaleY(value, min, max, top, height) {
   const ratio = (Number(value) - min) / Math.max(1, max - min);
@@ -18,7 +19,7 @@ export function graphMarkup(graph, overrideValues = null) {
   const plotH = height - top - bottom;
   const labels = graph.xLabels || [];
   const values = overrideValues || graph.values || [];
-  const numeric = values.filter(value => Number.isFinite(Number(value))).map(Number);
+  const numeric = values.filter(isNumeric).map(Number);
   const yMin = Number.isFinite(graph.yMin) ? graph.yMin : 0;
   const inferredMax = numeric.length ? Math.max(...numeric) : 1;
   const yMax = Number.isFinite(graph.yMax) ? graph.yMax : Math.max(1, inferredMax);
@@ -40,14 +41,14 @@ export function graphMarkup(graph, overrideValues = null) {
   let marks = '';
   if (type === 'bar') {
     marks = values.map((value, index) => {
-      if (!Number.isFinite(Number(value))) return '';
+      if (!isNumeric(value)) return '';
       const y = scaleY(value, yMin, yMax, top, plotH);
       const barWidth = Math.min(72, barSlot * 0.58);
       const x = left + barSlot * index + (barSlot - barWidth) / 2;
       return `<g class="science-bar"><rect x="${x}" y="${y}" width="${barWidth}" height="${top + plotH - y}" rx="5"/><text x="${x + barWidth / 2}" y="${Math.max(top + 14, y - 7)}" text-anchor="middle">${esc(value)}</text></g>`;
     }).join('');
   } else {
-    const points = values.map((value, index) => Number.isFinite(Number(value)) ? {
+    const points = values.map((value, index) => isNumeric(value) ? {
       x: left + stepX * index,
       y: scaleY(value, yMin, yMax, top, plotH),
       value
@@ -64,14 +65,14 @@ export function graphMarkup(graph, overrideValues = null) {
 }
 
 export function graphBuilderMarkup(spec, response = {}) {
-  const values = (spec.xLabels || []).map((_label, index) => Number.isFinite(Number(response[index])) ? Number(response[index]) : null);
-  const graph = graphMarkup({ ...spec, type: 'line', label: spec.graphLabel || 'Your graph', ariaLabel: spec.ariaLabel || 'Graph being constructed by the learner' }, values);
-  const controls = (spec.xLabels || []).map((label, index) => `<fieldset class="plot-control"><legend>${esc(label)}</legend><div>${(spec.allowedValues || []).map(value => `<button type="button" data-plot-x="${index}" data-plot-y="${esc(value)}" aria-pressed="${Number(response[index]) === Number(value)}" class="plot-value${Number(response[index]) === Number(value) ? ' selected' : ''}">${esc(value)}${spec.unit ? ` ${esc(spec.unit)}` : ''}</button>`).join('')}</div></fieldset>`).join('');
+  const values = (spec.xLabels || []).map((_label, index) => isNumeric(response[index]) ? Number(response[index]) : null);
+  const graph = graphMarkup({ ...spec, type: spec.type || 'line', label: spec.graphLabel || 'Your graph', ariaLabel: spec.ariaLabel || 'Graph being constructed by the learner' }, values);
+  const controls = (spec.xLabels || []).map((label, index) => `<fieldset class="plot-control"><legend>${esc(label)}</legend><div>${(spec.allowedValues || []).map(value => `<button type="button" data-plot-x="${index}" data-plot-y="${esc(value)}" aria-pressed="${isNumeric(response[index]) && Number(response[index]) === Number(value)}" class="plot-value${isNumeric(response[index]) && Number(response[index]) === Number(value) ? ' selected' : ''}">${esc(value)}${spec.unit ? ` ${esc(spec.unit)}` : ''}</button>`).join('')}</div></fieldset>`).join('');
   return `<section class="graph-builder" aria-label="Build the graph">${graph}<div class="plot-controls">${controls}</div><p class="select-note">Choose one value for each ${esc(spec.xName || 'position')}. Your graph updates as you work.</p></section>`;
 }
 
 export function graphBuildComplete(spec, response = {}) {
-  return (spec?.xLabels || []).every((_label, index) => Number.isFinite(Number(response[index])));
+  return (spec?.xLabels || []).every((_label, index) => isNumeric(response[index]));
 }
 
 export function graphBuildCorrect(spec, response = {}) {
