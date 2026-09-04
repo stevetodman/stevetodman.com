@@ -94,7 +94,7 @@ test('M1-M7 keeps curriculum, remediation, representations, phenomena, CER, and 
   assert.equal(root.learners.Luke.attempts[0].misconceptionTag, 'example-tag');
   assert.equal(root.learners.Samantha.attempts.length, 0);
   assert.equal(validateCurriculum(SCIENCE_LAB_CONFIG), true);
-  assert.equal(SCIENCE_LAB_CONFIG.items.length, 98);
+  assert.equal(SCIENCE_LAB_CONFIG.items.length, 113);
   assert.equal(new Set(SCIENCE_LAB_CONFIG.items.map(item => item.standard)).size, 16);
 
   const strictUnitChecks = [
@@ -115,6 +115,12 @@ test('M1-M7 keeps curriculum, remediation, representations, phenomena, CER, and 
       skills: ['food-energy', 'plant-growth', 'matter-cycle'],
       standards: ['5-PS3-1', '5-LS1-1', '5-LS2-1'],
       prefix: 'ecosystems:'
+    },
+    {
+      unit: 'earth-systems',
+      skills: ['sphere-interactions', 'water-distribution', 'resource-protection'],
+      standards: ['5-ESS2-1', '5-ESS2-2', '5-ESS3-1'],
+      prefix: 'earth-systems:'
     }
   ];
 
@@ -164,6 +170,10 @@ test('M1-M7 keeps curriculum, remediation, representations, phenomena, CER, and 
   const pg8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'pg8');
   const fe8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'fe8');
   const cy8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'cy8');
+  const ei8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'ei8');
+  const wd5 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'wd5');
+  const wd8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'wd8');
+  const rp8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'rp8');
   const pm3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'pm3');
   const mc3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'mc3');
   const mc8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'mc8');
@@ -179,6 +189,11 @@ test('M1-M7 keeps curriculum, remediation, representations, phenomena, CER, and 
   assert.equal(pg8.transfer, true);
   assert.equal(fe8.transfer, true);
   assert.equal(cy8.transfer, true);
+  assert.equal(wd5.stimulus.graph.type, 'bar');
+  assert.equal(wd5.stimulus.graph.yMin, 0, 'Earth Systems bar graph should use a zero baseline');
+  assert.equal(ei8.transfer, true);
+  assert.equal(wd8.transfer, true);
+  assert.equal(rp8.transfer, true);
   assert.equal(mc3.stimulus.graph.type, 'bar');
   assert.equal(mc3.stimulus.graph.yMin, 0, 'bar graph should use a zero baseline');
   assert.ok(pm3.stimulus.particleModel.panels.length >= 2);

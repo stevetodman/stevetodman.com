@@ -5,11 +5,12 @@ import { SCIENCE_PHENOMENA } from './phenomena.mjs';
 import { M6_MATTER_ITEMS, M6_MATTER_METADATA, M6_MATTER_PHENOMENON_METADATA } from './matter-m6.mjs';
 import { M7_EARTH_SKY_ITEMS, M7_EARTH_SKY_OVERRIDES } from './earth-sky-m7.mjs';
 import { M7_LIVING_SYSTEMS_ITEMS, M7_LIVING_SYSTEMS_OVERRIDES } from './living-systems-m7.mjs';
+import { M7_EARTH_SYSTEMS_ITEMS, M7_EARTH_SYSTEMS_OVERRIDES } from './earth-systems-m7.mjs';
 
-const strictTransferUnits = new Set(['matter', 'earth-sky', 'ecosystems']);
-const itemOverrides = { ...M7_EARTH_SKY_OVERRIDES, ...M7_LIVING_SYSTEMS_OVERRIDES };
+const strictTransferUnits = new Set(['matter', 'earth-sky', 'ecosystems', 'earth-systems']);
+const itemOverrides = { ...M7_EARTH_SKY_OVERRIDES, ...M7_LIVING_SYSTEMS_OVERRIDES, ...M7_EARTH_SYSTEMS_OVERRIDES };
 const skillSeen = new Map();
-const expandedItems = [...BASE_CONFIG.items, ...M6_MATTER_ITEMS, ...M7_EARTH_SKY_ITEMS, ...M7_LIVING_SYSTEMS_ITEMS];
+const expandedItems = [...BASE_CONFIG.items, ...M6_MATTER_ITEMS, ...M7_EARTH_SKY_ITEMS, ...M7_LIVING_SYSTEMS_ITEMS, ...M7_EARTH_SYSTEMS_ITEMS];
 const items = expandedItems.map(item => {
   const count = (skillSeen.get(item.skill) || 0) + 1;
   skillSeen.set(item.skill, count);
