@@ -7,8 +7,10 @@ on:
       - 'docs/KD_MISC_EXPERIMENTAL_TOOL_PLAN.md'
       - 'docs/KD_MISC_M1_SOURCE_LOCK.md'
       - 'docs/KD_MISC_M1B_ACQUISITION_GATE.md'
+      - 'docs/KD_MISC_M2_KIDMATCH_AUTHENTICITY_GATE.md'
       - 'tests/kd-misc-experimental.test.mjs'
       - 'tests/kd-misc-m1b-gate.test.mjs'
+      - 'tests/kd-misc-m2-kidmatch-gate.test.mjs'
       - 'site/catalog.json'
       - 'package.json'
       - '.github/workflows/kd-misc-experimental.yml'
@@ -20,8 +22,10 @@ on:
       - 'docs/KD_MISC_EXPERIMENTAL_TOOL_PLAN.md'
       - 'docs/KD_MISC_M1_SOURCE_LOCK.md'
       - 'docs/KD_MISC_M1B_ACQUISITION_GATE.md'
+      - 'docs/KD_MISC_M2_KIDMATCH_AUTHENTICITY_GATE.md'
       - 'tests/kd-misc-experimental.test.mjs'
       - 'tests/kd-misc-m1b-gate.test.mjs'
+      - 'tests/kd-misc-m2-kidmatch-gate.test.mjs'
       - 'site/catalog.json'
       - 'package.json'
       - '.github/workflows/kd-misc-experimental.yml'
@@ -50,5 +54,7 @@ jobs:
         run: npm run test:kd-misc
       - name: M1B acquisition gate
         run: node --test tests/kd-misc-m1b-gate.test.mjs
+      - name: M2 KIDMATCH authenticity gate
+        run: node --test tests/kd-misc-m2-kidmatch-gate.test.mjs
       - name: Production-boundary invariant
         run: node --test tests/platform-policy.test.mjs
