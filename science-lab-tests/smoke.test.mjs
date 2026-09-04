@@ -16,7 +16,7 @@ after(async () => {
   await server?.close();
 });
 
-test('Science Lab phone smoke: repair, graph resume, phenomenon resume, twin separation', async () => {
+test('Science Lab phone smoke: repair, graph, phenomenon, CER, twin separation', async () => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   await page.goto(server.origin + '/study/matter-lab.html');
@@ -166,6 +166,80 @@ test('Science Lab phone smoke: repair, graph resume, phenomenon resume, twin sep
   assert.ok(Number(phenomenonEvidence.learners.Samantha.skills['matter-conservation'].dueAt) > 0);
   const completedActivity = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), activityKey);
   assert.equal(completedActivity.active.Samantha, undefined);
+
+  const openSystem = SCIENCE_LAB_CONFIG.phenomena.find(phenomenon => phenomenon.id === 'open-system-mass');
+  const cerIndex = openSystem.steps.findIndex(step => step.type === 'cer');
+  assert.ok(cerIndex > 0);
+  const beforeCerRoot = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), SCIENCE_LAB_CONFIG.storageKey);
+  const openAttemptsBefore = beforeCerRoot.learners.Samantha.attempts.filter(attempt => attempt.phenomenonId === 'open-system-mass').length;
+
+  await page.evaluate(({ activityKey, cerIndex }) => {
+    const activity = JSON.parse(localStorage.getItem(activityKey) || '{"version":1,"active":{}}');
+    activity.active.Samantha = {
+      version: 1,
+      id: 'm5-cer-smoke',
+      phenomenonId: 'open-system-mass',
+      stepIndex: cerIndex,
+      stepResponse: null,
+      cerResponse: {},
+      cerRetry: false,
+      responses: {
+        predict: { selected: 0, role: 'prediction', at: new Date().toISOString() },
+        revise: { selected: 1, correct: true, role: 'revision', at: new Date().toISOString() }
+      },
+      feedback: null,
+      startedAt: new Date().toISOString()
+    };
+    localStorage.setItem(activityKey, JSON.stringify(activity));
+  }, { activityKey, cerIndex });
+
+  await page.goto(phenomenonUrl);
+  assert.equal(await page.locator('.cer-builder').isVisible(), true);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, 'CER must not overflow 390px');
+  await page.locator('[data-cer-claim="0"]').click();
+  await page.locator('[data-cer-evidence="0"]').click();
+
+  await page.reload();
+  assert.equal(await page.locator('[data-cer-claim="0"]').getAttribute('aria-pressed'), 'true', 'partial claim should survive reload');
+  assert.equal(await page.locator('[data-cer-evidence="0"]').getAttribute('aria-pressed'), 'true', 'partial evidence should survive reload');
+  await page.locator('[data-cer-evidence="1"]').click();
+  await page.locator('[data-cer-reasoning="0"]').click();
+  await page.locator('[data-phen-action="cer-check"]').click();
+  assert.equal(await page.locator('.feedback-card.repair').isVisible(), true);
+  assert.match(await page.locator('.cer-rubric-summary').innerText(), /Claim needs repair/i);
+  assert.match(await page.locator('.cer-rubric-summary').innerText(), /Evidence ✓/i);
+  assert.match(await page.locator('.cer-rubric-summary').innerText(), /Reasoning ✓/i);
+
+  const firstCer = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), activityKey);
+  assert.equal(firstCer.active.Samantha.responses.cer.first.provenance, 'independent');
+  assert.equal(firstCer.active.Samantha.responses.cer.first.rubric.score, 2);
+  assert.equal(firstCer.active.Samantha.responses.cer.first.rubric.correct, false);
+
+  await page.locator('[data-phen-action="cer-retry"]').click();
+  assert.equal(await page.locator('.cer-component-feedback.repair').count(), 1, 'only the weak CER component should be marked for repair');
+  await page.locator('[data-cer-claim="1"]').click();
+  await page.locator('[data-cer-evidence="0"]').click();
+  await page.locator('[data-cer-evidence="1"]').click();
+  await page.locator('[data-cer-reasoning="0"]').click();
+  await page.locator('[data-phen-action="cer-check"]').click();
+  assert.equal(await page.locator('.feedback-card.correct').isVisible(), true);
+  assert.match(await page.locator('.feedback-card .repair-note').innerText(), /Guided revision/i);
+
+  const revisedCer = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), activityKey);
+  assert.equal(revisedCer.active.Samantha.responses.cer.revised.provenance, 'guided');
+  assert.equal(revisedCer.active.Samantha.responses.cer.revised.rubric.score, 3);
+  assert.equal(revisedCer.active.Samantha.responses.cer.revised.rubric.correct, true);
+
+  await page.locator('[data-phen-action="feedback-next"]').click();
+  assert.match(await page.locator('.summary-card h1').innerText(), /Why did the measured mass drop/i);
+  const afterCerRoot = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), SCIENCE_LAB_CONFIG.storageKey);
+  const openAttemptsAfter = afterCerRoot.learners.Samantha.attempts.filter(attempt => attempt.phenomenonId === 'open-system-mass').length;
+  assert.equal(openAttemptsAfter, openAttemptsBefore, 'CER must not add content-mastery attempts');
+  const openSession = afterCerRoot.learners.Samantha.sessions.find(session => session.kind === 'phenomenon' && session.phenomenonId === 'open-system-mass');
+  assert.equal(openSession.cer.first.provenance, 'independent');
+  assert.equal(openSession.cer.first.rubric.score, 2);
+  assert.equal(openSession.cer.revised.provenance, 'guided');
+  assert.equal(openSession.cer.revised.rubric.score, 3);
 
   await context.close();
 });
