@@ -3,11 +3,15 @@
 Repository: `stevetodman/stevetodman.com`  
 Primary route: `/study/matter-lab.html`  
 Deep-investigation route: `/study/science-lab/investigate.html`  
+Optional mini-lab route: `/study/science-lab/mini-lab.html`  
+Adult Matter evidence route: `/study/science-lab/adult.html`  
 Audience: Luke and Samantha
 
 ## Resume here
 
-M0-M5 are complete through the essential automated gate. The next milestone is **M6 - world-class Matter vertical slice**.
+**M0-M6 are complete through the essential automated gate.** M6 is merged to `main`; its exact production deployment/browser verification is the final deployment checkpoint described below. The next product milestone is **M7 - scale the proven Matter architecture across the rest of Louisiana Grade 5 science**.
+
+Do not reconstruct M1-M6, do not migrate Science Lab back onto the legacy shared Grade 5 engine, and do not broaden CI.
 
 Read first:
 
@@ -16,96 +20,146 @@ Read first:
 3. `study/LOUISIANA_GRADE5_COVERAGE.md`
 4. `study/science-lab/core.mjs`
 5. `study/science-lab/config.mjs`
-6. `study/science-lab/data.mjs`
-7. `study/science-lab/remediation.mjs`
-8. `study/science-lab/representations.mjs`
-9. `study/science-lab/visuals.mjs`
-10. `study/science-lab/phenomena.mjs`
-11. `study/science-lab/phenomenon-engine.mjs`
-12. `study/science-lab/cer.mjs`
-13. `science-lab-tests/core.test.mjs`
-14. `science-lab-tests/smoke.test.mjs`
-15. `.github/workflows/science-lab-ci.yml`
+6. `study/science-lab/matter-m6.mjs`
+7. `study/science-lab/data.mjs`
+8. `study/science-lab/remediation.mjs`
+9. `study/science-lab/representations.mjs`
+10. `study/science-lab/visuals.mjs`
+11. `study/science-lab/phenomena.mjs`
+12. `study/science-lab/phenomenon-engine.mjs`
+13. `study/science-lab/cer.mjs`
+14. `study/science-lab/adult.mjs`
+15. `study/science-lab/mini-lab.mjs`
+16. `science-lab-tests/core.test.mjs`
+17. `science-lab-tests/smoke.test.mjs`
+18. `.github/workflows/science-lab-ci.yml`
 
-The old shared Grade 5 engine/data/tests are secondary/reference implementations for other Study products. Do not use `study/QUALITY_HANDOFF.md`; it belongs to Word Expedition.
+The old shared Grade 5 engine/data/tests and World Lab are secondary/reference implementations for other Study products. Do not use `study/QUALITY_HANDOFF.md`; it belongs to Word Expedition.
 
 ## Owner decisions - hard constraints
 
-- Science Lab remains pre-use; bold architecture changes are allowed when they materially improve learning.
+- Science Lab remains isolated from the legacy shared Grade 5 engine.
 - Current learner evidence store: `g5-science-lab-v2`.
 - Once Luke/Samantha begin real v2 use, learner evidence becomes protected and future schema changes must migrate it deliberately.
 - Phenomena, evidence, models, graphs, fair testing, CER, retention, transfer, and misconception repair are the instructional center.
 - Preserve separate Luke/Samantha histories. No sibling leaderboard. No speed rewards.
 - Gamification may not alter grading, mastery, difficulty, item count, or curriculum priority.
-- Finish Matter deeply before scaling the architecture across the full course.
+- Short adaptive practice stays short; deep investigations remain separate and intentional.
 - **CI stays exactly 4 core tests + 1 Chromium 390px smoke unless a concrete uncaught regression proves more is necessary.**
-- No WebKit matrix, screenshot artifact suite, broad Study suite, or duplicate coverage suite for ordinary Science Lab changes.
+- No WebKit matrix, screenshot/artifact suite, broad Study suite, or feature-specific Science Lab suites for ordinary changes.
+- Do not claim physical-iPhone or real-child learning acceptance without actual evidence.
 
-## Completed milestones
+## Completed milestone ledger
 
 ### M1 - Evidence semantics + true adaptivity
 
 PR #157 merged at `9efe06744eeca0c2e9365b8fa3b17170f2a08692`.  
 Essential run `33824981005`: PASS.
 
+Implemented distinct independent/hinted/recovery evidence, stronger weak-skill allocation, delayed retrieval semantics, sibling-aware item separation, and evidence states that do not let guided work manufacture mastery.
+
 ### M2 - Misconception-aware remediation
 
 PR #158 merged at `9a8e6f1ee4bec337f3cefb7ec70793b796180007`.  
 Essential run `33825308872`: PASS.
+
+Implemented misconception-tagged distractors, hint-before-answer repair, and targeted alternate-form recovery.
 
 ### M3 - Graph/model engine
 
 PR #159 merged at `79778caaed9a338bef79e629c39b6f38b9558e12`.  
 Essential run `33825682173`: PASS.
 
+Implemented reusable line/bar graphs, particle/system models, interactive graph construction, and exact reload persistence.
+
 ### M4 - Phenomenon/task-set engine
 
 PR #160 merged at `ff10533beb34d0730eee851cbef9cdf64f4ac07f`.  
 Essential run `33826056997`: PASS.
 
-Two Matter investigations now use committed predictions, shared evidence, models/data, bounded mastery-writing checkpoints, revision, and delayed retrieval.
+Two Matter investigations use committed predictions, shared evidence, models/data, bounded mastery-writing checkpoints, revision, and delayed retrieval. Prediction/revision steps do not inflate mastery evidence.
 
-### M5 - CER / constructed scientific reasoning: COMPLETE THROUGH ESSENTIAL GATE
+### M5 - Deterministic Claim-Evidence-Reasoning
 
-Branch: `science-lab-m5-20260903`  
-PR: #161  
-Pre-handoff implementation head: `c045414e2d92ade592086fa422617a940a927128`  
-Essential run: `33826503965` - PASS.
+PR #161 merged at `1ed20361315ef4fdbcbd6533c02af2476bc119c7`.  
+Essential run `33826503965`: PASS.
 
-Implemented:
+Implemented deterministic component-level CER scoring, independent first construction, guided component-specific repair, reload persistence, and separate reasoning analytics. The prewritten final multiple-choice explanation was removed so CER itself is the final scientific revision. CER adds no extra content-mastery attempt.
 
-- new deterministic `study/science-lab/cer.mjs` builder/rubric;
-- no LLM grading and no opaque score;
-- the open-vs-sealed reaction investigation ends with a true Claim-Evidence-Reasoning construction task;
-- the old prewritten final-explanation choice was removed so the product no longer gives away the answer immediately before CER;
-- CER itself is the learner's revision of the original prediction;
-- Claim, Evidence, and Reasoning are scored independently, producing a transparent 0-3 rubric;
-- first CER submission is stored as `provenance: independent` reasoning evidence;
-- an incomplete/incorrect CER receives component-level feedback without revealing the complete answer;
-- one guided revision is stored separately as `provenance: guided`;
-- CER state persists through reload;
-- final phenomenon session stores both independent and guided CER response/rubric data for later adult/reasoning analytics;
-- CER writes **no additional content-mastery attempt**, preserving the M4 limit of two mastery-relevant evidence checkpoints per phenomenon;
-- M5 route assets were cache-busted so production cannot serve stale M4 phenomenon code/CSS.
+### M6 - World-class Matter vertical slice: COMPLETE THROUGH ESSENTIAL GATE
 
-The same four core tests now also verify:
+PR: #162  
+Final pre-merge branch head: `c6e206330bc23e400f588275fc5b6abd2f617737`  
+Merged `main` code commit: `dbd895445eaf7371cdcb0e95f128213e1a09493e`  
+PR essential run: `33827751764` - PASS.  
+Post-merge essential run: `33827819235` - PASS.  
+Exact production/browser run: `33827819236` - **PENDING at the time this handoff branch was prepared; do not change this to PASS until the run itself succeeds for exact SHA `dbd895445eaf7371cdcb0e95f128213e1a09493e`.**
 
-- valid CER schema;
-- exact deterministic 3/3 scoring for the correct CER;
-- 2/3 component scoring for a claim-only error;
-- CER is not a `recordEvidence` content-mastery step.
+M6 implementation:
 
-The same single 390px Chromium smoke now also verifies:
+- Matter expanded from 12 to **32 short-practice tasks**: 8 genuinely distinct contexts for each of the four Matter micro-skills.
+- New M6 content lives in `study/science-lab/matter-m6.mjs`; M1-M5 core behavior was not rewritten.
+- Every Matter item now has explicit:
+  - `sep`;
+  - `ccc`;
+  - `representationType`;
+  - `sourceFamily`;
+  - `transferLevel`;
+  - mastery-relevant `transfer` semantics.
+- Both existing Matter investigations and their individual reasoning steps now also carry SEP/CCC/representation/transfer metadata.
+- Representation diversity now includes selected response, evidence/data-table reasoning, quantitative reasoning, particle models, bar graphs, graph construction, experimental observations, property-pattern reasoning, and system reasoning.
+- Each Matter micro-skill has a deliberately different far-transfer task.
+- **Only explicit `transferLevel: 'far'` Matter items set `transfer: true` and can satisfy the mastery transfer requirement. Near-transfer contexts remain useful practice but cannot unlock Secure.**
+- New selected-response distractors retain misconception-specific remediation and hint-before-answer behavior.
+- The scheduler remains an 8-prompt adaptive session; M6 did not turn normal practice into a worksheet.
+- Existing phenomenon and CER evidence limits remain intact.
 
-- partial Claim/Evidence selection survives reload;
-- a 2/3 first CER is stored as independent;
-- only the weak Claim component is marked for repair;
-- a corrected 3/3 second CER is stored as guided;
-- both results are retained in the completed phenomenon session;
-- CER adds zero new content-mastery attempts;
-- CER does not overflow the 390px phone layout.
+#### Optional closed-system home mini-lab
 
-No human child-learning or physical-device claim is implied by automated checks.
+Route: `/study/science-lab/mini-lab.html`
+
+- Uses a resealable plastic bag, 1-2 ice cubes, a kitchen scale, and paper towel.
+- Learner commits a prediction before evidence.
+- Records before/after mass and optional observations.
+- Requires an explanation using the closed-system idea.
+- Safety explicitly prohibits glass, heating, tasting, and continuing with a leaking/spilled setup.
+- Stored under separate key `g5-science-lab-m6-mini-lab`.
+- **It does not write a Science Lab mastery attempt or change the adaptive score.**
+- It is optional and may be skipped without blocking progress.
+
+#### Adult Matter evidence view
+
+Route: `/study/science-lab/adult.html`
+
+Shows Luke and Samantha separately, without ranking or pseudo-precise scores:
+
+- concept evidence state;
+- independent correct/total evidence;
+- delayed retrieval evidence;
+- far-transfer evidence;
+- recent/recurring misconception;
+- state-specific recommended next action;
+- scientific-practice evidence grouped by SEP;
+- latest independent CER component score and guided revision score when present.
+
+The view explicitly distinguishes repair evidence from secure independent mastery evidence.
+
+#### M6 automated acceptance
+
+The existing fourth core invariant now verifies, without adding a fifth test:
+
+- 32 Matter tasks total;
+- at least 8 contexts and 8 distinct source families per Matter micro-skill;
+- explicit SEP/CCC/representation/transfer metadata on every Matter item;
+- a genuine far-transfer task per Matter skill;
+- only far transfer earns mastery transfer credit;
+- misconception-specific remediation completeness;
+- representation diversity across 5-PS1-1 through 5-PS1-4;
+- graph construction behavior;
+- phenomenon metadata and bounded mastery checkpoints;
+- deterministic CER semantics remain intact.
+
+The same single 390x844 Chromium smoke still covers M1-M5 critical behavior and now also verifies the M6 adult route and dashboard links. It remains **one smoke test**, not a new suite.
 
 ## Minimal CI - preserve this design
 
@@ -114,70 +168,66 @@ Steady-state Science Lab CI remains exactly:
 1. `science-lab-tests/core.test.mjs` - **4 tests total**.
 2. `science-lab-tests/smoke.test.mjs` - **1 Chromium path at 390x844**.
 
-M1-M5 all extended those same checks. Do not create feature-specific test suites.
+M1-M6 extended these same checks. Do not create feature-specific test suites.
 
-## Exact next milestone: M6 - world-class Matter vertical slice
+## Production-deployment invariant
 
-M6 is not a new engine project. It is where the existing M1-M5 architecture becomes a **deep, varied, coherent Matter course** before scaling to other units.
+A merge is not enough to claim the site is live.
 
-### M6 priorities
+For production changes, the repository now has an exact-SHA deployment/browser workflow that must:
 
-1. **Increase context diversity dramatically.**
-   - Current Matter bank still has only 3 short-practice forms per micro-skill.
-   - Target at least 8 genuinely different contexts per Matter micro-skill before calling Matter world-class.
-   - Do not achieve this with shallow paraphrases.
-   - Vary phenomenon, representation, evidence pattern, misconception trap, and transfer distance.
+1. wait for Cloudflare Pages to report the exact `main` commit as successfully deployed;
+2. build the exact target artifact;
+3. verify the custom production domain in a touch-enabled browser;
+4. refuse to report a stale success if `main` advanced meanwhile;
+5. preserve deployment/browser evidence.
 
-2. **Make SEP/CCC explicit in Matter metadata.**
-   Add first-class Science and Engineering Practice and Crosscutting Concept tags to Matter tasks/phenomena so future scheduling/analytics can distinguish content knowledge from graph/model/evidence/fair-test reasoning.
+For M6, the target code SHA is `dbd895445eaf7371cdcb0e95f128213e1a09493e` and the production-verification run is `33827819236`. Do not call M6 production-verified unless that exact run succeeds or an equally strict replacement run verifies the same SHA.
 
-3. **Deepen transfer.**
-   Replace the temporary `third item = near-transfer` convention with explicit transfer metadata and genuinely different-context transfer tasks.
+## Exact next milestone: M7 - scale phenomena and reasoning across the full Grade 5 course
 
-4. **Complete representation diversity across all four Matter expectations.**
-   Ensure 5-PS1-1 through 5-PS1-4 each include more than selected-response recognition and use appropriate models/data/experimental evidence.
+M7 should **reuse the Matter architecture rather than start a new engine project**.
 
-5. **Add one optional safe mini-investigation.**
-   Prefer a low-friction closed-system or dissolving investigation using ordinary safe materials. It must include prediction, observation/data capture, and explanation. Skipping it may not block course progress.
+Apply the proven structure to:
 
-6. **Add a compact adult insight view for Matter.**
-   Show each twin's concept state, independent/delayed/transfer evidence, recurring misconception, CER result if present, and recommended next action. No sibling ranking and no pseudo-precise mastery score.
+- Earth, Sun & Stars;
+- Living Systems;
+- Earth Systems & Resources;
+- Engineering Design.
 
-7. **Preserve learner experience.**
-   Deep learning must not turn an ordinary session into a long worksheet. Short adaptive practice stays short; deep investigations remain clearly separate and intentional.
+M7 acceptance from the master plan:
 
-### M6 acceptance gate
+- all 16 Grade 5 expectations have representation diversity;
+- all relevant units include modeling/data reasoning;
+- major SEPs/CCCs are intentionally represented;
+- bank breadth reduces surface-form memorization;
+- independent/hinted/guided/recovery/delayed/far-transfer evidence semantics remain truthful;
+- sibling-aware adaptation remains intact;
+- normal practice remains 8 prompts and low-friction;
+- CI remains exactly 4 core tests + 1 phone smoke.
 
-Do not call Matter complete until:
+### Recommended M7 implementation sequence
 
-- each of the four Matter micro-skills has at least 8 meaningfully different contexts or an equally strong validated alternative-generation design;
-- every Matter item has explicit representation/transfer metadata appropriate to its role;
-- Matter includes retrieval, misconception repair, graphs/models, phenomenon investigations, CER, delayed retrieval, and genuine transfer;
-- one safe optional mini-investigation exists;
-- the adult view explains strengths, misconceptions, evidence provenance, and next action without sibling comparison;
-- 390px use remains unclipped and normal short practice remains low-friction;
-- CI is still 4 core tests + 1 smoke.
+Do not scale all four remaining units in one undifferentiated commit. Use the successful M6 pattern:
 
-### M6 implementation rule
+1. create a dedicated M7 branch from the latest verified `main`;
+2. audit the existing Earth, Sun & Stars items against the M6 schema and Louisiana coverage contract;
+3. make Earth, Sun & Stars the first M7 vertical slice, adding real representation/context diversity, SEP/CCC metadata, and genuine far transfer without rewriting the Matter engine;
+4. extend only the existing fourth invariant for the new unit-level acceptance contract;
+5. extend the one phone smoke only if one representative interaction would otherwise be unprotected;
+6. merge only after the same essential gate passes;
+7. then repeat the proven pattern for Living Systems, Earth Systems & Resources, and Engineering Design.
 
-Do not scale Earth/Sky, ecosystems, Earth systems, or engineering into the full new architecture during M6. Prove Matter deeply first.
-
-### M6 testing rule
-
-Do not add an M6 suite. Extend the existing fourth core invariant to protect the Matter context/metadata minimums and extend the one smoke only for one representative new interaction or adult-view path that could otherwise regress silently.
-
-## After M6
-
-Only after the Matter vertical slice is educationally coherent should the architecture be scaled across the full Grade 5 science course (M7+ in the master plan).
+If a shared abstraction is genuinely needed for M7, extract it only after a concrete second-unit use case demonstrates the need. Do not generalize speculatively.
 
 ## Resume procedure
 
-1. Inspect actual `main` and any open Science Lab PR.
-2. If PR #161 is merged, continue from its merge commit; do not recreate M5.
-3. Treat `study/science-lab/**` as the primary implementation.
-4. Preserve unrelated Study projects.
-5. Bold architecture remains allowed while pre-use; once real v2 learner data exists, preserve it.
-6. Keep CI at 4 core tests + 1 smoke and extend those checks rather than multiplying them.
-7. Before stopping, update this handoff with exact work, commit/PR, essential-gate result, remaining M6 gate, and exact next action.
+1. Inspect actual `main`, this handoff, and any open Science Lab PR before editing.
+2. Confirm whether production-verification run `33827819236` is complete. If this handoff still says PENDING but the exact-SHA run succeeded, update the checkpoint before beginning M7.
+3. Treat `study/science-lab/**` as the primary implementation; preserve unrelated Study products.
+4. Do not recreate M1-M6 or broaden CI.
+5. Preserve `g5-science-lab-v2` learner evidence once real use begins.
+6. Keep Matter behavior stable during M7 unless a reproduced shared-engine defect requires a correction.
+7. Before stopping, update this handoff with exact branch/PR/merge/run identifiers and the next concrete action.
 8. Never claim physical-device or child-learning acceptance without actual evidence.
 9. Never restart the project merely because a new agent takes over.
