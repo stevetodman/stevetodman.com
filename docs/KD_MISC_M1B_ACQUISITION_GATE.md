@@ -1,88 +1,106 @@
 # KD / MIS-C Experimental Workbench - M1B Primary-Source Acquisition Gate
 
-Status: **MAIN ARTICLE SOURCE-LOCKED; SUPPLEMENT PENDING**
-Date checked: 2026-09-04
+Status: **SOURCE-LOCKED COMPLETE**  
+Date checked: 2026-09-04  
 Clinical surface: `/tools/kd-misc-experimental/`
 
 ## Objective
 
-M1B source-locks the final 2026 Pediatric Cardiology study:
+M1B source-locks the final 2026 Pediatric Cardiology study and its electronic supplementary material:
 
 > Harahsheh AS, Gunsaulus M, Tierney S, et al. *Incomplete Kawasaki Disease Versus Non-severe Multisystem Inflammatory Syndrome in Children: Distinguishing Features from Contemporaneous Patients.* Pediatric Cardiology. 2026. doi: `10.1007/s00246-026-04444-4`.
 
-The final article is now directly verified from the publisher PDF supplied to the source-lock workflow. The supplement remains outstanding, so M1B is not yet marked fully complete.
-
-## Verified final-article metadata
+## Verified final article
 
 - DOI: `10.1007/s00246-026-04444-4`
-- Publisher file: `s00246-026-04444-4.pdf`
+- Publisher PDF: `s00246-026-04444-4.pdf`
 - Received: 2026-06-18
 - Accepted: 2026-08-14
 - Journal: Pediatric Cardiology
 - Article length: 11 pages
 - Local source SHA-256: `6aca331b8bc11bf5290a4d8579b5be75c0f0c8b7c5f80b09b152df489677a4cf`
-- Copyright statement in source: The Author(s), under exclusive licence to Springer Science+Business Media, LLC, part of Springer Nature 2026.
 - The copyrighted PDF itself is **not** committed to this public repository.
 
-## Source status
+## Verified electronic supplement
 
-### Acquired and verified
+- Publisher-style filename: `246_2026_4444_MOESM1_ESM.docx`
+- Supplied local filename: `246_2026_4444_MOESM1_ESM copy.docx`
+- SHA-256: `af255b72826b87d708cfa82f54d36d5443007083f61eb306a20d27ef5bae92b5`
+- Content: one-page **Supplemental Table. Comparison of Laboratory Features at Most Extreme**
+- Source DOCX itself is **not** committed to this public repository.
+- Full extraction: `docs/KD_MISC_M1B_SUPPLEMENT_EXTRACTION.md`
 
-- [x] Final publisher PDF obtained from an authorized/public publisher endpoint.
-- [x] Exact final title confirmed.
-- [x] DOI confirmed directly in the final article.
-- [x] Complete final author list present in the article.
-- [x] Received and accepted dates recorded.
-- [x] Page/table provenance recorded in the M1 source-lock ledger.
-- [x] Article hash recorded.
-- [x] Final publication compared with Fan 2023 and adjacent IKDR evidence before bedside encoding.
+## Acquisition checklist
 
-### Still required for full M1B completion
+- [x] Publisher primary article obtained.
+- [x] Exact title and DOI confirmed directly.
+- [x] Full final author list and publication metadata recorded.
+- [x] Main article hash recorded.
+- [x] Electronic supplementary material obtained.
+- [x] Supplement filename and hash recorded.
+- [x] Main article table/page extraction completed.
+- [x] Supplemental most-extreme laboratory table extracted.
+- [x] Main and supplement findings compared before bedside encoding.
+- [x] Source inconsistencies preserved rather than silently corrected.
+- [x] Focused clinical invariants updated to lock the completed evidence contract.
 
-- [ ] Obtain the electronic supplementary material referenced by the article.
-- [ ] Record supplement filename, version, and SHA-256.
-- [ ] Extract the reported peak/trough or most-extreme laboratory analyses from the supplemental table.
-- [ ] Confirm whether the supplement adds any denominators, missingness detail, or analyses not present in the main article.
-- [ ] Update the extraction ledger and focused clinical invariants with any supplement-only findings that are safe to expose.
+## Final study design
 
-## Final study design now source-locked
-
-- Multicenter observational cohort from the International Kawasaki Disease Registry (IKDR).
+- Multicenter observational International Kawasaki Disease Registry cohort.
 - 40 centers in 8 countries.
 - Enrollment January 2020 through October 2023.
-- Non-severe MIS-C required the 2020 CDC MIS-C criteria, evidence of prior SARS-CoV-2 infection within 3 months, no shock, and no ICU admission.
-- KD patients with evidence of prior SARS-CoV-2 infection or exposure within 3 months were excluded.
-- Incomplete KD was centrally divided into:
-  - confirmed incomplete KD meeting 2017 AHA incomplete-KD criteria; and
-  - unconfirmed incomplete KD diagnosed by the treating institution but not confirmable from submitted information as meeting AHA incomplete-KD criteria.
-- Final analytic groups:
-  - non-severe MIS-C: `n=769`;
-  - unconfirmed incomplete KD: `n=372`;
-  - confirmed incomplete KD: `n=146`.
+- Non-severe MIS-C: `n=769`.
+- Unconfirmed incomplete KD: `n=372`.
+- Confirmed incomplete KD: `n=146`.
+- Non-severe MIS-C required the 2020 CDC criteria, evidence of prior SARS-CoV-2 infection within 3 months, no shock, and no ICU admission.
+- KD patients with evidence of SARS-CoV-2 infection/exposure within 3 months were excluded.
+- Confirmed incomplete KD met 2017 AHA incomplete-KD criteria after central data review; unconfirmed incomplete KD had a site diagnosis that could not be confirmed from submitted information.
 
-## Main-paper extraction boundary
+## Main article + supplement integration boundary
 
-The main paper reports three-group univariable comparisons of demographics, clinical findings, presentation laboratory values, treatment, and cardiac outcomes. It does **not** publish a new multivariable prediction model, coefficients, patient-level diagnostic probability, validated bedside cutoffs for the continuous laboratory variables, calibration analysis, or decision curve.
+The final paper and supplement provide observational three-group comparisons. They do **not** publish a new validated diagnostic model or patient-level probability engine.
 
 Therefore:
 
-1. Statistically different continuous variables remain group-level signals unless an exact threshold is independently source-locked from another primary study.
-2. Main-paper categorical findings may be displayed as source-attributed associations, but are not weighted or summed.
-3. Race/ethnicity and treatment received remain excluded from bedside weighting.
-4. A `No` response never becomes automatic evidence for the opposite diagnosis.
-5. Mixed signals remain mixed; the tool does not manufacture a winner.
-6. No treatment or disposition recommendation is derived from this comparative study.
-7. No home-grown score or synthetic probability is permitted.
+1. Categorical clinical findings from the final article may appear as source-attributed associations only.
+2. Continuous presentation and most-extreme laboratory values remain group-level signals unless a separate primary study source-locks an exact validated threshold.
+3. No cutoff is inferred from a median, IQR, peak/trough value, or omnibus P value.
+4. Race/ethnicity, zBMI, and treatment received are not bedside diagnostic weights.
+5. A `No` response never becomes automatic evidence for the opposite diagnosis.
+6. Discordant evidence remains discordant; the tool does not manufacture a winner.
+7. No treatment or disposition recommendation is derived from these comparative findings.
+8. No home-grown score, weighted synthesis, or synthetic probability is permitted.
 
-## Important source-specific cautions
+## Supplemental results now source-locked
 
-- The 2020 CDC definition, rather than the 2023 surveillance definition, was used to classify MIS-C in this cohort.
-- Shock did not have a uniform objective definition across sites; the paper describes site reporting with a pragmatic hypotension/perfusion/resuscitation interpretation.
-- Echocardiographic images were not centrally re-read; submitted reports/measurements were used by the data coordinating center.
-- The unconfirmed incomplete-KD group is explicitly vulnerable to misclassification.
-- Coronary involvement contributes to confirmation of incomplete KD, so the large coronary difference between confirmed incomplete KD and the other groups is partly incorporation-related and must not be treated as an independent diagnostic rule.
-- The main article states that most-extreme laboratory trends persisted in a supplemental table. Those values are **not** encoded until the supplement is obtained.
+The supplement reports medians/IQRs for the most extreme values of:
 
-## Resume point
+- lowest hemoglobin;
+- highest WBC;
+- highest neutrophils;
+- highest lymphocytes;
+- highest platelets;
+- highest CRP;
+- highest ESR;
+- highest ferritin;
+- highest ALT;
+- AST;
+- lowest albumin;
+- highest creatinine.
 
-Do not repeat extraction of the final main article. Obtain the Springer electronic supplementary material for DOI `10.1007/s00246-026-04444-4`, hash it, extract the supplemental table with provenance, and then decide whether any supplement-only finding changes the evidence registry. M1B becomes fully `SOURCE_LOCKED` only after that step.
+These results reinforce several group-level directions but do not create new bedside thresholds. Peak ALT/AST, lowest hemoglobin, lowest albumin, and highest neutrophils are specifically retained as non-simple/non-monotonic group context rather than forced into a binary direction.
+
+## Source-specific cautions
+
+- The cohort used the 2020 CDC MIS-C definition, not the later 2023 surveillance definition.
+- Shock was not defined uniformly across all sites.
+- Echocardiographic images were not centrally reread.
+- Unconfirmed incomplete KD remains vulnerable to misclassification.
+- Coronary involvement contributes to confirmation of incomplete KD, creating incorporation bias for coronary comparisons.
+- The main article and supplement both print creatinine units as `mmol/L` with values in the approximately 25-43 range. The repository preserves that source wording but does not silently reinterpret or convert it for bedside use.
+
+## Gate result
+
+**M1B is complete.**
+
+Future work should not repeat primary-source acquisition or re-extract the main/supplement unless a corrected version, erratum, or new supplement is published. The next evidence-development gates remain KIDMATCH authenticity/implementation verification and governed retrospective/prospective validation; neither may be bypassed by treating these observational distributions as a diagnostic score.
