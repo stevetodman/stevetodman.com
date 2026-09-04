@@ -6,16 +6,26 @@
 
 This contract is the content ceiling and coverage checklist for the two Grade 5 learning engines. It is not a substitute for classroom instruction. Current-unit practice is weighted first, while the full-year banks remain available for cumulative retrieval and maintenance.
 
+## Science Lab governance
+
+For Science Lab work, this coverage contract defines **what must remain taught**, while the Science Lab documents define **how the product should evolve and where the next agent should resume**:
+
+1. `SCIENCE_LAB_HANDOFF.md` - mutable current checkpoint and exact next action.
+2. `SCIENCE_LAB_MASTER_PLAN.md` - stable approved educational architecture, invariants, milestone sequence, and acceptance gates.
+3. This file - Louisiana Grade 5 coverage requirements that must not regress during the redesign.
+
+A future Science Lab agent should read those three files in that order before making broad changes. Do not use `QUALITY_HANDOFF.md` as the Science Lab handoff; that document belongs to the Word Expedition project.
+
 ## Product requirements
 
 - One learner selection followed by one recommended action.
-- Eight independent items per standard session; missed skills receive instruction and a delayed alternate-form recheck.
+- Standard practice remains short and low-friction; missed skills receive instruction and alternate-form recovery, while future phenomenon/task sets may use a different number of steps when the scientific reasoning objective requires it.
 - Separate Luke/Samantha evidence and device-local active-round recovery. Cloud synchronization is a future enhancement, not a launch dependency.
-- Skill strength must distinguish independent evidence from guided correction and require evidence on more than one date for mastery.
-- Sessions mix factual retrieval with models, tables, graphs, sequences, maps, sources, claims, evidence, cause/effect, and comparison.
+- Skill strength must distinguish independent evidence from guided correction and require evidence on more than one date for mastery; the approved Science Lab roadmap further requires delayed retrieval and transfer evidence before `Secure` mastery.
+- Sessions mix factual retrieval with models, tables, graphs, sequences, maps, sources, claims, evidence, cause/effect, and comparison; the mature Science Lab should also support phenomenon/task sets, model construction, graph construction, and concise constructed scientific reasoning.
 - The current classroom unit is the default, never the only available content.
-- Every question carries a unit, micro-skill, standard, explanation, and source-family identifier.
-- No reward or animation may change grading, difficulty, question count, or curriculum priority.
+- Every question/task carries a unit, micro-skill, standard, explanation, and source-family identifier; future schema versions should also carry relevant science/engineering-practice, crosscutting-concept, representation, transfer, and misconception metadata.
+- No reward or animation may change grading, difficulty, question count, mastery, or curriculum priority.
 
 ## Science coverage
 
@@ -63,7 +73,8 @@ Bayou Bridges Grade 5 contains six official units. Standards 5.1-5.8 are recurri
 ## Acceptance checks
 
 - Automated coverage tests fail if any listed science performance expectation, social-studies unit, recurring practice, or required item representation disappears.
-- Every keyed answer is unique; every item has an instructional explanation and a valid aligned skill.
-- Current-unit sessions never introduce future-unit content unless the learner deliberately selects full-year review.
-- Reload restores the exact active item and feedback/recovery state without duplicating evidence.
+- Every keyed answer is unique; every selected-response item has an instructional explanation and a valid aligned skill; future task types must have equally explicit scoring/rubric definitions.
+- Current-unit sessions do not silently introduce future-unit content. Intentional cumulative retrieval, previously taught concept bridges, or learner-selected full-year review must be explicit in the scheduler/task design.
+- Reload restores the exact active item/task step and feedback/recovery state without duplicating evidence.
 - Layout has no horizontal overflow and all controls are at least 44 CSS pixels at 390 px and Chromebook widths.
+- Science Lab changes must also satisfy the current milestone acceptance gate in `SCIENCE_LAB_MASTER_PLAN.md` and the exact resume instructions in `SCIENCE_LAB_HANDOFF.md`.
