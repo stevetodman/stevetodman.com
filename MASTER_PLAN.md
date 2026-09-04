@@ -1,283 +1,180 @@
 # stevetodman.com — Canonical Master Plan
 
-Status: **ACTIVE — SIMPLIFY, SPEED UP, PROFESSIONALIZE, REDUCE DEBT**  
+Status: **ACTIVE — simplify, speed up, professionalize, reduce debt**  
 Owner: Steve Todman  
 Canonical repository: `stevetodman/stevetodman.com`  
 Production branch: `main`  
 Production site: `https://stevetodman.com`  
-Updated: 2026-09-04  
-Baseline SHA when this plan was created: `e5934d976c3ef86557bc72d8513eb9c547a5b0d6`
+Updated: 2026-09-04
 
----
+## Resume here
 
-## 0. NEW WINDOW / NEW AGENT: RESUME HERE
+This file is the canonical cross-window handoff. The repository, not chat memory, is the source of continuity.
 
-**This file is the canonical cross-window handoff.**
+A new agent must:
 
-If a ChatGPT/Claude/Codex/Copilot/other agent opens this repository with no chat history:
+1. read this file first, then root `AGENTS.md`;
+2. inspect current `main`, current checks, open PRs/issues, and newer commits before changing anything;
+3. preserve newer completed work;
+4. continue from **Exact next action** below without asking Steve to repeat history;
+5. update this file before ending a substantive session.
 
-1. Read **this entire file first**.
-2. Read root `AGENTS.md` for deployment-verification invariants.
-3. Inspect current `main`, active PRs/issues, and recent commits before changing anything.
-4. Treat this file as the durable statement of Steve's goals and architecture unless a newer explicit owner instruction supersedes it.
-5. **Do not ask Steve to restate the project history.** Reconstruct the current executable state from GitHub and continue from the first incomplete item in **Section 11 — Execution Queue**.
-6. Preserve newer completed work; do not reset to the historical baseline SHA above.
-7. After each meaningful work package, update the relevant checklist/status in this file so the next window can continue without chat history.
+## Mission
 
-### Required end-of-session handoff
+Make the system **fast for users, fast to change, easy to understand, low-debt, clinically safe, and boring to operate**.
 
-Before stopping because of credits, context limits, interruption, or agent switching:
+Governing order:
 
-- commit or clearly checkpoint all safe completed work;
-- update **Section 2 — Current Known State** if project state changed materially;
-- update **Section 11 — Execution Queue** so the first unchecked item is the exact next action;
-- record any blocker that requires Steve or external evidence;
-- never leave the next agent dependent on a chat transcript.
+> **Delete before refactoring. Simplify before optimizing. Measure before optimizing. Automate last. Stop when the system is simple and fast.**
 
-**The repository, not chat memory, is the source of continuity.**
-
----
-
-## 1. MISSION
-
-Steve's goal is not merely to "clean up GitHub." The target is a system that is simultaneously:
-
-- **fast for users** — especially iPhone/mobile;
-- **fast to develop and deploy**;
-- **professional and easy to understand**;
-- **low technical debt**;
-- **easy for AI agents to modify safely**;
-- **clinically safe where clinical content is involved**;
-- **minimal in architecture, dependencies, CI, documentation, and sources of truth**.
-
-The governing philosophy is:
-
-> **Make the important path embarrassingly obvious. Delete before refactoring. Simplify before optimizing. Optimize measured bottlenecks. Automate last.**
-
-The desired mental model is:
+Desired path:
 
 ```text
-CATALOG
-  ↓
-SOURCE
-  ↓
-FOCUSED TEST
-  ↓
-BUILD
-  ↓
-DEPLOY EXACT SHA
-  ↓
-LIVE VERIFY
+CATALOG -> SOURCE -> FOCUSED TEST -> BUILD -> DEPLOY EXACT SHA -> LIVE VERIFY
 ```
 
-Do not build a sophisticated "platform" merely to manage the complexity of the existing platform.
+Do not build a platform merely to manage platform complexity.
 
----
+## Canonical ownership
 
-## 2. CURRENT KNOWN STATE
-
-### 2.1 Canonical website repository
-
-`stevetodman/stevetodman.com` is the primary website repository and should remain the canonical home for surfaces that are actually part of `stevetodman.com`.
-
-Current deployment model:
-
-- Cloudflare Pages publishes generated `dist/`.
-- The repository root is **not** the deployment artifact.
-- `site/catalog.json` is the canonical route/deployment classification source.
-- Catalog classes are `PRODUCTION`, `PREVIEW`, `INTERNAL`, `SOURCE_ONLY`, and `ARCHIVED`.
-- Only `PRODUCTION` routes belong in the public Pages artifact.
-- The site intentionally remains direct-link accessible but globally `noindex` until Steve explicitly changes that policy.
-- No sitemap should be published while that policy remains active.
-
-### 2.2 Canonical route registry
-
-`site/catalog.json` contains the essential control-plane metadata:
-
-- stable ID;
-- title;
-- route/path;
-- deployment class;
-- audience;
-- category;
-- discoverability where needed;
-- generated/source-only flags where needed.
-
-**Confirmed 2026-09-04:** the existing catalog remains sufficient as the single route/deployment registry for the current simplification program. Do **not** create `academy-manifest.json`, `module-manifest.json`, or another independent route registry unless a concrete future requirement proves the catalog inadequate.
-
-### 2.3 Hospital simulator
-
-Canonical current hospital implementation:
-
-- repository: `stevetodman/stevetodman.com`;
-- source: `cardio-hospital-3d/`;
-- production route: `/hospital/`;
-- legacy `/phs/`: archived/reference;
-- legacy `/cardiohospital/`: internal/reference;
-- `stevetodman/pediatric-hospital-world`: secondary/reference only;
-- `stevetodman/3dworld`: predecessor/reference only;
-- `stevetodman/the_ward`: predecessor/reference only.
-
-`cardio-hospital-3d/PRIMARY_PROJECT.md` contains the hospital-specific checkpoint. The unified app is a static Next export with `basePath: /hospital`.
-
-Known remaining hospital product gate from the project handoff: physical-iPhone acceptance for the implemented mobile/PWA and second-consult/workload work. Do not redo completed desktop acceptance unless a later shared-code change or reproduced mobile regression requires it.
-
-### 2.4 Study / Math / Science
-
-StudyHub and Math are active production family-learning products inside this repository.
-
-StudyHub still has an external/live acceptance gate tracked by issue **#39**. Repository implementation is not sufficient evidence for live Supabase/device completion.
-
-Science Lab work has progressed through the M7 expansion sequence; a recent merged checkpoint is:
-
-- `e8e64c5117dcfceb2454c1a5c37bc512baee31bf` — **Science Lab M7: expand Engineering Design**.
-
-Preserve the intentionally minimal Science Lab CI approach used during iteration: focused invariants plus one Chromium phone smoke rather than a broad browser matrix unless a change justifies more.
-
-### 2.5 Clinical governance
-
-Clinical content review/provenance remains a hard safety boundary.
-
-- `clinical/content-registry.json` is canonical for documented clinical-review lifecycle metadata.
-- Never invent review dates, sign-off, or evidence.
-- Passing software tests are not clinical sign-off.
-- Issue **#42** tracks clinical modules that still require durable evidence-backed review records.
-
-### 2.6 KD / MIS-C experimental workbench
-
-This is a current experimental clinician/owner-facing evidence project. Preserve its safety boundary during repository cleanup.
-
-Recent checkpoints on `main`:
-
-- `ec246807f4b84943651c66be05c3944d8547cb62` — initial experimental iKD vs non-severe MIS-C evidence workbench;
-- `9faff16e0a3495e8994525de54145650efb97859` — M1A source lock;
-- `cdc93db5606c1453b9b4d4695d4c16bae215a9f5` — M1B acquisition gate;
-- `f75fad2b916eb411452affb56de19c59c31cbbad` — M2 KIDMATCH authenticity gate;
-- `5ec51e8552adcfe1f3367543fd895c4ff4237f1a` — M3 retrospective shadow-evaluation scaffold, prepared but not activated;
-- `45197904eb20a4993d0b4e32094eceb30ebe87b8` — 2026 target study source lock;
-- `e5934d976c3ef86557bc72d8513eb9c547a5b0d6` — M1B supplement source-lock complete.
-
-Do not convert observational group associations into an invented score/probability. M2 model integration remains blocked until an authoritative deployable KIDMATCH artifact is authenticated with the required implementation details. M3 remains governed/de-identified shadow evaluation, not live clinical inference.
-
-### 2.7 Separate active systems confirmed during repository census
-
-These are deliberately **not** folded into `stevetodman.com` merely to reduce repository count:
-
-- `stevetodman/resident_curriculum` — independent resident curriculum with its own `curriculum.stevetodman.com` deployment and content lifecycle;
-- `stevetodman/peds-cardio-curriculum` — independent private lecture/database/CLI system;
-- other active repositories in Section 12 remain `INDEPENDENT` unless a concrete canonical replacement is verified.
-
-### 2.8 Existing external gates that must survive simplification
-
-**Issue #39 — StudyHub live cloud-save acceptance**
-
-Requires live backend and real-device evidence; do not mark complete from source/tests alone.
-
-**Issue #42 — evidence-backed clinical review metadata**
-
-Do not backfill dates from commits or passing tests.
-
-These gates are independent of the technical-debt program. Cleanup must not make them disappear or falsely close them.
-
----
-
-## 3. HARD CONSTRAINTS — DO NOT BREAK THESE TO SIMPLIFY
-
-Simplification is subordinate to these invariants:
-
-1. **Clinical accuracy and review provenance.**
-2. **Privacy and no-PHI boundaries.**
-3. **Production-only deployment boundary.**
-4. **Direct-link-only / noindex policy until Steve explicitly changes it.**
-5. **Exact-SHA production verification.**
-6. **Asset provenance where required.**
-7. **Accessibility baseline.**
-8. **Critical behavioral regression protection.**
-9. **Current working URLs unless deliberately migrated.**
-10. **StudyHub family-token privacy/security semantics.**
-11. **Experimental clinical tools must not silently become diagnostic decision engines.**
-
-Do not "simplify" by removing the only protection for a real high-consequence failure mode.
-
----
-
-## 4. ENGINEERING PRINCIPLES
-
-### 4.1 Delete before refactor
-
-Before adding a file, dependency, workflow, registry, abstraction, helper, or test suite, first determine whether an existing one can be deleted or simplified instead.
-
-### 4.2 One owner for each fact
-
-Target canonical ownership:
-
-| Fact / responsibility | Canonical owner |
+| Responsibility | Canonical owner |
 | --- | --- |
-| Website/product repository | `stevetodman/stevetodman.com` |
+| Website-hosted products | `stevetodman/stevetodman.com` |
 | Production branch | `main` |
 | Route/deployment classification | `site/catalog.json` |
 | Clinical review lifecycle | `clinical/content-registry.json` |
 | Unified hospital source | `cardio-hospital-3d/` |
 | Production artifact | `dist/` |
 | Deployment | Cloudflare Pages |
-| Cross-window program state | `MASTER_PLAN.md` |
-| Root agent invariants | `AGENTS.md` |
+| Current program state / resume point | `MASTER_PLAN.md` |
+| Durable agent + exact-SHA rules | `AGENTS.md` |
+| Deployment mechanics | `DEPLOYMENT.md` |
+| Stable Claude conventions | `CLAUDE.md` |
 
-Human docs may explain these facts but should not maintain competing copies of dynamic state.
+Human docs may explain a fact but should not maintain competing dynamic state.
 
-### 4.3 Keep specialized systems specialized
+## Current product state
 
-Do not force Hospital, StudyHub, Math, academies, and clinical workbenches into one universal application framework merely because they share superficial UI patterns.
+### Website / deployment
 
-Extract shared code only when:
+- Cloudflare Pages publishes generated `dist/`, never the repository root.
+- Only `PRODUCTION` catalog entries belong in the public artifact.
+- `PREVIEW`, `INTERNAL`, `SOURCE_ONLY`, and `ARCHIVED` material must remain excluded.
+- The site intentionally remains direct-link accessible and globally `noindex`; no sitemap until Steve explicitly changes that policy.
+- `site/catalog.json` is sufficient as the single route/deployment registry. **Do not add another manifest.**
 
-- multiple real consumers exist;
-- duplication is causing actual maintenance cost or defects;
-- the shared abstraction is simpler than the duplicated implementations.
+### Hospital
 
-### 4.4 No abstraction before demonstrated duplication
+Canonical hospital:
 
-A practical default: do not create a new shared abstraction merely because two implementations look similar. Prefer waiting until repeated coordination becomes painful and the contract is clear.
+- source: `cardio-hospital-3d/`;
+- production route: `/hospital/`;
+- `/phs/`: archived/reference;
+- `/cardiohospital/`: internal/reference;
+- `stevetodman/3dworld`, `pediatric-hospital-world`, `the_ward`: predecessor/reference repositories.
 
-### 4.5 Measure performance, then optimize
+Desktop acceptance is complete. Do not rerun it by default. Physical-iPhone acceptance remains a separate product-quality gate where the hospital project docs require it.
 
-Do not reorganize code or adopt a framework in the name of speed without measuring the actual bottleneck.
+### Study / Math / Science
 
-### 4.6 Automation comes last
+- StudyHub and Math are active production family-learning products.
+- StudyHub live cloud-save acceptance remains issue **#39** and requires real backend/device evidence.
+- Science Lab has progressed through M7; preserve its intentionally small invariant set + one Chromium 390px smoke during focused iteration.
 
-Do not automate a process that should have been deleted or simplified first.
+### Clinical / experimental work
 
-### 4.7 Optimize total complexity, not line count
+- Clinical review/provenance remains governed by `clinical/content-registry.json` and issue **#42**.
+- Never infer review dates/sign-off from commits or tests.
+- KD/MIS-C remains an experimental evidence workbench. Do not convert observational associations into invented probabilities or an unvalidated diagnostic score.
 
-The best solution is the one with the lowest combined burden across:
+## Hard constraints
 
-- user runtime;
-- build/deploy time;
-- CI time;
-- cognitive load;
-- documentation;
-- operational failure modes;
-- clinical/privacy risk.
+Do not simplify away:
 
----
+1. clinical accuracy/review provenance;
+2. privacy/no-PHI boundaries;
+3. production-only deployment;
+4. direct-link/noindex policy;
+5. exact-SHA production verification;
+6. asset provenance where required;
+7. accessibility baseline;
+8. critical behavioral regression protection;
+9. working URLs unless deliberately migrated;
+10. StudyHub family-token privacy/security semantics;
+11. the experimental-vs-diagnostic boundary for clinical tools.
 
-## 5. KNOWN TECHNICAL-DEBT FINDINGS
+## Testing policy
 
-These findings were directly identified and should be treated as real candidates, not speculation.
+Steve explicitly prefers **minimum tests for fast iteration**.
 
-### 5.1 Test-command proliferation
+Default:
 
-Root `package.json` contains many explicit application/test-file lists (`test:math`, `test:study`, per-academy commands, smoke, platform, etc.). Focused product commands are useful, but long manually synchronized filename lists create change amplification.
+- run only the smallest tests that protect the changed behavior;
+- for Study/Science-style slices, prefer the small core invariant set plus one Chromium 390px smoke;
+- do not add WebKit matrices, screenshot suites, full product suites, or unrelated tests unless the changed risk or a reproduced failure warrants them;
+- documentation/census-only changes require no broad runtime suite;
+- exact-SHA production verification remains mandatory where `AGENTS.md` requires it.
 
-**Goal:** retain a small human-facing command surface while deriving/discovering membership where simple conventions can do so.
+## Work completed in this simplification pass
 
-### 5.2 CI/workflow proliferation
+### Continuity / baseline
 
-`.github/workflows/` has accumulated many narrow workflows in addition to a large general `tests.yml` matrix. A 2026-09-04 inventory reconfirmed multiple hospital-specific workflows plus product-specific, production, and special-purpose workflows.
+- `2e1e371487f9de949f002b813a0bf7d87d1e2a8e` — established this file as canonical cross-window master plan.
+- `e5a5ef44d12b5c7bd072cb2c51a743fb9a026677` — root `AGENTS.md` directs new agents here.
+- `136be62ff94eeb085c1aca88800759a010aad5e4` — root README reconciled to canonical `/hospital/`; legacy `/phs/` marked archived/reference; focused hospital test points to unified engine.
+- `site/catalog.json` reconfirmed as sufficient single route/deployment registry.
 
-**Goal:** fewer conceptual gates and less YAML, while preserving genuinely distinct trigger/environment requirements.
+### Repository census
 
-Preferred conceptual model:
+Authenticated owner census on 2026-09-04:
+
+- **49 repositories total**;
+- **12 already GitHub-archived**;
+- **37 not archived**.
+
+Decisions:
+
+- **PRIMARY:** `stevetodman/stevetodman.com`.
+- **REFERENCE:** `3dworld`, `pediatric-hospital-world`, `the_ward`.
+- **ARCHIVE decision pending settings write:** `cooking-timers` — `/cooking/` in the primary repo is canonical and the standalone Pages workflow has only failed runs. Preserve history; do not delete.
+- **Already ARCHIVED:** `audience-response-live`, `audience-response-system`, `ekgquest`, `guessthechd`, `heartquest`, `lecture`, `mossandadams`, `pedisim-svt`, `Septation-Station`, `shunt`, `shuntchatgpt`, `tbank`.
+- **INDEPENDENT / conservatively retained until supersession is proven:** all remaining non-archived repos, including `resident_curriculum` (own `curriculum.stevetodman.com` lifecycle) and `peds-cardio-curriculum` (private lecture/database/CLI system).
+
+Do not infer archive status from names alone. Archive first; do not mass-delete repositories.
+
+### Documentation collapse
+
+- `e50d6d14637b3636bb2cc6e7db977499ebcaca4c` — collapsed `CLAUDE.md` from dynamic status/backlog into stable conventions and pointers.
+- `db60aeceeb7271504be8bde64ce91fdcce816efb` — removed stale, unreferenced `PR_TRIAGE.md`; current PR state lives in GitHub and current program state lives here.
+- `47638c7a566ceb28dc12487a71bed3458089c995` — removed stale branch/issue status from `DEPLOYMENT.md`; retained only deployment mechanics and invariants.
+- `REVIEW-2026-08.md` was audited and retained because it is a dated historical QA record, not a live handoff. Its findings are explicitly resolved in the document.
+
+### CI simplification
+
+- `292b73705d5959f307857204749d15bbda5cb001` — completed desktop acceptance is now **manual-only**; it no longer auto-runs on the obsolete `hospital-unified` branch.
+- `09264cbe4c4809564176464ba7cba23bf01c805c` — retargeted unified hospital build/engine CI from old branch to current `main` + hospital PR changes.
+- That first run failed because `cardio-hospital-3d` has **no `package-lock.json`** and the workflow incorrectly assumed `npm ci`.
+- `99b5c28b201232390d65af837ec38e3f38882603` — corrected the workflow to the only currently valid install mode (`npm install`); focused Unified Hospital Build run **#103 passed**.
+- `77fe02c10072a5a26f3f71ee56b271dab1dc4a2b` — removed README/MASTER_PLAN/CLAUDE/DEPLOYMENT/old-PR-triage files from the broad `Tests` workflow path triggers. Documentation-only commits no longer launch the full multi-job matrix.
+
+### Build-path simplification
+
+- `b90ebc8a4354fcb005c5d0cdc30492ad1310d276` attempted to make hospital installs deterministic with `npm ci`; this exposed the missing-lockfile constraint and was immediately corrected.
+- `5171150c68fe346b099e88da1b47106501b82085` — production hospital build no longer reruns `test:engine`; focused CI now owns engine validation. Nested `npm install` remains temporarily because Cloudflare installs the root package only and the hospital has no lockfile.
+- Focused hospital production guard passed on `5171150c…`.
+- At the time of this checkpoint, Cloudflare deployment and exact production/browser verification for `5171150c…` were still in progress. **Do not call that SHA live-verified unless the exact checks subsequently pass.**
+
+## Known remaining technical debt
+
+### Root test interface
+
+Root `package.json` still exposes many manually enumerated test commands. Keep useful focused commands, but reduce change amplification only where simple conventions can replace long synchronized lists.
+
+### Workflow sprawl
+
+There are still multiple product-specific workflows. Audit trigger/environment differences before deleting or consolidating them. Do not target an arbitrary workflow count.
+
+Conceptual target:
 
 ```text
 FAST       affected unit/contracts
@@ -285,536 +182,148 @@ PRODUCT    affected product smoke
 PRODUCTION exact deployed-SHA verification
 ```
 
-Do not target an arbitrary workflow count; delete only after understanding trigger/environment differences.
+### Hospital dependency/install path
 
-### 5.3 Build and validation are mixed
+`cardio-hospital-3d` currently has no `package-lock.json`. Therefore:
 
-`scripts/build-hospital.mjs` currently performs:
+- `npm ci` is invalid there today;
+- Cloudflare's root dependency install does not provision the nested app;
+- `scripts/build-hospital.mjs` must temporarily keep nested `npm install` so production builds remain functional.
 
-1. `npm install` inside `cardio-hospital-3d`;
-2. `npm run test:engine`;
-3. `npm run build`;
-4. copy/export into `dist/hospital`.
+Do **not** fabricate a lockfile. A future cleanup may generate/commit a real lockfile and/or adopt a simpler supported dependency-install stage, but only if it reduces total complexity.
 
-This makes production building slower and conflates dependency installation, validation, compilation, and packaging.
+### Build-site copy/prune
 
-**Target:** tests happen in CI; build scripts build/package. Use deterministic dependency installation rather than fresh product-local install side effects during the build path.
+`scripts/build-site.mjs` still uses broad copy followed by pruning. Review only if positive inclusion is demonstrably simpler while preserving production-boundary tests.
 
-### 5.4 Site build uses broad copy then prune
+### Performance / caching
 
-`scripts/build-site.mjs` derives route roots from the catalog, copies entire roots, then removes non-production/source-only artifacts.
+Performance remains under-measured. Establish a tiny benchmark for `/`, `/education/`, `/hospital/`, `/study/`, `/math/` before optimizing.
 
-This is currently safe, but review whether direct positive inclusion can become simpler and faster **without weakening the production boundary**. Do not rewrite merely for aesthetic purity.
+Candidate later improvements:
 
-### 5.5 Runtime performance is under-measured
+- versioned Study assets may be eligible for immutable caching while HTML/release entry points remain revalidated;
+- `/hospital/_next/static/` may similarly be eligible;
+- optimize the largest measured bottleneck first and re-measure.
 
-Current performance protection is mostly per-file budgets (`site/performance-budgets.json`). Those budgets explicitly are not Core Web Vitals or end-user performance measurements.
+## Execution queue
 
-**Missing:** small production measurements for cold/warm load, transferred bytes, startup/usable time, console errors, and important mobile behavior.
+### Phase A — continuity / baseline
 
-### 5.6 Study caching is intentionally conservative but may now be over-broad
+- [x] Canonical master plan.
+- [x] Root agent entrypoint.
+- [x] README reconciled.
+- [x] Single route registry confirmed.
 
-`_headers` currently applies:
+### Phase B — repository census
 
-```text
-/study/*
-  Cache-Control: no-cache, max-age=0, must-revalidate
-```
-
-The Study build also versions important release assets.
-
-**Candidate improvement:** keep HTML/release entry points revalidated while allowing truly content-addressed/versioned static assets to use long-lived immutable caching. Prove that stale-release protections remain intact before changing this.
-
-Apply the same principle to `/hospital/_next/static/` where appropriate.
-
-### 5.7 Documentation drift
-
-**Resolved 2026-09-04:** root README now identifies `/hospital/` as the canonical Pediatric Hospital Simulator and `/phs/` as archived/reference, matching `site/catalog.json`. The README also points the focused hospital test at the current unified engine rather than the legacy `test:phs` command.
-
-Remaining documentation debt: overlapping files still exist across root and product directories (`MASTER_PLAN`, `CLAUDE`, `AGENTS`, `PRIMARY_PROJECT`, `PROJECT-RULES`, implementation-status/handoff docs).
-
-**Goal:** each document gets one clear job. Remove stale dynamic state from prose when the repository already has a canonical machine source.
-
-### 5.8 GitHub account/repository sprawl
-
-The 2026-09-04 owner census found **49 repositories**: **12 already GitHub-archived** and **37 not archived**. Most non-archived repositories are conservatively retained as `INDEPENDENT` because no canonical replacement has yet been proven.
-
-Clear lineage/duplication findings:
-
-- `stevetodman/stevetodman.com` — **PRIMARY** for the website;
-- `stevetodman/3dworld` — **REFERENCE** predecessor in the hospital-simulator line;
-- `stevetodman/pediatric-hospital-world` — **REFERENCE** secondary hospital implementation with its own historical Pages workflow;
-- `stevetodman/the_ward` — **REFERENCE** earlier medical-simulation platform;
-- `stevetodman/cooking-timers` — **ARCHIVE decision**: website copy is canonical and its standalone GitHub Pages workflow has only failed runs; preserve history, do not delete.
-
-Do not mass-delete repositories. Archive uncertain/superseded projects first and keep unique source/history available.
-
----
-
-## 6. TARGET END STATE
-
-The target is **not** a mandatory directory rewrite. It is the conceptual architecture below:
-
-```text
-stevetodman.com/
-├── README.md           # what this is / how to run
-├── AGENTS.md           # durable agent invariants + points here
-├── MASTER_PLAN.md      # cross-window program state
-├── package.json        # small human-facing command surface
-│
-├── site/               # catalog + global platform/build concerns
-├── cardio-hospital-3d/ # unified hospital app (rename/move only if real value)
-├── study/              # family learning
-├── math/               # Math Mission
-├── education/ or existing academy roots
-├── tools/
-├── cooking/
-├── clinical/
-├── tests/
-├── scripts/
-└── dev/                # experiments/benchmarks/one-offs only if useful
-```
-
-**Do not churn directories solely to make the tree look cleaner.** Move/rename only when it reduces real maintenance cost.
-
-Desired properties:
-
-- one canonical repo for the website;
-- one canonical route catalog;
-- one obvious production build;
-- one obvious deployment path;
-- a small number of human-facing test commands;
-- minimal overlapping docs;
-- specialized products remain locally understandable;
-- fast mobile/static delivery;
-- exact-SHA live verification;
-- very little architecture left to explain.
-
----
-
-## 7. TESTING POLICY — MINIMUM TESTS BY DEFAULT
-
-Steve has explicitly requested **minimum testing so iteration remains fast**.
-
-### Default during focused implementation
-
-Run the smallest test set that directly protects the changed behavior.
-
-For Study/Science-style slices, the preferred pattern is roughly:
-
-- the small core invariant set (often ~4 focused tests), plus
-- **one Chromium 390px phone smoke**.
-
-Do not automatically add:
-
-- WebKit matrices;
-- screenshot/artifact suites;
-- full StudyHub suites;
-- unrelated product suites;
-- broad browser matrices;
-
-unless the change touches those risks or a reproduced failure justifies them.
-
-Documentation-only/census-only commits do not require broad runtime tests.
-
-### Before merge/deploy
-
-Preserve the repository's hard cross-cutting invariants relevant to the change, especially:
-
-- production boundary;
-- clinical/privacy/provenance rules;
-- focused product behavior;
-- one realistic browser/mobile smoke where appropriate.
-
-### After deployment
-
-Exact-SHA production verification remains mandatory where the current workflow requires it. Never substitute an older successful deployment run.
-
----
-
-## 8. PERFORMANCE PROGRAM
-
-Treat three forms of speed separately.
-
-### 8.1 User/runtime speed
-
-Priority surfaces:
-
-- `/`;
-- `/education/`;
-- `/hospital/`;
-- `/study/`;
-- `/math/`.
-
-Create/retain **one small benchmark command**, not a large observability platform.
-
-Candidate measurements:
-
-- HTML transferred;
-- JS transferred;
-- largest asset;
-- cold load / usable time;
-- warm/repeat load;
-- console errors;
-- 390px mobile behavior.
-
-Hospital-specific:
-
-- time to usable clinical world;
-- frame/jank behavior during movement;
-- memory/thermal behavior on physical iPhone when practical.
-
-Do not optimize every route. Fix the largest measured bottleneck first.
-
-### 8.2 Build/CI speed
-
-Track at least approximately:
-
-- fast test duration;
-- product smoke duration;
-- build duration;
-- merge-to-live duration.
-
-Question any step that materially slows the critical path.
-
-### 8.3 Engineering/cognitive speed
-
-A new agent should be able to answer in minutes:
-
-- What is canonical?
-- Where do I edit it?
-- What is the smallest relevant test?
-- How is it built?
-- How is production verified?
-- What is the exact next task?
-
-This file exists partly to enforce that property.
-
----
-
-## 9. REPOSITORY-CENSUS DECISION MODEL
-
-Every GitHub repository Steve owns is assigned one of these statuses:
-
-1. **PRIMARY** — canonical active implementation for a major current product.
-2. **INDEPENDENT** — legitimately separate lifecycle/deployment/product, or conservatively retained until supersession is proven.
-3. **REFERENCE** — retained for history/assets/migration reference; not active target.
-4. **ARCHIVE** — superseded/abandoned/experiment; should be GitHub archived or is already archived.
-
-### Archive criteria
-
-Strong archive candidates are repos that:
-
-- have a canonical replacement;
-- duplicate a surface now maintained elsewhere;
-- are old experiments/prototypes;
-- no longer deploy anything intentionally used;
-- create agent confusion about where new work belongs.
-
-### Keep-separate criteria
-
-A repository can remain independent when it has materially different:
-
-- deployment/security boundary;
-- dependency/runtime requirements;
-- release cadence;
-- product identity;
-- ownership;
-- reuse value outside the website.
-
-Do not merge repos merely because they are small. Do not split apps merely because they are large.
-
-### Safety before archive
-
-Before archiving a repository:
-
-- identify whether it owns any unique live deployment;
-- confirm whether unique source/assets exist only there;
-- note the canonical replacement;
-- preserve any migration/reference link needed by the main repo.
-
-Archive first; destructive deletion is unnecessary for cleanup.
-
----
-
-## 10. WHAT NOT TO BUILD
-
-Unless future evidence changes the decision, **do not introduce**:
-
-- a universal academy engine as the first refactor;
-- a universal simulator engine;
-- a universal learner-state engine joining StudyHub and resident education;
-- another module/route manifest beside `site/catalog.json`;
-- microservices for a static personal site;
-- monorepo tooling solely to reorganize folders;
-- an internal developer portal to manage the website;
-- a new test framework to manage existing test frameworks;
-- a large performance/analytics platform before basic benchmarks exist;
-- CI automation for processes that can simply be removed;
-- directory churn with no measurable maintenance/runtime benefit.
-
-The burden of proof is on adding complexity.
-
----
-
-## 11. EXECUTION QUEUE — EXACT ORDER
-
-This is the current program. **A new agent should continue from the first unchecked item unless newer owner instructions explicitly change priority.**
-
-### Phase A — Freeze continuity and establish the baseline
-
-- [x] Make this `MASTER_PLAN.md` the canonical cross-window program/handoff document.
-- [x] Update root `AGENTS.md` so every agent is explicitly directed here while preserving deployment-verification invariants. (`e5a5ef44d12b5c7bd072cb2c51a743fb9a026677`)
-- [x] Reconcile root `README.md` with current canonical routes (`/hospital/` vs archived `/phs/`) and remove stale dynamic status from it. (`136be62ff94eeb085c1aca88800759a010aad5e4`)
-- [x] Confirm `site/catalog.json` remains sufficient as the single route/deployment registry; **do not add another manifest**.
-
-**Exit:** COMPLETE. A fresh agent can understand the canonical system from `README.md` + `AGENTS.md` + this file without chat history.
-
-### Phase B — GitHub repository census and archive pass
-
-- [x] Inventory all Steve-owned repositories with current archived/public/private status. **49 total; 12 already archived; 37 not archived.**
-- [x] Assign `PRIMARY / INDEPENDENT / REFERENCE / ARCHIVE` conservatively in Section 12.
-- [x] Identify obvious duplicate/superseded repos first, including hospital predecessors and the standalone cooking-timers copy.
-- [ ] Apply GitHub archive status to verified `ARCHIVE` decisions that are not already archived. **Current blocker:** this GitHub connector exposes repository reads/content writes but no repository-settings/archive mutation. Do not delete as a substitute. `cooking-timers` is the current verified archive action pending a settings-capable interface.
+- [x] Inventory all 49 repos.
+- [x] Classify conservatively.
+- [x] Identify verified superseded repositories.
+- [ ] Archive `stevetodman/cooking-timers` through a GitHub settings-capable interface. Current connector cannot mutate repository archived status.
 - [x] Do not delete repositories.
-- [x] Record census decisions in **Section 12 — Repository Census**.
 
-**Exit:** classification is complete; one repository-settings action remains before Phase B can be called fully complete.
+### Phase C — dead/stale machinery
 
-### Phase C — Dead/stale machinery deletion inside `stevetodman.com`
+- [~] Audit stale source copies, scripts, workflows, old handoffs, and redundant commands. Root docs + initial workflow pass completed; continue product-specific audit.
+- [x] Remove demonstrated stale `PR_TRIAGE.md`.
+- [ ] Delete/retire further machinery only after proving canonical replacement/no current function.
+- [ ] Preserve clinical/source provenance and useful historical evidence.
 
-- [ ] Audit stale source copies, obsolete scripts, abandoned experiments, obsolete workflows, old handoff docs, and redundant test commands.
-- [ ] Delete/retire only items with a demonstrated canonical replacement or no current function.
-- [ ] Move useful one-off experiments to a clearly non-mainline `dev/` area only if keeping them has value; otherwise remove them.
-- [ ] Preserve clinical/source provenance and required historical evidence.
+### Phase D — documentation collapse
 
-**Exit:** less active surface area before any architectural refactor.
-
-### Phase D — Documentation collapse
-
-- [ ] Give root `README.md`, root `AGENTS.md`, and `MASTER_PLAN.md` non-overlapping jobs.
-- [ ] Review `CLAUDE.md`, product `PRIMARY_PROJECT.md`, `PROJECT-RULES.md`, implementation-status/handoff docs, and stale review files.
-- [ ] Delete or collapse overlapping status prose once durable information has been preserved in the correct canonical source.
-- [ ] Product-specific documents may remain when they contain real local acceptance criteria that would make the root plan noisy.
-
-**Exit:** no contradictory dynamic project state across multiple docs.
+- [x] Root README / AGENTS / MASTER_PLAN roles separated.
+- [x] Root `CLAUDE.md` collapsed to stable rules.
+- [x] `DEPLOYMENT.md` collapsed to operations only.
+- [x] Dated `REVIEW-2026-08.md` explicitly retained as historical evidence.
+- [ ] Audit product-level `PRIMARY_PROJECT.md`, implementation-status, project-rules, and handoff files; preserve only genuinely local acceptance criteria.
 
 ### Phase E — CI/test simplification
 
-- [ ] Inventory current workflows and triggers; identify genuinely distinct environments/triggers.
-- [ ] Remove obsolete/redundant workflows before attempting clever consolidation.
-- [ ] Simplify duplicated path filters.
-- [ ] Reduce the human-facing root test interface toward a small set such as:
-  - `npm test` — fast default;
-  - `npm run test:study`;
-  - `npm run test:math`;
-  - `npm run test:hospital`;
-  - `npm run test:clinical`;
-  - `npm run test:full` only if a true full suite remains useful.
-- [ ] Preserve product-specific commands only where they materially improve focused development.
-- [ ] Keep minimum-test iteration as the default.
+- [~] Workflow inventory underway.
+- [x] Stop broad CI on documentation-only changes.
+- [x] Make completed desktop acceptance manual-only.
+- [x] Retarget unified hospital CI to current `main`/PR development.
+- [ ] Audit remaining workflows for obsolete triggers/duplicate responsibilities.
+- [ ] Reduce the human-facing root test interface only where it clearly simplifies maintenance.
 
-**Exit:** an ordinary change has an obvious fast validation path and CI YAML is materially smaller/easier to reason about.
+### Phase F — pure deterministic build
 
-### Phase F — Pure deterministic build
+- [x] Move hospital engine validation out of the production build path.
+- [ ] Resolve nested dependency installation cleanly; currently blocked by absent hospital lockfile/root-only Cloudflare install.
+- [ ] Keep `npm run build` as the obvious production entry point.
+- [ ] Review `build-site.mjs` copy/prune only if a simpler safe design is proven.
 
-- [ ] Separate validation from production building.
-- [ ] Remove `npm install` and `test:engine` side effects from `scripts/build-hospital.mjs` once equivalent focused CI protection is confirmed.
-- [ ] Use deterministic dependency installation in the correct pipeline stage.
-- [ ] Keep `npm run build` as the obvious production build entry point.
-- [ ] Review copy-then-prune behavior in `build-site.mjs`; change only if a simpler positive-inclusion design preserves all production-boundary tests.
+### Phase G — measured runtime performance
 
-**Exit:** builds build; tests test; deployment packages the deterministic output.
+- [ ] Establish tiny production benchmark.
+- [ ] Capture cold/warm baseline and transferred assets.
+- [ ] Review Study and hospital immutable caching only after baseline.
+- [ ] Fix largest measured bottleneck first.
 
-### Phase G — Runtime performance and caching
+### Phase H — shared code only if justified
 
-- [ ] Establish a tiny benchmark for `/`, `/education/`, `/hospital/`, `/study/`, `/math/`.
-- [ ] Capture baseline cold/warm load and transferred assets before optimization.
-- [ ] Review `/study/*` no-cache policy against already-versioned release assets.
-- [ ] Allow long-lived immutable caching only for assets whose URL/version semantics make staleness impossible under the current release contract.
-- [ ] Review `/hospital/_next/static/` caching similarly.
-- [ ] Optimize the largest measured bottleneck first.
-- [ ] Re-measure after each change; revert complexity that does not produce meaningful benefit.
+- [ ] Extract only after repeated coordination proves the abstraction reduces total complexity.
 
-**Exit:** user-facing performance improvements are evidence-based, not architectural guesswork.
+### Phase I — stop
 
-### Phase H — Shared-code extraction only if justified
+- [ ] Stop refactoring once the critical path is simple, fast, measured, and understandable.
 
-- [ ] Measure actual repeated coordination after deletion/simplification.
-- [ ] Consider shared site shell/test helpers/reference rendering/quiz primitives only when multiple active consumers demonstrably benefit.
-- [ ] Keep academies and applications specialized where their behavior is meaningfully different.
+## External / owner blockers
 
-**Exit:** any abstraction introduced removes more complexity than it adds.
+- **#39 StudyHub live acceptance:** requires real Supabase/edge and device evidence; never expose family tokens.
+- **#42 clinical review evidence:** requires real durable review evidence; do not infer dates/sign-off.
+- **Physical-iPhone hospital acceptance:** remains separate wherever hospital acceptance docs require it.
+- **Repository archive mutation:** current connector cannot set GitHub's archived flag; `cooking-timers` remains the verified pending archive action.
 
-### Phase I — Stop
+## Production-state language
 
-- [ ] When the critical path is simple, fast, measured, and understandable, **stop refactoring**.
-
-Do not create perpetual platform work.
-
----
-
-## 12. REPOSITORY CENSUS
-
-Census performed 2026-09-04 from the authenticated owner repository listing. `INDEPENDENT` is intentionally conservative: it means "do not merge/archive based only on superficial similarity." It does not mean the repository is a current priority.
-
-| Repository | Visibility | GitHub archived | Decision | Notes |
-| --- | --- | --- | --- | --- |
-| `stevetodman/3dworld` | private | no | **REFERENCE** | CardioQuest 3D predecessor; current hospital source is `cardio-hospital-3d/` in the primary repo. Preserve large/unique assets and history. |
-| `stevetodman/arrhythmias-quiz` | public | no | **INDEPENDENT** | Separate Next/Vercel-style quiz app; no verified canonical replacement. |
-| `stevetodman/audience-response-live` | public | yes | **ARCHIVE** | Already archived; leave archived. |
-| `stevetodman/audience-response-system` | private | yes | **ARCHIVE** | Already archived; leave archived. |
-| `stevetodman/autonomous-agent-template` | private | no | **INDEPENDENT** | Reusable agent template, not website product source. |
-| `stevetodman/cardiojeopardy` | public | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/cardiology-briefing` | private | no | **INDEPENDENT** | Personal AI pediatric-cardiology briefing workflow; separate lifecycle. |
-| `stevetodman/cardiomyopathytest` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/cardiotrainer` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/circuit` | public | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/cli-todo-app` | private | no | **INDEPENDENT** | Separate utility/experiment; no replacement evidence. |
-| `stevetodman/clintel` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/codex-control-plane` | private | no | **INDEPENDENT** | Separate development/agent infrastructure. |
-| `stevetodman/cooking-timers` | public | no | **ARCHIVE** | `/cooking/` in primary repo is canonical; standalone Pages workflow has only failed runs. Preserve history, archive when settings write is available. |
-| `stevetodman/ekgassessment` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/ekgquest` | public | yes | **ARCHIVE** | Already archived; leave archived. |
-| `stevetodman/guessthechd` | public | yes | **ARCHIVE** | Already archived; leave archived. |
-| `stevetodman/guidesynth` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/heartquest` | private | yes | **ARCHIVE** | Already archived; leave archived. |
-| `stevetodman/intake-agent` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/lecture` | public | yes | **ARCHIVE** | Already archived; leave archived. |
-| `stevetodman/lecture-generator` | private | no | **INDEPENDENT** | Separate authoring system. |
-| `stevetodman/medqbank` | private | no | **INDEPENDENT** | Separate question-bank project. |
-| `stevetodman/medx` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/mossandadams` | private | yes | **ARCHIVE** | Already archived; leave archived. |
-| `stevetodman/oblit` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/OBLITERATUS` | public | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/pedcards` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/pediatric-cardiac-assessment` | private | no | **INDEPENDENT** | Separate assessment project; no verified replacement. |
-| `stevetodman/pediatric-hospital-world` | public | no | **REFERENCE** | Isolated iPhone-first hospital predecessor with historical GitHub Pages workflow; unified `/hospital/` is canonical. |
-| `stevetodman/pedisim-svt` | public | yes | **ARCHIVE** | Already archived; leave archived. |
-| `stevetodman/peds-cardio-curriculum` | private | no | **INDEPENDENT** | Private evidence-backed lecture/database/CLI system; distinct from website academies. |
-| `stevetodman/peds-ecg-viewer` | public | no | **INDEPENDENT** | Separate ECG viewer; no verified replacement. |
-| `stevetodman/pocket-tts` | public | no | **INDEPENDENT** | Reusable TTS project; separate lifecycle. |
-| `stevetodman/previsit-chatbot-demo` | private | no | **INDEPENDENT** | Separate demo; no verified replacement. |
-| `stevetodman/prove` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/resident_curriculum` | private | no | **INDEPENDENT** | Own resident curriculum and `curriculum.stevetodman.com` deployment; keep separate. |
-| `stevetodman/Septation-Station` | public | yes | **ARCHIVE** | Already archived; leave archived. |
-| `stevetodman/settled-meadow-world-recipe` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/shunt` | private | yes | **ARCHIVE** | Already archived; leave archived. |
-| `stevetodman/shuntchatgpt` | private | yes | **ARCHIVE** | Already archived; leave archived. |
-| `stevetodman/speed-reader` | private | no | **INDEPENDENT** | Separate utility; no verified replacement. |
-| `stevetodman/step1` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/stevetodman.com` | public | no | **PRIMARY** | Canonical website, Study/Math, clinical tools/education, cooking routes, and unified hospital deployment source. |
-| `stevetodman/tbank` | public | yes | **ARCHIVE** | Already archived; leave archived. |
-| `stevetodman/the_ward` | private | no | **REFERENCE** | Earlier Claude-driven medical simulation platform; unified `/hospital/` is current simulator target. |
-| `stevetodman/todmanz` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/uworldinspire` | private | no | **INDEPENDENT** | Separate project; no verified replacement. |
-| `stevetodman/zzu-pediatric-ecg` | public | no | **INDEPENDENT** | Separate ECG project; no verified replacement. |
-
-Do not infer future archive decisions from repository name alone. Promote an `INDEPENDENT` repo to `REFERENCE` or `ARCHIVE` only after verifying a real canonical replacement and deployment/source ownership.
-
----
-
-## 13. CURRENT EXTERNAL/OWNER BLOCKERS
-
-### #39 StudyHub live acceptance
-
-Repository code cannot prove completion. Requires live Supabase/edge and real-device acceptance evidence.
-
-Do not expose family tokens in public logs/issues.
-
-### #42 clinical review evidence
-
-Requires real durable clinical-review evidence. Do not infer dates from commits or tests.
-
-### Physical-iPhone hospital acceptance
-
-Hospital-specific project docs record this as a remaining product-quality gate. Do not substitute desktop/browser emulation for a physical-device gate if the project acceptance criteria explicitly require a physical device.
-
-### Repository archive mutation
-
-The current GitHub connection used for the 2026-09-04 census can read repository metadata and write repository contents but does not expose repository-settings mutation for the GitHub `archived` flag. `stevetodman/cooking-timers` has a verified **ARCHIVE** decision but still reports `archived: false`. Use a settings-capable GitHub interface to archive it; do not delete it or weaken other repositories as a workaround.
-
-These blockers should not prevent safe repository simplification work that does not claim to close them.
-
----
-
-## 14. PRODUCTION / DEPLOYMENT INVARIANTS
-
-Never use **live** as a synonym for committed, CI-passed, or deployed.
-
-Keep these states distinct:
+Keep these distinct:
 
 1. committed;
-2. pre-deployment CI passed;
-3. Cloudflare Pages deployment succeeded;
-4. exact current `main` SHA is the production deployment;
-5. public custom-domain pages were independently browser-verified where required.
+2. focused/pre-deployment CI passed;
+3. Cloudflare deployment succeeded;
+4. exact current `main` SHA is production;
+5. required live browser/touch verification passed.
 
-For Study production changes, preserve the established exact-SHA deployment and touch-browser verification contract in root `AGENTS.md`.
+If exact Cloudflare deployment has not succeeded: **NOT DEPLOYED**.  
+If deployed but required browser verification has not passed: **DEPLOYED BUT NOT LIVE-VERIFIED**.  
+If verification reproduces a failure: **PRODUCTION BROKEN — FIX IN PROGRESS**.
 
-If Cloudflare deployment for the exact SHA has not succeeded: **NOT DEPLOYED**.  
-If deployed but required browser verification has not run: **DEPLOYED BUT NOT LIVE-VERIFIED**.  
-If browser verification reproduces a failure: **PRODUCTION BROKEN — FIX IN PROGRESS**.
+Never substitute an older successful run for the current SHA.
 
-Do not change DNS/TLS/caching/build infrastructure reflexively. First reproduce the production problem and change the smallest thing that fixes it.
+## What not to build
 
----
+Unless future evidence changes the decision, do not introduce:
 
-## 15. STOP / REVERSE CONDITIONS
+- a universal academy/simulator/learner-state engine;
+- another route/module manifest;
+- microservices or monorepo tooling for organizational aesthetics;
+- a developer portal to manage this website;
+- a new test framework to manage existing tests;
+- a large observability platform before a tiny benchmark exists;
+- directory churn with no measurable maintenance/runtime benefit.
 
-Pause or reverse a simplification if it:
+## Definition of done
 
-- weakens clinical review/provenance;
-- exposes nonproduction/internal/source-only content;
-- breaks exact-SHA verification;
-- makes StudyHub token/security behavior weaker;
-- creates a second source of truth;
-- increases mandatory tests for ordinary changes without a proven risk benefit;
-- makes product-specific logic harder to understand;
-- introduces a framework/dependency with no measured benefit;
-- degrades measured runtime performance;
-- changes established URLs without a deliberate migration;
-- makes the next agent more dependent on chat history rather than repository state.
+This simplification program is done when:
 
----
+- the canonical repo/routes/deployment path are obvious;
+- obvious superseded repos are archived, not deleted;
+- documentation has non-overlapping ownership;
+- ordinary changes have a small fast test path;
+- CI/build complexity is materially lower without weakening real gates;
+- production builds are as deterministic as practical;
+- key routes have simple measured performance baselines;
+- caching is efficient where versioning makes it safe;
+- abstractions exist only where they remove more complexity than they add;
+- a new agent can resume from this file without Steve re-explaining anything;
+- further refactoring no longer has a clear measured payoff.
 
-## 16. DEFINITION OF DONE
+## Exact next action
 
-This technical-debt/simplification program is done when:
-
-1. `stevetodman.com` is unequivocally canonical for website-hosted products;
-2. other GitHub repositories are clearly classified and obvious superseded ones are archived;
-3. `site/catalog.json` remains the single route/deployment source of truth;
-4. documentation has clear, non-overlapping ownership and no known stale route/project-state contradictions;
-5. ordinary development uses a very small, fast test path;
-6. CI/workflow count and YAML complexity are materially lower without weakening important gates;
-7. production builds are deterministic and do not secretly run product tests/install side effects;
-8. key site surfaces have simple real-world performance baselines;
-9. immutable/versioned static assets are cached efficiently without stale-release regressions;
-10. measured user/build/CI performance is improved;
-11. shared abstractions exist only where they demonstrably reduce total complexity;
-12. a new agent can open the repository, read this file, and continue without Steve re-explaining the project;
-13. the team stops refactoring once these conditions are met.
-
----
-
-## 17. OWNER PREFERENCES TO PRESERVE
-
-- Prefer **minimum tests** for rapid iteration; expand only when risk/reproduced failures justify it.
-- Do not redo completed work by default.
-- Fix only reproduced regressions when validating production/mobile behavior.
-- Prefer small safe diffs and frequent checkpoints over giant rewrites.
-- Preserve working educational value and clinical correctness while simplifying infrastructure.
-- When uncertain between adding machinery and deleting machinery, investigate deletion first.
-- A professional system here means **clear, fast, reliable, measurable, and boring**, not maximally abstract.
-
----
-
-## 18. EXACT NEXT ACTION
-
-1. If a repository-settings-capable GitHub interface is available, archive `stevetodman/cooking-timers` (do **not** delete it); then mark Phase B complete.
-2. Regardless of that settings-only blocker, continue the **read-only Phase C audit** inside `stevetodman.com`: inventory stale source copies, obsolete scripts/workflows, old handoff/status docs, and redundant test commands.
-3. Delete nothing from Phase C until a canonical replacement/no-current-function case is demonstrated.
-4. Keep testing minimal: documentation/census-only changes require no broad suite.
-
-Do **not** start by building a universal academy engine, new manifest system, or CI abstraction layer.
+1. **First inspect current `main` and exact-SHA checks.** This checkpoint itself creates a newer SHA than `5171150c…`; do not rely on the older in-progress deployment once this commit lands. Confirm the current exact SHA's Cloudflare + required browser verification status before making any production claim.
+2. Continue the **product-level Phase C/D audit**, starting with `cardio-hospital-3d/PRIMARY_PROJECT.md`, implementation-status/project-rules/handoff files, and remaining hospital workflows. Preserve local acceptance criteria; remove stale duplicate dynamic state.
+3. Continue the remaining workflow audit; delete/consolidate only when trigger/environment responsibilities are demonstrably redundant.
+4. Do not force the hospital lockfile problem. Generate/commit a real lockfile only through a valid dependency-resolution environment; never synthesize one.
+5. Keep testing minimal and stop when additional simplification has no clear payoff.
