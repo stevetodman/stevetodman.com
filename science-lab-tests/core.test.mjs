@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SCIENCE_LAB_CONFIG } from '../study/science-lab/config.mjs';
-import { blankProfile, buildQueue, normalizeStore, skillStatus, validateCurriculum } from '../study/science-lab/core.mjs';
+import { blankProfile, buildQueue, normalizeStore, remediationForSelection, skillStatus, validateCurriculum } from '../study/science-lab/core.mjs';
 
 const NOW = Date.UTC(2026, 8, 3, 18, 0, 0);
 const attempt = (skill, correct, date, extra = {}) => ({
@@ -27,20 +27,27 @@ function secureEvidence(skill, start = 0) {
   ];
 }
 
-test('M1 evidence states require independent delayed transfer evidence', () => {
+test('M1/M2 evidence states keep hinted repair distinct from independent mastery', () => {
   const guidedOnly = { attempts: [
     attempt('particle-models', true, '2026-09-01', { provenance: 'guided' }),
     attempt('particle-models', true, '2026-09-02', { provenance: 'recovery' }),
-    attempt('particle-models', true, '2026-09-03', { provenance: 'hinted', delayedRetrieval: true, transfer: true })
+    attempt('particle-models', true, '2026-09-03', { provenance: 'hinted', misconceptionTag: 'dissolved-means-destroyed', delayedRetrieval: true, transfer: true })
   ] };
   assert.equal(skillStatus(guidedOnly, 'particle-models').mastered, false);
+
+  const pm1 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'pm1');
+  const destroyed = remediationForSelection(pm1, [0]);
+  const energy = remediationForSelection(pm1, [2]);
+  assert.equal(destroyed.tag, 'dissolved-means-destroyed');
+  assert.equal(energy.tag, 'matter-becomes-energy');
+  assert.notEqual(destroyed.hint, energy.hint);
 
   const profile = { attempts: secureEvidence('particle-models') };
   assert.equal(skillStatus(profile, 'particle-models').state, 'secure');
 
-  profile.attempts.push(attempt('particle-models', false, '2026-09-03', { at: NOW + 1000 }));
+  profile.attempts.push(attempt('particle-models', false, '2026-09-03', { misconceptionTag: destroyed.tag, at: NOW + 1000 }));
   assert.equal(skillStatus(profile, 'particle-models').state, 'needs-repair');
-  profile.attempts.push(attempt('particle-models', true, '2026-09-03', { provenance: 'recovery', at: NOW + 2000 }));
+  profile.attempts.push(attempt('particle-models', true, '2026-09-03', { provenance: 'hinted', misconceptionTag: destroyed.tag, repairTarget: destroyed.tag, at: NOW + 2000 }));
   assert.equal(skillStatus(profile, 'particle-models').state, 'repaired');
   assert.equal(skillStatus(profile, 'particle-models').mastered, false);
 });
@@ -78,12 +85,23 @@ test('M1 avoids a sibling recent item and keeps the current unit bounded', () =>
   assert.equal(queue.includes('pm1'), false, 'recent sibling item should be skipped when equivalent forms exist');
 });
 
-test('M1 keeps twin stores separate and retains the full Louisiana science contract', () => {
-  const root = normalizeStore({ version: 2, learners: { Luke: { attempts: [attempt('particle-models', true, '2026-09-03')] } } });
+test('M1/M2 keeps the science contract complete with remediation on every Matter distractor', () => {
+  const root = normalizeStore({ version: 2, learners: { Luke: { attempts: [attempt('particle-models', true, '2026-09-03', { misconceptionTag: 'example-tag' })] } } });
   assert.equal(root.learners.Luke.attempts.length, 1);
+  assert.equal(root.learners.Luke.attempts[0].misconceptionTag, 'example-tag');
   assert.equal(root.learners.Samantha.attempts.length, 0);
   assert.equal(validateCurriculum(SCIENCE_LAB_CONFIG), true);
   assert.equal(SCIENCE_LAB_CONFIG.items.length, 48);
   assert.equal(new Set(SCIENCE_LAB_CONFIG.items.map(item => item.standard)).size, 16);
-  assert.equal(SCIENCE_LAB_CONFIG.items.filter(item => item.unit === 'matter').length, 12);
+  const matter = SCIENCE_LAB_CONFIG.items.filter(item => item.unit === 'matter');
+  assert.equal(matter.length, 12);
+  for (const item of matter) {
+    const answers = new Set(Array.isArray(item.answer) ? item.answer : [item.answer]);
+    for (let index = 0; index < item.choices.length; index += 1) {
+      if (!answers.has(index)) {
+        assert.ok(item.remediation?.[index]?.tag, `${item.id} distractor ${index} needs a misconception tag`);
+        assert.ok(item.remediation?.[index]?.hint, `${item.id} distractor ${index} needs a hint`);
+      }
+    }
+  }
 });
