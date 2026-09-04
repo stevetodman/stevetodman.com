@@ -11,6 +11,7 @@ interface SimulationUiState {
   briefingOpen: boolean;
   encounterOpen: boolean;
   mobileMove: { x: number; y: number };
+  mobileLook: { x: number; y: number };
   interactSequence: number;
   setEntered: (entered: boolean) => void;
   setControlsLocked: (locked: boolean) => void;
@@ -20,8 +21,11 @@ interface SimulationUiState {
   openEncounter: () => void;
   closeEncounter: () => void;
   setMobileMove: (x: number, y: number) => void;
+  setMobileLook: (x: number, y: number) => void;
   requestInteract: () => void;
 }
+
+const neutralStick = { x: 0, y: 0 };
 
 export const useSimulationStore = create<SimulationUiState>((set) => ({
   entered: false,
@@ -29,15 +33,27 @@ export const useSimulationStore = create<SimulationUiState>((set) => ({
   prompt: null,
   briefingOpen: false,
   encounterOpen: false,
-  mobileMove: { x: 0, y: 0 },
+  mobileMove: neutralStick,
+  mobileLook: neutralStick,
   interactSequence: 0,
   setEntered: (entered) => set({ entered }),
   setControlsLocked: (controlsLocked) => set({ controlsLocked }),
   setPrompt: (prompt) => set({ prompt }),
-  openBriefing: () => set({ briefingOpen: true, controlsLocked: false, mobileMove: { x: 0, y: 0 } }),
+  openBriefing: () => set({
+    briefingOpen: true,
+    controlsLocked: false,
+    mobileMove: neutralStick,
+    mobileLook: neutralStick,
+  }),
   closeBriefing: () => set({ briefingOpen: false }),
-  openEncounter: () => set({ encounterOpen: true, controlsLocked: false, mobileMove: { x: 0, y: 0 } }),
+  openEncounter: () => set({
+    encounterOpen: true,
+    controlsLocked: false,
+    mobileMove: neutralStick,
+    mobileLook: neutralStick,
+  }),
   closeEncounter: () => set({ encounterOpen: false, prompt: null }),
   setMobileMove: (x, y) => set({ mobileMove: { x, y } }),
+  setMobileLook: (x, y) => set({ mobileLook: { x, y } }),
   requestInteract: () => set((state) => ({ interactSequence: state.interactSequence + 1 })),
 }));
