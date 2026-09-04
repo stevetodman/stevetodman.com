@@ -216,28 +216,12 @@ export const SCIENCE_PHENOMENA = [
         explanation: 'Formation of a gas with new properties can be evidence that new substances formed during a reaction.'
       },
       {
-        id: 'revise',
-        type: 'choice',
-        role: 'revision',
-        eyebrow: 'Revise your explanation',
-        evidenceIds: ['masses', 'gas'],
-        prompt: 'Which final explanation uses both the mass data and the bubbling observation?',
-        choices: [
-          'Matter was destroyed only in the open cup',
-          'The reaction formed gas; the sealed system retained it, while gas left the open measured system',
-          'Bubbles have no mass, so they cannot affect the measurement',
-          'The balance created the difference between the trials'
-        ],
-        answer: 1,
-        explanation: 'Matter is conserved. The reaction forms gas, and an open-system measurement can fall when that gas leaves the measured boundary.'
-      },
-      {
         id: 'cer',
         type: 'cer',
-        role: 'cer',
+        role: 'revision',
         eyebrow: 'Build your explanation',
         evidenceIds: ['masses', 'gas'],
-        prompt: 'Build a Claim–Evidence–Reasoning explanation for why the open setup measured less after the reaction.',
+        prompt: 'Revise your original idea by building a Claim–Evidence–Reasoning explanation for why the open setup measured less after the reaction.',
         cer: {
           scaffoldLevel: 'C',
           claim: {
