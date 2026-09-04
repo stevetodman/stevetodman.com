@@ -14,7 +14,7 @@ This file is the canonical cross-window handoff. The repository, not chat memory
 A new agent must:
 
 1. read this file first, then root `AGENTS.md`;
-2. inspect current `main`, current checks, open PRs/issues, and newer commits before changing anything;
+2. inspect current `main`, exact-SHA checks, open PRs/issues, and newer commits before changing anything;
 3. preserve newer completed work;
 4. continue from **Exact next action** below without asking Steve to repeat history;
 5. update this file before ending a substantive session.
@@ -22,8 +22,6 @@ A new agent must:
 ## Mission
 
 Make the system **fast for users, fast to change, easy to understand, low-debt, clinically safe, and boring to operate**.
-
-Governing order:
 
 > **Delete before refactoring. Simplify before optimizing. Measure before optimizing. Automate last. Stop when the system is simple and fast.**
 
@@ -47,9 +45,10 @@ Do not build a platform merely to manage platform complexity.
 | Production artifact | `dist/` |
 | Deployment | Cloudflare Pages |
 | Current program state / resume point | `MASTER_PLAN.md` |
-| Durable agent + exact-SHA rules | `AGENTS.md` |
+| Durable root agent + exact-SHA rules | `AGENTS.md` |
 | Deployment mechanics | `DEPLOYMENT.md` |
 | Stable Claude conventions | `CLAUDE.md` |
+| Hospital-local invariants + iPhone acceptance | `cardio-hospital-3d/AGENTS.md` |
 
 Human docs may explain a fact but should not maintain competing dynamic state.
 
@@ -73,7 +72,7 @@ Canonical hospital:
 - `/cardiohospital/`: internal/reference;
 - `stevetodman/3dworld`, `pediatric-hospital-world`, `the_ward`: predecessor/reference repositories.
 
-Desktop acceptance is complete. Do not rerun it by default. Physical-iPhone acceptance remains a separate product-quality gate where the hospital project docs require it.
+Desktop acceptance is complete. Do not rerun it by default. Physical-iPhone M4/M5 acceptance remains the hospital product-quality gate. Hospital-local acceptance details and durable engine invariants now live only in `cardio-hospital-3d/AGENTS.md`.
 
 ### Study / Math / Science
 
@@ -107,13 +106,11 @@ Do not simplify away:
 
 Steve explicitly prefers **minimum tests for fast iteration**.
 
-Default:
-
-- run only the smallest tests that protect the changed behavior;
-- for Study/Science-style slices, prefer the small core invariant set plus one Chromium 390px smoke;
-- do not add WebKit matrices, screenshot suites, full product suites, or unrelated tests unless the changed risk or a reproduced failure warrants them;
-- documentation/census-only changes require no broad runtime suite;
-- exact-SHA production verification remains mandatory where `AGENTS.md` requires it.
+- Run only the smallest tests that protect the changed behavior.
+- For Study/Science-style slices, prefer the small core invariant set plus one Chromium 390px smoke.
+- Do not add WebKit matrices, screenshot suites, full product suites, or unrelated tests unless changed risk/reproduced failure warrants them.
+- Documentation/census-only changes require no broad runtime suite.
+- Exact-SHA production verification remains mandatory where `AGENTS.md` requires it.
 
 ## Work completed in this simplification pass
 
@@ -121,7 +118,7 @@ Default:
 
 - `2e1e371487f9de949f002b813a0bf7d87d1e2a8e` — established this file as canonical cross-window master plan.
 - `e5a5ef44d12b5c7bd072cb2c51a743fb9a026677` — root `AGENTS.md` directs new agents here.
-- `136be62ff94eeb085c1aca88800759a010aad5e4` — root README reconciled to canonical `/hospital/`; legacy `/phs/` marked archived/reference; focused hospital test points to unified engine.
+- `136be62ff94eeb085c1aca88800759a010aad5e4` — root README reconciled to `/hospital/`; `/phs/` marked archived/reference; focused hospital test points to unified engine.
 - `site/catalog.json` reconfirmed as sufficient single route/deployment registry.
 
 ### Repository census
@@ -142,27 +139,36 @@ Decisions:
 
 Do not infer archive status from names alone. Archive first; do not mass-delete repositories.
 
-### Documentation collapse
+### Root documentation collapse
 
 - `e50d6d14637b3636bb2cc6e7db977499ebcaca4c` — collapsed `CLAUDE.md` from dynamic status/backlog into stable conventions and pointers.
 - `db60aeceeb7271504be8bde64ce91fdcce816efb` — removed stale, unreferenced `PR_TRIAGE.md`; current PR state lives in GitHub and current program state lives here.
-- `47638c7a566ceb28dc12487a71bed3458089c995` — removed stale branch/issue status from `DEPLOYMENT.md`; retained only deployment mechanics and invariants.
-- `REVIEW-2026-08.md` was audited and retained because it is a dated historical QA record, not a live handoff. Its findings are explicitly resolved in the document.
+- `47638c7a566ceb28dc12487a71bed3458089c995` — removed stale branch/issue status from `DEPLOYMENT.md`; retained deployment mechanics/invariants.
+- `REVIEW-2026-08.md` was audited and retained as a dated resolved QA record, not a live handoff.
+
+### Hospital-local documentation collapse
+
+- `e867aa11fa2c2985357249829ffe8833cd2266b2` — rewrote `cardio-hospital-3d/AGENTS.md` as the single hospital-local operating contract: canonical product, engine/clinical invariants, completed desktop evidence boundary, exact physical-iPhone checklist, and fix policy.
+- `cfc9e8399029623412ba6c55441c9db65abddb6c` — removed redundant/stale `cardio-hospital-3d/PRIMARY_PROJECT.md`.
+- `ddbfce3957d679a45b1582c20ffcefcd50e40385` — removed redundant/stale `cardio-hospital-3d/PROJECT-RULES.md` after folding durable rules into local `AGENTS.md`.
+- Preserve `docs/BEHAVIORAL_ACCEPTANCE_2026-09-03.md` as completed evidence and `docs/CLINICAL_VALIDATION.md` as clinical evidence/governance.
+- `docs/HOSPITAL_MASTER_PLAN.md` and `docs/IMPLEMENTATION_STATUS.md` remain to be audited for stale dynamic status versus genuinely useful product history/future milestone design.
 
 ### CI simplification
 
-- `292b73705d5959f307857204749d15bbda5cb001` — completed desktop acceptance is now **manual-only**; it no longer auto-runs on the obsolete `hospital-unified` branch.
+- `292b73705d5959f307857204749d15bbda5cb001` — completed desktop acceptance is **manual-only**; no obsolete-branch automatic reruns.
 - `09264cbe4c4809564176464ba7cba23bf01c805c` — retargeted unified hospital build/engine CI from old branch to current `main` + hospital PR changes.
 - That first run failed because `cardio-hospital-3d` has **no `package-lock.json`** and the workflow incorrectly assumed `npm ci`.
-- `99b5c28b201232390d65af837ec38e3f38882603` — corrected the workflow to the only currently valid install mode (`npm install`); focused Unified Hospital Build run **#103 passed**.
-- `77fe02c10072a5a26f3f71ee56b271dab1dc4a2b` — removed README/MASTER_PLAN/CLAUDE/DEPLOYMENT/old-PR-triage files from the broad `Tests` workflow path triggers. Documentation-only commits no longer launch the full multi-job matrix.
+- `99b5c28b201232390d65af837ec38e3f38882603` — corrected install mode to currently valid `npm install`; focused Unified Hospital Build run **#103 passed**.
+- `77fe02c10072a5a26f3f71ee56b271dab1dc4a2b` — removed root documentation files from the broad `Tests` workflow triggers.
+- `ab266cfdc4f8c924a2eb67ddd39a7f20b4db7064` — narrowed Unified Hospital Build filters to executable/config paths; hospital docs no longer trigger a full hospital build.
+- `68e3b9e1d426411c58d39bf0f1f31a0b3de4dd61` — similarly narrowed Hospital Production Guard filters; hospital docs no longer trigger that guard.
 
 ### Build-path simplification
 
-- `b90ebc8a4354fcb005c5d0cdc30492ad1310d276` attempted to make hospital installs deterministic with `npm ci`; this exposed the missing-lockfile constraint and was immediately corrected.
-- `5171150c68fe346b099e88da1b47106501b82085` — production hospital build no longer reruns `test:engine`; focused CI now owns engine validation. Nested `npm install` remains temporarily because Cloudflare installs the root package only and the hospital has no lockfile.
+- `5171150c68fe346b099e88da1b47106501b82085` — production hospital build no longer reruns `test:engine`; focused CI owns engine validation. Nested `npm install` remains temporarily because Cloudflare installs the root package only and the hospital has no lockfile.
 - Focused hospital production guard passed on `5171150c…`.
-- At the time of this checkpoint, Cloudflare deployment and exact production/browser verification for `5171150c…` were still in progress. **Do not call that SHA live-verified unless the exact checks subsequently pass.**
+- A temporary `npm ci` attempt was immediately corrected after the missing-lockfile constraint was reproduced. Do not repeat it without a real lockfile.
 
 ## Known remaining technical debt
 
@@ -172,7 +178,7 @@ Root `package.json` still exposes many manually enumerated test commands. Keep u
 
 ### Workflow sprawl
 
-There are still multiple product-specific workflows. Audit trigger/environment differences before deleting or consolidating them. Do not target an arbitrary workflow count.
+Multiple product-specific workflows remain. Audit trigger/environment differences before deleting or consolidating them. Do not target an arbitrary workflow count.
 
 Conceptual target:
 
@@ -184,13 +190,13 @@ PRODUCTION exact deployed-SHA verification
 
 ### Hospital dependency/install path
 
-`cardio-hospital-3d` currently has no `package-lock.json`. Therefore:
+`cardio-hospital-3d` currently has no `package-lock.json`.
 
-- `npm ci` is invalid there today;
-- Cloudflare's root dependency install does not provision the nested app;
+- `npm ci` is invalid there today.
+- Cloudflare's root dependency install does not provision the nested app.
 - `scripts/build-hospital.mjs` must temporarily keep nested `npm install` so production builds remain functional.
 
-Do **not** fabricate a lockfile. A future cleanup may generate/commit a real lockfile and/or adopt a simpler supported dependency-install stage, but only if it reduces total complexity.
+Do **not** fabricate a lockfile. Generate/commit one only in a valid dependency-resolution environment if that change clearly reduces total complexity.
 
 ### Build-site copy/prune
 
@@ -198,13 +204,7 @@ Do **not** fabricate a lockfile. A future cleanup may generate/commit a real loc
 
 ### Performance / caching
 
-Performance remains under-measured. Establish a tiny benchmark for `/`, `/education/`, `/hospital/`, `/study/`, `/math/` before optimizing.
-
-Candidate later improvements:
-
-- versioned Study assets may be eligible for immutable caching while HTML/release entry points remain revalidated;
-- `/hospital/_next/static/` may similarly be eligible;
-- optimize the largest measured bottleneck first and re-measure.
+Performance remains under-measured. Establish a tiny benchmark for `/`, `/education/`, `/hospital/`, `/study/`, `/math/` before optimizing. Versioned Study assets and `/hospital/_next/static/` may be eligible for immutable caching only after baseline/staleness verification.
 
 ## Execution queue
 
@@ -225,8 +225,10 @@ Candidate later improvements:
 
 ### Phase C — dead/stale machinery
 
-- [~] Audit stale source copies, scripts, workflows, old handoffs, and redundant commands. Root docs + initial workflow pass completed; continue product-specific audit.
-- [x] Remove demonstrated stale `PR_TRIAGE.md`.
+- [~] Root docs + initial workflow + hospital-local docs audited/cleaned.
+- [x] Remove stale root `PR_TRIAGE.md`.
+- [x] Remove redundant hospital `PRIMARY_PROJECT.md` and `PROJECT-RULES.md` after preserving durable content.
+- [ ] Audit remaining hospital master/status docs and remaining workflows.
 - [ ] Delete/retire further machinery only after proving canonical replacement/no current function.
 - [ ] Preserve clinical/source provenance and useful historical evidence.
 
@@ -235,30 +237,32 @@ Candidate later improvements:
 - [x] Root README / AGENTS / MASTER_PLAN roles separated.
 - [x] Root `CLAUDE.md` collapsed to stable rules.
 - [x] `DEPLOYMENT.md` collapsed to operations only.
-- [x] Dated `REVIEW-2026-08.md` explicitly retained as historical evidence.
-- [ ] Audit product-level `PRIMARY_PROJECT.md`, implementation-status, project-rules, and handoff files; preserve only genuinely local acceptance criteria.
+- [x] Dated root QA review retained as historical evidence.
+- [x] Hospital-local active status/rules collapsed into one `cardio-hospital-3d/AGENTS.md`.
+- [ ] Audit `docs/HOSPITAL_MASTER_PLAN.md` and `docs/IMPLEMENTATION_STATUS.md`; retain genuine architecture/history, remove competing resume state.
 
 ### Phase E — CI/test simplification
 
 - [~] Workflow inventory underway.
-- [x] Stop broad CI on documentation-only changes.
+- [x] Stop broad CI on root documentation-only changes.
 - [x] Make completed desktop acceptance manual-only.
 - [x] Retarget unified hospital CI to current `main`/PR development.
+- [x] Stop hospital docs from triggering focused build/production-guard jobs.
 - [ ] Audit remaining workflows for obsolete triggers/duplicate responsibilities.
 - [ ] Reduce the human-facing root test interface only where it clearly simplifies maintenance.
 
 ### Phase F — pure deterministic build
 
-- [x] Move hospital engine validation out of the production build path.
+- [x] Move hospital engine validation out of production build path.
 - [ ] Resolve nested dependency installation cleanly; currently blocked by absent hospital lockfile/root-only Cloudflare install.
-- [ ] Keep `npm run build` as the obvious production entry point.
+- [ ] Keep `npm run build` as obvious production entry point.
 - [ ] Review `build-site.mjs` copy/prune only if a simpler safe design is proven.
 
 ### Phase G — measured runtime performance
 
 - [ ] Establish tiny production benchmark.
 - [ ] Capture cold/warm baseline and transferred assets.
-- [ ] Review Study and hospital immutable caching only after baseline.
+- [ ] Review Study/hospital immutable caching only after baseline.
 - [ ] Fix largest measured bottleneck first.
 
 ### Phase H — shared code only if justified
@@ -273,7 +277,7 @@ Candidate later improvements:
 
 - **#39 StudyHub live acceptance:** requires real Supabase/edge and device evidence; never expose family tokens.
 - **#42 clinical review evidence:** requires real durable review evidence; do not infer dates/sign-off.
-- **Physical-iPhone hospital acceptance:** remains separate wherever hospital acceptance docs require it.
+- **Physical-iPhone hospital acceptance:** remains the hospital product-quality gate.
 - **Repository archive mutation:** current connector cannot set GitHub's archived flag; `cooking-timers` remains the verified pending archive action.
 
 ## Production-state language
@@ -294,11 +298,11 @@ Never substitute an older successful run for the current SHA.
 
 ## What not to build
 
-Unless future evidence changes the decision, do not introduce:
+Do not introduce without demonstrated need:
 
-- a universal academy/simulator/learner-state engine;
+- universal academy/simulator/learner-state engines;
 - another route/module manifest;
-- microservices or monorepo tooling for organizational aesthetics;
+- microservices or monorepo tooling for aesthetics;
 - a developer portal to manage this website;
 - a new test framework to manage existing tests;
 - a large observability platform before a tiny benchmark exists;
@@ -306,24 +310,12 @@ Unless future evidence changes the decision, do not introduce:
 
 ## Definition of done
 
-This simplification program is done when:
-
-- the canonical repo/routes/deployment path are obvious;
-- obvious superseded repos are archived, not deleted;
-- documentation has non-overlapping ownership;
-- ordinary changes have a small fast test path;
-- CI/build complexity is materially lower without weakening real gates;
-- production builds are as deterministic as practical;
-- key routes have simple measured performance baselines;
-- caching is efficient where versioning makes it safe;
-- abstractions exist only where they remove more complexity than they add;
-- a new agent can resume from this file without Steve re-explaining anything;
-- further refactoring no longer has a clear measured payoff.
+Done means canonical ownership is obvious; superseded repos are archived rather than deleted; docs do not compete; ordinary changes have a small fast test path; CI/build complexity is materially lower without weakening real gates; production builds are as deterministic as practical; key routes have measured baselines; caching is efficient where safe; abstractions reduce rather than add complexity; new agents resume from this file; and further refactoring has no clear payoff.
 
 ## Exact next action
 
-1. **First inspect current `main` and exact-SHA checks.** This checkpoint itself creates a newer SHA than `5171150c…`; do not rely on the older in-progress deployment once this commit lands. Confirm the current exact SHA's Cloudflare + required browser verification status before making any production claim.
-2. Continue the **product-level Phase C/D audit**, starting with `cardio-hospital-3d/PRIMARY_PROJECT.md`, implementation-status/project-rules/handoff files, and remaining hospital workflows. Preserve local acceptance criteria; remove stale duplicate dynamic state.
-3. Continue the remaining workflow audit; delete/consolidate only when trigger/environment responsibilities are demonstrably redundant.
-4. Do not force the hospital lockfile problem. Generate/commit a real lockfile only through a valid dependency-resolution environment; never synthesize one.
-5. Keep testing minimal and stop when additional simplification has no clear payoff.
+1. Inspect the **current `main` SHA** and its checks before making any deployment/live claim. At the moment immediately before this checkpoint, the latest executable/CI change `68e3b9e1…` had its focused production guard queued; this documentation checkpoint creates a newer SHA, so verify the new exact SHA rather than relying on that older run.
+2. Audit `cardio-hospital-3d/docs/HOSPITAL_MASTER_PLAN.md` and `docs/IMPLEMENTATION_STATUS.md`. Preserve architecture, historical milestone evidence, and future M6+ design; remove or clearly demote stale competing resume/current-branch language.
+3. Continue the remaining workflow audit; delete/consolidate only when responsibilities are demonstrably redundant.
+4. Do not force the hospital lockfile problem. Generate a real lockfile only through a valid dependency-resolution environment.
+5. Keep testing minimal and **stop when additional simplification has no clear payoff**.
