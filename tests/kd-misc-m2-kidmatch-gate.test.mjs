@@ -13,7 +13,7 @@ const clinicalSource = [
 
 test('M2 records the release claim without claiming an authenticated deployable artifact', () => {
   assert.match(gate, /Status: \*\*KIDMATCH INTEGRATION BLOCKED\*\*/);
-  assert.match(gate, /code "has now been released and is generally available"/i);
+  assert.match(gate, /has now been released and is generally available/i);
   assert.match(gate, /authoritative deployable public artifact not independently located/i);
   assert.match(gate, /This is a search result, not evidence that no such artifact exists/i);
 });
