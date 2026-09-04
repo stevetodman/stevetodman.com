@@ -4,47 +4,71 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const registry = fs.readFileSync(path.join(root, 'tools/kd-misc-experimental/evidence-registry.js'), 'utf8');
+const extension = fs.readFileSync(path.join(root, 'tools/kd-misc-experimental/evidence-2026.js'), 'utf8');
 const html = fs.readFileSync(path.join(root, 'tools/kd-misc-experimental/index.html'), 'utf8');
 const gate = fs.readFileSync(path.join(root, 'docs/KD_MISC_M1B_ACQUISITION_GATE.md'), 'utf8');
+const extraction = fs.readFileSync(path.join(root, 'docs/KD_MISC_M1B_MAIN_EXTRACTION.md'), 'utf8');
+const ledger = fs.readFileSync(path.join(root, 'docs/KD_MISC_M1_SOURCE_LOCK.md'), 'utf8');
 
 const targetTitle = 'Incomplete Kawasaki Disease Versus Non-severe Multisystem Inflammatory Syndrome in Children: Distinguishing Features from Contemporaneous Patients';
 const fileId = 's00246-026-04444-4';
-const doiCandidate = '10.1007/s00246-026-04444-4';
+const doi = '10.1007/s00246-026-04444-4';
+const sha256 = '6aca331b8bc11bf5290a4d8579b5be75c0f0c8b7c5f80b09b152df489677a4cf';
 
-test('M1B remains blocked until the exact 2026 primary source is verified', () => {
-  assert.match(registry, /status:\s*'M1B_PENDING_PRIMARY_SOURCE'/);
-  assert.ok(registry.includes(targetTitle));
-  assert.ok(registry.includes(fileId));
-  assert.match(registry, /DOI candidate 10\.1007\/s00246-026-04444-4/);
-  assert.match(registry, /No numeric result, threshold, effect estimate, or model weight from that paper is encoded/);
-  assert.match(html, /M1B remains blocked until the exact full text and supplement are source-locked/i);
+test('M1B final main article is verified while the electronic supplement remains blocked', () => {
+  assert.match(extension, /M1B_MAIN_ARTICLE_SOURCE_LOCKED_SUPPLEMENT_PENDING/);
+  assert.ok(extension.includes(targetTitle));
+  assert.ok(extension.includes(fileId));
+  assert.ok(extension.includes(doi));
+  assert.match(extension, /electronic supplemental table remains pending/i);
+  assert.match(extension, /no supplement-only value, new continuous cutoff, model coefficient, or synthetic probability is encoded/i);
+  assert.match(html, /M1B MAIN ARTICLE SOURCE-LOCKED/i);
+  assert.match(html, /electronic supplemental table remains pending/i);
 });
 
-test('the acquisition ledger treats the DOI as a candidate rather than a verified citation', () => {
-  assert.match(gate, /BLOCKED ON VERIFIED FINAL 2026 PRIMARY SOURCE/);
+test('the acquisition ledger records the final DOI and immutable local source hash', () => {
+  assert.match(gate, /MAIN ARTICLE SOURCE-LOCKED; SUPPLEMENT PENDING/);
   assert.ok(gate.includes(targetTitle));
   assert.ok(gate.includes(fileId));
-  assert.ok(gate.includes(doiCandidate));
-  assert.match(gate, /candidate, not a citation/i);
-  assert.match(gate, /must not be treated as verified merely because it matches the Springer filename pattern/i);
+  assert.ok(gate.includes(doi));
+  assert.ok(gate.includes(sha256));
+  assert.match(gate, /copyrighted PDF itself is \*\*not\*\* committed/i);
+  assert.match(gate, /40 centers in 8 countries/i);
+  assert.match(gate, /non-severe MIS-C: `n=769`/i);
+  assert.match(gate, /unconfirmed incomplete KD: `n=372`/i);
+  assert.match(gate, /confirmed incomplete KD: `n=146`/i);
 });
 
-test('M1B cannot source-lock without article, supplement, and page-level provenance', () => {
+test('page-table extraction locks the final article without manufacturing cutoffs or a model', () => {
   for (const required of [
-    'Publisher landing page or authoritative bibliographic record resolves',
-    'Full article is obtained from an authorized source',
-    'Every supplement / appendix relevant to cohort definitions or analyses is obtained',
-    'Page/table/figure/supplement provenance is recorded',
-    'Focused clinical tests are updated to lock the verified evidence contract before deployment',
+    'Table 2 — clinical features',
+    'Table 3 — laboratory features at presentation',
+    'Table 5 — cardiac complications',
+    'Creatinine unit inconsistency',
+    'Coronary incorporation bias',
+    'What the final paper does *not* provide',
   ]) {
-    assert.ok(gate.includes(required), `missing acquisition requirement: ${required}`);
+    assert.ok(extraction.includes(required), `missing extraction section: ${required}`);
   }
-  assert.match(gate, /exact 2026 target paper contributes \*\*zero numeric evidence\*\* to the UI/i);
+  assert.match(extraction, /Abdominal pain \| 64% \| 19% \| 25% \| <\.01/i);
+  assert.match(extraction, /CAA Z≥2\.5 \| 11% \| 8% \| 41% \| <\.01/i);
+  assert.match(extraction, /does not publish:[\s\S]*multivariable diagnostic model/i);
+  assert.match(extraction, /must not manufacture any of those outputs/i);
 });
 
-test('the gate forbids synthetic bedside scoring while the exact study is unavailable', () => {
-  assert.match(gate, /No home-grown weighted score or synthetic probability is permitted/);
-  assert.match(gate, /must not manufacture a winner/);
-  assert.match(gate, /No treatment or disposition recommendation is derived/);
+test('master ledger keeps bedside integration conservative', () => {
+  assert.match(ledger, /M1B final main article source-locked; electronic supplement pending/i);
+  assert.match(ledger, /All P values above are published three-group comparisons/i);
+  assert.match(ledger, /not.*transformed into weights or patient-level probabilities/i);
+  assert.match(ledger, /Aggregate GI variable — do not silently redefine/i);
+  assert.match(ledger, /apparent creatinine-unit inconsistency/i);
+  assert.match(ledger, /Any supplement-only peak\/trough value until the actual electronic supplement is obtained/i);
+});
+
+test('M1B continues to forbid synthetic scoring and actionable management', () => {
+  const source = `${extension}\n${gate}\n${extraction}\n${ledger}`;
+  assert.match(source, /No home-grown score or synthetic probability is permitted/i);
+  assert.match(source, /does not manufacture a winner/i);
+  assert.match(source, /No treatment or disposition recommendation is derived/i);
+  assert.doesNotMatch(source, /KIDMATCH-like/i);
 });

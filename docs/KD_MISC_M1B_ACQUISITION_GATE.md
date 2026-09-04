@@ -1,124 +1,88 @@
 # KD / MIS-C Experimental Workbench - M1B Primary-Source Acquisition Gate
 
-Status: **BLOCKED ON VERIFIED FINAL 2026 PRIMARY SOURCE**
+Status: **MAIN ARTICLE SOURCE-LOCKED; SUPPLEMENT PENDING**
 Date checked: 2026-09-04
 Clinical surface: `/tools/kd-misc-experimental/`
 
 ## Objective
 
-M1B is intended to source-lock the final 2026 Pediatric Cardiology study described as:
+M1B source-locks the final 2026 Pediatric Cardiology study:
 
-> *Incomplete Kawasaki Disease Versus Non-severe Multisystem Inflammatory Syndrome in Children: Distinguishing Features from Contemporaneous Patients*
+> Harahsheh AS, Gunsaulus M, Tierney S, et al. *Incomplete Kawasaki Disease Versus Non-severe Multisystem Inflammatory Syndrome in Children: Distinguishing Features from Contemporaneous Patients.* Pediatric Cardiology. 2026. doi: `10.1007/s00246-026-04444-4`.
 
-The workbench must not encode a numeric result, threshold, effect estimate, model coefficient, probability, diagnostic weight, or subgroup conclusion from this study until the final version of record and any relevant supplement are directly verified.
+The final article is now directly verified from the publisher PDF supplied to the source-lock workflow. The supplement remains outstanding, so M1B is not yet marked fully complete.
 
-## Target metadata to verify
+## Verified final-article metadata
 
-Working metadata currently associated with the target article:
+- DOI: `10.1007/s00246-026-04444-4`
+- Publisher file: `s00246-026-04444-4.pdf`
+- Received: 2026-06-18
+- Accepted: 2026-08-14
+- Journal: Pediatric Cardiology
+- Article length: 11 pages
+- Local source SHA-256: `6aca331b8bc11bf5290a4d8579b5be75c0f0c8b7c5f80b09b152df489677a4cf`
+- Copyright statement in source: The Author(s), under exclusive licence to Springer Science+Business Media, LLC, part of Springer Nature 2026.
+- The copyrighted PDF itself is **not** committed to this public repository.
 
-- file-style identifier: `s00246-026-04444-4.pdf`
-- DOI candidate derived from that filename pattern: `10.1007/s00246-026-04444-4`
+## Source status
 
-The DOI string is a **candidate, not a citation**. It must not be treated as verified merely because it matches the Springer filename pattern.
+### Acquired and verified
 
-As of the check date, exact-title, filename, DOI-candidate, publisher-domain, and indexed-literature searches did not yield an independently verified final version of record or supplement suitable for source extraction. Therefore M1B remains blocked.
+- [x] Final publisher PDF obtained from an authorized/public publisher endpoint.
+- [x] Exact final title confirmed.
+- [x] DOI confirmed directly in the final article.
+- [x] Complete final author list present in the article.
+- [x] Received and accepted dates recorded.
+- [x] Page/table provenance recorded in the M1 source-lock ledger.
+- [x] Article hash recorded.
+- [x] Final publication compared with Fan 2023 and adjacent IKDR evidence before bedside encoding.
 
-## Acquisition checklist
+### Still required for full M1B completion
 
-M1B can move from `BLOCKED` to `SOURCE_LOCKED` only after all of the following are satisfied:
+- [ ] Obtain the electronic supplementary material referenced by the article.
+- [ ] Record supplement filename, version, and SHA-256.
+- [ ] Extract the reported peak/trough or most-extreme laboratory analyses from the supplemental table.
+- [ ] Confirm whether the supplement adds any denominators, missingness detail, or analyses not present in the main article.
+- [ ] Update the extraction ledger and focused clinical invariants with any supplement-only findings that are safe to expose.
 
-- [ ] Publisher landing page or authoritative bibliographic record resolves.
-- [ ] Exact final title is confirmed.
-- [ ] DOI is confirmed directly rather than inferred from a filename.
-- [ ] Complete author list and affiliations are recorded.
-- [ ] Received, accepted, online-publication, and version-of-record dates are recorded when available.
-- [ ] Full article is obtained from an authorized source.
-- [ ] Every supplement / appendix relevant to cohort definitions or analyses is obtained.
-- [ ] License / access status is recorded; copyrighted full text is not committed publicly unless redistribution is permitted.
-- [ ] Article and supplement hashes are recorded in the extraction ledger when local source files are used.
-- [ ] Page/table/figure/supplement provenance is recorded for every clinical value proposed for the workbench.
-- [ ] Final publication is compared with Fan 2023 and other adjacent evidence so preliminary, broader, and final data cannot be conflated.
-- [ ] Focused clinical tests are updated to lock the verified evidence contract before deployment.
+## Final study design now source-locked
 
-## Required extraction schema
+- Multicenter observational cohort from the International Kawasaki Disease Registry (IKDR).
+- 40 centers in 8 countries.
+- Enrollment January 2020 through October 2023.
+- Non-severe MIS-C required the 2020 CDC MIS-C criteria, evidence of prior SARS-CoV-2 infection within 3 months, no shock, and no ICU admission.
+- KD patients with evidence of prior SARS-CoV-2 infection or exposure within 3 months were excluded.
+- Incomplete KD was centrally divided into:
+  - confirmed incomplete KD meeting 2017 AHA incomplete-KD criteria; and
+  - unconfirmed incomplete KD diagnosed by the treating institution but not confirmable from submitted information as meeting AHA incomplete-KD criteria.
+- Final analytic groups:
+  - non-severe MIS-C: `n=769`;
+  - unconfirmed incomplete KD: `n=372`;
+  - confirmed incomplete KD: `n=146`.
 
-Extract only what the final source explicitly reports.
+## Main-paper extraction boundary
 
-### Cohort construction
+The main paper reports three-group univariable comparisons of demographics, clinical findings, presentation laboratory values, treatment, and cardiac outcomes. It does **not** publish a new multivariable prediction model, coefficients, patient-level diagnostic probability, validated bedside cutoffs for the continuous laboratory variables, calibration analysis, or decision curve.
 
-- study design and participating centers / countries;
-- enrollment dates;
-- source registry / database;
-- exact iKD definition;
-- exact non-severe MIS-C definition;
-- severity definition and any ICU, shock, ventricular-dysfunction, coronary-disease, or vasoactive-support exclusions;
-- whether KD cases were contemporaneous with MIS-C;
-- SARS-CoV-2 exposure / PCR / antigen / serology handling;
-- diagnosis confirmation / adjudication process;
-- complete versus incomplete KD handling;
-- coronary-involvement inclusion/exclusion rules;
-- final analyzable sample sizes and flow exclusions;
-- missing-data handling.
+Therefore:
 
-### Candidate discriminators
+1. Statistically different continuous variables remain group-level signals unless an exact threshold is independently source-locked from another primary study.
+2. Main-paper categorical findings may be displayed as source-attributed associations, but are not weighted or summed.
+3. Race/ethnicity and treatment received remain excluded from bedside weighting.
+4. A `No` response never becomes automatic evidence for the opposite diagnosis.
+5. Mixed signals remain mixed; the tool does not manufacture a winner.
+6. No treatment or disposition recommendation is derived from this comparative study.
+7. No home-grown score or synthetic probability is permitted.
 
-For every reported variable, capture denominator, timing, units, summary statistic, effect estimate, confidence interval, and P value when available:
+## Important source-specific cautions
 
-- age, sex, race/ethnicity for transportability description only;
-- fever duration and treatment timing;
-- all five principal KD phenotype findings;
-- gastrointestinal, neurologic, and respiratory symptoms;
-- shock / hypotension;
-- WBC, ANC, ALC, platelets, hemoglobin;
-- CRP, ESR, sodium, albumin, AST, ALT, ferritin, D-dimer, creatinine;
-- NT-proBNP / BNP and troponin with assay and units;
-- LVEF / ventricular dysfunction and pericardial effusion;
-- coronary maximum Z score / aneurysm category;
-- pyuria / urinalysis definition;
-- every variable retained in any multivariable analysis.
-
-### Modeling / diagnostic-performance extraction
-
-If a multivariable or diagnostic model is reported, capture:
-
-- candidate and final predictors;
-- exact coefficients / intercept if published;
-- transformations, splines, interactions;
-- variable-selection method;
-- missing-data strategy;
-- internal / temporal / external validation method;
-- discrimination with confidence interval;
-- calibration intercept / slope / plot if reported;
-- Brier score if reported;
-- sensitivity / specificity / PPV / NPV only at explicitly prespecified thresholds;
-- decision-curve analysis if reported;
-- subgroup performance;
-- optimism correction / shrinkage;
-- model availability: code, weights, nomogram, calculator, and test vectors.
-
-No probability engine may be implemented from a model that cannot be reconstructed faithfully and whose validation scope is not appropriate for the intended population.
-
-## Evidence-integration rules
-
-1. Final primary-source data override remembered summaries or secondary descriptions.
-2. A statistically significant univariable difference is an association, not automatically a bedside threshold.
-3. Continuous variables remain continuous/group-level unless a clinically interpretable cutoff is explicitly studied and justified.
-4. A threshold used for surveillance, inclusion, or descriptive tabulation must not be relabeled as a diagnostic cutoff.
-5. A `No` response does not become evidence for the opposite diagnosis unless the source supports that interpretation.
-6. Mixed or discordant signals remain visible; the tool must not manufacture a winner.
-7. No treatment or disposition recommendation is derived from the comparative study.
-8. No home-grown weighted score or synthetic probability is permitted.
-
-## Current behavior while M1B is blocked
-
-Until this gate is cleared:
-
-- Fan 2023 remains the near-exact phenotype evidence layer;
-- contemporaneous IKDR biomarker/coronary evidence remains clearly labeled as adjacent evidence;
-- the Starnes model remains an input-availability audit only;
-- CDC/CSTE surveillance components remain context, not diagnosis;
-- the exact 2026 target paper contributes **zero numeric evidence** to the UI.
+- The 2020 CDC definition, rather than the 2023 surveillance definition, was used to classify MIS-C in this cohort.
+- Shock did not have a uniform objective definition across sites; the paper describes site reporting with a pragmatic hypotension/perfusion/resuscitation interpretation.
+- Echocardiographic images were not centrally re-read; submitted reports/measurements were used by the data coordinating center.
+- The unconfirmed incomplete-KD group is explicitly vulnerable to misclassification.
+- Coronary involvement contributes to confirmation of incomplete KD, so the large coronary difference between confirmed incomplete KD and the other groups is partly incorporation-related and must not be treated as an independent diagnostic rule.
+- The main article states that most-extreme laboratory trends persisted in a supplemental table. Those values are **not** encoded until the supplement is obtained.
 
 ## Resume point
 
-When an authoritative final article or supplement becomes available, resume here. Do not repeat M1A. First create a page/table-level extraction ledger from the primary source, then update the evidence registry, visible evidence version, and focused tests in the same pull request.
+Do not repeat extraction of the final main article. Obtain the Springer electronic supplementary material for DOI `10.1007/s00246-026-04444-4`, hash it, extract the supplemental table with provenance, and then decide whether any supplement-only finding changes the evidence registry. M1B becomes fully `SOURCE_LOCKED` only after that step.

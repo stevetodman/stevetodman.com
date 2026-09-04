@@ -13,7 +13,7 @@
     <a class="back-link" href="/tools/">← Clinical tools</a>
 
     <header class="hero" aria-labelledby="page-title">
-      <div class="status-chip">EXPERIMENTAL • CLINICIAN-ONLY • M1A SOURCE-LOCKED</div>
+      <div class="status-chip">EXPERIMENTAL • CLINICIAN-ONLY • M1B MAIN ARTICLE SOURCE-LOCKED</div>
       <h1 id="page-title">iKD ↔ non-severe MIS-C<br><span>Evidence Workbench</span></h1>
       <p class="lede">Organizes source-locked discriminating and non-discriminating evidence without producing a diagnosis, score, probability, treatment recommendation, or disposition recommendation.</p>
       <div class="safety-banner" role="note" aria-label="Experimental use warning">
@@ -38,7 +38,7 @@
     <form id="workbench-form" novalidate>
       <section class="card" aria-labelledby="comparative-heading">
         <div class="section-kicker">1 · Comparative phenotype</div>
-        <h2 id="comparative-heading">Near-exact and contemporaneous evidence</h2>
+        <h2 id="comparative-heading">Exact target-cohort, near-exact, and adjacent evidence</h2>
         <p class="section-note">Select only findings already established from the clinical record. “No” means specifically assessed and absent; otherwise leave Unknown. A “No” is not automatically evidence for the opposite syndrome.</p>
         <div class="field-grid">
           <label class="field" for="platelet150">
@@ -72,26 +72,56 @@
           </label>
 
           <label class="field" for="gi">
-            <span>Gastrointestinal symptoms</span>
-            <small>Common in both Fan groups; shown as overlap rather than directional evidence</small>
+            <span>Unspecified / aggregate gastrointestinal symptoms</span>
+            <small>Fan 2023 aggregate variable: overlap/context only. Use the 2026 component fields below when known.</small>
             <select id="gi" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select>
+          </label>
+
+          <label class="field" for="abdominal-pain">
+            <span>Abdominal pain</span>
+            <small>Exact 2026 target-cohort categorical comparison</small>
+            <select id="abdominal-pain" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select>
+          </label>
+
+          <label class="field" for="diarrhea">
+            <span>Diarrhea</span>
+            <small>Exact 2026 target-cohort categorical comparison</small>
+            <select id="diarrhea" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select>
+          </label>
+
+          <label class="field" for="vomiting">
+            <span>Vomiting</span>
+            <small>Exact 2026 target-cohort categorical comparison</small>
+            <select id="vomiting" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select>
+          </label>
+
+          <label class="field" for="sore-throat">
+            <span>Sore throat</span>
+            <small>Exact 2026 target-cohort categorical comparison</small>
+            <select id="sore-throat" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select>
+          </label>
+
+          <label class="field" for="irritability">
+            <span>Irritability</span>
+            <small>Exact 2026 target-cohort categorical comparison</small>
+            <select id="irritability" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select>
           </label>
 
           <label class="field" for="coronary-aneurysm">
             <span>Coronary aneurysm / max Z ≥2.5</span>
-            <small>Contemporaneous IKDR directional evidence; does not exclude MIS-C</small>
+            <small>Adjacent IKDR direction plus exact-2026 incorporation-bias context</small>
             <select id="coronary-aneurysm" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select>
           </label>
 
           <label class="field" for="ntprobnp">
             <span>NT-proBNP ≥1500 ng/L</span>
-            <small>Use only if the reported units match exactly</small>
+            <small>Walton 2023 threshold; use only if reported units match exactly. 2026 values are shown separately as group signals.</small>
             <select id="ntprobnp" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select>
           </label>
 
           <label class="field" for="troponin-i">
             <span>Troponin I ≥20 ng/L</span>
-            <small>Use only if assay and units are appropriate</small>
+            <small>Walton 2023 threshold; use only if assay and units are appropriate. 2026 values are shown separately as group signals.</small>
             <select id="troponin-i" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select>
           </label>
 
@@ -109,12 +139,12 @@
         <p class="section-note">These items orient interpretation. The application does not count KD criteria, count MIS-C organ categories, or declare that either definition is met.</p>
 
         <h3>Kawasaki phenotype</h3>
-        <p class="section-note">Rash and oral/lip changes also have near-exact Fan directional evidence; one entry updates both the phenotype context and the appropriate evidence column.</p>
+        <p class="section-note">Several phenotype entries now have both exact-2026 target-cohort associations and AHA phenotype context. One entry updates every applicable source-attributed card.</p>
         <div class="field-grid compact">
           <label class="field" for="rash"><span>Polymorphous rash</span><select id="rash" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
           <label class="field" for="conjunctivitis"><span>Bilateral non-exudative conjunctival injection</span><select id="conjunctivitis" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
           <label class="field" for="oral"><span>Oral / lip changes</span><select id="oral" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
-          <label class="field" for="extremity"><span>Extremity changes</span><select id="extremity" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+          <label class="field" for="extremity"><span>Extremity edema / changes</span><select id="extremity" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
           <label class="field" for="nodes"><span>Cervical lymphadenopathy</span><select id="nodes" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
         </div>
 
@@ -144,7 +174,7 @@
         <div id="model-status" class="model-status" aria-live="polite"></div>
         <div class="model-notes">
           <p><strong>KIDMATCH:</strong> not reproduced here. Integration requires a verified authoritative implementation, model artifacts, preprocessing, licensing, and rejection behavior.</p>
-          <p><strong>2026 contemporaneous iKD vs non-severe MIS-C study:</strong> M1B remains blocked until the exact full text and supplement are source-locked; no values from that paper are encoded in this build.</p>
+          <p><strong>2026 exact target study:</strong> the final main article is source-locked. It reports categorical associations and group-level distributions, not a new validated diagnostic score or patient-level probability. The electronic supplemental table remains pending.</p>
         </div>
       </section>
 
@@ -192,18 +222,19 @@
     </section>
 
     <section class="card" aria-labelledby="signal-heading">
-      <div class="section-kicker">M1A extraction matrix</div>
+      <div class="section-kicker">M1A + M1B extraction matrix</div>
       <h2 id="signal-heading">Published group signals not converted into bedside thresholds</h2>
-      <p class="section-note">These results matter clinically, but the source did not validate a bedside cutoff. They are therefore displayed for interpretation rather than transformed into inputs, points, or probabilities.</p>
+      <p class="section-note">These results matter clinically, but their sources did not validate a bedside cutoff for this target use. They are therefore displayed for interpretation rather than transformed into inputs, points, weights, or probabilities.</p>
       <div id="study-signals" class="evidence-list"></div>
       <h3>Deliberately excluded from bedside encoding</h3>
       <ul id="excluded-encoding"></ul>
     </section>
 
     <section class="card references" aria-labelledby="references-heading">
-      <div class="section-kicker">Evidence registry v0.2-M1A</div>
+      <div class="section-kicker">Evidence registry v0.3-M1B-main</div>
       <h2 id="references-heading">Core references and limits</h2>
       <ol>
+        <li><strong>Harahsheh AS, et al. Pediatr Cardiol. 2026.</strong> DOI 10.1007/s00246-026-04444-4. Exact target cohort: 769 non-severe MIS-C, 372 unconfirmed incomplete KD, and 146 confirmed incomplete KD from 40 centers in 8 countries.</li>
         <li><strong>Fan LK, et al. Hosp Pediatr. 2023;13:e280-e284.</strong> DOI 10.1542/hpeds.2022-007107. Near-exact phenotype comparison: non-severe MIS-C versus prepandemic iKD, with ICU care and coronary abnormalities excluded.</li>
         <li><strong>Jone PN, et al. Circulation. 2024.</strong> AHA Kawasaki Disease scientific statement update. DOI 10.1161/CIR.0000000000001295.</li>
         <li><strong>Melgar M, et al. MMWR Recomm Rep. 2022.</strong> CSTE/CDC MIS-C surveillance definition effective January 1, 2023. DOI 10.15585/mmwr.rr7104a1. Surveillance, not diagnostic, criteria.</li>
@@ -212,16 +243,17 @@
         <li><strong>Lee S, et al. J Am Heart Assoc. 2025.</strong> Contemporaneous IKDR coronary involvement comparison; coronary aneurysm was less prevalent and less severe in MIS-C than KD, not absent in MIS-C.</li>
         <li><strong>Lippi G, et al. Diagnosis (Berl). 2024.</strong> D-dimer meta-analysis; no harmonized diagnostic threshold established.</li>
       </ol>
-      <p class="pending-source"><strong>M1B pending primary source:</strong> the 2026 contemporaneous iKD versus non-severe MIS-C IKDR paper does not contribute numeric thresholds, effect estimates, or weights in this build because its full text and supplement have not yet been source-locked.</p>
+      <p class="pending-source"><strong>M1B supplement pending:</strong> the final 2026 main article is source-locked and active in this build. Its electronic supplemental table has not yet been obtained, so no supplement-only peak/trough laboratory values are encoded.</p>
     </section>
 
     <footer>
-      <span>Experimental evidence workbench • v0.2-M1A</span>
+      <span>Experimental evidence workbench • v0.3-M1B-main</span>
       <a href="/privacy/">Privacy</a>
     </footer>
   </main>
 
   <script src="evidence-registry.js" defer></script>
+  <script src="evidence-2026.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>
