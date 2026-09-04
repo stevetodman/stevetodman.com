@@ -15,7 +15,7 @@ Personal website, pediatric cardiology education, clinical tools, simulations, a
 ## Public structure
 
 - **Resident Education** (`/education/`) — curated hub for pediatric cardiology academies and simulations
-- **Pediatric Hospital Simulator** (`/phs/`) — night-shift prioritization, reasoning, stabilization, and handoff simulation
+- **Pediatric Hospital Simulator** (`/hospital/`) — canonical unified hospital simulation; the older `/phs/` implementation is archived/reference only
 - **Clinical Tools** (`/tools/`) — pediatric BP calculator and its validation report
 - **CHD Surgical Atlas** (`/pedcardsurg/`) — surgical diagrams, operative reasoning, PTED visual topics, eponyms, and mastery assessment
 - **PALS 2025 Resident Mastery Lab** (`/pals/`) — high-acuity cases and retrieval-based assessment
@@ -48,7 +48,7 @@ Useful focused checks:
 npm run test:platform
 npm run test:smoke
 npm run test:a11y
-npm run test:phs
+npm --prefix cardio-hospital-3d run test:engine
 npm run test:bp
 npm run test:kawasaki
 npm run test:pedcardsurg
