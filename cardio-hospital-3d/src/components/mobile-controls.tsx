@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type PointerEvent as ReactPointerEvent } from "react";
+import { useRef, type MutableRefObject, type PointerEvent as ReactPointerEvent } from "react";
 import { useSimulationStore } from "@/lib/simulation-store";
 
 const JOYSTICK_RADIUS_PX = 52;
@@ -36,7 +36,7 @@ export default function MobileControls() {
 
   const beginStick = (
     event: ReactPointerEvent<HTMLDivElement>,
-    pointerRef: React.MutableRefObject<number | null>,
+    pointerRef: MutableRefObject<number | null>,
     setter: (x: number, y: number) => void,
   ) => {
     if (briefingOpen || encounterOpen || pointerRef.current !== null) return;
@@ -50,7 +50,7 @@ export default function MobileControls() {
 
   const moveStick = (
     event: ReactPointerEvent<HTMLDivElement>,
-    pointerRef: React.MutableRefObject<number | null>,
+    pointerRef: MutableRefObject<number | null>,
     setter: (x: number, y: number) => void,
   ) => {
     if (pointerRef.current !== event.pointerId) return;
@@ -61,7 +61,7 @@ export default function MobileControls() {
 
   const endStick = (
     event: ReactPointerEvent<HTMLDivElement>,
-    pointerRef: React.MutableRefObject<number | null>,
+    pointerRef: MutableRefObject<number | null>,
     setter: (x: number, y: number) => void,
   ) => {
     if (pointerRef.current !== event.pointerId) return;
