@@ -7,10 +7,10 @@ Approved direction: evolve the existing Grade 5 Science Lab into a world-class p
 
 ## Read first
 
-1. `study/SCIENCE_LAB_MASTER_PLAN.md`
-2. `study/LOUISIANA_GRADE5_COVERAGE.md`
-3. `study/grade5-learning-core.mjs`
-4. `study/science-grade5-data.mjs`
+1. `study/SCIENCE_LAB_MASTER_PLAN.md` - approved architecture, invariants, milestones, and acceptance gates.
+2. `study/LOUISIANA_GRADE5_COVERAGE.md` - curriculum coverage contract.
+3. `study/grade5-learning-core.mjs` - adaptive/session engine.
+4. `study/science-grade5-data.mjs` - science curriculum/items.
 5. `tests/grade5-learning-core.test.mjs`
 6. `tests/science-grade5-coverage.test.mjs`
 7. `tests/grade5-learning-browser.test.mjs`
@@ -21,27 +21,25 @@ Do **not** use `study/QUALITY_HANDOFF.md` as the Science Lab handoff. That file 
 
 - Keep the current Science Lab; do not restart it from scratch.
 - Maximum educational value is the goal.
-- The product should teach Luke and Samantha how to think scientifically, not merely answer science questions.
+- Teach Luke and Samantha to think scientifically, not merely answer science questions.
 - Phenomena, investigations, models, graphs, evidence, CER, fair testing, retention, and transfer are the long-term center of the product.
 - Preserve short, low-friction practice and clean iPhone/Chromebook UX.
 - Preserve separate Luke/Samantha learner histories permanently.
-- No sibling leaderboard.
-- Do not reward speed.
+- No sibling leaderboard and no speed rewards.
 - Gamification is secondary and must never affect grading, mastery, curriculum priority, or difficulty.
-- Build one deep Matter vertical slice before scaling the new architecture to all Grade 5 units.
-- Keep tests proportionate; protect important educational/data invariants without creating a giant testing project.
+- Build one deep Matter vertical slice before scaling the new architecture to every Grade 5 unit.
+- Keep testing proportionate; protect educational/data invariants without creating a testing project of its own.
 
-## Current baseline
+## Current baseline to preserve
 
-As of this handoff, the existing Science Lab already provides:
+The existing Science Lab already provides:
 
 - `/study/matter-lab.html` Grade 5 Science Lab route;
 - 5 units covering 16 Louisiana Grade 5 science/engineering expectations;
 - 48 science items, with 3 alternate forms per expectation;
-- current Matter focus;
+- current Matter focus plus full-year review;
 - separate Luke/Samantha device-local profiles;
-- eight-question sessions;
-- full-year review;
+- short eight-question standard sessions;
 - skill-level scoring;
 - errors weighted more strongly than isolated correct answers;
 - same-session alternate-form recovery after a miss;
@@ -51,9 +49,9 @@ As of this handoff, the existing Science Lab already provides:
 - responsive 390 px phone layout and accessibility support;
 - structural, adaptive-core, curriculum-coverage, learner-separation, and reload browser tests.
 
-This baseline is useful and should be preserved while the pedagogy is deepened.
+This foundation is an asset. Deepen it without regressing its reliability or simplicity.
 
-## Key audit findings already accepted by owner
+## Accepted audit findings
 
 1. The current system is stronger as an adaptive review engine than as a true `Science Lab`.
 2. The unit of learning should move from isolated questions to scientific phenomena/investigations.
@@ -62,21 +60,30 @@ This baseline is useful and should be preserved while the pedagogy is deepened.
 5. Guided/recovery success should not be able to establish mastery by itself.
 6. Feedback should diagnose misconceptions, not merely reveal the correct answer.
 7. Graph interpretation/construction, model construction, technology-enhanced responses, and constructed scientific reasoning are major gaps.
-8. SEP and CCC reasoning dimensions should become first-class metadata/evidence dimensions.
+8. Science/engineering practices and crosscutting concepts should become first-class metadata/evidence dimensions.
 9. Cross-device synchronization eventually matters because fragmented learner history weakens adaptivity.
-10. Twin-specific paths should diverge based on evidence, and recent sibling item overlap should be avoided when educationally equivalent alternatives exist.
+10. Twin-specific paths should diverge based on evidence; recent sibling item overlap should be avoided when educationally equivalent alternatives exist.
 
-## Current milestone
+## Milestone status
 
-**M0 Governance/checkpointing: complete when this handoff, master plan, and coverage-contract links are committed.**
+- **M0 Governance/checkpointing: COMPLETE.**
+  - Master plan created.
+  - Dedicated Science Lab handoff created.
+  - Louisiana Grade 5 coverage contract linked to both documents and aligned with the approved phenomenon-based roadmap.
+- **M1 Evidence semantics and true adaptivity: NEXT.**
+- M2+ not started intentionally.
 
-**Next milestone: M1 - Evidence semantics and true adaptivity.**
+M0 documentation commits:
 
-Do not jump ahead to flashy graphing, simulations, or gamification before M1 is correct.
+- Master plan: `b27c02d77ceaf49c3e51cb2566bdaa153b8efff8`
+- Initial handoff: `00151dcc1f709aca8f27eaddebcaf8352679a471`
+- Coverage-contract linking/alignment: `73976cbbf4345a49578e03557f2f67f316a58ba6`
+
+The current branch head may be later than those commits. Always inspect actual `main` before editing.
 
 ## Exact next implementation objective: M1
 
-Implement the minimum backward-compatible changes needed to make the learner model educationally trustworthy.
+Implement the minimum backward-compatible changes needed to make the learner model educationally trustworthy **before** adding graphing, simulations, or gamification.
 
 ### Required M1 changes
 
@@ -88,7 +95,7 @@ Implement the minimum backward-compatible changes needed to make the learner mod
    - delayed retrieval;
    - transfer.
 
-2. Replace/augment the current binary mastery semantics with interpretable learning states:
+2. Replace/augment binary mastery with interpretable states:
    - New;
    - Learning;
    - Needs repair;
@@ -97,97 +104,82 @@ Implement the minimum backward-compatible changes needed to make the learner mod
    - Transfer demonstrated;
    - Secure.
 
-3. Enforce that:
-   - recovery/guided answers alone cannot make a skill Secure;
-   - Secure requires independent evidence over multiple dates;
+3. Enforce:
+   - recovery/guided answers alone cannot produce Secure;
+   - Secure requires independent evidence on multiple dates;
    - Secure requires delayed retrieval;
-   - Secure requires a different-context transfer success;
-   - a recent unresolved misconception can block or downgrade Secure.
+   - Secure requires different-context transfer;
+   - a recent unresolved misconception/error can block or downgrade Secure.
 
-4. Change session allocation so weak/due skills receive substantially more of the available practice rather than merely sorting roughly even skill lanes.
+4. Change session allocation so weak/due skills receive substantially more practice rather than merely sorting roughly even skill lanes.
 
 Suggested starting policy for ordinary practice:
-   - ~50% weakest/due;
-   - ~25% developing/current-unit;
-   - ~15% previously secure due retrieval;
-   - ~10% transfer/challenge.
 
-This is a scheduling policy, not a child-facing promise. Small content pools may require graceful fallback.
+- ~50% weakest/due;
+- ~25% developing/current-unit;
+- ~15% previously secure concepts due for retrieval;
+- ~10% transfer/challenge.
 
-5. Add sibling-aware recent-item avoidance when equivalent alternatives exist.
+This is an internal scheduling policy, not a child-facing promise. Small content pools require graceful fallback.
 
+5. Add sibling-aware recent-item avoidance when an educationally equivalent alternative exists.
 6. Preserve exact reload/resume and learner separation.
-
-7. Preserve/migrate current local learner data. Do not clear it or silently mix profiles.
-
-8. Replace child-facing pseudo-precision such as `73/100 evidence strength` with meaningful states where practical. Internal numeric scheduling values may remain.
+7. Preserve/migrate existing local learner data; never clear it or mix profiles silently.
+8. Replace child-facing pseudo-precision such as `73/100 evidence strength` with meaningful evidence states where practical. Internal numeric scheduler values may remain.
 
 ## M1 acceptance gate
 
-M1 is not complete until automated checks demonstrate all of the following:
+M1 is not complete until checks demonstrate:
 
-- a learner repeatedly weak in one Matter concept gets materially more practice in that concept than strong concepts;
-- guided/recovery success by itself never yields Secure;
+- a learner repeatedly weak in one Matter concept receives materially more practice in that concept than in strong concepts;
+- guided/recovery success alone never yields Secure;
 - independent multi-date evidence plus delayed retrieval plus transfer can yield Secure;
-- recent unresolved error/misconception prevents false Secure status;
-- Luke and Samantha can produce different queues from different histories;
-- sibling recent-item avoidance works when an equivalent item is available;
+- a recent unresolved error/misconception prevents false Secure status;
+- Luke and Samantha can receive different queues from different histories;
+- sibling recent-item avoidance works when an equivalent item exists;
 - existing learner records migrate without cross-contamination;
 - active-session reload remains exact;
-- current-unit mode remains inside the selected/current unit except for explicitly designed review/transfer behavior;
-- no existing required Louisiana science expectation disappears.
+- current-unit mode preserves curriculum isolation except for explicitly designed retrieval/transfer behavior;
+- no required Louisiana science expectation disappears.
 
 ## Files likely involved in M1
 
 Primary:
 
 - `study/grade5-learning-core.mjs`
-- `study/science-grade5-data.mjs` only if transfer/context metadata is minimally needed for M1
 - `tests/grade5-learning-core.test.mjs`
 - `tests/grade5-learning-browser.test.mjs`
 
-Possibly:
+Only if minimally needed:
 
-- `study/grade5-learning.css` for new learner-facing mastery-state labels
-- `tests/science-grade5-coverage.test.mjs` for new schema/content invariants
+- `study/science-grade5-data.mjs` for transfer/context metadata;
+- `study/grade5-learning.css` for new mastery-state presentation;
+- `tests/science-grade5-coverage.test.mjs` for new schema/content invariants.
 
 Avoid broad unrelated Study changes.
 
-## After M1
+## Ordered roadmap after M1
 
 Proceed in this order unless the owner changes direction:
 
-- M2 misconception-aware remediation;
-- M3 graph/model engine;
-- M4 phenomenon/task-set engine;
-- M5 CER/constructed reasoning;
-- M6 world-class Matter vertical slice;
-- only then scale across the full Grade 5 science course.
+1. M2 misconception-aware remediation.
+2. M3 graph/model engine.
+3. M4 phenomenon/task-set engine.
+4. M5 CER/constructed reasoning.
+5. M6 world-class Matter vertical slice.
+6. Only after M6 educational validation, scale across the rest of Grade 5.
 
-See `SCIENCE_LAB_MASTER_PLAN.md` for full definitions and acceptance criteria.
+See `SCIENCE_LAB_MASTER_PLAN.md` for the full roadmap through cross-device sync, cooperative Twin Lab missions, parent insight, real-world mini-labs, and LEAP-style challenge mode.
 
 ## Resume procedure for every agent
 
-1. Inspect the actual current `main`/working branch and dirty state. Do not trust an old chat SHA blindly.
-2. Read this handoff and the relevant master-plan milestone.
-3. Inspect the implementation before editing; preserve unrelated work.
-4. Work only the current milestone or a reproduced regression.
+1. Inspect actual current `main`/working branch and dirty state. Do not trust an old chat SHA blindly.
+2. Read this handoff and the current milestone in `SCIENCE_LAB_MASTER_PLAN.md`.
+3. Inspect implementation before editing; preserve unrelated work.
+4. Work only the current milestone or a reproduced regression unless the owner broadens scope.
 5. Keep learner-data changes backward-compatible and versioned.
 6. Add only tests needed to protect the changed educational/data invariant.
-7. Run the proportionate affected tests plus build checks required by the repo.
-8. Before stopping, update this file with:
-   - exact completed work;
-   - tests/results;
-   - commit/checkpoint;
-   - open gates;
-   - exact next action.
+7. Run the proportionate affected tests plus repository build checks required by the change.
+8. Before stopping, update this file with exact completed work, test results, checkpoint commit, open gates, and exact next action.
 9. Never claim physical-device or child-learning acceptance without actual evidence.
 10. Never restart the project merely because a new agent has taken over.
-
-## Documentation checkpoint
-
-Master plan added on main in commit:
-
-`b27c02d77ceaf49c3e51cb2566bdaa153b8efff8`
-
-This handoff was created immediately afterward. A later agent should record the newest exact main commit after all M0 documentation-linking changes are complete.
