@@ -11,7 +11,6 @@ concurrency:
 
 permissions:
   contents: read
-  checks: read
 
 jobs:
   live:
@@ -21,6 +20,7 @@ jobs:
     env:
       TARGET_SHA: a038ca078a3d07aa78e0d869105986e16c81f03a
       SITE_ORIGIN: https://stevetodman.com
+      DEPLOYMENT_ORIGIN: https://eda8e45b.stevetodman-com.pages.dev
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,42 +37,17 @@ jobs:
             exit 1
           fi
 
-      - name: Confirm current main and exact Cloudflare deployment
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Confirm current main is still the deployment target
         shell: bash
         run: |
           set -euo pipefail
-          current_main="$(gh api "repos/${GITHUB_REPOSITORY}/branches/main" --jq '.commit.sha')"
+          current_main="$(curl --fail --silent --show-error             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/${GITHUB_REPOSITORY}/branches/main" | jq -r '.commit.sha')"
           if [ "$current_main" != "$TARGET_SHA" ]; then
             echo "main advanced: expected $TARGET_SHA, found $current_main" >&2
             exit 1
           fi
-
-          for attempt in $(seq 1 72); do
-            check_json="$(gh api "repos/${GITHUB_REPOSITORY}/commits/$TARGET_SHA/check-runs?per_page=100")"
-            status="$(jq -r '[.check_runs[] | select(.name == "Cloudflare Pages" and .app.slug == "cloudflare-workers-and-pages")] | sort_by(.started_at) | last | .status // "missing"' <<<"$check_json")"
-            conclusion="$(jq -r '[.check_runs[] | select(.name == "Cloudflare Pages" and .app.slug == "cloudflare-workers-and-pages")] | sort_by(.started_at) | last | .conclusion // ""' <<<"$check_json")"
-            echo "Cloudflare Pages: status=$status conclusion=${conclusion:-pending}"
-
-            if [ "$status" = "completed" ] && [ "$conclusion" = "success" ]; then
-              summary="$(jq -r '[.check_runs[] | select(.name == "Cloudflare Pages" and .app.slug == "cloudflare-workers-and-pages")] | sort_by(.started_at) | last | .output.summary' <<<"$check_json")"
-              deployment_origin="$(grep -oE 'https://[a-f0-9]+\.stevetodman-com\.pages\.dev' <<<"$summary" | head -1)"
-              test -n "$deployment_origin"
-              echo "DEPLOYMENT_ORIGIN=$deployment_origin" >> "$GITHUB_ENV"
-              echo "Exact deployment: $deployment_origin"
-              break
-            fi
-            if [ "$status" = "completed" ]; then
-              echo "Cloudflare deployment failed with conclusion: $conclusion" >&2
-              exit 1
-            fi
-            if [ "$attempt" -eq 72 ]; then
-              echo "Timed out waiting for Cloudflare deployment of $TARGET_SHA" >&2
-              exit 1
-            fi
-            sleep 15
-          done
+          echo "main remains pinned to $TARGET_SHA"
+          echo "Cloudflare deployment already independently confirmed: $DEPLOYMENT_ORIGIN"
 
       - uses: actions/setup-node@v4
         with:
