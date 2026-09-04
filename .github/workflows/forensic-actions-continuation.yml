@@ -1,0 +1,64 @@
+name: Zero-trust Actions continuation
+
+on:
+  push:
+    branches:
+      - audit/forensic-zero-trust-20260904
+    paths:
+      - scripts/forensic_actions_per_run.py
+      - .github/workflows/forensic-actions-continuation.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  AUDIT_CUTOFF: '2026-09-04T21:47:49Z'
+
+jobs:
+  actions-logs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan pre-audit Actions logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/forensic_api_runner.py --mode actions-logs --shard ${{ matrix.shard }} --shards 8 --out audit-out/actions-logs-${{ matrix.shard }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: forensic-actions-logs-continuation-${{ matrix.shard }}
+          path: audit-out/actions-logs-${{ matrix.shard }}
+          if-no-files-found: warn
+          retention-days: 1
+
+  actions-artifacts-per-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install binary inspection tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils libimage-exiftool-perl tesseract-ocr p7zip-full
+      - name: Scan pre-audit Actions artifacts via per-run endpoints
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PYTHONPATH: scripts
+        run: python3 scripts/forensic_actions_per_run.py --shard ${{ matrix.shard }} --shards 4 --out audit-out/actions-artifacts-${{ matrix.shard }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: forensic-actions-artifacts-continuation-${{ matrix.shard }}
+          path: audit-out/actions-artifacts-${{ matrix.shard }}
+          if-no-files-found: warn
+          retention-days: 1
