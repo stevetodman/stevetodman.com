@@ -47,7 +47,7 @@ function SinkStation({ roomX, side }: { roomX: number; side: -1 | 1 }) {
     <group>
       <Box size={[0.58, 0.12, 0.72]} position={[x, 0.86, -1.15]} color="#d7d9d5" metalness={0.1} />
       <Box size={[0.48, 0.045, 0.55]} position={[x, 0.93, -1.15]} color="#b8c1c3" metalness={0.55} />
-      <Cylinder radius={0.035} height={0.31} position={[x, 1.1, -1.15]} color="#7f888c" metalness={0.85} />
+      <Cylinder radius={0.035} height={0.31} position={[x, 1.1, -1.15]} color="#7f888c" />
       <Box size={[0.12, 0.2, 0.09]} position={[x + side * 0.28, 1.4, -1.34]} color="#e9ece9" />
       <Box size={[0.12, 0.25, 0.1]} position={[x + side * 0.28, 1.38, -0.95]} color="#d8e4e6" />
       <Box size={[0.16, 0.22, 0.09]} position={[x + side * 0.28, 1.72, -1.34]} color="#f1c4a5" />
