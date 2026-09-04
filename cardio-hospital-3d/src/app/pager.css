@@ -62,9 +62,30 @@
   font-size: 22px;
 }
 
-.pager-panel > header > span {
+.pager-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pager-header-actions > span {
   color: var(--muted);
   font-size: 11px;
+}
+
+.pager-close {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid rgba(204, 235, 239, 0.22);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink);
+  font-size: 26px;
+  line-height: 1;
+  touch-action: manipulation;
 }
 
 .pager-list {
@@ -72,6 +93,8 @@
   overflow-y: auto;
   padding: 9px;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
 .pager-message {
