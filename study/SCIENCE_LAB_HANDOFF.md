@@ -9,7 +9,7 @@ Audience: Luke and Samantha
 
 ## Resume here
 
-**M0-M6 are complete through the essential automated gate.** M6 is merged to `main`; its exact production deployment/browser verification is the final deployment checkpoint described below. The next product milestone is **M7 - scale the proven Matter architecture across the rest of Louisiana Grade 5 science**.
+**M0-M6 are complete, merged, and production-verified.** The next product milestone is **M7 - scale the proven Matter architecture across the rest of Louisiana Grade 5 science**.
 
 Do not reconstruct M1-M6, do not migrate Science Lab back onto the legacy shared Grade 5 engine, and do not broaden CI.
 
@@ -33,6 +33,8 @@ Read first:
 16. `science-lab-tests/core.test.mjs`
 17. `science-lab-tests/smoke.test.mjs`
 18. `.github/workflows/science-lab-ci.yml`
+19. `.github/workflows/study-live-canary.yml`
+20. `scripts/wait-for-cloudflare-production.mjs`
 
 The old shared Grade 5 engine/data/tests and World Lab are secondary/reference implementations for other Study products. Do not use `study/QUALITY_HANDOFF.md`; it belongs to Word Expedition.
 
@@ -86,28 +88,26 @@ Essential run `33826503965`: PASS.
 
 Implemented deterministic component-level CER scoring, independent first construction, guided component-specific repair, reload persistence, and separate reasoning analytics. The prewritten final multiple-choice explanation was removed so CER itself is the final scientific revision. CER adds no extra content-mastery attempt.
 
-### M6 - World-class Matter vertical slice: COMPLETE THROUGH ESSENTIAL GATE
+### M6 - World-class Matter vertical slice: COMPLETE
 
 PR: #162  
 Final pre-merge branch head: `c6e206330bc23e400f588275fc5b6abd2f617737`  
 Merged `main` code commit: `dbd895445eaf7371cdcb0e95f128213e1a09493e`  
 PR essential run: `33827751764` - PASS.  
 Post-merge essential run: `33827819235` - PASS.  
-Exact production/browser run: `33827819236` - **PENDING at the time this handoff branch was prepared; do not change this to PASS until the run itself succeeds for exact SHA `dbd895445eaf7371cdcb0e95f128213e1a09493e`.**
+Exact production/browser run: `33827819236` - PASS on rerun attempt 2.  
+Successful exact-production job: `100887131224`.  
+Cloudflare deployment ID: `0f2b37d9-f2fc-47f7-8660-3e5afa5e92dc`.
+
+The first production-verification attempt timed out while Cloudflare was still building and correctly refused to claim success. After Cloudflare completed the exact SHA, the same verifier was rerun without weakening any gate. On attempt 2, every step passed: exact-SHA Cloudflare wait, pinned install, exact build, Chromium install, touch-enabled custom-domain browser verification, stale-main refusal, and evidence preservation.
 
 M6 implementation:
 
 - Matter expanded from 12 to **32 short-practice tasks**: 8 genuinely distinct contexts for each of the four Matter micro-skills.
 - New M6 content lives in `study/science-lab/matter-m6.mjs`; M1-M5 core behavior was not rewritten.
-- Every Matter item now has explicit:
-  - `sep`;
-  - `ccc`;
-  - `representationType`;
-  - `sourceFamily`;
-  - `transferLevel`;
-  - mastery-relevant `transfer` semantics.
-- Both existing Matter investigations and their individual reasoning steps now also carry SEP/CCC/representation/transfer metadata.
-- Representation diversity now includes selected response, evidence/data-table reasoning, quantitative reasoning, particle models, bar graphs, graph construction, experimental observations, property-pattern reasoning, and system reasoning.
+- Every Matter item now has explicit `sep`, `ccc`, `representationType`, `sourceFamily`, `transferLevel`, and mastery-relevant `transfer` semantics.
+- Both existing Matter investigations and their individual reasoning steps also carry SEP/CCC/representation/transfer metadata.
+- Representation diversity includes selected response, evidence/data-table reasoning, quantitative reasoning, particle models, bar graphs, graph construction, experimental observations, property-pattern reasoning, and system reasoning.
 - Each Matter micro-skill has a deliberately different far-transfer task.
 - **Only explicit `transferLevel: 'far'` Matter items set `transfer: true` and can satisfy the mastery transfer requirement. Near-transfer contexts remain useful practice but cannot unlock Secure.**
 - New selected-response distractors retain misconception-specific remediation and hint-before-answer behavior.
@@ -174,7 +174,7 @@ M1-M6 extended these same checks. Do not create feature-specific test suites.
 
 A merge is not enough to claim the site is live.
 
-For production changes, the repository now has an exact-SHA deployment/browser workflow that must:
+For production changes, `.github/workflows/study-live-canary.yml` must:
 
 1. wait for Cloudflare Pages to report the exact `main` commit as successfully deployed;
 2. build the exact target artifact;
@@ -182,7 +182,9 @@ For production changes, the repository now has an exact-SHA deployment/browser w
 4. refuse to report a stale success if `main` advanced meanwhile;
 5. preserve deployment/browser evidence.
 
-For M6, the target code SHA is `dbd895445eaf7371cdcb0e95f128213e1a09493e` and the production-verification run is `33827819236`. Do not call M6 production-verified unless that exact run succeeds or an equally strict replacement run verifies the same SHA.
+The Cloudflare wait helper is `scripts/wait-for-cloudflare-production.mjs`. Its job is to reject branch-preview/stale deployment evidence and select the exact production deployment for the target SHA.
+
+M6 production verification satisfied this invariant for `dbd895445eaf7371cdcb0e95f128213e1a09493e` in run `33827819236`, attempt 2.
 
 ## Exact next milestone: M7 - scale phenomena and reasoning across the full Grade 5 course
 
@@ -223,7 +225,7 @@ If a shared abstraction is genuinely needed for M7, extract it only after a conc
 ## Resume procedure
 
 1. Inspect actual `main`, this handoff, and any open Science Lab PR before editing.
-2. Confirm whether production-verification run `33827819236` is complete. If this handoff still says PENDING but the exact-SHA run succeeded, update the checkpoint before beginning M7.
+2. Treat M6 as complete and production-verified at code SHA `dbd895445eaf7371cdcb0e95f128213e1a09493e`; do not redo M6 acceptance unless a later shared-code change or reproduced regression justifies it.
 3. Treat `study/science-lab/**` as the primary implementation; preserve unrelated Study products.
 4. Do not recreate M1-M6 or broaden CI.
 5. Preserve `g5-science-lab-v2` learner evidence once real use begins.
