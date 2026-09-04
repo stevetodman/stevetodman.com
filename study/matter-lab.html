@@ -4,17 +4,64 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Science Lab · Louisiana Grade 5</title>
-  <meta name="description" content="Adaptive Louisiana Grade 5 science practice centered on evidence, models, explanations, and engineering decisions.">
+  <meta name="description" content="Adaptive Louisiana Grade 5 science practice centered on phenomena, evidence, models, explanations, and engineering decisions.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%AC%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/study/science-lab/style.css?v=20260903m3">
-  <link rel="stylesheet" href="/study/science-lab/visuals.css?v=20260903m3">
+  <link rel="stylesheet" href="/study/science-lab/style.css?v=20260903m4">
+  <link rel="stylesheet" href="/study/science-lab/visuals.css?v=20260903m4">
+  <link rel="stylesheet" href="/study/science-lab/phenomena.css?v=20260903m4">
 </head>
 <body class="g5-science">
   <main id="app"></main>
   <script type="module">
-    import { mountScienceLab } from '/study/science-lab/core.mjs?v=20260903m3';
-    import { SCIENCE_LAB_CONFIG } from '/study/science-lab/config.mjs?v=20260903m3';
+    import { mountScienceLab, normalizeStore } from '/study/science-lab/core.mjs?v=20260903m4';
+    import { SCIENCE_LAB_CONFIG } from '/study/science-lab/config.mjs?v=20260903m4';
+    import { nextPhenomenon } from '/study/science-lab/phenomenon-engine.mjs?v=20260903m4';
+
+    const app = document.getElementById('app');
     mountScienceLab(SCIENCE_LAB_CONFIG);
+
+    function enhanceDashboard() {
+      const dashboard = app.querySelector('.dashboard');
+      if (!dashboard) return;
+      const name = dashboard.querySelector('.eyebrow')?.textContent?.split('·')[0]?.trim();
+      if (!['Luke', 'Samantha'].includes(name)) return;
+      let root;
+      try { root = normalizeStore(JSON.parse(localStorage.getItem(SCIENCE_LAB_CONFIG.storageKey) || 'null')); }
+      catch (_) { root = normalizeStore(null); }
+      if (root.active[name]) return;
+      const next = nextPhenomenon(SCIENCE_LAB_CONFIG.phenomena, root.learners[name], SCIENCE_LAB_CONFIG.currentUnit);
+      if (!next) return;
+      const card = dashboard.querySelector('.mission-card');
+      if (!card || card.dataset.phenomenonEnhanced === next.id) return;
+      card.dataset.phenomenonEnhanced = next.id;
+      const tag = card.querySelector('.mission-tag');
+      const heading = card.querySelector('h2');
+      const copy = card.querySelector('h2 + p');
+      const action = card.querySelector('.primary-button');
+      if (tag) tag.textContent = 'Recommended deep investigation';
+      if (heading) heading.textContent = next.title;
+      if (copy) copy.textContent = next.summary;
+      if (action) {
+        const link = document.createElement('a');
+        link.className = 'primary-button science-investigation-link';
+        link.href = `/study/science-lab/investigate.html?learner=${encodeURIComponent(name)}`;
+        link.textContent = 'Start investigation';
+        action.replaceWith(link);
+      }
+      const actions = dashboard.querySelector('.dashboard-actions');
+      if (actions && !actions.querySelector('[data-adaptive-practice]')) {
+        const practice = document.createElement('button');
+        practice.className = 'secondary-button';
+        practice.dataset.action = 'start';
+        practice.dataset.adaptivePractice = 'true';
+        practice.textContent = '8-prompt adaptive practice';
+        actions.prepend(practice);
+      }
+    }
+
+    const observer = new MutationObserver(enhanceDashboard);
+    observer.observe(app, { childList: true, subtree: true });
+    enhanceDashboard();
   </script>
 </body>
 </html>
