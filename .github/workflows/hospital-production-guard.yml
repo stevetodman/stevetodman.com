@@ -6,7 +6,14 @@ on:
       - main
     paths:
       - '_headers'
-      - 'cardio-hospital-3d/**'
+      - 'cardio-hospital-3d/src/**'
+      - 'cardio-hospital-3d/public/**'
+      - 'cardio-hospital-3d/scripts/**'
+      - 'cardio-hospital-3d/package.json'
+      - 'cardio-hospital-3d/package-lock.json'
+      - 'cardio-hospital-3d/next.config.ts'
+      - 'cardio-hospital-3d/tsconfig.json'
+      - 'cardio-hospital-3d/next-env.d.ts'
       - 'scripts/build-hospital.mjs'
       - 'scripts/diagnose-hospital-live.mjs'
       - 'scripts/verify-production.mjs'
@@ -20,7 +27,14 @@ on:
   pull_request:
     paths:
       - '_headers'
-      - 'cardio-hospital-3d/**'
+      - 'cardio-hospital-3d/src/**'
+      - 'cardio-hospital-3d/public/**'
+      - 'cardio-hospital-3d/scripts/**'
+      - 'cardio-hospital-3d/package.json'
+      - 'cardio-hospital-3d/package-lock.json'
+      - 'cardio-hospital-3d/next.config.ts'
+      - 'cardio-hospital-3d/tsconfig.json'
+      - 'cardio-hospital-3d/next-env.d.ts'
       - 'scripts/build-hospital.mjs'
       - 'scripts/diagnose-hospital-live.mjs'
       - 'scripts/verify-production.mjs'
