@@ -16,7 +16,7 @@ after(async () => {
   await server?.close();
 });
 
-test('Science Lab phone smoke: targeted repair, resume, twin separation', async () => {
+test('Science Lab phone smoke: repair, graph resume, twin separation', async () => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   await page.goto(server.origin + '/study/matter-lab.html');
@@ -74,6 +74,50 @@ test('Science Lab phone smoke: targeted repair, resume, twin separation', async 
   const isolated = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), SCIENCE_LAB_CONFIG.storageKey);
   assert.ok(isolated.active.Luke);
   assert.equal(isolated.active.Samantha, undefined);
+
+  await page.evaluate(({ key }) => {
+    const state = JSON.parse(localStorage.getItem(key));
+    state.active.Samantha = {
+      version: 2,
+      id: 'm3-graph-smoke',
+      mode: 'unit',
+      unitId: 'earth-sky',
+      queue: ['sp2'],
+      index: 0,
+      selected: [],
+      response: {},
+      feedback: null,
+      retry: null,
+      results: [],
+      recoveryIds: []
+    };
+    localStorage.setItem(key, JSON.stringify(state));
+  }, { key: SCIENCE_LAB_CONFIG.storageKey });
+
+  await page.reload();
+  await page.locator('[data-learner="Samantha"]').click();
+  assert.equal(await page.locator('.graph-builder').isVisible(), true);
+  assert.equal(await page.locator('.science-graph').isVisible(), true);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, 'graph task must not overflow 390px');
+
+  await page.locator('[data-plot-x="0"][data-plot-y="8"]').click();
+  await page.locator('[data-plot-x="1"][data-plot-y="6"]').click();
+  const partialGraph = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), SCIENCE_LAB_CONFIG.storageKey);
+  assert.deepEqual(partialGraph.active.Samantha.response, { 0: 8, 1: 6 });
+
+  await page.reload();
+  await page.locator('[data-learner="Samantha"]').click();
+  assert.equal(await page.locator('[data-plot-x="0"][data-plot-y="8"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator('[data-plot-x="1"][data-plot-y="6"]').getAttribute('aria-pressed'), 'true');
+  await page.locator('[data-plot-x="2"][data-plot-y="4"]').click();
+  await page.locator('[data-plot-x="3"][data-plot-y="6"]').click();
+  await page.locator('[data-action="check"]').click();
+  assert.equal(await page.locator('.feedback-card.correct').isVisible(), true);
+
+  const graphEvidence = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), SCIENCE_LAB_CONFIG.storageKey);
+  assert.equal(graphEvidence.learners.Samantha.attempts.at(-1).responseType, 'graph-build');
+  assert.deepEqual(graphEvidence.learners.Samantha.attempts.at(-1).response, { 0: 8, 1: 6, 2: 4, 3: 6 });
+  assert.equal(graphEvidence.learners.Samantha.attempts.at(-1).provenance, 'independent');
 
   await context.close();
 });
