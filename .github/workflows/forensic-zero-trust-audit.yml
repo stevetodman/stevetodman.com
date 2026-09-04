@@ -1,0 +1,128 @@
+name: Zero-trust forensic repository audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - scripts/forensic_repo_audit.py
+      - .github/workflows/forensic-zero-trust-audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  issues: read
+  pull-requests: read
+
+concurrency:
+  group: forensic-zero-trust-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  repo-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: Install binary inspection tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils libimage-exiftool-perl tesseract-ocr git-lfs
+      - name: Scan all reachable Git history and current main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/forensic_repo_audit.py --mode repo --out audit-out/repo
+      - uses: actions/upload-artifact@v4
+        with:
+          name: forensic-repo-history
+          path: audit-out/repo
+          if-no-files-found: error
+          retention-days: 30
+
+  github-surfaces:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install binary inspection tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils libimage-exiftool-perl tesseract-ocr git-lfs
+      - name: Scan issues, PR surfaces, attachments, releases, and wiki
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/forensic_repo_audit.py --mode surfaces --out audit-out/surfaces
+      - uses: actions/upload-artifact@v4
+        with:
+          name: forensic-github-surfaces
+          path: audit-out/surfaces
+          if-no-files-found: error
+          retention-days: 30
+
+  actions-logs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan Actions logs shard
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/forensic_repo_audit.py --mode actions-logs --shard ${{ matrix.shard }} --shards 8 --out audit-out/actions-logs-${{ matrix.shard }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: forensic-actions-logs-${{ matrix.shard }}
+          path: audit-out/actions-logs-${{ matrix.shard }}
+          if-no-files-found: error
+          retention-days: 30
+
+  actions-artifacts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install binary inspection tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils libimage-exiftool-perl tesseract-ocr
+      - name: Scan Actions artifacts shard
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/forensic_repo_audit.py --mode actions-artifacts --shard ${{ matrix.shard }} --shards 4 --out audit-out/actions-artifacts-${{ matrix.shard }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: forensic-actions-artifacts-${{ matrix.shard }}
+          path: audit-out/actions-artifacts-${{ matrix.shard }}
+          if-no-files-found: error
+          retention-days: 30
+
+  collate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [repo-history, github-surfaces, actions-logs, actions-artifacts]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: forensic-*
+          path: audit-input
+          merge-multiple: false
+      - name: Collate redacted evidence
+        run: python3 scripts/forensic_repo_audit.py --mode collate --input audit-input --out audit-final
+      - uses: actions/upload-artifact@v4
+        with:
+          name: forensic-final-report
+          path: audit-final
+          if-no-files-found: error
+          retention-days: 30
