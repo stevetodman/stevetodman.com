@@ -74,6 +74,8 @@ Canonical hospital:
 
 Desktop acceptance is complete. Do not rerun it by default. Physical-iPhone M4/M5 acceptance remains the hospital product-quality gate. Hospital-local acceptance details and durable engine invariants live in `cardio-hospital-3d/AGENTS.md`.
 
+Hospital dependency resolution is now deterministic: `cardio-hospital-3d/package-lock.json` is committed and both focused CI and the production hospital build use `npm ci`. Next.js is pinned to the current 16.3 security release, `16.3.3`.
+
 ### Study / Math / Science
 
 - StudyHub and Math are active production family-learning products.
@@ -160,11 +162,11 @@ Do not infer archive status from names alone. Archive first; do not mass-delete 
 
 - `292b73705d5959f307857204749d15bbda5cb001` — completed desktop acceptance is manual-only.
 - `09264cbe4c4809564176464ba7cba23bf01c805c` — unified hospital CI retargeted to current `main`/PR development.
-- `99b5c28b201232390d65af837ec38e3f38882603` — corrected hospital focused CI to valid `npm install` because no hospital lockfile exists.
+- `99b5c28b201232390d65af837ec38e3f38882603` — corrected hospital focused CI to valid `npm install` while no hospital lockfile existed; this temporary constraint was later retired by `70b928b2...`.
 - `77fe02c10072a5a26f3f71ee56b271dab1dc4a2b` — root documentation no longer triggers broad `Tests`.
 - `ab266cfdc4f8c924a2eb67ddd39a7f20b4db7064` — hospital docs no longer trigger Unified Hospital Build.
 - `68e3b9e1d426411c58d39bf0f1f31a0b3de4dd61` — hospital docs no longer trigger Hospital Production Guard.
-- `67cd3383e28a8558098669528b357b51947bed55` — repaired the manual desktop-acceptance workflow so it no longer assumes a nonexistent hospital lockfile.
+- `67cd3383e28a8558098669528b357b51947bed55` — repaired the manual desktop-acceptance workflow so it no longer assumes a nonexistent hospital lockfile; the hospital now has a real lockfile, but the workflow remains valid.
 - `8555cc86f83e9bd36189945cf5c0c1c2e59c3ac2` — removed obsolete one-time issue-comment/closure side effects from generic production verification.
 - `a3f7da4f6576f76f5eedc1c7013ec9fc9f47fe42` — removed redundant 6-hour rebuild/browser schedule from exact-SHA Study production verification; periodic Study cloud health remains owned by `study-cloud-canary.yml`.
 - `6c75269cd42c69bcd6a49509f565d5d6aa2fad90` / `ded7ce7d8b11f73ed0d1dc98f38d3f2519ca163a` / `243258f6cb6eaa652d5b0d2c8ad5ef7d6d9dfe0d` — retired the stale Steven OS PR #19/Unreal ingest workflow, config, and worker.
@@ -175,8 +177,14 @@ Workflow audit outcome: retain specialized workflows where they protect distinct
 ### Build / command-path simplification
 
 - `5171150c68fe346b099e88da1b47106501b82085` — production hospital build no longer reruns `test:engine`; focused CI owns engine validation.
-- A temporary hospital `npm ci` attempt was immediately corrected after the missing-lockfile constraint was reproduced. Do not repeat it without a real lockfile.
 - `be1fb2eca44d15177fdbf501c0c818cce54a2ec3` — pruned five unreferenced root aliases (`verify:study-production`, `verify:study-production:browser`, `test:study`, `test:grade5:browser`, `test:study:smoke`) while retaining CI-used focused commands.
+- `70b928b2e5bf4c7c82ae47558aa54381f8609e8f` / PR #177 — generated a real npm v3 `cardio-hospital-3d/package-lock.json` in GitHub Actions, proved clean `npm ci`, all 12 focused engine tests, and `next build`, then switched both focused hospital CI and the production hospital build from `npm install` to deterministic `npm ci`. The temporary probe workflow was removed before merge. The exact merged SHA passed Cloudflare deployment, touch-browser verification, and stale-main protection.
+- `scripts/build-site.mjs` was reviewed after the dependency work. It already builds from an empty `dist`, explicitly includes core files and production route roots, then removes exceptional nonproduction/source-only material where roots are shared. A pure per-file positive-inclusion rewrite would require more manifest/dependency machinery and is not demonstrably simpler. **No change justified.**
+
+### Security maintenance
+
+- On 2026-09-04 the hospital was pinned to Next.js `16.3.1` while the official August 25, 2026 Next.js security release directed 16.x users to `16.3.3` for two Critical vulnerabilities.
+- `37a40f5a6d62d3ac2884d8763864e89003330654` / PR #178 — patch-only upgrade from Next.js `16.3.1` to `16.3.3` with the nested lockfile regenerated in GitHub Actions. Clean `npm ci`, all 12 focused hospital engine tests, and `next build` passed. No React, clinical, state, world, UI, or unrelated dependency changes were made. The temporary probe workflow was removed before merge. The exact merged SHA passed Cloudflare deployment, touch-browser verification, and stale-main protection.
 
 ### Verification hardening
 
@@ -189,23 +197,9 @@ Workflow audit outcome: retain specialized workflows where they protect distinct
 - The baseline also showed hospital warm reload at about 3.1 KB, so browser caching already removed almost all repeat transfer. Immutable cache-header work was therefore not the highest-value first change.
 - `e8195c1a3a65daf49b5ef0d031e500ab9af435ec` — deferred only the Three/Rapier-backed world canvas until the user actually enters the hospital. The entry/clinical shell, hospital state, cases, encounters, controls, and world implementation were otherwise unchanged. Focused hospital production contract, engine tests, and build passed.
 - `5167daae2bf7efdf3eb3f1c0f653c588779516f4` — exact production remeasurement confirmed hospital cold transfer fell from **1,203,800 bytes to 175,879 bytes** (about **85% lower**) while warm transfer remained essentially unchanged (~3.1 KB). The heavy Three/Rapier chunks no longer load behind the entry overlay. The other four benchmark routes remained small enough that no broader optimization was justified from this pass.
-- The benchmark workflow was intentionally temporary and should not remain as permanent CI machinery after this evidence is recorded.
+- The benchmark workflow was intentionally temporary and removed after the evidence was captured.
 
 ## Known remaining technical debt
-
-### Hospital dependency/install path
-
-`cardio-hospital-3d` currently has no `package-lock.json`.
-
-- `npm ci` is invalid there today.
-- Cloudflare's root dependency install does not provision the nested app.
-- `scripts/build-hospital.mjs` must temporarily keep nested `npm install` so production builds remain functional.
-
-Do **not** fabricate a lockfile. Generate/commit one only in a valid dependency-resolution environment if that change clearly reduces total complexity.
-
-### Build-site copy/prune
-
-`scripts/build-site.mjs` still uses broad copy followed by pruning. Review only if positive inclusion is demonstrably simpler while preserving production-boundary tests.
 
 ### Cooking index workflow
 
@@ -262,9 +256,9 @@ A five-route production baseline now exists. Hospital entry cold transfer was th
 ### Phase F — pure deterministic build
 
 - [x] Move hospital engine validation out of production build path.
-- [ ] Resolve nested dependency installation cleanly; currently blocked by absent hospital lockfile/root-only Cloudflare install.
+- [x] Resolve nested dependency installation with a real committed hospital lockfile and `npm ci` in CI/production build.
 - [x] Keep `npm run build` as obvious production entry point.
-- [ ] Review `build-site.mjs` copy/prune only if a simpler safe design is proven.
+- [x] Review `build-site.mjs` copy/prune; no simpler safe positive-inclusion design was demonstrated, so retain current implementation.
 
 ### Phase G — measured runtime performance
 
@@ -275,11 +269,11 @@ A five-route production baseline now exists. Hospital entry cold transfer was th
 
 ### Phase H — shared code only if justified
 
-- [ ] Extract only after repeated coordination proves the abstraction reduces total complexity.
+- [x] No shared-code extraction justified in this pass; no repeated coordination cost demonstrated that outweighs abstraction debt.
 
 ### Phase I — stop
 
-- [ ] Stop refactoring once the critical path is simple, fast, measured, and understandable.
+- [x] Stop repository-side refactoring at the current evidence boundary. The critical path is simpler, deterministic, measured, and understandable; remaining meaningful gates require owner/device/external evidence.
 
 ## External / owner blockers
 
@@ -322,9 +316,9 @@ Done means canonical ownership is obvious; superseded repos are archived rather 
 
 ## Exact next action
 
-1. Remove the temporary `.github/workflows/performance-baseline.yml`; the two measured artifacts are sufficient evidence and permanent benchmark CI would add debt.
-2. Inspect the resulting **current `main` SHA** and require its Cloudflare Pages deployment, exact-SHA production/browser verification, and stale-main protection before calling the final cleanup state live-verified.
-3. Do not pursue further runtime optimization without new production evidence. Hospital entry is no longer the dominant transfer problem; physical-iPhone M4/M5 acceptance remains the product-quality gate.
-4. Keep the hospital lockfile/nested-install issue as the next genuine engineering-debt candidate, but only resolve it in a valid dependency-resolution environment that produces a real lockfile cleanly. Do not fabricate one.
-5. Review `build-site.mjs` copy/prune only if a demonstrably simpler positive-inclusion design can preserve the existing production-boundary guarantees.
-6. External owner gates remain #39 StudyHub live backend/device acceptance, #42 clinical review evidence, physical-iPhone hospital acceptance, and archiving `cooking-timers` through a settings-capable GitHub interface.
+1. Inspect the **current `main` SHA** first. This checkpoint follows the exact-production-verified Next.js security commit `37a40f5a6d62d3ac2884d8763864e89003330654`; this documentation commit is its successor, so require the current SHA's Cloudflare Pages deployment, exact-SHA browser verification, and stale-main protection before calling the checkpoint itself live-verified.
+2. Do **not** start another repository-wide simplification/refactor pass by default. Phases A–I are complete at the current evidence boundary.
+3. The next hospital product action is **physical-iPhone M4/M5 acceptance** using the checklist in `cardio-hospital-3d/AGENTS.md`. Emulation does not close that gate. If a real-device regression is reproduced, fix only that regression, add the smallest focused protection, then run `npm run test:engine` + `npm run build` and exact-SHA production verification.
+4. StudyHub issue **#39** remains blocked on real Supabase/edge + device evidence; clinical issue **#42** remains blocked on real review evidence. Do not infer either from CI.
+5. Archive `stevetodman/cooking-timers` when a GitHub settings-capable interface is available. Preserve history; do not delete it.
+6. Only resume performance, caching, shared-code, or build-site refactoring if new measured evidence demonstrates a concrete user or maintenance problem.
