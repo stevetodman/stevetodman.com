@@ -1,0 +1,39 @@
+name: KD MIS-C M3 shadow safety
+
+on:
+  pull_request:
+    paths:
+      - 'research/kd-misc-shadow/**'
+      - 'docs/KD_MISC_M3_SHADOW_EVALUATION_PROTOCOL.md'
+      - 'tests/kd-misc-m3-shadow-gate.test.mjs'
+      - '.github/workflows/kd-misc-m3-shadow.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'research/kd-misc-shadow/**'
+      - 'docs/KD_MISC_M3_SHADOW_EVALUATION_PROTOCOL.md'
+      - 'tests/kd-misc-m3-shadow-gate.test.mjs'
+      - '.github/workflows/kd-misc-m3-shadow.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: kd-misc-m3-shadow-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  shadow-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Synthetic-only M3 safety contract
+        run: node --test tests/kd-misc-m3-shadow-gate.test.mjs
+      - name: Production-boundary invariant
+        run: node --test tests/platform-policy.test.mjs
