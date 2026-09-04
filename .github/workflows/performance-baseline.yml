@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/performance-baseline.yml'
+      - 'cardio-hospital-3d/src/components/cardio-hospital.tsx'
+      - 'cardio-hospital-3d/src/components/world/hospital-world-canvas.tsx'
   workflow_dispatch:
 
 concurrency:
