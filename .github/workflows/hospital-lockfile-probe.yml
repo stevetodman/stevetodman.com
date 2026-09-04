@@ -1,0 +1,45 @@
+name: Hospital lockfile probe
+
+on:
+  push:
+    branches: [lockfile-cleanup]
+    paths:
+      - '.github/workflows/hospital-lockfile-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: cardio-hospital-3d
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate real lockfile from package.json
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
+      - name: Prove clean deterministic install
+        run: npm ci --no-audit --no-fund
+
+      - name: Run focused engine tests
+        run: npm run test:engine
+
+      - name: Build hospital
+        run: npm run build
+
+      - name: Preserve generated lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: hospital-package-lock
+          path: cardio-hospital-3d/package-lock.json
+          if-no-files-found: error
+          retention-days: 7
