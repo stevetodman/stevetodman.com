@@ -1,0 +1,29 @@
+name: Redacted forensic candidate classifier
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - audit-classify.py
+      - .github/workflows/forensic-candidate-classifier.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  classify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Classify candidates without emitting matched values
+        run: python3 audit-classify.py > redacted-candidate-classification.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: redacted-candidate-classification
+          path: redacted-candidate-classification.json
+          if-no-files-found: error
+          retention-days: 30
