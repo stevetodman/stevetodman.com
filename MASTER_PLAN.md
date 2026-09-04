@@ -1,6 +1,6 @@
 # stevetodman.com — Canonical Master Plan
 
-Status: **ACTIVE — simplify, speed up, professionalize, reduce debt**  
+Status: **ACTIVE**  
 Owner: Steve Todman  
 Canonical repository: `stevetodman/stevetodman.com`  
 Production branch: `main`  
@@ -16,7 +16,7 @@ A new agent must:
 1. read this file first, then root `AGENTS.md`;
 2. inspect current `main`, exact-SHA checks, open PRs/issues, and newer commits before changing anything;
 3. preserve newer completed work;
-4. continue from **Exact next action** below without asking Steve to repeat history;
+4. continue from **Exact next action** without asking Steve to repeat history;
 5. update this file before ending a substantive session.
 
 ## Mission
@@ -48,53 +48,9 @@ Do not build a platform merely to manage platform complexity.
 | Durable root agent + exact-SHA rules | `AGENTS.md` |
 | Deployment mechanics | `DEPLOYMENT.md` |
 | Stable Claude conventions | `CLAUDE.md` |
-| Hospital-local invariants + iPhone acceptance | `cardio-hospital-3d/AGENTS.md` |
+| Hospital-local invariants + physical-iPhone acceptance | `cardio-hospital-3d/AGENTS.md` |
 
-Human docs may explain a fact but should not maintain competing dynamic state.
-
-## Current product state
-
-### Website / deployment
-
-- Cloudflare Pages publishes generated `dist/`, never the repository root.
-- Only `PRODUCTION` catalog entries belong in the public artifact.
-- `PREVIEW`, `INTERNAL`, `SOURCE_ONLY`, and `ARCHIVED` material must remain excluded.
-- The site intentionally remains direct-link accessible and globally `noindex`; no sitemap until Steve explicitly changes that policy.
-- `site/catalog.json` is sufficient as the single route/deployment registry. **Do not add another manifest.**
-
-### Hospital
-
-Canonical hospital:
-
-- source: `cardio-hospital-3d/`;
-- production route: `/hospital/`;
-- `/phs/`: archived/reference;
-- `/cardiohospital/`: internal/reference;
-- `stevetodman/3dworld`, `pediatric-hospital-world`, `the_ward`: predecessor/reference repositories.
-
-Desktop acceptance is complete. Do not rerun it by default. Physical-iPhone M4/M5 acceptance remains the hospital product-quality gate. Hospital-local acceptance details and durable engine invariants live in `cardio-hospital-3d/AGENTS.md`.
-
-Hospital dependency resolution is now deterministic: `cardio-hospital-3d/package-lock.json` is committed and both focused CI and the production hospital build use `npm ci`. Next.js is pinned to the current 16.3 security release, `16.3.3`.
-
-Physical-iPhone testing on 2026-09-04 reproduced real M4/M5 failures: Dr. Patel/clinical overlays would not reliably scroll, touch-look was unstable, major furniture was non-solid, room signage was weak, and Pager/Worklist overlays were hard to dismiss. PR **#179** fixed those issues and merged at `05b3835c491d6bcf7d17678ada8f323e45c0d534`; that exact SHA passed Cloudflare production verification. This does **not** close physical-iPhone acceptance: Steve must retest the fixes on the actual device.
-
-A performance-safe hospital realism program is now underway without changing clinical logic, canonical engine semantics, persistence, or backend behavior. PR **#180** / `e2e07010c6a1945729b52dd8ab5af6c6451d04b3` added lightweight clinical/environmental details and improved patient/family NPC proportions. PR **#181** / `a378b318b82bcb408267a35e3c8f9d06bf992561` added higher-fidelity clinician overlays and exam-room equipment and passed exact-SHA production verification. PR **#182** merged at `1e4b7db5ef1b02de18d9682f4251831dc766904e` with lightweight architectural finishes; its focused guard, all 12 engine tests, and production build passed, while exact-SHA Cloudflare production verification was still in progress when this checkpoint was written. Do not advance to heavy GLB/animated-character assets until the physical-iPhone performance/usability retest is acceptable.
-
-### Study / Math / Science
-
-- StudyHub and Math are active production family-learning products.
-- StudyHub issue **#39** now has direct live Supabase control-plane evidence: the migration is present, `studyhub.saves` has RLS enabled, browser roles have no schema usage or table CRUD, no public RLS policies exist, and the deployed `studyhub-save` Edge Function is active. Hourly synthetic cloud-save monitoring and failure/recovery alerting are already merged. Remaining #39 blockers are explicit inbound rate limiting and the real-device two-device/offline acceptance sequence.
-- Science Lab has progressed through M7; preserve its intentionally small invariant set + one Chromium 390px smoke during focused iteration.
-
-### Clinical / experimental work
-
-- Clinical review/provenance remains governed by `clinical/content-registry.json` and issue **#42**.
-- Never infer review dates/sign-off from commits or tests.
-- KD/MIS-C remains an experimental evidence workbench. Do not convert observational associations into invented probabilities or an unvalidated diagnostic score.
-
-### Steven OS
-
-The original Steven OS Cardio Hospital / PR #19 / Unreal ingest pilot is retired. Its hourly/scheduled ingest workflow, PR-specific config, and ingest worker were deleted. The remaining Steven OS UI/schema are experimental/reference only and must not compete with repository-native project state.
+Human docs may explain facts but must not maintain competing dynamic state.
 
 ## Hard constraints
 
@@ -116,180 +72,177 @@ Do not simplify away:
 
 Steve explicitly prefers **minimum tests for fast iteration**.
 
-- Run only the smallest tests that protect the changed behavior.
-- For Study/Science-style slices, prefer the small core invariant set plus one Chromium 390px smoke.
-- Do not add WebKit matrices, screenshot suites, full product suites, or unrelated tests unless changed risk/reproduced failure warrants them.
-- Documentation/census-only changes require no broad runtime suite.
+- Run only the smallest tests protecting changed behavior.
+- Hospital focused code changes: existing `npm run test:engine` + `npm run build` / focused workflows, plus production guard where triggered.
+- Study/Science-style slices: small core invariant set plus one Chromium 390px smoke unless changed risk warrants more.
+- Do not add WebKit matrices, screenshot suites, full product suites, or unrelated tests by default.
+- Documentation-only changes require no broad runtime suite.
 - Exact-SHA production verification remains mandatory where `AGENTS.md` requires it.
 
-## Work completed in this simplification pass
+## Current product state
 
-### Continuity / baseline
+### Website / deployment
 
-- `2e1e371487f9de949f002b813a0bf7d87d1e2a8e` — established this file as canonical cross-window master plan.
+- Cloudflare Pages publishes generated `dist/`, never the repository root.
+- Only `PRODUCTION` catalog entries belong in the public artifact.
+- `PREVIEW`, `INTERNAL`, `SOURCE_ONLY`, and `ARCHIVED` material must remain excluded.
+- Site remains direct-link accessible and globally `noindex`; no sitemap unless Steve explicitly changes that policy.
+- `site/catalog.json` is the single route/deployment registry. **Do not add another manifest.**
+
+### Hospital
+
+Canonical hospital:
+
+- source: `cardio-hospital-3d/`;
+- production route: `/hospital/`;
+- `/phs/`: archived/reference;
+- `/cardiohospital/`: internal/reference;
+- `stevetodman/3dworld`, `pediatric-hospital-world`, `the_ward`: predecessor/reference repositories.
+
+Architecture:
+
+- event-driven canonical simulation;
+- synthetic/immutable case facts in source;
+- runtime engine owns workflow truth;
+- UI/input state remains separate;
+- stable patient IDs, typed events, deterministic behavior, versioned persistence;
+- no PHI;
+- no backend unless demonstrated need.
+
+Desktop behavioral acceptance is complete and should not be rerun by default. **Physical-iPhone M4/M5 acceptance remains the hospital product-quality gate.** Emulation and automated touch-browser verification do not close that gate.
+
+Hospital dependency resolution is deterministic: `cardio-hospital-3d/package-lock.json` is committed, focused CI and production hospital build use `npm ci`, and Next.js is pinned to security release `16.3.3`.
+
+#### Physical-iPhone repair history
+
+Initial real-device testing on 2026-09-04 reproduced:
+
+- Dr. Patel/clinical overlays not reliably scrolling;
+- unstable/hard left-right touch look;
+- non-solid furniture;
+- weak room signage;
+- Pager difficult to dismiss;
+- Worklist had no in-panel dismissal;
+- overall poor iPhone optimization.
+
+PR **#179**, merged at `05b3835c491d6bcf7d17678ada8f323e45c0d534`, fixed overlay scrolling, first-pass touch-look behavior, major furniture collision, room signage, Pager close, Worklist close, and touch-native Pager/Worklist scrolling. That exact SHA passed Cloudflare production verification.
+
+After the realism passes, Steve physically retested and reported the hospital looked better, but two remaining defects were reproduced:
+
+1. automatic compound furniture colliders could trap the player;
+2. left/right looking had become harder, and Steve preferred two independent joysticks.
+
+PR **#183**, merged at `571f53e473b2167738a8a40f21d40ec3c39c32a0`, is the current functional control/collision repair:
+
+- **left joystick = movement**;
+- **right joystick = camera look** (yaw + limited pitch);
+- independent pointer capture supports simultaneous move + look;
+- separate Interact button remains accessible in portrait/landscape;
+- mobile screen-drag look is no longer the primary control;
+- transient mobile-look input resets when clinical overlays open;
+- automatic child-mesh furniture colliders were removed;
+- conference table, workstation, and exam table use tight explicit colliders;
+- office chairs and stools are intentionally non-colliding so they cannot trap the player.
+
+Validation for PR #183:
+
+- Hospital Production Guard: passed;
+- all 12 focused engine tests: passed;
+- production build: passed;
+- exact `571f53e...` Cloudflare production deployment: passed;
+- touch-enabled browser verification: passed;
+- stale-main protection: passed.
+
+**Do not mark M4/M5 complete yet.** Steve must physically retest the twin-stick/collision repair on the actual iPhone.
+
+#### Performance-safe realism program
+
+The realism work intentionally does not change clinical logic, engine semantics, persistence, or backend behavior.
+
+- PR **#180** / `e2e07010c6a1945729b52dd8ab5af6c6451d04b3`: corridor handrails, door frames/hardware, floor wayfinding, headwalls, outlet/gas cues, sinks/faucets, dispensers, sharps/glove stations, privacy curtains, and improved patient/family human proportions/details.
+- PR **#181** / `a378b318b82bcb408267a35e3c8f9d06bf992561`: higher-fidelity clinician overlays, badge/stethoscope cues, vital-sign monitors, wall diagnostic stations, supply carts, waste/linen fixtures. Exact-production verified.
+- PR **#182** / `1e4b7db5ef1b02de18d9682f4251831dc766904e`: ceiling grid, diffusers/sprinkler cues, baseboards/wall bumpers, pediatric art, clocks/notices, room finish details. Focused checks passed and exact-production verification subsequently passed.
+
+These passes use lightweight procedural geometry. **Do not introduce heavy GLB/animated-character payloads until the physical-iPhone usability/performance gate is acceptable.** Once cleared, use performance-budgeted optimized glTF/GLB, compressed textures, LOD/culling/room streaming, and clinically authentic equipment/layout rather than chasing AAA photorealism.
+
+### Study / Math / Science
+
+- StudyHub and Math are active production family-learning products.
+- StudyHub issue **#39** has live Supabase control-plane evidence: StudyHub migration present, `studyhub.saves` RLS enabled, browser roles lack schema/table CRUD, no public RLS policies expose the table, deployed `studyhub-save` function active, and hourly synthetic cloud-save monitoring exists.
+- Remaining #39 blockers: explicit inbound abuse/rate-limit control and real-device two-device/offline acceptance. Never expose family tokens.
+- Science Lab has progressed through M7. Preserve its intentionally small invariant set + one Chromium 390px phone smoke during focused iteration.
+
+### Clinical / experimental work
+
+- Clinical review/provenance remains governed by `clinical/content-registry.json` and issue **#42**.
+- Never infer review dates/sign-off from commits or tests.
+- KD/MIS-C remains an experimental evidence workbench. Do not convert observational associations into invented probabilities or an unvalidated diagnostic score.
+
+### Steven OS
+
+The original Steven OS Cardio Hospital / PR #19 / Unreal ingest pilot is retired. Its scheduled ingest workflow/config/worker were removed. Remaining Steven OS UI/schema are experimental/reference only and must not compete with repository-native state.
+
+## Completed simplification / reliability work
+
+### Continuity and docs
+
+- `2e1e371487f9de949f002b813a0bf7d87d1e2a8e` — established canonical `MASTER_PLAN.md`.
 - `e5a5ef44d12b5c7bd072cb2c51a743fb9a026677` — root `AGENTS.md` directs new agents here.
-- `136be62ff94eeb085c1aca88800759a010aad5e4` — root README reconciled to `/hospital/`; `/phs/` marked archived/reference; focused hospital test points to unified engine.
-- `site/catalog.json` reconfirmed as sufficient single route/deployment registry.
+- `136be62ff94eeb085c1aca88800759a010aad5e4` — README reconciled to canonical `/hospital/`.
+- `e50d6d14637b3636bb2cc6e7db977499ebcaca4c` — collapsed `CLAUDE.md` to stable conventions.
+- `db60aeceeb7271504be8bde64ce91fdcce816efb` — removed stale `PR_TRIAGE.md`.
+- `47638c7a566ceb28dc12487a71bed3458089c995` — collapsed `DEPLOYMENT.md` to durable mechanics.
+- `e867aa11fa2c2985357249829ffe8833cd2266b2` — hospital `AGENTS.md` became the local operating contract.
+- `cfc9e8399029623412ba6c55441c9db65abddb6c` / `ddbfce3957d679a45b1582c20ffcefcd50e40385` — removed redundant hospital project-rule docs.
+- `e963a189d5a8dea4e1a92989922f5322a23eead4` — hospital master-plan doc reduced to durable architecture/milestones.
+- `4846deb06a499b67ab8135897ed6f896d82bb333` — implementation status converted to historical ledger.
 
 ### Repository census
 
-Authenticated owner census on 2026-09-04:
+2026-09-04 authenticated census:
 
-- **49 repositories total**;
-- **12 already GitHub-archived**;
-- **37 not archived**.
+- 49 repositories total;
+- 12 already archived;
+- PRIMARY: `stevetodman.com`;
+- REFERENCE: `3dworld`, `pediatric-hospital-world`, `the_ward`;
+- `cooking-timers`: verified archive candidate, preserve history, do not delete;
+- remaining non-archived repos retained conservatively as independent unless supersession is proven.
 
-Decisions:
+### CI/build simplification
 
-- **PRIMARY:** `stevetodman/stevetodman.com`.
-- **REFERENCE:** `3dworld`, `pediatric-hospital-world`, `the_ward`.
-- **ARCHIVE decision pending settings write:** `cooking-timers` — `/cooking/` in the primary repo is canonical and the standalone Pages workflow has only failed runs. Preserve history; do not delete.
-- **Already ARCHIVED:** `audience-response-live`, `audience-response-system`, `ekgquest`, `guessthechd`, `heartquest`, `lecture`, `mossandadams`, `pedisim-svt`, `Septation-Station`, `shunt`, `shuntchatgpt`, `tbank`.
-- **INDEPENDENT / conservatively retained until supersession is proven:** all remaining non-archived repos, including `resident_curriculum` and `peds-cardio-curriculum`.
+- completed desktop acceptance is manual-only;
+- unified hospital CI targets current `main`/PRs;
+- documentation no longer launches broad unrelated tests/builds;
+- redundant/stale scheduled side effects removed;
+- focused clinical workflows retained where they protect distinct responsibilities;
+- production hospital build no longer reruns engine tests redundantly.
 
-Do not infer archive status from names alone. Archive first; do not mass-delete repositories.
+Key commits include `292b7370...`, `09264cbe...`, `77fe02c1...`, `ab266cfd...`, `68e3b9e1...`, `8555cc86...`, `a3f7da4f...`, `dcbbb241...`, and `5171150c...`.
 
-### Documentation collapse
+### Deterministic dependencies / security
 
-- `e50d6d14637b3636bb2cc6e7db977499ebcaca4c` — collapsed `CLAUDE.md` to stable conventions/pointers.
-- `db60aeceeb7271504be8bde64ce91fdcce816efb` — removed stale root `PR_TRIAGE.md`.
-- `47638c7a566ceb28dc12487a71bed3458089c995` — collapsed `DEPLOYMENT.md` to deployment mechanics/invariants.
-- `REVIEW-2026-08.md` retained as dated resolved QA evidence.
-- `e867aa11fa2c2985357249829ffe8833cd2266b2` — made `cardio-hospital-3d/AGENTS.md` the hospital-local operating contract.
-- `cfc9e8399029623412ba6c55441c9db65abddb6c` — removed redundant hospital `PRIMARY_PROJECT.md`.
-- `ddbfce3957d679a45b1582c20ffcefcd50e40385` — removed redundant hospital `PROJECT-RULES.md`.
-- `e963a189d5a8dea4e1a92989922f5322a23eead4` — collapsed `docs/HOSPITAL_MASTER_PLAN.md` to durable architecture/milestone design only.
-- `4846deb06a499b67ab8135897ed6f896d82bb333` — converted `docs/IMPLEMENTATION_STATUS.md` into a historical implementation ledger with no competing resume state.
-- Preserve `docs/BEHAVIORAL_ACCEPTANCE_2026-09-03.md` as completed desktop evidence and `docs/CLINICAL_VALIDATION.md` as clinical evidence/governance.
-
-### CI / workflow simplification
-
-- `292b73705d5959f307857204749d15bbda5cb001` — completed desktop acceptance is manual-only.
-- `09264cbe4c4809564176464ba7cba23bf01c805c` — unified hospital CI retargeted to current `main`/PR development.
-- `99b5c28b201232390d65af837ec38e3f38882603` — corrected hospital focused CI to valid `npm install` while no hospital lockfile existed; this temporary constraint was later retired by `70b928b2...`.
-- `77fe02c10072a5a26f3f71ee56b271dab1dc4a2b` — root documentation no longer triggers broad `Tests`.
-- `ab266cfdc4f8c924a2eb67ddd39a7f20b4db7064` — hospital docs no longer trigger Unified Hospital Build.
-- `68e3b9e1d426411c58d39bf0f1f31a0b3de4dd61` — hospital docs no longer trigger Hospital Production Guard.
-- `67cd3383e28a8558098669528b357b51947bed55` — repaired the manual desktop-acceptance workflow so it no longer assumes a nonexistent hospital lockfile; the hospital now has a real lockfile, but the workflow remains valid.
-- `8555cc86f83e9bd36189945cf5c0c1c2e59c3ac2` — removed obsolete one-time issue-comment/closure side effects from generic production verification.
-- `a3f7da4f6576f76f5eedc1c7013ec9fc9f47fe42` — removed redundant 6-hour rebuild/browser schedule from exact-SHA Study production verification; periodic Study cloud health remains owned by `study-cloud-canary.yml`.
-- `6c75269cd42c69bcd6a49509f565d5d6aa2fad90` / `ded7ce7d8b11f73ed0d1dc98f38d3f2519ca163a` / `243258f6cb6eaa652d5b0d2c8ad5ef7d6d9dfe0d` — retired the stale Steven OS PR #19/Unreal ingest workflow, config, and worker.
-- `dcbbb2415b358cedc8331f9b040e4b951bf89a32` — stopped KD/MIS-C workbench and myocarditis question-bank changes from also launching the broad general test matrix; their focused workflows remain authoritative.
-
-Workflow audit outcome: retain specialized workflows where they protect distinct responsibilities (Science Lab core+phone smoke, Pin Sprint mobile contract, Study cloud canary, external-link canary, hospital engine/build, hospital production contract, hospital post-deploy runtime smoke, KD/MIS-C safety gates, myocarditis question-bank validation, Anatomica evaluation, cooking index generation). Do not collapse them merely to reduce workflow count.
-
-### Build / command-path simplification
-
-- `5171150c68fe346b099e88da1b47106501b82085` — production hospital build no longer reruns `test:engine`; focused CI owns engine validation.
-- `be1fb2eca44d15177fdbf501c0c818cce54a2ec3` — pruned five unreferenced root aliases (`verify:study-production`, `verify:study-production:browser`, `test:study`, `test:grade5:browser`, `test:study:smoke`) while retaining CI-used focused commands.
-- `70b928b2e5bf4c7c82ae47558aa54381f8609e8f` / PR #177 — generated a real npm v3 `cardio-hospital-3d/package-lock.json` in GitHub Actions, proved clean `npm ci`, all 12 focused engine tests, and `next build`, then switched both focused hospital CI and the production hospital build from `npm install` to deterministic `npm ci`. The temporary probe workflow was removed before merge. The exact merged SHA passed Cloudflare deployment, touch-browser verification, and stale-main protection.
-- `scripts/build-site.mjs` was reviewed after the dependency work. It already builds from an empty `dist`, explicitly includes core files and production route roots, then removes exceptional nonproduction/source-only material where roots are shared. A pure per-file positive-inclusion rewrite would require more manifest/dependency machinery and is not demonstrably simpler. **No change justified.**
-
-### Security maintenance
-
-- On 2026-09-04 the hospital was pinned to Next.js `16.3.1` while the official August 25, 2026 Next.js security release directed 16.x users to `16.3.3` for two Critical vulnerabilities.
-- `37a40f5a6d62d3ac2884d8763864e89003330654` / PR #178 — patch-only upgrade from Next.js `16.3.1` to `16.3.3` with the nested lockfile regenerated in GitHub Actions. Clean `npm ci`, all 12 focused hospital engine tests, and `next build` passed. No React, clinical, state, world, UI, or unrelated dependency changes were made. The temporary probe workflow was removed before merge. The exact merged SHA passed Cloudflare deployment, touch-browser verification, and stale-main protection.
+- PR **#177** / `70b928b2e5bf4c7c82ae47558aa54381f8609e8f`: committed real hospital npm lockfile, moved focused CI and production hospital build to `npm ci`, proved all 12 engine tests + build, exact-SHA production verified.
+- PR **#178** / `37a40f5a6d62d3ac2884d8763864e89003330654`: Next.js `16.3.1 -> 16.3.3` security-only patch, regenerated lockfile, `npm ci` + 12 tests + build passed, exact-SHA production verified.
 
 ### Verification hardening
 
-- `4b37918bec6f1d53d2ca1299f7e2c869b2b7c120` — fixed a false-negative hospital post-deploy smoke check. The prior smoke against `be1fb2...` showed HTTP 200, correct CSP, WebGL, service-worker control, and the visible hospital entry page in Chromium and WebKit, but the verifier matched raw `innerText` with whitespace-sensitive literals and reported `entry=false`. The verifier now normalizes visible whitespace before classifying entry/fatal text, with one focused regression test. No hospital executable or clinical logic changed.
-- `c5ee49ff715e9345e4895646c17a2c8101410ec8` — exact-SHA Cloudflare production deployment, touch-browser verification, and stale-main protection passed after the verifier fix.
+- `4b37918bec6f1d53d2ca1299f7e2c869b2b7c120`: fixed whitespace-sensitive false negative in hospital post-deploy verifier.
+- `c5ee49ff715e9345e4895646c17a2c8101410ec8`: exact Cloudflare + touch-browser + stale-main verification passed after verifier fix.
 
-### Measured runtime performance
+### Measured performance
 
-- `dd7f707c526c236f7ac5884e257b12107a519ef9` — established a one-off production baseline in touch-enabled Chromium at 390×844 for `/`, `/education/`, `/hospital/`, `/study/`, and `/math/`. Cold transfer was approximately 3.9 KB, 5.7 KB, **1.204 MB**, 3.3 KB, and 73.6 KB respectively. Hospital was the clear bottleneck; two JavaScript chunks alone transferred about 783 KB and 273 KB.
-- The baseline also showed hospital warm reload at about 3.1 KB, so browser caching already removed almost all repeat transfer. Immutable cache-header work was therefore not the highest-value first change.
-- `e8195c1a3a65daf49b5ef0d031e500ab9af435ec` — deferred only the Three/Rapier-backed world canvas until the user actually enters the hospital. The entry/clinical shell, hospital state, cases, encounters, controls, and world implementation were otherwise unchanged. Focused hospital production contract, engine tests, and build passed.
-- `5167daae2bf7efdf3eb3f1c0f653c588779516f4` — exact production remeasurement confirmed hospital cold transfer fell from **1,203,800 bytes to 175,879 bytes** (about **85% lower**) while warm transfer remained essentially unchanged (~3.1 KB). The heavy Three/Rapier chunks no longer load behind the entry overlay. The other four benchmark routes remained small enough that no broader optimization was justified from this pass.
-- The benchmark workflow was intentionally temporary and removed after the evidence was captured.
+- baseline `dd7f707c526c236f7ac5884e257b12107a519ef9`: `/hospital/` cold transfer about 1.204 MB, much larger than other benchmark routes.
+- `e8195c1a3a65daf49b5ef0d031e500ab9af435ec`: deferred Three/Rapier world until user enters hospital.
+- `5167daae2bf7efdf3eb3f1c0f653c588779516f4`: exact production remeasurement showed hospital cold transfer fell to 175,879 bytes, about **85% lower**, while warm transfer remained ~3.1 KB.
+- Do not add caching complexity without new measured evidence.
 
-### StudyHub live control-plane verification
+## Known remaining technical debt / external blockers
 
-- On 2026-09-04 direct live Supabase inspection confirmed migration history contains the StudyHub schema/RLS migrations, `studyhub.saves` has RLS enabled, `public`/`anon`/`authenticated` have neither schema usage nor table CRUD, and no RLS policies expose the table. The active `studyhub-save` Edge Function is the sole deployed Edge Function in the project and recent returned 24-hour logs contained successful traffic with no 5xx entries. Issue #39 was updated with this evidence. No family token or family data was inspected.
-- This closes the prior live-admin/control-plane uncertainty only. Explicit inbound request rate limiting and the real two-device/offline acceptance remain open.
-
-## Known remaining technical debt
-
-### Cooking index workflow
-
-`update-cooking-index.yml` still embeds a large generator directly in YAML. It works and is not redundant, so it was retained during the workflow audit. Move generator logic to a source script only if/when the workflow next needs substantive changes; do not churn it solely for aesthetics.
-
-### Performance / caching
-
-A five-route production baseline now exists. Hospital entry cold transfer was the dominant measured bottleneck and has been reduced by about 85% by deferring the 3D world until entry. Browser warm-cache behavior is already strong. Do not add cache-header complexity merely to improve synthetic numbers; revisit immutable caching only if repeat-visit/staleness evidence shows a real user benefit.
-
-## Execution queue
-
-### Phase A — continuity / baseline
-
-- [x] Canonical master plan.
-- [x] Root agent entrypoint.
-- [x] README reconciled.
-- [x] Single route registry confirmed.
-
-### Phase B — repository census
-
-- [x] Inventory all 49 repos.
-- [x] Classify conservatively.
-- [x] Identify verified superseded repositories.
-- [ ] Archive `stevetodman/cooking-timers` through a GitHub settings-capable interface. Current connector cannot mutate repository archived status.
-- [x] Do not delete repositories.
-
-### Phase C — dead/stale machinery
-
-- [x] Root docs audited/cleaned.
-- [x] Hospital-local docs audited/cleaned.
-- [x] Remaining workflows audited for demonstrated redundancy/staleness.
-- [x] Stale Steven OS PR #19/Unreal ingestion retired.
-- [x] Clinical/source provenance and useful historical evidence preserved.
-
-### Phase D — documentation collapse
-
-- [x] Root README / AGENTS / MASTER_PLAN roles separated.
-- [x] Root `CLAUDE.md` collapsed to stable rules.
-- [x] `DEPLOYMENT.md` collapsed to operations only.
-- [x] Dated root QA review retained as historical evidence.
-- [x] Hospital active rules/status collapsed into local `AGENTS.md`; architecture/history docs demoted to durable/reference roles.
-
-### Phase E — CI/test simplification
-
-- [x] Workflow inventory/audit completed.
-- [x] Stop broad CI on root documentation-only changes.
-- [x] Make completed desktop acceptance manual-only and runnable.
-- [x] Retarget unified hospital CI to current `main`/PR development.
-- [x] Stop hospital docs from triggering focused build/production-guard jobs.
-- [x] Remove stale periodic/cutover workflow behavior.
-- [x] Remove demonstrated duplicate broad CI for focused clinical workbenches.
-- [x] Reduce unused human-facing root test/verification aliases.
-
-### Phase F — pure deterministic build
-
-- [x] Move hospital engine validation out of production build path.
-- [x] Resolve nested dependency installation with a real committed hospital lockfile and `npm ci` in CI/production build.
-- [x] Keep `npm run build` as obvious production entry point.
-- [x] Review `build-site.mjs` copy/prune; no simpler safe positive-inclusion design was demonstrated, so retain current implementation.
-
-### Phase G — measured runtime performance
-
-- [x] Establish tiny production benchmark.
-- [x] Capture cold/warm baseline and transferred assets.
-- [x] Review Study/hospital immutable caching only after baseline; no cache mutation justified as the first change.
-- [x] Fix largest measured bottleneck first: defer the hospital 3D world until entry, reducing cold transfer by about 85%.
-
-### Phase H — shared code only if justified
-
-- [x] No shared-code extraction justified in this pass; no repeated coordination cost demonstrated that outweighs abstraction debt.
-
-### Phase I — stop
-
-- [x] Stop repository-side refactoring at the current evidence boundary. The critical path is simpler, deterministic, measured, and understandable; remaining meaningful gates require owner/device/external evidence.
-
-## External / owner blockers
-
-- **#39 StudyHub live acceptance:** live Supabase migration/grants/RLS/function deployment are now directly verified and hourly cloud-save monitoring exists. Remaining blockers are explicit inbound abuse/rate-limit control and real two-device/offline acceptance. Never expose family tokens.
-- **#42 clinical review evidence:** requires real durable review evidence; do not infer dates/sign-off.
-- **Physical-iPhone hospital acceptance:** remains the hospital product-quality gate. The reproduced scrolling/look/collision/Pager/Worklist defects have code fixes, but the repaired production build still requires real-device confirmation plus the remaining PWA/audio/ECG/reload/actor-visibility/thermal checklist.
-- **Repository archive mutation:** current connector cannot set GitHub's archived flag; `cooking-timers` remains the verified pending archive action.
+- **Physical-iPhone hospital acceptance:** current highest-priority hospital gate. Latest twin-stick/collision repair is exact-production/browser verified but still needs physical confirmation.
+- **StudyHub #39:** inbound rate limiting + real two-device/offline acceptance.
+- **Clinical #42:** real durable review evidence required; never infer/backdate.
+- **`cooking-timers` archive:** requires a settings-capable GitHub interface; preserve history, do not delete.
+- `update-cooking-index.yml` still embeds a large generator in YAML; move it only if that workflow next needs substantive change, not for aesthetics.
 
 ## Production-state language
 
@@ -299,10 +252,12 @@ Keep these distinct:
 2. focused/pre-deployment CI passed;
 3. Cloudflare deployment succeeded;
 4. exact current `main` SHA is production;
-5. required live browser/touch verification passed.
+5. required live browser/touch verification passed;
+6. required physical-device acceptance passed.
 
 If exact Cloudflare deployment has not succeeded: **NOT DEPLOYED**.  
 If deployed but required browser verification has not passed: **DEPLOYED BUT NOT LIVE-VERIFIED**.  
+If browser-verified but physical acceptance is required and unfinished: **LIVE-VERIFIED; PHYSICAL ACCEPTANCE OPEN**.  
 If verification reproduces a failure: **PRODUCTION BROKEN — FIX IN PROGRESS**.
 
 Never substitute an older successful run for the current SHA.
@@ -311,24 +266,32 @@ Never substitute an older successful run for the current SHA.
 
 Do not introduce without demonstrated need:
 
+- another repository-wide simplification/refactor pass;
 - universal academy/simulator/learner-state engines;
 - another route/module manifest;
 - microservices or monorepo tooling for aesthetics;
 - a developer portal to manage this website;
 - a new test framework to manage existing tests;
-- a large observability platform before a tiny benchmark exists;
+- a large observability platform before a measured need exists;
+- heavy hospital assets before physical-iPhone performance is acceptable;
 - directory churn with no measurable maintenance/runtime benefit.
-
-## Definition of done
-
-Done means canonical ownership is obvious; superseded repos are archived rather than deleted; docs do not compete; ordinary changes have a small fast test path; CI/build complexity is materially lower without weakening real gates; production builds are as deterministic as practical; key routes have measured baselines; caching is efficient where safe; abstractions reduce rather than add complexity; new agents resume from this file; and further refactoring has no clear payoff.
 
 ## Exact next action
 
-1. Inspect the **current `main` SHA** first. At this checkpoint, hospital realism Pass 3 is merged at `1e4b7db5ef1b02de18d9682f4251831dc766904e`; its focused guard, 12 engine tests, and production build passed, but its exact-SHA Cloudflare production verification was still running. Do not call it live-verified until that exact run succeeds.
-2. Do **not** start another repository-wide simplification/refactor pass by default. Phases A–I are complete at the current evidence boundary.
-3. The next hospital product action after the exact-SHA gate is **physical-iPhone M4/M5 acceptance** using the checklist in `cardio-hospital-3d/AGENTS.md`. Specifically recheck Dr. Patel/clinical scrolling, touch-look, furniture collision, room signage, Pager close, Worklist close, safe areas/orientation, PWA, reload/resume, audio, ECG, actor visibility, and thermal/battery behavior. Emulation does not close that gate.
-4. If the physical-iPhone result is acceptable, continue the realism program with performance-budgeted higher-fidelity/animated assets and LOD/streaming. Do not introduce heavy GLB/animated-character payloads before that device gate. If a regression is reproduced, fix only that regression, add the smallest focused protection, then run `npm run test:engine` + `npm run build` and exact-SHA production verification.
-5. StudyHub issue **#39** is now narrowed to two blockers: explicit inbound rate limiting and real-device two-device/offline acceptance. Clinical issue **#42** remains blocked on real review evidence. Do not infer either from CI.
-6. Archive `stevetodman/cooking-timers` when a GitHub settings-capable interface is available. Preserve history; do not delete it.
-7. Only resume performance, caching, shared-code, or build-site refactoring if new measured evidence demonstrates a concrete user or maintenance problem.
+1. Inspect the **current `main` SHA** and its exact-SHA production/browser checks before doing anything else. The latest functional hospital checkpoint before this documentation update is `571f53e473b2167738a8a40f21d40ec3c39c32a0`, and that exact SHA passed Cloudflare deployment, touch-browser verification, and stale-main protection. This documentation commit itself must independently pass the exact-SHA gate before current `main` is called live-verified.
+2. Steve performs the **physical-iPhone twin-stick/collision retest**:
+   - left stick moves forward/back/strafe;
+   - right stick looks left/right/up/down naturally;
+   - both sticks work simultaneously;
+   - chairs/stools no longer trap the player;
+   - conference table/workstation/exam table still feel appropriately solid without oversized invisible barriers;
+   - Interact button is usable in portrait and landscape;
+   - doorway traversal still works both directions.
+3. If those pass, finish the remaining M4/M5 physical checklist in `cardio-hospital-3d/AGENTS.md`: Dr. Patel/clinical scrolling, Pager/Worklist close behavior, safe areas/orientation, PWA/Add to Home Screen, reload/resume/no duplicates, auscultation audio, ECG touch, actor visibility/confidential-state behavior, and sustained-run thermal/battery/performance.
+4. Record actual iPhone model, iOS/Safari version, portrait/landscape/PWA results, defects, and fix SHAs. Do not infer any of them.
+5. Only after physical iPhone usability/performance is acceptable should the realism program advance to higher-fidelity animated humans, richer equipment/materials/lighting, ambient staff activity/audio, and LOD/streaming.
+6. StudyHub #39, clinical #42, and `cooking-timers` archive remain separate unresolved work as described above.
+
+## Definition of done
+
+Done means canonical ownership is obvious; superseded repos are archived rather than deleted; docs do not compete; ordinary changes have a small fast test path; CI/build complexity is materially lower without weakening real gates; production builds are deterministic; key routes have measured baselines; abstractions reduce rather than add complexity; new agents resume from this file; and the hospital passes the required physical-device acceptance before heavier realism or later milestones advance.
