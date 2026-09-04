@@ -88,18 +88,32 @@ test('M1 avoids a sibling recent item and keeps the current unit bounded', () =>
   assert.equal(queue.includes('pm1'), false, 'recent sibling item should be skipped when equivalent forms exist');
 });
 
-test('M1-M5 keeps curriculum, remediation, representations, phenomena, and CER coherent', () => {
+test('M1-M6 keeps curriculum, remediation, representations, phenomena, CER, and the Matter vertical slice coherent', () => {
   const root = normalizeStore({ version: 2, learners: { Luke: { attempts: [attempt('particle-models', true, '2026-09-03', { misconceptionTag: 'example-tag' })] } } });
   assert.equal(root.learners.Luke.attempts.length, 1);
   assert.equal(root.learners.Luke.attempts[0].misconceptionTag, 'example-tag');
   assert.equal(root.learners.Samantha.attempts.length, 0);
   assert.equal(validateCurriculum(SCIENCE_LAB_CONFIG), true);
-  assert.equal(SCIENCE_LAB_CONFIG.items.length, 48);
+  assert.equal(SCIENCE_LAB_CONFIG.items.length, 68);
   assert.equal(new Set(SCIENCE_LAB_CONFIG.items.map(item => item.standard)).size, 16);
 
   const matter = SCIENCE_LAB_CONFIG.items.filter(item => item.unit === 'matter');
-  assert.equal(matter.length, 12);
+  assert.equal(matter.length, 32);
+  const matterSkills = ['particle-models', 'matter-conservation', 'material-properties', 'new-substances'];
+  for (const skill of matterSkills) {
+    const forms = matter.filter(item => item.skill === skill);
+    assert.ok(forms.length >= 8, `${skill} needs at least 8 contexts`);
+    assert.ok(new Set(forms.map(item => item.sourceFamily)).size >= 8, `${skill} contexts must be meaningfully distinct`);
+    assert.ok(forms.some(item => item.transferLevel === 'far' && item.transfer === true), `${skill} needs a genuine far-transfer task`);
+  }
+
   for (const item of matter) {
+    assert.ok(item.sep, `${item.id} needs SEP metadata`);
+    assert.ok(item.ccc, `${item.id} needs CCC metadata`);
+    assert.ok(item.representationType, `${item.id} needs representation metadata`);
+    assert.ok(item.transferLevel, `${item.id} needs transfer metadata`);
+    assert.ok(item.sourceFamily?.startsWith('matter:'), `${item.id} needs a Matter context family`);
+    assert.equal(item.transfer, item.transferLevel !== 'none', `${item.id} transfer flag must match explicit transfer level`);
     if (!Array.isArray(item.choices)) continue;
     const answers = new Set(Array.isArray(item.answer) ? item.answer : [item.answer]);
     for (let index = 0; index < item.choices.length; index += 1) {
@@ -108,6 +122,11 @@ test('M1-M5 keeps curriculum, remediation, representations, phenomena, and CER c
         assert.ok(item.remediation?.[index]?.hint, `${item.id} distractor ${index} needs a hint`);
       }
     }
+  }
+
+  for (const standard of ['5-PS1-1', '5-PS1-2', '5-PS1-3', '5-PS1-4']) {
+    const representations = new Set(matter.filter(item => item.standard === standard).map(item => item.representationType));
+    assert.ok(representations.size >= 3, `${standard} needs representation diversity`);
   }
 
   const sp2 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'sp2');
@@ -119,18 +138,26 @@ test('M1-M5 keeps curriculum, remediation, representations, phenomena, and CER c
   const sp3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'sp3');
   const pm3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'pm3');
   const mc3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'mc3');
+  const mc8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'mc8');
   const cy3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'cy3');
   assert.equal(sp3.stimulus.graph.type, 'line');
   assert.equal(mc3.stimulus.graph.type, 'bar');
   assert.equal(mc3.stimulus.graph.yMin, 0, 'bar graph should use a zero baseline');
   assert.ok(pm3.stimulus.particleModel.panels.length >= 2);
   assert.ok(cy3.stimulus.systemModel.nodes.length >= 4);
+  assert.equal(mc8.responseType, 'graph-build');
+  assert.equal(graphBuildComplete(mc8.graphBuild, { 0: 104, 1: 104, 2: 104, 3: 104 }), true);
+  assert.equal(graphBuildCorrect(mc8.graphBuild, { 0: 104, 1: 104, 2: 104, 3: 104 }), true);
 
   assert.equal(validatePhenomena(SCIENCE_LAB_CONFIG.phenomena), true);
   assert.equal(SCIENCE_LAB_CONFIG.phenomena.length, 2);
   for (const phenomenon of SCIENCE_LAB_CONFIG.phenomena) {
+    assert.ok(Array.isArray(phenomenon.sep) && phenomenon.sep.length, `${phenomenon.id} needs SEP metadata`);
+    assert.ok(Array.isArray(phenomenon.ccc) && phenomenon.ccc.length, `${phenomenon.id} needs CCC metadata`);
+    assert.ok(Array.isArray(phenomenon.representationTypes) && phenomenon.representationTypes.length, `${phenomenon.id} needs representation metadata`);
     assert.ok(phenomenon.steps.some(step => step.role === 'prediction'));
     assert.ok(phenomenon.steps.some(step => step.role === 'revision'));
+    assert.ok(phenomenon.steps.every(step => step.sep && step.ccc && step.representationType && step.transferLevel), `${phenomenon.id} steps need explicit reasoning metadata`);
     assert.ok(phenomenon.steps.filter(step => step.recordEvidence).length <= 2, `${phenomenon.id} must not inflate mastery with every step`);
   }
 
