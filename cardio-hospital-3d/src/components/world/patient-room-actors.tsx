@@ -4,6 +4,12 @@ import { useMemo } from "react";
 import { getPatient } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
 import {
+  HCM_PARENT_WORLD_POSITION,
+  HCM_PATIENT_WORLD_POSITION,
+  VASOVAGAL_PARENT_WORLD_POSITION,
+  VASOVAGAL_PATIENT_WORLD_POSITION,
+} from "@/lib/hospital-world-layout";
+import {
   HCM_CASE_ID,
   HCM_PATIENT_ID,
   HCM_ROOM,
@@ -159,9 +165,9 @@ export function HcmRoomActors() {
       patientId={HCM_PATIENT_ID}
       caseId={HCM_CASE_ID}
       room={HCM_ROOM}
-      patientPosition={[7.15, 0.82, -3.55]}
+      patientPosition={HCM_PATIENT_WORLD_POSITION}
       patientRotation={[0, -Math.PI / 2, 0]}
-      parentPosition={[5.65, 0.55, -2.25]}
+      parentPosition={HCM_PARENT_WORLD_POSITION}
       parentRotation={[0, Math.PI * 0.82, 0]}
       patientShirt="#7b2d38"
       parentShirt="#395d68"
@@ -175,9 +181,9 @@ export function VasovagalRoomActors() {
       patientId={VASOVAGAL_PATIENT_ID}
       caseId={VASOVAGAL_CASE_ID}
       room={VASOVAGAL_ROOM}
-      patientPosition={[-7.15, 0.82, -3.55]}
+      patientPosition={VASOVAGAL_PATIENT_WORLD_POSITION}
       patientRotation={[0, Math.PI / 2, 0]}
-      parentPosition={[-5.65, 0.55, -2.25]}
+      parentPosition={VASOVAGAL_PARENT_WORLD_POSITION}
       parentRotation={[0, -Math.PI * 0.82, 0]}
       patientShirt="#486b78"
       parentShirt="#675849"
