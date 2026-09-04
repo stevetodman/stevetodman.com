@@ -75,9 +75,9 @@ export const M3_ITEM_OVERRIDES = {
         xLabels: ['Before', 'After'],
         values: [156, 156],
         yLabel: 'Mass (g)',
-        yMin: 150,
-        yMax: 158,
-        yTicks: [150, 152, 154, 156, 158]
+        yMin: 0,
+        yMax: 160,
+        yTicks: [0, 40, 80, 120, 160]
       }
     }
   },
