@@ -1,10 +1,15 @@
 import { SCIENCE_CONFIG as BASE_CONFIG } from './data.mjs';
+import { MATTER_REMEDIATION } from './remediation.mjs';
 
 const skillSeen = new Map();
 const items = BASE_CONFIG.items.map(item => {
   const count = (skillSeen.get(item.skill) || 0) + 1;
   skillSeen.set(item.skill, count);
-  return count === 3 ? { ...item, transfer: true, transferLevel: 'near-transfer' } : item;
+  return {
+    ...item,
+    ...(count === 3 ? { transfer: true, transferLevel: 'near-transfer' } : {}),
+    ...(MATTER_REMEDIATION[item.id] ? { remediation: MATTER_REMEDIATION[item.id] } : {})
+  };
 });
 
 export const SCIENCE_LAB_CONFIG = {
