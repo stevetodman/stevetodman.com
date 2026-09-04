@@ -15,6 +15,7 @@ const items = expandedItems.map(item => {
     ...item,
     ...legacyTransfer,
     ...(M6_MATTER_METADATA[item.id] || {}),
+    ...(isMatter ? { transfer: (M6_MATTER_METADATA[item.id]?.transferLevel || item.transferLevel || 'none') === 'far' } : {}),
     ...(MATTER_REMEDIATION[item.id] ? { remediation: MATTER_REMEDIATION[item.id] } : {}),
     ...(M3_ITEM_OVERRIDES[item.id] || {})
   };
