@@ -95,7 +95,7 @@ test('repository scaffold blocks patient data paths and documents local-only use
   assert.match(gitignore, /^results\/$/m);
   assert.match(gitignore, /^\*\.local\.json$/m);
   assert.match(readme, /contains no patient data/i);
-  assert.match(readme, /does not establish that a dataset satisfies institutional privacy/i);
+  assert.match(readme, /does \*\*not\*\* establish that a dataset satisfies institutional privacy/i);
   assert.match(readme, /calculate Starnes/i);
   assert.match(readme, /run or emulate KIDMATCH/i);
 });
