@@ -178,6 +178,11 @@ Workflow audit outcome: retain specialized workflows where they protect distinct
 - A temporary hospital `npm ci` attempt was immediately corrected after the missing-lockfile constraint was reproduced. Do not repeat it without a real lockfile.
 - `be1fb2eca44d15177fdbf501c0c818cce54a2ec3` — pruned five unreferenced root aliases (`verify:study-production`, `verify:study-production:browser`, `test:study`, `test:grade5:browser`, `test:study:smoke`) while retaining CI-used focused commands.
 
+### Verification hardening
+
+- `4b37918bec6f1d53d2ca1299f7e2c869b2b7c120` — fixed a false-negative hospital post-deploy smoke check. The prior smoke against `be1fb2...` showed HTTP 200, correct CSP, WebGL, service-worker control, and the visible hospital entry page in Chromium and WebKit, but the verifier matched raw `innerText` with whitespace-sensitive literals and reported `entry=false`. The verifier now normalizes visible whitespace before classifying entry/fatal text, with one focused regression test. No hospital executable or clinical logic changed.
+- At the time this checkpoint was authored, the exact-SHA production verification for `4b37918...` was still waiting for that commit's Cloudflare Pages deployment. Do not substitute an older green run or call it production-verified prematurely.
+
 ## Known remaining technical debt
 
 ### Hospital dependency/install path
@@ -309,9 +314,9 @@ Done means canonical ownership is obvious; superseded repos are archived rather 
 
 ## Exact next action
 
-1. Verify the **current `main` SHA** after this checkpoint: require its Cloudflare Pages deployment and exact-SHA production/browser verification to pass before calling it live-verified.
-2. Do **not** resume structural cleanup by default. The demonstrated high-value stale/redundant machinery has been removed; further churn needs a concrete payoff.
-3. Begin Phase G with a tiny measured production baseline for `/`, `/education/`, `/hospital/`, `/study/`, and `/math/`. Record response/cache behavior and transferred/static asset weight with the smallest practical measurement method.
+1. Inspect the **current `main` SHA** first. This plan update follows the verifier-fix commit `4b37918bec6f1d53d2ca1299f7e2c869b2b7c120`; require the current SHA's Cloudflare Pages deployment, exact-SHA production/browser verification, and stale-main protection before calling it live-verified.
+2. If `4b37918...` or its docs-only successor has not finished the exact-SHA gate, do not start performance mutations. Preserve the verifier fix and continue verification only.
+3. Once the exact current SHA is green, begin Phase G with a tiny measured production baseline for `/`, `/education/`, `/hospital/`, `/study/`, and `/math/`. Record response/cache behavior and transferred/static asset weight with the smallest practical measurement method.
 4. Use the baseline to identify the single largest measured bottleneck. Optimize only that bottleneck first.
 5. Review immutable caching only for content-addressed/versioned assets after confirming stale-deploy behavior remains safe.
 6. Keep the hospital lockfile issue deferred unless a real dependency-resolution environment produces a valid lockfile cleanly.
