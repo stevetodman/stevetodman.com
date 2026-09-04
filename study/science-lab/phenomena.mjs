@@ -216,20 +216,44 @@ export const SCIENCE_PHENOMENA = [
         explanation: 'Formation of a gas with new properties can be evidence that new substances formed during a reaction.'
       },
       {
-        id: 'revise',
-        type: 'choice',
+        id: 'cer',
+        type: 'cer',
         role: 'revision',
-        eyebrow: 'Revise your explanation',
+        eyebrow: 'Build your explanation',
         evidenceIds: ['masses', 'gas'],
-        prompt: 'Which final explanation uses both the mass data and the bubbling observation?',
-        choices: [
-          'Matter was destroyed only in the open cup',
-          'The reaction formed gas; the sealed system retained it, while gas left the open measured system',
-          'Bubbles have no mass, so they cannot affect the measurement',
-          'The balance created the difference between the trials'
-        ],
-        answer: 1,
-        explanation: 'Matter is conserved. The reaction forms gas, and an open-system measurement can fall when that gas leaves the measured boundary.'
+        prompt: 'Revise your original idea by building a Claim–Evidence–Reasoning explanation for why the open setup measured less after the reaction.',
+        cer: {
+          scaffoldLevel: 'C',
+          claim: {
+            choices: [
+              'Matter was destroyed in the open cup.',
+              'The reaction formed gas, and gas matter left the measured open system.',
+              'The balance caused the mass change.'
+            ],
+            answer: 1,
+            repairHint: 'Focus on what crossed the boundary of the measured system.'
+          },
+          evidence: {
+            choices: [
+              'The sealed system stayed at 156 g before and after.',
+              'The open setup dropped from 156 g to 151 g while bubbles left the cup.',
+              'Both containers were used by students.',
+              'The measurements were written in grams.'
+            ],
+            answers: [0, 1],
+            repairHint: 'Choose observations that directly distinguish the sealed and open systems.'
+          },
+          reasoning: {
+            choices: [
+              'Matter is conserved; an open measured system can lose mass when matter crosses its boundary.',
+              'Gas has no mass, so bubbles do not count.',
+              'Chemical reactions can destroy matter.'
+            ],
+            answer: 0,
+            repairHint: 'Use conservation of matter and the system boundary.'
+          },
+          explanation: 'The reaction formed gas. In the sealed system that gas stayed inside, so total measured mass remained 156 g. In the open system gas crossed the measured boundary, so the cup and contents measured less even though matter was not destroyed.'
+        }
       }
     ],
     retrievalDelayDays: 1,

@@ -1,5 +1,6 @@
 import { normalizeStore } from './core.mjs';
 import { visualStimulusMarkup } from './visuals.mjs';
+import { cerBuilderMarkup, cerComplete, scoreCer, validateCer } from './cer.mjs';
 
 const DAY_MS = 86400000;
 const LEARNERS = ['Luke', 'Samantha'];
@@ -25,9 +26,10 @@ export function validatePhenomena(phenomena = []) {
     for (const step of phenomenon.steps) {
       if (!step.id || stepIds.has(step.id)) throw new Error(`Duplicate phenomenon step: ${phenomenon.id}/${step.id}`);
       stepIds.add(step.id);
-      if (!['notice', 'choice'].includes(step.type)) throw new Error(`Unsupported phenomenon step type: ${phenomenon.id}/${step.id}`);
+      if (!['notice', 'choice', 'cer'].includes(step.type)) throw new Error(`Unsupported phenomenon step type: ${phenomenon.id}/${step.id}`);
       if (!step.prompt) throw new Error(`Missing phenomenon prompt: ${phenomenon.id}/${step.id}`);
       if (step.type === 'choice' && (!Array.isArray(step.choices) || !Number.isInteger(step.answer))) throw new Error(`Invalid phenomenon choice: ${phenomenon.id}/${step.id}`);
+      if (step.type === 'cer') validateCer(step.cer);
       if (step.recordEvidence) {
         evidenceSteps += 1;
         if (!step.skill || !step.standard) throw new Error(`Evidence step missing alignment: ${phenomenon.id}/${step.id}`);
@@ -100,7 +102,12 @@ export function mountPhenomenonLab(config) {
   }
 
   function ensureSession() {
-    if (active()) return active();
+    if (active()) {
+      active().responses ||= {};
+      active().cerResponse ||= {};
+      active().cerRetry = Boolean(active().cerRetry);
+      return active();
+    }
     const next = nextPhenomenon(config.phenomena, profile(), config.currentUnit);
     if (!next) return null;
     activity.active[learner] = {
@@ -109,6 +116,8 @@ export function mountPhenomenonLab(config) {
       phenomenonId: next.id,
       stepIndex: 0,
       stepResponse: null,
+      cerResponse: {},
+      cerRetry: false,
       responses: {},
       feedback: null,
       startedAt: new Date().toISOString()
@@ -141,14 +150,47 @@ export function mountPhenomenonLab(config) {
     const progress = Math.round(session.stepIndex / phenomenon.steps.length * 100);
     const response = Number.isInteger(session.stepResponse) ? session.stepResponse : null;
     const evidence = evidenceMarkup(phenomenon, step);
-    const controls = step.type === 'notice'
-      ? `<button class="primary-button" data-phen-action="continue">Continue</button>`
-      : `${selectedChoiceMarkup(step, response)}<button class="primary-button check-button" data-phen-action="${step.role === 'prediction' ? 'commit' : 'check'}" ${Number.isInteger(response) ? '' : 'disabled'}>${step.role === 'prediction' ? 'Commit prediction' : step.role === 'revision' ? 'Use this explanation' : 'Check evidence'}</button>`;
+    let controls;
+    if (step.type === 'notice') {
+      controls = `<button class="primary-button" data-phen-action="continue">Continue</button>`;
+    } else if (step.type === 'cer') {
+      const firstRubric = session.cerRetry ? session.responses?.[step.id]?.first?.rubric || null : null;
+      controls = `${cerBuilderMarkup(step.cer, session.cerResponse || {}, firstRubric)}<button class="primary-button check-button" data-phen-action="cer-check" ${cerComplete(step.cer, session.cerResponse || {}) ? '' : 'disabled'}>${session.cerRetry ? 'Check revised explanation' : 'Check my explanation'}</button>`;
+    } else {
+      controls = `${selectedChoiceMarkup(step, response)}<button class="primary-button check-button" data-phen-action="${step.role === 'prediction' ? 'commit' : 'check'}" ${Number.isInteger(response) ? '' : 'disabled'}>${step.role === 'prediction' ? 'Commit prediction' : step.role === 'revision' ? 'Use this explanation' : 'Check evidence'}</button>`;
+    }
     shell(`<main class="practice-screen phenomenon-practice"><div class="session-head"><a class="text-button link-button" href="/study/matter-lab.html">← Pause</a><div class="progress-copy"><strong>${session.stepIndex + 1} of ${phenomenon.steps.length}</strong><span>${esc(phenomenon.title)}</span></div></div><div class="progress-track" aria-label="Investigation progress"><span style="width:${progress}%"></span></div><article class="question-card phenomenon-card"><p class="eyebrow">${esc(step.eyebrow || 'Investigate')}</p><div class="phenomenon-context"><strong>The phenomenon</strong><p>${esc(phenomenon.context)}</p></div>${evidence}<h2 tabindex="-1">${esc(step.prompt)}</h2>${step.note ? `<p class="phenomenon-note">${esc(step.note)}</p>` : ''}${controls}</article></main>`);
   }
 
   function selectChoice(index) {
     active().stepResponse = index;
+    saveActivity();
+    renderStep();
+  }
+
+  function selectCerClaim(index) {
+    active().cerResponse ||= {};
+    active().cerResponse.claim = index;
+    saveActivity();
+    renderStep();
+  }
+
+  function selectCerEvidence(index) {
+    const session = active();
+    const phenomenon = phenomenonById(session.phenomenonId);
+    const step = phenomenon.steps[session.stepIndex];
+    session.cerResponse ||= {};
+    const values = new Set(Array.isArray(session.cerResponse.evidence) ? session.cerResponse.evidence : []);
+    if (values.has(index)) values.delete(index);
+    else if (values.size < step.cer.evidence.answers.length) values.add(index);
+    session.cerResponse.evidence = [...values];
+    saveActivity();
+    renderStep();
+  }
+
+  function selectCerReasoning(index) {
+    active().cerResponse ||= {};
+    active().cerResponse.reasoning = index;
     saveActivity();
     renderStep();
   }
@@ -211,11 +253,52 @@ export function mountPhenomenonLab(config) {
     renderFeedback();
   }
 
+  function checkCer() {
+    const session = active();
+    const phenomenon = phenomenonById(session.phenomenonId);
+    const step = phenomenon.steps[session.stepIndex];
+    if (step?.type !== 'cer' || !cerComplete(step.cer, session.cerResponse || {})) return;
+    const response = {
+      claim: session.cerResponse.claim,
+      evidence: [...session.cerResponse.evidence],
+      reasoning: session.cerResponse.reasoning
+    };
+    const rubric = scoreCer(step.cer, response);
+    const record = session.responses[step.id] || {};
+    if (!session.cerRetry && !record.first) {
+      record.first = { response, rubric, provenance: 'independent', at: new Date().toISOString() };
+      session.responses[step.id] = record;
+      session.feedback = { kind: rubric.correct ? 'cer-final' : 'cer-repair', correct: rubric.correct, rubric, provenance: 'independent' };
+    } else {
+      record.revised = { response, rubric, provenance: 'guided', at: new Date().toISOString() };
+      session.responses[step.id] = record;
+      session.feedback = { kind: 'cer-final', correct: rubric.correct, rubric, provenance: 'guided' };
+    }
+    saveActivity();
+    renderFeedback();
+  }
+
+  function rubricSummary(rubric) {
+    return `<div class="cer-rubric-summary"><span class="${rubric.claimCorrect ? 'secure' : 'repair'}">Claim ${rubric.claimCorrect ? '✓' : 'needs repair'}</span><span class="${rubric.evidenceCorrect ? 'secure' : 'repair'}">Evidence ${rubric.evidenceCorrect ? '✓' : 'needs repair'}</span><span class="${rubric.reasoningCorrect ? 'secure' : 'repair'}">Reasoning ${rubric.reasoningCorrect ? '✓' : 'needs repair'}</span></div>`;
+  }
+
   function renderFeedback() {
     const session = active();
     const phenomenon = phenomenonById(session.phenomenonId);
     const step = phenomenon.steps[session.stepIndex];
     const feedback = session.feedback;
+
+    if (step.type === 'cer') {
+      if (feedback.kind === 'cer-repair') {
+        shell(`<main class="practice-screen"><article class="feedback-card repair"><p class="eyebrow">Reasoning check</p><h2 tabindex="-1">Your explanation has a strong start. Repair the marked part${feedback.rubric.score === 2 ? '' : 's'}.</h2>${rubricSummary(feedback.rubric)}<p>Use the investigation evidence again. The correct full explanation is not shown yet.</p><button class="primary-button" data-phen-action="cer-retry">Revise my explanation</button></article></main>`);
+        return;
+      }
+      const wasGuided = feedback.provenance === 'guided';
+      const heading = feedback.rubric.correct ? 'Claim, Evidence, and Reasoning now work together.' : 'Revision recorded; some reasoning still needs later practice.';
+      shell(`<main class="practice-screen"><article class="feedback-card ${feedback.rubric.correct ? 'correct' : 'repair'}"><p class="eyebrow">CER complete</p><h2 tabindex="-1">${esc(heading)}</h2>${rubricSummary(feedback.rubric)}<p>${esc(step.cer.explanation)}</p><div class="repair-note"><strong>${wasGuided ? 'Guided revision' : 'Independent reasoning'}</strong><span>${wasGuided ? 'Your first CER remains the independent evidence. This revision is recorded separately as guided learning.' : 'This CER was completed independently.'}</span></div><button class="primary-button" data-phen-action="feedback-next">Finish investigation</button></article></main>`);
+      return;
+    }
+
     const isRevision = step.role === 'revision';
     const heading = isRevision
       ? feedback.revision === 'revised' ? 'You revised your original model.' : 'Your original model held up.'
@@ -235,10 +318,21 @@ export function mountPhenomenonLab(config) {
     renderStep();
   }
 
+  function cerRetry() {
+    const session = active();
+    session.cerRetry = true;
+    session.cerResponse = {};
+    session.feedback = null;
+    saveActivity();
+    renderStep();
+  }
+
   function feedbackNext() {
     const session = active();
     session.stepIndex += 1;
     session.stepResponse = null;
+    session.cerResponse = {};
+    session.cerRetry = false;
     session.feedback = null;
     saveActivity();
     renderStep();
@@ -250,8 +344,10 @@ export function mountPhenomenonLab(config) {
     const phenomenon = phenomenonById(session.phenomenonId);
     const predictionStep = phenomenon.steps.find(step => step.role === 'prediction');
     const revisionStep = phenomenon.steps.find(step => step.role === 'revision');
+    const cerStep = phenomenon.steps.find(step => step.type === 'cer');
     const prediction = session.responses[predictionStep?.id]?.selected;
     const revision = session.responses[revisionStep?.id]?.selected;
+    const cer = cerStep ? session.responses[cerStep.id] || null : null;
     const alreadyCompleted = profile().sessions.some(entry => entry.kind === 'phenomenon' && entry.phenomenonId === phenomenon.id && entry.sessionId === session.id);
     if (!alreadyCompleted) {
       profile().sessions.unshift({
@@ -262,6 +358,7 @@ export function mountPhenomenonLab(config) {
         unitId: phenomenon.unit,
         prediction,
         revision,
+        cer,
         skills: phenomenon.skills
       });
       const retrievalAt = Date.now() + Number(phenomenon.retrievalDelayDays || 1) * DAY_MS;
@@ -293,12 +390,20 @@ export function mountPhenomenonLab(config) {
       renderHome();
       return;
     }
+    const cerClaim = event.target.closest('[data-cer-claim]');
+    if (cerClaim) { selectCerClaim(Number(cerClaim.dataset.cerClaim)); return; }
+    const cerEvidence = event.target.closest('[data-cer-evidence]');
+    if (cerEvidence) { selectCerEvidence(Number(cerEvidence.dataset.cerEvidence)); return; }
+    const cerReasoning = event.target.closest('[data-cer-reasoning]');
+    if (cerReasoning) { selectCerReasoning(Number(cerReasoning.dataset.cerReasoning)); return; }
     const choice = event.target.closest('[data-phen-choice]');
     if (choice) { selectChoice(Number(choice.dataset.phenChoice)); return; }
     const action = event.target.closest('[data-phen-action]')?.dataset.phenAction;
     if (action === 'continue') continueStep();
     else if (action === 'commit') commitPrediction();
     else if (action === 'check') checkStep();
+    else if (action === 'cer-check') checkCer();
+    else if (action === 'cer-retry') cerRetry();
     else if (action === 'feedback-next') feedbackNext();
     else if (action === 'next-phenomenon') startNextPhenomenon();
   });

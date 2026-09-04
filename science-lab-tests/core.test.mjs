@@ -4,6 +4,7 @@ import { SCIENCE_LAB_CONFIG } from '../study/science-lab/config.mjs';
 import { blankProfile, buildQueue, normalizeStore, remediationForSelection, skillStatus, validateCurriculum } from '../study/science-lab/core.mjs';
 import { graphBuildComplete, graphBuildCorrect } from '../study/science-lab/visuals.mjs';
 import { nextPhenomenon, validatePhenomena } from '../study/science-lab/phenomenon-engine.mjs';
+import { scoreCer, validateCer } from '../study/science-lab/cer.mjs';
 
 const NOW = Date.UTC(2026, 8, 3, 18, 0, 0);
 const attempt = (skill, correct, date, extra = {}) => ({
@@ -87,7 +88,7 @@ test('M1 avoids a sibling recent item and keeps the current unit bounded', () =>
   assert.equal(queue.includes('pm1'), false, 'recent sibling item should be skipped when equivalent forms exist');
 });
 
-test('M1-M4 keeps curriculum, remediation, representations, and phenomenon evidence coherent', () => {
+test('M1-M5 keeps curriculum, remediation, representations, phenomena, and CER coherent', () => {
   const root = normalizeStore({ version: 2, learners: { Luke: { attempts: [attempt('particle-models', true, '2026-09-03', { misconceptionTag: 'example-tag' })] } } });
   assert.equal(root.learners.Luke.attempts.length, 1);
   assert.equal(root.learners.Luke.attempts[0].misconceptionTag, 'example-tag');
@@ -132,6 +133,21 @@ test('M1-M4 keeps curriculum, remediation, representations, and phenomenon evide
     assert.ok(phenomenon.steps.some(step => step.role === 'revision'));
     assert.ok(phenomenon.steps.filter(step => step.recordEvidence).length <= 2, `${phenomenon.id} must not inflate mastery with every step`);
   }
+
+  const openSystem = SCIENCE_LAB_CONFIG.phenomena.find(phenomenon => phenomenon.id === 'open-system-mass');
+  const cerStep = openSystem.steps.find(step => step.type === 'cer');
+  assert.ok(cerStep, 'open-system phenomenon should end with CER construction');
+  assert.equal(validateCer(cerStep.cer), true);
+  const correctCer = scoreCer(cerStep.cer, { claim: 1, evidence: [0, 1], reasoning: 0 });
+  assert.deepEqual(correctCer, { claimCorrect: true, evidenceCorrect: true, reasoningCorrect: true, score: 3, max: 3, correct: true });
+  const partialCer = scoreCer(cerStep.cer, { claim: 0, evidence: [0, 1], reasoning: 0 });
+  assert.equal(partialCer.score, 2);
+  assert.equal(partialCer.claimCorrect, false);
+  assert.equal(partialCer.evidenceCorrect, true);
+  assert.equal(partialCer.reasoningCorrect, true);
+  assert.equal(partialCer.correct, false);
+  assert.ok(!cerStep.recordEvidence, 'CER reasoning analytics must not add another content-mastery attempt');
+
   const phenomenonProfile = blankProfile();
   assert.equal(nextPhenomenon(SCIENCE_LAB_CONFIG.phenomena, phenomenonProfile, 'matter').id, 'sugar-disappears');
   phenomenonProfile.sessions.push({ kind: 'phenomenon', phenomenonId: 'sugar-disappears' });
