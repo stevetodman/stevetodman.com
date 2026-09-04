@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ComponentRef } from "react";
 import { useSimulationStore } from "@/lib/simulation-store";
 import { HospitalArchitecture } from "./architecture";
 import { HospitalClinicalDetails } from "./hospital-details";
+import { HospitalRealismPass2 } from "./hospital-realism-pass-2";
 import { InteractionSystem } from "./interaction-system";
 import { VasovagalRoomActors } from "./patient-room-actors";
 import { PlayerController } from "./player-controller";
@@ -50,6 +51,7 @@ export default function HospitalWorld() {
         <PlayerController />
       </Physics>
       <HospitalClinicalDetails />
+      <HospitalRealismPass2 />
       <RoomSignage />
       <VasovagalRoomActors />
       <InteractionSystem />
