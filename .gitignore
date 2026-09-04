@@ -3,6 +3,7 @@
 # Test tooling
 node_modules/
 package-lock.json
+!cardio-hospital-3d/package-lock.json
 
 # Generated deploy artifact
 /dist/
