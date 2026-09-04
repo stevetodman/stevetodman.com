@@ -23,7 +23,9 @@ function normalizeAttempt(attempt) {
     provenance,
     recovery: provenance === 'recovery',
     delayedRetrieval: Boolean(attempt.delayedRetrieval),
-    transfer: Boolean(attempt.transfer)
+    transfer: Boolean(attempt.transfer),
+    misconceptionTag: attempt.misconceptionTag || null,
+    repairTarget: attempt.repairTarget || null
   };
 }
 
@@ -114,6 +116,14 @@ export function learningStateLabel(state) {
     'transfer-demonstrated': 'Transfer demonstrated',
     secure: 'Secure'
   })[state] || 'Learning';
+}
+
+export function remediationForSelection(item, selected = []) {
+  const answers = new Set(Array.isArray(item?.answer) ? item.answer : [item?.answer]);
+  const wrongIndex = selected.find(index => !answers.has(index));
+  if (!Number.isInteger(wrongIndex)) return null;
+  const remediation = item?.remediation?.[wrongIndex];
+  return remediation ? { choiceIndex: wrongIndex, ...remediation } : null;
 }
 
 function itemPriority(profile, item, index, now, siblingProfile) {
@@ -253,7 +263,7 @@ export function mountScienceLab(config) {
 
   function startSession(mode = 'unit', unitId = config.currentUnit) {
     const queue = buildQueue(config, profile(), { mode, unitId, siblingProfile: siblingProfile() });
-    root.active[learner] = { version: VERSION, id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`, mode, unitId, queue, index: 0, selected: [], feedback: null, results: [], recoveryIds: [] };
+    root.active[learner] = { version: VERSION, id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`, mode, unitId, queue, index: 0, selected: [], feedback: null, retry: null, results: [], recoveryIds: [] };
     save();
     renderQuestion();
   }
@@ -263,12 +273,15 @@ export function mountScienceLab(config) {
     if (!session || session.index >= session.queue.length) return finishSession();
     const item = itemById.get(session.queue[session.index]);
     if (!item) { session.index += 1; save(); return renderQuestion(); }
-    if (session.feedback) return renderFeedback(item, Boolean(session.feedback.correct));
+    if (session.feedback) return renderFeedback(item);
     const selected = Array.isArray(session.selected) ? session.selected : [];
     const multi = Array.isArray(item.answer);
     const ready = multi ? selected.length === item.answer.length : selected.length === 1;
     const recovery = session.recoveryIds.includes(item.id);
-    shell(`<main class="practice-screen"><div class="session-head"><button class="text-button" data-action="pause">← Pause</button><div class="progress-copy"><strong>${session.index + 1} of ${session.queue.length}</strong><span>${esc(item.standard)}</span></div></div><div class="progress-track" aria-label="Investigation progress"><span style="width:${Math.round(session.index / session.queue.length * 100)}%"></span></div><article class="question-card"><p class="skill-label">${esc(config.skills[item.skill] || item.skill)}${recovery ? ' · repair recheck' : ''}</p>${stimulusMarkup(item.stimulus)}<h2 tabindex="-1">${esc(item.prompt)}</h2><div class="choice-list${multi ? ' multi' : ''}" role="group" aria-label="Answer choices">${item.choices.map((choice, index) => `<button type="button" class="choice${selected.includes(index) ? ' selected' : ''}" data-choice="${index}" aria-pressed="${selected.includes(index)}">${esc(choice)}</button>`).join('')}</div>${multi ? `<p class="select-note">Select ${item.answer.length} answers.</p>` : ''}<button class="primary-button check-button" data-action="check" ${ready ? '' : 'disabled'}>Check answer</button></article></main>`);
+    const hinted = session.retry?.itemId === item.id && session.retry?.mode === 'hinted';
+    const evidenceLabel = recovery ? ' · repair recheck' : hinted ? ' · hinted retry' : '';
+    const hint = hinted ? `<div class="repair-note"><strong>Hint</strong><span>${esc(session.retry.hint)}</span></div>` : '';
+    shell(`<main class="practice-screen"><div class="session-head"><button class="text-button" data-action="pause">← Pause</button><div class="progress-copy"><strong>${session.index + 1} of ${session.queue.length}</strong><span>${esc(item.standard)}</span></div></div><div class="progress-track" aria-label="Investigation progress"><span style="width:${Math.round(session.index / session.queue.length * 100)}%"></span></div><article class="question-card"><p class="skill-label">${esc(config.skills[item.skill] || item.skill)}${evidenceLabel}</p>${stimulusMarkup(item.stimulus)}<h2 tabindex="-1">${esc(item.prompt)}</h2>${hint}<div class="choice-list${multi ? ' multi' : ''}" role="group" aria-label="Answer choices">${item.choices.map((choice, index) => `<button type="button" class="choice${selected.includes(index) ? ' selected' : ''}" data-choice="${index}" aria-pressed="${selected.includes(index)}">${esc(choice)}</button>`).join('')}</div>${multi ? `<p class="select-note">Select ${item.answer.length} answers.</p>` : ''}<button class="primary-button check-button" data-action="check" ${ready ? '' : 'disabled'}>Check answer</button></article></main>`);
   }
 
   function selectChoice(index) {
@@ -289,7 +302,12 @@ export function mountScienceLab(config) {
     const selected = (session.selected || []).slice().sort((a, b) => a - b);
     if (selected.length !== expected.length) return;
     const correct = expected.every((value, index) => value === selected[index]);
-    const provenance = session.recoveryIds.includes(item.id) ? 'recovery' : 'independent';
+    const recovery = session.recoveryIds.includes(item.id);
+    const hinted = session.retry?.itemId === item.id && session.retry?.mode === 'hinted';
+    const provenance = recovery ? 'recovery' : hinted ? 'hinted' : 'independent';
+    const remediation = correct && hinted
+      ? { tag: session.retry.misconceptionTag, hint: session.retry.hint }
+      : remediationForSelection(item, selected);
     const now = Date.now();
     const today = dayKey(new Date(now));
     const priorSkill = profile().skills[item.skill] || {};
@@ -305,6 +323,8 @@ export function mountScienceLab(config) {
       recovery: provenance === 'recovery',
       delayedRetrieval,
       transfer: provenance === 'independent' && Boolean(item.transfer),
+      misconceptionTag: remediation?.tag || (hinted ? session.retry?.misconceptionTag : null) || null,
+      repairTarget: hinted ? session.retry?.misconceptionTag || null : null,
       date: today,
       at: now,
       sessionId: session.id
@@ -312,10 +332,20 @@ export function mountScienceLab(config) {
     profile().attempts.push(attempt);
     session.results.push(attempt);
     updateSchedule(item.skill, attempt);
-    if (!correct) scheduleRecovery(item, session);
-    session.feedback = { correct, selected };
+
+    if (correct) {
+      session.feedback = { kind: hinted ? 'correct-repair' : 'correct', correct: true, selected, misconceptionTag: attempt.misconceptionTag };
+    } else if (provenance === 'independent' && remediation) {
+      scheduleRecovery(item, session);
+      session.retry = { itemId: item.id, mode: 'hinted', misconceptionTag: remediation.tag, hint: remediation.hint };
+      session.feedback = { kind: 'hint', correct: false, selected, misconceptionTag: remediation.tag, hint: remediation.hint };
+    } else {
+      if (provenance === 'independent') scheduleRecovery(item, session);
+      session.feedback = { kind: 'explanation', correct: false, selected, misconceptionTag: attempt.misconceptionTag };
+    }
+
     save();
-    renderFeedback(item, correct);
+    renderFeedback(item);
   }
 
   function updateSchedule(skill, attempt) {
@@ -345,9 +375,30 @@ export function mountScienceLab(config) {
     if (!session.recoveryIds.includes(alternative.id)) session.recoveryIds.push(alternative.id);
   }
 
-  function renderFeedback(item, correct) {
+  function renderFeedback(item) {
+    const feedback = active().feedback || {};
     const expected = (Array.isArray(item.answer) ? item.answer : [item.answer]).map(index => item.choices[index]).join(' and ');
-    shell(`<main class="practice-screen"><div class="progress-track"><span style="width:${Math.round((active().index + 1) / active().queue.length * 100)}%"></span></div><article class="feedback-card ${correct ? 'correct' : 'repair'}"><p class="eyebrow">${correct ? 'Evidence recorded' : 'Repair the idea'}</p><h2 tabindex="-1">${correct ? 'Correct.' : `The answer is ${esc(expected)}.`}</h2><p>${esc(item.explanation)}</p>${!correct ? '<div class="repair-note"><strong>You will see this idea again.</strong><span>The repair recheck helps learning, but later independent recall is still required for Secure.</span></div>' : ''}<button class="primary-button" data-action="next">Continue</button></article></main>`);
+
+    if (feedback.kind === 'hint') {
+      shell(`<main class="practice-screen"><div class="progress-track"><span style="width:${Math.round((active().index + 1) / active().queue.length * 100)}%"></span></div><article class="feedback-card repair"><p class="eyebrow">Repair the idea</p><h2 tabindex="-1">Use one clue, then try again.</h2><p>${esc(feedback.hint)}</p><div class="repair-note"><strong>Your first answer is saved.</strong><span>This retry is for learning, so it will not count as independent mastery evidence.</span></div><button class="primary-button" data-action="retry">Try again</button></article></main>`);
+      return;
+    }
+
+    if (feedback.kind === 'correct-repair') {
+      shell(`<main class="practice-screen"><div class="progress-track"><span style="width:${Math.round((active().index + 1) / active().queue.length * 100)}%"></span></div><article class="feedback-card correct"><p class="eyebrow">Repair recorded</p><h2 tabindex="-1">That works.</h2><p>${esc(item.explanation)}</p><div class="repair-note"><strong>The idea is repaired for now.</strong><span>This was a hinted retry. A later independent recheck is still required for Secure.</span></div><button class="primary-button" data-action="next">Continue</button></article></main>`);
+      return;
+    }
+
+    const correct = Boolean(feedback.correct);
+    shell(`<main class="practice-screen"><div class="progress-track"><span style="width:${Math.round((active().index + 1) / active().queue.length * 100)}%"></span></div><article class="feedback-card ${correct ? 'correct' : 'repair'}"><p class="eyebrow">${correct ? 'Evidence recorded' : 'Repair the idea'}</p><h2 tabindex="-1">${correct ? 'Correct.' : `The answer is ${esc(expected)}.`}</h2><p>${esc(item.explanation)}</p>${!correct ? '<div class="repair-note"><strong>You will see this idea again.</strong><span>Later independent recall is still required for Secure.</span></div>' : ''}<button class="primary-button" data-action="next">Continue</button></article></main>`);
+  }
+
+  function retryQuestion() {
+    const session = active();
+    session.selected = [];
+    session.feedback = null;
+    save();
+    renderQuestion();
   }
 
   function nextQuestion() {
@@ -355,6 +406,7 @@ export function mountScienceLab(config) {
     session.index += 1;
     session.selected = [];
     session.feedback = null;
+    session.retry = null;
     save();
     renderQuestion();
   }
@@ -388,6 +440,7 @@ export function mountScienceLab(config) {
     else if (action === 'start') startSession('unit', config.currentUnit);
     else if (action === 'resume') renderQuestion();
     else if (action === 'check') checkAnswer();
+    else if (action === 'retry') retryQuestion();
     else if (action === 'next') nextQuestion();
   });
 
