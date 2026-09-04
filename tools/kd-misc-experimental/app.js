@@ -281,8 +281,11 @@
   evidenceInputs.forEach((input) => input.addEventListener('change', renderAll));
   modelInputs.forEach((input) => input.addEventListener('change', renderAll));
 
-  form.addEventListener('reset', () => {
-    window.setTimeout(renderAll, 0);
+  form.addEventListener('reset', (event) => {
+    event.preventDefault();
+    for (const input of evidenceInputs) input.value = 'unknown';
+    for (const input of modelInputs) input.value = 'unknown';
+    renderAll();
   });
 
   document.documentElement.dataset.evidenceVersion = EVIDENCE_VERSION;
