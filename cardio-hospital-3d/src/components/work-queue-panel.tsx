@@ -66,7 +66,17 @@ export default function WorkQueuePanel() {
               <p className="eyebrow">Current shift</p>
               <h2>Worklist</h2>
             </div>
-            <span>{openTasks.length} open</span>
+            <div className="work-queue-header-actions">
+              <span>{openTasks.length} open</span>
+              <button
+                type="button"
+                className="work-queue-close"
+                aria-label="Close worklist"
+                onClick={() => setOpen(false)}
+              >
+                ×
+              </button>
+            </div>
           </header>
 
           {openTasks.length === 0 ? (
