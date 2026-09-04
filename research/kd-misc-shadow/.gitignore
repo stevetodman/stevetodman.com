@@ -1,0 +1,5 @@
+data/
+results/
+*.local.json
+*.local.ndjson
+*.local.csv
