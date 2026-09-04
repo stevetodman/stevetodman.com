@@ -94,7 +94,7 @@ test('M1-M7 keeps curriculum, remediation, representations, phenomena, CER, and 
   assert.equal(root.learners.Luke.attempts[0].misconceptionTag, 'example-tag');
   assert.equal(root.learners.Samantha.attempts.length, 0);
   assert.equal(validateCurriculum(SCIENCE_LAB_CONFIG), true);
-  assert.equal(SCIENCE_LAB_CONFIG.items.length, 113);
+  assert.equal(SCIENCE_LAB_CONFIG.items.length, 128);
   assert.equal(new Set(SCIENCE_LAB_CONFIG.items.map(item => item.standard)).size, 16);
 
   const strictUnitChecks = [
@@ -121,6 +121,12 @@ test('M1-M7 keeps curriculum, remediation, representations, phenomena, CER, and 
       skills: ['sphere-interactions', 'water-distribution', 'resource-protection'],
       standards: ['5-ESS2-1', '5-ESS2-2', '5-ESS3-1'],
       prefix: 'earth-systems:'
+    },
+    {
+      unit: 'engineering',
+      skills: ['design-problem', 'compare-solutions', 'fair-tests'],
+      standards: ['3-5-ETS1-1', '3-5-ETS1-2', '3-5-ETS1-3'],
+      prefix: 'engineering:'
     }
   ];
 
@@ -174,6 +180,10 @@ test('M1-M7 keeps curriculum, remediation, representations, phenomena, CER, and 
   const wd5 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'wd5');
   const wd8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'wd8');
   const rp8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'rp8');
+  const dp8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'dp8');
+  const cs8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'cs8');
+  const ft6 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'ft6');
+  const ft8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'ft8');
   const pm3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'pm3');
   const mc3 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'mc3');
   const mc8 = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'mc8');
@@ -194,6 +204,11 @@ test('M1-M7 keeps curriculum, remediation, representations, phenomena, CER, and 
   assert.equal(ei8.transfer, true);
   assert.equal(wd8.transfer, true);
   assert.equal(rp8.transfer, true);
+  assert.equal(ft6.stimulus.graph.type, 'bar');
+  assert.equal(ft6.stimulus.graph.yMin, 0, 'Engineering bar graph should use a zero baseline');
+  assert.equal(dp8.transfer, true);
+  assert.equal(cs8.transfer, true);
+  assert.equal(ft8.transfer, true);
   assert.equal(mc3.stimulus.graph.type, 'bar');
   assert.equal(mc3.stimulus.graph.yMin, 0, 'bar graph should use a zero baseline');
   assert.ok(pm3.stimulus.particleModel.panels.length >= 2);
