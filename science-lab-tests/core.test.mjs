@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { SCIENCE_LAB_CONFIG } from '../study/science-lab/config.mjs';
 import { blankProfile, buildQueue, normalizeStore, remediationForSelection, skillStatus, validateCurriculum } from '../study/science-lab/core.mjs';
 import { graphBuildComplete, graphBuildCorrect } from '../study/science-lab/visuals.mjs';
+import { nextPhenomenon, validatePhenomena } from '../study/science-lab/phenomenon-engine.mjs';
 
 const NOW = Date.UTC(2026, 8, 3, 18, 0, 0);
 const attempt = (skill, correct, date, extra = {}) => ({
@@ -86,7 +87,7 @@ test('M1 avoids a sibling recent item and keeps the current unit bounded', () =>
   assert.equal(queue.includes('pm1'), false, 'recent sibling item should be skipped when equivalent forms exist');
 });
 
-test('M1-M3 keeps curriculum, remediation, graph scoring, and visual representations coherent', () => {
+test('M1-M4 keeps curriculum, remediation, representations, and phenomenon evidence coherent', () => {
   const root = normalizeStore({ version: 2, learners: { Luke: { attempts: [attempt('particle-models', true, '2026-09-03', { misconceptionTag: 'example-tag' })] } } });
   assert.equal(root.learners.Luke.attempts.length, 1);
   assert.equal(root.learners.Luke.attempts[0].misconceptionTag, 'example-tag');
@@ -123,4 +124,16 @@ test('M1-M3 keeps curriculum, remediation, graph scoring, and visual representat
   assert.equal(mc3.stimulus.graph.yMin, 0, 'bar graph should use a zero baseline');
   assert.ok(pm3.stimulus.particleModel.panels.length >= 2);
   assert.ok(cy3.stimulus.systemModel.nodes.length >= 4);
+
+  assert.equal(validatePhenomena(SCIENCE_LAB_CONFIG.phenomena), true);
+  assert.equal(SCIENCE_LAB_CONFIG.phenomena.length, 2);
+  for (const phenomenon of SCIENCE_LAB_CONFIG.phenomena) {
+    assert.ok(phenomenon.steps.some(step => step.role === 'prediction'));
+    assert.ok(phenomenon.steps.some(step => step.role === 'revision'));
+    assert.ok(phenomenon.steps.filter(step => step.recordEvidence).length <= 2, `${phenomenon.id} must not inflate mastery with every step`);
+  }
+  const phenomenonProfile = blankProfile();
+  assert.equal(nextPhenomenon(SCIENCE_LAB_CONFIG.phenomena, phenomenonProfile, 'matter').id, 'sugar-disappears');
+  phenomenonProfile.sessions.push({ kind: 'phenomenon', phenomenonId: 'sugar-disappears' });
+  assert.equal(nextPhenomenon(SCIENCE_LAB_CONFIG.phenomena, phenomenonProfile, 'matter').id, 'open-system-mass');
 });
