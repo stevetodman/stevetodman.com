@@ -2,6 +2,12 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useRef } from "react";
 import { getActiveEncounter, getTask } from "@/lib/hospital-engine";
 import { useHospitalStore } from "@/lib/hospital-store";
+import {
+  HCM_PARENT_WORLD_POSITION,
+  HCM_PATIENT_WORLD_POSITION,
+  VASOVAGAL_PARENT_WORLD_POSITION,
+  VASOVAGAL_PATIENT_WORLD_POSITION,
+} from "@/lib/hospital-world-layout";
 import { getHospitalWorkDefinition, WORKROOM_HANDOFF_TASK_ID } from "@/lib/hospital-work";
 import {
   HCM_CASE_ID,
@@ -20,6 +26,8 @@ const TEAM_ROOM_WORKSTATIONS: Array<[number, number]> = [
   [-4.45, 7.8],
   [-4.45, 9.5],
 ];
+
+const NPC_INTERACTION_RADIUS = 2.4;
 
 type ActiveInteraction = "attending" | "hcm-exam" | "vasovagal-exam" | "handoff" | null;
 
@@ -44,6 +52,14 @@ function nearestWorkstationDistance(x: number, z: number): number {
   return Math.min(...TEAM_ROOM_WORKSTATIONS.map(([workstationX, workstationZ]) => Math.hypot(x - workstationX, z - workstationZ)));
 }
 
+function nearestNpcDistance(
+  x: number,
+  z: number,
+  anchors: ReadonlyArray<readonly [number, number, number]>
+): number {
+  return Math.min(...anchors.map(([npcX, , npcZ]) => Math.hypot(x - npcX, z - npcZ)));
+}
+
 export function InteractionSystem() {
   const { camera } = useThree();
   const hcmTaskStatus = useHospitalStore((state) => getTask(state.hospital, HCM_TASK_ID)?.status);
@@ -60,9 +76,9 @@ export function InteractionSystem() {
   const handledInteractSequence = useRef(interactSequence);
 
   useFrame(() => {
-    const attendingDistance = Math.hypot(camera.position.x, camera.position.z - 10.25);
-    const hcmRoomDistance = Math.hypot(camera.position.x - 2.2, camera.position.z + 3);
-    const vasovagalRoomDistance = Math.hypot(camera.position.x + 2.2, camera.position.z + 3);
+    const attendingDistance = Math.hypot(camera.position.x, camera.position.z - 10.55);
+    const hcmNpcDistance = nearestNpcDistance(camera.position.x, camera.position.z, [HCM_PATIENT_WORLD_POSITION, HCM_PARENT_WORLD_POSITION]);
+    const vasovagalNpcDistance = nearestNpcDistance(camera.position.x, camera.position.z, [VASOVAGAL_PATIENT_WORLD_POSITION, VASOVAGAL_PARENT_WORLD_POSITION]);
     const handoffDistance = nearestWorkstationDistance(camera.position.x, camera.position.z);
     let next: ActiveInteraction = null;
     let prompt: string | null = null;
@@ -70,18 +86,18 @@ export function InteractionSystem() {
     if (hcmTaskStatus === "available" && attendingDistance < 2.1) {
       next = "attending";
       prompt = "Interact · Speak with Dr. Patel";
-    } else if (activeEncounter?.caseId === HCM_CASE_ID && hcmRoomDistance < 2.2) {
+    } else if (activeEncounter?.caseId === HCM_CASE_ID && hcmNpcDistance < NPC_INTERACTION_RADIUS) {
       next = "hcm-exam";
       prompt = "Interact · Continue Marcus Chen encounter";
-    } else if (activeEncounter?.caseId === VASOVAGAL_CASE_ID && vasovagalRoomDistance < 2.2) {
+    } else if (activeEncounter?.caseId === VASOVAGAL_CASE_ID && vasovagalNpcDistance < NPC_INTERACTION_RADIUS) {
       next = "vasovagal-exam";
       prompt = "Interact · Continue Ava Rodriguez encounter";
-    } else if (!activeEncounter && (hcmTaskStatus === "assigned" || hcmTaskStatus === "in-progress") && hcmRoomDistance < 2.2) {
+    } else if (!activeEncounter && (hcmTaskStatus === "assigned" || hcmTaskStatus === "in-progress") && hcmNpcDistance < NPC_INTERACTION_RADIUS) {
       next = "hcm-exam";
-      prompt = "Interact · Enter Clinic Room 3";
-    } else if (!activeEncounter && (vasovagalTaskStatus === "assigned" || vasovagalTaskStatus === "in-progress") && vasovagalRoomDistance < 2.2) {
+      prompt = "Interact · Speak with Marcus Chen";
+    } else if (!activeEncounter && (vasovagalTaskStatus === "assigned" || vasovagalTaskStatus === "in-progress") && vasovagalNpcDistance < NPC_INTERACTION_RADIUS) {
       next = "vasovagal-exam";
-      prompt = "Interact · Enter Clinic Room 1";
+      prompt = "Interact · Speak with Ava Rodriguez";
     } else if ((handoffTaskStatus === "assigned" || handoffTaskStatus === "in-progress") && handoffDistance < 1.8) {
       next = "handoff";
       prompt = "Interact · Review overnight handoff";
