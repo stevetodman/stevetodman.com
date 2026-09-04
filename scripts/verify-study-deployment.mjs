@@ -135,7 +135,20 @@ async function tapState(page, code) {
     return null;
   }, code);
   assert.ok(point, `could not find a real tappable point for ${code}`);
+  const hitBeforeTap = await page.evaluate(({ x, y }) => {
+    const element = document.elementFromPoint(x, y);
+    const state = element?.closest?.('#pinMap path.state, #pinMap path.pin-hit');
+    return {
+      x,
+      y,
+      tagName: element?.tagName || null,
+      className: typeof element?.className === 'string' ? element.className : element?.getAttribute?.('class') || null,
+      stateCode: state?.dataset?.code || null,
+      stateClass: state?.getAttribute?.('class') || null,
+    };
+  }, point);
   await page.touchscreen.tap(point.x, point.y);
+  return hitBeforeTap;
 }
 
 const browser = await chromium.launch();
@@ -159,8 +172,35 @@ try {
     const before = await page.evaluate(() => window.__pinSprintState());
     assert.ok(before.roundStates.length > 0, 'Pin Sprint did not create an adaptive round');
     const target = before.roundStates[before.currentIndex];
-    await tapState(page, target.code);
-    await page.waitForFunction(index => window.__pinSprintState().currentIndex > index, before.currentIndex);
+    const hitBeforeTap = await tapState(page, target.code);
+    try {
+      await page.waitForFunction(index => window.__pinSprintState().currentIndex > index, before.currentIndex);
+    } catch (error) {
+      const diagnostic = await page.evaluate(({ x, y, targetCode }) => {
+        const element = document.elementFromPoint(x, y);
+        const state = element?.closest?.('#pinMap path.state, #pinMap path.pin-hit');
+        return {
+          targetCode,
+          pinSprintState: window.__pinSprintState(),
+          feedback: document.getElementById('pinFeedback')?.textContent || '',
+          tip: document.getElementById('pinTip')?.textContent || '',
+          elementAfterTap: {
+            tagName: element?.tagName || null,
+            className: typeof element?.className === 'string' ? element.className : element?.getAttribute?.('class') || null,
+            stateCode: state?.dataset?.code || null,
+            stateClass: state?.getAttribute?.('class') || null,
+          },
+        };
+      }, { x: hitBeforeTap.x, y: hitBeforeTap.y, targetCode: target.code });
+      const failureRecord = { before, hitBeforeTap, diagnostic, failures, error: String(error) };
+      fs.writeFileSync(
+        path.join(ARTIFACT_DIR, 'pin-sprint-touch-failure.json'),
+        `${JSON.stringify(failureRecord, null, 2)}\n`,
+      );
+      await page.screenshot({ path: path.join(ARTIFACT_DIR, 'pin-sprint-touch-failure.png'), fullPage: true });
+      console.error('Pin Sprint touch diagnostic:', JSON.stringify(failureRecord, null, 2));
+      throw error;
+    }
     const after = await page.evaluate(() => window.__pinSprintState());
     assert.equal(after.firstTryScore, 1, 'a correct real touch must score');
     assert.equal(after.currentIndex, before.currentIndex + 1, 'a correct real touch must advance');
