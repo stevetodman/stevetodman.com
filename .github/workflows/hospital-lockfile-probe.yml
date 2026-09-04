@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   probe:
@@ -35,6 +35,21 @@ jobs:
 
       - name: Build hospital
         run: npm run build
+
+      - name: Commit validated lockfile to this probe branch
+        working-directory: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add cardio-hospital-3d/package-lock.json
+          if git diff --cached --quiet; then
+            echo 'Lockfile already committed.'
+            exit 0
+          fi
+          git commit -m 'Add validated hospital package lock'
+          git push origin HEAD:lockfile-cleanup
 
       - name: Preserve generated lockfile
         uses: actions/upload-artifact@v4
