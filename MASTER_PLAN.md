@@ -117,7 +117,7 @@ Hospital dependency resolution is deterministic: `cardio-hospital-3d/package-loc
 
 #### Current Hospital Checkpoint
 
-Current executable checkpoint before this documentation update: `5a5876a1ba8ae4c904b11d35361f69ac1de9dc95`.
+Current executable checkpoint before this documentation update: `c72c28b42976d69620a9e6911a932d524a4a3543`.
 
 Recent merged changes:
 
@@ -125,19 +125,20 @@ Recent merged changes:
 - PR **#184** / `e25a3bae`: fixed Pager/Worklist overlay scrolling and patient interaction proximity anchors.
 - PR **#185** / `96f30289`: fixed NPC interaction availability across `available`, `assigned`, and `in-progress` consult states while preserving canonical engine transitions.
 - PR **#186** / `5a5876a1`: removed a misleading non-interactive decorative clinician.
+- PR **#188** / `c72c28b4`: fixed the physical-iPhone no-movement failure by moving the player spawn out of the solid conference-table collider, centralizing the collision-safe spawn, and adding a focused regression guard.
 
-Verification of `5a5876a1ba8ae4c904b11d35361f69ac1de9dc95`:
+Verification of `c72c28b42976d69620a9e6911a932d524a4a3543`:
 
-- repository guard passed;
-- all 12 focused engine tests passed on the relevant changes;
+- focused repository guard passed;
 - production build passed;
-- exact-SHA deployment verification passed;
-- touch-browser verification passed;
-- stale-main protection passed.
+- Cloudflare Pages deployment succeeded for the exact SHA;
+- deployment verification workflow passed;
+- live-runtime smoke passed;
+- owner physically confirmed on the actual iPhone that movement now works when entering the hospital from the production website.
 
 Current state: **LIVE-VERIFIED; PHYSICAL ACCEPTANCE OPEN**.
 
-Do not mark M4/M5 complete until the latest interaction, overlay, twin-stick, collision, orientation, PWA, persistence, audio/ECG, actor-visibility, and sustained-performance behavior passes on the actual iPhone.
+The physical-iPhone movement failure is closed. Do **not** repeat work on spawn/movement unless a new reproducible regression appears. Do not mark M4/M5 complete until the remaining interaction, overlay, orientation, PWA, persistence, audio/ECG, actor-visibility, replay, and sustained-performance checks pass on the actual iPhone.
 
 #### Performance-safe realism program
 
@@ -220,7 +221,7 @@ The earlier external hospital ingest pilot is retired. Its scheduled ingest work
 
 ## Known remaining technical debt / external blockers
 
-- **Physical-iPhone hospital acceptance:** highest-priority hospital gate. Current executable is exact-production/browser verified but still needs physical confirmation of the latest interaction, overlay, twin-stick, collision, orientation, PWA, persistence, audio/ECG, actor-visibility, and thermal behavior.
+- **Physical-iPhone hospital acceptance:** highest-priority hospital gate. Movement on the actual iPhone is now confirmed fixed at executable `c72c28b4`; remaining physical checks are interaction proximity/briefing, Pager/Worklist, collision/doorways, portrait/landscape/safe areas, clinical overlays, PWA, persistence/reload, audio/ECG, actor visibility/state transitions, replay, and sustained thermal/battery/frame-rate behavior.
 - **StudyHub #39:** inbound rate limiting + real two-device/offline acceptance.
 - **Clinical #42:** real durable review evidence required; never infer/backdate.
 - **Cooking-timer archive:** requires a settings-capable interface; preserve history, do not delete.
@@ -260,15 +261,16 @@ Do not introduce without demonstrated need:
 
 ## Exact next action
 
-1. Inspect the current `main` SHA and exact-SHA production/browser checks before changing anything. The latest executable checkpoint before this documentation update is `5a5876a1ba8ae4c904b11d35361f69ac1de9dc95`; it passed exact deployment, touch-browser verification, and stale-main protection. This documentation commit itself must independently pass the exact-SHA gate before current `main` is called live-verified.
-2. Perform the next **physical-iPhone interaction retest** on the actual device:
+1. Treat physical-iPhone movement as **passed** for executable `c72c28b42976d69620a9e6911a932d524a4a3543`; do not retest or redesign spawn/movement unless a new reproducible defect appears.
+2. Continue the **remaining physical-iPhone interaction-critical path** on the actual device:
+   - confirm right-stick look and simultaneous move + look;
    - confirm the interactive clinician produces a Speak affordance and opens the briefing;
-   - confirm each visible consult case produces the correct generic Speak/Interact affordance at natural proximity while its task is available/assigned/in-progress;
+   - confirm each visible consult case produces the expected Speak/Interact affordance at natural proximity while its task is available/assigned/in-progress;
    - confirm the removed decorative clinician is absent;
    - confirm Pager and Worklist scroll and close correctly above the twin-stick controls;
-   - confirm left-stick movement, right-stick look, simultaneous move + look, Interact placement, non-trapping small furniture, tight large-furniture solidity, and doorway traversal in portrait and landscape.
-3. If that interaction-critical path passes, finish the remaining M4/M5 physical checklist in `cardio-hospital-3d/AGENTS.md`: clinical scrolling/tap targets/confidential-state behavior, safe areas/orientation, PWA/Add to Home Screen, reload/resume/no duplicates, auscultation audio, ECG touch, actor visibility/state transitions, replay behavior, and sustained frame-rate/thermal/battery performance.
-4. Record device model, iOS/Safari version, portrait/landscape/PWA results, defects, and fix SHAs. Do not infer any of them.
+   - confirm Interact placement, non-trapping small furniture, tight large-furniture solidity, and doorway traversal in portrait and landscape.
+3. If that path passes, finish the remaining M4/M5 physical checklist in `cardio-hospital-3d/AGENTS.md`: clinical scrolling/tap targets/confidential-state behavior, safe areas/orientation, PWA/Add to Home Screen, reload/resume/no duplicates, auscultation audio, ECG touch, actor visibility/state transitions, replay behavior, and sustained frame-rate/thermal/battery performance.
+4. Record actual device model, iOS/Safari version, portrait/landscape/PWA results, defects, and fix SHAs when supplied. Do not infer any of them.
 5. When every required physical check passes, update the hospital implementation ledger and mark **M4/M5 complete**. Only then begin **M6** using the existing canonical engine; do not rebuild the architecture.
 6. After the physical usability/performance gate is acceptable, the realism program may advance to performance-budgeted optimized animated humans, richer clinically authentic equipment/materials/lighting, ambient activity/audio, and LOD/culling/room streaming. Measure iPhone cost before accepting heavy assets.
 7. StudyHub #39, clinical #42, and the archive task remain separate unresolved work as described above.
