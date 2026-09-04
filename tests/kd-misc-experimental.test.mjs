@@ -43,6 +43,9 @@ describe('experimental iKD vs MIS-C workbench M1B complete', () => {
 
   test('preserves exact 2026 categorical associations without a winner', async () => {
     const { context, page } = await openWorkbench();
+    await page.locator('#target-age').selectOption('5-9');
+    await page.locator('#icu-level-care').selectOption('no');
+    await page.locator('#pretreatment').selectOption('yes');
     await page.locator('#abdominal-pain').selectOption('yes');
     await page.locator('#rash').selectOption('yes');
     assert.match(await page.locator('[data-evidence-id="h26-abdominal-pain"]').innerText(), /64%.*19%.*25%.*P<\.01/i);
@@ -94,6 +97,33 @@ describe('experimental iKD vs MIS-C workbench M1B complete', () => {
     await context.close();
   });
 
+  test('blocks likelihood interpretation outside the non-severe target phenotype', async () => {
+    const { context, page } = await openWorkbench();
+    await page.locator('#icu-level-care').selectOption('yes');
+    assert.match(await page.locator('#applicability-state').innerText(), /OUTSIDE TARGET PHENOTYPE/i);
+    assert.match(await page.locator('#evidence-state').innerText(), /LIKELIHOOD NOT INTERPRETED/i);
+    await context.close();
+  });
+
+  test('distinguishes assessed-absent findings from unknown data', async () => {
+    const { context, page } = await openWorkbench();
+    await page.locator('[data-evidence-input]').evaluateAll(nodes => {
+      for (const node of nodes) node.value = 'no';
+      nodes[0].dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    assert.match(await page.locator('#evidence-state').innerText(), /NO POSITIVE DIRECTIONAL FINDINGS/i);
+    assert.match(await page.locator('#data-completeness').innerText(), /0 unknown/i);
+    await context.close();
+  });
+
+  test('groups repeated studies under one patient finding', async () => {
+    const { context, page } = await openWorkbench();
+    await page.locator('#rash').selectOption('yes');
+    assert.equal(await page.locator('#kd-evidence .evidence-group').count(), 1);
+    assert.equal(await page.locator('#kd-evidence [data-evidence-id]').count(), 2);
+    await context.close();
+  });
+
   test('reset, no-interaction-network, and 390px mobile invariants hold', async () => {
     const { context, page, requests } = await openWorkbench();
     const baseline = requests.length;
@@ -104,6 +134,8 @@ describe('experimental iKD vs MIS-C workbench M1B complete', () => {
     await page.locator('#reset-all').click();
     assert.equal(await page.locator('#abdominal-pain').inputValue(), 'unknown');
     assert.equal(await page.locator('#rash').inputValue(), 'unknown');
+    assert.equal(await page.locator('#target-age').inputValue(), 'unknown');
+    assert.equal(await page.locator('#icu-level-care').inputValue(), 'unknown');
     const dims = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
     assert.ok(dims.scroll <= dims.client + 2, `${dims.scroll}px content in ${dims.client}px viewport`);
     await context.close();

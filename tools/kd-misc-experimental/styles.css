@@ -390,3 +390,48 @@ footer a { color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
+
+
+.applicability-state,
+.assessment-summary,
+.data-completeness {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255,255,255,.025);
+  color: #dce5f2;
+  font-size: .84rem;
+}
+.applicability-state {
+  font-weight: 900;
+  letter-spacing: .035em;
+}
+.applicability-state.applicable {
+  border-color: rgba(104,216,214,.4);
+  color: #ccfffd;
+}
+.applicability-state.limited {
+  border-color: rgba(255,209,102,.38);
+  color: #ffe7a4;
+}
+.applicability-state.outside,
+.evidence-state.outside {
+  border-color: rgba(255,159,159,.55);
+  background: rgba(255,159,159,.09);
+  color: #ffd4d4;
+}
+.assessment-summary {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 18px;
+}
+.data-completeness { margin-bottom: 14px; }
+.evidence-source + .evidence-source {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+@media (max-width: 620px) {
+  .assessment-summary { flex-direction: column; }
+}

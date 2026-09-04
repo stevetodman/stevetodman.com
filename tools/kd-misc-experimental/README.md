@@ -4,7 +4,13 @@ Route: `/tools/kd-misc-experimental/`
 
 This is a clinician-only experimental evidence organizer. It is **not** a validated diagnostic calculator.
 
-## v0.4-M1B-complete contract
+## v0.5 qualitative-likelihood workflow
+
+The workbench now starts with a source-population applicability screen and returns one of five explicit qualitative states: favors non-severe MIS-C, favors incomplete KD, mixed, insufficient information, or outside the target phenotype. These are literature-pattern descriptions, not calibrated probabilities. Evidence from the same patient finding is grouped so multiple publications do not appear as multiple independent votes, and assessed-absent findings remain distinct from unknowns.
+
+A patient-specific numeric percentage remains blocked until a reproducible model is authenticated and externally or locally recalibrated in the intended population. Observational prevalence tables, marginal associations, medians, and P values must never be multiplied or summed into a home-grown probability.
+
+## v0.4-M1B-complete evidence contract
 
 The workbench:
 

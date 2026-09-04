@@ -6,6 +6,7 @@
   <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="description" content="Experimental clinician-only evidence workbench for incomplete Kawasaki disease versus non-severe MIS-C.">
   <title>iKD vs MIS-C Experimental Evidence Workbench | Steve Todman, MD</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -13,12 +14,12 @@
     <a class="back-link" href="/tools/">← Clinical tools</a>
 
     <header class="hero" aria-labelledby="page-title">
-      <div class="status-chip">EXPERIMENTAL • CLINICIAN-ONLY • M1B MAIN ARTICLE SOURCE-LOCKED</div>
+      <div class="status-chip">EXPERIMENTAL • CLINICIAN-ORIENTED • M1B FULL SOURCE-LOCKED</div>
       <h1 id="page-title">iKD ↔ non-severe MIS-C<br><span>Evidence Workbench</span></h1>
-      <p class="lede">Organizes source-locked discriminating and non-discriminating evidence without producing a diagnosis, score, probability, treatment recommendation, or disposition recommendation.</p>
+      <p class="lede">Accepts structured case information and returns a qualitative, literature-informed likelihood pattern: favors non-severe MIS-C, favors incomplete KD, mixed, insufficient, or outside the target phenotype.</p>
       <div class="safety-banner" role="note" aria-label="Experimental use warning">
         <strong>NOT VALIDATED FOR DIAGNOSIS OR TREATMENT.</strong>
-        <span>Use as an evidence-organizing aid only. Missing data remain unknown. Findings associated with one syndrome do not exclude the other.</span>
+        <span>The likelihood category is not a calibrated probability or diagnosis. Missing data remain unknown, and findings associated with one syndrome do not exclude the other.</span>
       </div>
       <p class="privacy-note"><strong>Privacy:</strong> do not enter identifiers. This page has no patient free-text field, does not save entered state, and does not transmit case inputs.</p>
     </header>
@@ -36,8 +37,21 @@
     </section>
 
     <form id="workbench-form" novalidate>
+      <section class="card" aria-labelledby="applicability-heading">
+        <div class="section-kicker">1 · Clinical applicability</div>
+        <h2 id="applicability-heading">Confirm that the comparison fits this patient</h2>
+        <p class="section-note">The source cohorts primarily represent hospitalized patients younger than 21 years with incomplete KD or non-severe MIS-C. Shock or ICU-level illness falls outside this tool’s target phenotype.</p>
+        <div class="field-grid compact">
+          <label class="field" for="target-age"><span>Age band</span><select id="target-age" data-applicability-input><option value="unknown" selected>Unknown</option><option value="lt1">&lt;1 year</option><option value="1-4">1–4 years</option><option value="5-9">5–9 years</option><option value="10-14">10–14 years</option><option value="15-20">15–20 years</option><option value="21plus">≥21 years</option></select></label>
+          <label class="field" for="fever-duration"><span>Total fever duration</span><select id="fever-duration" data-applicability-input><option value="unknown" selected>Unknown</option><option value="lt5">&lt;5 days</option><option value="5-6">5–6 days</option><option value="7-9">7–9 days</option><option value="ge10">≥10 days</option></select></label>
+          <label class="field" for="pretreatment"><span>Findings captured before immunomodulatory treatment</span><select id="pretreatment" data-applicability-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+          <label class="field" for="icu-level-care"><span>ICU-level care required</span><select id="icu-level-care" data-applicability-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+        </div>
+        <div id="applicability-state" class="applicability-state limited" role="status" aria-live="polite">APPLICABILITY UNCERTAIN — COMPLETE THE FIELDS ABOVE</div>
+      </section>
+
       <section class="card" aria-labelledby="comparative-heading">
-        <div class="section-kicker">1 · Comparative phenotype</div>
+        <div class="section-kicker">2 · Comparative phenotype</div>
         <h2 id="comparative-heading">Exact target-cohort, near-exact, and adjacent evidence</h2>
         <p class="section-note">Select only findings already established from the clinical record. “No” means specifically assessed and absent; otherwise leave Unknown. A “No” is not automatically evidence for the opposite syndrome.</p>
         <div class="field-grid">
@@ -134,7 +148,7 @@
       </section>
 
       <section class="card" aria-labelledby="context-heading">
-        <div class="section-kicker">2 · Phenotype and surveillance context</div>
+        <div class="section-kicker">3 · Phenotype and surveillance context</div>
         <h2 id="context-heading">Context kept separate from discriminatory evidence</h2>
         <p class="section-note">These items orient interpretation. The application does not count KD criteria, count MIS-C organ categories, or declare that either definition is met.</p>
 
@@ -153,14 +167,14 @@
         <div class="field-grid compact">
           <label class="field" for="hospitalized"><span>Hospitalization for inflammatory illness</span><select id="hospitalized" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
           <label class="field" for="crp3"><span>CRP ≥3.0 mg/dL (30 mg/L)</span><select id="crp3" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
-          <label class="field" for="sarscov2"><span>SARS-CoV-2 laboratory / epidemiologic evidence in relevant window</span><select id="sarscov2" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+          <label class="field" for="sarscov2"><span>SARS-CoV-2 laboratory / epidemiologic evidence within the surveillance window</span><small>NAAT/antigen or epidemiologic linkage: up to 60 days; interpret serology in vaccination and prior-infection context</small><select id="sarscov2" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
           <label class="field" for="shock"><span>Shock documented</span><select id="shock" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
         </div>
         <p class="section-note">Platelet &lt;150,000/µL and ALC &lt;1,000/µL are entered once in section 1. When present, the workbench separately shows both their Fan comparative association and their CDC surveillance context.</p>
       </section>
 
       <section class="card" aria-labelledby="model-heading">
-        <div class="section-kicker">3 · Published-model applicability</div>
+        <div class="section-kicker">4 · Published-model applicability</div>
         <h2 id="model-heading">Starnes model input availability</h2>
         <p class="section-note">The published model used age, sodium, platelet count, ALT, reduced LVEF, and CRP. This workbench records input availability only and does not calculate the model result. The model requires external validation.</p>
         <div class="field-grid compact" id="model-fields">
@@ -174,7 +188,7 @@
         <div id="model-status" class="model-status" aria-live="polite"></div>
         <div class="model-notes">
           <p><strong>KIDMATCH:</strong> not reproduced here. Integration requires a verified authoritative implementation, model artifacts, preprocessing, licensing, and rejection behavior.</p>
-          <p><strong>2026 exact target study:</strong> the final main article is source-locked. It reports categorical associations and group-level distributions, not a new validated diagnostic score or patient-level probability. The electronic supplemental table remains pending.</p>
+          <p><strong>2026 exact target study:</strong> the final main article and electronic supplement are source-locked. They provide categorical associations and group-level distributions, not a validated patient-level probability.</p>
         </div>
       </section>
 
@@ -188,9 +202,13 @@
       <div class="results-header">
         <div>
           <div class="section-kicker">Evidence view</div>
-          <h2 id="results-heading">Source-attributed findings</h2>
+          <h2 id="results-heading">Literature-informed likelihood synthesis</h2>
         </div>
-        <div id="evidence-state" class="evidence-state" role="status" aria-live="polite">INSUFFICIENT DISCRIMINATING DATA</div>
+        <div id="evidence-state" class="evidence-state" role="status" aria-live="polite">INSUFFICIENT PATIENT INFORMATION</div>
+      </div>
+      <div class="assessment-summary">
+        <strong>Interpretation:</strong>
+        <span id="likelihood-summary">Enter known case findings. The workbench will describe the published pattern without calculating an unvalidated percentage.</span>
       </div>
 
       <div class="evidence-columns">
@@ -208,6 +226,8 @@
         <h3 id="context-output-heading">Overlap / guideline / surveillance context selected</h3>
         <div id="context-evidence" class="evidence-list"><p class="empty">No overlap, guideline, or surveillance context selected.</p></div>
       </section>
+
+      <div id="data-completeness" class="data-completeness" role="status" aria-live="polite"></div>
 
       <div class="uncertainty-box">
         <h3>Interpretation boundary</h3>
@@ -231,7 +251,7 @@
     </section>
 
     <section class="card references" aria-labelledby="references-heading">
-      <div class="section-kicker">Evidence registry v0.3-M1B-main</div>
+      <div class="section-kicker">Evidence registry v0.4-M1B-complete</div>
       <h2 id="references-heading">Core references and limits</h2>
       <ol>
         <li><strong>Harahsheh AS, et al. Pediatr Cardiol. 2026.</strong> DOI 10.1007/s00246-026-04444-4. Exact target cohort: 769 non-severe MIS-C, 372 unconfirmed incomplete KD, and 146 confirmed incomplete KD from 40 centers in 8 countries.</li>
@@ -243,11 +263,11 @@
         <li><strong>Lee S, et al. J Am Heart Assoc. 2025.</strong> Contemporaneous IKDR coronary involvement comparison; coronary aneurysm was less prevalent and less severe in MIS-C than KD, not absent in MIS-C.</li>
         <li><strong>Lippi G, et al. Diagnosis (Berl). 2024.</strong> D-dimer meta-analysis; no harmonized diagnostic threshold established.</li>
       </ol>
-      <p class="pending-source"><strong>M1B supplement pending:</strong> the final 2026 main article is source-locked and active in this build. Its electronic supplemental table has not yet been obtained, so no supplement-only peak/trough laboratory values are encoded.</p>
+      <p class="pending-source"><strong>M1B source lock complete:</strong> the 2026 final article and electronic supplement are source-locked. Supplemental extrema remain group-level context only; no new cutoff or score is created.</p>
     </section>
 
     <footer>
-      <span>Experimental evidence workbench • v0.3-M1B-main</span>
+      <span>Experimental likelihood workbench • v0.5-qualitative</span>
       <a href="/privacy/">Privacy</a>
     </footer>
   </main>

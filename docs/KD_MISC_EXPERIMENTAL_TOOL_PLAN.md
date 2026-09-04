@@ -1,6 +1,6 @@
 # iKD vs non-severe MIS-C Experimental Evidence Workbench
 
-Status: implementation plan for an experimental clinician-only tool
+Status: historical foundation; qualitative-likelihood redesign active under `docs/KD_MISC_LIKELIHOOD_REDESIGN.md`
 Owner: Steve Todman, MD
 Repository: stevetodman/stevetodman.com
 Initial route: /tools/kd-misc-experimental/

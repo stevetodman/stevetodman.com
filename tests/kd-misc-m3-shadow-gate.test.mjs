@@ -21,10 +21,8 @@ function makeFeature(id = 'KDMSC-SYNTH001') {
   return {
     research_case_id: id,
     schema_version: contract.schema_version,
-    evidence_version: '0.2-m1a',
-    index_data_before_immunomodulatory_treatment: 'unknown',
-    age_band: 'unknown',
-    fever_duration_band: 'unknown',
+    evidence_version: '0.4-m1b-complete',
+    applicability_inputs: enumMap(contract.modes.features.applicability_inputs, 'unknown'),
     evidence_inputs: enumMap(contract.modes.features.evidence_inputs, 'unknown'),
     model_input_availability: enumMap(contract.modes.features.model_input_availability, 'unknown'),
   };
@@ -46,7 +44,7 @@ function makeOutput(id = 'KDMSC-SYNTH001') {
   return {
     research_case_id: id,
     schema_version: contract.schema_version,
-    evidence_version: '0.2-m1a',
+    evidence_version: '0.4-m1b-complete',
     git_commit: 'f'.repeat(40),
     evidence_state: 'insufficient_discriminating_data',
     misc_evidence_ids: [],
@@ -113,6 +111,15 @@ test('synthetic feature/reference/output files validate and crosscheck', () => {
     assert.match(runValidator(['crosscheck', features, reference, output]), /Crosscheck passed for 1 de-identified research case/);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('schema mirrors the current v0.4 clinical and applicability inputs', () => {
+  for (const key of ['abdominal-pain', 'diarrhea', 'vomiting', 'sore-throat', 'irritability']) {
+    assert.ok(contract.modes.features.evidence_inputs[key], `missing current evidence input: ${key}`);
+  }
+  for (const key of ['target-age', 'fever-duration', 'pretreatment', 'icu-level-care']) {
+    assert.ok(contract.modes.features.applicability_inputs[key], `missing applicability input: ${key}`);
   }
 });
 
