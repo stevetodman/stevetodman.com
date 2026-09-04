@@ -22,6 +22,7 @@
     "test:phs": "node --test tests/phs-scenarios.test.mjs",
     "test:bp": "node --test tests/bp-calculator.test.mjs",
     "test:kawasaki": "node --test tests/kawasaki-academy.test.mjs",
+    "test:kd-misc": "node --test tests/kd-misc-experimental.test.mjs",
     "test:hypertension": "node --test tests/hypertension-academy.test.mjs",
     "test:cardiovascular-risk": "node --test tests/cardiovascular-risk-academy.test.mjs",
     "test:aortopathy": "node --test tests/aortopathy-academy.test.mjs",
