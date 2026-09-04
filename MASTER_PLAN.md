@@ -79,7 +79,7 @@ Hospital dependency resolution is now deterministic: `cardio-hospital-3d/package
 ### Study / Math / Science
 
 - StudyHub and Math are active production family-learning products.
-- StudyHub live cloud-save acceptance remains issue **#39** and requires real backend/device evidence.
+- StudyHub issue **#39** now has direct live Supabase control-plane evidence: the migration is present, `studyhub.saves` has RLS enabled, browser roles have no schema usage or table CRUD, no public RLS policies exist, and the deployed `studyhub-save` Edge Function is active. Hourly synthetic cloud-save monitoring and failure/recovery alerting are already merged. Remaining #39 blockers are explicit inbound rate limiting and the real-device two-device/offline acceptance sequence.
 - Science Lab has progressed through M7; preserve its intentionally small invariant set + one Chromium 390px smoke during focused iteration.
 
 ### Clinical / experimental work
@@ -199,6 +199,11 @@ Workflow audit outcome: retain specialized workflows where they protect distinct
 - `5167daae2bf7efdf3eb3f1c0f653c588779516f4` — exact production remeasurement confirmed hospital cold transfer fell from **1,203,800 bytes to 175,879 bytes** (about **85% lower**) while warm transfer remained essentially unchanged (~3.1 KB). The heavy Three/Rapier chunks no longer load behind the entry overlay. The other four benchmark routes remained small enough that no broader optimization was justified from this pass.
 - The benchmark workflow was intentionally temporary and removed after the evidence was captured.
 
+### StudyHub live control-plane verification
+
+- On 2026-09-04 direct live Supabase inspection confirmed migration history contains the StudyHub schema/RLS migrations, `studyhub.saves` has RLS enabled, `public`/`anon`/`authenticated` have neither schema usage nor table CRUD, and no RLS policies expose the table. The active `studyhub-save` Edge Function is the sole deployed Edge Function in the project and recent returned 24-hour logs contained successful traffic with no 5xx entries. Issue #39 was updated with this evidence. No family token or family data was inspected.
+- This closes the prior live-admin/control-plane uncertainty only. Explicit inbound request rate limiting and the real two-device/offline acceptance remain open.
+
 ## Known remaining technical debt
 
 ### Cooking index workflow
@@ -277,7 +282,7 @@ A five-route production baseline now exists. Hospital entry cold transfer was th
 
 ## External / owner blockers
 
-- **#39 StudyHub live acceptance:** requires real Supabase/edge and device evidence; never expose family tokens.
+- **#39 StudyHub live acceptance:** live Supabase migration/grants/RLS/function deployment are now directly verified and hourly cloud-save monitoring exists. Remaining blockers are explicit inbound abuse/rate-limit control and real two-device/offline acceptance. Never expose family tokens.
 - **#42 clinical review evidence:** requires real durable review evidence; do not infer dates/sign-off.
 - **Physical-iPhone hospital acceptance:** remains the hospital product-quality gate.
 - **Repository archive mutation:** current connector cannot set GitHub's archived flag; `cooking-timers` remains the verified pending archive action.
@@ -316,9 +321,9 @@ Done means canonical ownership is obvious; superseded repos are archived rather 
 
 ## Exact next action
 
-1. Inspect the **current `main` SHA** first. This checkpoint follows the exact-production-verified Next.js security commit `37a40f5a6d62d3ac2884d8763864e89003330654`; this documentation commit is its successor, so require the current SHA's Cloudflare Pages deployment, exact-SHA browser verification, and stale-main protection before calling the checkpoint itself live-verified.
+1. Inspect the **current `main` SHA** first. The previously verified production checkpoint was `96b1057f76bbf6ce025c399feacd21c0d3be2c03`; any successor documentation commit must independently pass the exact-SHA Cloudflare deployment, browser verification, and stale-main protection before it is called live-verified.
 2. Do **not** start another repository-wide simplification/refactor pass by default. Phases A–I are complete at the current evidence boundary.
 3. The next hospital product action is **physical-iPhone M4/M5 acceptance** using the checklist in `cardio-hospital-3d/AGENTS.md`. Emulation does not close that gate. If a real-device regression is reproduced, fix only that regression, add the smallest focused protection, then run `npm run test:engine` + `npm run build` and exact-SHA production verification.
-4. StudyHub issue **#39** remains blocked on real Supabase/edge + device evidence; clinical issue **#42** remains blocked on real review evidence. Do not infer either from CI.
+4. StudyHub issue **#39** is now narrowed to two blockers: explicit inbound rate limiting and real-device two-device/offline acceptance. Clinical issue **#42** remains blocked on real review evidence. Do not infer either from CI.
 5. Archive `stevetodman/cooking-timers` when a GitHub settings-capable interface is available. Preserve history; do not delete it.
 6. Only resume performance, caching, shared-code, or build-site refactoring if new measured evidence demonstrates a concrete user or maintenance problem.
