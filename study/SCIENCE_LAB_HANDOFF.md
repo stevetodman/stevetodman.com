@@ -2,184 +2,191 @@
 
 Repository: `stevetodman/stevetodman.com`  
 Primary route: `/study/matter-lab.html`  
+Primary branch while this checkpoint is open: `science-lab-m1-20260903`  
+PR: `#157` - Science Lab M1: trustworthy evidence model with minimal CI  
 Audience: Luke and Samantha  
-Approved direction: evolve the existing Grade 5 Science Lab into a world-class phenomenon-centered adaptive science tutor while preserving the current reliable foundation.
 
 ## Read first
 
-1. `study/SCIENCE_LAB_MASTER_PLAN.md` - approved architecture, invariants, milestones, and acceptance gates.
-2. `study/LOUISIANA_GRADE5_COVERAGE.md` - curriculum coverage contract.
-3. `study/grade5-learning-core.mjs` - adaptive/session engine.
-4. `study/science-grade5-data.mjs` - science curriculum/items.
-5. `tests/grade5-learning-core.test.mjs`
-6. `tests/science-grade5-coverage.test.mjs`
-7. `tests/grade5-learning-browser.test.mjs`
+1. `study/SCIENCE_LAB_HANDOFF.md` - this file; current resume point.
+2. `study/SCIENCE_LAB_MASTER_PLAN.md` - approved architecture and milestone roadmap.
+3. `study/LOUISIANA_GRADE5_COVERAGE.md` - Louisiana curriculum coverage contract.
+4. `study/science-lab/core.mjs` - **primary Science Lab engine**.
+5. `study/science-lab/config.mjs` - Science Lab configuration and transfer metadata.
+6. `study/science-lab/data.mjs` - current Grade 5 science content bank.
+7. `study/science-lab/style.css` - current presentation layer.
+8. `science-lab-tests/core.test.mjs` - only essential learner-model/content invariants.
+9. `science-lab-tests/smoke.test.mjs` - one 390px Chromium route smoke.
+10. `.github/workflows/science-lab-ci.yml` - intentionally minimal CI.
 
-Do **not** use `study/QUALITY_HANDOFF.md` as the Science Lab handoff. That file belongs to the Word Expedition project.
+Do **not** use `study/QUALITY_HANDOFF.md` as the Science Lab handoff. It belongs to Word Expedition.
 
-## Owner decisions
+The old shared files `study/grade5-learning-core.mjs`, `study/science-grade5-data.mjs`, and the old Grade 5 tests are now **secondary/reference implementations for other Study products**. Science Lab has intentionally been split away from them so it can change boldly without destabilizing World Lab.
 
-- Keep the current Science Lab; do not restart it from scratch.
+## Owner decisions - current and authoritative
+
 - Maximum educational value is the goal.
-- Teach Luke and Samantha to think scientifically, not merely answer science questions.
-- Phenomena, investigations, models, graphs, evidence, CER, fair testing, retention, and transfer are the long-term center of the product.
-- Preserve short, low-friction practice and clean iPhone/Chromebook UX.
-- Preserve separate Luke/Samantha learner histories permanently.
-- No sibling leaderboard and no speed rewards.
-- Gamification is secondary and must never affect grading, mastery, curriculum priority, or difficulty.
-- Build one deep Matter vertical slice before scaling the new architecture to every Grade 5 unit.
-- Keep testing proportionate; protect educational/data invariants without creating a testing project of its own.
-
-## Current baseline to preserve
-
-The existing Science Lab already provides:
-
-- `/study/matter-lab.html` Grade 5 Science Lab route;
-- 5 units covering 16 Louisiana Grade 5 science/engineering expectations;
-- 48 science items, with 3 alternate forms per expectation;
-- current Matter focus plus full-year review;
-- separate Luke/Samantha device-local profiles;
-- short eight-question standard sessions;
-- skill-level scoring;
-- errors weighted more strongly than isolated correct answers;
-- same-session alternate-form recovery after a miss;
-- multi-day mastery requirement;
-- resumable active sessions;
-- tables, flow models, and multi-select items;
-- responsive 390 px phone layout and accessibility support;
-- structural, adaptive-core, curriculum-coverage, learner-separation, and reload browser tests.
-
-This foundation is an asset. Deepen it without regressing its reliability or simplicity.
-
-## Accepted audit findings
-
-1. The current system is stronger as an adaptive review engine than as a true `Science Lab`.
-2. The unit of learning should move from isolated questions to scientific phenomena/investigations.
-3. Three alternate forms per expectation are insufficient for long-term transfer and resistance to memorization.
-4. Adaptive ordering exists, but instructional allocation needs to focus much more strongly on each learner's weakest/due concepts.
-5. Guided/recovery success should not be able to establish mastery by itself.
-6. Feedback should diagnose misconceptions, not merely reveal the correct answer.
-7. Graph interpretation/construction, model construction, technology-enhanced responses, and constructed scientific reasoning are major gaps.
-8. Science/engineering practices and crosscutting concepts should become first-class metadata/evidence dimensions.
-9. Cross-device synchronization eventually matters because fragmented learner history weakens adaptivity.
-10. Twin-specific paths should diverge based on evidence; recent sibling item overlap should be avoided when educationally equivalent alternatives exist.
+- Teach scientific thinking, not merely question answering.
+- Phenomena, investigation, models, graphs, evidence, CER, fair testing, retention, transfer, and misconception repair remain the roadmap.
+- Science Lab is not currently in active use by the twins, so **pre-use prototype compatibility may be broken when it enables a cleaner architecture**.
+- M1 therefore uses a fresh `g5-science-lab-v2` local learner store instead of carrying prototype storage baggage forward.
+- Once Luke or Samantha begins using this v2 product for real learning, learner evidence becomes protected data and future schema changes must preserve/migrate it deliberately.
+- Preserve separate Luke/Samantha histories permanently.
+- No sibling leaderboard. No speed rewards.
+- Gamification is secondary and may not change grading, mastery, curriculum priority, or difficulty.
+- Build a deep Matter vertical slice before scaling the new architecture across the full Grade 5 course.
+- **CI and automated tests must remain the absolute minimum needed to catch meaningful regressions.** Do not build another testing project.
+- Bold product/architecture changes are preferred over compatibility scaffolding for an unused prototype.
 
 ## Milestone status
 
-- **M0 Governance/checkpointing: COMPLETE.**
-  - Master plan created.
-  - Dedicated Science Lab handoff created.
-  - Louisiana Grade 5 coverage contract linked to both documents and aligned with the approved phenomenon-based roadmap.
-- **M1 Evidence semantics and true adaptivity: NEXT.**
-- M2+ not started intentionally.
+### M0 - Governance/checkpointing: COMPLETE
 
-M0 documentation commits:
+Master plan and dedicated handoff exist and are linked from the Louisiana Grade 5 coverage contract.
 
-- Master plan: `b27c02d77ceaf49c3e51cb2566bdaa153b8efff8`
-- Initial handoff: `00151dcc1f709aca8f27eaddebcaf8352679a471`
-- Coverage-contract linking/alignment: `73976cbbf4345a49578e03557f2f67f316a58ba6`
+### M1 - Evidence semantics and true adaptivity: IMPLEMENTED AND ESSENTIAL GATE PASSED
 
-The current branch head may be later than those commits. Always inspect actual `main` before editing.
+Current implementation checkpoint before this handoff update:
 
-## Exact next implementation objective: M1
+`d70aa3ec483dff7fc6e4ad41e7b56b31e750e0f0`
 
-Implement the minimum backward-compatible changes needed to make the learner model educationally trustworthy **before** adding graphing, simulations, or gamification.
+PR: `#157`
 
-### Required M1 changes
+Implemented:
 
-1. Add explicit attempt provenance so the engine can distinguish at least:
-   - independent;
-   - hinted;
-   - guided;
-   - recovery;
-   - delayed retrieval;
-   - transfer.
+- dedicated Science Lab engine under `study/science-lab/`;
+- fresh version-2 Science Lab storage key;
+- distinct evidence provenance: independent, hinted, guided, recovery;
+- delayed-retrieval and transfer flags;
+- child-facing evidence states:
+  - New
+  - Learning
+  - Needs repair
+  - Repaired
+  - Retained
+  - Transfer demonstrated
+  - Secure
+- `Secure` requires independent evidence across multiple dates plus delayed retrieval plus transfer;
+- a new independent miss revokes Secure until genuinely recovered;
+- recovery/guided success cannot establish Secure;
+- adaptive queue allocation now gives materially more slots to a weak/due skill rather than merely changing ordering;
+- sibling recent-item avoidance when equivalent forms exist;
+- child-facing pseudo-precision evidence scores removed from the Science Lab summary/dashboard in favor of interpretable states;
+- one of the three existing forms per skill is temporarily tagged as near-transfer so M1 can exercise transfer semantics before the content bank is expanded in later milestones;
+- current Matter unit remains bounded and all 16 Louisiana science/engineering expectations remain represented.
 
-2. Replace/augment binary mastery with interpretable states:
-   - New;
-   - Learning;
-   - Needs repair;
-   - Repaired;
-   - Retained;
-   - Transfer demonstrated;
-   - Secure.
+## Minimal CI - hard rule
 
-3. Enforce:
-   - recovery/guided answers alone cannot produce Secure;
-   - Secure requires independent evidence on multiple dates;
-   - Secure requires delayed retrieval;
-   - Secure requires different-context transfer;
-   - a recent unresolved misconception/error can block or downgrade Secure.
+Steady-state Science Lab CI is intentionally only:
 
-4. Change session allocation so weak/due skills receive substantially more practice rather than merely sorting roughly even skill lanes.
+1. `science-lab-tests/core.test.mjs`
+   - 4 focused tests covering:
+     - trustworthy mastery/evidence semantics;
+     - materially weighted weak-skill allocation;
+     - sibling recent-item avoidance + current-unit bounding;
+     - Luke/Samantha separation + 48-item/16-expectation curriculum presence.
+2. `science-lab-tests/smoke.test.mjs`
+   - one Chromium route at 390x844 checking:
+     - learner picker;
+     - start 8-prompt round;
+     - independent miss;
+     - repair scheduling;
+     - reload without duplicate evidence;
+     - Luke/Samantha active-session separation;
+     - no initial horizontal overflow.
 
-Suggested starting policy for ordinary practice:
+No Science Lab WebKit matrix.  
+No screenshot artifact suite.  
+No full Study suite.  
+No broad accessibility suite on every Science Lab change.  
+No duplicated coverage tests unless a new invariant genuinely requires one.
 
-- ~50% weakest/due;
-- ~25% developing/current-unit;
-- ~15% previously secure concepts due for retrieval;
-- ~10% transfer/challenge.
+Workflow: `.github/workflows/science-lab-ci.yml`
 
-This is an internal scheduling policy, not a child-facing promise. Small content pools require graceful fallback.
+Essential CI run for checkpoint `d70aa3e...`:
 
-5. Add sibling-aware recent-item avoidance when an educationally equivalent alternative exists.
-6. Preserve exact reload/resume and learner separation.
-7. Preserve/migrate existing local learner data; never clear it or mix profiles silently.
-8. Replace child-facing pseudo-precision such as `73/100 evidence strength` with meaningful evidence states where practical. Internal numeric scheduler values may remain.
+- GitHub Actions run `33824981005`
+- job `essential`: **PASS**
+- four learning invariants: **PASS**
+- one phone smoke path: **PASS**
 
-## M1 acceptance gate
+The old `Study contract` workflow also triggered on PR #157 **one time only because this PR edits `.github/workflows/study-contract.yml` itself**. That workflow is being changed to ignore `study/matter-lab.html` and `study/science-lab/**`. Future normal Science Lab changes must not invoke the large Study unit/WebKit workflow.
 
-M1 is not complete until checks demonstrate:
+The general `.github/workflows/tests.yml` does not watch the new `science-lab-tests/` directory, so Science Lab changes also do not fan out into the site-wide test matrix.
 
-- a learner repeatedly weak in one Matter concept receives materially more practice in that concept than in strong concepts;
-- guided/recovery success alone never yields Secure;
-- independent multi-date evidence plus delayed retrieval plus transfer can yield Secure;
-- a recent unresolved error/misconception prevents false Secure status;
-- Luke and Samantha can receive different queues from different histories;
-- sibling recent-item avoidance works when an equivalent item exists;
-- existing learner records migrate without cross-contamination;
-- active-session reload remains exact;
-- current-unit mode preserves curriculum isolation except for explicitly designed retrieval/transfer behavior;
-- no required Louisiana science expectation disappears.
+Do not reverse this CI isolation without a concrete regression that the essential gate cannot catch.
 
-## Files likely involved in M1
+## M1 acceptance evidence
 
-Primary:
+Verified by the focused core tests:
 
-- `study/grade5-learning-core.mjs`
-- `tests/grade5-learning-core.test.mjs`
-- `tests/grade5-learning-browser.test.mjs`
+- guided/recovery-only success cannot yield Secure;
+- independent evidence on multiple dates plus delayed retrieval plus transfer can yield Secure;
+- a recent independent miss produces Needs repair and blocks Secure;
+- a recovery answer after that miss produces Repaired, not Secure;
+- a repeatedly weak Matter skill receives more queue positions than secure peer skills;
+- a sibling item seen recently is skipped when equivalent alternatives are available;
+- current-unit Matter queues remain inside Matter;
+- Luke and Samantha stores remain isolated;
+- the science bank still contains 48 items, 16 expectations, and 12 Matter items.
 
-Only if minimally needed:
+Verified by the one browser smoke:
 
-- `study/science-grade5-data.mjs` for transfer/context metadata;
-- `study/grade5-learning.css` for new mastery-state presentation;
-- `tests/science-grade5-coverage.test.mjs` for new schema/content invariants.
+- 390px route loads;
+- 8-prompt round starts;
+- wrong answer creates repair evidence;
+- reload resumes repair feedback without duplicating evidence;
+- Luke active session remains isolated when switching to Samantha.
 
-Avoid broad unrelated Study changes.
+No physical-child usability or learning-effectiveness claim is implied by these automated checks.
 
-## Ordered roadmap after M1
+## Exact next milestone: M2 - misconception-aware remediation
 
-Proceed in this order unless the owner changes direction:
+Do not expand CI first. Expand learning value first.
 
-1. M2 misconception-aware remediation.
-2. M3 graph/model engine.
-3. M4 phenomenon/task-set engine.
-4. M5 CER/constructed reasoning.
-5. M6 world-class Matter vertical slice.
-6. Only after M6 educational validation, scale across the rest of Grade 5.
+M2 goal: when a learner is wrong, Science Lab should diagnose the likely misconception and give targeted help rather than functioning as an answer key.
 
-See `SCIENCE_LAB_MASTER_PLAN.md` for the full roadmap through cross-device sync, cooperative Twin Lab missions, parent insight, real-world mini-labs, and LEAP-style challenge mode.
+### M2 implementation target
+
+Start with the Matter unit only.
+
+1. Add misconception metadata to Matter distractors.
+2. Add a short hint/remediation model that is specific to the selected misconception.
+3. Distinguish a first independent attempt from any hinted retry.
+4. Do not immediately reveal the correct answer when a useful reasoning hint can support another attempt.
+5. After instruction, still schedule a later independent recheck.
+6. Store the misconception tag on evidence so later adaptive scheduling can respond to recurring misconceptions.
+7. Keep the UI calm and short; do not turn each miss into a long lesson.
+
+Candidate Matter misconception families include:
+
+- `dissolved-means-destroyed`
+- `gas-has-no-mass`
+- `open-system-loss-means-destroyed`
+- `single-property-is-enough`
+- `stirring-alone-means-new-substance`
+- `phase-change-means-new-substance`
+
+### M2 acceptance gate
+
+Keep this small. Add only the minimum new invariant coverage needed to prove:
+
+- two different wrong options on at least one Matter concept can trigger different remediation;
+- hinted success is not recorded as independent mastery evidence;
+- recurring misconception metadata survives reload;
+- later independent recheck is still required.
+
+Prefer adding assertions to the existing 4 core tests / one smoke rather than creating more files or workflows.
 
 ## Resume procedure for every agent
 
-1. Inspect actual current `main`/working branch and dirty state. Do not trust an old chat SHA blindly.
-2. Read this handoff and the current milestone in `SCIENCE_LAB_MASTER_PLAN.md`.
-3. Inspect implementation before editing; preserve unrelated work.
-4. Work only the current milestone or a reproduced regression unless the owner broadens scope.
-5. Keep learner-data changes backward-compatible and versioned.
-6. Add only tests needed to protect the changed educational/data invariant.
-7. Run the proportionate affected tests plus repository build checks required by the change.
-8. Before stopping, update this file with exact completed work, test results, checkpoint commit, open gates, and exact next action.
+1. Inspect current `main`, PR #157, and branch state; do not trust an old chat SHA blindly.
+2. If PR #157 is already merged, continue from the merge commit on `main`; do not recreate M1.
+3. Read the current milestone in `SCIENCE_LAB_MASTER_PLAN.md`.
+4. Treat `study/science-lab/**` as the primary Science Lab implementation.
+5. Preserve unrelated Study projects.
+6. Make bold architectural changes when they improve the unused/pre-use Science Lab, but once v2 real learner data exists, preserve it.
+7. Keep tests minimal and extend existing Science Lab tests before creating new ones.
+8. Before stopping, update this file with exact completed work, exact commit/PR, essential test results, open gate, and exact next action.
 9. Never claim physical-device or child-learning acceptance without actual evidence.
-10. Never restart the project merely because a new agent has taken over.
+10. Do not restart the product merely because a new agent takes over.
