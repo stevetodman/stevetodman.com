@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - scripts/forensic_repo_audit.py
+      - scripts/forensic_repo_full.py
+      - scripts/forensic_audit_extras.py
       - .github/workflows/forensic-zero-trust-audit.yml
   workflow_dispatch:
 
@@ -14,9 +16,12 @@ permissions:
   issues: read
   pull-requests: read
 
+env:
+  AUDIT_CUTOFF: '2026-09-04T21:47:49Z'
+
 concurrency:
   group: forensic-zero-trust-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   repo-history:
@@ -30,11 +35,19 @@ jobs:
       - name: Install binary inspection tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y poppler-utils libimage-exiftool-perl tesseract-ocr git-lfs
-      - name: Scan all reachable Git history and current main
+          sudo apt-get install -y poppler-utils libimage-exiftool-perl tesseract-ocr git-lfs p7zip-full
+      - name: Scan all branch, tag, and retained PR Git refs
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/forensic_repo_audit.py --mode repo --out audit-out/repo
+        run: python3 scripts/forensic_repo_full.py
+      - name: Run provider-aware supplemental secret and privacy patterns
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/forensic_audit_extras.py --mode supplemental-git --out audit-out/repo
+      - name: OCR every reachable PDF page
+        run: python3 scripts/forensic_audit_extras.py --mode pdf-ocr --out audit-out/repo
+      - name: Deep-scan compressed historical archives
+        run: python3 scripts/forensic_audit_extras.py --mode deep-archives --out audit-out/repo
       - uses: actions/upload-artifact@v4
         with:
           name: forensic-repo-history
@@ -50,8 +63,8 @@ jobs:
       - name: Install binary inspection tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y poppler-utils libimage-exiftool-perl tesseract-ocr git-lfs
-      - name: Scan issues, PR surfaces, attachments, releases, and wiki
+          sudo apt-get install -y poppler-utils libimage-exiftool-perl tesseract-ocr git-lfs p7zip-full
+      - name: Scan issues, PR bodies/comments/reviews, attachments, releases, and wiki
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 scripts/forensic_repo_audit.py --mode surfaces --out audit-out/surfaces
@@ -71,10 +84,10 @@ jobs:
         shard: [0, 1, 2, 3, 4, 5, 6, 7]
     steps:
       - uses: actions/checkout@v4
-      - name: Scan Actions logs shard
+      - name: Scan all pre-audit Actions logs in shard
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/forensic_repo_audit.py --mode actions-logs --shard ${{ matrix.shard }} --shards 8 --out audit-out/actions-logs-${{ matrix.shard }}
+        run: python3 scripts/forensic_audit_extras.py --mode actions-logs --shard ${{ matrix.shard }} --shards 8 --out audit-out/actions-logs-${{ matrix.shard }}
       - uses: actions/upload-artifact@v4
         with:
           name: forensic-actions-logs-${{ matrix.shard }}
@@ -94,11 +107,11 @@ jobs:
       - name: Install binary inspection tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y poppler-utils libimage-exiftool-perl tesseract-ocr
-      - name: Scan Actions artifacts shard
+          sudo apt-get install -y poppler-utils libimage-exiftool-perl tesseract-ocr p7zip-full
+      - name: Scan all pre-audit Actions artifacts in shard
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/forensic_repo_audit.py --mode actions-artifacts --shard ${{ matrix.shard }} --shards 4 --out audit-out/actions-artifacts-${{ matrix.shard }}
+        run: python3 scripts/forensic_audit_extras.py --mode actions-artifacts --shard ${{ matrix.shard }} --shards 4 --out audit-out/actions-artifacts-${{ matrix.shard }}
       - uses: actions/upload-artifact@v4
         with:
           name: forensic-actions-artifacts-${{ matrix.shard }}
@@ -120,6 +133,8 @@ jobs:
           merge-multiple: false
       - name: Collate redacted evidence
         run: python3 scripts/forensic_repo_audit.py --mode collate --input audit-input --out audit-final
+      - name: Expand historical path aliases and exact pattern definitions
+        run: python3 scripts/forensic_audit_extras.py --mode augment --final-dir audit-final
       - uses: actions/upload-artifact@v4
         with:
           name: forensic-final-report
