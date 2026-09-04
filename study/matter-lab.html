@@ -6,19 +6,39 @@
   <title>Science Lab · Louisiana Grade 5</title>
   <meta name="description" content="Adaptive Louisiana Grade 5 science practice centered on phenomena, evidence, models, explanations, and engineering decisions.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%AC%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/study/science-lab/style.css?v=20260903m5">
-  <link rel="stylesheet" href="/study/science-lab/visuals.css?v=20260903m5">
-  <link rel="stylesheet" href="/study/science-lab/phenomena.css?v=20260903m5">
+  <link rel="stylesheet" href="/study/science-lab/style.css?v=20260903m6">
+  <link rel="stylesheet" href="/study/science-lab/visuals.css?v=20260903m6">
+  <link rel="stylesheet" href="/study/science-lab/phenomena.css?v=20260903m6">
 </head>
 <body class="g5-science">
   <main id="app"></main>
   <script type="module">
-    import { mountScienceLab, normalizeStore } from '/study/science-lab/core.mjs?v=20260903m5';
-    import { SCIENCE_LAB_CONFIG } from '/study/science-lab/config.mjs?v=20260903m5';
-    import { nextPhenomenon } from '/study/science-lab/phenomenon-engine.mjs?v=20260903m5';
+    import { mountScienceLab, normalizeStore } from '/study/science-lab/core.mjs?v=20260903m6';
+    import { SCIENCE_LAB_CONFIG } from '/study/science-lab/config.mjs?v=20260903m6';
+    import { nextPhenomenon } from '/study/science-lab/phenomenon-engine.mjs?v=20260903m6';
 
     const app = document.getElementById('app');
     mountScienceLab(SCIENCE_LAB_CONFIG);
+
+    function addM6Routes(dashboard, name) {
+      const actions = dashboard.querySelector('.dashboard-actions');
+      if (actions && !actions.querySelector('[data-mini-lab-link]')) {
+        const miniLab = document.createElement('a');
+        miniLab.className = 'secondary-button link-button';
+        miniLab.dataset.miniLabLink = 'true';
+        miniLab.href = `/study/science-lab/mini-lab.html?learner=${encodeURIComponent(name)}`;
+        miniLab.textContent = 'Optional home mini-lab';
+        actions.append(miniLab);
+      }
+      if (actions && !actions.querySelector('[data-adult-evidence-link]')) {
+        const adult = document.createElement('a');
+        adult.className = 'secondary-button link-button';
+        adult.dataset.adultEvidenceLink = 'true';
+        adult.href = '/study/science-lab/adult.html';
+        adult.textContent = 'Adult evidence view';
+        actions.append(adult);
+      }
+    }
 
     function enhanceDashboard() {
       const dashboard = app.querySelector('.dashboard');
@@ -28,6 +48,8 @@
       let root;
       try { root = normalizeStore(JSON.parse(localStorage.getItem(SCIENCE_LAB_CONFIG.storageKey) || 'null')); }
       catch (_) { root = normalizeStore(null); }
+
+      addM6Routes(dashboard, name);
       if (root.active[name]) return;
       const next = nextPhenomenon(SCIENCE_LAB_CONFIG.phenomena, root.learners[name], SCIENCE_LAB_CONFIG.currentUnit);
       if (!next) return;

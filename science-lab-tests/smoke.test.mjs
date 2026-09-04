@@ -16,7 +16,7 @@ after(async () => {
   await server?.close();
 });
 
-test('Science Lab phone smoke: repair, graph, phenomenon, CER, twin separation', async () => {
+test('Science Lab phone smoke: repair, graph, phenomenon, CER, M6 routes, twin separation', async () => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   await page.goto(server.origin + '/study/matter-lab.html');
@@ -27,11 +27,21 @@ test('Science Lab phone smoke: repair, graph, phenomenon, CER, twin separation',
   await page.locator('[data-learner="Luke"]').click();
   assert.equal(await page.locator('.science-investigation-link').isVisible(), true, 'unfinished phenomenon should be the recommended action');
   assert.equal(await page.locator('[data-adaptive-practice]').isVisible(), true, 'short adaptive practice remains available');
+  assert.equal(await page.locator('[data-mini-lab-link]').isVisible(), true, 'optional mini-lab should be available without replacing practice');
+  assert.equal(await page.locator('[data-adult-evidence-link]').isVisible(), true, 'adult evidence view should be available from the dashboard');
   await page.locator('[data-adaptive-practice]').click();
   const initial = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), SCIENCE_LAB_CONFIG.storageKey);
   assert.equal(initial.active.Luke.queue.length, 8);
 
-  const first = SCIENCE_LAB_CONFIG.items.find(item => item.id === initial.active.Luke.queue[0]);
+  await page.evaluate(key => {
+    const state = JSON.parse(localStorage.getItem(key));
+    const remaining = state.active.Luke.queue.filter(id => id !== 'pm1');
+    state.active.Luke.queue = ['pm1', ...remaining].slice(0, 8);
+    localStorage.setItem(key, JSON.stringify(state));
+  }, SCIENCE_LAB_CONFIG.storageKey);
+  await page.reload();
+  await page.locator('[data-learner="Luke"]').click();
+  const first = SCIENCE_LAB_CONFIG.items.find(item => item.id === 'pm1');
   const answers = Array.isArray(first.answer) ? first.answer : [first.answer];
   const wrong = first.choices.map((_choice, index) => index).filter(index => !answers.includes(index)).slice(0, answers.length);
   for (const index of wrong) await page.locator(`[data-choice="${index}"]`).click();
@@ -240,6 +250,15 @@ test('Science Lab phone smoke: repair, graph, phenomenon, CER, twin separation',
   assert.equal(openSession.cer.first.rubric.score, 2);
   assert.equal(openSession.cer.revised.provenance, 'guided');
   assert.equal(openSession.cer.revised.rubric.score, 3);
+
+  await page.goto(server.origin + '/study/science-lab/adult.html');
+  assert.equal(await page.locator('.learner-evidence').count(), 2, 'adult view should keep learner evidence separate');
+  assert.equal(await page.locator('.adult-skill').count(), 8, 'adult view should show four Matter concepts for each learner');
+  assert.match(await page.locator('.adult-main').innerText(), /Delayed retrieval/i);
+  assert.match(await page.locator('.adult-main').innerText(), /Transfer/i);
+  assert.match(await page.locator('.adult-main').innerText(), /Misconception/i);
+  assert.match(await page.locator('.adult-main').innerText(), /Latest CER/i);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, 'adult evidence view must not overflow 390px');
 
   await context.close();
 });
