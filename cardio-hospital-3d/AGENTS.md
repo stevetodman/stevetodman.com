@@ -44,8 +44,10 @@ The remaining product-quality gate is **physical-iPhone M4/M5 acceptance**. Brow
 Verify:
 
 - launch and enter hospital;
-- movement joystick, right-side touch look, interact button;
-- pager and Worklist usability;
+- left movement joystick, right look joystick, simultaneous move + look, and interact button;
+- the interactive team-room clinician shows the expected Speak affordance and opens the briefing;
+- each visible consult case shows the expected Speak/Interact affordance at natural proximity while its task is available, assigned, or in progress;
+- Pager and Worklist open, scroll, and close correctly above the twin-stick controls;
 - Room 1 doorway/collision both directions and proximity interaction;
 - Ava clinical scrolling/tap targets and confidential interview;
 - after confidential return, visually confirm father disappears;
@@ -61,8 +63,9 @@ Verify:
 Repeat the interaction-critical path, especially:
 
 - safe areas;
-- joystick + touch look + interact;
-- pager/Worklist overlays;
+- left movement joystick + right look joystick + simultaneous move/look + interact;
+- Pager/Worklist overlays;
+- clinician and consult-case Speak/Interact proximity behavior;
 - Room 1 doorway;
 - short-height clinical scrolling;
 - ECG controls;
