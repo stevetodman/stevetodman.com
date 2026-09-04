@@ -2,7 +2,7 @@
 
 ## Intended production model
 
-Cloudflare Pages should publish the **generated `dist/` artifact**, not the repository root.
+Cloudflare Pages publishes the **generated `dist/` artifact**, not the repository root.
 
 Repository source can contain tests, migrations, backend functions, developer tools, previews, and internal projects. `scripts/build-site.mjs` establishes the classified static-site boundary; `scripts/build-hospital.mjs` then builds the approved unified Pediatric Hospital source into the generated `/hospital/` production artifact. `PREVIEW`, `INTERNAL`, `SOURCE_ONLY`, and `ARCHIVED` source material stays out of Pages unless it is explicitly promoted.
 
@@ -11,24 +11,21 @@ Repository source can contain tests, migrations, backend functions, developer to
 The primary resident-facing hospital simulator is generated from:
 
 - source: `cardio-hospital-3d/`
-- development branch: `hospital-unified`
-- public production route after merge/deploy: `/hospital/`
+- public production route: `/hospital/`
 
-The source directory itself remains `SOURCE_ONLY`; Pages must never expose `/cardio-hospital-3d/`. The production build runs the hospital's focused canonical-engine tests and static Next.js export, then copies only the generated export into `dist/hospital/`.
+The source directory itself remains `SOURCE_ONLY`; Pages must never expose `/cardio-hospital-3d/`. The current production build performs the hospital build/export and copies only the generated export into `dist/hospital/`. Whether validation should remain inside that build path is tracked in `MASTER_PLAN.md`; do not duplicate that program state here.
 
 The former `/phs/` simulator is archived/reference-only and `/cardiohospital/` remains internal/reference-only. Do not restore either as the primary Resident Education hospital link unless Steve explicitly reverses this promotion.
 
-Publishing `/hospital/` does **not** by itself close the physical-iPhone M4/M5 acceptance gate. Device acceptance remains a separate product-quality requirement.
+Publishing `/hospital/` does **not** by itself close any physical-iPhone acceptance gate recorded by the hospital project. Device acceptance is separate from deployment status.
 
 ## Cloudflare Pages settings
-
-Set the project to:
 
 - **Build command:** `npm run build`
 - **Build output directory:** `dist`
 - **Production branch:** `main`
 
-Do not switch the output directory until `npm run test:platform` passes on the branch containing the build script.
+Do not change production settings without a concrete reproduced problem and the relevant focused verification.
 
 ## Search-engine privacy
 
@@ -40,97 +37,67 @@ The generated artifact includes:
 - `robots.txt` that leaves public crawling unblocked so search engines can read the noindex header;
 - no `sitemap.xml`.
 
-Do **not** use `robots.txt: Disallow /` as the indexing control. A crawler blocked by robots cannot observe the `noindex` directive, and an already-discovered URL can remain visible in search results. Keep the public pages crawlable while noindex is active.
-
-The site already had indexed URLs before this policy was added. After deployment, complete issue #40 to accelerate/verify removal in Google and Bing.
-
-Do not add a sitemap or remove the noindex policy until Steve explicitly decides to make the site discoverable.
+Do **not** use `robots.txt: Disallow /` as the indexing control. A crawler blocked by robots cannot observe the `noindex` directive. Do not add a sitemap or remove the noindex policy until Steve explicitly changes the discoverability policy.
 
 ## Non-production routes
 
-Pages is deliberately **production-only**. Routes classified `PREVIEW` or `INTERNAL` are not copied into `dist/` and should return 404 on the public site.
+Pages is deliberately **production-only**. Routes classified `PREVIEW`, `INTERNAL`, `SOURCE_ONLY`, or `ARCHIVED` are excluded from the public artifact according to `site/catalog.json`.
 
-Examples include:
+Examples of non-production material include:
 
 - `/tools/pediatric-abpm-pathway-preview.html`
-- `/tools/bp-percentile-calculator-preview.html`
 - `/admin/*`
 - `/steven-os/*`
 - `/cardiohospital/*`
-
-This removes the need for Cloudflare Access on the main Pages deployment. If an internal tool later needs remote browser access, give it a separate authenticated deployment or deliberately promote/reclassify it after reviewing the exposure boundary.
-
-`noindex` is not authentication; exclusion is the control.
-
-## Source-only material
-
-The `dist/` build must also exclude repository/backend source such as:
-
-- `cardio-hospital-3d/` source (only its generated `dist/hospital/` export is public)
+- `cardio-hospital-3d/` source
 - `clipboard-sanitizer/`
 - `study/supabase/`
-- Steven OS source/backend files
-- repository tests
+- repository tests and developer files
 
-`npm run test:platform` builds the classified static shell and fails if non-production routes or source-only paths leak into the artifact. The full `npm run build` additionally generates the unified hospital export before search-index generation.
+`noindex` is not authentication; deployment exclusion is the control. If an internal tool needs remote access, give it an appropriately authenticated deployment or deliberately reclassify it after reviewing the exposure boundary.
 
 ## Security headers
 
-`_headers` is version-controlled and includes:
-
-- CSP
-- `X-Content-Type-Options: nosniff`
-- Referrer Policy
-- Permissions Policy
-- frame restrictions
-- global noindex response header
-
-When a production page needs a new cross-origin script/network dependency, update the CSP deliberately and add/adjust tests. Do not disable CSP to make a page work.
-
-## Analytics
-
-If aggregate usage/performance data is desired, enable **Cloudflare Web Analytics** for the Pages project.
-
-Do not add third-party ad pixels, Google Analytics, or a tag manager. Custom events remain disabled until the requirements in `site/ANALYTICS.md` are satisfied.
+`_headers` is version-controlled and includes CSP and the site's security/privacy headers. When a production page needs a new cross-origin dependency, update the policy deliberately and add only the focused regression protection needed for that dependency. Do not disable CSP to make a page work.
 
 ## StudyHub backend
 
-The StudyHub Edge Function/database are deployed separately from Pages. The repository source of truth includes:
+The StudyHub Edge Function/database deploy separately from Pages. Repository source includes `study/supabase/` and the live acceptance contract in `study/CLOUD_SAVE_ACCEPTANCE.md`.
 
-- `study/supabase/functions/studyhub-save/`
-- `study/supabase/migrations/20260819_create_studyhub_saves.sql`
-- `study/CLOUD_SAVE_ACCEPTANCE.md`
+Do not infer live Supabase administrative/device state from repository code. Current external acceptance state belongs in `MASTER_PLAN.md`, not this operations guide.
 
-Operational requirement: apply edge/service rate limiting and error monitoring without adding CAPTCHA or login friction. There is no connected Supabase management tool in the current agent environment, so live project configuration must be applied through the Supabase/edge administration surface and then verified.
+## Production verification
 
-## Cutover verification
-
-After Cloudflare settings deploy `dist/`, run:
+Repository-wide production verification can be invoked with:
 
 ```sh
 npm run verify:production
 ```
 
-or trigger the **Production verification** GitHub workflow.
+For product-specific exact-SHA verification, follow `AGENTS.md` and the relevant workflow. Keep these states distinct:
 
-It must verify:
+1. committed;
+2. pre-deployment CI passed;
+3. Cloudflare Pages deployment succeeded;
+4. the exact current `main` SHA is the production deployment;
+5. required public-browser/touch verification passed.
 
-1. global `X-Robots-Tag: noindex, nofollow, noarchive` and security headers;
-2. deployed public HTML carries `meta name="robots"` with `noindex`, `nofollow`, and `noarchive`;
-3. crawler access remains compatible with the noindex directive;
-4. no `/sitemap.xml` is published while direct-link-only mode is active;
-5. public canonical routes return 200, including `/hospital/` after promotion;
-6. PREVIEW and INTERNAL routes return 404;
-7. SOURCE_ONLY routes return 404, including `/cardio-hospital-3d/`;
-8. custom 404 behavior works.
+Never infer production state from an older successful run.
 
-Do not schedule the production verifier automatically until the initial cutover passes.
+The public artifact should continue to verify:
+
+- global noindex/security headers and matching HTML robots metadata;
+- crawler compatibility with noindex and absence of a sitemap while direct-link-only mode is active;
+- canonical PRODUCTION routes return successfully;
+- PREVIEW, INTERNAL, SOURCE_ONLY, and ARCHIVED material does not become publicly reachable;
+- `/hospital/` is generated while `/cardio-hospital-3d/`, `/phs/`, and `/cardiohospital/` remain outside the production role assigned by the catalog;
+- custom 404 behavior remains correct.
 
 ## Rollback
 
-If the `dist/` deployment exposes a regression:
+If a deployed artifact exposes a regression:
 
-1. use the prior known-good Pages deployment for immediate rollback;
-2. keep the production-only build boundary in place unless the boundary itself is the defect;
-3. fix the branch and re-run platform/behavior tests;
-4. re-run production verification after redeploy.
+1. use the prior known-good Pages deployment for immediate rollback when appropriate;
+2. preserve the production-only boundary unless that boundary itself is the reproduced defect;
+3. fix the smallest reproduced cause and run the relevant focused checks;
+4. redeploy and verify the exact resulting SHA.
