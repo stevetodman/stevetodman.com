@@ -181,7 +181,15 @@ Workflow audit outcome: retain specialized workflows where they protect distinct
 ### Verification hardening
 
 - `4b37918bec6f1d53d2ca1299f7e2c869b2b7c120` — fixed a false-negative hospital post-deploy smoke check. The prior smoke against `be1fb2...` showed HTTP 200, correct CSP, WebGL, service-worker control, and the visible hospital entry page in Chromium and WebKit, but the verifier matched raw `innerText` with whitespace-sensitive literals and reported `entry=false`. The verifier now normalizes visible whitespace before classifying entry/fatal text, with one focused regression test. No hospital executable or clinical logic changed.
-- At the time this checkpoint was authored, the exact-SHA production verification for `4b37918...` was still waiting for that commit's Cloudflare Pages deployment. Do not substitute an older green run or call it production-verified prematurely.
+- `c5ee49ff715e9345e4895646c17a2c8101410ec8` — exact-SHA Cloudflare production deployment, touch-browser verification, and stale-main protection passed after the verifier fix.
+
+### Measured runtime performance
+
+- `dd7f707c526c236f7ac5884e257b12107a519ef9` — established a one-off production baseline in touch-enabled Chromium at 390×844 for `/`, `/education/`, `/hospital/`, `/study/`, and `/math/`. Cold transfer was approximately 3.9 KB, 5.7 KB, **1.204 MB**, 3.3 KB, and 73.6 KB respectively. Hospital was the clear bottleneck; two JavaScript chunks alone transferred about 783 KB and 273 KB.
+- The baseline also showed hospital warm reload at about 3.1 KB, so browser caching already removed almost all repeat transfer. Immutable cache-header work was therefore not the highest-value first change.
+- `e8195c1a3a65daf49b5ef0d031e500ab9af435ec` — deferred only the Three/Rapier-backed world canvas until the user actually enters the hospital. The entry/clinical shell, hospital state, cases, encounters, controls, and world implementation were otherwise unchanged. Focused hospital production contract, engine tests, and build passed.
+- `5167daae2bf7efdf3eb3f1c0f653c588779516f4` — exact production remeasurement confirmed hospital cold transfer fell from **1,203,800 bytes to 175,879 bytes** (about **85% lower**) while warm transfer remained essentially unchanged (~3.1 KB). The heavy Three/Rapier chunks no longer load behind the entry overlay. The other four benchmark routes remained small enough that no broader optimization was justified from this pass.
+- The benchmark workflow was intentionally temporary and should not remain as permanent CI machinery after this evidence is recorded.
 
 ## Known remaining technical debt
 
@@ -205,7 +213,7 @@ Do **not** fabricate a lockfile. Generate/commit one only in a valid dependency-
 
 ### Performance / caching
 
-Performance remains under-measured. Establish a tiny production benchmark for `/`, `/education/`, `/hospital/`, `/study/`, `/math/` before optimizing. Versioned Study assets and `/hospital/_next/static/` may be eligible for immutable caching only after baseline/staleness verification.
+A five-route production baseline now exists. Hospital entry cold transfer was the dominant measured bottleneck and has been reduced by about 85% by deferring the 3D world until entry. Browser warm-cache behavior is already strong. Do not add cache-header complexity merely to improve synthetic numbers; revisit immutable caching only if repeat-visit/staleness evidence shows a real user benefit.
 
 ## Execution queue
 
@@ -260,10 +268,10 @@ Performance remains under-measured. Establish a tiny production benchmark for `/
 
 ### Phase G — measured runtime performance
 
-- [ ] Establish tiny production benchmark.
-- [ ] Capture cold/warm baseline and transferred assets.
-- [ ] Review Study/hospital immutable caching only after baseline.
-- [ ] Fix largest measured bottleneck first.
+- [x] Establish tiny production benchmark.
+- [x] Capture cold/warm baseline and transferred assets.
+- [x] Review Study/hospital immutable caching only after baseline; no cache mutation justified as the first change.
+- [x] Fix largest measured bottleneck first: defer the hospital 3D world until entry, reducing cold transfer by about 85%.
 
 ### Phase H — shared code only if justified
 
@@ -314,9 +322,9 @@ Done means canonical ownership is obvious; superseded repos are archived rather 
 
 ## Exact next action
 
-1. Inspect the **current `main` SHA** first. This plan update follows the verifier-fix commit `4b37918bec6f1d53d2ca1299f7e2c869b2b7c120`; require the current SHA's Cloudflare Pages deployment, exact-SHA production/browser verification, and stale-main protection before calling it live-verified.
-2. If `4b37918...` or its docs-only successor has not finished the exact-SHA gate, do not start performance mutations. Preserve the verifier fix and continue verification only.
-3. Once the exact current SHA is green, begin Phase G with a tiny measured production baseline for `/`, `/education/`, `/hospital/`, `/study/`, and `/math/`. Record response/cache behavior and transferred/static asset weight with the smallest practical measurement method.
-4. Use the baseline to identify the single largest measured bottleneck. Optimize only that bottleneck first.
-5. Review immutable caching only for content-addressed/versioned assets after confirming stale-deploy behavior remains safe.
-6. Keep the hospital lockfile issue deferred unless a real dependency-resolution environment produces a valid lockfile cleanly.
+1. Remove the temporary `.github/workflows/performance-baseline.yml`; the two measured artifacts are sufficient evidence and permanent benchmark CI would add debt.
+2. Inspect the resulting **current `main` SHA** and require its Cloudflare Pages deployment, exact-SHA production/browser verification, and stale-main protection before calling the final cleanup state live-verified.
+3. Do not pursue further runtime optimization without new production evidence. Hospital entry is no longer the dominant transfer problem; physical-iPhone M4/M5 acceptance remains the product-quality gate.
+4. Keep the hospital lockfile/nested-install issue as the next genuine engineering-debt candidate, but only resolve it in a valid dependency-resolution environment that produces a real lockfile cleanly. Do not fabricate one.
+5. Review `build-site.mjs` copy/prune only if a demonstrably simpler positive-inclusion design can preserve the existing production-boundary guarantees.
+6. External owner gates remain #39 StudyHub live backend/device acceptance, #42 clinical review evidence, physical-iPhone hospital acceptance, and archiving `cooking-timers` through a settings-capable GitHub interface.
