@@ -1,102 +1,64 @@
-# Pediatric Hospital — READ THIS FIRST
+# Pediatric Hospital — Local Agent Contract
 
-Last updated: 2026-09-03
-Branch: `hospital-unified`
+Root `MASTER_PLAN.md` owns current repository/program state. This file contains only hospital-local invariants and the remaining physical-device acceptance contract.
 
-This file is the **current resume checkpoint for the next agent**. It supersedes older resume/next-action language in `docs/IMPLEMENTATION_STATUS.md` where that language still says desktop behavioral acceptance is pending.
+## Canonical product
 
-## Current branch / validation state
+- Repository: `stevetodman/stevetodman.com`
+- Application: `cardio-hospital-3d/`
+- Production route: `/hospital/`
+- `/phs/`, `/cardiohospital/`, `stevetodman/pediatric-hospital-world`, `stevetodman/3dworld`, and `stevetodman/the_ward` are reference/legacy sources unless Steve explicitly reverses that decision.
 
-- Current branch head immediately before this handoff file: `1b669252defd1bb475979715d6d3de95b8efe718`.
-- That head is documentation-only relative to the fully behaviorally validated executable checkpoint below.
-- Standard unified engine tests + production build on `1b669252...`: **PASS** — GitHub Actions run `33806948265`.
-- Cloudflare Pages deployment on `1b669252...`: **PASS**.
-- Last fully behaviorally validated executable checkpoint: `ee6f09a06096260a37dbf77e9f68f3eb4999c668`.
-- Focused desktop behavioral acceptance on `ee6f09a0...`: **PASS** — GitHub Actions run `33806615889`.
-- Standard unified engine tests + production build on `ee6f09a0...`: **PASS** — GitHub Actions run `33806615847`.
-- Acceptance artifact: `hospital-desktop-acceptance`, artifact ID `9913217078`.
-- Detailed evidence: `docs/BEHAVIORAL_ACCEPTANCE_2026-09-03.md`.
-- No merge to `main` has occurred.
-- `/cardiohospital/` and the separate `pediatric-hospital-world` repository remain untouched.
+Do not split new hospital implementation work back into legacy repositories or routes.
 
-## Milestone state
+## Durable engine / clinical invariants
 
-- M0 Governance / drift prevention — **COMPLETE**.
-- M1 Canonical engine — **COMPLETE**.
-- M2 HCM vertical slice — **FUNCTIONALLY COMPLETE**.
-- M3 World ↔ clinical integration — **COMPLETE**.
-- M4 Mobile/PWA — **IMPLEMENTED IN CODE; PHYSICAL IPHONE ACCEPTANCE REMAINS**.
-- M5 Hospital workload / second consult — **DESKTOP BEHAVIORAL ACCEPTANCE COMPLETE; PHYSICAL IPHONE ACCEPTANCE REMAINS**.
-- M6+ — **NOT STARTED INTENTIONALLY**.
+- There is one Pediatric Hospital product and one canonical simulation state.
+- `src/lib/cases-data.ts` remains clinical case truth unless a deliberate reviewed medical-content revision is made.
+- Runtime medical reality belongs to the canonical event-driven engine, never React/Three.js/page-local state.
+- Every patient has one stable identity across the world and clinical interfaces.
+- UI state and simulation state remain separate; derived displays may be recomputed, competing state copies are prohibited.
+- New 3D/clinical interactions dispatch domain events rather than mutating clinical state directly.
+- Persist only versioned, serializable canonical state; storage migrations must be explicit.
+- Teaching cases remain synthetic; no PHI.
+- Do not silently alter clinical facts, thresholds, diagnoses, management logic, or source metadata.
+- Prefer deterministic behavior over LLM-dependent core simulation logic.
+- Do not add a backend without a concrete requirement that cannot be met safely client-side.
 
-Do **not** start M6 until the real-iPhone M4/M5 gate passes.
+## Current acceptance boundary
 
-## Desktop acceptance is DONE — do not redo it by default
+Desktop behavioral acceptance is complete. Do **not** rerun the full desktop pass by default.
 
-The full production-build Chromium acceptance passed all of the following:
+Durable evidence:
 
-1. Enter hospital and interact with Dr. Patel.
-2. Accept Marcus Chen.
-3. Navigate to Room 3 and complete the HCM consult through debrief/completion.
-4. Confirm Ava is released only after Marcus completes.
-5. Accept Ava from the pager.
-6. Confirm Worklist simultaneously contains exactly:
-   - `Ava Rodriguez · Cardiology consult`
-   - unfinished `Review overnight cardiology handoff`
-7. Traverse Room 1 doorway corridor → room and room → corridor.
-8. Reacquire Room 1 proximity interaction and enter with `E`.
-9. Perform Ava confidential interview.
-10. Leave and re-enter the same active Ava encounter.
-11. Reload during active Ava history and resume the **same encounter ID, same stage, prior history work, and confidentiality state**.
-12. Confirm no duplicate Ava encounter, Marcus encounter, pager entry, patient, or task state after reload.
-13. Confirm Ava + unfinished handoff Worklist state survives reload.
-14. Complete Ava history → examination → ECG/testing → assessment/management → debrief.
-15. Replay Ava and confirm a fresh encounter with father/confidential state reset and no carried-over history answers.
-16. Repeat the confidential interview on the replay and complete the replay attempt.
-17. Confirm final Ava task/patient disposition complete and no active consult remains.
+- last fully desktop-behaviorally validated executable checkpoint: `ee6f09a06096260a37dbf77e9f68f3eb4999c668`;
+- reproduced Room 1 prompt-cache defect fixed in `5073f86e9f1344f452970c3fb51e43e0246d850b`;
+- detailed desktop evidence: `docs/BEHAVIORAL_ACCEPTANCE_2026-09-03.md`.
 
-Do **not** repeat this entire desktop sequence unless a later code change touches shared behavior covered by these assertions or a real device reveals a shared regression that needs desktop revalidation.
+The remaining product-quality gate is **physical-iPhone M4/M5 acceptance**. Browser/device emulation is not a substitute where this gate is required. Do not begin M6 until it passes.
 
-## Reproduced product bug already fixed
-
-During desktop acceptance, one genuine simulator defect was reproduced:
-
-- **Failure:** after Ava entered confidential history, `Return to the 3D hospital` could leave the learner in Room 1 without the expected `Continue Ava Rodriguez encounter` prompt.
-- **Root cause:** `closeEncounter()` cleared the visible prompt while `InteractionSystem` retained a private `priorPrompt` cache containing the same computed prompt, so it did not republish the externally-cleared prompt.
-- **Fix:** `5073f86e9f1344f452970c3fb51e43e0246d850b`.
-- The exact leave/re-enter sequence passed after the fix and remained green in the final full desktop acceptance.
-
-Do not rework this area unless the device test reproduces another failure.
-
-## Exact next action — REAL IPHONE ACCEPTANCE
-
-Use a **physical iPhone** against the current intentional descendant of the validated checkpoint. Browser/device emulation is not sufficient for this gate.
+## Physical-iPhone acceptance
 
 ### Safari portrait
 
 Verify:
 
 - launch and enter hospital;
-- movement joystick;
-- right-side touch look;
-- interact button;
-- pager open/close and usability;
-- Worklist open/close and usability;
-- Room 1 doorway/collision both directions;
-- Room 1 proximity/interact behavior;
-- Ava clinical scrolling and tap targets;
-- confidential interview;
-- after returning to Room 1, **visually confirm father disappears**;
-- ECG controls, pan/scroll, and touch usability;
-- auscultation audio starts/stops correctly after user interaction;
-- leave/re-enter encounter;
-- reload during active Ava encounter and exact resume without duplicates;
-- complete Ava and **visually confirm Ava disappears from Room 1**;
-- replay and **visually confirm father/fresh confidential state returns**.
+- movement joystick, right-side touch look, interact button;
+- pager and Worklist usability;
+- Room 1 doorway/collision both directions and proximity interaction;
+- Ava clinical scrolling/tap targets and confidential interview;
+- after confidential return, visually confirm father disappears;
+- ECG controls/pan/scroll and touch usability;
+- auscultation audio starts/stops after user interaction;
+- leave/re-enter the same active encounter;
+- reload during active Ava encounter resumes the same encounter/state without duplicates;
+- after completion, visually confirm Ava disappears from Room 1;
+- replay creates a fresh encounter and father/confidential state returns.
 
 ### Safari landscape
 
-Repeat the interaction-critical path after rotating to landscape, especially:
+Repeat the interaction-critical path, especially:
 
 - safe areas;
 - joystick + touch look + interact;
@@ -104,79 +66,40 @@ Repeat the interaction-critical path after rotating to landscape, especially:
 - Room 1 doorway;
 - short-height clinical scrolling;
 - ECG controls;
-- orientation change while the clinical UI is open.
+- orientation change while clinical UI is open.
 
-### Add to Home Screen / installed PWA
+### Installed PWA
 
 Verify:
 
-- Add to Home Screen succeeds;
-- launch from Home Screen succeeds;
-- portrait and landscape are both permitted;
-- reload/resume works in installed mode;
-- audio works after user interaction in installed mode;
-- no obvious severe frame-rate collapse, excessive heat, or unacceptable battery/thermal behavior during a sustained run.
-
-## Evidence boundary from desktop run
-
-The headless desktop runner behaviorally validated movement/collision/proximity and canonical state. Its screenshots captured the DOM/HUD but did **not** visibly capture the WebGL 3D scene. Therefore:
-
-- Room 1 collision/proximity behavior is already desktop-validated.
-- Father removal and Ava removal are supported by canonical state/render gates, but were **not visually image-verified** in headless Chromium.
-- Visually observe both actor transitions on the physical iPhone before closing M4/M5.
+- Add to Home Screen and launch succeed;
+- portrait and landscape are permitted;
+- reload/resume works;
+- audio works after user interaction;
+- no severe frame-rate collapse, excessive heat, or unacceptable battery/thermal behavior during a sustained run.
 
 ## Fix policy during iPhone acceptance
 
-- Reproduce the failure precisely before editing.
+- Reproduce a failure precisely before editing.
 - Fix only demonstrated failures.
-- Keep the canonical engine and single-source-of-truth architecture intact.
-- Add only focused regression coverage for a newly demonstrated state/shared-behavior bug.
-- After any product fix, require `npm run test:engine` + `npm run build` green.
-- Rerun the focused desktop behavioral acceptance only if the fix touches desktop/shared behavior covered by it.
-- Do not widen scope into M6, backend work, new clinical cases, or visual-asset overhaul during this gate.
+- Keep canonical engine/single-source-of-truth architecture intact.
+- Add only focused regression coverage for the reproduced defect.
+- After a product fix, require `npm run test:engine` + `npm run build` green.
+- Rerun full desktop behavioral acceptance only if the fix touches shared behavior covered by that acceptance.
+- Do not widen scope into M6, backend work, new cases, or visual overhaul during this gate.
 
 ## When the iPhone gate passes
 
-1. Record device model, iOS/Safari version, portrait/landscape results, PWA result, audio, ECG, reload/resume, actor-visibility checks, and performance/thermal observations.
-2. Record every reproduced defect and its fixing commit.
-3. Confirm final engine tests + production build are green.
-4. Update `docs/IMPLEMENTATION_STATUS.md` and `docs/BEHAVIORAL_ACCEPTANCE_2026-09-03.md`.
-5. Mark M4 and M5 complete only then.
-6. Only then begin M6, using the existing canonical engine; do not create a parallel state subsystem.
+Record device model, iOS/Safari version, portrait/landscape/PWA/audio/ECG/reload/actor-visibility/thermal results and any reproduced defects/fixing commits. Update the hospital implementation ledger, then mark M4/M5 complete. Only then begin M6 using the existing canonical engine.
 
-## Read next
+## Read only as needed
 
-After this file, read in this order:
+- `docs/BEHAVIORAL_ACCEPTANCE_2026-09-03.md` — completed desktop evidence.
+- `docs/CLINICAL_VALIDATION.md` — clinical validation/evidence boundaries.
+- `docs/HOSPITAL_MASTER_PLAN.md` — hospital architecture and future milestone design.
+- `docs/IMPLEMENTATION_STATUS.md` — historical implementation ledger; root `MASTER_PLAN.md` and this file override stale resume language.
+- `src/lib/hospital-engine.ts`, persistence/store/schedule/consequences/pages/work/scoring — canonical engine internals.
+- `src/lib/clinical-policy/` — case-specific clinical policy.
+- `src/components/` — world, clinical UI, pager/work queue, mobile/touch controls.
 
-1. `docs/BEHAVIORAL_ACCEPTANCE_2026-09-03.md`
-2. `PROJECT-RULES.md`
-3. `docs/HOSPITAL_MASTER_PLAN.md`
-4. `docs/IMPLEMENTATION_STATUS.md` — useful historical ledger, but ignore its stale statements that desktop acceptance is still pending
-5. `docs/CLINICAL_VALIDATION.md`
-6. `src/lib/hospital-engine.ts`
-7. `src/lib/hospital-persistence.ts`
-8. `src/lib/hospital-store.ts`
-9. `src/lib/hospital-schedule.ts`
-10. `src/lib/hospital-consequences.ts`
-11. `src/lib/hospital-pages.ts`
-12. `src/lib/hospital-work.ts`
-13. `src/lib/clinical-policy/hcm-2024.ts`
-14. `src/lib/clinical-policy/vasovagal-2026.ts`
-15. `src/lib/hospital-scoring.ts`
-16. `src/lib/hospital-world-layout.ts`
-17. `src/components/cardio-hospital.tsx`
-18. `src/components/pager-panel.tsx`
-19. `src/components/work-queue-panel.tsx`
-20. `src/components/clinical/hcm-encounter.tsx`
-21. `src/components/clinical/hcm-assessment-stage.tsx`
-22. `src/components/clinical/vasovagal-encounter.tsx`
-23. `src/components/world/hospital-world.tsx`
-24. `src/components/world/architecture.tsx`
-25. `src/components/world/player-controller.tsx`
-26. `src/components/world/interaction-system.tsx`
-27. `src/components/world/patient-room-actors.tsx`
-28. `src/components/mobile-controls.tsx`
-29. `src/components/world/touch-look-controls.tsx`
-30. focused regression scripts under `scripts/`.
-
-The next meaningful action is **physical-iPhone behavioral acceptance**, not more architecture work and not another desktop pass.
+The next hospital product action is physical-iPhone acceptance, not architecture work and not another default desktop pass.
