@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="description" content="Experimental clinician-only evidence workbench for incomplete Kawasaki disease versus non-severe MIS-C.">
+  <title>iKD vs MIS-C Experimental Evidence Workbench | Steve Todman, MD</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell" id="main-content">
+    <a class="back-link" href="/tools/">← Clinical tools</a>
+
+    <header class="hero" aria-labelledby="page-title">
+      <div class="status-chip">EXPERIMENTAL • CLINICIAN-ONLY</div>
+      <h1 id="page-title">iKD ↔ non-severe MIS-C<br><span>Evidence Workbench</span></h1>
+      <p class="lede">Organizes published discriminating findings without producing a diagnosis, score, probability, treatment recommendation, or disposition recommendation.</p>
+      <div class="safety-banner" role="note" aria-label="Experimental use warning">
+        <strong>NOT VALIDATED FOR DIAGNOSIS OR TREATMENT.</strong>
+        <span>Use as an evidence-organizing aid only. Missing data remain unknown. Findings associated with one syndrome do not exclude the other.</span>
+      </div>
+      <p class="privacy-note"><strong>Privacy:</strong> do not enter identifiers. This page has no patient free-text field, does not save entered state, and does not transmit case inputs.</p>
+    </header>
+
+    <section class="card" aria-labelledby="how-heading">
+      <div class="section-kicker">How this version works</div>
+      <h2 id="how-heading">Evidence first, no invented synthesis</h2>
+      <div class="principle-grid">
+        <div><strong>Yes / No / Unknown</strong><span>Every interpreted finding defaults to Unknown.</span></div>
+        <div><strong>Source-attributed</strong><span>Each evidence card names its population and limitation.</span></div>
+        <div><strong>Discordance preserved</strong><span>Evidence on both sides is shown, not averaged away.</span></div>
+        <div><strong>No criteria counting</strong><span>CDC surveillance components are displayed individually, never converted into a diagnosis.</span></div>
+      </div>
+    </section>
+
+    <form id="workbench-form" novalidate>
+      <section class="card" aria-labelledby="comparative-heading">
+        <div class="section-kicker">1 · Comparative phenotype</div>
+        <h2 id="comparative-heading">Findings with published discriminatory signal</h2>
+        <p class="section-note">Select only findings already established from the clinical record. “No” means specifically assessed and absent; otherwise leave Unknown.</p>
+        <div class="field-grid">
+          <label class="field" for="gi">
+            <span>Gastrointestinal symptoms</span>
+            <small>Abdominal pain, vomiting, or diarrhea</small>
+            <select id="gi" data-evidence-input>
+              <option value="unknown" selected>Unknown</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+
+          <label class="field" for="thrombocytopenia">
+            <span>Thrombocytopenia documented</span>
+            <small>Per treating laboratory / clinical interpretation</small>
+            <select id="thrombocytopenia" data-evidence-input>
+              <option value="unknown" selected>Unknown</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+
+          <label class="field" for="lymphopenia">
+            <span>Lymphopenia documented</span>
+            <small>Per treating laboratory / clinical interpretation</small>
+            <select id="lymphopenia" data-evidence-input>
+              <option value="unknown" selected>Unknown</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+
+          <label class="field" for="pyuria">
+            <span>Pyuria present</span>
+            <small>Urinary finding used only as comparative evidence</small>
+            <select id="pyuria" data-evidence-input>
+              <option value="unknown" selected>Unknown</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+
+          <label class="field" for="lvef-low">
+            <span>LVEF &lt;55%</span>
+            <small>Exact threshold used in published MIS-C context/modeling</small>
+            <select id="lvef-low" data-evidence-input>
+              <option value="unknown" selected>Unknown</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+
+          <label class="field" for="coronary-aneurysm">
+            <span>Coronary aneurysm / max Z ≥2.5</span>
+            <small>Does not exclude MIS-C</small>
+            <select id="coronary-aneurysm" data-evidence-input>
+              <option value="unknown" selected>Unknown</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+
+          <label class="field" for="ntprobnp">
+            <span>NT-proBNP ≥1500 ng/L</span>
+            <small>Use only if the reported units match exactly</small>
+            <select id="ntprobnp" data-evidence-input>
+              <option value="unknown" selected>Unknown</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+
+          <label class="field" for="troponin-i">
+            <span>Troponin I ≥20 ng/L</span>
+            <small>Use only if the assay and units are appropriate</small>
+            <select id="troponin-i" data-evidence-input>
+              <option value="unknown" selected>Unknown</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+
+          <label class="field" for="ddimer">
+            <span>Marked D-dimer elevation</span>
+            <small>Qualitative local context only; no universal discriminator threshold encoded</small>
+            <select id="ddimer" data-evidence-input>
+              <option value="unknown" selected>Unknown</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="context-heading">
+        <div class="section-kicker">2 · Phenotype and surveillance context</div>
+        <h2 id="context-heading">Context kept separate from discriminatory evidence</h2>
+        <p class="section-note">These items are shown for orientation only. The application does not count criteria or declare that a surveillance definition is met.</p>
+
+        <h3>Kawasaki phenotype</h3>
+        <div class="field-grid compact">
+          <label class="field" for="rash"><span>Polymorphous rash</span><select id="rash" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+          <label class="field" for="conjunctivitis"><span>Bilateral non-exudative conjunctival injection</span><select id="conjunctivitis" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+          <label class="field" for="oral"><span>Oral / lip changes</span><select id="oral" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+          <label class="field" for="extremity"><span>Extremity changes</span><select id="extremity" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+          <label class="field" for="nodes"><span>Cervical lymphadenopathy</span><select id="nodes" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+        </div>
+
+        <h3>CSTE/CDC MIS-C surveillance components</h3>
+        <div class="definition-warning" role="note"><strong>Surveillance definition — not diagnostic criteria.</strong> CDC states that this definition is for surveillance and is not intended to replace clinical judgment or direct individual patient management.</div>
+        <div class="field-grid compact">
+          <label class="field" for="hospitalized"><span>Hospitalization for inflammatory illness</span><select id="hospitalized" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+          <label class="field" for="crp3"><span>CRP ≥3.0 mg/dL (30 mg/L)</span><select id="crp3" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+          <label class="field" for="sarscov2"><span>SARS-CoV-2 laboratory / epidemiologic evidence in relevant window</span><select id="sarscov2" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+          <label class="field" for="shock"><span>Shock documented</span><select id="shock" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+          <label class="field" for="platelet150"><span>Platelet count &lt;150,000/µL</span><select id="platelet150" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+          <label class="field" for="alc1000"><span>ALC &lt;1,000/µL</span><select id="alc1000" data-evidence-input><option value="unknown" selected>Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="model-heading">
+        <div class="section-kicker">3 · Published-model applicability</div>
+        <h2 id="model-heading">Starnes model input availability</h2>
+        <p class="section-note">The published model used age, sodium, platelet count, ALT, reduced LVEF, and CRP. This workbench records input availability only and does not calculate the model result. The model requires external validation.</p>
+        <div class="field-grid compact" id="model-fields">
+          <label class="field" for="model-age"><span>Age available</span><select id="model-age" data-model-input><option value="unknown" selected>Unknown</option><option value="available">Available</option><option value="unavailable">Not available</option></select></label>
+          <label class="field" for="model-sodium"><span>Sodium available</span><select id="model-sodium" data-model-input><option value="unknown" selected>Unknown</option><option value="available">Available</option><option value="unavailable">Not available</option></select></label>
+          <label class="field" for="model-platelet"><span>Platelet count available</span><select id="model-platelet" data-model-input><option value="unknown" selected>Unknown</option><option value="available">Available</option><option value="unavailable">Not available</option></select></label>
+          <label class="field" for="model-alt"><span>ALT available</span><select id="model-alt" data-model-input><option value="unknown" selected>Unknown</option><option value="available">Available</option><option value="unavailable">Not available</option></select></label>
+          <label class="field" for="model-crp"><span>CRP available</span><select id="model-crp" data-model-input><option value="unknown" selected>Unknown</option><option value="available">Available</option><option value="unavailable">Not available</option></select></label>
+          <label class="field" for="model-lvef"><span>LVEF classification available</span><select id="model-lvef" data-model-input><option value="unknown" selected>Unknown</option><option value="available">Available</option><option value="unavailable">Not available</option></select></label>
+        </div>
+        <div id="model-status" class="model-status" aria-live="polite"></div>
+        <div class="model-notes">
+          <p><strong>KIDMATCH:</strong> not reproduced here. Integration requires a verified authoritative implementation, model artifacts, preprocessing, licensing, and rejection behavior.</p>
+          <p><strong>2026 contemporaneous iKD vs non-severe MIS-C study:</strong> numeric integration is gated on verified full-text/supplement extraction.</p>
+        </div>
+      </section>
+
+      <div class="action-row">
+        <button type="reset" id="reset-all">Reset all</button>
+        <span>Reloading the page also clears all case state.</span>
+      </div>
+    </form>
+
+    <section class="results" aria-labelledby="results-heading">
+      <div class="results-header">
+        <div>
+          <div class="section-kicker">Evidence view</div>
+          <h2 id="results-heading">Source-attributed findings</h2>
+        </div>
+        <div id="evidence-state" class="evidence-state" role="status" aria-live="polite">INSUFFICIENT DISCRIMINATING DATA</div>
+      </div>
+
+      <div class="evidence-columns">
+        <section class="evidence-panel" aria-labelledby="misc-heading">
+          <h3 id="misc-heading">MIS-C-associated evidence present</h3>
+          <div id="misc-evidence" class="evidence-list"><p class="empty">No source-attributed MIS-C-associated findings selected.</p></div>
+        </section>
+        <section class="evidence-panel" aria-labelledby="kd-heading">
+          <h3 id="kd-heading">iKD / KD-associated evidence present</h3>
+          <div id="kd-evidence" class="evidence-list"><p class="empty">No source-attributed iKD/KD-associated findings selected.</p></div>
+        </section>
+      </div>
+
+      <section class="context-panel" aria-labelledby="context-output-heading">
+        <h3 id="context-output-heading">Overlap / definition context selected</h3>
+        <div id="context-evidence" class="evidence-list"><p class="empty">No context findings selected.</p></div>
+      </section>
+
+      <div class="uncertainty-box">
+        <h3>Interpretation boundary</h3>
+        <ul>
+          <li>Neither KD nor MIS-C has a single definitive diagnostic test.</li>
+          <li>Published group differences do not establish an individual patient diagnosis.</li>
+          <li>A finding associated with one syndrome does not rule out the other.</li>
+          <li>Unknown findings remain unknown and are never treated as normal.</li>
+          <li>Alternative infectious, inflammatory, toxic, and rheumatologic diagnoses still require clinical evaluation.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="card references" aria-labelledby="references-heading">
+      <div class="section-kicker">Evidence registry v0.1</div>
+      <h2 id="references-heading">Core references and limits</h2>
+      <ol>
+        <li><strong>Jone PN, et al. Circulation. 2024.</strong> AHA Kawasaki Disease scientific statement update. DOI 10.1161/CIR.0000000000001295.</li>
+        <li><strong>Melgar M, et al. MMWR Recomm Rep. 2022.</strong> CSTE/CDC MIS-C surveillance definition effective January 1, 2023. DOI 10.15585/mmwr.rr7104a1. Surveillance, not diagnostic, criteria.</li>
+        <li><strong>Fan LK, et al. Hospital Pediatrics. 2023.</strong> Non-severe MIS-C versus prepandemic iKD without coronary involvement; substantial overlap remains.</li>
+        <li><strong>Starnes LS, et al. J Hosp Med. 2024.</strong> Internally validated MIS-C versus KD prediction model; external validation required.</li>
+        <li><strong>Walton M, et al. Pediatr Cardiol. 2023.</strong> Contemporaneous cardiac biomarker comparison; published thresholds are cohort- and assay-contextual.</li>
+        <li><strong>Lee S, et al. J Am Heart Assoc. 2025.</strong> Contemporaneous IKDR coronary involvement comparison; coronary aneurysm was less prevalent and less severe in MIS-C than KD, not absent in MIS-C.</li>
+        <li><strong>Lippi G, et al. Diagnosis (Berl). 2024.</strong> D-dimer meta-analysis; no harmonized diagnostic threshold established.</li>
+      </ol>
+      <p class="pending-source"><strong>Pending source lock:</strong> the 2026 contemporaneous iKD versus non-severe MIS-C IKDR paper will not contribute numeric thresholds or weights until its full text and supplement are verified.</p>
+    </section>
+
+    <footer>
+      <span>Experimental evidence workbench • v0.1</span>
+      <a href="/privacy/">Privacy</a>
+    </footer>
+  </main>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
