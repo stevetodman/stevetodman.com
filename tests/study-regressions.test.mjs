@@ -78,8 +78,14 @@ test('Study releases have minimal dedicated CI, live canaries, and stale-cache d
   assert.match(workflow, /!study\/us-states\.html/);
 
   const liveWorkflow = read('.github/workflows/study-live-canary.yml');
-  assert.match(liveWorkflow, /name: Study live canary/);
-  assert.match(liveWorkflow, /npm run verify:study-production/);
+  assert.match(liveWorkflow, /name: Study production deployment/);
+  assert.match(liveWorkflow, /push:\s*\n\s*branches: \[main\]/);
+  assert.match(liveWorkflow, /checks: read/);
+  assert.ok(
+    liveWorkflow.indexOf('node scripts/wait-for-cloudflare-production.mjs')
+      < liveWorkflow.indexOf('node scripts/verify-study-deployment.mjs'),
+    'exact Cloudflare deployment wait must precede live browser verification',
+  );
   assert.match(liveWorkflow, /schedule:/);
   assert.match(liveWorkflow, /workflow_dispatch:/);
 
