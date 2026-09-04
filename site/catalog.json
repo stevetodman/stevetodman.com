@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "searchPolicy": "noindex",
-  "updated": "2026-09-03",
+  "updated": "2026-09-04",
   "classes": ["PRODUCTION", "PREVIEW", "INTERNAL", "SOURCE_ONLY", "ARCHIVED"],
   "items": [
     {"id":"home","title":"Steve Todman, MD","route":"/","class":"PRODUCTION","audience":"all","category":"home"},
@@ -15,6 +15,7 @@
     {"id":"bp-calculator","title":"Pediatric BP Percentile Calculator","route":"/tools/bp-percentile-calculator.html","class":"PRODUCTION","audience":"clinicians","category":"clinical-tools"},
     {"id":"bp-validation","title":"BP Calculator Validation","route":"/tools/bp-calculator-validation.html","class":"PRODUCTION","audience":"clinicians","category":"clinical-tools"},
     {"id":"pediatric-hypertriglyceridemia","title":"Pediatric Hypertriglyceridemia Decision Tool","route":"/tools/pediatric-hypertriglyceridemia.html","class":"PRODUCTION","audience":"clinicians","category":"clinical-tools"},
+    {"id":"kd-misc-experimental","title":"iKD vs MIS-C Experimental Evidence Workbench","route":"/tools/kd-misc-experimental/","class":"PRODUCTION","audience":"owner","category":"clinical-tools","discoverable":false},
     {"id":"abpm-preview","title":"Pediatric ABPM Pathway Preview","route":"/tools/pediatric-abpm-pathway-preview.html","class":"PREVIEW","audience":"clinicians","category":"clinical-tools"},
 
     {"id":"hospital","title":"Pediatric Hospital Simulator","route":"/hospital/","class":"PRODUCTION","audience":"residents","category":"simulation","discoverable":false,"generated":true},

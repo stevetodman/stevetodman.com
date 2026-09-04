@@ -1,0 +1,46 @@
+name: KD MIS-C experimental workbench
+
+on:
+  pull_request:
+    paths:
+      - 'tools/kd-misc-experimental/**'
+      - 'docs/KD_MISC_EXPERIMENTAL_TOOL_PLAN.md'
+      - 'tests/kd-misc-experimental.test.mjs'
+      - 'site/catalog.json'
+      - 'package.json'
+      - '.github/workflows/kd-misc-experimental.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/kd-misc-experimental/**'
+      - 'docs/KD_MISC_EXPERIMENTAL_TOOL_PLAN.md'
+      - 'tests/kd-misc-experimental.test.mjs'
+      - 'site/catalog.json'
+      - 'package.json'
+      - '.github/workflows/kd-misc-experimental.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: kd-misc-experimental-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Clinical and phone acceptance
+        run: npm run test:kd-misc
+      - name: Production-boundary invariant
+        run: node --test tests/platform-policy.test.mjs
