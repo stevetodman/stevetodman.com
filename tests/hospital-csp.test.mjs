@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { classifyHospitalBody } from '../scripts/hospital-live-body-check.mjs';
 import { repoRoot } from './helpers/harness.mjs';
 
 const headers = fs.readFileSync(path.join(repoRoot, '_headers'), 'utf8');
@@ -31,4 +32,14 @@ test('production CSP permits Rapier WebAssembly without enabling general JavaScr
       'general JavaScript unsafe-eval must remain disabled; only wasm-unsafe-eval is required',
     );
   }
+});
+
+test('hospital live-entry check tolerates layout whitespace in visible text', () => {
+  const bodyText = 'LSU HEALTH\nPediatric\nHospital\nYour shift is ready\nEnter\nthe hospital';
+  const result = classifyHospitalBody(bodyText);
+
+  assert.equal(result.entry, true);
+  assert.equal(result.fatal, false);
+  assert.match(result.visibleText, /Pediatric Hospital/);
+  assert.match(result.visibleText, /Enter the hospital/);
 });

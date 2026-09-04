@@ -1,4 +1,5 @@
 import { chromium, webkit } from 'playwright';
+import { classifyHospitalBody } from './hospital-live-body-check.mjs';
 
 const url = process.env.HOSPITAL_URL || 'https://stevetodman.com/hospital/';
 const engines = [
@@ -38,7 +39,8 @@ for (const [name, engine] of engines) {
   await page.waitForTimeout(12_000);
 
   const bodyText = await page.locator('body').innerText().catch(() => '');
-  console.log(`BODY ${bodyText.replace(/\s+/g, ' ').slice(0, 1000)}`);
+  const { visibleText, fatal, entry } = classifyHospitalBody(bodyText);
+  console.log(`BODY ${visibleText.slice(0, 1000)}`);
 
   const runtime = await page.evaluate(() => {
     const canvas = document.querySelector('canvas');
@@ -62,8 +64,6 @@ for (const [name, engine] of engines) {
 
   for (const event of events) console.log(event);
 
-  const fatal = /The clinical world could not load\./.test(bodyText);
-  const entry = /Pediatric Hospital/.test(bodyText) && /Enter the hospital|Resume patient|Loading saved shift/.test(bodyText);
   const wasmCspError = events.some((event) => /WebAssembly|wasm-unsafe-eval|unsafe-eval/.test(event));
   console.log(
     `RESULT fatal=${fatal} entry=${entry} allowsWasm=${allowsWasm} allowsGeneralEval=${allowsGeneralEval} wasmCspError=${wasmCspError} eventCount=${events.length}`,
