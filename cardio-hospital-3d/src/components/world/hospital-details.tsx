@@ -1,6 +1,6 @@
 import { Box, Cylinder } from "./primitives";
 
-function DoorFrame({ x, side }: { x: number; side: -1 | 1 }) {
+function DoorFrame({ side }: { side: -1 | 1 }) {
   const wallX = side * 2.24;
   return (
     <group>
@@ -93,8 +93,8 @@ export function HospitalClinicalDetails() {
     <group>
       <CorridorRail side={-1} />
       <CorridorRail side={1} />
-      <DoorFrame x={0} side={-1} />
-      <DoorFrame x={0} side={1} />
+      <DoorFrame side={-1} />
+      <DoorFrame side={1} />
       <FloorWayfinding />
 
       <ClinicalHeadwall roomX={-5.35} side={-1} />
