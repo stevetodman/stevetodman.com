@@ -4,16 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Science Lab · Louisiana Grade 5</title>
-  <meta name="description" content="Adaptive, full-year Louisiana Grade 5 science practice with models, data, explanations, and engineering challenges.">
+  <meta name="description" content="Adaptive Louisiana Grade 5 science practice centered on evidence, models, explanations, and engineering decisions.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%AC%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/study/grade5-learning.css?v=20260903">
+  <link rel="stylesheet" href="/study/science-lab/style.css?v=20260903m1">
 </head>
 <body class="g5-science">
   <main id="app"></main>
   <script type="module">
-    import { mountGrade5Learning } from '/study/grade5-learning-core.mjs?v=20260903';
-    import { SCIENCE_CONFIG } from '/study/science-grade5-data.mjs?v=20260903';
-    mountGrade5Learning(SCIENCE_CONFIG);
+    import { mountScienceLab } from '/study/science-lab/core.mjs?v=20260903m1';
+    import { SCIENCE_LAB_CONFIG } from '/study/science-lab/config.mjs?v=20260903m1';
+    mountScienceLab(SCIENCE_LAB_CONFIG);
   </script>
 </body>
 </html>

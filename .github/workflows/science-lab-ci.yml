@@ -1,0 +1,42 @@
+name: Science Lab essential
+
+on:
+  pull_request:
+    paths:
+      - 'study/matter-lab.html'
+      - 'study/science-lab/**'
+      - 'science-lab-tests/**'
+      - '.github/workflows/science-lab-ci.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'study/matter-lab.html'
+      - 'study/science-lab/**'
+      - 'science-lab-tests/**'
+      - '.github/workflows/science-lab-ci.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: science-lab-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  essential:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Four learning invariants
+        run: node --test science-lab-tests/core.test.mjs
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: One phone smoke path
+        run: node --test science-lab-tests/smoke.test.mjs
