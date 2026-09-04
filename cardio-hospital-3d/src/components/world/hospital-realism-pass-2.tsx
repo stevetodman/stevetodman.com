@@ -107,7 +107,6 @@ export function HospitalRealismPass2() {
   return (
     <group>
       <ClinicianEnhancement position={[0, 0, 10.55]} coat />
-      <ClinicianEnhancement position={[2.6, 0, 8.8]} coat={false} scrubColor="#3f8ca4" />
       <ExamRoomEquipment roomX={-5.35} mirrored />
       <ExamRoomEquipment roomX={5.35} />
     </group>

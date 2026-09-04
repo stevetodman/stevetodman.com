@@ -93,7 +93,6 @@ export function TeamRoom() {
       <AcousticPanel position={[4.9, 2.08, 8]} />
       <AcousticPanel position={[4.9, 2.08, 9.9]} />
       <Clinician position={[0, 0, 10.55]} />
-      <Clinician position={[2.6, 0, 8.8]} coat={false} />
       <CeilingLights positions={[[-2.8, 2.92, 6.2], [0, 2.92, 6.2], [2.8, 2.92, 6.2], [-2.8, 2.92, 9.8], [0, 2.92, 9.8], [2.8, 2.92, 9.8]]} />
     </group>
   );
