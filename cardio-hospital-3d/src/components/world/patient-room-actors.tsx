@@ -13,12 +13,36 @@ import {
 } from "@/lib/scenario-ids";
 import { Box, Cylinder } from "./primitives";
 
+const SKIN = "#b97b5a";
+const HAIR = "#2e211c";
+
 function Head({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
   return (
-    <mesh position={position} scale={scale} castShadow>
-      <sphereGeometry args={[0.19, 18, 14]} />
-      <meshStandardMaterial color="#b97b5a" roughness={0.8} />
-    </mesh>
+    <group position={position} scale={scale}>
+      <mesh castShadow scale={[0.88, 1.08, 0.92]}>
+        <sphereGeometry args={[0.19, 16, 12]} />
+        <meshStandardMaterial color={SKIN} roughness={0.78} />
+      </mesh>
+      <mesh position={[0, 0.11, 0.015]} scale={[0.92, 0.48, 0.94]} castShadow>
+        <sphereGeometry args={[0.19, 14, 10]} />
+        <meshStandardMaterial color={HAIR} roughness={0.92} />
+      </mesh>
+      <Box size={[0.035, 0.025, 0.022]} position={[-0.058, 0.018, -0.17]} color="#24201f" />
+      <Box size={[0.035, 0.025, 0.022]} position={[0.058, 0.018, -0.17]} color="#24201f" />
+      <Box size={[0.055, 0.016, 0.018]} position={[0, -0.065, -0.175]} color="#7a4b40" />
+    </group>
+  );
+}
+
+function SeatedBody({ shirtColor, adult = false }: { shirtColor: string; adult?: boolean }) {
+  const torsoHeight = adult ? 0.72 : 0.65;
+  const shoulderWidth = adult ? 0.5 : 0.46;
+  return (
+    <>
+      <Cylinder radius={adult ? 0.205 : 0.19} height={torsoHeight} position={[0, 0.47, 0]} color={shirtColor} />
+      <Box size={[shoulderWidth, 0.12, 0.24]} position={[0, 0.72, 0]} color={shirtColor} roughness={0.75} />
+      <Cylinder radius={0.07} height={0.12} position={[0, 0.86, 0]} color={SKIN} />
+    </>
   );
 }
 
@@ -37,15 +61,17 @@ function SeatedAdolescent({ position, rotation, patientId, caseId, shirtColor }:
       rotation={rotation}
       userData={{ entityType: "patient", patientId, caseId }}
     >
-      <Cylinder radius={0.2} height={0.72} position={[0, 0.46, 0]} color={shirtColor} />
-      <Box size={[0.46, 0.13, 0.22]} position={[0, 0.74, 0]} color="#efe8dc" roughness={0.8} />
+      <SeatedBody shirtColor={shirtColor} />
       <Head position={[0, 1.04, 0]} />
-      <Cylinder radius={0.055} height={0.58} position={[-0.25, 0.43, 0]} rotation={[0, 0, -0.18]} color="#b97b5a" />
-      <Cylinder radius={0.055} height={0.58} position={[0.25, 0.43, 0]} rotation={[0, 0, 0.18]} color="#b97b5a" />
-      <Cylinder radius={0.07} height={0.72} position={[-0.13, -0.05, 0.17]} rotation={[Math.PI / 2.6, 0, 0]} color="#252b32" />
-      <Cylinder radius={0.07} height={0.72} position={[0.13, -0.05, 0.17]} rotation={[Math.PI / 2.6, 0, 0]} color="#252b32" />
-      <Box size={[0.16, 0.09, 0.31]} position={[-0.13, -0.37, 0.46]} color="#e4e7e7" roughness={0.72} />
-      <Box size={[0.16, 0.09, 0.31]} position={[0.13, -0.37, 0.46]} color="#e4e7e7" roughness={0.72} />
+      <Cylinder radius={0.052} height={0.48} position={[-0.27, 0.48, 0.03]} rotation={[0.08, 0, -0.23]} color={SKIN} />
+      <Cylinder radius={0.052} height={0.48} position={[0.27, 0.48, 0.03]} rotation={[0.08, 0, 0.23]} color={SKIN} />
+      <mesh position={[-0.3, 0.27, 0.07]} castShadow><sphereGeometry args={[0.065, 10, 8]} /><meshStandardMaterial color={SKIN} roughness={0.8} /></mesh>
+      <mesh position={[0.3, 0.27, 0.07]} castShadow><sphereGeometry args={[0.065, 10, 8]} /><meshStandardMaterial color={SKIN} roughness={0.8} /></mesh>
+      <Box size={[0.42, 0.16, 0.28]} position={[0, 0.08, 0.04]} color="#252b32" roughness={0.88} />
+      <Cylinder radius={0.075} height={0.63} position={[-0.13, -0.19, 0.2]} rotation={[Math.PI / 2.55, 0, 0]} color="#252b32" />
+      <Cylinder radius={0.075} height={0.63} position={[0.13, -0.19, 0.2]} rotation={[Math.PI / 2.55, 0, 0]} color="#252b32" />
+      <Box size={[0.18, 0.105, 0.34]} position={[-0.13, -0.48, 0.49]} color="#e4e7e7" roughness={0.72} />
+      <Box size={[0.18, 0.105, 0.34]} position={[0.13, -0.48, 0.49]} color="#e4e7e7" roughness={0.72} />
     </group>
   );
 }
@@ -64,12 +90,17 @@ function ParentActor({ position, rotation, patientId, shirtColor }: ParentActorP
       rotation={rotation}
       userData={{ entityType: "family", relatedPatientId: patientId }}
     >
-      <Cylinder radius={0.19} height={0.68} position={[0, 0.38, 0]} color={shirtColor} />
-      <Head position={[0, 0.92, 0]} scale={0.95} />
-      <Cylinder radius={0.05} height={0.5} position={[-0.22, 0.37, 0]} rotation={[0, 0, -0.2]} color="#b97b5a" />
-      <Cylinder radius={0.05} height={0.5} position={[0.22, 0.37, 0]} rotation={[0, 0, 0.2]} color="#b97b5a" />
-      <Cylinder radius={0.065} height={0.62} position={[-0.1, -0.1, 0.09]} rotation={[Math.PI / 2.8, 0, 0]} color="#2c3236" />
-      <Cylinder radius={0.065} height={0.62} position={[0.1, -0.1, 0.09]} rotation={[Math.PI / 2.8, 0, 0]} color="#2c3236" />
+      <SeatedBody shirtColor={shirtColor} adult />
+      <Head position={[0, 1.05, 0]} scale={1.04} />
+      <Cylinder radius={0.055} height={0.5} position={[-0.28, 0.48, 0.02]} rotation={[0.05, 0, -0.2]} color={SKIN} />
+      <Cylinder radius={0.055} height={0.5} position={[0.28, 0.48, 0.02]} rotation={[0.05, 0, 0.2]} color={SKIN} />
+      <mesh position={[-0.3, 0.25, 0.06]} castShadow><sphereGeometry args={[0.07, 10, 8]} /><meshStandardMaterial color={SKIN} roughness={0.8} /></mesh>
+      <mesh position={[0.3, 0.25, 0.06]} castShadow><sphereGeometry args={[0.07, 10, 8]} /><meshStandardMaterial color={SKIN} roughness={0.8} /></mesh>
+      <Box size={[0.44, 0.17, 0.29]} position={[0, 0.05, 0.03]} color="#2c3236" />
+      <Cylinder radius={0.075} height={0.62} position={[-0.12, -0.22, 0.17]} rotation={[Math.PI / 2.7, 0, 0]} color="#2c3236" />
+      <Cylinder radius={0.075} height={0.62} position={[0.12, -0.22, 0.17]} rotation={[Math.PI / 2.7, 0, 0]} color="#2c3236" />
+      <Box size={[0.18, 0.1, 0.32]} position={[-0.12, -0.5, 0.43]} color="#343638" roughness={0.82} />
+      <Box size={[0.18, 0.1, 0.32]} position={[0.12, -0.5, 0.43]} color="#343638" roughness={0.82} />
     </group>
   );
 }
