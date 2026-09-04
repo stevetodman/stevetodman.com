@@ -34,7 +34,17 @@ export default function PagerPanel() {
               <p className="eyebrow">Cardiology service</p>
               <h2>Pager</h2>
             </div>
-            <span>{pages.length} message{pages.length === 1 ? "" : "s"}</span>
+            <div className="pager-header-actions">
+              <span>{pages.length} message{pages.length === 1 ? "" : "s"}</span>
+              <button
+                type="button"
+                className="pager-close"
+                aria-label="Close pager"
+                onClick={() => setOpen(false)}
+              >
+                ×
+              </button>
+            </div>
           </header>
 
           <div className="pager-list">
