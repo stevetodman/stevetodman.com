@@ -74,8 +74,8 @@ export function TeamRoom() {
       <StaticBox size={[10, 3, 0.16]} position={[0, 1.5, 12]} color="#e9e6df" />
       <StaticBox size={[0.16, 3, 8]} position={[-5, 1.5, 8]} color="#e9e6df" />
       <StaticBox size={[0.16, 3, 8]} position={[5, 1.5, 8]} color="#7a8a95" />
-      <StaticBox size={[3.8, 3, 0.16]} position={[-3.1, 1.5, 4]} color="#e9eee8" />
-      <StaticBox size={[3.8, 3, 0.16]} position={[3.1, 1.5, 4]} color="#e9eee8" />
+      <StaticBox size={[3.8, 3, 0.16]} position={[-3.1, 1.5, 4]} color="#e9e6df" />
+      <StaticBox size={[3.8, 3, 0.16]} position={[3.1, 1.5, 4]} color="#e9e6df" />
 
       <ConferenceTable position={[0, 0, 8]} />
       {chairs.map((chair, index) => <OfficeChair key={index} {...chair} />)}
