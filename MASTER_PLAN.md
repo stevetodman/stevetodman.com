@@ -76,6 +76,10 @@ Desktop acceptance is complete. Do not rerun it by default. Physical-iPhone M4/M
 
 Hospital dependency resolution is now deterministic: `cardio-hospital-3d/package-lock.json` is committed and both focused CI and the production hospital build use `npm ci`. Next.js is pinned to the current 16.3 security release, `16.3.3`.
 
+Physical-iPhone testing on 2026-09-04 reproduced real M4/M5 failures: Dr. Patel/clinical overlays would not reliably scroll, touch-look was unstable, major furniture was non-solid, room signage was weak, and Pager/Worklist overlays were hard to dismiss. PR **#179** fixed those issues and merged at `05b3835c491d6bcf7d17678ada8f323e45c0d534`; that exact SHA passed Cloudflare production verification. This does **not** close physical-iPhone acceptance: Steve must retest the fixes on the actual device.
+
+A performance-safe hospital realism program is now underway without changing clinical logic, canonical engine semantics, persistence, or backend behavior. PR **#180** / `e2e07010c6a1945729b52dd8ab5af6c6451d04b3` added lightweight clinical/environmental details and improved patient/family NPC proportions. PR **#181** / `a378b318b82bcb408267a35e3c8f9d06bf992561` added higher-fidelity clinician overlays and exam-room equipment and passed exact-SHA production verification. PR **#182** merged at `1e4b7db5ef1b02de18d9682f4251831dc766904e` with lightweight architectural finishes; its focused guard, all 12 engine tests, and production build passed, while exact-SHA Cloudflare production verification was still in progress when this checkpoint was written. Do not advance to heavy GLB/animated-character assets until the physical-iPhone performance/usability retest is acceptable.
+
 ### Study / Math / Science
 
 - StudyHub and Math are active production family-learning products.
@@ -284,7 +288,7 @@ A five-route production baseline now exists. Hospital entry cold transfer was th
 
 - **#39 StudyHub live acceptance:** live Supabase migration/grants/RLS/function deployment are now directly verified and hourly cloud-save monitoring exists. Remaining blockers are explicit inbound abuse/rate-limit control and real two-device/offline acceptance. Never expose family tokens.
 - **#42 clinical review evidence:** requires real durable review evidence; do not infer dates/sign-off.
-- **Physical-iPhone hospital acceptance:** remains the hospital product-quality gate.
+- **Physical-iPhone hospital acceptance:** remains the hospital product-quality gate. The reproduced scrolling/look/collision/Pager/Worklist defects have code fixes, but the repaired production build still requires real-device confirmation plus the remaining PWA/audio/ECG/reload/actor-visibility/thermal checklist.
 - **Repository archive mutation:** current connector cannot set GitHub's archived flag; `cooking-timers` remains the verified pending archive action.
 
 ## Production-state language
@@ -321,9 +325,10 @@ Done means canonical ownership is obvious; superseded repos are archived rather 
 
 ## Exact next action
 
-1. Inspect the **current `main` SHA** first. The previously verified production checkpoint was `96b1057f76bbf6ce025c399feacd21c0d3be2c03`; any successor documentation commit must independently pass the exact-SHA Cloudflare deployment, browser verification, and stale-main protection before it is called live-verified.
+1. Inspect the **current `main` SHA** first. At this checkpoint, hospital realism Pass 3 is merged at `1e4b7db5ef1b02de18d9682f4251831dc766904e`; its focused guard, 12 engine tests, and production build passed, but its exact-SHA Cloudflare production verification was still running. Do not call it live-verified until that exact run succeeds.
 2. Do **not** start another repository-wide simplification/refactor pass by default. Phases A–I are complete at the current evidence boundary.
-3. The next hospital product action is **physical-iPhone M4/M5 acceptance** using the checklist in `cardio-hospital-3d/AGENTS.md`. Emulation does not close that gate. If a real-device regression is reproduced, fix only that regression, add the smallest focused protection, then run `npm run test:engine` + `npm run build` and exact-SHA production verification.
-4. StudyHub issue **#39** is now narrowed to two blockers: explicit inbound rate limiting and real-device two-device/offline acceptance. Clinical issue **#42** remains blocked on real review evidence. Do not infer either from CI.
-5. Archive `stevetodman/cooking-timers` when a GitHub settings-capable interface is available. Preserve history; do not delete it.
-6. Only resume performance, caching, shared-code, or build-site refactoring if new measured evidence demonstrates a concrete user or maintenance problem.
+3. The next hospital product action after the exact-SHA gate is **physical-iPhone M4/M5 acceptance** using the checklist in `cardio-hospital-3d/AGENTS.md`. Specifically recheck Dr. Patel/clinical scrolling, touch-look, furniture collision, room signage, Pager close, Worklist close, safe areas/orientation, PWA, reload/resume, audio, ECG, actor visibility, and thermal/battery behavior. Emulation does not close that gate.
+4. If the physical-iPhone result is acceptable, continue the realism program with performance-budgeted higher-fidelity/animated assets and LOD/streaming. Do not introduce heavy GLB/animated-character payloads before that device gate. If a regression is reproduced, fix only that regression, add the smallest focused protection, then run `npm run test:engine` + `npm run build` and exact-SHA production verification.
+5. StudyHub issue **#39** is now narrowed to two blockers: explicit inbound rate limiting and real-device two-device/offline acceptance. Clinical issue **#42** remains blocked on real review evidence. Do not infer either from CI.
+6. Archive `stevetodman/cooking-timers` when a GitHub settings-capable interface is available. Preserve history; do not delete it.
+7. Only resume performance, caching, shared-code, or build-site refactoring if new measured evidence demonstrates a concrete user or maintenance problem.
