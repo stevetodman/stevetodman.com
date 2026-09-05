@@ -38,17 +38,18 @@ test("Math Mission takes weekly focus from the teacher scope while removing adul
   assert.match(app, /TEACHER_WEEK\.label/);
   assert.match(app, /TEACHER_WEEK\.title/);
   assert.match(app, /TEACHER_WEEK\.diagnosticMicros/);
-  assert.match(teacherWeek, /source: "Teacher-provided weekly materials"/);
-  assert.match(teacherWeek, /label: "Week 4 · Aug 31–Sep 4"/);
+  assert.match(teacherWeek, /source: "Parent-provided classroom planner and Eureka Math Grade 5 Mission 1 Lessons 13–16 problem sets"/);
+  assert.match(teacherWeek, /label: "Current focus · Mission 1 Lessons 13–16"/);
   assert.match(teacherWeek, /newInstructionMicros: Object\.freeze\(\["decimal_divide"\]\)/);
-  assert.match(teacherWeek, /assessmentMicros: Object\.freeze\(\["decimal_add", "decimal_subtract", "decimal_multiply"\]\)/);
-  assert.match(teacherWeek, /maintenanceMicros: Object\.freeze\(\["powers_multiply", "powers_divide"\]\)/);
+  assert.match(teacherWeek, /assessmentMicros: Object\.freeze\(\["decimal_divide"\]\)/);
+  assert.match(teacherWeek, /maintenanceMicros: Object\.freeze\(\["decimal_add", "decimal_subtract", "decimal_multiply", "powers_multiply", "powers_divide"\]\)/);
   assert.match(teacherUi, /CLASS_WEEKS/);
   assert.match(teacherUi, /TEACHER_WEEK\.label/);
   assert.match(teacherUi, /TEACHER_WEEK\.summary/);
   assert.match(weekly, /decimal division/i);
-  assert.match(weekly, /decimal addition, subtraction, and multiplication/i);
-  assert.match(weekly, /Maintenance:.*powers-of-10 reasoning/i);
+  assert.match(weekly, /explanation, representation, error-analysis, and multi-step questions/i);
+  assert.match(weekly, /Maintenance:.*decimal addition, subtraction, multiplication, powers-of-10 reasoning/i);
+  assert.match(weekly, /UI\/UX freeze/i);
   assert.match(plan, /Status: \*\*LOCKED IMPLEMENTATION PLAN\*\*/);
   assert.match(plan, /Parent mode or parent dashboard redesign/);
   assert.match(plan, /If a proposed change does not improve the current child learning loop, it does not belong/);
@@ -89,7 +90,8 @@ test("wrong-answer UX diagnoses the submitted answer, gives one-tap repair, and 
   assert.match(app, /misconception: diagnosis\?\.key/);
   assert.match(app, /One quick tap question will fix the idea/);
   assert.match(app, /state\.immediateScaffold = makeRepairQuestion\(question, diagnosis\)/);
-  assert.match(app, /state\.recoveries\.push\(\{ micro: question\.micro, delay: 1 \}\)/);
+  assert.match(app, /sameRecovery = state\.recoveries\.some\(item => item\.micro === question\.micro && item\.assessmentArchetype === \(question\.assessmentArchetype \|\| null\)\)/);
+  assert.match(app, /state\.recoveries\.push\(\{ micro: question\.micro, assessmentArchetype: question\.assessmentArchetype \|\| null, delay: 1 \}\)/);
   assert.match(app, /repairOnly/);
   assert.match(app, /if \(!question\.repairOnly\)/);
   assert.doesNotMatch(app, /Not yet\. The answer is \$\{question\.answer\}.*Fix this/s);
@@ -154,7 +156,10 @@ test("scratchwork supports pointer input, Apple Pencil semantics, undo, clear, a
 test("cloud format preserves misconception evidence and current diagnostic version", async () => {
   const cloud = await read("math/assets/math-cloud.js");
   assert.match(cloud, /VALID_MISCONCEPTIONS/);
+  assert.match(cloud, /VALID_ARCHETYPES/);
   assert.match(cloud, /"math1d"/);
+  assert.match(cloud, /"math1e"/);
   assert.match(cloud, /misconception:parts\[9\]/);
+  assert.match(cloud, /assessmentArchetype:parts\[3\]/);
   assert.match(cloud, /math1diagnostic3/);
 });
