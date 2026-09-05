@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/build-visual-proof-assets.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/build-visual-proof-assets.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "visual:build": "node scripts/build-visual-proof-assets.mjs",
     "test:engine": "node --experimental-strip-types --test scripts/hospital-engine.test.mjs scripts/hospital-world-layout.test.mjs scripts/vasovagal-second-consult.test.mjs"
   },
   "dependencies": {
