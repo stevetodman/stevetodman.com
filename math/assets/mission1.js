@@ -1,7 +1,7 @@
 import { MICRO_SKILLS, diagnostic, isCorrectAnswer, normalize } from "./mission1-content.mjs?v=20260905-assessment2";
 import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260905-assessment2";
 import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, RECHECK_VERSION, diagnosticIsCurrent, difficultyForScore, microScore, migrateAffectedRechecks, nextMicro, pendingRechecks, projectedScore } from "./mission1-adaptive.mjs?v=20260905-assessment2";
-import { nextDivisionArchetype } from "./mission1-division-assessment.mjs?v=20260905-assessment2";
+import { buildDivisionTestRun, nextDivisionArchetype } from "./mission1-division-assessment.mjs?v=20260905-assessment3";
 import { createScratchpad } from "./mission1-scratch.mjs?v=20260901-mastery1";
 import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901-mastery1";
 import { TEACHER_WEEK } from "./teacher-week.mjs?v=20260905-assessment2";
@@ -71,13 +71,15 @@ import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosi
         <h2>${TEACHER_WEEK.title}</h2>
         <p class="mission-meta">${PRACTICE_TARGET} independent questions · about 10 minutes</p>
         <p>${TEACHER_WEEK.summary}</p>
-        <button class="primary-button" data-start="practice">Start today’s mission</button>`;
+        <button class="primary-button" data-start="practice">Start today’s mission</button>
+        <button class="primary-button" data-start="test" style="margin-top:10px">Test run · 12 questions</button>`;
     }
     show("dashboard");
   }
 
   function start(mode) {
-    Object.assign(state, { mode, queue: mode === "diagnostic" ? weeklyDiagnostic() : [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [], recentArchetypes: [], answered: false });
+    const queue = mode === "diagnostic" ? weeklyDiagnostic() : mode === "test" ? buildDivisionTestRun(Math.random) : [];
+    Object.assign(state, { mode, queue, index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [], recentArchetypes: [], answered: false });
     if (mode === "practice") state.queue.push(nextAdaptiveQuestion());
     show("session");
     renderQuestion();
@@ -114,9 +116,9 @@ import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosi
     state.recentMicros.push(question.micro);
     if (question.assessmentArchetype) state.recentArchetypes.push(question.assessmentArchetype);
 
-    const stateLabel = question.repairOnly ? " · Quick fix" : question.assisted ? " · Guided" : question.recovery ? " · Try again" : question.recheck ? " · Check again" : "";
+    const stateLabel = state.mode === "test" ? " · Test run" : question.repairOnly ? " · Quick fix" : question.assisted ? " · Guided" : question.recovery ? " · Try again" : question.recheck ? " · Check again" : "";
     $("#skill-tag").textContent = `${MICRO_SKILLS[question.micro].name}${stateLabel}`;
-    $("#question-title").textContent = state.mode === "diagnostic"
+    $("#question-title").textContent = state.mode === "diagnostic" || state.mode === "test"
       ? `Question ${state.index + 1} of ${state.queue.length}`
       : question.repairOnly
         ? "Quick fix"
@@ -155,17 +157,18 @@ import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosi
 
   function renderProgress() {
     const question = currentQuestion();
-    const count = state.mode === "diagnostic" ? state.queue.length : PRACTICE_TARGET;
-    const completed = state.mode === "diagnostic"
+    const fixedQueue = state.mode === "diagnostic" || state.mode === "test";
+    const count = fixedQueue ? state.queue.length : PRACTICE_TARGET;
+    const completed = fixedQueue
       ? Math.min(state.index + (state.answered ? 1 : 0), count)
       : Math.min(state.independentCount, count);
-    const display = state.mode === "diagnostic"
+    const display = fixedQueue
       ? state.answered ? `${completed} of ${count} complete` : `${Math.min(state.index + 1, count)} of ${count}`
       : question?.assisted || state.answered
         ? `${completed} of ${count} complete`
         : `${Math.min(completed + 1, count)} of ${count}`;
     $("#progress-text").textContent = display;
-    $("#session-mode").textContent = state.mode === "diagnostic" ? "Starting check" : question?.repairOnly ? "Quick misconception check" : question?.assisted ? "Guided step" : question?.recovery ? "Independent retry" : question?.recheck ? "Independent recheck" : "Independent";
+    $("#session-mode").textContent = state.mode === "diagnostic" ? "Starting check" : state.mode === "test" ? "Test run" : question?.repairOnly ? "Quick misconception check" : question?.assisted ? "Guided step" : question?.recovery ? "Independent retry" : question?.recheck ? "Independent recheck" : "Independent";
     $("#progress-fill").style.width = `${Math.round((completed / count) * 100)}%`;
   }
 
@@ -179,7 +182,7 @@ import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosi
     const correct = question.repairOnly ? normalize(raw) === normalize(question.answer) : isCorrectAnswer(raw, question);
     const diagnosis = !correct && !question.repairOnly ? diagnoseMathError(raw, question) : null;
     const at = Date.now();
-    const attempt = { skill: question.skill, micro: question.micro, assessmentArchetype: question.assessmentArchetype || null, correct, assisted: question.assisted, recovery: question.recovery, recheck: !!question.recheck, difficulty: question.difficulty, transfer: question.transfer, misconception: diagnosis?.key || null, repairOnly: !!question.repairOnly, date: today(), at, cloudId: `${at.toString(36)}-${Math.random().toString(36).slice(2, 8)}` };
+    const attempt = { skill: question.skill, micro: question.micro, assessmentArchetype: question.assessmentArchetype || null, correct, assisted: question.assisted, recovery: question.recovery, recheck: !!question.recheck, difficulty: question.difficulty, transfer: question.transfer, testRun: !!question.testRun, misconception: diagnosis?.key || null, repairOnly: !!question.repairOnly, date: today(), at, cloudId: `${at.toString(36)}-${Math.random().toString(36).slice(2, 8)}` };
     let score = { before: microScore(pdata(), question.micro), after: microScore(pdata(), question.micro) };
 
     if (!question.repairOnly) {
@@ -202,7 +205,9 @@ import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosi
     }
     state.answered = true;
 
-    if (correct) {
+    if (state.mode === "test") {
+      announce(`<strong>Answer recorded.</strong><div>Keep going. Results come at the end.</div><button class="primary-button" data-next>${state.index + 1 >= state.queue.length ? "See results" : "Next"}</button>`, "good");
+    } else if (correct) {
       const lead = question.repairOnly ? "Right idea." : question.assisted ? "Exactly." : question.recovery ? "You got it independently this time." : "Yes.";
       const explanation = question.repairOnly || question.assisted ? question.why : `You used ${MICRO_SKILLS[question.micro].name.toLowerCase()} correctly.`;
       announce(`<strong>${lead}</strong><div>${explanation}</div><button class="primary-button" data-next>Next</button>`, "good");
@@ -235,7 +240,7 @@ import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosi
 
   function next() {
     state.index += 1;
-    if (state.mode === "diagnostic") {
+    if (state.mode === "diagnostic" || state.mode === "test") {
       state.index >= state.queue.length ? finish() : renderQuestion();
       return;
     }
@@ -260,13 +265,19 @@ import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosi
     const independent = state.results.filter(result => !result.assisted);
     const correct = independent.filter(result => result.correct).length;
     const pending = state.recoveries.length > 0;
-    $("#result-score").textContent = `You finished ${independent.length} independent question${independent.length === 1 ? "" : "s"}.`;
-    $("#result-analysis").innerHTML = `<div class="result-message">${pending
-      ? "We’ll bring back anything that still needs another look."
-      : correct === independent.length
-        ? "You handled today’s work independently."
-        : "Your next mission will know what to explain and practice again."}</div>`;
-    $("#result-title").textContent = pending ? "Good work." : correct === independent.length ? "Strong finish." : "Mission complete.";
+    if (state.mode === "test") {
+      $("#result-score").textContent = `${correct} of ${independent.length} correct.`;
+      $("#result-analysis").innerHTML = `<div class="result-message">${correct === independent.length ? "Strong assessment run. Your next mission will keep this material fresh." : "Your next mission will use the misses from this run to target what needs another pass."}</div>`;
+      $("#result-title").textContent = "Test run complete.";
+    } else {
+      $("#result-score").textContent = `You finished ${independent.length} independent question${independent.length === 1 ? "" : "s"}.`;
+      $("#result-analysis").innerHTML = `<div class="result-message">${pending
+        ? "We’ll bring back anything that still needs another look."
+        : correct === independent.length
+          ? "You handled today’s work independently."
+          : "Your next mission will know what to explain and practice again."}</div>`;
+      $("#result-title").textContent = pending ? "Good work." : correct === independent.length ? "Strong finish." : "Mission complete.";
+    }
     placeValue.reset();
     show("results");
   }
