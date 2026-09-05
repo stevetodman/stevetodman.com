@@ -45,7 +45,7 @@ test("Math Mission takes weekly focus from the teacher scope while removing adul
   assert.match(teacherWeek, /maintenanceMicros: Object\.freeze\(\["powers_multiply", "powers_divide"\]\)/);
   assert.match(teacherUi, /CLASS_WEEKS/);
   assert.match(teacherUi, /TEACHER_WEEK\.label/);
-  assert.match(teacherUi, /TEACHER_WEEK\.title/);
+  assert.match(teacherUi, /TEACHER_WEEK\.summary/);
   assert.match(weekly, /decimal division/i);
   assert.match(weekly, /decimal addition, subtraction, and multiplication/i);
   assert.match(weekly, /powers-of-10 maintenance/i);
