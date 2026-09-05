@@ -1,45 +1,44 @@
 # Math Mission current school focus
 
-**Effective:** week of 2026-08-31  
-**Source:** parent-provided photographs of the student's current Grade 5 Eureka/EngageNY Module 1 materials and school review sheets.
+**Effective:** Week 4, 2026-08-31 through 2026-09-04  
+**Source:** parent-provided classroom weekly plans for Weeks 1–4.
 
-## Primary instructional target
+## Current Week 4 sequence
 
-The current classroom work is **Grade 5 Module 1, Lessons 1–2 / 5.NBT.1–2**.
+- Monday: Mission 1 Lesson 13
+- Tuesday: Mission 1 Lessons 14 & 15
+- Wednesday: Zearn, Exit Tickets, and standards review
+- Thursday: Quiz on Mission 1 Topics D & E (Lessons 9–12), fluency quiz, and Mission 1 Lesson 16
+- Friday: Mission 2 Lesson 1
 
-Priority practice should emphasize:
+Current standards:
 
-- adjacent base-ten unit relationships from large whole-number places through thousandths;
-- explaining that multiplying by 10, 100, or 1,000 makes each digit's value 10, 100, or 1,000 times as large;
-- explaining that dividing by 10, 100, or 1,000 makes each digit's value one tenth, one hundredth, or one thousandth as large;
-- using place-value charts to justify the direction and number of place shifts;
-- powers-of-ten notation and equivalence (for example, choosing the operation and power of 10 that makes an equation true);
-- error analysis: explain why appending zeros or moving a decimal point without place-value reasoning can produce an incorrect result;
-- written explanations using precise vocabulary such as place value, adjacent units, exponent, multiplication/division, and value of each digit.
+- **5.NBT.B.07** — add, subtract, multiply, and divide decimals to hundredths using place-value/models/strategies and justify reasoning.
+- **5.NBT.A.02** — explain and apply powers-of-10 patterns, including decimal multiplication/division by powers of 10 and exponent notation.
 
-## Secondary review seen in the same current packet
+## Adaptive priority
 
-These are review/remediation targets, not equal-weight current lessons:
+1. **New instruction:** decimal division from Mission 1 Lessons 13–16.
+2. **Assessment review:** decimal addition, subtraction, and multiplication from Topics D & E / Lessons 9–12.
+3. **Maintenance:** powers-of-10 reasoning for 5.NBT.A.02.
+4. **Spaced remediation from Weeks 1–3 only when learner evidence is weak:** foundational place value, metric conversion, decimal forms/comparison, and rounding.
 
-- metric conversion using powers of 10, especially meters/centimeters/millimeters in both directions;
-- decimal word, fraction, unit, and expanded forms through thousandths;
-- comparing decimals through thousandths using like units and >, <, =.
+Do not add Mission 2 Lesson 1 content to adaptive practice until the teacher-provided material identifies its actual skill scope.
 
-## BOY remediation signals
+## Curriculum history retained in the app
 
-The school also supplied "most missed" review items. Treat these as prerequisite/maintenance evidence rather than as the current lesson sequence. The photographed items include:
+### Week 1 · Aug 10–14
+Mission 1 Lessons 1–3; BOY Diagnostic; standards 5.NBT.A.01 and 5.NBT.A.02.
 
-- kilometer-to-meter conversion;
-- whole-number rounding;
-- multi-digit multiplication;
-- multi-digit subtraction;
-- fraction addition;
-- multi-step whole-number word problems.
+### Week 2 · Aug 17–21
+Mission 1 Lessons 4–7; Topic A quiz (Lessons 1–4); standards 5.MD.A.1, 5.NBT.A.03, and 5.NBT.A.04.
 
-These should not displace Lessons 1–2 unless learner evidence shows a severe prerequisite gap.
+### Week 3 · Aug 24–28
+Mission 1 Lessons 8–12; Topics B & C quiz (Lessons 5–8); standards 5.NBT.A.04 and 5.NBT.B.07.
 
-## Product rule
+### Week 4 · Aug 31–Sep 4
+Mission 1 Lessons 13–16, Topics D & E quiz (Lessons 9–12), then Mission 2 Lesson 1 Friday; standards 5.NBT.B.07 and 5.NBT.A.02.
 
-The Math Mission diagnostic may retain a broad Module 1 baseline. **Adaptive practice should prioritize Lessons 1–2 / 5.NBT.1–2 first, then surface the secondary review skills when they are weak or after the current-focus skills are secure.**
+## Assignment-link rule
 
-Do not describe all Lessons 1–16 as "this week."
+Exit Tickets are school-only per the teacher plan. Class-specific Illuminate and ThatQuiz access codes stay in Canvas rather than the public Math Mission page. The app retains the lesson sequence, assessment coverage, and standards those assignments identify.

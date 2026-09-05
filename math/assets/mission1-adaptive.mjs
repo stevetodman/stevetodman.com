@@ -1,8 +1,8 @@
 import { DOMAIN_MICROS } from "./mission1-content.mjs";
 import { TEACHER_WEEK } from "./teacher-week.mjs";
 
-export const DIAGNOSTIC_VERSION = 2;
-export const RECHECK_VERSION = 1;
+export const DIAGNOSTIC_VERSION = 3;
+export const RECHECK_VERSION = 2;
 export const PRACTICE_TARGET = 10;
 export const PRACTICE_MAX = 12;
 export const CURRENT_WEEK_MICROS = [...TEACHER_WEEK.currentMicros];
@@ -59,9 +59,9 @@ export function nextMicro(profile, options = {}) {
   const rechecks = pendingRechecks(profile).filter(micro => !avoid.has(micro));
   if (rechecks.length) return rechecks.sort((a, b) => microScore(profile, a) - microScore(profile, b))[0];
 
-  // Teacher material defines the ceiling. Support skills may surface only when
-  // the learner has actual evidence of a prerequisite gap; future lesson skills
-  // are never added by the adaptive engine on its own.
+  // Current teacher scope is always eligible. Earlier Weeks 1-3 skills return
+  // only when the learner has demonstrated an actual gap, which gives spaced
+  // remediation without crowding out this week's instruction and quiz review.
   const supportGaps = REVIEW_MICROS.filter(micro => {
     const stats = microStats(profile, micro);
     return stats.attempts > 0 && stats.score < 45;
