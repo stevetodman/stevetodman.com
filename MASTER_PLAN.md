@@ -47,6 +47,7 @@ Do not build a platform merely to manage platform complexity.
 | Deployment mechanics | `DEPLOYMENT.md` |
 | Stable conventions | `CLAUDE.md` |
 | Hospital-local invariants + physical-iPhone acceptance | `cardio-hospital-3d/AGENTS.md` |
+| Hospital visual architecture / graphics replacement specification | `cardio-hospital-3d/docs/VISUAL_ARCHITECTURE_SOURCE_OF_TRUTH.md` |
 
 Human docs may explain facts but must not maintain competing dynamic state.
 
@@ -144,6 +145,36 @@ Current state: **LIVE-VERIFIED; PHYSICAL ACCEPTANCE OPEN**.
 
 The physical-iPhone movement, twin-stick look, clinician briefing, consult proximity, and furniture/doorway checks are closed. Do **not** repeat them unless a new reproducible regression appears. Do not mark M4/M5 complete until the remaining overlay, orientation, PWA, persistence, audio/ECG, actor-visibility, replay, and sustained-performance checks pass on the actual iPhone.
 
+#### Visual architecture replacement program — governing source of truth
+
+The owner accepted Astra's 2026-09-04 hospital graphics assessment as the governing visual-architecture plan. It is preserved verbatim-in-substance at:
+
+`cardio-hospital-3d/docs/VISUAL_ARCHITECTURE_SOURCE_OF_TRUTH.md`
+
+Future agents must read that document before any substantive HospitalSim graphics/visual work. It supersedes older graphics-growth guidance where the two conflict.
+
+Core decisions:
+
+- keep React Three Fiber, Three.js, the current WebGL renderer for the proof scene, Rapier narrowly, and the canonical clinical engine;
+- replace the visual production architecture with an **authored modular/hybrid hospital** using baked environmental lighting, a small shared PBR material library, properly modeled/rigged lightly animated humans, reusable room/equipment kits, explicit simple colliders, and canonical clinical state projected into visuals;
+- do **not** migrate renderers or run another procedural-realism pass before proving this asset strategy;
+- preserve the hard boundary **canonical clinical state -> visual projection**; animation must never become a second clinical state machine;
+- use minimal focused testing while iterating.
+
+Required implementation order:
+
+1. **Phase 0 — acceptance baseline:** finish the remaining documented physical-iPhone gate while preserving already-passed checks and recording actual device/browser/orientation/sustained behavior/loading.
+2. **Phase 1 — visual recipe proof:** one room, one equipment set, minimum compatible character family, and the complete lighting/export/lightmap recipe.
+3. **Phase 2 — complete encounter vertical slice:** corridor approach + doorway + room + patient + parent + clinician + UI + state-dependent visibility, while preserving anchors/collision and measuring payload, draw calls, frame pacing, and sustained phone behavior.
+4. **Phase 3 — reuse proof:** build a second room from the same kit/material/equipment/animation pipeline.
+5. **Phase 4 — progressive replacement:** remove superseded procedural content room by room; add extra visibility/LOD machinery only when growth proves the need.
+
+Proof-scene acceptance must include corridor-to-room lighting continuity, doorway/collision/loading boundaries, patient/parent/clinician at conversational distance, recognizable examination surface/equipment, seated/standing and relevant lying-pose validation, clinical UI open/return, parent removal and completion without stale visuals, plus one deliberate content edit to prove the pipeline is cheap to revise.
+
+Do-not-build guardrails include: another numbered procedural realism pass; renderer migration before proof; runtime GI/ray tracing/volumetrics/SSR; baseline bloom/DOF/motion blur; fully simulated movable-furniture hospital; generic ambient crowd AI; full face/cloth/hair/procedural exams; hospital-wide 4K textures or one giant GLB; asset CMS/streaming backend/custom scene editor/universal character framework; broad screenshot/browser matrices for every visual iteration; and decorative physiological displays that could be mistaken for canonical patient data.
+
+Expansion proceeds only if one complete encounter looks substantially better, remains comfortable on the physical iPhone, and is cheap to revise.
+
 #### Performance-safe realism program
 
 Completed lightweight procedural realism passes:
@@ -152,7 +183,7 @@ Completed lightweight procedural realism passes:
 - PR **#181** / `a378b318`: clinician overlays, badge/stethoscope cues, monitors, diagnostic stations, carts, and room fixtures.
 - PR **#182** / `1e4b7db5`: ceiling grid, diffusers/sprinkler cues, baseboards/wall protection, pediatric art, clocks/notices, and finish details.
 
-These passes intentionally avoid heavy assets. **Do not introduce heavy GLB/animated-character payloads until physical-iPhone usability/performance is acceptable.** Once cleared, use performance-budgeted optimized glTF/GLB, compressed textures, LOD/culling/room streaming, and clinically authentic equipment/layout rather than chasing AAA photorealism.
+These passes are historical and should not be extended into another procedural realism cycle. After Phase 0, the visual architecture program above governs the next graphics work.
 
 ### Study / Math / Science
 
@@ -185,6 +216,7 @@ The earlier external hospital ingest pilot is retired. Its scheduled ingest work
 - redundant hospital project-rule docs removed.
 - hospital master-plan doc reduced to durable architecture/milestones.
 - implementation status converted to historical ledger.
+- `6a91917b...` — added `cardio-hospital-3d/docs/VISUAL_ARCHITECTURE_SOURCE_OF_TRUTH.md` preserving the owner-approved Astra graphics architecture and phased implementation plan.
 
 ### Repository census
 
@@ -260,7 +292,9 @@ Do not introduce without demonstrated need:
 - a developer portal to manage this website;
 - a new test framework to manage existing tests;
 - a large observability platform before a measured need exists;
-- heavy hospital assets before physical-iPhone performance is acceptable;
+- another hospital procedural-realism pass;
+- a hospital renderer migration before the authored-hybrid proof scene;
+- hospital-wide heavy asset infrastructure before the proof scene demonstrates value and iPhone viability;
 - directory churn with no measurable maintenance/runtime benefit.
 
 ## Exact next action
@@ -271,10 +305,11 @@ Do not introduce without demonstrated need:
    - portrait and landscape both preserve usable controls, safe areas, overlays, doorway traversal, and orientation changes while clinical UI is open.
 3. Then finish the remaining M4/M5 physical checklist in `cardio-hospital-3d/AGENTS.md`: clinical scrolling/tap targets/confidential-state behavior, PWA/Add to Home Screen, reload/resume/no duplicates, auscultation audio, ECG touch, actor visibility/state transitions, replay behavior, and sustained frame-rate/thermal/battery performance.
 4. Record actual device model, iOS/Safari version, portrait/landscape/PWA results, defects, and fix SHAs when supplied. Do not infer any of them.
-5. When every required physical check passes, update the hospital implementation ledger and mark **M4/M5 complete**. Only then begin **M6** using the existing canonical engine; do not rebuild the architecture.
-6. After the physical usability/performance gate is acceptable, the realism program may advance to performance-budgeted optimized animated humans, richer clinically authentic equipment/materials/lighting, ambient activity/audio, and LOD/culling/room streaming. Measure iPhone cost before accepting heavy assets.
-7. StudyHub #39, clinical #42, and the archive task remain separate unresolved work as described above.
+5. When every required physical check passes, update the hospital implementation ledger and mark **M4/M5 complete**.
+6. Then begin **Phase 1** of `cardio-hospital-3d/docs/VISUAL_ARCHITECTURE_SOURCE_OF_TRUTH.md`: prove one authored room, one equipment set, the minimum compatible character family, and the complete lighting/export/lightmap recipe. Do not rebuild the clinical architecture and do not run another procedural realism pass.
+7. Continue the visual program through Phases 2–4 only if each preceding proof meets its acceptance criteria and the physical iPhone remains comfortable.
+8. StudyHub #39, clinical #42, and the archive task remain separate unresolved work as described above.
 
 ## Definition of done
 
-Done means canonical ownership is obvious; superseded repositories are archived rather than deleted; docs do not compete; ordinary changes have a small fast test path; CI/build complexity is materially lower without weakening real gates; production builds are deterministic; key routes have measured baselines; abstractions reduce rather than add complexity; new agents resume from this file; and the hospital passes required physical-device acceptance before heavier realism or later milestones advance.
+Done means canonical ownership is obvious; superseded repositories are archived rather than deleted; docs do not compete; ordinary changes have a small fast test path; CI/build complexity is materially lower without weakening real gates; production builds are deterministic; key routes have measured baselines; abstractions reduce rather than add complexity; new agents resume from this file; and the hospital follows the owner-approved authored-hybrid visual architecture only after required physical-device acceptance, with expansion justified by proof-scene quality, iPhone comfort, and cheap revision.
