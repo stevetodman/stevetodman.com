@@ -592,6 +592,31 @@ var RECENT_WINDOW = 12;   // answers kept for the difficulty/size adaptation
 var BOSS_MIN_WRONG = 2;   // misses before a state can become a boss
 var BOSS_COUNT = 3;       // max active bosses at once
 var BOSS_HP = 3;
+var DAY_MS = 24 * 60 * 60 * 1000;
+
+/* Hidden school-readiness target. The planner gives the number of states on
+   each quiz, not which states are included, so this never excludes a state.
+   It only controls how much new-vs-retrieval practice the existing quick
+   round quietly serves. */
+function quizTargetCount(now) {
+  var d = now instanceof Date ? now : new Date(now || Date.now());
+  var key = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  return key <= "2026-09-09" ? 40 : 50;
+}
+
+/* Mastery is an earned achievement and never decays. Retrieval readiness is
+   separate: an older correct retrieval or a recent miss raises the chance a
+   mastered state will come back into practice. */
+function retrievalPriority(st, now) {
+  if (!st) return 100;
+  var at = Number(now || Date.now());
+  var lastSeen = Math.max(0, Number(st.lastSeenAt) || 0);
+  var lastCorrect = Math.max(0, Number(st.lastCorrectAt) || 0);
+  var last = Math.max(lastSeen, lastCorrect);
+  var ageDays = last ? Math.min(30, Math.max(0, (at - last) / DAY_MS)) : 30;
+  var missAfterCorrect = Number(st.lastMissAt) > lastCorrect ? 8 : 0;
+  return ageDays + Math.min(6, Number(st.wrong) || 0) * 1.5 + missAfterCorrect;
+}
 
 function emptyProfile() {
   return { stateStats: {}, masteredOrder: [], weekKey: "", weekMastered: 0, bossesDefeated: 0, avatar: null, round: null,
@@ -646,8 +671,11 @@ function recordAnswer(code, correct) {
   if (!data.activeProfile) return { justMastered: false };
   var p = data.profiles[data.activeProfile];
   var st = p.stateStats[code] || (p.stateStats[code] = { streak: 0, correct: 0, wrong: 0, mastered: false });
+  var now = Date.now();
+  st.lastSeenAt = now;
   var justMastered = false;
   if (correct) {
+    st.lastCorrectAt = now;
     st.correct++;
     st.streak++;
     if (!st.mastered && st.streak >= MASTERY_STREAK) {
@@ -659,6 +687,7 @@ function recordAnswer(code, correct) {
       p.masteredOrder.push(code);
     }
   } else {
+    st.lastMissAt = now;
     st.wrong++;
     /* Leitner-style: a miss steps mastery back one, it does not wipe it out.
        Resetting ⭐⭐○ to ○○○ makes progress feel erased, which is exactly what
@@ -703,6 +732,9 @@ function roundMix(p, n) {
   else if (acc < 0.75) familiarShare = 0.45;
   else if (acc < 0.9) familiarShare = 0.25;
   else familiarShare = 0.1;                     // thriving: push into new ground
+  var target = quizTargetCount();
+  var masteredCount = (p.masteredOrder || []).length;
+  if (masteredCount < target && (acc === null || acc >= 0.5)) familiarShare = Math.min(familiarShare, 0.35);
   var familiar = Math.round(n * familiarShare);
   return { familiar: familiar, fresh: n - familiar };
 }
@@ -716,6 +748,7 @@ function quickRoundSize(p) {
 
 function quickRoundStates(p, n) {
   var mastered = [], learning = [];
+  var now = Date.now();
   STATES.forEach(function(s) {
     var st = p.stateStats[s.code];
     var entry = {
@@ -723,6 +756,7 @@ function quickRoundStates(p, n) {
       wrong: st ? st.wrong : 0,
       seen: st ? (st.correct + st.wrong) : 0,
       streak: st ? st.streak : 0,
+      retrieval: retrievalPriority(st, now),
       jitter: Math.random()
     };
     if (st && st.mastered) mastered.push(entry); else learning.push(entry);
@@ -734,8 +768,12 @@ function quickRoundStates(p, n) {
     if (a.seen !== b.seen) return a.seen - b.seen;
     return a.jitter - b.jitter;
   });
-  // Among mastered states, favour the ones practised least recently.
-  mastered.sort(function(a, b) { return a.jitter - b.jitter; });
+  // Among mastered states, favour stale retrieval and recent misses while
+  // keeping earned mastery intact. Randomness only breaks near-ties.
+  mastered.sort(function(a, b) {
+    if (Math.abs(b.retrieval - a.retrieval) > 0.25) return b.retrieval - a.retrieval;
+    return a.jitter - b.jitter;
+  });
 
   var mix = roundMix(p, n);
   var picks = mastered.slice(0, mix.familiar).concat(learning.slice(0, mix.fresh));
@@ -1039,7 +1077,10 @@ function mergeProfiles(a, b) {
       streak: Math.max(sa.streak, sb.streak),
       correct: Math.max(sa.correct, sb.correct),
       wrong: Math.max(sa.wrong, sb.wrong),
-      mastered: sa.mastered || sb.mastered
+      mastered: sa.mastered || sb.mastered,
+      lastSeenAt: Math.max(Number(sa.lastSeenAt) || 0, Number(sb.lastSeenAt) || 0),
+      lastCorrectAt: Math.max(Number(sa.lastCorrectAt) || 0, Number(sb.lastCorrectAt) || 0),
+      lastMissAt: Math.max(Number(sa.lastMissAt) || 0, Number(sb.lastMissAt) || 0)
     };
   });
   var seen = {};
