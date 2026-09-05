@@ -1,0 +1,52 @@
+name: Math Mission essential
+
+on:
+  pull_request:
+    paths:
+      - 'math/**'
+      - 'tests/math-mission*.test.mjs'
+      - 'tests/helpers/harness.mjs'
+      - '.github/workflows/math-mission-ci.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'math/**'
+      - 'tests/math-mission*.test.mjs'
+      - 'tests/helpers/harness.mjs'
+      - '.github/workflows/math-mission-ci.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: math-mission-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  essential:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Four learning invariants
+        shell: bash
+        run: |
+          node --test \
+            --test-name-pattern='adaptive scope prioritizes the imminent Lessons 13-16 assessment without ignoring real gaps|Lessons 13-16 assessment blueprint produces every photographed problem archetype|division assessment archetype evidence survives cloud sync|wrong-answer UX diagnoses the submitted answer, gives one-tap repair, and delays independent proof' \
+            tests/math-mission-adaptive.test.mjs \
+            tests/math-mission-current-week.test.mjs \
+            tests/math-mission-cloud.test.mjs \
+            tests/math-mission-ui.test.mjs
+
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+
+      - name: One 390px Chromium phone smoke
+        run: node --test --test-name-pattern='current starting check is six current skills, persists evidence, and keeps optional scratchwork' tests/math-mission-browser.test.mjs
