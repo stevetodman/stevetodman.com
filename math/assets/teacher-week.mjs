@@ -54,19 +54,19 @@ export const CLASS_WEEKS = Object.freeze([
 ]);
 
 export const TEACHER_WEEK = Object.freeze({
-  id: "teacher-week-2026-08-31",
-  source: "Teacher-provided weekly materials",
-  label: "Week 4 · Aug 31–Sep 4",
-  title: "Decimal operations + powers of 10",
-  summary: "Learn decimal division in Mission 1 Lessons 13–16, review decimal addition/subtraction/multiplication for the Topics D & E quiz, and keep powers-of-10 reasoning active for 5.NBT.A.2.",
+  id: "teacher-week-2026-09-05",
+  source: "Parent-provided classroom planner and Eureka Math Grade 5 Mission 1 Lessons 13–16 problem sets",
+  label: "Current focus · Mission 1 Lessons 13–16",
+  title: "Decimal division test readiness",
+  summary: "Practice decimal division the way it appears in class: place-value reasoning, the standard algorithm, regrouping, error analysis, models, and one- and multi-step word problems.",
   newInstructionMicros: Object.freeze(["decimal_divide"]),
-  assessmentMicros: Object.freeze(["decimal_add", "decimal_subtract", "decimal_multiply"]),
-  maintenanceMicros: Object.freeze(["powers_multiply", "powers_divide"]),
+  assessmentMicros: Object.freeze(["decimal_divide"]),
+  maintenanceMicros: Object.freeze(["decimal_add", "decimal_subtract", "decimal_multiply", "powers_multiply", "powers_divide"]),
   currentMicros: Object.freeze(["decimal_divide", "decimal_add", "decimal_subtract", "decimal_multiply", "powers_multiply", "powers_divide"]),
   supportMicros: Object.freeze(["place_digit", "place_value", "metric_conversion", "decimal_forms", "decimal_compare", "decimal_round"]),
   diagnosticMicros: Object.freeze(["decimal_divide", "decimal_add", "decimal_subtract", "decimal_multiply", "powers_multiply", "powers_divide"]),
   standards: Object.freeze(["5.NBT.B.07", "5.NBT.A.02"]),
-  nextLesson: "Mission 2 Lesson 1 is listed for Friday; its content is not added to adaptive practice until teacher materials define the skill scope."
+  nextLesson: "Mission 2 Lesson 1 has appeared in the classroom planner, but its skill scope is not added to adaptive practice until teacher-provided material identifies the actual content."
 });
 
 const ALLOWED = new Set([...TEACHER_WEEK.currentMicros, ...TEACHER_WEEK.supportMicros]);
@@ -88,6 +88,6 @@ export function explanationForMicro(micro) {
     decimal_add: "Line up like place-value units. Write placeholder zeros when needed, then add each place.",
     decimal_subtract: "Line up like place-value units. Rename with placeholder zeros when needed, then subtract each place.",
     decimal_multiply: "Estimate first. Multiply using place-value units, then use the estimate to check the decimal's position.",
-    decimal_divide: "Divide using place-value units, rename as needed, and multiply the quotient by the divisor to check."
+    decimal_divide: "Estimate first, divide using place-value units, rename into smaller units when needed, and multiply the quotient by the divisor to check."
   })[micro] || "Review the underlying place-value idea before trying again.";
 }
