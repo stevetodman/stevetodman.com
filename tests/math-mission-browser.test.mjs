@@ -144,7 +144,7 @@ test('a current-skill miss becomes one-tap misconception repair without inflatin
     assert.equal(await page.locator('#session-mode').innerText(), 'Independent');
     assert.equal(await page.locator('#progress-text').innerText(), '1 of 10');
 
-    await page.locator('#answer-input').fill('1090');
+    await page.locator('#answer-input').fill('10090');
     await page.locator('#check-button').click();
     await page.locator('#feedback.bad').waitFor();
     const missFeedback = await page.locator('#feedback').innerText();
