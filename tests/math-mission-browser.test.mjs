@@ -69,7 +69,7 @@ async function drawPenStroke(page) {
 test('Week 4 starting check is six current skills, persists evidence, and keeps optional scratchwork', async () => {
   const { context, page, errors } = await openMath();
   try {
-    assert.match(await page.locator('.week-note').innerText(), /Week 4.*decimal division.*Topics D.*E.*powers of 10/is);
+    assert.match(await page.locator('.week-note').innerText(), /Week 4.*decimal division.*Topics D.*E.*powers[- ]of[- ]10/is);
     await page.locator('[data-profile="luke"]').click();
     const card = await page.locator('#primary-card').innerText();
     assert.match(card, /Quick starting check/i);
