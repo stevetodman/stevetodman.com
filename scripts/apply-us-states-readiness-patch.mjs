@@ -12,9 +12,7 @@ function replaceOnce(needle, replacement, label) {
 }
 
 replaceOnce(
-`var BOSS_HP = 3;
-
-function emptyProfile() {`,
+`var BOSS_HP = 3;`,
 `var BOSS_HP = 3;
 var DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -40,18 +38,14 @@ function retrievalPriority(st, now) {
   var ageDays = last ? Math.min(30, Math.max(0, (at - last) / DAY_MS)) : 30;
   var missAfterCorrect = Number(st.lastMissAt) > lastCorrect ? 8 : 0;
   return ageDays + Math.min(6, Number(st.wrong) || 0) * 1.5 + missAfterCorrect;
-}
-
-function emptyProfile() {`,
+}`,
 "readiness helpers"
 );
 
 replaceOnce(
-`  else if (acc < 0.9) familiarShare = 0.25;
-  else familiarShare = 0.1;                     // thriving: push into new ground
+`  else familiarShare = 0.1;                     // thriving: push into new ground
   var familiar = Math.round(n * familiarShare);`,
-`  else if (acc < 0.9) familiarShare = 0.25;
-  else familiarShare = 0.1;                     // thriving: push into new ground
+`  else familiarShare = 0.1;                     // thriving: push into new ground
   var target = quizTargetCount();
   var masteredCount = (p.masteredOrder || []).length;
   if (masteredCount < target && (acc === null || acc >= 0.5)) familiarShare = Math.min(familiarShare, 0.35);
@@ -60,50 +54,46 @@ replaceOnce(
 );
 
 replaceOnce(
-`  var p = data.profiles[data.activeProfile];
-  var st = p.stateStats[code] || (p.stateStats[code] = { streak: 0, correct: 0, wrong: 0, mastered: false });
-  var justMastered = false;
-  if (correct) {
-    st.correct++;`,
-`  var p = data.profiles[data.activeProfile];
-  var st = p.stateStats[code] || (p.stateStats[code] = { streak: 0, correct: 0, wrong: 0, mastered: false });
+`  var st = p.stateStats[code] || (p.stateStats[code] = { streak: 0, correct: 0, wrong: 0, mastered: false });
+  var justMastered = false;`,
+`  var st = p.stateStats[code] || (p.stateStats[code] = { streak: 0, correct: 0, wrong: 0, mastered: false });
   var now = Date.now();
   st.lastSeenAt = now;
-  var justMastered = false;
-  if (correct) {
-    st.lastCorrectAt = now;
-    st.correct++;`,
+  var justMastered = false;`,
 "answer recency"
 );
 
 replaceOnce(
+`  if (correct) {
+    st.correct++;`,
+`  if (correct) {
+    st.lastCorrectAt = now;
+    st.correct++;`,
+"correct recency"
+);
+
+replaceOnce(
 `  } else {
-    st.wrong++;
-    /* Leitner-style: a miss steps mastery back one, it does not wipe it out.`,
+    st.wrong++;`,
 `  } else {
     st.lastMissAt = now;
-    st.wrong++;
-    /* Leitner-style: a miss steps mastery back one, it does not wipe it out.`,
+    st.wrong++;`,
 "miss recency"
 );
 
 replaceOnce(
 `function quickRoundStates(p, n) {
-  var mastered = [], learning = [];
-  STATES.forEach(function(s) {`,
+  var mastered = [], learning = [];`,
 `function quickRoundStates(p, n) {
   var mastered = [], learning = [];
-  var now = Date.now();
-  STATES.forEach(function(s) {`,
+  var now = Date.now();`,
 "quick round time anchor"
 );
 
 replaceOnce(
-`      seen: st ? (st.correct + st.wrong) : 0,
-      streak: st ? st.streak : 0,
+`      streak: st ? st.streak : 0,
       jitter: Math.random()`,
-`      seen: st ? (st.correct + st.wrong) : 0,
-      streak: st ? st.streak : 0,
+`      streak: st ? st.streak : 0,
       retrieval: retrievalPriority(st, now),
       jitter: Math.random()`,
 "quick round readiness field"
@@ -122,11 +112,9 @@ replaceOnce(
 );
 
 replaceOnce(
-`      correct: Math.max(sa.correct, sb.correct),
-      wrong: Math.max(sa.wrong, sb.wrong),
+`      wrong: Math.max(sa.wrong, sb.wrong),
       mastered: sa.mastered || sb.mastered`,
-`      correct: Math.max(sa.correct, sb.correct),
-      wrong: Math.max(sa.wrong, sb.wrong),
+`      wrong: Math.max(sa.wrong, sb.wrong),
       mastered: sa.mastered || sb.mastered,
       lastSeenAt: Math.max(Number(sa.lastSeenAt) || 0, Number(sb.lastSeenAt) || 0),
       lastCorrectAt: Math.max(Number(sa.lastCorrectAt) || 0, Number(sb.lastCorrectAt) || 0),
