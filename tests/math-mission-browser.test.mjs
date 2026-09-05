@@ -66,10 +66,10 @@ async function drawPenStroke(page) {
   });
 }
 
-test('Week 4 starting check is six current skills, persists evidence, and keeps optional scratchwork', async () => {
+test('current starting check is six current skills, persists evidence, and keeps optional scratchwork', async () => {
   const { context, page, errors } = await openMath();
   try {
-    assert.match(await page.locator('.week-note').innerText(), /Week 4.*decimal division.*Topics D.*E.*powers[- ]of[- ]10/is);
+    assert.match(await page.locator('.week-note').innerText(), /Mission 1 Lessons 13–16.*decimal division.*place-value.*standard algorithm.*regrouping.*error analysis.*models.*multi-step/is);
     await page.locator('[data-profile="luke"]').click();
     const card = await page.locator('#primary-card').innerText();
     assert.match(card, /Quick starting check/i);
@@ -136,8 +136,8 @@ test('a current-skill miss becomes one-tap misconception repair without inflatin
   const { context, page, errors } = await openMath(seeded, { width: 390, height: 844 }, 0.1);
   try {
     await page.locator('[data-profile="luke"]').click();
-    assert.match(await page.locator('#primary-card').innerText(), /Current focus.*Week 4/is);
-    assert.match(await page.locator('#primary-card').innerText(), /Decimal operations.*powers of 10/i);
+    assert.match(await page.locator('#primary-card').innerText(), /Current focus.*Mission 1 Lessons 13–16/is);
+    assert.match(await page.locator('#primary-card').innerText(), /Decimal division test readiness.*place-value.*standard algorithm/is);
     await page.locator('[data-start="practice"]').click();
 
     assert.match(await page.locator('#skill-tag').innerText(), /Divide by powers of 10/i);
