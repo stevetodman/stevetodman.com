@@ -100,6 +100,7 @@ function validateRecord(mode, record, index) {
     if (typeof record.evidence_version !== 'string' || !SAFE_VERSION_RE.test(record.evidence_version)) {
       fail(`${location}.evidence_version: invalid version token`);
     }
+    validateExactEnumMap(record.applicability_inputs, definition.applicability_inputs, `${location}.applicability_inputs`);
     validateExactEnumMap(record.evidence_inputs, definition.evidence_inputs, `${location}.evidence_inputs`);
     validateExactEnumMap(record.model_input_availability, definition.model_input_availability, `${location}.model_input_availability`);
   }

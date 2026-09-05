@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "privacy": {
     "forbidden_keys": [
       "name",
@@ -36,45 +36,192 @@
         "research_case_id",
         "schema_version",
         "evidence_version",
-        "index_data_before_immunomodulatory_treatment",
-        "age_band",
-        "fever_duration_band",
+        "applicability_inputs",
         "evidence_inputs",
         "model_input_availability"
       ],
-      "enums": {
-        "index_data_before_immunomodulatory_treatment": ["yes", "no", "unknown"],
-        "age_band": ["lt1", "1-4", "5-9", "10-14", "15-20", "unknown"],
-        "fever_duration_band": ["lt5", "5-6", "7-9", "ge10", "unknown"]
-      },
+      "enums": {},
       "evidence_inputs": {
-        "platelet150": ["yes", "no", "unknown"],
-        "alc1000": ["yes", "no", "unknown"],
-        "pyuria10": ["yes", "no", "unknown"],
-        "wbc15000": ["yes", "no", "unknown"],
-        "lvef-low": ["yes", "no", "unknown"],
-        "gi": ["yes", "no", "unknown"],
-        "coronary-aneurysm": ["yes", "no", "unknown"],
-        "ntprobnp": ["yes", "no", "unknown"],
-        "troponin-i": ["yes", "no", "unknown"],
-        "ddimer": ["yes", "no", "unknown"],
-        "rash": ["yes", "no", "unknown"],
-        "conjunctivitis": ["yes", "no", "unknown"],
-        "oral": ["yes", "no", "unknown"],
-        "extremity": ["yes", "no", "unknown"],
-        "nodes": ["yes", "no", "unknown"],
-        "hospitalized": ["yes", "no", "unknown"],
-        "crp3": ["yes", "no", "unknown"],
-        "sarscov2": ["yes", "no", "unknown"],
-        "shock": ["yes", "no", "unknown"]
+        "platelet150": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "alc1000": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "pyuria10": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "wbc15000": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "lvef-low": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "gi": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "coronary-aneurysm": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "ntprobnp": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "troponin-i": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "ddimer": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "rash": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "conjunctivitis": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "oral": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "extremity": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "nodes": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "hospitalized": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "crp3": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "sarscov2": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "shock": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "abdominal-pain": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "diarrhea": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "vomiting": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "sore-throat": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "irritability": [
+          "yes",
+          "no",
+          "unknown"
+        ]
       },
       "model_input_availability": {
-        "model-age": ["available", "unavailable", "unknown"],
-        "model-sodium": ["available", "unavailable", "unknown"],
-        "model-platelet": ["available", "unavailable", "unknown"],
-        "model-alt": ["available", "unavailable", "unknown"],
-        "model-crp": ["available", "unavailable", "unknown"],
-        "model-lvef": ["available", "unavailable", "unknown"]
+        "model-age": [
+          "available",
+          "unavailable",
+          "unknown"
+        ],
+        "model-sodium": [
+          "available",
+          "unavailable",
+          "unknown"
+        ],
+        "model-platelet": [
+          "available",
+          "unavailable",
+          "unknown"
+        ],
+        "model-alt": [
+          "available",
+          "unavailable",
+          "unknown"
+        ],
+        "model-crp": [
+          "available",
+          "unavailable",
+          "unknown"
+        ],
+        "model-lvef": [
+          "available",
+          "unavailable",
+          "unknown"
+        ]
+      },
+      "applicability_inputs": {
+        "target-age": [
+          "lt1",
+          "1-4",
+          "5-9",
+          "10-14",
+          "15-20",
+          "21plus",
+          "unknown"
+        ],
+        "fever-duration": [
+          "lt5",
+          "5-6",
+          "7-9",
+          "ge10",
+          "unknown"
+        ],
+        "pretreatment": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "icu-level-care": [
+          "yes",
+          "no",
+          "unknown"
+        ]
       }
     },
     "reference": {
@@ -88,10 +235,26 @@
         "reviewer_disagreement"
       ],
       "enums": {
-        "adjudication_status": ["final", "pending"],
-        "adjudicated_outcome": ["ikd_confirmed", "misc_nonsevere", "indeterminate", "excluded_other"],
-        "initial_adjudication_blinded_to_workbench": ["yes", "no", "unknown"],
-        "reviewer_disagreement": ["yes", "no", "unknown"]
+        "adjudication_status": [
+          "final",
+          "pending"
+        ],
+        "adjudicated_outcome": [
+          "ikd_confirmed",
+          "misc_nonsevere",
+          "indeterminate",
+          "excluded_other"
+        ],
+        "initial_adjudication_blinded_to_workbench": [
+          "yes",
+          "no",
+          "unknown"
+        ],
+        "reviewer_disagreement": [
+          "yes",
+          "no",
+          "unknown"
+        ]
       }
     },
     "output": {
@@ -114,8 +277,12 @@
           "one_sided_published_associations",
           "discordant_evidence_both_phenotypes"
         ],
-        "starnes_status": ["not_calculated"],
-        "kidmatch_status": ["not_integrated"]
+        "starnes_status": [
+          "not_calculated"
+        ],
+        "kidmatch_status": [
+          "not_integrated"
+        ]
       }
     }
   }

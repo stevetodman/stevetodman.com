@@ -86,15 +86,4 @@
     studySignals: freeze([...base.studySignals, ...mainSignals2026, ...supplementSignals2026]),
     excludedFromBedsideEncoding: freeze(exclusions),
   });
-
-  const chip = document.querySelector('.status-chip');
-  if (chip) chip.textContent = 'EXPERIMENTAL • CLINICIAN-ONLY • M1B FULL SOURCE-LOCKED';
-  const modelNotes = [...document.querySelectorAll('.model-notes p')];
-  if (modelNotes[1]) modelNotes[1].innerHTML = '<strong>2026 exact target study:</strong> the final main article and electronic supplemental table are source-locked. They provide categorical associations and group-level distributions, not a validated diagnostic score or patient-level probability.';
-  const registryKicker = document.querySelector('.references .section-kicker');
-  if (registryKicker) registryKicker.textContent = 'Evidence registry v0.4-M1B-complete';
-  const pending = document.querySelector('.pending-source');
-  if (pending) pending.innerHTML = '<strong>M1B source lock complete:</strong> the 2026 final article and electronic supplemental table are both source-locked. Supplemental peak/trough laboratory values are displayed as group-level evidence only; no new bedside cutoffs or score are created.';
-  const footerVersion = document.querySelector('footer span');
-  if (footerVersion) footerVersion.textContent = 'Experimental evidence workbench • v0.4-M1B-complete';
 })();
