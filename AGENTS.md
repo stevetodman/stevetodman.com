@@ -17,6 +17,8 @@ Read `MASTER_PLAN.md` in full before changing this repository.
 
 If a new chat/window/agent has no prior conversation context, **do not ask Steve to restate the project history**. Reconstruct current executable state from GitHub, preserve any newer work, and continue from the first incomplete item in `MASTER_PLAN.md` unless Steve gives newer explicit instructions.
 
+For substantive HospitalSim graphics/visual work, also read `cardio-hospital-3d/docs/VISUAL_ARCHITECTURE_SOURCE_OF_TRUTH.md` before editing. That document is the owner-approved Astra visual-architecture specification and governs the authored-hybrid graphics replacement program. Do not substitute another procedural realism pass, renderer migration, or ad-hoc asset strategy unless Steve explicitly supersedes it or the specification's measured reversal criteria are met.
+
 After any meaningful work package, update the relevant status/checklist in `MASTER_PLAN.md` before stopping so future agents do not depend on chat memory.
 
 # Production deployment verification
