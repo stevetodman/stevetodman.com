@@ -17,6 +17,20 @@ export const DIVISION_ARCHETYPES = Object.freeze({
 });
 
 export const DIVISION_ARCHETYPE_KEYS = Object.freeze(Object.keys(DIVISION_ARCHETYPES));
+export const DIVISION_TEST_RUN_ARCHETYPES = Object.freeze([
+  "division_units",
+  "division_decompose",
+  "division_algorithm",
+  "division_regroup",
+  "division_scale_relation",
+  "division_reasonableness",
+  "division_error_analysis",
+  "division_word_one_step",
+  "division_multistep",
+  "division_context_result",
+  "tape_diagram_transfer",
+  "metric_embedded"
+]);
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const randomInt = (random, min, max) => Math.floor(random() * (max - min + 1)) + min;
@@ -26,7 +40,7 @@ const recentEvidence = (profile, key) => (profile?.attempts || [])
   .sort((a, b) => (Number(a.at) || 0) - (Number(b.at) || 0))
   .slice(-8);
 
-export function divisionArchetypeStats(profile, key) {
+export function divisionArchetypeStats(profile, key, options = {}) {
   const evidence = recentEvidence(profile, key).filter(attempt => !attempt.assisted && !attempt.repairOnly);
   let score = 40;
   for (const attempt of evidence) {
@@ -35,8 +49,14 @@ export function divisionArchetypeStats(profile, key) {
     score = clamp(score, 0, 100);
   }
   const correct = evidence.filter(attempt => attempt.correct);
-  const transfer = correct.filter(attempt => attempt.transfer || (Number(attempt.difficulty) || 1) >= 3).length;
+  const transfer = correct.filter(attempt => attempt.testRun || attempt.transfer || (Number(attempt.difficulty) || 1) >= 3).length;
   const days = new Set(correct.map(attempt => attempt.date).filter(Boolean)).size;
+  const latest = evidence.at(-1) || null;
+  const now = Number(options.now) || Date.now();
+  const latestAt = Math.max(0, Number(latest?.at) || 0);
+  const ageDays = latestAt ? Math.max(0, (now - latestAt) / 86400000) : Infinity;
+  const recent = ageDays <= (Number(options.maxAgeDays) || 7);
+  const latestCorrect = !!latest?.correct;
   return {
     key,
     score: Math.round(score),
@@ -44,12 +64,15 @@ export function divisionArchetypeStats(profile, key) {
     correct: correct.length,
     transfer,
     days,
-    ready: score >= 78 && correct.length >= 2 && transfer >= 1
+    latestCorrect,
+    recent,
+    ageDays,
+    ready: score >= 78 && correct.length >= 2 && transfer >= 1 && days >= 2 && latestCorrect && recent
   };
 }
 
-export function divisionReadiness(profile) {
-  const skills = DIVISION_ARCHETYPE_KEYS.map(key => divisionArchetypeStats(profile, key));
+export function divisionReadiness(profile, options = {}) {
+  const skills = DIVISION_ARCHETYPE_KEYS.map(key => divisionArchetypeStats(profile, key, options));
   const ready = skills.filter(item => item.ready).length;
   const sampled = skills.filter(item => item.attempts > 0).length;
   const weighted = skills.reduce((sum, item) => sum + item.score * DIVISION_ARCHETYPES[item.key].weight, 0);
@@ -60,12 +83,13 @@ export function divisionReadiness(profile) {
 export function nextDivisionArchetype(profile, options = {}) {
   const avoid = new Set(options.avoid || []);
   const candidates = DIVISION_ARCHETYPE_KEYS.map((key, order) => {
-    const stats = divisionArchetypeStats(profile, key);
+    const stats = divisionArchetypeStats(profile, key, options);
     const latest = recentEvidence(profile, key).at(-1)?.at || 0;
     return { key, stats, latest, avoided: avoid.has(key) ? 1 : 0, weight: DIVISION_ARCHETYPES[key].weight, order };
   });
   candidates.sort((a, b) =>
     a.avoided - b.avoided ||
+    Number(a.stats.ready) - Number(b.stats.ready) ||
     a.stats.score - b.stats.score ||
     a.stats.attempts - b.stats.attempts ||
     b.weight - a.weight ||
@@ -103,6 +127,7 @@ function question(archetype, prompt, answer, why, audit, difficulty, flags = {},
     assisted: !!flags.assisted,
     recovery: !!flags.recovery,
     transfer: difficulty === 3 && !flags.assisted,
+    testRun: !!flags.testRun,
     placeholder: extras.placeholder || "Number only",
     scratch: extras.scratch || "grid",
     scaffoldText: flags.assisted ? (extras.scaffoldText || "Estimate the quotient first. Rename into smaller place-value units when a unit cannot be shared equally, then multiply to check.") : "",
@@ -297,4 +322,11 @@ export function generateDivisionAssessmentQuestion(archetypeKey, difficulty = 2,
     String(centimetersPerShare),
     `${formatDecimal(meters)} meters = ${totalCentimeters} centimeters. Then ${totalCentimeters} ÷ ${divisor} = ${centimetersPerShare} centimeters.`,
     { kind: "quotient", dividendScaled: totalCentimeters, dividendPlaces: 0, divisor }, d, flags, { scratch: "tape" });
+}
+
+export function buildDivisionTestRun(random = Math.random) {
+  return DIVISION_TEST_RUN_ARCHETYPES.map(key => {
+    const q = generateDivisionAssessmentQuestion(key, 3, random, { testRun: true });
+    return { ...q, assisted: false, recovery: false, transfer: true, testRun: true, scaffoldText: "", workspace: null, scratch: "grid" };
+  });
 }
