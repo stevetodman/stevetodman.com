@@ -7,7 +7,7 @@ import {
   purchaseItem,
   sanitizeGameProfile,
   xpForAttempt
-} from "./starship-economy-core.mjs?v=20260903-starship2";
+} from "./starship-economy-core.mjs?v=20260905-economy3";
 
 const MATH_KEY = "mathmission.m1.v1";
 const PROFILE_IDS = new Set(["luke", "samantha"]);

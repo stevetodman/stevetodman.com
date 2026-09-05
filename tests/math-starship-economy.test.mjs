@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 import {
+  CATALOG,
   STARTER_EQUIPMENT,
   deriveProgress,
   equipItem,
@@ -44,6 +45,17 @@ test("progress derives from existing math history and keeps credits predictable"
   assert.equal(sectorForSessions(14).name, "Deep Space");
 });
 
+test("economy has an early, middle, and long-term cosmetic spend ladder without repricing earned purchases", () => {
+  const purchasable = Object.values(CATALOG).filter(item => !item.starter);
+  const totalPrice = purchasable.reduce((sum, item) => sum + item.price, 0);
+  assert.equal(CATALOG["meteor-wake"].price, 10, "existing purchase prices must stay stable so old balances do not move");
+  assert.equal(CATALOG["solar-wing"].price, 20);
+  assert.equal(CATALOG["nebula-runner"].price, 30);
+  assert.ok(purchasable.length >= 18, "the hangar should not be exhausted after a handful of missions");
+  assert.ok(totalPrice >= 1000, "the catalog needs a meaningful long-term credit sink");
+  assert.ok(purchasable.filter(item => item.price >= 100).length >= 4, "several aspirational items should require saving");
+});
+
 test("one completed mission can buy the first visible upgrade exactly once", () => {
   const mathProfile = { sessions: 1, attempts: [] };
   const first = purchaseItem({}, mathProfile, "meteor-wake", 1234);
@@ -62,7 +74,7 @@ test("unaffordable purchases fail without mutating learning or game progress", (
   const mathSnapshot = structuredClone(mathProfile);
   const gameProfile = sanitizeGameProfile({});
   const gameSnapshot = structuredClone(gameProfile);
-  const result = purchaseItem(gameProfile, mathProfile, "nebula-runner", 999);
+  const result = purchaseItem(gameProfile, mathProfile, "starlight-voyager", 999);
 
   assert.equal(result.ok, false);
   assert.equal(result.reason, "not-enough-credits");

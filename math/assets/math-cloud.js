@@ -8,8 +8,8 @@
   var VALID_MICROS=["place_digit","place_value","powers_multiply","powers_divide","metric_conversion","decimal_forms","decimal_compare","decimal_round","decimal_add","decimal_subtract","decimal_multiply","decimal_divide"];
   var VALID_ARCHETYPES=["division_units","division_decompose","division_scale_relation","division_reasonableness","division_model","division_algorithm","division_regroup","division_error_analysis","division_word_one_step","division_multistep","division_context_result","tape_diagram_transfer","metric_embedded"];
   var VALID_MISCONCEPTIONS=["place_sequence","digit_vs_value","place_value","power10_direction","power10_shift_count","power10_structure","metric_direction","metric_scale","expanded_form_notation","expanded_place_value","decimal_compare_place_value","rounding_truncated","rounding_place","decimal_alignment","decimal_magnitude","operation_arithmetic","multistep_skipped_subtraction","multistep_sequence","recheck_strategy"];
-  var STARSHIP_HULLS=["comet-scout","solar-wing","nebula-runner"],STARSHIP_TRAILS=["ion-wake","meteor-wake","aurora-wake"],STARSHIP_COMPANIONS=["none","orbit-bot","beacon-drone"];
-  var STARSHIP_PURCHASES=["solar-wing","nebula-runner","meteor-wake","aurora-wake","orbit-bot","beacon-drone"];
+  var STARSHIP_HULLS=["comet-scout","solar-wing","nebula-runner","lunar-dart","eclipse-cruiser","nova-spear","starlight-voyager"],STARSHIP_TRAILS=["ion-wake","meteor-wake","aurora-wake","plasma-ribbon","comet-dust","prism-wake","hyperspace-wake"],STARSHIP_COMPANIONS=["none","orbit-bot","beacon-drone","mini-rover","astro-cat","satellite-scout","alien-orb"];
+  var STARSHIP_PURCHASES=STARSHIP_HULLS.slice(1).concat(STARSHIP_TRAILS.slice(1),STARSHIP_COMPANIONS.slice(1));
   var status=ENABLED?"loading":"local",timer=null,inFlight=false,queued=false,lastLocal="",lastGameLocal="";
 
   function isObj(v){return !!v&&typeof v==="object"&&!Array.isArray(v)}

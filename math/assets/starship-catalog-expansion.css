@@ -1,0 +1,16 @@
+.ss-hull-lunar-dart{--ship:#e9fbff;--ship-dark:#62a8c4;--ship-accent:#77dff2}.ss-hull-lunar-dart .ss-wing{height:13px;top:34px}
+.ss-hull-eclipse-cruiser{--ship:#32384a;--ship-dark:#111827;--ship-accent:#dc4963}.ss-hull-eclipse-cruiser .ss-canopy{background:linear-gradient(145deg,#ffb2bd,#7a1428)}
+.ss-hull-nova-spear{--ship:#fff0db;--ship-dark:#df7f32;--ship-accent:#ffb05b}.ss-hull-nova-spear .ss-hull{border-radius:70% 45% 38% 65%}.ss-hull-nova-spear .ss-wing{height:12px;top:35px}
+.ss-hull-starlight-voyager{--ship:#fffdf2;--ship-dark:#d5b45a;--ship-accent:#f1d77b}.ss-hull-starlight-voyager .ss-canopy{background:linear-gradient(145deg,#e9fbff,#5f80b8)}
+.ss-trail-plasma-ribbon .ss-engine-trail{background:linear-gradient(90deg,transparent,#d24cff,#ff8bd8,#fff0ff);height:13px}
+.ss-trail-comet-dust .ss-engine-trail{background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),#eaf8ff,#fff);box-shadow:-7px 0 7px rgba(255,255,255,.45)}
+.ss-trail-prism-wake .ss-engine-trail{background:linear-gradient(90deg,transparent,#8b6cff,#57d6ff,#7af0b1,#ffe570,#ff8c9b)}
+.ss-trail-hyperspace-wake .ss-engine-trail{width:45px;left:7px;height:10px;background:linear-gradient(90deg,transparent,#8dc8ff,#fff);box-shadow:0 0 9px rgba(190,226,255,.85)}
+.ss-companion-mini-rover .ss-companion,.ss-companion-astro-cat .ss-companion,.ss-companion-satellite-scout .ss-companion,.ss-companion-alien-orb .ss-companion{display:block}
+.ss-companion-mini-rover .ss-companion{border-radius:5px;background:#e29a43;border-color:#ffe0a7}.ss-companion-mini-rover .ss-companion:after{background:#d3e0ee}
+.ss-companion-astro-cat .ss-companion{background:#d8dce8;border-color:#f8fbff}.ss-companion-astro-cat .ss-companion:after{left:2px;right:auto;top:-7px;width:8px;height:8px;background:#d8dce8;transform:rotate(45deg)}
+.ss-companion-satellite-scout .ss-companion{border-radius:4px;background:#a8b6c8;border-color:#edf4ff}.ss-companion-satellite-scout .ss-companion:after{left:-10px;right:-10px;background:#8ec0e7}
+.ss-companion-alien-orb .ss-companion{background:#78e68c;border-color:#c8ffd0;box-shadow:0 0 0 2px rgba(16,36,62,.35),0 0 12px rgba(82,255,124,.55)}
+.ss-preview-lunar-dart:before{background:#7fd4e7;box-shadow:7px -5px 0 -3px #e8fdff}.ss-preview-eclipse-cruiser:before{background:#303849;box-shadow:7px -5px 0 -3px #df4d68}.ss-preview-nova-spear:before{background:#e88939;box-shadow:7px -5px 0 -3px #ffe3b9}.ss-preview-starlight-voyager:before{background:#d8bd68;box-shadow:7px -5px 0 -3px #fff9d9}
+.ss-preview-plasma-ribbon:before{background:linear-gradient(90deg,#8f3ce2,#ff80cf)}.ss-preview-comet-dust:before{background:linear-gradient(90deg,#b9d8ef,#fff)}.ss-preview-prism-wake:before{background:linear-gradient(90deg,#805ee8,#55ccff,#77e9aa,#ffe26f,#ff8d9f)}.ss-preview-hyperspace-wake:before{background:linear-gradient(90deg,#75b7ff,#fff)}
+.ss-preview-mini-rover:before{border-radius:5px;background:#df9841;box-shadow:0 0 0 4px #ffe3b4}.ss-preview-astro-cat:before{background:#d6dbe6;box-shadow:0 0 0 4px #f8fbff}.ss-preview-satellite-scout:before{border-radius:4px;background:#a6b5c8;box-shadow:0 0 0 4px #eaf5ff}.ss-preview-alien-orb:before{background:#75e68c;box-shadow:0 0 0 4px #caffd4}

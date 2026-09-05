@@ -11,12 +11,26 @@ export const CATALOG = Object.freeze({
   "comet-scout": Object.freeze({ id: "comet-scout", slot: "hull", name: "Comet Scout", price: 0, starter: true, description: "Your quick, dependable starter ship." }),
   "solar-wing": Object.freeze({ id: "solar-wing", slot: "hull", name: "Solar Wing", price: 20, description: "Wide solar fins and a bright command canopy." }),
   "nebula-runner": Object.freeze({ id: "nebula-runner", slot: "hull", name: "Nebula Runner", price: 30, description: "A deep-space hull built for long exploration arcs." }),
+  "lunar-dart": Object.freeze({ id: "lunar-dart", slot: "hull", name: "Lunar Dart", price: 50, description: "A compact silver-blue ship built for moon runs." }),
+  "eclipse-cruiser": Object.freeze({ id: "eclipse-cruiser", slot: "hull", name: "Eclipse Cruiser", price: 80, description: "A dark interceptor with a sharp red eclipse trim." }),
+  "nova-spear": Object.freeze({ id: "nova-spear", slot: "hull", name: "Nova Spear", price: 120, description: "A bright long-range ship with a fast spear profile." }),
+  "starlight-voyager": Object.freeze({ id: "starlight-voyager", slot: "hull", name: "Starlight Voyager", price: 180, description: "A prestige explorer for pilots saving toward a major upgrade." }),
+
   "ion-wake": Object.freeze({ id: "ion-wake", slot: "trail", name: "Ion Wake", price: 0, starter: true, description: "A clean blue engine wake." }),
   "meteor-wake": Object.freeze({ id: "meteor-wake", slot: "trail", name: "Meteor Wake", price: 10, description: "A bright, fast-burning trail." }),
   "aurora-wake": Object.freeze({ id: "aurora-wake", slot: "trail", name: "Aurora Wake", price: 16, description: "A shimmering twin-band engine trail." }),
+  "plasma-ribbon": Object.freeze({ id: "plasma-ribbon", slot: "trail", name: "Plasma Ribbon", price: 35, description: "A violet plasma ribbon that curls behind the ship." }),
+  "comet-dust": Object.freeze({ id: "comet-dust", slot: "trail", name: "Comet Dust", price: 55, description: "A pale sparkling wake like a passing comet." }),
+  "prism-wake": Object.freeze({ id: "prism-wake", slot: "trail", name: "Prism Wake", price: 90, description: "A bright multi-band trail for deep-space flights." }),
+  "hyperspace-wake": Object.freeze({ id: "hyperspace-wake", slot: "trail", name: "Hyperspace Wake", price: 140, description: "A long white-blue burst reserved for serious savers." }),
+
   "none": Object.freeze({ id: "none", slot: "companion", name: "No companion", price: 0, starter: true, description: "Fly solo with a clean outer orbit." }),
   "orbit-bot": Object.freeze({ id: "orbit-bot", slot: "companion", name: "Orbit Bot", price: 12, description: "A small navigation bot that circles your ship." }),
-  "beacon-drone": Object.freeze({ id: "beacon-drone", slot: "companion", name: "Beacon Drone", price: 18, description: "A long-range survey drone for the next sector." })
+  "beacon-drone": Object.freeze({ id: "beacon-drone", slot: "companion", name: "Beacon Drone", price: 18, description: "A long-range survey drone for the next sector." }),
+  "mini-rover": Object.freeze({ id: "mini-rover", slot: "companion", name: "Mini Rover", price: 30, description: "A tiny exploration rover clipped into orbital formation." }),
+  "astro-cat": Object.freeze({ id: "astro-cat", slot: "companion", name: "Astro Cat", price: 45, description: "A fearless little co-pilot with a glowing helmet beacon." }),
+  "satellite-scout": Object.freeze({ id: "satellite-scout", slot: "companion", name: "Satellite Scout", price: 70, description: "A compact silver satellite that scouts the route ahead." }),
+  "alien-orb": Object.freeze({ id: "alien-orb", slot: "companion", name: "Alien Orb", price: 110, description: "A mysterious green companion from beyond the mapped route." })
 });
 
 const LEVEL_THRESHOLDS = Object.freeze([0, 60, 150, 270, 420, 600, 820, 1080, 1380, 1720]);
