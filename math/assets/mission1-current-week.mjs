@@ -1,7 +1,8 @@
 import { formatDecimal, generate as generateModuleQuestion } from "./mission1-content.mjs";
+import { generateDivisionAssessmentQuestion } from "./mission1-division-assessment.mjs";
 import { isTeacherAllowedMicro } from "./teacher-week.mjs";
 
-const CUSTOM_WEEKLY_MICROS = new Set(["powers_multiply", "powers_divide"]);
+const CUSTOM_WEEKLY_MICROS = new Set(["powers_multiply", "powers_divide", "decimal_divide"]);
 const randomInt = (random, min, max) => Math.floor(random() * (max - min + 1)) + min;
 
 function factorForDifficulty(difficulty, random) {
@@ -59,6 +60,10 @@ export function generateCurrentWeekQuestion(micro, difficulty = 2, random = Math
   if (!CUSTOM_WEEKLY_MICROS.has(micro)) return generateModuleQuestion(micro, difficulty, random, flags);
 
   const d = Math.max(1, Math.min(3, Number(difficulty) || 1));
+  if (micro === "decimal_divide") {
+    return generateDivisionAssessmentQuestion(flags.assessmentArchetype, d, random, flags);
+  }
+
   const { shift, factor } = factorForDifficulty(d, random);
   const operation = micro === "powers_multiply" ? "multiply" : "divide";
   const symbol = operation === "multiply" ? "×" : "÷";
