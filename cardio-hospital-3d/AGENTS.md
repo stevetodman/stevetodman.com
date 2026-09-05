@@ -1,6 +1,6 @@
 # Pediatric Hospital — Local Agent Contract
 
-Root `MASTER_PLAN.md` owns current repository/program state. This file contains only hospital-local invariants and the remaining physical-device acceptance contract.
+Root `MASTER_PLAN.md` owns current repository/program state. This file contains hospital-local invariants, the remaining physical-device acceptance contract, and the local handoff into the owner-approved visual architecture program.
 
 ## Canonical product
 
@@ -10,6 +10,14 @@ Root `MASTER_PLAN.md` owns current repository/program state. This file contains 
 - `/phs/`, `/cardiohospital/`, `stevetodman/pediatric-hospital-world`, `stevetodman/3dworld`, and `stevetodman/the_ward` are reference/legacy sources unless Steve explicitly reverses that decision.
 
 Do not split new hospital implementation work back into legacy repositories or routes.
+
+## Required reading order for hospital work
+
+1. Root `MASTER_PLAN.md` — current program state and exact resume point.
+2. This file — hospital-local invariants and physical-iPhone acceptance.
+3. For any substantive graphics/visual work: `docs/VISUAL_ARCHITECTURE_SOURCE_OF_TRUTH.md` — owner-approved Astra visual architecture and phased implementation plan.
+
+Do not ask the owner to reconstruct prior context when these documents answer the question. Preserve newer completed work and continue from the first unfinished item.
 
 ## Durable engine / clinical invariants
 
@@ -24,6 +32,7 @@ Do not split new hospital implementation work back into legacy repositories or r
 - Do not silently alter clinical facts, thresholds, diagnoses, management logic, or source metadata.
 - Prefer deterministic behavior over LLM-dependent core simulation logic.
 - Do not add a backend without a concrete requirement that cannot be met safely client-side.
+- Visuals and animation are projections of canonical clinical state; they must never become a competing clinical state machine.
 
 ## Current acceptance boundary
 
@@ -35,9 +44,9 @@ Durable evidence:
 - reproduced Room 1 prompt-cache defect fixed in `5073f86e9f1344f452970c3fb51e43e0246d850b`;
 - detailed desktop evidence: `docs/BEHAVIORAL_ACCEPTANCE_2026-09-03.md`.
 
-The remaining product-quality gate is **physical-iPhone M4/M5 acceptance**. Browser/device emulation is not a substitute where this gate is required. Do not begin M6 until it passes.
+The remaining product-quality gate is **physical-iPhone M4/M5 acceptance**. Browser/device emulation is not a substitute where this gate is required. The accepted Astra visual plan calls this **Phase 0**. Do not begin the authored visual proof until Phase 0 is complete.
 
-## Physical-iPhone acceptance
+## Physical-iPhone acceptance — Phase 0
 
 ### Safari portrait
 
@@ -89,20 +98,34 @@ Verify:
 - Add only focused regression coverage for the reproduced defect.
 - After a product fix, require `npm run test:engine` + `npm run build` green.
 - Rerun full desktop behavioral acceptance only if the fix touches shared behavior covered by that acceptance.
-- Do not widen scope into M6, backend work, new cases, or visual overhaul during this gate.
+- Do not widen scope into backend work, new cases, or visual overhaul during this gate.
+- Do not repeat already-passed physical checks unless a new reproducible regression appears.
 
-## When the iPhone gate passes
+## After Phase 0 passes
 
-Record device model, iOS/Safari version, portrait/landscape/PWA/audio/ECG/reload/actor-visibility/thermal results and any reproduced defects/fixing commits. Update the hospital implementation ledger, then mark M4/M5 complete. Only then begin M6 using the existing canonical engine.
+Record device model, iOS/Safari version, portrait/landscape/PWA/audio/ECG/reload/actor-visibility/thermal results and any reproduced defects/fixing commits. Update the hospital implementation ledger and root `MASTER_PLAN.md`, then mark M4/M5 / Phase 0 complete.
+
+The next graphics action is then **Phase 1 of `docs/VISUAL_ARCHITECTURE_SOURCE_OF_TRUTH.md`**:
+
+- prove one authored room;
+- prove one equipment set;
+- prove the minimum compatible rigged character family;
+- prove the complete lighting/export/lightmap recipe;
+- preserve simple explicit collision and the canonical clinical engine;
+- use minimum focused tests;
+- do **not** extend the old procedural realism program and do **not** migrate renderers first.
+
+Subsequent order is fixed unless explicitly superseded: Phase 2 complete encounter vertical slice -> Phase 3 second-room reuse proof -> Phase 4 progressive room-by-room replacement.
 
 ## Read only as needed
 
+- `docs/VISUAL_ARCHITECTURE_SOURCE_OF_TRUTH.md` — governing HospitalSim visual architecture, performance envelope, proof-scene criteria, do-not-build list, and Phases 0–4.
 - `docs/BEHAVIORAL_ACCEPTANCE_2026-09-03.md` — completed desktop evidence.
 - `docs/CLINICAL_VALIDATION.md` — clinical validation/evidence boundaries.
-- `docs/HOSPITAL_MASTER_PLAN.md` — hospital architecture and future milestone design.
-- `docs/IMPLEMENTATION_STATUS.md` — historical implementation ledger; root `MASTER_PLAN.md` and this file override stale resume language.
+- `docs/HOSPITAL_MASTER_PLAN.md` — durable hospital architecture/milestone background; the visual source-of-truth document overrides conflicting older graphics guidance.
+- `docs/IMPLEMENTATION_STATUS.md` — historical implementation ledger; root `MASTER_PLAN.md`, this file, and the visual source-of-truth document override stale resume language.
 - `src/lib/hospital-engine.ts`, persistence/store/schedule/consequences/pages/work/scoring — canonical engine internals.
 - `src/lib/clinical-policy/` — case-specific clinical policy.
 - `src/components/` — world, clinical UI, pager/work queue, mobile/touch controls.
 
-The next hospital product action is physical-iPhone acceptance, not architecture work and not another default desktop pass.
+The next hospital product action is completion of physical-iPhone Phase 0. After that, continue directly into the owner-approved Astra authored-hybrid visual program.
