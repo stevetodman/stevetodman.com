@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { diagnoseMathError, makeRepairQuestion } from "../math/assets/mission1-error-diagnosis.mjs";
@@ -71,4 +72,13 @@ test("repair questions are one-tap assisted checks and do not reuse the original
   assert.ok(Array.isArray(repair.options));
   assert.ok(repair.options.length >= 2);
   assert.equal(repair.scaffoldText, diagnosis.message);
+});
+
+test("misconception labels and diagnostic version 3 are preserved by cloud format", async () => {
+  const cloud = await readFile(new URL("../math/assets/math-cloud.js", import.meta.url), "utf8");
+  assert.match(cloud, /VALID_MISCONCEPTIONS/);
+  assert.match(cloud, /"math1d"/);
+  assert.match(cloud, /misconception:parts\[9\]/);
+  assert.match(cloud, /math1diagnostic3/);
+  assert.match(cloud, /diagnosticVersion=Math\.max\(Number\(p\.diagnosticVersion\)\|\|0,3\)/);
 });
