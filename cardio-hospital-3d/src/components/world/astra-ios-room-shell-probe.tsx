@@ -1,14 +1,39 @@
 "use client";
 
+import { useEffect } from "react";
+
+const ROOM_SHELL_ASSET = "/hospital/assets/hospital/astra-probe/room-shell-only.gltf";
+
 /**
- * Diagnostic control after the physical-iPhone static glTF probe blanked the 3D world.
+ * Diagnostic control after the physical-iPhone static useGLTF probe blanked the
+ * 3D world while a native R3F mesh worked normally.
  *
- * This deliberately adds one tiny native R3F/Three mesh only. There is no asset
- * fetch, useGLTF, Suspense, lightmap, animation, collision, lighting change, or
- * clinical-state ownership. If the physical iPhone renders and moves normally
- * with this control, the regression is narrowed to the glTF loader/asset path.
+ * This step requests the exact glTF file and parses only its JSON with the browser.
+ * It deliberately does NOT invoke useGLTF/GLTFLoader, Suspense, textures, animation,
+ * collision, or render anything from the asset. The tiny native mesh remains as a
+ * harmless scene-insertion control.
  */
 export function AstraIosRoomShellProbe() {
+  useEffect(() => {
+    const controller = new AbortController();
+
+    void fetch(ROOM_SHELL_ASSET, { signal: controller.signal, cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Astra probe HTTP ${response.status}`);
+        return response.text();
+      })
+      .then((text) => {
+        JSON.parse(text);
+        console.info("Astra iOS glTF fetch/JSON probe passed.");
+      })
+      .catch((error) => {
+        if (controller.signal.aborted) return;
+        console.error("Astra iOS glTF fetch/JSON probe failed.", error);
+      });
+
+    return () => controller.abort();
+  }, []);
+
   return (
     <mesh position={[-5.35, 1.15, -3]} castShadow={false} receiveShadow={false}>
       <boxGeometry args={[0.28, 0.28, 0.28]} />
