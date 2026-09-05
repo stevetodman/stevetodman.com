@@ -115,6 +115,39 @@ test("adaptive v2 attempts survive a cloud payload/apply round trip", () => {
   assert.ok(restored.attempts[0].cloudId);
 });
 
+test("division assessment archetype evidence survives cloud sync", () => {
+  const source = loadCloud({
+    samantha: {
+      attempts: [{
+        skill: "divide",
+        micro: "decimal_divide",
+        assessmentArchetype: "division_multistep",
+        correct: false,
+        assisted: false,
+        recovery: false,
+        recheck: false,
+        difficulty: 3,
+        transfer: true,
+        misconception: "multistep_sequence",
+        date: "2026-09-05",
+        at: 1788609600000
+      }]
+    }
+  });
+  const payload = source.cloud.payload();
+  const key = Object.keys(payload["math-mission-samantha"].stateStats).find(item => item.startsWith("math1e|"));
+  assert.match(key, /^math1e\|divide\|decimal_divide\|division_multistep\|0\|0\|0\|3\|1\|0\|multistep_sequence\|2026-09-05\|1788609600000\|/);
+
+  const target = loadCloud({});
+  target.cloud.apply(payload);
+  const restored = readData(target.localStorage).samantha.attempts[0];
+  assert.equal(restored.assessmentArchetype, "division_multistep");
+  assert.equal(restored.misconception, "multistep_sequence");
+  assert.equal(restored.correct, false);
+  assert.equal(restored.difficulty, 3);
+  assert.equal(restored.transfer, true);
+});
+
 test("applying the same remote state twice does not duplicate attempts", () => {
   const source = loadCloud({
     luke: {
