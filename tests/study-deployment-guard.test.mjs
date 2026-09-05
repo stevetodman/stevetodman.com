@@ -93,7 +93,8 @@ test('Study live workflow cannot pass on CI or a static stale page alone', () =>
   assert.match(browser, /page\.touchscreen\.tap/);
   assert.match(browser, /page\.on\('pageerror'/);
   assert.match(browser, /message\.type\(\) === 'error'/);
-  assert.match(browser, /Graded\\s\*\[•·\]\\s\*50 questions/);
+  assert.match(browser, /Test Run/);
+  assert.match(browser, /Graded\\s\*\[•·\]\\s\*\(\?:40\|50\) questions/);
 
   const agentPolicy = fs.readFileSync(path.join(repoRoot, 'AGENTS.md'), 'utf8');
   assert.match(agentPolicy, /committed;[\s\S]*pre-deployment CI passed;[\s\S]*Cloudflare Pages deployment succeeded;/);
