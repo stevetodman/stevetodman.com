@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { generateCurrentWeekQuestion } from "../math/assets/mission1-current-week.mjs";
 import { isCorrectAnswer } from "../math/assets/mission1-content.mjs";
-import { DIVISION_ARCHETYPE_KEYS, generateDivisionAssessmentQuestion } from "../math/assets/mission1-division-assessment.mjs";
+import { DIVISION_ARCHETYPE_KEYS, DIVISION_TEST_RUN_ARCHETYPES, buildDivisionTestRun, divisionArchetypeStats, generateDivisionAssessmentQuestion } from "../math/assets/mission1-division-assessment.mjs";
 import { CLASS_WEEKS, TEACHER_WEEK, explanationForMicro, isTeacherAllowedMicro } from "../math/assets/teacher-week.mjs";
 
 function seededRandom(seed = 0x1234abcd) {
@@ -63,6 +63,33 @@ test("Lessons 13-16 assessment blueprint produces every photographed problem arc
       assert.equal(isCorrectAnswer(question.answer, question), true, `${archetype}: ${question.prompt}`);
     }
   }
+
+  const testRun = buildDivisionTestRun(seededRandom(12));
+  assert.equal(testRun.length, 12);
+  assert.deepEqual(testRun.map(question => question.assessmentArchetype), DIVISION_TEST_RUN_ARCHETYPES);
+  for (const question of testRun) {
+    assert.equal(question.micro, "decimal_divide");
+    assert.equal(question.assisted, false);
+    assert.equal(question.recovery, false);
+    assert.equal(question.transfer, true);
+    assert.equal(question.testRun, true);
+    assert.equal(question.workspace, null);
+    assert.equal(question.scaffoldText, "");
+    assert.equal(isCorrectAnswer(question.answer, question), true, question.prompt);
+  }
+
+  const now = Date.UTC(2026, 8, 5, 12);
+  const attempts = [
+    { date: "2026-09-04", at: now - 86400000, transfer: true },
+    { date: "2026-09-04", at: now - 86000000, transfer: false },
+    { date: "2026-09-05", at: now - 1000, transfer: true },
+    { date: "2026-09-05", at: now, transfer: false }
+  ].map(item => ({ micro: "decimal_divide", assessmentArchetype: "division_algorithm", correct: true, assisted: false, repairOnly: false, difficulty: 3, ...item }));
+  const profile = { attempts };
+  assert.equal(divisionArchetypeStats(profile, "division_algorithm", { now }).ready, true, "readiness needs sustained recent independent evidence across two days");
+  profile.attempts.push({ micro: "decimal_divide", assessmentArchetype: "division_algorithm", correct: false, assisted: false, repairOnly: false, difficulty: 3, transfer: true, date: "2026-09-05", at: now + 1 });
+  assert.equal(divisionArchetypeStats(profile, "division_algorithm", { now: now + 1 }).ready, false, "an unresolved latest miss removes test-ready status without erasing mastery history");
+  assert.equal(divisionArchetypeStats({ attempts }, "division_algorithm", { now: now + 9 * 86400000 }).ready, false, "stale evidence is due for a retention check");
 });
 
 test("division practice spans conceptual, procedural, explanation, model, and transfer forms", () => {
