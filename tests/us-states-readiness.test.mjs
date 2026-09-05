@@ -20,10 +20,10 @@ function functionSource(name) {
   throw new Error(`Could not extract ${name}`);
 }
 
-function loadHelpers() {
-  const context = { Date, Math, Number, String };
+function loadHelpers(states = []) {
+  const context = { Date, Math, Number, String, STATES: states };
   vm.createContext(context);
-  vm.runInContext(`var DAY_MS = 24 * 60 * 60 * 1000;\n${functionSource("quizTargetCount")}\n${functionSource("retrievalPriority")}`, context);
+  vm.runInContext(`var DAY_MS = 24 * 60 * 60 * 1000;\n${functionSource("quizTargetCount")}\n${functionSource("retrievalPriority")}${source.includes("function assessmentTestStates(") ? `\n${functionSource("assessmentTestStates")}` : ""}`, context);
   return context;
 }
 
@@ -56,5 +56,27 @@ test("existing child-facing states game stays intact while readiness remains hid
   assert.match(source, /retrieval: retrievalPriority\(st, now\)/);
   assert.match(source, /Math\.max\(Number\(sa\.lastSeenAt\) \|\| 0, Number\(sb\.lastSeenAt\) \|\| 0\)/);
   assert.match(source, /Nothing about this is surfaced as a difficulty setting/);
-  assert.doesNotMatch(source, />\s*(?:40-state|40 state|retrieval readiness|memory strength)\s*</i);
+  assert.doesNotMatch(source, />\s*(?:retrieval readiness|memory strength)\s*</i);
+});
+
+test("school test run uses the current target, one pass, and no answer reveal before results", () => {
+  assert.match(source, /function assessmentTestStates\(/);
+  const states = Array.from({ length: 50 }, (_, index) => ({ code: `S${index}`, name: `State ${index}` }));
+  const profile = { stateStats: {}, masteredOrder: [] };
+  const now = new Date(2026, 8, 5, 12).getTime();
+  for (let index = 0; index < 12; index += 1) {
+    profile.stateStats[`S${index}`] = { mastered: index < 8, correct: 4, wrong: index % 3, lastSeenAt: now - index * 1000, lastCorrectAt: now - index * 1000 };
+    if (index < 8) profile.masteredOrder.push(`S${index}`);
+  }
+  const { assessmentTestStates } = loadHelpers(states);
+  const forty = assessmentTestStates(profile, new Date(2026, 8, 9, 12));
+  const fifty = assessmentTestStates(profile, new Date(2026, 8, 10, 12));
+  assert.equal(forty.length, 40);
+  assert.equal(new Set(forty.map(state => state.code)).size, 40);
+  for (let index = 0; index < 12; index += 1) assert.ok(forty.some(state => state.code === `S${index}`), "previously practiced states stay in the test pool");
+  assert.equal(fifty.length, 50);
+  assert.match(source, /roundLabel = "School Test Run"/);
+  assert.match(source, /var assessmentRun = roundLabel === "School Test Run"/);
+  assert.match(source, /Answer recorded\./);
+  assert.match(source, /if \(roundLabel === "Quick Round"\) queueRetry\(item\)/);
 });
