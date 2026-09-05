@@ -1,17 +1,18 @@
 "use client";
 
 import { useEffect } from "react";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const ROOM_SHELL_ASSET = "/hospital/assets/hospital/astra-probe/room-shell-only.gltf";
+const ROOM_SHELL_BASE = "/hospital/assets/hospital/astra-probe/";
 
 /**
- * Diagnostic control after the physical-iPhone static useGLTF probe blanked the
- * 3D world while a native R3F mesh worked normally.
+ * Diagnostic step after physical iPhone confirmed that direct fetch + JSON.parse
+ * of the exact glTF is healthy.
  *
- * This step requests the exact glTF file and parses only its JSON with the browser.
- * It deliberately does NOT invoke useGLTF/GLTFLoader, Suspense, textures, animation,
- * collision, or render anything from the asset. The tiny native mesh remains as a
- * harmless scene-insertion control.
+ * This fetches the same text, then asks Three's GLTFLoader to parse it, but never
+ * inserts the resulting scene into React Three Fiber. There is no useGLTF,
+ * Suspense, animation, lightmap, collision, or parsed-scene rendering.
  */
 export function AstraIosRoomShellProbe() {
   useEffect(() => {
@@ -23,12 +24,27 @@ export function AstraIosRoomShellProbe() {
         return response.text();
       })
       .then((text) => {
-        JSON.parse(text);
-        console.info("Astra iOS glTF fetch/JSON probe passed.");
+        if (controller.signal.aborted) return;
+
+        const loader = new GLTFLoader();
+        loader.parse(
+          text,
+          ROOM_SHELL_BASE,
+          () => {
+            if (!controller.signal.aborted) {
+              console.info("Astra iOS GLTFLoader.parse probe passed.");
+            }
+          },
+          (error) => {
+            if (!controller.signal.aborted) {
+              console.error("Astra iOS GLTFLoader.parse probe failed.", error);
+            }
+          },
+        );
       })
       .catch((error) => {
         if (controller.signal.aborted) return;
-        console.error("Astra iOS glTF fetch/JSON probe failed.", error);
+        console.error("Astra iOS glTF parser probe fetch failed.", error);
       });
 
     return () => controller.abort();
