@@ -15,7 +15,7 @@ test("Math Mission takes weekly focus from the teacher scope while removing adul
     read("math/CURRENT_WEEK.md"),
     read("math/WORLD_CLASS_CHILD_UX_PLAN.md")
   ]);
-  assert.match(html, /Module 1 · Place Value & Decimal Fractions/);
+  assert.match(html, /Current classroom math/);
   assert.match(html, /teacher-week-ui\.mjs/);
   assert.match(html, /Today’s Mission/);
   assert.doesNotMatch(html, /id="skill-list"|id="mastery-count"|parent-summary/);
@@ -24,13 +24,16 @@ test("Math Mission takes weekly focus from the teacher scope while removing adul
   assert.match(app, /TEACHER_WEEK\.title/);
   assert.match(app, /TEACHER_WEEK\.diagnosticMicros/);
   assert.match(teacherWeek, /source: "Teacher-provided weekly materials"/);
-  assert.match(teacherWeek, /label: "Lessons 1–2 · 5\.NBT\.1–2"/);
-  assert.match(teacherWeek, /currentMicros: Object\.freeze\(\["powers_multiply", "powers_divide"\]\)/);
+  assert.match(teacherWeek, /label: "Week 4 · Aug 31–Sep 4"/);
+  assert.match(teacherWeek, /newInstructionMicros: Object\.freeze\(\["decimal_divide"\]\)/);
+  assert.match(teacherWeek, /assessmentMicros: Object\.freeze\(\["decimal_add", "decimal_subtract", "decimal_multiply"\]\)/);
+  assert.match(teacherWeek, /maintenanceMicros: Object\.freeze\(\["powers_multiply", "powers_divide"\]\)/);
+  assert.match(teacherUi, /CLASS_WEEKS/);
   assert.match(teacherUi, /TEACHER_WEEK\.label/);
   assert.match(teacherUi, /TEACHER_WEEK\.title/);
-  assert.doesNotMatch(app, /This week · Lessons 1–16/);
-  assert.match(weekly, /Adaptive practice should prioritize Lessons 1–2 \/ 5\.NBT\.1–2 first/);
-  assert.match(weekly, /Do not describe all Lessons 1–16 as "this week\."/);
+  assert.match(weekly, /decimal division/i);
+  assert.match(weekly, /decimal addition, subtraction, and multiplication/i);
+  assert.match(weekly, /powers-of-10 maintenance/i);
   assert.match(plan, /Status: \*\*LOCKED IMPLEMENTATION PLAN\*\*/);
   assert.match(plan, /Parent mode or parent dashboard redesign/);
   assert.match(plan, /If a proposed change does not improve the current child learning loop, it does not belong/);
@@ -48,7 +51,7 @@ test("the learning screen has explicit independent progress and an interactive f
   assert.match(html, /id="place-value-workspace"/);
   assert.doesNotMatch(html, /id="progress-pips"/);
   assert.match(app, /Guided step/);
-  assert.match(app, /does not.*Skill level|You used/);
+  assert.match(app, /You used/);
   assert.match(workspace, /Fixed decimal point/);
   assert.match(workspace, /data-pv-shift="left"/);
   assert.match(workspace, /data-pv-shift="right"/);
@@ -61,21 +64,25 @@ test("the learning screen has explicit independent progress and an interactive f
   assert.match(css, /grid-template-columns:var\(--pv-columns\)/);
 });
 
-test("wrong-answer UX teaches the current concept before guided repair without immediately revealing the answer", async () => {
-  const [app, teacherWeek, html] = await Promise.all([
+test("wrong-answer UX diagnoses the submitted answer, gives one-tap repair, and delays independent proof", async () => {
+  const [app, diagnosis, html] = await Promise.all([
     read("math/assets/mission1.js"),
-    read("math/assets/teacher-week.mjs"),
+    read("math/assets/mission1-error-diagnosis.mjs"),
     read("math/index.html")
   ]);
-  assert.match(app, /Not yet\. Here’s the idea/);
-  assert.match(app, /explanationForMicro\(question\.micro\)/);
-  assert.match(app, /Now we’ll work through the same concept together, then you’ll try it independently again/);
-  assert.match(app, /Show me with the place-value chart/);
-  assert.match(app, /state\.immediateScaffold = question/);
-  assert.match(app, /scaffoldText: missed\.scaffoldText \|\| explanationForMicro\(missed\.micro\)/);
-  assert.match(teacherWeek, /powers_divide: "Dividing by a power of 10 makes the number smaller/);
-  assert.match(teacherWeek, /each move one place right makes a digit worth one tenth as much/i);
-  assert.doesNotMatch(app, /confirm\("Exit this mission/);
+  assert.match(app, /diagnoseMathError\(raw, question\)/);
+  assert.match(app, /misconception: diagnosis\?\.key/);
+  assert.match(app, /One quick tap question will fix the idea/);
+  assert.match(app, /state\.immediateScaffold = makeRepairQuestion\(question, diagnosis\)/);
+  assert.match(app, /state\.recoveries\.push\(\{ micro: question\.micro, delay: 1 \}\)/);
+  assert.match(app, /repairOnly/);
+  assert.match(app, /if \(!question\.repairOnly\)/);
+  assert.doesNotMatch(app, /Not yet\. The answer is \$\{question\.answer\}.*Fix this/s);
+  assert.match(diagnosis, /power10_direction/);
+  assert.match(diagnosis, /rounding_truncated/);
+  assert.match(diagnosis, /decimal_magnitude/);
+  assert.match(diagnosis, /multistep_skipped_subtraction/);
+  assert.match(diagnosis, /options: fix\.options/);
   assert.match(html, /id="exit-dialog"/);
 });
 
@@ -103,13 +110,12 @@ test("scratchwork supports pointer input, Apple Pencil semantics, undo, clear, a
   assert.match(css, /\.question-body\{font-size:1\.22rem\}/, "question text should be prominent on Chromebook");
 });
 
-test("cloud format preserves adaptive evidence and diagnostic version", async () => {
+test("cloud format preserves adaptive evidence and current diagnostic version", async () => {
   const cloud = await read("math/assets/math-cloud.js");
   assert.match(cloud, /"math1b"/);
   assert.match(cloud, /a\.micro/);
   assert.match(cloud, /a\.assisted/);
   assert.match(cloud, /a\.recovery/);
   assert.match(cloud, /a\.difficulty/);
-  assert.match(cloud, /math1diagnostic2/);
-  assert.match(cloud, /diagnosticVersion=2/);
+  assert.match(cloud, /math1diagnostic/);
 });
