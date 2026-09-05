@@ -1,5 +1,6 @@
 name: 50 States essential
 
+# Intentionally minimal: four learning invariants plus one 390px Chromium smoke.
 on:
   pull_request:
     paths:
