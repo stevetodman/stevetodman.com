@@ -1,29 +1,48 @@
 # Math Mission current school focus
 
-**Effective:** Week 4, 2026-08-31 through 2026-09-04  
-**Source:** parent-provided classroom weekly plans for Weeks 1–4.
+**Effective:** Week 5, 2026-09-05 through 2026-09-11  
+**Source:** parent-provided classroom planner and Eureka Math Grade 5 Mission 1 Lessons 13–16 problem sets.
 
-## Current Week 4 sequence
+## Current assessment focus
 
-- Monday: Mission 1 Lesson 13
-- Tuesday: Mission 1 Lessons 14 & 15
-- Wednesday: Zearn, Exit Tickets, and standards review
-- Thursday: Quiz on Mission 1 Topics D & E (Lessons 9–12), fluency quiz, and Mission 1 Lesson 16
-- Friday: Mission 2 Lesson 1
+The classroom material confirms that the immediate math target is **Mission 1 Lessons 13–16: decimal division by single-digit whole numbers**, with assessment-style emphasis broader than raw quotient calculation.
 
-Current standards:
+The system should prepare for these distinct competencies:
 
-- **5.NBT.B.07** — add, subtract, multiply, and divide decimals to hundredths using place-value/models/strategies and justify reasoning.
-- **5.NBT.A.02** — explain and apply powers-of-10 patterns, including decimal multiplication/division by powers of 10 and exponent notation.
+1. divide using named place-value units (tenths, hundredths, thousandths);
+2. decompose a dividend into convenient place-value units before dividing;
+3. reason about powers-of-10 relationships between related division problems;
+4. judge whether a quotient is reasonable before trusting the algorithm;
+5. represent division with a place-value chart or disks;
+6. use the standard division algorithm accurately;
+7. rename/regroup into smaller units when a place does not divide evenly;
+8. analyze and explain a student's decimal-division error;
+9. recognize division in one-step word problems;
+10. plan and solve multi-step decimal word problems;
+11. interpret a quotient in context rather than reporting an unusable raw decimal;
+12. use tape diagrams when the problem calls for a model;
+13. apply metric conversion inside a larger multi-step problem when needed.
+
+These are assessment archetypes, not a license to reproduce the photographed worksheet questions verbatim. Practice should use fresh numbers and contexts while preserving the mathematical structure.
 
 ## Adaptive priority
 
-1. **New instruction:** decimal division from Mission 1 Lessons 13–16.
-2. **Assessment review:** decimal addition, subtraction, and multiplication from Topics D & E / Lessons 9–12.
-3. **Maintenance:** powers-of-10 reasoning for 5.NBT.A.02.
-4. **Spaced remediation from Weeks 1–3 only when learner evidence is weak:** foundational place value, metric conversion, decimal forms/comparison, and rounding.
+1. **Highest priority:** Mission 1 Lessons 13–16 decimal-division readiness, sampled across the competencies above.
+2. **Transfer:** include explanation, representation, error-analysis, and multi-step questions rather than computation-only practice.
+3. **Assessment simulation:** periodically sample unseen problems without scaffolds and record independent evidence separately from assisted learning.
+4. **Maintenance:** retain decimal addition, subtraction, multiplication, powers-of-10 reasoning, and earlier Mission 1 prerequisites only when learner evidence shows they are needed.
+5. **Do not invent Mission 2 scope.** Mission 2 content enters adaptive practice only after teacher-provided material identifies the actual skill.
 
-Do not add Mission 2 Lesson 1 content to adaptive practice until the teacher-provided material identifies its actual skill scope.
+## Social studies deadlines
+
+- **Sep 9:** U.S. states map quiz — 40 states.
+- **Sep 16:** U.S. states map quiz — 50 states.
+
+The 50 States app should preserve the existing UI/game experience while making practice deadline-aware. Earned visual mastery remains permanent; a separate hidden retrieval-readiness signal may bring a previously mastered state back into practice when it is becoming stale.
+
+## UI/UX freeze
+
+Preserve the currently deployed child-facing visual design, navigation, interaction rhythm, game mechanics, profiles, and learner progress. New curriculum intelligence should be implemented underneath the existing experience unless a specific assessment requirement cannot be represented within it.
 
 ## Curriculum history retained in the app
 
