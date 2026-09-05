@@ -17,6 +17,18 @@ Read `MASTER_PLAN.md` in full before changing this repository.
 
 If a new chat/window/agent has no prior conversation context, **do not ask Steve to restate the project history**. Reconstruct current executable state from GitHub, preserve any newer work, and continue from the first incomplete item in `MASTER_PLAN.md` unless Steve gives newer explicit instructions.
 
+### Current HospitalSim owner override — 2026-09-04
+
+Before resuming the remaining physical-iPhone acceptance work, make the production HospitalSim work cleanly on Steve's **MacBook Pro first**. Treat this as the current highest-priority hospital acceptance step and as an explicit owner override of the older immediate iPhone-first resume wording in `MASTER_PLAN.md`.
+
+For MacBook work:
+
+- verify the current production `/hospital/` route on the actual MacBook browser;
+- preserve already-completed automated desktop evidence rather than blindly rerunning broad suites;
+- reproduce any Mac failure precisely and fix only the demonstrated cause;
+- use the minimum focused test/build path plus exact-SHA production verification for code changes;
+- do not resume remaining iPhone checks until the MacBook production path is usable, unless Steve explicitly changes priority again.
+
 For substantive HospitalSim graphics/visual work, also read `cardio-hospital-3d/docs/VISUAL_ARCHITECTURE_SOURCE_OF_TRUTH.md` before editing. That document is the owner-approved Astra visual-architecture specification and governs the authored-hybrid graphics replacement program. Do not substitute another procedural realism pass, renderer migration, or ad-hoc asset strategy unless Steve explicitly supersedes it or the specification's measured reversal criteria are met.
 
 After any meaningful work package, update the relevant status/checklist in `MASTER_PLAN.md` before stopping so future agents do not depend on chat memory.
