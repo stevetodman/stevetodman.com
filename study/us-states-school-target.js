@@ -17,9 +17,8 @@
 
   window.usStatesSchoolRequiredScore = schoolRequiredScore;
 
-  // A test run samples every state. The date changes the score needed, not
-  // which states are eligible or how many questions appear.
-  window.quizTargetCount = function () { return 50; };
+  // A test run samples every state. The existing quizTargetCount still drives
+  // adaptive practice pacing (40 first, then 50); it no longer controls test length.
   window.assessmentTestStates = function () { return STATES.slice(); };
 
   var baseShowMenu = window.showMenu;
