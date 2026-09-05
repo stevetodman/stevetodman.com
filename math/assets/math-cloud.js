@@ -6,6 +6,7 @@
   var PROFILES={luke:"math-mission-luke",samantha:"math-mission-samantha"};
   var VALID_SKILLS=["place","forms","round","addsub","multiply","divide"];
   var VALID_MICROS=["place_digit","place_value","powers_multiply","powers_divide","metric_conversion","decimal_forms","decimal_compare","decimal_round","decimal_add","decimal_subtract","decimal_multiply","decimal_divide"];
+  var VALID_MISCONCEPTIONS=["place_sequence","digit_vs_value","place_value","power10_direction","power10_shift_count","power10_structure","metric_direction","metric_scale","expanded_form_notation","expanded_place_value","decimal_compare_place_value","rounding_truncated","rounding_place","decimal_alignment","decimal_magnitude","operation_arithmetic","multistep_skipped_subtraction","multistep_sequence","recheck_strategy"];
   var STARSHIP_HULLS=["comet-scout","solar-wing","nebula-runner"],STARSHIP_TRAILS=["ion-wake","meteor-wake","aurora-wake"],STARSHIP_COMPANIONS=["none","orbit-bot","beacon-drone"];
   var STARSHIP_PURCHASES=["solar-wing","nebula-runner","meteor-wake","aurora-wake","orbit-bot","beacon-drone"];
   var status=ENABLED?"loading":"local",timer=null,inFlight=false,queued=false,lastLocal="",lastGameLocal="";
@@ -33,13 +34,22 @@
         if(!isObj(a)||VALID_SKILLS.indexOf(a.skill)<0)return;
         var date=/^\d{4}-\d{2}-\d{2}$/.test(a.date)?a.date:"unknown",at=Number(a.at)||0,id=safeId(a.cloudId);
         if(!id){id=at+"-"+i;a.cloudId=id;changed=true}
-        var key=VALID_MICROS.indexOf(a.micro)>=0
-          ?[a.recheck?"math1c":"math1b",a.skill,a.micro,a.correct?1:0,a.assisted?1:0,a.recovery?1:0,Math.max(1,Math.min(3,Number(a.difficulty)||1)),a.transfer?1:0,a.recheck?1:0,date,at,id].filter(function(part,index){return a.recheck||index!==8}).join("|")
-          :["math1a",a.skill,a.correct?1:0,a.transfer?1:0,date,at,id].join("|");
+        var misconception=VALID_MISCONCEPTIONS.indexOf(a.misconception)>=0?a.misconception:"";
+        var key;
+        if(VALID_MICROS.indexOf(a.micro)>=0&&misconception){
+          key=["math1d",a.skill,a.micro,a.correct?1:0,a.assisted?1:0,a.recovery?1:0,Math.max(1,Math.min(3,Number(a.difficulty)||1)),a.transfer?1:0,a.recheck?1:0,misconception,date,at,id].join("|");
+        }else if(VALID_MICROS.indexOf(a.micro)>=0){
+          key=[a.recheck?"math1c":"math1b",a.skill,a.micro,a.correct?1:0,a.assisted?1:0,a.recovery?1:0,Math.max(1,Math.min(3,Number(a.difficulty)||1)),a.transfer?1:0,a.recheck?1:0,date,at,id].filter(function(part,index){return a.recheck||index!==8}).join("|");
+        }else{
+          key=["math1a",a.skill,a.correct?1:0,a.transfer?1:0,date,at,id].join("|");
+        }
         stats[key]={streak:1,correct:a.correct?1:0,wrong:a.correct?0:1,mastered:true};
       });
       stats.math1sessions={streak:Number(p.sessions)||0,correct:Number(p.sessions)||0,wrong:0,mastered:false};
-      if(p.diagnostic)stats[p.diagnosticVersion===2?"math1diagnostic2":"math1diagnostic"]={streak:1,correct:1,wrong:0,mastered:true};
+      if(p.diagnostic){
+        var diagnosticKey=p.diagnosticVersion===3?"math1diagnostic3":p.diagnosticVersion===2?"math1diagnostic2":"math1diagnostic";
+        stats[diagnosticKey]={streak:1,correct:1,wrong:0,mastered:true};
+      }
 
       var g=starshipProfile(game,name),latest=Number(g.updatedAt)||0;
       Object.keys(g.purchases).forEach(function(id){var at=Math.max(0,Number(g.purchases[id].at)||0);latest=Math.max(latest,at);stats[["mathstar1p",id,at].join("|")]={streak:1,correct:1,wrong:0,mastered:true}});
@@ -59,7 +69,8 @@
       Object.keys(stats).forEach(function(key){
         var st=stats[key]||{},parts=key.split("|");
         if(key==="math1diagnostic"&&st.mastered)p.diagnostic=true;
-        else if(key==="math1diagnostic2"&&st.mastered){p.diagnostic=true;p.diagnosticVersion=2}
+        else if(key==="math1diagnostic2"&&st.mastered){p.diagnostic=true;p.diagnosticVersion=Math.max(Number(p.diagnosticVersion)||0,2)}
+        else if(key==="math1diagnostic3"&&st.mastered){p.diagnostic=true;p.diagnosticVersion=Math.max(Number(p.diagnosticVersion)||0,3)}
         else if(key==="math1sessions")p.sessions=Math.max(Number(p.sessions)||0,Number(st.correct)||0,Number(st.streak)||0);
         else if(parts[0]==="mathstar1p"&&parts.length===3&&STARSHIP_PURCHASES.indexOf(parts[1])>=0&&st.mastered){
           var purchaseAt=Math.max(0,Math.floor(Number(parts[2])||0)),old=isObj(g.purchases[parts[1]])?Math.max(0,Number(g.purchases[parts[1]].at)||0):0;g.purchases[parts[1]]={at:Math.max(old,purchaseAt)};
@@ -74,6 +85,9 @@
         }else if(parts[0]==="math1c"&&parts.length===12&&VALID_SKILLS.indexOf(parts[1])>=0&&VALID_MICROS.indexOf(parts[2])>=0&&st.mastered){
           var recheckId=safeId(parts[11]);if(!recheckId||seen.has(recheckId))return;seen.add(recheckId);
           p.attempts.push({skill:parts[1],micro:parts[2],correct:parts[3]==="1",assisted:parts[4]==="1",recovery:parts[5]==="1",difficulty:Math.max(1,Math.min(3,Number(parts[6])||1)),transfer:parts[7]==="1",recheck:parts[8]==="1",date:/^\d{4}-\d{2}-\d{2}$/.test(parts[9])?parts[9]:"unknown",at:Number(parts[10])||0,cloudId:recheckId});
+        }else if(parts[0]==="math1d"&&parts.length===13&&VALID_SKILLS.indexOf(parts[1])>=0&&VALID_MICROS.indexOf(parts[2])>=0&&VALID_MISCONCEPTIONS.indexOf(parts[9])>=0&&st.mastered){
+          var diagnosisId=safeId(parts[12]);if(!diagnosisId||seen.has(diagnosisId))return;seen.add(diagnosisId);
+          p.attempts.push({skill:parts[1],micro:parts[2],correct:parts[3]==="1",assisted:parts[4]==="1",recovery:parts[5]==="1",difficulty:Math.max(1,Math.min(3,Number(parts[6])||1)),transfer:parts[7]==="1",recheck:parts[8]==="1",misconception:parts[9],date:/^\d{4}-\d{2}-\d{2}$/.test(parts[10])?parts[10]:"unknown",at:Number(parts[11])||0,cloudId:diagnosisId});
         }
       });
       g.updatedAt=gameUpdatedAt;
