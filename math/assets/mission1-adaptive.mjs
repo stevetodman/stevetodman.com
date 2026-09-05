@@ -84,9 +84,10 @@ export function nextMicro(profile, options = {}) {
     const stats = microStats(profile, micro);
     const latest = relevantAttempts(profile, micro).at(-1)?.at || 0;
     const isCurrent = CURRENT_WEEK_MICROS.includes(micro);
-    return { micro, score: stats.score, priority: assessmentPriorityScore(profile, micro, stats.score), attempts: stats.attempts, latest, avoided: avoid.has(micro) ? 1 : 0, isCurrent: isCurrent ? 0 : 1, order };
+    const isAssessment = TEACHER_WEEK.assessmentMicros.includes(micro);
+    return { micro, score: stats.score, priority: assessmentPriorityScore(profile, micro, stats.score), attempts: stats.attempts, latest, avoided: avoid.has(micro) ? 1 : 0, assessmentOrder: isAssessment ? 0 : 1, isCurrent: isCurrent ? 0 : 1, order };
   });
-  candidates.sort((a, b) => a.avoided - b.avoided || a.priority - b.priority || a.score - b.score || a.isCurrent - b.isCurrent || a.attempts - b.attempts || a.latest - b.latest || a.order - b.order);
+  candidates.sort((a, b) => a.avoided - b.avoided || a.priority - b.priority || a.assessmentOrder - b.assessmentOrder || a.score - b.score || a.isCurrent - b.isCurrent || a.attempts - b.attempts || a.latest - b.latest || a.order - b.order);
   return candidates[0].micro;
 }
 
