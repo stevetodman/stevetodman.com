@@ -62,6 +62,7 @@ const makeQuestion = (micro, prompt, answer, why, options, audit, extras = {}) =
     difficulty: extras.difficulty ?? 2,
     assisted: !!extras.assisted,
     recovery: !!extras.recovery,
+    transferKind: extras.transferKind || "routine",
     transfer: !!extras.transfer,
     placeholder: extras.placeholder || "Type your answer",
     scratch: extras.scratch || meta.scratch,
@@ -246,6 +247,9 @@ export function generate(micro, difficulty = 2, random = Math.random, flags = {}
     const productScaled = aScaled * bScaled;
     const answer = productScaled / (10 ** aPlaces);
     const left = numberText(aScaled, aPlaces), right = String(bScaled), answerText = formatDecimal(answer);
+    if (d === 3 && random() < .3) {
+      return input(micro, `Find the missing whole-number factor: <span class="math">? × ${left} = ${answerText}</span>`, right, `${answerText} ÷ ${left} = ${right}, so ${right} × ${left} = ${answerText}.`, { kind: "missingFactor", factor: bScaled }, { ...extras, transferKind: "near", transfer: !assisted });
+    }
     if (d >= 2 && random() < .45) {
       const wrongA = formatDecimal(answer / 10), wrongB = formatDecimal(answer * 10), wrongC = formatDecimal(answer * 100);
       return choice(micro, `Without calculating first, choose the reasonable product for <span class="math">${left} × ${right}</span>.`, shuffled([answerText, wrongA, wrongB, wrongC], random), answerText, `Estimate ${left} with a nearby whole number and multiply by ${right}. The reasonable magnitude is ${answerText}; the other choices do not fit the estimate.`, { kind: "product", aScaled, aPlaces, bScaled, bPlaces }, extras);
@@ -284,6 +288,7 @@ export function normalize(value) {
 
 export function independentlySolve(audit) {
   switch (audit.kind) {
+    case "components": return Object.fromEntries((audit.components || []).map(component => [component.id, String(component.answer)]));
     case "digitAtPlace": return String(digitAtPlace(audit.numberText, audit.place));
     case "digitValue": return formatDecimal(valueAtPlace(audit.numberText, audit.place));
     case "scale": return formatDecimal(audit.operation === "multiply" ? audit.a * audit.factor : audit.a / audit.factor);
@@ -297,6 +302,7 @@ export function independentlySolve(audit) {
     case "add": return formatDecimal((audit.aScaled + audit.bScaled) / (10 ** audit.places));
     case "subtract": return formatDecimal((audit.aScaled - audit.bScaled) / (10 ** audit.places));
     case "product": return formatDecimal((audit.aScaled * audit.bScaled) / (10 ** (audit.aPlaces + audit.bPlaces)));
+    case "missingFactor": return String(audit.factor);
     case "quotient": return formatDecimal((audit.dividendScaled / (10 ** audit.dividendPlaces)) / audit.divisor);
     case "subtractDivide": return formatDecimal(((audit.totalScaled - audit.usedScaled) / (10 ** audit.places)) / audit.divisor);
     default: throw new Error(`Unsupported audit kind: ${audit.kind}`);
@@ -304,6 +310,7 @@ export function independentlySolve(audit) {
 }
 
 export function isCorrectAnswer(raw, question) {
+  if (question.audit.kind === "components") return scoreComponents(raw, question).correct;
   if (question.audit.kind === "expanded") {
     const sum = parseExpandedSum(raw);
     return sum !== null && Math.abs(sum - Number(independentlySolve(question.audit))) < 1e-9;
@@ -315,12 +322,37 @@ export function isCorrectAnswer(raw, question) {
   return normalize(raw) === normalize(independentlySolve(question.audit));
 }
 
+function componentResponse(raw, question) {
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) return raw;
+  try {
+    const parsed = JSON.parse(String(raw || ""));
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed;
+  } catch {}
+  const components = {};
+  const only = question?.audit?.components?.length === 1 ? question.audit.components[0].id : "value";
+  if (raw !== undefined && raw !== null) components[only] = String(raw);
+  return components;
+}
+
+export function scoreComponents(raw, question) {
+  const response = componentResponse(raw, question);
+  const expected = independentlySolve(question.audit);
+  const outcomes = Object.keys(expected).map(id => ({ id, correct: normalize(response[id]) === normalize(expected[id]), response: String(response[id] ?? ""), answer: String(expected[id]) }));
+  return { correct: outcomes.length > 0 && outcomes.every(outcome => outcome.correct), outcomes, coverage: outcomes.filter(outcome => outcome.correct).map(outcome => outcome.id), response };
+}
+
 export function validateQuestion(question) {
   if (!MICRO_SKILLS[question.micro]) throw new Error(`Unknown micro-skill: ${question.micro}`);
   if (question.skill !== MICRO_SKILLS[question.micro].skill) throw new Error(`Domain mismatch: ${question.micro}`);
   if (!question.prompt || !question.why || !question.audit) throw new Error(`Incomplete question: ${question.micro}`);
   if (/times (?:as much as|the value of)/i.test(question.prompt)) throw new Error("The retired place-value ratio family is forbidden");
   const solved = independentlySolve(question.audit);
+  if (question.audit.kind === "components") {
+    if (!isCorrectAnswer(question.correctResponse || question.answer, question)) throw new Error(`Invalid component answer: ${question.prompt}`);
+    const ids = new Set((question.components || []).map(component => component.id));
+    if (!ids.size || ids.size !== (question.components || []).length) throw new Error(`Component IDs must be unique: ${question.prompt}`);
+    return true;
+  }
   if (question.audit.kind === "expanded") {
     if (!isCorrectAnswer(question.answer, question)) throw new Error(`Invalid expanded answer: ${question.prompt}`);
   } else if (normalize(question.answer) !== normalize(solved)) throw new Error(`Key mismatch for ${question.prompt}: ${question.answer} !== ${solved}`);

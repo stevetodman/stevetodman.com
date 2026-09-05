@@ -3,7 +3,7 @@
 Status: **ACTIVE**  
 Canonical repository: this repository  
 Production branch: `main`  
-Updated: 2026-09-04
+Updated: 2026-09-05
 
 ## Resume here
 
@@ -286,6 +286,9 @@ Measured hospital performance history:
 ## Study / Math / Science
 
 - StudyHub and Math are active production family-learning products.
+- Math Mission's Lessons 13–16 division work now uses an explicit construct blueprint, multi-part response evidence, independent Test Run isolation, cautious misconception diagnoses, delayed recovery checks, durable mastery awards, retrieval intervals, deterministic saved sessions, and additive cloud metadata that preserves legacy attempts and Starship progression.
+- Math's focused quality budget is four learning invariants plus one Chromium 390px smoke. The invariants cover assessment validity, evidence/mastery separation, bounded adaptive repair, and backward-compatible cloud merging; the smoke covers repair, resume, assessment neutrality, phone overflow, model rendering, and end-of-run review.
+- Math implementation checkpoint `752ea65` passed all four focused invariants, the single 390px Chromium smoke, and the production build locally on 2026-09-05. Release status must still be stated using the exact-SHA production rules below.
 - StudyHub issue **#39** has live Supabase control-plane evidence: migration present, RLS enabled, browser roles lack schema/table CRUD, no public RLS policies expose the save table, deployed save function active, and hourly synthetic cloud-save monitoring exists.
 - Remaining #39 blockers: explicit inbound abuse/rate-limit control and real-device two-device/offline acceptance. Never expose family tokens.
 - Science Lab has progressed through M7. Preserve its intentionally small invariant set + one Chromium 390px phone smoke during focused iteration.

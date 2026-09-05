@@ -210,6 +210,7 @@ function toast(message, kind = "good") {
 
 function handleAttemptAfterSubmit() {
   if (!activeProfile) return;
+  if ($("#session")?.dataset.assessmentMode === "true") return;
   const profile = mathProfile();
   const attempts = Array.isArray(profile.attempts) ? profile.attempts : [];
   if (attempts.length <= lastAttemptCount) return;
@@ -247,7 +248,7 @@ document.addEventListener("click", event => {
     return;
   }
 
-  const startButton = event.target.closest("[data-start]");
+  const startButton = event.target.closest("[data-start], [data-resume]");
   if (startButton && activeProfile) {
     sessionSnapshot = progress();
     lastAttemptCount = Array.isArray(mathProfile().attempts) ? mathProfile().attempts.length : 0;
