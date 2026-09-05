@@ -43,10 +43,8 @@ function retrievalPriority(st, now) {
 );
 
 replaceOnce(
-`  else familiarShare = 0.1;                     // thriving: push into new ground
-  var familiar = Math.round(n * familiarShare);`,
-`  else familiarShare = 0.1;                     // thriving: push into new ground
-  var target = quizTargetCount();
+`  var familiar = Math.round(n * familiarShare);`,
+`  var target = quizTargetCount();
   var masteredCount = (p.masteredOrder || []).length;
   if (masteredCount < target && (acc === null || acc >= 0.5)) familiarShare = Math.min(familiarShare, 0.35);
   var familiar = Math.round(n * familiarShare);`,
