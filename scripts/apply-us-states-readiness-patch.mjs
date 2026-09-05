@@ -1,5 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 
+// One-time surgical patch: change adaptive state selection without rewriting the child-facing UI.
 const path = new URL("../study/us-states.html", import.meta.url);
 let source = await readFile(path, "utf8");
 
