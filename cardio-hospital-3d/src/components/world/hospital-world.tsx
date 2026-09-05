@@ -3,6 +3,7 @@ import { Physics } from "@react-three/rapier";
 import { useEffect, useRef, useState, type ComponentRef } from "react";
 import { useSimulationStore } from "@/lib/simulation-store";
 import { HospitalArchitecture } from "./architecture";
+import { AstraIosRoomShellProbe } from "./astra-ios-room-shell-probe";
 import { HospitalClinicalDetails } from "./hospital-details";
 import { HospitalRealismPass2 } from "./hospital-realism-pass-2";
 import { HospitalRealismPass3 } from "./hospital-realism-pass-3";
@@ -51,6 +52,7 @@ export default function HospitalWorld() {
         <HospitalArchitecture />
         <PlayerController />
       </Physics>
+      <AstraIosRoomShellProbe />
       <HospitalClinicalDetails />
       <HospitalRealismPass2 />
       <HospitalRealismPass3 />
