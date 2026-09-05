@@ -111,7 +111,7 @@ test('current starting check is six current skills, persists evidence, and keeps
   }
 });
 
-test('a current-skill miss becomes one-tap misconception repair without inflating mastery', async () => {
+test('a severe current-skill gap still gets one-tap misconception repair without inflating mastery', async () => {
   const seeded = {
     luke: {
       diagnostic: true,
@@ -129,7 +129,18 @@ test('a current-skill miss becomes one-tap misconception repair without inflatin
         transfer: false,
         date: '2026-09-04',
         at: 1788560000000,
-        cloudId: 'seed-powers-divide-miss'
+        cloudId: 'seed-powers-divide-miss-1'
+      }, {
+        skill: 'place',
+        micro: 'powers_divide',
+        correct: false,
+        assisted: false,
+        recovery: false,
+        difficulty: 2,
+        transfer: false,
+        date: '2026-09-04',
+        at: 1788560001000,
+        cloudId: 'seed-powers-divide-miss-2'
       }]
     }
   };
@@ -153,10 +164,10 @@ test('a current-skill miss becomes one-tap misconception repair without inflatin
     assert.doesNotMatch(missFeedback, /The answer is/i, 'independent miss must diagnose before revealing the answer');
 
     const attemptsAfterMiss = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts);
-    assert.equal(attemptsAfterMiss.length, 2);
-    assert.equal(attemptsAfterMiss[1].micro, 'powers_divide');
-    assert.equal(attemptsAfterMiss[1].misconception, 'power10_direction');
-    assert.equal(attemptsAfterMiss[1].assisted, false);
+    assert.equal(attemptsAfterMiss.length, 3);
+    assert.equal(attemptsAfterMiss[2].micro, 'powers_divide');
+    assert.equal(attemptsAfterMiss[2].misconception, 'power10_direction');
+    assert.equal(attemptsAfterMiss[2].assisted, false);
 
     await page.locator('[data-next]').click();
     assert.equal(await page.locator('#question-title').innerText(), 'Quick fix');
@@ -169,7 +180,7 @@ test('a current-skill miss becomes one-tap misconception repair without inflatin
     assert.match(await page.locator('#feedback').innerText(), /^Right idea\./);
 
     const attemptsAfterRepair = await page.evaluate(() => JSON.parse(localStorage.getItem('mathmission.m1.v1')).luke.attempts);
-    assert.equal(attemptsAfterRepair.length, 2, 'guided repair must not be written as mastery evidence');
+    assert.equal(attemptsAfterRepair.length, 3, 'guided repair must not be written as mastery evidence');
     assert.equal(await page.locator('#progress-text').innerText(), '1 of 10 complete');
 
     await page.locator('[data-next]').click();
