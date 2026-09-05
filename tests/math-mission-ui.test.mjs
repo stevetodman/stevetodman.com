@@ -39,7 +39,7 @@ test("Math Mission takes weekly focus from the teacher scope while removing adul
   assert.match(app, /TEACHER_WEEK\.title/);
   assert.match(app, /TEACHER_WEEK\.diagnosticMicros/);
   assert.match(teacherWeek, /source: "Parent-provided classroom planner and Eureka Math Grade 5 Mission 1 Lessons 13–16 problem sets"/);
-  assert.match(teacherWeek, /label: "Current focus · Mission 1 Lessons 13–16"/);
+  assert.match(teacherWeek, /label: "Mission 1 Lessons 13–16"/);
   assert.match(teacherWeek, /newInstructionMicros: Object\.freeze\(\["decimal_divide"\]\)/);
   assert.match(teacherWeek, /assessmentMicros: Object\.freeze\(\["decimal_divide"\]\)/);
   assert.match(teacherWeek, /maintenanceMicros: Object\.freeze\(\["decimal_add", "decimal_subtract", "decimal_multiply", "powers_multiply", "powers_divide"\]\)/);
