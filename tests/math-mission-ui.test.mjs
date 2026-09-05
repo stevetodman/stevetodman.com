@@ -48,7 +48,7 @@ test("Math Mission takes weekly focus from the teacher scope while removing adul
   assert.match(teacherUi, /TEACHER_WEEK\.summary/);
   assert.match(weekly, /decimal division/i);
   assert.match(weekly, /decimal addition, subtraction, and multiplication/i);
-  assert.match(weekly, /powers-of-10 maintenance/i);
+  assert.match(weekly, /Maintenance:.*powers-of-10 reasoning/i);
   assert.match(plan, /Status: \*\*LOCKED IMPLEMENTATION PLAN\*\*/);
   assert.match(plan, /Parent mode or parent dashboard redesign/);
   assert.match(plan, /If a proposed change does not improve the current child learning loop, it does not belong/);
