@@ -17,6 +17,17 @@ Read `MASTER_PLAN.md` in full before changing this repository.
 
 If a new chat/window/agent has no prior conversation context, **do not ask Steve to restate the project history**. Reconstruct current executable state from GitHub, preserve any newer work, and continue from the first incomplete item in `MASTER_PLAN.md` unless Steve gives newer explicit instructions.
 
+## Learner progress is durable data
+
+For Study Hub, Math Mission, Science Lab, World Lab, and 50 States, treat learner progress as durable user data rather than disposable UI state.
+
+- Never clear learner progress, rename a storage key, or make a code/content version bump send an established learner back to first-run state.
+- Migrations must be additive and monotonic: preserve attempts, mastery evidence, sessions, achievements, purchases, and previously earned progress unless the owner explicitly requests a reset.
+- New curriculum checks should add targeted evidence/rechecks; they must not invalidate earlier evidence merely because a diagnostic or content version changed.
+- Cloud/local merges must preserve the union/max of valid progress rather than replace newer progress with an older snapshot.
+- Game/catalog changes must preserve existing purchases and earned currency semantics.
+- Any intentional incompatible migration requires an explicit compatibility path and a focused regression proving old progress survives.
+
 ### Current HospitalSim owner override — 2026-09-04
 
 Before resuming the remaining physical-iPhone acceptance work, make the production HospitalSim work cleanly on Steve's **MacBook Pro first**. Treat this as the current highest-priority hospital acceptance step and as an explicit owner override of the older immediate iPhone-first resume wording in `MASTER_PLAN.md`.

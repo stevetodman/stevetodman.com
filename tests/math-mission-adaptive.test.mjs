@@ -46,6 +46,8 @@ test("adaptive scope prioritizes the imminent Lessons 13-16 assessment without i
 
   const severeMaintenanceGap = [...mildMaintenanceGap, attempt("decimal_add", false, { at: 3 })];
   assert.equal(nextMicro({ attempts: severeMaintenanceGap }), "decimal_add", "a demonstrated severe gap should still override assessment weighting");
+
+  assert.equal(diagnosticIsCurrent({ diagnostic: true, diagnosticVersion: DIAGNOSTIC_VERSION - 1, attempts: mildMaintenanceGap }), true, "a code version bump must not send an established learner back to first-run state");
 });
 
 test("a demonstrated Week 1-3 gap can return as spaced remediation", () => {
@@ -80,10 +82,11 @@ test("mastery requires sustained independent advanced work on two days", () => {
   assert.equal(stats.mastered, true);
 });
 
-test("Week 4 diagnostic version invalidates the stale Lessons 1-2 check without erasing history", () => {
+test("diagnostic version changes never invalidate an established learner", () => {
   assert.equal(DIAGNOSTIC_VERSION, 3);
-  assert.equal(diagnosticIsCurrent({ diagnostic: true, diagnosticVersion: 2 }), false);
+  assert.equal(diagnosticIsCurrent({ diagnostic: true, diagnosticVersion: 2 }), true);
   assert.equal(diagnosticIsCurrent({ diagnostic: true, diagnosticVersion: 3 }), true);
+  assert.equal(diagnosticIsCurrent({ diagnostic: false, diagnosticVersion: 3 }), false);
 });
 
 test("recheck migration preserves history and schedules prior Week 4 evidence", () => {

@@ -97,6 +97,9 @@ export function projectedScore(profile, attempt) {
   return { before, after: microScore(copy, attempt.micro) };
 }
 
+// A code/content version bump must never make an established learner look new.
+// New curriculum evidence is scheduled additively through current-scope practice
+// and rechecks; completed diagnostic history remains valid progress.
 export function diagnosticIsCurrent(profile) {
-  return !!profile?.diagnostic && profile.diagnosticVersion === DIAGNOSTIC_VERSION;
+  return !!profile?.diagnostic;
 }
