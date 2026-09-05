@@ -56,7 +56,7 @@ export const CLASS_WEEKS = Object.freeze([
 export const TEACHER_WEEK = Object.freeze({
   id: "teacher-week-2026-09-05",
   source: "Parent-provided classroom planner and Eureka Math Grade 5 Mission 1 Lessons 13–16 problem sets",
-  label: "Current focus · Mission 1 Lessons 13–16",
+  label: "Mission 1 Lessons 13–16",
   title: "Decimal division test readiness",
   summary: "Practice decimal division the way it appears in class: place-value reasoning, the standard algorithm, regrouping, error analysis, models, and one- and multi-step word problems.",
   newInstructionMicros: Object.freeze(["decimal_divide"]),
