@@ -1,6 +1,6 @@
-import { formatDecimal, generate as generateModuleQuestion } from "./mission1-content.mjs?v=20260905-assessment2";
-import { generateDivisionAssessmentQuestion } from "./mission1-division-assessment.mjs?v=20260905-assessment2";
-import { isTeacherAllowedMicro } from "./teacher-week.mjs?v=20260905-assessment2";
+import { formatDecimal, generate as generateModuleQuestion } from "./mission1-content.mjs?v=20260905-validity1";
+import { generateDivisionAssessmentQuestion } from "./mission1-division-assessment.mjs?v=20260905-validity1";
+import { isTeacherAllowedMicro } from "./teacher-week.mjs?v=20260905-validity1";
 
 const CUSTOM_WEEKLY_MICROS = new Set(["powers_multiply", "powers_divide", "decimal_divide"]);
 const randomInt = (random, min, max) => Math.floor(random() * (max - min + 1)) + min;
@@ -36,6 +36,7 @@ function workspaceFor(audit) {
 }
 
 function makeQuestion(micro, prompt, answer, why, audit, difficulty, flags, scaffoldText = "") {
+  const transferKind = flags.transferKind || "routine";
   return {
     micro,
     skill: "place",
@@ -48,7 +49,8 @@ function makeQuestion(micro, prompt, answer, why, audit, difficulty, flags, scaf
     difficulty,
     assisted: !!flags.assisted,
     recovery: !!flags.recovery,
-    transfer: difficulty === 3 && !flags.assisted,
+    transferKind,
+    transfer: transferKind !== "routine" && !flags.assisted,
     placeholder: "Number only",
     scratch: "place",
     scaffoldText: flags.assisted ? scaffoldText : ""
@@ -81,7 +83,7 @@ export function generateCurrentWeekQuestion(micro, difficulty = 2, random = Math
         `Multiplying by ${factor.toLocaleString()} made every digit ${factor.toLocaleString()} times as valuable. Reverse that change by dividing ${formatDecimal(result)} by ${factor.toLocaleString()}: the starting number was ${formatDecimal(start)}.`,
         { kind: "scale", operation: "divide", a: result, factor },
         d,
-        flags,
+        { ...flags, transferKind: "near" },
         scaffold(operation, shift, factor)
       );
     }
@@ -95,7 +97,7 @@ export function generateCurrentWeekQuestion(micro, difficulty = 2, random = Math
       `Dividing by ${factor.toLocaleString()} made every digit worth 1/${factor.toLocaleString()} as much. Reverse that change by multiplying ${formatDecimal(result)} by ${factor.toLocaleString()}: the starting number was ${formatDecimal(start)}.`,
       { kind: "scale", operation: "multiply", a: result, factor },
       d,
-      flags,
+      { ...flags, transferKind: "near" },
       scaffold(operation, shift, factor)
     );
   }
@@ -113,7 +115,7 @@ export function generateCurrentWeekQuestion(micro, difficulty = 2, random = Math
         `The exponent tells how many factors of 10 are used. Each digit becomes ${factor.toLocaleString()} times as valuable and shifts ${shift} place${shift === 1 ? "" : "s"} left. The correct product is ${formatDecimal(answer)}.`,
         { kind: "scale", operation: "multiply", a: start, factor },
         d,
-        flags,
+        { ...flags, transferKind: "near" },
         scaffold(operation, shift, factor)
       );
     }
@@ -128,7 +130,7 @@ export function generateCurrentWeekQuestion(micro, difficulty = 2, random = Math
       `Division by ${factor.toLocaleString()} makes every digit worth 1/${factor.toLocaleString()} as much, so the digits shift ${shift} place${shift === 1 ? "" : "s"} right. The correct quotient is ${formatDecimal(answer)}.`,
       { kind: "scale", operation: "divide", a: start, factor },
       d,
-      flags,
+      { ...flags, transferKind: "near" },
       scaffold(operation, shift, factor)
     );
   }

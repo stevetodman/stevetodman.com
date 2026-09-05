@@ -88,6 +88,12 @@ function render(attempt = null) {
   if (!activeProfile || !$("#session")?.classList.contains("active")) return;
   const root = ensureLiveMission();
   if (!root) return;
+  if ($("#session")?.dataset.assessmentMode === "true") {
+    root.hidden = true;
+    root.replaceChildren();
+    return;
+  }
+  root.hidden = false;
 
   const state = liveMissionState({
     progress: currentProgress(),
@@ -150,6 +156,7 @@ function setProfile(profileId) {
 
 function renderLatestAttempt() {
   if (!activeProfile) return;
+  if ($("#session")?.dataset.assessmentMode === "true") return;
   const attempts = Array.isArray(mathProfile().attempts) ? mathProfile().attempts : [];
   if (attempts.length <= lastAttemptCount) return;
   lastAttemptCount = attempts.length;
@@ -171,7 +178,7 @@ document.addEventListener("click", event => {
     return;
   }
 
-  const start = event.target.closest("[data-start]");
+  const start = event.target.closest("[data-start], [data-resume]");
   if (start && activeProfile) {
     lastAttemptCount = Array.isArray(mathProfile().attempts) ? mathProfile().attempts.length : 0;
     setTimeout(showAndRender, 0);

@@ -51,7 +51,7 @@ function placeUnit(place) {
   return ({ tenths: "tenths of a whole", hundredths: "hundredths of a whole", thousandths: "thousandths of a whole" })[place] || "that place-value unit";
 }
 
-function magnitudeRepair(expected, operationName) {
+function magnitudeRepair(expected, operationName, question) {
   if (!Number.isFinite(expected) || expected === 0) {
     return repair(
       `Before doing ${operationName} again, what is the best first check?`,
@@ -60,17 +60,47 @@ function magnitudeRepair(expected, operationName) {
       "An estimate tells you where the decimal belongs before you trust the exact arithmetic."
     );
   }
-  const options = unique([format(expected / 10), format(expected), format(expected * 10)]);
+  const absolute = Math.abs(expected);
+  const lower = 10 ** Math.floor(Math.log10(absolute));
+  const correctBand = `Between ${format(lower)} and ${format(lower * 10)}`;
+  const options = unique([`Between ${format(lower / 10)} and ${format(lower)}`, correctBand, `Between ${format(lower * 10)} and ${format(lower * 100)}`]);
   return repair(
-    "Which estimate has the right size for the answer?",
+    `Before recalculating ${String(question?.prompt || operationName).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()}, which interval has the right size for the answer?`,
     options,
-    format(expected),
-    "Use magnitude first. Once the size is reasonable, place the decimal to match it."
+    correctBand,
+    "Estimate a range before calculating. The range checks the decimal position without revealing the exact answer."
   );
+}
+
+function componentDiagnosis(raw, question) {
+  const response = raw && typeof raw === "object" ? raw : {};
+  const expected = question?.correctResponse || {};
+  const wrong = id => Object.hasOwn(expected, id) && String(response[id] ?? "").trim().toLowerCase() !== String(expected[id]).trim().toLowerCase();
+  const wrongIds = Object.keys(expected).filter(wrong);
+  if (wrongIds.length !== 1) return { key: "operation_arithmetic", confidence: "undifferentiated", message: "More than one part needs another example before the system can identify a specific misconception.", repair: magnitudeRepair(Number(Object.values(expected).find(value => parseNumber(value) !== null)), "calculation", question) };
+  if (wrong("partition")) return { key: "division_decomposition", confidence: "plausible", message: "The decomposition must preserve the total and make each part divisible by the number of groups.", repair: repair("What makes a useful decomposition for division?", ["The parts equal the total and each part divides evenly", "The parts only need to look close", "Use the largest digits first"], "The parts equal the total and each part divides evenly", "A useful decomposition preserves the number and creates parts that can be shared equally.") };
+  if (!wrong("unitsPerShare") && wrong("quotient")) return { key: "division_unit_to_value", confidence: "plausible", message: "You found the number of units; now connect those units to their decimal value.", repair: repair("Eight tenths has which decimal value?", ["0.8", "8", "0.08"], "0.8", "Eight tenths means 8 × 0.1, which is 0.8.") };
+  if (wrong("renamedHundredths") || wrong("tenthsRemainder")) return { key: "division_regrouping", confidence: "plausible", message: "The intermediate remainder needs to be renamed into the next smaller unit.", repair: repair("When 2 tenths remain, how many hundredths do they become?", ["20", "2", "200"], "20", "Each tenth is 10 hundredths, so 2 tenths become 20 hundredths.") };
+  if (wrong("total") || wrong("oneGroup") || wrong("onePart")) return { key: "division_model_interpretation", confidence: "plausible", message: "Read the model's unit labels and distinguish the total from one equal group.", repair: repair("In an equal-groups model, what does one box represent?", ["One equal share", "The total of all shares", "The number of groups"], "One equal share", "Each equal box represents one share; all boxes together represent the total.") };
+  if (wrong("equation")) return { key: "division_quantity_roles", confidence: "plausible", message: "Identify the total, number of equal groups, and amount in each group before choosing an operation.", repair: repair("When the total and number of equal groups are known, what operation finds one share?", ["Division", "Multiplication", "Addition"], "Division", "Dividing the total by the number of equal groups finds one share.") };
+  if (wrong("plan")) return { key: "multistep_sequence", confidence: "plausible", message: "Find the amount that remains before sharing it equally.", repair: repair("What must happen before the remaining amount is shared?", ["Subtract the amount used", "Divide the original total", "Add the amounts"], "Subtract the amount used", "First find the remainder; then divide that remainder into equal groups.") };
+  if (wrong("unit")) return { key: "division_context_unit", confidence: "plausible", message: "The number and its unit must answer the quantity requested in the story.", repair: repair("What should the answer's unit describe?", ["The requested amount", "The number of groups", "The operation symbol"], "The requested amount", "A numerical result must keep the unit of the quantity the question asks for.") };
+  if (wrong("firstError")) return { key: "division_error_analysis", confidence: "plausible", message: "Check each written step in order and stop at the first statement that changes the value incorrectly.", repair: repair("How should you find the first error in worked mathematics?", ["Check each step from the beginning", "Look only at the final answer", "Choose the longest step"], "Check each step from the beginning", "The first invalid transformation explains the later incorrect work.") };
+  return null;
 }
 
 export function diagnoseMathError(raw, question) {
   const audit = question?.audit || {};
+  if (audit.kind === "components") {
+    const diagnosis = componentDiagnosis(raw, question);
+    if (diagnosis) return diagnosis;
+    const response = raw && typeof raw === "object" ? raw : {}, correct = question?.correctResponse || {};
+    const wrongId = Object.keys(correct).find(id => String(response[id] ?? "").trim().toLowerCase() !== String(correct[id]).trim().toLowerCase());
+    const submitted = parseNumber(response[wrongId]), expected = parseNumber(correct[wrongId]);
+    const shift = decimalShift(submitted, expected);
+    if (shift !== null) return { key: "decimal_magnitude", confidence: "plausible", message: "The decimal appears to be in the wrong place.", repair: magnitudeRepair(expected, "division", question) };
+    return { key: "operation_arithmetic", confidence: "undifferentiated", message: "The response does not identify one specific misconception yet.", repair: magnitudeRepair(expected, "calculation", question) };
+  }
   const submitted = parseNumber(raw);
   const expected = expectedNumber(question);
 
@@ -250,7 +280,8 @@ export function diagnoseMathError(raw, question) {
       message: shift !== null
         ? "Your digits look close, but the decimal appears to be in the wrong place."
         : "The decimal position may be fine; recheck the arithmetic with an estimate.",
-      repair: magnitudeRepair(expected, audit.kind === "product" ? "multiplication" : "division")
+      confidence: shift !== null ? "plausible" : "undifferentiated",
+      repair: magnitudeRepair(expected, audit.kind === "product" ? "multiplication" : "division", question)
     };
   }
 
@@ -292,6 +323,8 @@ export function makeRepairQuestion(question, diagnosis) {
     ...question,
     prompt: fix.prompt,
     options: fix.options,
+    components: null,
+    correctResponse: null,
     answer: fix.answer,
     why: fix.why,
     assisted: true,
@@ -303,4 +336,14 @@ export function makeRepairQuestion(question, diagnosis) {
     scaffoldText: diagnosis.message,
     placeholder: ""
   };
+}
+
+export function diagnosisWithHistory(profile, diagnosis, question, now = Date.now()) {
+  if (!diagnosis) return null;
+  const confidence = diagnosis.confidence || (["power10_direction", "rounding_truncated", "decimal_magnitude", "multistep_skipped_subtraction"].includes(diagnosis.key) ? "plausible" : "undifferentiated");
+  if (confidence !== "plausible") return { ...diagnosis, confidence };
+  const target = question?.target || question?.micro;
+  const family = question?.familyId;
+  const corroborating = (profile?.attempts || []).some(attempt => { const age = now - Number(attempt.at); return !attempt.assisted && !attempt.repairOnly && !attempt.scaffoldShown && attempt.misconception === diagnosis.key && (attempt.target || attempt.micro) === target && attempt.familyId && family && attempt.familyId !== family && age >= 0 && age <= 14 * 86400000; });
+  return { ...diagnosis, confidence: corroborating ? "supported" : "plausible" };
 }

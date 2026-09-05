@@ -1,332 +1,194 @@
-import { formatDecimal, isCorrectAnswer } from "./mission1-content.mjs";
+import { formatDecimal, isCorrectAnswer } from "./mission1-content.mjs?v=20260905-validity1";
+import { isColdProof, scoreEvidence } from "./mission1-evidence.mjs?v=20260905-validity1";
 
 export const DIVISION_ARCHETYPES = Object.freeze({
-  division_units: Object.freeze({ lesson: 13, label: "Divide using place-value units", weight: 1.15 }),
-  division_decompose: Object.freeze({ lesson: 13, label: "Decompose before dividing", weight: 1.0 }),
-  division_scale_relation: Object.freeze({ lesson: 13, label: "Relate scaled division facts", weight: 0.9 }),
-  division_reasonableness: Object.freeze({ lesson: 13, label: "Judge quotient reasonableness", weight: 1.1 }),
-  division_model: Object.freeze({ lesson: 14, label: "Represent decimal division", weight: 0.9 }),
-  division_algorithm: Object.freeze({ lesson: 14, label: "Use the standard division algorithm", weight: 1.3 }),
-  division_regroup: Object.freeze({ lesson: 15, label: "Rename into smaller units", weight: 1.25 }),
-  division_error_analysis: Object.freeze({ lesson: 14, label: "Analyze a division error", weight: 1.0 }),
-  division_word_one_step: Object.freeze({ lesson: 13, label: "Recognize division in context", weight: 1.0 }),
-  division_multistep: Object.freeze({ lesson: 16, label: "Plan a multi-step decimal problem", weight: 1.25 }),
-  division_context_result: Object.freeze({ lesson: 16, label: "Interpret a quotient in context", weight: 1.0 }),
-  tape_diagram_transfer: Object.freeze({ lesson: 13, label: "Model a division situation", weight: 0.85 }),
-  metric_embedded: Object.freeze({ lesson: 16, label: "Use metric conversion inside a problem", weight: 0.8 })
+  division_units: Object.freeze({ lesson: 13, label: "Connect divisible units to decimal value", weight: 1.15, target: "division_unit_structure" }),
+  division_decompose: Object.freeze({ lesson: 13, label: "Decompose into divisible units", weight: 1, target: "division_unit_structure" }),
+  division_scale_relation: Object.freeze({ lesson: 13, label: "Relate scaled division facts", weight: .9, target: "division_scale_relation" }),
+  division_reasonableness: Object.freeze({ lesson: 13, label: "Judge quotient reasonableness", weight: 1.1, target: "division_reasonableness" }),
+  division_model: Object.freeze({ lesson: 14, label: "Interpret a place-value model", weight: .9, target: "division_model" }),
+  division_algorithm: Object.freeze({ lesson: 14, label: "Use the standard division algorithm", weight: 1.3, target: "division_algorithm" }),
+  division_regroup: Object.freeze({ lesson: 15, label: "Rename into smaller units", weight: 1.25, target: "division_regroup" }),
+  division_error_analysis: Object.freeze({ lesson: 14, label: "Analyze a division error", weight: 1, target: "division_error_analysis" }),
+  division_word_one_step: Object.freeze({ lesson: 13, label: "Recognize division in context", weight: 1, target: "division_context" }),
+  division_multistep: Object.freeze({ lesson: 16, label: "Plan a multi-step decimal problem", weight: 1.25, target: "division_multistep" }),
+  division_context_result: Object.freeze({ lesson: 16, label: "Interpret a quotient in context", weight: 1, target: "division_context" }),
+  tape_diagram_transfer: Object.freeze({ lesson: 13, label: "Interpret a division tape diagram", weight: .85, target: "tape_diagram_transfer" }),
+  metric_embedded: Object.freeze({ lesson: 16, label: "Use metric conversion inside a problem", weight: .8, target: "metric_embedded" })
 });
 
 export const DIVISION_ARCHETYPE_KEYS = Object.freeze(Object.keys(DIVISION_ARCHETYPES));
+export const DIVISION_TARGETS = Object.freeze([...new Set(DIVISION_ARCHETYPE_KEYS.map(key => DIVISION_ARCHETYPES[key].target))]);
 export const DIVISION_TEST_RUN_ARCHETYPES = Object.freeze([
-  "division_units",
-  "division_decompose",
-  "division_algorithm",
-  "division_regroup",
-  "division_scale_relation",
-  "division_reasonableness",
-  "division_error_analysis",
-  "division_word_one_step",
-  "division_multistep",
-  "division_context_result",
-  "tape_diagram_transfer",
-  "metric_embedded"
+  "division_units", "division_reasonableness", "operation_contrast", "division_algorithm",
+  "division_word_one_step", "division_scale_relation", "division_regroup", "division_multistep",
+  "division_model", "tape_diagram_transfer", "division_error_analysis", "metric_embedded"
 ]);
+export const ASSESSMENT_ITEM_VERSION = 2;
 
+const DAY = 86400000;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const randomInt = (random, min, max) => Math.floor(random() * (max - min + 1)) + min;
 const shuffle = (values, random) => values.map(value => [random(), value]).sort((a, b) => a[0] - b[0]).map(item => item[1]);
-const recentEvidence = (profile, key) => (profile?.attempts || [])
-  .filter(attempt => attempt.micro === "decimal_divide" && attempt.assessmentArchetype === key)
-  .sort((a, b) => (Number(a.at) || 0) - (Number(b.at) || 0))
-  .slice(-8);
+const clean = value => formatDecimal(Number(value));
 
-export function divisionArchetypeStats(profile, key, options = {}) {
-  const evidence = recentEvidence(profile, key).filter(attempt => !attempt.assisted && !attempt.repairOnly);
-  let score = 40;
-  for (const attempt of evidence) {
-    const difficulty = clamp(Number(attempt.difficulty) || 1, 1, 3);
-    score += attempt.correct ? 6 + difficulty * 2 : -(10 + difficulty * 2);
-    score = clamp(score, 0, 100);
+export function targetForArchetype(key) { return DIVISION_ARCHETYPES[key]?.target || null; }
+function evidenceTarget(attempt) { return attempt?.target || targetForArchetype(attempt?.assessmentArchetype); }
+function targetEvidence(profile, target) {
+  return (profile?.attempts || []).filter(attempt => attempt.micro === "decimal_divide" && evidenceTarget(attempt) === target && !attempt.assisted && !attempt.repairOnly).sort((a, b) => (Number(a.at) || 0) - (Number(b.at) || 0));
+}
+function targetReadyState(profile, target, now = Date.now()) {
+  const evidence = targetEvidence(profile, target);
+  const all = (profile?.attempts || []).filter(attempt => evidenceTarget(attempt) === target).sort((a, b) => (Number(a.at) || 0) - (Number(b.at) || 0));
+  let stage = -1, dueAt = 0, lastCold = null, openFailure = null;
+  const intervals = [3, 7, 14, 30];
+  for (const attempt of all) {
+    if (attempt.assisted || attempt.repairOnly) { if (openFailure) dueAt = Math.max(dueAt, (Number(attempt.at) || 0) + DAY); continue; }
+    if (!attempt.correct) { openFailure = attempt; dueAt = (Number(attempt.at) || 0) + DAY; stage = -1; continue; }
+    if (!isColdProof(attempt, profile) || Number(attempt.difficulty) < 2) continue;
+    const at = Number(attempt.at) || 0;
+    if (openFailure || !lastCold) { openFailure = null; stage = 0; dueAt = at + intervals[stage] * DAY; lastCold = attempt; }
+    else if (at >= dueAt) { stage = Math.min(3, stage + 1); dueAt = at + intervals[stage] * DAY; lastCold = attempt; }
   }
+  if (openFailure) return { state: "relearning", dueAt, stage, openFailure, lastCold };
+  if (!lastCold) return { state: evidence.length ? "refresh_due" : "unknown", dueAt: 0, stage: -1, openFailure: null, lastCold: null };
+  return { state: now >= dueAt ? "refresh_due" : "ready", dueAt, stage, openFailure: null, lastCold };
+}
+
+export function divisionTargetStats(profile, target, options = {}) {
+  const evidence = scoreEvidence(profile, target, 12);
+  let score = 40;
+  for (const attempt of evidence) { const difficulty = clamp(Number(attempt.difficulty) || 1, 1, 3); score = clamp(score + (attempt.correct ? 5 + difficulty * 2 : -10), 0, 100); }
   const correct = evidence.filter(attempt => attempt.correct);
-  const transfer = correct.filter(attempt => attempt.testRun || attempt.transfer || (Number(attempt.difficulty) || 1) >= 3).length;
-  const days = new Set(correct.map(attempt => attempt.date).filter(Boolean)).size;
-  const latest = evidence.at(-1) || null;
-  const now = Number(options.now) || Date.now();
-  const latestAt = Math.max(0, Number(latest?.at) || 0);
-  const ageDays = latestAt ? Math.max(0, (now - latestAt) / 86400000) : Infinity;
-  const recent = ageDays <= (Number(options.maxAgeDays) || 7);
-  const latestCorrect = !!latest?.correct;
-  return {
-    key,
-    score: Math.round(score),
-    attempts: evidence.length,
-    correct: correct.length,
-    transfer,
-    days,
-    latestCorrect,
-    recent,
-    ageDays,
-    ready: score >= 78 && correct.length >= 2 && transfer >= 1 && days >= 2 && latestCorrect && recent
-  };
-}
-
-export function divisionReadiness(profile, options = {}) {
-  const skills = DIVISION_ARCHETYPE_KEYS.map(key => divisionArchetypeStats(profile, key, options));
-  const ready = skills.filter(item => item.ready).length;
-  const sampled = skills.filter(item => item.attempts > 0).length;
-  const weighted = skills.reduce((sum, item) => sum + item.score * DIVISION_ARCHETYPES[item.key].weight, 0);
-  const totalWeight = skills.reduce((sum, item) => sum + DIVISION_ARCHETYPES[item.key].weight, 0);
-  return { ready, total: skills.length, sampled, score: Math.round(weighted / totalWeight), skills };
-}
-
-export function nextDivisionArchetype(profile, options = {}) {
-  const avoid = new Set(options.avoid || []);
-  const candidates = DIVISION_ARCHETYPE_KEYS.map((key, order) => {
-    const stats = divisionArchetypeStats(profile, key, options);
-    const latest = recentEvidence(profile, key).at(-1)?.at || 0;
-    return { key, stats, latest, avoided: avoid.has(key) ? 1 : 0, weight: DIVISION_ARCHETYPES[key].weight, order };
+  const cold = correct.filter(attempt => isColdProof(attempt, profile) && Number(attempt.difficulty) >= 2);
+  const coverage = cold.some(attempt => {
+    const required = Array.isArray(attempt.coverageRequired) ? attempt.coverageRequired : [];
+    const got = Array.isArray(attempt.coverage) ? attempt.coverage : [];
+    return required.length > 0 && required.every(component => got.includes(component));
   });
-  candidates.sort((a, b) =>
-    a.avoided - b.avoided ||
-    Number(a.stats.ready) - Number(b.stats.ready) ||
-    a.stats.score - b.stats.score ||
-    a.stats.attempts - b.stats.attempts ||
-    b.weight - a.weight ||
-    a.latest - b.latest ||
-    a.order - b.order
-  );
+  return { target, score: Math.round(score), attempts: evidence.length, correct: correct.length, cold: cold.length, coverage, ...targetReadyState(profile, target, Number(options.now) || Date.now()) };
+}
+export function divisionArchetypeStats(profile, key, options = {}) {
+  const target = targetForArchetype(key), stats = divisionTargetStats(profile, target, options), evidence = targetEvidence(profile, target), latest = evidence.at(-1) || null;
+  return { key, ...stats, days: new Set(evidence.filter(a => a.correct).map(a => a.date).filter(Boolean)).size, latestCorrect: !!latest?.correct, recent: stats.state === "ready", ageDays: latest?.at ? Math.max(0, ((Number(options.now) || Date.now()) - Number(latest.at)) / DAY) : Infinity, ready: stats.state === "ready" };
+}
+export function divisionReadiness(profile, options = {}) {
+  const skills = DIVISION_TARGETS.map(target => divisionTargetStats(profile, target, options));
+  return { ready: skills.filter(item => item.state === "ready").length, total: skills.length, sampled: skills.filter(item => item.attempts > 0).length, score: Math.round(skills.reduce((sum, item) => sum + item.score, 0) / skills.length), skills };
+}
+export function nextDivisionArchetype(profile, options = {}) {
+  const avoid = new Set(options.avoid || []), now = Number(options.now) || Date.now();
+  const candidates = DIVISION_ARCHETYPE_KEYS.map((key, order) => {
+    const stats = divisionTargetStats(profile, targetForArchetype(key), options), latest = targetEvidence(profile, stats.target).at(-1)?.at || 0;
+    const klass = stats.state === "relearning" && stats.dueAt <= now ? 0 : stats.state === "unknown" ? 1 : stats.state === "refresh_due" ? 2 : stats.cold < 2 ? 3 : 4;
+    return { key, stats, latest, klass, avoided: avoid.has(key) ? 1 : 0, order };
+  });
+  candidates.sort((a, b) => a.avoided - b.avoided || a.klass - b.klass || a.stats.score - b.stats.score || a.stats.cold - b.stats.cold || a.latest - b.latest || a.order - b.order);
   return candidates[0].key;
 }
-
 export function pickDivisionArchetype(random = Math.random, difficulty = 2) {
-  const keys = difficulty <= 1
-    ? ["division_units", "division_decompose", "division_algorithm", "division_word_one_step", "division_model"]
-    : difficulty === 2
-      ? DIVISION_ARCHETYPE_KEYS.filter(key => key !== "division_multistep" && key !== "metric_embedded")
-      : DIVISION_ARCHETYPE_KEYS;
-  const weighted = [];
-  for (const key of keys) {
-    const repeats = Math.max(1, Math.round(DIVISION_ARCHETYPES[key].weight * 4));
-    for (let index = 0; index < repeats; index += 1) weighted.push(key);
-  }
-  return weighted[randomInt(random, 0, weighted.length - 1)];
+  const pool = difficulty <= 1 ? ["division_units", "division_decompose", "division_algorithm", "division_word_one_step", "division_model"] : difficulty === 2 ? DIVISION_ARCHETYPE_KEYS.filter(key => !["division_multistep", "metric_embedded"].includes(key)) : DIVISION_ARCHETYPE_KEYS;
+  return pool[randomInt(random, 0, pool.length - 1)];
 }
 
-function question(archetype, prompt, answer, why, audit, difficulty, flags = {}, extras = {}) {
-  const q = {
-    micro: "decimal_divide",
-    skill: "divide",
-    prompt,
-    answer: String(answer),
-    why,
-    options: extras.options || null,
-    audit,
-    workspace: extras.workspace || null,
-    difficulty,
-    assisted: !!flags.assisted,
-    recovery: !!flags.recovery,
-    transfer: difficulty === 3 && !flags.assisted,
-    testRun: !!flags.testRun,
-    placeholder: extras.placeholder || "Number only",
-    scratch: extras.scratch || "grid",
-    scaffoldText: flags.assisted ? (extras.scaffoldText || "Estimate the quotient first. Rename into smaller place-value units when a unit cannot be shared equally, then multiply to check.") : "",
-    assessmentArchetype: archetype
-  };
-  if (!isCorrectAnswer(q.answer, q)) throw new Error(`Invalid division assessment question: ${archetype}`);
+function component(id, label, answer, extras = {}) { return { id, label, answer: String(answer), options: extras.options || null, inputmode: extras.inputmode || "decimal", placeholder: extras.placeholder || "Number only" }; }
+function item(archetype, prompt, components, why, difficulty, flags = {}, extras = {}) {
+  const target = extras.target || targetForArchetype(archetype), correctResponse = Object.fromEntries(components.map(part => [part.id, String(part.answer)]));
+  const q = { micro: extras.micro || "decimal_divide", skill: extras.skill || "divide", prompt, answer: components.length === 1 ? String(components[0].answer) : JSON.stringify(correctResponse), correctResponse, components, why, options: null, audit: { kind: "components", components: components.map(part => ({ id: part.id, answer: String(part.answer) })) }, workspace: null, difficulty, assisted: !!flags.assisted, recovery: !!flags.recovery, transferKind: extras.transferKind || "routine", transfer: (extras.transferKind || "routine") !== "routine" && !flags.assisted, testRun: !!flags.testRun, placeholder: "", scratch: extras.scratch || "grid", scaffoldText: flags.assisted ? (extras.scaffoldText || "Use place-value units and check the quotient by multiplying.") : "", assessmentArchetype: archetype === "operation_contrast" ? null : archetype, target, representation: extras.representation || "symbolic", contextStructure: extras.contextStructure || "none", familyId: extras.familyId || archetype, itemVersion: ASSESSMENT_ITEM_VERSION, coverageRequired: components.map(part => part.id) };
+  if (!isCorrectAnswer(correctResponse, q)) throw new Error(`Invalid assessment item: ${archetype}`);
   return q;
 }
-
 function exactDivision(random, difficulty, options = {}) {
-  const divisor = options.divisor || randomInt(random, 2, difficulty >= 3 ? 9 : 6);
-  const places = options.places ?? (difficulty <= 1 ? 1 : difficulty === 2 ? 2 : 3);
-  const min = difficulty >= 3 ? 101 : 12;
-  const max = difficulty <= 1 ? 90 : difficulty === 2 ? 450 : 2400;
-  const quotientScaled = options.quotientScaled || randomInt(random, min, max);
-  const dividendScaled = divisor * quotientScaled;
-  return {
-    divisor,
-    places,
-    quotientScaled,
-    dividendScaled,
-    dividend: formatDecimal(dividendScaled / (10 ** places)),
-    answer: formatDecimal(quotientScaled / (10 ** places)),
-    audit: { kind: "quotient", dividendScaled, dividendPlaces: places, divisor }
-  };
+  const divisor = options.divisor || randomInt(random, 2, difficulty >= 3 ? 9 : 6), places = options.places ?? (difficulty <= 1 ? 1 : difficulty === 2 ? 2 : 3), quotientScaled = options.quotientScaled || randomInt(random, difficulty >= 3 ? 101 : 12, difficulty <= 1 ? 90 : difficulty === 2 ? 450 : 1800), dividendScaled = divisor * quotientScaled;
+  return { divisor, places, quotientScaled, dividendScaled, dividend: clean(dividendScaled / 10 ** places), answer: clean(quotientScaled / 10 ** places) };
+}
+
+function unitsItem(random, d, flags, archetype = "division_units") {
+  const divisor = randomInt(random, 2, 8), places = d >= 3 ? 3 : 1, perShare = randomInt(random, 2, 9), totalUnits = divisor * perShare, first = divisor * (perShare - 1), second = divisor;
+  const unitName = places === 1 ? "tenths" : places === 2 ? "hundredths" : "thousandths", dividend = clean(totalUnits / 10 ** places), quotient = clean(perShare / 10 ** places), valid = `${totalUnits} ${unitName} = ${first} ${unitName} + ${second} ${unitName}`;
+  return item(archetype, `<span class="math">${dividend} ÷ ${divisor}</span><br><small>Choose a true place-value-unit decomposition whose parts can each be shared equally among ${divisor} groups.</small>`, [component("partition", "Valid decomposition", valid, { options: shuffle([valid, `${totalUnits} ${unitName} = ${first + 1} ${unitName} + ${second} ${unitName}`, `${totalUnits} ${unitName} = ${first - 1} ${unitName} + ${second + 1} ${unitName}`], random), inputmode: "text" }), component("unitsPerShare", `${unitName[0].toUpperCase() + unitName.slice(1)} in each group`, perShare), component("quotient", "Decimal value in each group", quotient)], `${dividend} is ${totalUnits} ${unitName}. Each group receives ${perShare} ${unitName}, or ${quotient}.`, d, flags, { representation: "units", familyId: `units-p${places}`, transferKind: d >= 3 ? "near" : "routine", scratch: "place" });
+}
+function scaleItem(random, d, flags) {
+  const divisor = randomInt(random, 2, 9), wholeQuotient = randomInt(random, 2, 9), wholeDividend = divisor * wholeQuotient, shift = d >= 3 ? randomInt(random, 2, 3) : 2, factor = 10 ** shift, scaledDividend = clean(wholeDividend / factor), answer = clean(wholeQuotient / factor);
+  return item("division_scale_relation", `You know <span class="math">${wholeDividend} ÷ ${divisor} = ${wholeQuotient}</span>. Find <span class="math">${scaledDividend} ÷ ${divisor}</span>.`, [component("relation", "How the new quotient compares", `${factor} times smaller`, { options: shuffle([`${factor} times smaller`, `${factor} times larger`, "the same size"], random), inputmode: "text" }), component("quotient", "New quotient", answer)], `The dividend is ${factor} times smaller while the divisor stays fixed, so the quotient is ${factor} times smaller: ${answer}.`, d, flags, { familyId: `scale-${shift}`, transferKind: "near", scratch: "place" });
+}
+function reasonablenessItem(random, d, flags) {
+  const data = exactDivision(random, d, { places: 2 }), value = Number(data.answer), bands = [[0, .1], [.1, 1], [1, 10], [10, 100]].map(([a, b]) => `between ${a} and ${b}`), index = value < .1 ? 0 : value < 1 ? 1 : value < 10 ? 2 : 3;
+  return item("division_reasonableness", `Without finding the exact quotient, which interval contains <span class="math">${data.dividend} ÷ ${data.divisor}</span>?`, [component("interval", "Reasonable interval", bands[index], { options: shuffle(bands, random), inputmode: "text" })], `Compatible-number estimation places the quotient ${bands[index]}.`, d, flags, { familyId: `magnitude-band-${index}` });
+}
+function modelItem(random, d, flags) {
+  const groups = randomInt(random, 2, 4), tenths = randomInt(random, 1, 4), hundredths = randomInt(random, 1, 6), each = tenths / 10 + hundredths / 100, total = each * groups;
+  const groupHtml = `<span class="division-model-group">${Array.from({ length: tenths }, () => '<i class="disk tenths">0.1</i>').join("")}${Array.from({ length: hundredths }, () => '<i class="disk hundredths">0.01</i>').join("")}</span>`;
+  return item("division_model", `<div class="division-model" role="img" aria-label="${groups} equal groups. Each group contains ${tenths} tenths disks and ${hundredths} hundredths disks.">${Array.from({ length: groups }, () => groupHtml).join("")}</div><small>The disks are arranged in equal groups. Read the model.</small>`, [component("total", "Total value shown", clean(total)), component("oneGroup", "Value of one group", clean(each))], `There are ${groups} equal groups of ${clean(each)}, so the total is ${clean(total)}.`, d, flags, { representation: "place_model", familyId: `model-${groups}-${tenths}-${hundredths}`, transferKind: "representation", scratch: "place" });
+}
+function guaranteedLongDivision(random, d) {
+  for (let tries = 0; tries < 100; tries += 1) {
+    const data = exactDivision(random, d, { places: 2 }), whole = Math.floor(data.dividendScaled / 100), tenthsDigit = Math.floor(data.dividendScaled / 10) % 10, hundredthsDigit = data.dividendScaled % 10, rWhole = whole % data.divisor, availableTenths = rWhole * 10 + tenthsDigit, rTenths = availableTenths % data.divisor;
+    if (rTenths > 0) return { ...data, rTenths, availableHundredths: rTenths * 10 + hundredthsDigit };
+  }
+  return { divisor: 4, places: 2, quotientScaled: 216, dividendScaled: 864, dividend: "8.64", answer: "2.16", rTenths: 2, availableHundredths: 24 };
+}
+function algorithmItem(random, d, flags) {
+  const data = guaranteedLongDivision(random, d);
+  return item("division_algorithm", `<span class="math">${data.dividend} ÷ ${data.divisor}</span>`, [component("tenthsRemainder", "Tenths remaining after the tenths step", data.rTenths), component("quotient", "Quotient", data.answer)], `After the tenths step, ${data.rTenths} tenths remain. Rename and continue; the quotient is ${data.answer}.`, d, flags, { familyId: `algorithm-d${data.divisor}`, scratch: "grid" });
+}
+function regroupItem(random, d, flags) {
+  const data = guaranteedLongDivision(random, Math.max(2, d));
+  return item("division_regroup", `Find <span class="math">${data.dividend} ÷ ${data.divisor}</span>.`, [component("renamedHundredths", `Hundredths available after renaming the ${data.rTenths} remaining tenths`, data.availableHundredths), component("quotient", "Quotient", data.answer)], `${data.rTenths} remaining tenths become ${data.rTenths * 10} hundredths; combined with the existing hundredths, there are ${data.availableHundredths}. The quotient is ${data.answer}.`, d, flags, { familyId: `regroup-d${data.divisor}`, transferKind: d >= 3 ? "near" : "routine", scratch: "place" });
+}
+function errorAnalysisItem(random, d, flags) {
+  const divisor = randomInt(random, 2, 6), tenths = randomInt(random, 1, 4), hundredths = randomInt(random, 1, 8), quotient = tenths / 10 + hundredths / 100, dividend = quotient * divisor, wrong = clean(quotient * 10), step = `The final step writes ${wrong} as the quotient`;
+  return item("division_error_analysis", `<div class="worked-steps"><strong>A student solves ${clean(dividend)} ÷ ${divisor}:</strong><ol><li>Shares the decimal units equally.</li><li>Gets ${tenths} tenths and ${hundredths} hundredths per group.</li><li>Writes ${wrong} as the quotient.</li></ol></div>`, [component("firstError", "First invalid step", step, { options: shuffle(["Sharing the units equally", `Getting ${tenths} tenths and ${hundredths} hundredths per group`, step], random), inputmode: "text" }), component("quotient", "Correct quotient", clean(quotient))], `${tenths} tenths and ${hundredths} hundredths combine as ${clean(quotient)}, not ${wrong}.`, d, flags, { familyId: "error-unit-combine", transferKind: "near" });
+}
+function contextItem(random, d, flags, archetype = "division_word_one_step") {
+  const data = exactDivision(random, d, { divisor: randomInt(random, 2, 6), places: 2 }), contexts = [["liters of juice", "containers", "liters"], ["meters of ribbon", "projects", "meters"], ["kilograms of clay", "groups", "kilograms"]], [thing, groupName, unit] = contexts[randomInt(random, 0, contexts.length - 1)], equation = `${data.dividend} ÷ ${data.divisor}`;
+  return item(archetype, `${data.dividend} ${thing} are shared equally among ${data.divisor} ${groupName}. How much belongs to each ${groupName.slice(0, -1)}?`, [component("equation", "Equation", equation, { options: shuffle([equation, `${data.dividend} × ${data.divisor}`, `${data.dividend} − ${data.divisor}`], random), inputmode: "text" }), component("amount", "Amount in each group", data.answer), component("unit", "Unit", unit, { options: shuffle([unit, groupName, "groups"], random), inputmode: "text" })], `Equal sharing uses division: ${equation} = ${data.answer} ${unit}.`, d, flags, { representation: "word", contextStructure: "equal_share", familyId: `context-${unit}`, transferKind: "context", scratch: "tape" });
+}
+function multistepItem(random, d, flags) {
+  const divisor = randomInt(random, 2, 6), quotientScaled = randomInt(random, 25, 180), remainingScaled = divisor * quotientScaled, usedScaled = randomInt(random, 20, 250), totalScaled = remainingScaled + usedScaled, total = clean(totalScaled / 100), used = clean(usedScaled / 100), answer = clean(quotientScaled / 100), plan = `(${total} − ${used}) ÷ ${divisor}`;
+  return item("division_multistep", `A class has ${total} kilograms of clay. Students use ${used} kilograms, then share the rest equally among ${divisor} groups. How much does each group receive?`, [component("plan", "Complete equation plan", plan, { options: shuffle([plan, `${total} ÷ ${divisor} − ${used}`, `(${total} + ${used}) ÷ ${divisor}`], random), inputmode: "text" }), component("result", "Kilograms per group", answer)], `First subtract what was used, then divide: ${plan} = ${answer}.`, d, flags, { representation: "word", contextStructure: "subtract_then_share", familyId: "multistep-subtract-share", transferKind: "context", scratch: "tape" });
+}
+function tapeItem(random, d, flags) {
+  const parts = randomInt(random, 3, 6), each = randomInt(random, 12, 90) / 10, total = clean(each * parts), boxes = Array.from({ length: parts }, () => '<span class="tape-part">?</span>').join("");
+  return item("tape_diagram_transfer", `<div class="tape-model" role="img" aria-label="A tape with total ${total}, divided into ${parts} equal parts."><strong>Total: ${total}</strong><div>${boxes}</div></div><small>Each box has the same value. Find one box.</small>`, [component("onePart", "Value of one box", clean(each))], `The tape shows ${total} divided into ${parts} equal parts: ${total} ÷ ${parts} = ${clean(each)}.`, d, flags, { representation: "tape", familyId: `tape-part-${parts}`, transferKind: "representation", scratch: "tape" });
+}
+function metricItem(random, d, flags) {
+  const divisor = randomInt(random, 2, 5), centimetersEach = randomInt(random, 20, d >= 3 ? 180 : 90), totalCentimeters = divisor * centimetersEach, meters = clean(totalCentimeters / 100);
+  return item("metric_embedded", `A ${meters}-meter ribbon is cut equally into ${divisor} pieces. How long is each piece in centimeters?`, [component("amount", "Length of each piece", centimetersEach), component("unit", "Unit", "centimeters", { options: shuffle(["centimeters", "meters", "pieces"], random), inputmode: "text" })], `${meters} meters is ${totalCentimeters} centimeters; ${totalCentimeters} ÷ ${divisor} = ${centimetersEach} centimeters.`, d, flags, { representation: "word", contextStructure: "metric_share", familyId: "metric-m-cm-share", transferKind: "context", scratch: "tape" });
+}
+function operationContrast(random, completedRuns, flags) {
+  const kind = ["multiply", "add", "subtract"][completedRuns % 3];
+  if (kind === "multiply") {
+    const groups = randomInt(random, 3, 8), each = randomInt(random, 12, 49) / 10, result = clean(groups * each), equation = `${groups} × ${clean(each)}`;
+    return item("operation_contrast", `${groups} teams each receive ${clean(each)} meters of ribbon. How many meters are needed altogether?`, [component("equation", "Equation", equation, { options: shuffle([equation, `${clean(each)} ÷ ${groups}`, `${groups} + ${clean(each)}`], random), inputmode: "text" }), component("result", "Meters altogether", result)], `Equal groups with the group size known use multiplication: ${equation} = ${result}.`, 2, flags, { micro: "decimal_multiply", skill: "multiply", target: "decimal_multiply", representation: "word", contextStructure: "unknown_total", familyId: "contrast-multiply", transferKind: "context" });
+  }
+  const a = randomInt(random, 120, 690) / 100, b = randomInt(random, 20, 110) / 100;
+  if (kind === "add") {
+    const equation = `${clean(a)} + ${clean(b)}`;
+    return item("operation_contrast", `Two containers hold ${clean(a)} liters and ${clean(b)} liters. How much do they hold altogether?`, [component("equation", "Equation", equation, { options: shuffle([equation, `${clean(a)} − ${clean(b)}`, `${clean(a)} ÷ ${clean(b)}`], random), inputmode: "text" }), component("result", "Liters altogether", clean(a + b))], `Combining amounts uses addition: ${equation} = ${clean(a + b)}.`, 2, flags, { micro: "decimal_add", skill: "addsub", target: "decimal_add", representation: "word", contextStructure: "combine", familyId: "contrast-add", transferKind: "context" });
+  }
+  const total = a + b, equation = `${clean(total)} − ${clean(b)}`;
+  return item("operation_contrast", `A container held ${clean(total)} liters. After ${clean(b)} liters were used, how much remained?`, [component("equation", "Equation", equation, { options: shuffle([equation, `${clean(total)} + ${clean(b)}`, `${clean(total)} ÷ ${clean(b)}`], random), inputmode: "text" }), component("result", "Liters remaining", clean(a))], `Finding what remains uses subtraction: ${equation} = ${clean(a)}.`, 2, flags, { micro: "decimal_subtract", skill: "addsub", target: "decimal_subtract", representation: "word", contextStructure: "remainder", familyId: "contrast-subtract", transferKind: "context" });
 }
 
 export function generateDivisionAssessmentQuestion(archetypeKey, difficulty = 2, random = Math.random, flags = {}) {
-  const d = clamp(Number(difficulty) || 1, 1, 3);
-  const archetype = DIVISION_ARCHETYPES[archetypeKey] ? archetypeKey : pickDivisionArchetype(random, d);
-
-  if (archetype === "division_units") {
-    const divisor = randomInt(random, 2, 8);
-    const unitPlaces = d >= 3 ? 3 : randomInt(random, 1, 2);
-    const quotientUnits = randomInt(random, 2, 9);
-    const dividendUnits = divisor * quotientUnits;
-    const unitName = unitPlaces === 1 ? "tenths" : unitPlaces === 2 ? "hundredths" : "thousandths";
-    const dividend = formatDecimal(dividendUnits / (10 ** unitPlaces));
-    const answer = formatDecimal(quotientUnits / (10 ** unitPlaces));
-    return question(archetype,
-      `<span class="math">${dividend} ÷ ${divisor}</span><br><small>Think of ${dividend} as ${dividendUnits} ${unitName}. How many ${unitName} are in each equal group?</small>`,
-      answer,
-      `${dividend} is ${dividendUnits} ${unitName}. ${dividendUnits} ${unitName} ÷ ${divisor} = ${quotientUnits} ${unitName} = ${answer}.`,
-      { kind: "quotient", dividendScaled: dividendUnits, dividendPlaces: unitPlaces, divisor }, d, flags, { scratch: "place" });
-  }
-
-  if (archetype === "division_decompose") {
-    const data = exactDivision(random, d, { divisor: randomInt(random, 2, 6), places: d >= 3 ? 3 : 2 });
-    return question(archetype,
-      `Find <span class="math">${data.dividend} ÷ ${data.divisor}</span>.<br><small>Before using the algorithm, decompose the dividend into place-value units that can be shared by ${data.divisor}.</small>`,
-      data.answer,
-      `Decompose or rename the dividend into divisible place-value units, share each unit, and recombine. The quotient is ${data.answer}.`,
-      data.audit, d, flags, { scratch: "place" });
-  }
-
-  if (archetype === "division_scale_relation") {
-    const divisor = randomInt(random, 2, 9);
-    const wholeQuotient = randomInt(random, 2, 9);
-    const wholeDividend = divisor * wholeQuotient;
-    const shift = d >= 3 ? randomInt(random, 2, 3) : 1;
-    const factor = 10 ** shift;
-    const dividend = wholeDividend / factor;
-    const answer = wholeQuotient / factor;
-    return question(archetype,
-      `You know <span class="math">${wholeDividend} ÷ ${divisor} = ${wholeQuotient}</span>. Without starting over, use place value to find <span class="math">${formatDecimal(dividend)} ÷ ${divisor}</span>.`,
-      formatDecimal(answer),
-      `${formatDecimal(dividend)} is 1/${factor} of ${wholeDividend}, so its quotient by the same divisor is 1/${factor} of ${wholeQuotient}: ${formatDecimal(answer)}.`,
-      { kind: "quotient", dividendScaled: wholeDividend, dividendPlaces: shift, divisor }, d, flags, { scratch: "place" });
-  }
-
-  if (archetype === "division_reasonableness") {
-    const data = exactDivision(random, d);
-    const expected = Number(data.answer);
-    const options = shuffle([
-      data.answer,
-      formatDecimal(expected * 10),
-      formatDecimal(expected / 10),
-      formatDecimal(Number(data.dividend) * data.divisor)
-    ].filter((value, index, array) => array.indexOf(value) === index), random);
-    return question(archetype,
-      `Which quotient is reasonable for <span class="math">${data.dividend} ÷ ${data.divisor}</span>?<br><small>Estimate the size before doing exact arithmetic.</small>`,
-      data.answer,
-      `Because the divisor is greater than 1, the quotient must be smaller than ${data.dividend}. Estimation puts it near ${data.answer}.`,
-      data.audit, d, flags, { options, scratch: "grid" });
-  }
-
-  if (archetype === "division_model") {
-    const data = exactDivision(random, d, { places: d >= 2 ? 3 : 2 });
-    return question(archetype,
-      `Use a place-value chart or disks to model <span class="math">${data.dividend} ÷ ${data.divisor}</span>. Rename units when needed. What quotient does your model show?`,
-      data.answer,
-      `Share each place-value unit equally. When a unit cannot be shared, rename it as 10 of the next smaller unit. The model gives ${data.answer}.`,
-      data.audit, d, flags, { scratch: "place" });
-  }
-
-  if (archetype === "division_algorithm") {
-    const data = exactDivision(random, d);
-    return question(archetype,
-      `Solve using the standard algorithm: <span class="math">${data.dividend} ÷ ${data.divisor}</span>`,
-      data.answer,
-      `Divide one place-value column at a time, rename when necessary, and place each quotient digit in its matching place. Check: ${data.answer} × ${data.divisor} = ${data.dividend}.`,
-      data.audit, d, flags, { scratch: "grid" });
-  }
-
-  if (archetype === "division_regroup") {
-    const divisor = randomInt(random, 2, 5);
-    const quotientScaled = randomInt(random, 11, d >= 3 ? 999 : 199);
-    const quotientPlaces = d >= 3 ? 3 : 2;
-    const dividendScaled = divisor * quotientScaled;
-    const dividend = formatDecimal(dividendScaled / (10 ** quotientPlaces));
-    const answer = formatDecimal(quotientScaled / (10 ** quotientPlaces));
-    return question(archetype,
-      `Find <span class="math">${dividend} ÷ ${divisor}</span>.<br><small>When a place-value unit cannot be divided evenly, rename it as 10 of the next smaller unit.</small>`,
-      answer,
-      `Rename any leftover units into the next smaller place before continuing the division. The quotient is ${answer}.`,
-      { kind: "quotient", dividendScaled, dividendPlaces: quotientPlaces, divisor }, d, flags, { scratch: "place" });
-  }
-
-  if (archetype === "division_error_analysis") {
-    const data = exactDivision(random, Math.max(2, d));
-    const wrong = formatDecimal(Number(data.answer) * 10);
-    const options = shuffle([data.answer, wrong, formatDecimal(Number(data.answer) / 10)], random);
-    return question(archetype,
-      `A student says <span class="math">${data.dividend} ÷ ${data.divisor} = ${wrong}</span>. Which value is the correct quotient?<br><small>Use magnitude and place value to find the student's error.</small>`,
-      data.answer,
-      `The proposed answer is too large for division by ${data.divisor}. The correct quotient is ${data.answer}; multiplying ${data.answer} by ${data.divisor} returns ${data.dividend}.`,
-      data.audit, d, flags, { options, scratch: "grid" });
-  }
-
-  if (archetype === "division_word_one_step") {
-    const data = exactDivision(random, d, { divisor: randomInt(random, 2, 6), places: 2 });
-    const contexts = [
-      [`${data.dividend} meters of ribbon are cut equally for ${data.divisor} projects. How many meters of ribbon does each project receive?`, "meters"],
-      [`${data.dividend} liters of juice are poured equally into ${data.divisor} pitchers. How many liters go in each pitcher?`, "liters"],
-      [`${data.dividend} kilograms of flour are shared equally among ${data.divisor} bakers. How many kilograms does each baker receive?`, "kilograms"]
-    ];
-    const [story, unit] = contexts[randomInt(random, 0, contexts.length - 1)];
-    return question(archetype,
-      `${story}<br><small>Decide which operation matches equal sharing before calculating.</small>`,
-      data.answer,
-      `Equal sharing calls for division: ${data.dividend} ÷ ${data.divisor} = ${data.answer} ${unit}.`,
-      data.audit, d, flags, { scratch: d >= 3 ? "tape" : "grid" });
-  }
-
-  if (archetype === "division_multistep") {
-    const divisor = randomInt(random, 2, 6);
-    const places = 2;
-    const quotientScaled = randomInt(random, 25, 180);
-    const remainingScaled = divisor * quotientScaled;
-    const usedScaled = randomInt(random, 20, 250);
-    const totalScaled = remainingScaled + usedScaled;
-    const total = formatDecimal(totalScaled / 100);
-    const used = formatDecimal(usedScaled / 100);
-    const remaining = formatDecimal(remainingScaled / 100);
-    const answer = formatDecimal(quotientScaled / 100);
-    return question(archetype,
-      `A classroom has <span class="math">${total} kilograms</span> of modeling material. Students use <span class="math">${used} kilograms</span>, then share what remains equally among <span class="math">${divisor}</span> groups. How many kilograms does each group receive?<br><small>Plan the operations before calculating.</small>`,
-      answer,
-      `First find what remains: ${total} − ${used} = ${remaining}. Then share the remainder: ${remaining} ÷ ${divisor} = ${answer}.`,
-      { kind: "subtractDivide", totalScaled, usedScaled, places, divisor }, d, flags, { scratch: "tape" });
-  }
-
-  if (archetype === "division_context_result") {
-    const divisor = randomInt(random, 2, 6);
-    const groups = randomInt(random, 2, 8);
-    const perGroup = randomInt(random, 2, 9) / 10;
-    const total = groups * perGroup;
-    const dividendScaled = Math.round(total * 100);
-    const answer = formatDecimal(total / divisor);
-    return question(archetype,
-      `<span class="math">${formatDecimal(total)} kilograms</span> are divided equally among <span class="math">${divisor}</span> containers. What amount belongs in each container?<br><small>Include the kilogram unit when you explain what your quotient means.</small>`,
-      answer,
-      `The quotient is ${answer}. In context, that means each container receives ${answer} kilograms.`,
-      { kind: "quotient", dividendScaled, dividendPlaces: 2, divisor }, d, flags, { scratch: "tape" });
-  }
-
-  if (archetype === "tape_diagram_transfer") {
-    const data = exactDivision(random, Math.max(2, d), { divisor: randomInt(random, 2, 8), places: 2 });
-    return question(archetype,
-      `A total of <span class="math">${data.dividend}</span> is split into <span class="math">${data.divisor}</span> equal parts. Draw a tape diagram with ${data.divisor} equal boxes, then find the value of one box.`,
-      data.answer,
-      `The tape diagram represents ${data.dividend} as ${data.divisor} equal parts, so one part is ${data.dividend} ÷ ${data.divisor} = ${data.answer}.`,
-      data.audit, d, flags, { scratch: "tape" });
-  }
-
-  const divisor = randomInt(random, 2, 5);
-  const centimetersPerShare = randomInt(random, 20, d >= 3 ? 180 : 90);
-  const totalCentimeters = divisor * centimetersPerShare;
-  const meters = totalCentimeters / 100;
-  return question("metric_embedded",
-    `A <span class="math">${formatDecimal(meters)}-meter</span> ribbon is cut equally into <span class="math">${divisor}</span> pieces. How long is each piece in centimeters?<br><small>Convert meters to centimeters, then divide.</small>`,
-    String(centimetersPerShare),
-    `${formatDecimal(meters)} meters = ${totalCentimeters} centimeters. Then ${totalCentimeters} ÷ ${divisor} = ${centimetersPerShare} centimeters.`,
-    { kind: "quotient", dividendScaled: totalCentimeters, dividendPlaces: 0, divisor }, d, flags, { scratch: "tape" });
+  const d = clamp(Number(difficulty) || 1, 1, 3), archetype = DIVISION_ARCHETYPES[archetypeKey] ? archetypeKey : pickDivisionArchetype(random, d);
+  if (archetype === "division_units" || archetype === "division_decompose") return unitsItem(random, d, flags, archetype);
+  if (archetype === "division_scale_relation") return scaleItem(random, d, flags);
+  if (archetype === "division_reasonableness") return reasonablenessItem(random, d, flags);
+  if (archetype === "division_model") return modelItem(random, d, flags);
+  if (archetype === "division_algorithm") return algorithmItem(random, d, flags);
+  if (archetype === "division_regroup") return regroupItem(random, d, flags);
+  if (archetype === "division_error_analysis") return errorAnalysisItem(random, d, flags);
+  if (archetype === "division_word_one_step" || archetype === "division_context_result") return contextItem(random, d, flags, archetype);
+  if (archetype === "division_multistep") return multistepItem(random, d, flags);
+  if (archetype === "tape_diagram_transfer") return tapeItem(random, d, flags);
+  return metricItem(random, d, flags);
 }
-
-export function buildDivisionTestRun(random = Math.random) {
-  return DIVISION_TEST_RUN_ARCHETYPES.map(key => {
-    const q = generateDivisionAssessmentQuestion(key, 3, random, { testRun: true });
-    return { ...q, assisted: false, recovery: false, transfer: true, testRun: true, scaffoldText: "", workspace: null, scratch: "grid" };
-  });
+export function buildDivisionTestRun(random = Math.random, options = {}) {
+  const flags = { testRun: true }, completedRuns = Math.max(0, Number(options.completedRuns) || 0), itemRandoms = Array.isArray(options.itemRandoms) ? options.itemRandoms : [];
+  return DIVISION_TEST_RUN_ARCHETYPES.map((key, index) => {
+    const itemRandom = typeof itemRandoms[index] === "function" ? itemRandoms[index] : random;
+    return key === "operation_contrast" ? operationContrast(itemRandom, completedRuns, flags) : generateDivisionAssessmentQuestion(key, ["division_regroup", "division_multistep", "metric_embedded"].includes(key) ? 3 : 2, itemRandom, flags);
+  }).map(question => ({ ...question, assisted: false, recovery: false, testRun: true, scaffoldText: "", workspace: null }));
 }
