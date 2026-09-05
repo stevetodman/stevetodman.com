@@ -1,20 +1,23 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import type { Group } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const ROOM_SHELL_ASSET = "/hospital/assets/hospital/astra-probe/room-shell-only.gltf";
 const ROOM_SHELL_BASE = "/hospital/assets/hospital/astra-probe/";
+const ROOM_ORIGIN: [number, number, number] = [-5.35, 0, -3];
 
 /**
- * Diagnostic step after physical iPhone confirmed that direct fetch + JSON.parse
- * of the exact glTF is healthy.
+ * Diagnostic step after physical iPhone confirmed GLTFLoader.parse is healthy.
  *
- * This fetches the same text, then asks Three's GLTFLoader to parse it, but never
- * inserts the resulting scene into React Three Fiber. There is no useGLTF,
- * Suspense, animation, lightmap, collision, or parsed-scene rendering.
+ * This manually fetches + parses the exact glTF and then inserts only the parsed
+ * Three scene with <primitive>. There is still no Drei useGLTF, Suspense,
+ * preloading, animation, lightmap, or collision change.
  */
 export function AstraIosRoomShellProbe() {
+  const [parsedScene, setParsedScene] = useState<Group | null>(null);
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -30,30 +33,34 @@ export function AstraIosRoomShellProbe() {
         loader.parse(
           text,
           ROOM_SHELL_BASE,
-          () => {
+          (gltf) => {
             if (!controller.signal.aborted) {
-              console.info("Astra iOS GLTFLoader.parse probe passed.");
+              console.info("Astra iOS manual glTF scene-render probe parsed.");
+              setParsedScene(gltf.scene);
             }
           },
           (error) => {
             if (!controller.signal.aborted) {
-              console.error("Astra iOS GLTFLoader.parse probe failed.", error);
+              console.error("Astra iOS manual glTF scene-render probe failed.", error);
             }
           },
         );
       })
       .catch((error) => {
         if (controller.signal.aborted) return;
-        console.error("Astra iOS glTF parser probe fetch failed.", error);
+        console.error("Astra iOS manual glTF scene-render fetch failed.", error);
       });
 
     return () => controller.abort();
   }, []);
 
   return (
-    <mesh position={[-5.35, 1.15, -3]} castShadow={false} receiveShadow={false}>
-      <boxGeometry args={[0.28, 0.28, 0.28]} />
-      <meshStandardMaterial color="#4d858b" roughness={0.65} metalness={0} />
-    </mesh>
+    <>
+      <mesh position={[-5.35, 1.15, -3]} castShadow={false} receiveShadow={false}>
+        <boxGeometry args={[0.28, 0.28, 0.28]} />
+        <meshStandardMaterial color="#4d858b" roughness={0.65} metalness={0} />
+      </mesh>
+      {parsedScene ? <primitive object={parsedScene} position={ROOM_ORIGIN} /> : null}
+    </>
   );
 }
