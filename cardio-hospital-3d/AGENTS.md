@@ -44,7 +44,26 @@ Durable evidence:
 - reproduced Room 1 prompt-cache defect fixed in `5073f86e9f1344f452970c3fb51e43e0246d850b`;
 - detailed desktop evidence: `docs/BEHAVIORAL_ACCEPTANCE_2026-09-03.md`.
 
-The remaining product-quality gate is **physical-iPhone M4/M5 acceptance**. Browser/device emulation is not a substitute where this gate is required. The accepted Astra visual plan calls this **Phase 0**. Do not begin the authored visual proof until Phase 0 is complete.
+The remaining product-quality gate is **physical-iPhone M4/M5 acceptance**. Browser/device emulation is not a substitute where this gate is required. The accepted Astra visual plan calls this **Phase 0**.
+
+The owner explicitly redirected work into Astra graphics before every remaining Phase 0 item was closed. That override permits contained graphics proof work, but it does **not** make the remaining physical-device checklist complete.
+
+### 2026-09-04 iPhone recovery checkpoint
+
+PR **#193** / `352f290550cb5370dbaf7f3a4bc0ea3fc5be7071` introduced the first Astra authored-hybrid Room 1 proof. Automated build, deployment, exact-production, and live-runtime checks passed, but the owner's physical iPhone then showed **“Clinical world could not load.”** Treat that as a real iOS/Safari production regression that automation failed to catch.
+
+PR **#194** restored the last iPhone-working HospitalSim runtime. Recovery production SHA: **`27dc95d85888fccc1d075e268eda84d64ebbfbca`**.
+
+For that recovery SHA:
+
+- Cloudflare Pages deployment succeeded;
+- exact-production/browser verification succeeded;
+- live-runtime smoke succeeded;
+- the owner then physically rechecked production on iPhone and reported that it **looks good on iPhone**.
+
+Therefore the production-broken incident is **recovered on physical iPhone**. Do not re-run the already-known recovery check unless a new regression appears. This does **not** close the remaining Phase 0 items below, and it does **not** accept PR #193's graphics implementation.
+
+For Astra graphics work, do not simply re-merge the whole #193 runtime. First isolate the iOS/Safari incompatibility or reintroduce the proof in smaller slices so a visual experiment cannot take down the entire clinical world. Every reintroduced graphics slice must preserve the canonical engine and must earn a physical-iPhone load/usability check before expansion.
 
 ## Physical-iPhone acceptance — Phase 0
 
@@ -98,14 +117,15 @@ Verify:
 - Add only focused regression coverage for the reproduced defect.
 - After a product fix, require `npm run test:engine` + `npm run build` green.
 - Rerun full desktop behavioral acceptance only if the fix touches shared behavior covered by that acceptance.
-- Do not widen scope into backend work, new cases, or visual overhaul during this gate.
+- Do not widen scope into backend work or new cases during this gate.
 - Do not repeat already-passed physical checks unless a new reproducible regression appears.
+- Graphics experiments must fail contained; an authored asset/proof failure must not make the whole clinical world unusable on iOS.
 
 ## After Phase 0 passes
 
 Record device model, iOS/Safari version, portrait/landscape/PWA/audio/ECG/reload/actor-visibility/thermal results and any reproduced defects/fixing commits. Update the hospital implementation ledger and root `MASTER_PLAN.md`, then mark M4/M5 / Phase 0 complete.
 
-The next graphics action is then **Phase 1 of `docs/VISUAL_ARCHITECTURE_SOURCE_OF_TRUTH.md`**:
+The graphics program remains **Phase 1 of `docs/VISUAL_ARCHITECTURE_SOURCE_OF_TRUTH.md`**:
 
 - prove one authored room;
 - prove one equipment set;
@@ -115,7 +135,9 @@ The next graphics action is then **Phase 1 of `docs/VISUAL_ARCHITECTURE_SOURCE_O
 - use minimum focused tests;
 - do **not** extend the old procedural realism program and do **not** migrate renderers first.
 
-Subsequent order is fixed unless explicitly superseded: Phase 2 complete encounter vertical slice -> Phase 3 second-room reuse proof -> Phase 4 progressive room-by-room replacement.
+Because #193 failed on the physical iPhone, its architecture ideas remain useful but its runtime implementation is **not accepted**. Reintroduce Phase 1 incrementally and require iPhone viability before promotion.
+
+Subsequent order remains fixed unless explicitly superseded: Phase 2 complete encounter vertical slice -> Phase 3 second-room reuse proof -> Phase 4 progressive room-by-room replacement.
 
 ## Read only as needed
 
@@ -128,4 +150,6 @@ Subsequent order is fixed unless explicitly superseded: Phase 2 complete encount
 - `src/lib/clinical-policy/` — case-specific clinical policy.
 - `src/components/` — world, clinical UI, pager/work queue, mobile/touch controls.
 
-The next hospital product action is completion of physical-iPhone Phase 0. After that, continue directly into the owner-approved Astra authored-hybrid visual program.
+## Exact next hospital action
+
+Start from the recovered physical-iPhone-good production baseline `27dc95d85888fccc1d075e268eda84d64ebbfbca`. Preserve Astra's visual source of truth, but do **not** restore #193 wholesale. Isolate or avoid the iOS/Safari failure by reintroducing the smallest authored visual slice first, run only the focused engine/build/deployment gates, then require a physical-iPhone load/usability check before adding the next slice. Keep the still-open Phase 0 checklist separate and do not falsely mark it complete.
