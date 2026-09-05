@@ -230,8 +230,8 @@ try {
     await quick.waitFor({ state: 'visible' });
     await full.waitFor({ state: 'visible' });
     assert.match(await quick.innerText(), /Quick Round/);
-    assert.match(await full.innerText(), /Full Test/);
-    assert.match(await full.innerText(), /Graded\s*[•·]\s*50 questions/i);
+    assert.match(await full.innerText(), /Test Run/);
+    assert.match(await full.innerText(), /Graded\s*[•·]\s*(?:40|50) questions/i);
 
     await quick.click();
     await page.waitForSelector('#spellForm, #qMap', { state: 'visible' });
@@ -254,7 +254,7 @@ const result = {
     'production bytes match target dist and exact Cloudflare production deployment',
     'Cloudflare HTTPS response and same-origin assets',
     'Pin Sprint adaptive start, SVG map render, and real touch response',
-    '50 States menu, graded 50-question Full Test label, and Quick Round start',
+    '50 States menu, adaptive 40/50-question Test Run label, and Quick Round start',
     'no page errors, console errors, failed same-origin assets, or stale-cache mismatch',
   ],
 };
