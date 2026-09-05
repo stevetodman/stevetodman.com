@@ -221,7 +221,8 @@ import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosi
   }
 
   function shouldFinishPractice() {
-    return state.results.length >= PRACTICE_MAX || (state.independentCount >= PRACTICE_TARGET && !state.immediateScaffold && state.recoveries.length === 0);
+    const independentResults = state.results.filter(result => !result.assisted).length;
+    return independentResults >= PRACTICE_MAX || (state.independentCount >= PRACTICE_TARGET && !state.immediateScaffold && state.recoveries.length === 0);
   }
 
   function next() {
