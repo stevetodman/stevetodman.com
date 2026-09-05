@@ -4,9 +4,9 @@ import { useGLTF, useTexture } from "@react-three/drei";
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
 import { useEffect, useMemo } from "react";
 import { LinearSRGBColorSpace, Mesh, MeshStandardMaterial, Object3D } from "three";
-import { PROOF_ROOM_LIGHTMAP_DATA_URI } from "./proof-room-lightmap-data";
 
 const ROOM_ASSET = "/hospital/assets/hospital/astra-proof/proof-room-one.gltf";
+const LIGHTMAP_ASSET = "/hospital/assets/hospital/astra-proof/proof-room-lightmap.png";
 const ROOM_ORIGIN: [number, number, number] = [-5.35, 0, -3];
 
 type HalfExtents = [number, number, number];
@@ -26,12 +26,12 @@ function FixedCuboid({ position, halfExtents }: { position: Vec3; halfExtents: H
 
 /**
  * Phase-1 authored-hybrid proof room.
- * Visual geometry is loaded from an offline-authored glTF. Collision remains explicit,
+ * Visual geometry is loaded from a build-time authored glTF. Collision remains explicit,
  * simple Rapier geometry so a visual asset edit cannot silently change traversal.
  */
 export function AuthoredProofRoomOne() {
   const source = useGLTF(ROOM_ASSET);
-  const lightMap = useTexture(PROOF_ROOM_LIGHTMAP_DATA_URI);
+  const lightMap = useTexture(LIGHTMAP_ASSET);
   const room = useMemo(() => source.scene.clone(true), [source.scene]);
 
   useEffect(() => {
@@ -111,3 +111,4 @@ export function AuthoredProofRoomLighting() {
 }
 
 useGLTF.preload(ROOM_ASSET);
+useTexture.preload(LIGHTMAP_ASSET);
