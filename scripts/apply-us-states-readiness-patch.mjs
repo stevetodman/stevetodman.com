@@ -52,29 +52,23 @@ replaceOnce(
 );
 
 replaceOnce(
-`  var st = p.stateStats[code] || (p.stateStats[code] = { streak: 0, correct: 0, wrong: 0, mastered: false });
-  var justMastered = false;`,
-`  var st = p.stateStats[code] || (p.stateStats[code] = { streak: 0, correct: 0, wrong: 0, mastered: false });
-  var now = Date.now();
+`  var justMastered = false;`,
+`  var now = Date.now();
   st.lastSeenAt = now;
   var justMastered = false;`,
 "answer recency"
 );
 
 replaceOnce(
-`  if (correct) {
-    st.correct++;`,
-`  if (correct) {
-    st.lastCorrectAt = now;
+`    st.correct++;`,
+`    st.lastCorrectAt = now;
     st.correct++;`,
 "correct recency"
 );
 
 replaceOnce(
-`  } else {
-    st.wrong++;`,
-`  } else {
-    st.lastMissAt = now;
+`    st.wrong++;`,
+`    st.lastMissAt = now;
     st.wrong++;`,
 "miss recency"
 );
