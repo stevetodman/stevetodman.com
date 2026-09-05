@@ -1,0 +1,47 @@
+name: 50 States essential
+
+on:
+  pull_request:
+    paths:
+      - 'study/us-states.html'
+      - 'tests/us-states-readiness.test.mjs'
+      - 'tests/us-states-phone.test.mjs'
+      - 'tests/helpers/harness.mjs'
+      - '.github/workflows/states-ci.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'study/us-states.html'
+      - 'tests/us-states-readiness.test.mjs'
+      - 'tests/us-states-phone.test.mjs'
+      - 'tests/helpers/harness.mjs'
+      - '.github/workflows/states-ci.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: states-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  essential:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Four learning invariants
+        run: node --test tests/us-states-readiness.test.mjs
+
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+
+      - name: One 390px Chromium phone smoke
+        run: node --test tests/us-states-phone.test.mjs
