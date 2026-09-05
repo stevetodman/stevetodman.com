@@ -2,13 +2,15 @@ import { PointerLockControls } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
 import { useEffect, useRef, useState, type ComponentRef } from "react";
 import { useSimulationStore } from "@/lib/simulation-store";
-import { HospitalArchitecture } from "./architecture";
+import { AuthoredHospitalArchitecture } from "./authored-hospital-architecture";
+import { AuthoredProofRoomLighting } from "./authored-proof-room";
+import { AuthoredVasovagalRoomActors } from "./authored-vasovagal-room-actors";
 import { HospitalClinicalDetails } from "./hospital-details";
 import { HospitalRealismPass2 } from "./hospital-realism-pass-2";
 import { HospitalRealismPass3 } from "./hospital-realism-pass-3";
 import { InteractionSystem } from "./interaction-system";
-import { VasovagalRoomActors } from "./patient-room-actors";
 import { PlayerController } from "./player-controller";
+import { ProofRoomLegacyVisualMask } from "./proof-room-legacy-visual-mask";
 import { RoomSignage } from "./room-signage";
 import { TouchLookControls } from "./touch-look-controls";
 
@@ -32,30 +34,25 @@ export default function HospitalWorld() {
     <>
       <color attach="background" args={["#0f171a"]} />
       <fog attach="fog" args={["#d9e0df", 18, 38]} />
-      <ambientLight intensity={0.72} color="#dcecff" />
-      <directionalLight
-        castShadow
-        position={[-7, 12, 7]}
-        intensity={2.1}
-        color="#fff3d7"
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-        shadow-camera-near={0.1}
-        shadow-camera-far={36}
-        shadow-camera-left={-14}
-        shadow-camera-right={14}
-        shadow-camera-top={14}
-        shadow-camera-bottom={-14}
-      />
+
+      {/* Interior baseline only. The previous broad shadow-casting sun produced an outdoor-like diagonal shadow. */}
+      <hemisphereLight intensity={0.58} color="#eef4f2" groundColor="#687174" />
+      <ambientLight intensity={0.24} color="#dcecff" />
+      <directionalLight position={[-4, 8, 5]} intensity={0.34} color="#fff2d8" />
+      <AuthoredProofRoomLighting />
+
       <Physics gravity={[0, -18, 0]} timeStep="vary">
-        <HospitalArchitecture />
+        <AuthoredHospitalArchitecture />
         <PlayerController />
       </Physics>
-      <HospitalClinicalDetails />
-      <HospitalRealismPass2 />
-      <HospitalRealismPass3 />
+
+      <ProofRoomLegacyVisualMask>
+        <HospitalClinicalDetails />
+        <HospitalRealismPass2 />
+        <HospitalRealismPass3 />
+      </ProofRoomLegacyVisualMask>
       <RoomSignage />
-      <VasovagalRoomActors />
+      <AuthoredVasovagalRoomActors />
       <InteractionSystem />
       <TouchLookControls />
       {desktopPointerLock && (
