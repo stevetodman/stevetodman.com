@@ -1,9 +1,10 @@
-import { MICRO_SKILLS, diagnostic, isCorrectAnswer } from "./mission1-content.mjs?v=20260831-weekly3";
-import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260903-teacher1";
-import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, diagnosticIsCurrent, difficultyForScore, microScore, migrateAffectedRechecks, nextMicro, pendingRechecks, projectedScore } from "./mission1-adaptive.mjs?v=20260903-teacher1";
+import { MICRO_SKILLS, diagnostic, isCorrectAnswer, normalize } from "./mission1-content.mjs?v=20260904-week4";
+import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260904-week4";
+import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, RECHECK_VERSION, diagnosticIsCurrent, difficultyForScore, microScore, migrateAffectedRechecks, nextMicro, pendingRechecks, projectedScore } from "./mission1-adaptive.mjs?v=20260904-week4";
 import { createScratchpad } from "./mission1-scratch.mjs?v=20260901-mastery1";
 import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901-mastery1";
-import { TEACHER_WEEK, explanationForMicro } from "./teacher-week.mjs?v=20260903-teacher1";
+import { TEACHER_WEEK } from "./teacher-week.mjs?v=20260904-week4";
+import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosis.mjs?v=20260904-diagnosis1";
 
 "use strict";
 (() => {
@@ -12,7 +13,7 @@ import { TEACHER_WEEK, explanationForMicro } from "./teacher-week.mjs?v=20260903
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
   const today = () => new Date().toISOString().slice(0, 10);
-  const emptyProfile = () => ({ diagnostic: false, diagnosticVersion: 0, attempts: [], sessions: 0, recheckVersion: 1, rechecks: {} });
+  const emptyProfile = () => ({ diagnostic: false, diagnosticVersion: 0, attempts: [], sessions: 0, recheckVersion: RECHECK_VERSION, rechecks: {} });
   const weeklyDiagnostic = () => diagnostic().filter(question => TEACHER_WEEK.diagnosticMicros.includes(question.micro));
   function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } }
   function save(data) { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch {} }
@@ -61,7 +62,7 @@ import { TEACHER_WEEK, explanationForMicro } from "./teacher-week.mjs?v=20260903
         <div class="label">First mission · ${TEACHER_WEEK.label}</div>
         <h2>Quick starting check</h2>
         <p class="mission-meta">${checkCount} questions · current class material only</p>
-        <p>This checks the place-value ideas needed for this week so Math Mission knows what to explain and practice.</p>
+        <p>This checks the ideas needed for this week so Math Mission knows what to explain and practice.</p>
         <button class="primary-button" data-start="diagnostic">Start</button>`;
     } else {
       card.innerHTML = `
@@ -84,9 +85,9 @@ import { TEACHER_WEEK, explanationForMicro } from "./teacher-week.mjs?v=20260903
   function nextAdaptiveQuestion() {
     const profile = profileWithRepairs();
     if (state.immediateScaffold) {
-      const missed = state.immediateScaffold;
+      const repair = state.immediateScaffold;
       state.immediateScaffold = null;
-      return { ...missed, assisted: true, recovery: false, transfer: false, recheck: false, scaffoldText: missed.scaffoldText || explanationForMicro(missed.micro) };
+      return repair;
     }
     const ready = state.recoveries.findIndex(item => item.delay <= 0);
     if (ready >= 0) {
@@ -106,17 +107,19 @@ import { TEACHER_WEEK, explanationForMicro } from "./teacher-week.mjs?v=20260903
     state.answered = false;
     state.recentMicros.push(question.micro);
 
-    const stateLabel = question.assisted ? " · Guided" : question.recovery ? " · Try again" : question.recheck ? " · Check again" : "";
+    const stateLabel = question.repairOnly ? " · Quick fix" : question.assisted ? " · Guided" : question.recovery ? " · Try again" : question.recheck ? " · Check again" : "";
     $("#skill-tag").textContent = `${MICRO_SKILLS[question.micro].name}${stateLabel}`;
     $("#question-title").textContent = state.mode === "diagnostic"
       ? `Question ${state.index + 1} of ${state.queue.length}`
-      : question.assisted
-        ? "Guided step"
-        : question.recovery
-          ? "Try it again"
-          : question.recheck
-            ? "Check it again"
-            : `Question ${Math.min(state.independentCount + 1, PRACTICE_TARGET)}`;
+      : question.repairOnly
+        ? "Quick fix"
+        : question.assisted
+          ? "Guided step"
+          : question.recovery
+            ? "Try it again"
+            : question.recheck
+              ? "Check it again"
+              : `Question ${Math.min(state.independentCount + 1, PRACTICE_TARGET)}`;
     $("#question-body").innerHTML = question.prompt;
 
     const scaffold = $("#scaffold-note");
@@ -155,7 +158,7 @@ import { TEACHER_WEEK, explanationForMicro } from "./teacher-week.mjs?v=20260903
         ? `${completed} of ${count} complete`
         : `${Math.min(completed + 1, count)} of ${count}`;
     $("#progress-text").textContent = display;
-    $("#session-mode").textContent = state.mode === "diagnostic" ? "Starting check" : question?.assisted ? "Guided step" : question?.recovery ? "Independent retry" : question?.recheck ? "Independent recheck" : "Independent";
+    $("#session-mode").textContent = state.mode === "diagnostic" ? "Starting check" : question?.repairOnly ? "Quick misconception check" : question?.assisted ? "Guided step" : question?.recovery ? "Independent retry" : question?.recheck ? "Independent recheck" : "Independent";
     $("#progress-fill").style.width = `${Math.round((completed / count) * 100)}%`;
   }
 
@@ -166,13 +169,19 @@ import { TEACHER_WEEK, explanationForMicro } from "./teacher-week.mjs?v=20260903
     const raw = question.options ? state.selected : $("#answer-input")?.value;
     if (!raw) { announce("Choose or enter an answer first.", "bad"); return; }
 
-    const correct = isCorrectAnswer(raw, question), at = Date.now();
-    const attempt = { skill: question.skill, micro: question.micro, correct, assisted: question.assisted, recovery: question.recovery, recheck: !!question.recheck, difficulty: question.difficulty, transfer: question.transfer, date: today(), at, cloudId: `${at.toString(36)}-${Math.random().toString(36).slice(2, 8)}` };
-    const score = projectedScore(pdata(), attempt);
-    update(profile => {
-      profile.attempts.push(attempt);
-      if (attempt.recheck && !attempt.assisted) delete profile.rechecks?.[attempt.micro];
-    });
+    const correct = question.repairOnly ? normalize(raw) === normalize(question.answer) : isCorrectAnswer(raw, question);
+    const diagnosis = !correct && !question.repairOnly ? diagnoseMathError(raw, question) : null;
+    const at = Date.now();
+    const attempt = { skill: question.skill, micro: question.micro, correct, assisted: question.assisted, recovery: question.recovery, recheck: !!question.recheck, difficulty: question.difficulty, transfer: question.transfer, misconception: diagnosis?.key || null, repairOnly: !!question.repairOnly, date: today(), at, cloudId: `${at.toString(36)}-${Math.random().toString(36).slice(2, 8)}` };
+    let score = { before: microScore(pdata(), question.micro), after: microScore(pdata(), question.micro) };
+
+    if (!question.repairOnly) {
+      score = projectedScore(pdata(), attempt);
+      update(profile => {
+        profile.attempts.push(attempt);
+        if (attempt.recheck && !attempt.assisted) delete profile.rechecks?.[attempt.micro];
+      });
+    }
     state.results.push({ ...attempt, before: score.before, after: score.after });
 
     if (!question.assisted) {
@@ -180,19 +189,20 @@ import { TEACHER_WEEK, explanationForMicro } from "./teacher-week.mjs?v=20260903
       if (correct) state.correct += 1;
     }
     if (state.mode === "practice" && !correct && !question.assisted) {
-      state.immediateScaffold = question;
+      state.immediateScaffold = makeRepairQuestion(question, diagnosis);
       if (!state.recoveries.some(item => item.micro === question.micro)) state.recoveries.push({ micro: question.micro, delay: 1 });
     }
     state.answered = true;
 
     if (correct) {
-      const lead = question.assisted ? "Exactly." : question.recovery ? "You got it independently this time." : "Yes.";
-      const explanation = question.assisted ? question.why : `You used ${MICRO_SKILLS[question.micro].name.toLowerCase()} correctly.`;
+      const lead = question.repairOnly ? "Right idea." : question.assisted ? "Exactly." : question.recovery ? "You got it independently this time." : "Yes.";
+      const explanation = question.repairOnly || question.assisted ? question.why : `You used ${MICRO_SKILLS[question.micro].name.toLowerCase()} correctly.`;
       announce(`<strong>${lead}</strong><div>${explanation}</div><button class="primary-button" data-next>Next</button>`, "good");
     } else if (state.mode === "practice" && !question.assisted) {
-      const concept = explanationForMicro(question.micro);
-      const nextAction = question.workspace?.type === "place-value" ? "Show me with the place-value chart" : "Show me step by step";
-      announce(`<strong>Not yet. Here’s the idea.</strong><div class="worked">${concept}</div><div class="feedback-note">Now we’ll work through the same concept together, then you’ll try it independently again.</div><button class="primary-button" data-next>${nextAction}</button>`, "bad");
+      const message = diagnosis?.message || "There’s one idea to fix before you try this skill again.";
+      announce(`<strong>Not yet.</strong><div class="worked">${message}</div><div class="feedback-note">One quick tap question will fix the idea. You’ll prove it later on a fresh problem.</div><button class="primary-button" data-next>Fix this</button>`, "bad");
+    } else if (question.repairOnly) {
+      announce(`<strong>Here’s the key.</strong><div class="worked">${question.why}</div><div class="feedback-note">No need to repeat this item now. We’ll check the skill later with a fresh problem.</div><button class="primary-button" data-next>Continue</button>`, "bad");
     } else if (question.assisted && question.workspace?.type === "place-value") {
       announce(`<strong>Almost.</strong><div>Read the number you built on the chart carefully. The answer is ${question.answer}.</div><div class="worked">${question.why}</div><button class="primary-button" data-next>Continue</button>`, "bad");
     } else {
