@@ -1,15 +1,16 @@
-import { MICRO_SKILLS, diagnostic, isCorrectAnswer, normalize } from "./mission1-content.mjs?v=20260904-week4";
-import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260904-week4";
-import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, RECHECK_VERSION, diagnosticIsCurrent, difficultyForScore, microScore, migrateAffectedRechecks, nextMicro, pendingRechecks, projectedScore } from "./mission1-adaptive.mjs?v=20260904-week4";
+import { MICRO_SKILLS, diagnostic, isCorrectAnswer, normalize } from "./mission1-content.mjs?v=20260905-assessment1";
+import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260905-assessment1";
+import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, RECHECK_VERSION, diagnosticIsCurrent, difficultyForScore, microScore, migrateAffectedRechecks, nextMicro, pendingRechecks, projectedScore } from "./mission1-adaptive.mjs?v=20260905-assessment1";
+import { nextDivisionArchetype } from "./mission1-division-assessment.mjs?v=20260905-assessment1";
 import { createScratchpad } from "./mission1-scratch.mjs?v=20260901-mastery1";
 import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901-mastery1";
-import { TEACHER_WEEK } from "./teacher-week.mjs?v=20260904-week4";
+import { TEACHER_WEEK } from "./teacher-week.mjs?v=20260905-assessment1";
 import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosis.mjs?v=20260904-diagnosis1";
 
 "use strict";
 (() => {
   const KEY = "mathmission.m1.v1";
-  const state = { profile: null, mode: null, queue: [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [], answered: false };
+  const state = { profile: null, mode: null, queue: [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [], recentArchetypes: [], answered: false };
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
   const today = () => new Date().toISOString().slice(0, 10);
@@ -76,7 +77,7 @@ import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosi
   }
 
   function start(mode) {
-    Object.assign(state, { mode, queue: mode === "diagnostic" ? weeklyDiagnostic() : [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [], answered: false });
+    Object.assign(state, { mode, queue: mode === "diagnostic" ? weeklyDiagnostic() : [], index: 0, correct: 0, results: [], selected: null, independentCount: 0, immediateScaffold: null, recoveries: [], recentMicros: [], recentArchetypes: [], answered: false });
     if (mode === "practice") state.queue.push(nextAdaptiveQuestion());
     show("session");
     renderQuestion();
@@ -91,14 +92,19 @@ import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosi
     }
     const ready = state.recoveries.findIndex(item => item.delay <= 0);
     if (ready >= 0) {
-      const [{ micro }] = state.recoveries.splice(ready, 1);
-      return generateCurrentWeekQuestion(micro, difficultyForScore(microScore(profile, micro)), Math.random, { recovery: true });
+      const [{ micro, assessmentArchetype }] = state.recoveries.splice(ready, 1);
+      return generateCurrentWeekQuestion(micro, difficultyForScore(microScore(profile, micro)), Math.random, { recovery: true, assessmentArchetype });
     }
     state.recoveries.forEach(item => { item.delay -= 1; });
     const avoid = [...state.recentMicros.slice(-2), ...state.recoveries.map(item => item.micro)];
     const micro = nextMicro(profile, { avoid });
     const recheck = pendingRechecks(profile).includes(micro);
-    return { ...generateCurrentWeekQuestion(micro, difficultyForScore(microScore(profile, micro))), recheck };
+    const flags = {};
+    if (micro === "decimal_divide") {
+      const avoidArchetypes = [...state.recentArchetypes.slice(-2), ...state.recoveries.map(item => item.assessmentArchetype).filter(Boolean)];
+      flags.assessmentArchetype = nextDivisionArchetype(profile, { avoid: avoidArchetypes });
+    }
+    return { ...generateCurrentWeekQuestion(micro, difficultyForScore(microScore(profile, micro)), Math.random, flags), recheck };
   }
 
   function renderQuestion() {
@@ -106,6 +112,7 @@ import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosi
     state.selected = null;
     state.answered = false;
     state.recentMicros.push(question.micro);
+    if (question.assessmentArchetype) state.recentArchetypes.push(question.assessmentArchetype);
 
     const stateLabel = question.repairOnly ? " · Quick fix" : question.assisted ? " · Guided" : question.recovery ? " · Try again" : question.recheck ? " · Check again" : "";
     $("#skill-tag").textContent = `${MICRO_SKILLS[question.micro].name}${stateLabel}`;
@@ -172,7 +179,7 @@ import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosi
     const correct = question.repairOnly ? normalize(raw) === normalize(question.answer) : isCorrectAnswer(raw, question);
     const diagnosis = !correct && !question.repairOnly ? diagnoseMathError(raw, question) : null;
     const at = Date.now();
-    const attempt = { skill: question.skill, micro: question.micro, correct, assisted: question.assisted, recovery: question.recovery, recheck: !!question.recheck, difficulty: question.difficulty, transfer: question.transfer, misconception: diagnosis?.key || null, repairOnly: !!question.repairOnly, date: today(), at, cloudId: `${at.toString(36)}-${Math.random().toString(36).slice(2, 8)}` };
+    const attempt = { skill: question.skill, micro: question.micro, assessmentArchetype: question.assessmentArchetype || null, correct, assisted: question.assisted, recovery: question.recovery, recheck: !!question.recheck, difficulty: question.difficulty, transfer: question.transfer, misconception: diagnosis?.key || null, repairOnly: !!question.repairOnly, date: today(), at, cloudId: `${at.toString(36)}-${Math.random().toString(36).slice(2, 8)}` };
     let score = { before: microScore(pdata(), question.micro), after: microScore(pdata(), question.micro) };
 
     if (!question.repairOnly) {
@@ -190,7 +197,8 @@ import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosi
     }
     if (state.mode === "practice" && !correct && !question.assisted) {
       state.immediateScaffold = makeRepairQuestion(question, diagnosis);
-      if (!state.recoveries.some(item => item.micro === question.micro)) state.recoveries.push({ micro: question.micro, delay: 1 });
+      const sameRecovery = state.recoveries.some(item => item.micro === question.micro && item.assessmentArchetype === (question.assessmentArchetype || null));
+      if (!sameRecovery) state.recoveries.push({ micro: question.micro, assessmentArchetype: question.assessmentArchetype || null, delay: 1 });
     }
     state.answered = true;
 
