@@ -91,6 +91,18 @@ for (const route of ['study/unit-1/index.html']) {
   const html=fs.readFileSync(target,'utf8').replace(/((?:app|game-art|quality-core|sfx-bank|audio-unlock|unit1-contexts|aaa-polish|aaa-collection|monster-banter)\.(?:js|css))(?=")/g,`$1?v=${studyVersion}`).replace('<html lang="en">',`<html lang="en" data-study-build="${studyVersion}">`);
   fs.writeFileSync(target,html);
 }
+
+// Keep the legacy single-file States game intact in source, but layer the
+// current school scoring contract into the production artifact. The test
+// always samples all 50 states; only the required score changes by date.
+const statesHtml = path.join(dist, 'study', 'us-states.html');
+if (fs.existsSync(statesHtml)) {
+  const contractScript = '<script src="us-states-school-target.js"></script>';
+  let html = fs.readFileSync(statesHtml, 'utf8');
+  if (!html.includes(contractScript)) html = html.replace('</body>', `${contractScript}\n</body>`);
+  fs.writeFileSync(statesHtml, html);
+}
+
 // Engineering handoffs and prompt provenance belong in source, not the family app.
 for (const file of ['QUALITY_PLAN.md','QUALITY_HANDOFF.md','GAME_PLAN.md','STUDY_CONTRACT.md','unit-1/assets/PROVENANCE.md']) {
   const target=path.join(dist,'study',file);if(fs.existsSync(target))fs.unlinkSync(target);
