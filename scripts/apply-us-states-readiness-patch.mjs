@@ -74,29 +74,22 @@ replaceOnce(
 );
 
 replaceOnce(
+`function quickRoundStates(p, n) {`,
 `function quickRoundStates(p, n) {
-  var mastered = [], learning = [];`,
-`function quickRoundStates(p, n) {
-  var mastered = [], learning = [];
   var now = Date.now();`,
 "quick round time anchor"
 );
 
 replaceOnce(
-`      streak: st ? st.streak : 0,
-      jitter: Math.random()`,
-`      streak: st ? st.streak : 0,
-      retrieval: retrievalPriority(st, now),
+`      jitter: Math.random()`,
+`      retrieval: retrievalPriority(st, now),
       jitter: Math.random()`,
 "quick round readiness field"
 );
 
 replaceOnce(
-`  // Among mastered states, favour the ones practised least recently.
-  mastered.sort(function(a, b) { return a.jitter - b.jitter; });`,
-`  // Among mastered states, favour stale retrieval and recent misses while
-  // keeping earned mastery intact. Randomness only breaks near-ties.
-  mastered.sort(function(a, b) {
+`  mastered.sort(function(a, b) { return a.jitter - b.jitter; });`,
+`  mastered.sort(function(a, b) {
     if (Math.abs(b.retrieval - a.retrieval) > 0.25) return b.retrieval - a.retrieval;
     return a.jitter - b.jitter;
   });`,
@@ -104,10 +97,8 @@ replaceOnce(
 );
 
 replaceOnce(
-`      wrong: Math.max(sa.wrong, sb.wrong),
-      mastered: sa.mastered || sb.mastered`,
-`      wrong: Math.max(sa.wrong, sb.wrong),
-      mastered: sa.mastered || sb.mastered,
+`      mastered: sa.mastered || sb.mastered`,
+`      mastered: sa.mastered || sb.mastered,
       lastSeenAt: Math.max(Number(sa.lastSeenAt) || 0, Number(sb.lastSeenAt) || 0),
       lastCorrectAt: Math.max(Number(sa.lastCorrectAt) || 0, Number(sb.lastCorrectAt) || 0),
       lastMissAt: Math.max(Number(sa.lastMissAt) || 0, Number(sb.lastMissAt) || 0)`,
