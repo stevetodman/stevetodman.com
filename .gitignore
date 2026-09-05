@@ -5,5 +5,8 @@ node_modules/
 package-lock.json
 !cardio-hospital-3d/package-lock.json
 
+# Generated HospitalSim Phase 1 visual proof assets
+/cardio-hospital-3d/public/assets/hospital/astra-proof/
+
 # Generated deploy artifact
 /dist/
