@@ -6,6 +6,7 @@
   var PROFILES={luke:"math-mission-luke",samantha:"math-mission-samantha"};
   var VALID_SKILLS=["place","forms","round","addsub","multiply","divide"];
   var VALID_MICROS=["place_digit","place_value","powers_multiply","powers_divide","metric_conversion","decimal_forms","decimal_compare","decimal_round","decimal_add","decimal_subtract","decimal_multiply","decimal_divide"];
+  var VALID_ARCHETYPES=["division_units","division_decompose","division_scale_relation","division_reasonableness","division_model","division_algorithm","division_regroup","division_error_analysis","division_word_one_step","division_multistep","division_context_result","tape_diagram_transfer","metric_embedded"];
   var VALID_MISCONCEPTIONS=["place_sequence","digit_vs_value","place_value","power10_direction","power10_shift_count","power10_structure","metric_direction","metric_scale","expanded_form_notation","expanded_place_value","decimal_compare_place_value","rounding_truncated","rounding_place","decimal_alignment","decimal_magnitude","operation_arithmetic","multistep_skipped_subtraction","multistep_sequence","recheck_strategy"];
   var STARSHIP_HULLS=["comet-scout","solar-wing","nebula-runner"],STARSHIP_TRAILS=["ion-wake","meteor-wake","aurora-wake"],STARSHIP_COMPANIONS=["none","orbit-bot","beacon-drone"];
   var STARSHIP_PURCHASES=["solar-wing","nebula-runner","meteor-wake","aurora-wake","orbit-bot","beacon-drone"];
@@ -35,8 +36,11 @@
         var date=/^\d{4}-\d{2}-\d{2}$/.test(a.date)?a.date:"unknown",at=Number(a.at)||0,id=safeId(a.cloudId);
         if(!id){id=at+"-"+i;a.cloudId=id;changed=true}
         var misconception=VALID_MISCONCEPTIONS.indexOf(a.misconception)>=0?a.misconception:"";
+        var archetype=VALID_ARCHETYPES.indexOf(a.assessmentArchetype)>=0?a.assessmentArchetype:"";
         var key;
-        if(VALID_MICROS.indexOf(a.micro)>=0&&misconception){
+        if(VALID_MICROS.indexOf(a.micro)>=0&&archetype){
+          key=["math1e",a.skill,a.micro,archetype,a.correct?1:0,a.assisted?1:0,a.recovery?1:0,Math.max(1,Math.min(3,Number(a.difficulty)||1)),a.transfer?1:0,a.recheck?1:0,misconception,date,at,id].join("|");
+        }else if(VALID_MICROS.indexOf(a.micro)>=0&&misconception){
           key=["math1d",a.skill,a.micro,a.correct?1:0,a.assisted?1:0,a.recovery?1:0,Math.max(1,Math.min(3,Number(a.difficulty)||1)),a.transfer?1:0,a.recheck?1:0,misconception,date,at,id].join("|");
         }else if(VALID_MICROS.indexOf(a.micro)>=0){
           key=[a.recheck?"math1c":"math1b",a.skill,a.micro,a.correct?1:0,a.assisted?1:0,a.recovery?1:0,Math.max(1,Math.min(3,Number(a.difficulty)||1)),a.transfer?1:0,a.recheck?1:0,date,at,id].filter(function(part,index){return a.recheck||index!==8}).join("|");
@@ -88,6 +92,9 @@
         }else if(parts[0]==="math1d"&&parts.length===13&&VALID_SKILLS.indexOf(parts[1])>=0&&VALID_MICROS.indexOf(parts[2])>=0&&VALID_MISCONCEPTIONS.indexOf(parts[9])>=0&&st.mastered){
           var diagnosisId=safeId(parts[12]);if(!diagnosisId||seen.has(diagnosisId))return;seen.add(diagnosisId);
           p.attempts.push({skill:parts[1],micro:parts[2],correct:parts[3]==="1",assisted:parts[4]==="1",recovery:parts[5]==="1",difficulty:Math.max(1,Math.min(3,Number(parts[6])||1)),transfer:parts[7]==="1",recheck:parts[8]==="1",misconception:parts[9],date:/^\d{4}-\d{2}-\d{2}$/.test(parts[10])?parts[10]:"unknown",at:Number(parts[11])||0,cloudId:diagnosisId});
+        }else if(parts[0]==="math1e"&&parts.length===14&&VALID_SKILLS.indexOf(parts[1])>=0&&VALID_MICROS.indexOf(parts[2])>=0&&VALID_ARCHETYPES.indexOf(parts[3])>=0&&(!parts[10]||VALID_MISCONCEPTIONS.indexOf(parts[10])>=0)&&st.mastered){
+          var assessmentId=safeId(parts[13]);if(!assessmentId||seen.has(assessmentId))return;seen.add(assessmentId);
+          p.attempts.push({skill:parts[1],micro:parts[2],assessmentArchetype:parts[3],correct:parts[4]==="1",assisted:parts[5]==="1",recovery:parts[6]==="1",difficulty:Math.max(1,Math.min(3,Number(parts[7])||1)),transfer:parts[8]==="1",recheck:parts[9]==="1",misconception:parts[10]||null,date:/^\d{4}-\d{2}-\d{2}$/.test(parts[11])?parts[11]:"unknown",at:Number(parts[12])||0,cloudId:assessmentId});
         }
       });
       g.updatedAt=gameUpdatedAt;
