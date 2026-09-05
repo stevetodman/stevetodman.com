@@ -92,12 +92,12 @@ for (const route of ['study/unit-1/index.html']) {
   fs.writeFileSync(target,html);
 }
 
-// Keep the legacy single-file States game intact in source, but layer the
-// current school scoring contract into the production artifact. The test
-// always samples all 50 states; only the required score changes by date.
+// The legacy States page remains the stable practice engine. This small,
+// canonical school-assessment layer owns the current classroom test contract:
+// one blank map, all 50 states, location + spelling, with date-based score goals.
 const statesHtml = path.join(dist, 'study', 'us-states.html');
 if (fs.existsSync(statesHtml)) {
-  const contractScript = '<script src="us-states-school-target.js"></script>';
+  const contractScript = '<script src="us-states-school-target.js?v=20260905-authentic1"></script>';
   let html = fs.readFileSync(statesHtml, 'utf8');
   if (!html.includes(contractScript)) html = html.replace('</body>', `${contractScript}\n</body>`);
   fs.writeFileSync(statesHtml, html);

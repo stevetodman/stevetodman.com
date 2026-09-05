@@ -5,6 +5,8 @@ on:
   pull_request:
     paths:
       - 'study/us-states.html'
+      - 'study/us-states-school-target.js'
+      - 'scripts/build-site.mjs'
       - 'tests/us-states-readiness.test.mjs'
       - 'tests/us-states-phone.test.mjs'
       - 'tests/helpers/harness.mjs'
@@ -14,6 +16,8 @@ on:
       - main
     paths:
       - 'study/us-states.html'
+      - 'study/us-states-school-target.js'
+      - 'scripts/build-site.mjs'
       - 'tests/us-states-readiness.test.mjs'
       - 'tests/us-states-phone.test.mjs'
       - 'tests/helpers/harness.mjs'
