@@ -32,14 +32,20 @@ test("difficulty responds to current skill level", () => {
   assert.equal(difficultyForScore(75), 3);
 });
 
-test("adaptive scope matches Week 4 instruction, quiz review, and standards maintenance", () => {
+test("adaptive scope prioritizes the imminent Lessons 13-16 assessment without ignoring real gaps", () => {
   assert.deepEqual(CURRENT_WEEK_MICROS, ["decimal_divide", "decimal_add", "decimal_subtract", "decimal_multiply", "powers_multiply", "powers_divide"]);
   assert.deepEqual(REVIEW_MICROS, ["place_digit", "place_value", "metric_conversion", "decimal_forms", "decimal_compare", "decimal_round"]);
-  assert.equal(nextMicro({ attempts: [] }), "decimal_divide", "new Lessons 13-16 content should lead a fresh Week 4 profile");
+  assert.equal(nextMicro({ attempts: [] }), "decimal_divide", "new Lessons 13-16 content should lead a fresh profile");
 
-  const attempts = [attempt("decimal_divide", true, { at: 1 }), attempt("decimal_add", false, { at: 2 })];
-  assert.equal(nextMicro({ attempts }), "decimal_add");
-  assert.notEqual(nextMicro({ attempts }, { avoid: ["decimal_add"] }), "decimal_add");
+  const mildMaintenanceGap = [
+    attempt("decimal_divide", true, { assessmentArchetype: "division_units", at: 1 }),
+    attempt("decimal_add", false, { at: 2 })
+  ];
+  assert.equal(nextMicro({ attempts: mildMaintenanceGap }), "decimal_divide", "one maintenance miss should not crowd out an imminent under-sampled assessment");
+  assert.notEqual(nextMicro({ attempts: mildMaintenanceGap }, { avoid: ["decimal_divide"] }), "decimal_divide", "recent-question spacing still applies");
+
+  const severeMaintenanceGap = [...mildMaintenanceGap, attempt("decimal_add", false, { at: 3 })];
+  assert.equal(nextMicro({ attempts: severeMaintenanceGap }), "decimal_add", "a demonstrated severe gap should still override assessment weighting");
 });
 
 test("a demonstrated Week 1-3 gap can return as spaced remediation", () => {
@@ -51,13 +57,13 @@ test("a demonstrated Week 1-3 gap can return as spaced remediation", () => {
   assert.equal(nextMicro(profile), "decimal_round");
 });
 
-test("current Week 4 weakness remains eligible and outranks secure current skills", () => {
+test("current assessment weakness remains eligible and outranks secure current skills", () => {
   const attempts = [];
   for (const micro of CURRENT_WEEK_MICROS) {
     attempts.push(attempt(micro, true, { difficulty: 3, at: attempts.length + 1 }));
   }
-  attempts.push(attempt("decimal_divide", false, { difficulty: 3, at: 100 }));
-  attempts.push(attempt("decimal_divide", false, { difficulty: 3, at: 101 }));
+  attempts.push(attempt("decimal_divide", false, { difficulty: 3, assessmentArchetype: "division_algorithm", at: 100 }));
+  attempts.push(attempt("decimal_divide", false, { difficulty: 3, assessmentArchetype: "division_algorithm", at: 101 }));
   assert.equal(nextMicro({ attempts }), "decimal_divide");
 });
 

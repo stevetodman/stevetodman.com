@@ -1,6 +1,6 @@
-import { formatDecimal, generate as generateModuleQuestion } from "./mission1-content.mjs";
-import { generateDivisionAssessmentQuestion } from "./mission1-division-assessment.mjs";
-import { isTeacherAllowedMicro } from "./teacher-week.mjs";
+import { formatDecimal, generate as generateModuleQuestion } from "./mission1-content.mjs?v=20260905-assessment2";
+import { generateDivisionAssessmentQuestion } from "./mission1-division-assessment.mjs?v=20260905-assessment2";
+import { isTeacherAllowedMicro } from "./teacher-week.mjs?v=20260905-assessment2";
 
 const CUSTOM_WEEKLY_MICROS = new Set(["powers_multiply", "powers_divide", "decimal_divide"]);
 const randomInt = (random, min, max) => Math.floor(random() * (max - min + 1)) + min;

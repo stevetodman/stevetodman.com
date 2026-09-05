@@ -1,10 +1,10 @@
-import { MICRO_SKILLS, diagnostic, isCorrectAnswer, normalize } from "./mission1-content.mjs?v=20260905-assessment1";
-import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260905-assessment1";
-import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, RECHECK_VERSION, diagnosticIsCurrent, difficultyForScore, microScore, migrateAffectedRechecks, nextMicro, pendingRechecks, projectedScore } from "./mission1-adaptive.mjs?v=20260905-assessment1";
-import { nextDivisionArchetype } from "./mission1-division-assessment.mjs?v=20260905-assessment1";
+import { MICRO_SKILLS, diagnostic, isCorrectAnswer, normalize } from "./mission1-content.mjs?v=20260905-assessment2";
+import { generateCurrentWeekQuestion } from "./mission1-current-week.mjs?v=20260905-assessment2";
+import { DIAGNOSTIC_VERSION, PRACTICE_MAX, PRACTICE_TARGET, RECHECK_VERSION, diagnosticIsCurrent, difficultyForScore, microScore, migrateAffectedRechecks, nextMicro, pendingRechecks, projectedScore } from "./mission1-adaptive.mjs?v=20260905-assessment2";
+import { nextDivisionArchetype } from "./mission1-division-assessment.mjs?v=20260905-assessment2";
 import { createScratchpad } from "./mission1-scratch.mjs?v=20260901-mastery1";
 import { createPlaceValueWorkspace } from "./mission1-place-value.mjs?v=20260901-mastery1";
-import { TEACHER_WEEK } from "./teacher-week.mjs?v=20260905-assessment1";
+import { TEACHER_WEEK } from "./teacher-week.mjs?v=20260905-assessment2";
 import { diagnoseMathError, makeRepairQuestion } from "./mission1-error-diagnosis.mjs?v=20260904-diagnosis1";
 
 "use strict";
